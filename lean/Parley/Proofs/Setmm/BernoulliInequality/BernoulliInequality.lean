@@ -2,27 +2,21 @@ module
 
 public import AlgebraTactics
 public import Functions
-public import NormTactics
 public import OrderTactics
 public import PowerTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct
@@ -49,7 +43,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       all_goals parley_side
     | succ k hK hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
-      have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)); parley_side)
+      have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side))
       -- 1.4. inequalities
       have s1_4 : 0 ≤ A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) := by parley_order
       set X : ℝ := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) with hD1
@@ -60,9 +54,9 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
         try push_cast at *
         first | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4)] | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4) | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); parley_side)
       -- 1.6. mun:square-nonneg x := A − 1
-      have s1_6 : 0 ≤ (A - 1) ^ 2 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1)); parley_side)
+      have s1_6 : 0 ≤ (A - 1) ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))
       -- 1.7. thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6
-      have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by first | linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side))] | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side)) | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side)); parley_side)
+      have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side))
       -- 1.8. algebra, from D1
       have s1_8 : A ^ k.toNat * A - ((A - 1) * ((k : ℝ) + 1) + 1) = A * X + (A - 1) ^ 2 * (k : ℝ) := by
         try simp only [hD1] at *

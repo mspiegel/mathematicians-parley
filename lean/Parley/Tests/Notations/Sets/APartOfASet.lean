@@ -24,7 +24,7 @@ theorem a_part_of_a_set :
   -- 1. arithmetic
   have s1 : (1 : ℤ) = 1 := by parley_arith
   -- 2. mun:or-left, from 1
-  have s2 : (1 : ℤ) = 1 ∨ (1 : ℤ) = 2 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) s1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) s1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) s1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) s1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) s1); parley_set_side)
+  have s2 : (1 : ℤ) = 1 ∨ (1 : ℤ) = 2 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) s1)
   -- 3. def:pair x := 1, u := 1, w := 2, from 2
   have s3 : (1 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (1 : ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (1 : ℤ)))).mpr (by parley_set_side); parley_set_side)
   -- 4. mun:singleton-subset a := 1, X := {1, 2}, from 3

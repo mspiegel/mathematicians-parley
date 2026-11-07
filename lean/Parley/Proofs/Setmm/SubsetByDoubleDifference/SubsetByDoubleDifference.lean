@@ -45,7 +45,7 @@ theorem subset_by_double_difference {α : Type*} (A : Set α) (B : Set α) :
       have s3 : ∀ t ∈ A, t ∈ B \ (B \ A) := by
         intro t hK2
         -- 3.1. mun:in-subset X := A, Y := B, u := t, from D1, K2
-        have s3_1 : t ∈ B := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2); parley_set_side)
+        have s3_1 : t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2)
         -- 3.2. contradiction
         have s3_2 : ¬ t ∈ B \ A := by
           by_contra hc_hS2
@@ -62,12 +62,12 @@ theorem subset_by_double_difference {α : Type*} (A : Set α) (B : Set α) :
       -- 4. def:subset, from 3
       have s4 : A ⊆ B \ (B \ A) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B \ (B \ A)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B \ (B \ A)))).mpr (by parley_set_side); parley_set_side)
       -- 5. mun:subset-antisymmetric, from 2, 4
-      have s5 : B \ (B \ A) = A := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := B \ (B \ A)) (Y := A) s2 s4) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := B \ (B \ A)) (Y := A) s2 s4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := B \ (B \ A)) (Y := A) s2 s4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := B \ (B \ A)) (Y := A) s2 s4) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := B \ (B \ A)) (Y := A) s2 s4); parley_set_side)
+      have s5 : B \ (B \ A) = A := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := B \ (B \ A)) (Y := A) s2 s4)
       all_goals parley_set_side
     · skip
       intro hD2
       -- 6. mun:difference-subset X := B, Y := B ∖ A
-      have s6 : B \ (B \ A) ⊆ B := by first | exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := B \ A)) | exact ((Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := B \ A))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := B \ A)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := B \ A)) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := B \ A)); parley_set_side)
+      have s6 : B \ (B \ A) ⊆ B := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := B \ A))
       -- 7. substitute B ∖ (B ∖ A) = A (D2) into line 6
       have s7 : A ⊆ B := by parley_subst_at hD2 s6
       all_goals parley_set_side

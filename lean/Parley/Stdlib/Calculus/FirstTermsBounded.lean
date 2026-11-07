@@ -96,7 +96,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
           rcases s1_8_2 with hC1 | hC2
           · skip
             -- 1.8.4.1. mun:integer-step n := K + 1, from C1
-            have s1_8_4_1 : m + 1 ≤ K + 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := K + 1) hC1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := K + 1) hC1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := K + 1) hC1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := K + 1) hC1); parley_side)
+            have s1_8_4_1 : m + 1 ≤ K + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := K + 1) hC1)
             -- 1.8.4.2. inequalities
             have s1_8_4_2 : m ≤ K := by parley_order
             -- 1.8.4.3. def:range n := K, k := m, from 1.8.4.2

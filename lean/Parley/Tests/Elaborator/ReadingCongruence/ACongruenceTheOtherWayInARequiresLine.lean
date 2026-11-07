@@ -1,7 +1,5 @@
 module
 
-public import NormTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -9,14 +7,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/reading-congruence.proof by parley build lean. -/
@@ -29,7 +24,7 @@ theorem a_congruence_the_other_way_in_a_requires_line (n : ℤ) (hH1 : 0 < n) (x
     x = y := by
   -- 1. mun:congruent-in-range, from H2, H3
   have r41_1 : x ≡ y [ZMOD n] := by parley_side
-  have s1 : x = y := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side)); parley_side)
+  have s1 : x = y := by exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side))
   all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayInARequiresLine

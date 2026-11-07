@@ -11,7 +11,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Insert
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -20,7 +19,6 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
-public import Mathlib.Tactic.Tauto
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Reasoning
@@ -59,13 +57,13 @@ theorem two_elements {α : Type*} (V : Set α) :
       have s7 : ∀ t ∈ V, t ∈ ({a, b} : Set α) := by
         intro t hK1
         -- 7.1. axi:excluded-middle P := t = b
-        have s7_1 : t = b ∨ ¬ t = b := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = b)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = b))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = b)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = b)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = b)); parley_set_side)
+        have s7_1 : t = b ∨ ¬ t = b := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = b))
         -- 7.2. cases, from 7.1
         have s7_2 : t ∈ ({a, b} : Set α) := by
           rcases s7_1 with hC2 | hC3
           · skip
             -- 7.2.1. mun:or-right P := t = a, Q := t = b, from C2
-            have s7_2_1 : t = a ∨ t = b := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := t = a) (Q := t = b) hC2) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := t = a) (Q := t = b) hC2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := t = a) (Q := t = b) hC2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := t = a) (Q := t = b) hC2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := t = a) (Q := t = b) hC2); parley_set_side)
+            have s7_2_1 : t = a ∨ t = b := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := t = a) (Q := t = b) hC2)
             -- 7.2.2. def:pair x := t, u := a, w := b, from 7.2.1
             have s7_2_2 : t ∈ ({a, b} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr (by parley_set_side); parley_set_side)
             all_goals parley_set_side
@@ -73,13 +71,13 @@ theorem two_elements {α : Type*} (V : Set α) :
             -- 7.2.3. mun:remove-member u := t, Y := V, a := b, from C3, K1
             have s7_2_3 : t ∈ V \ ({b} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := t))).mpr (by parley_set_side); parley_set_side)
             -- 7.2.4. axi:excluded-middle P := t = a
-            have s7_2_4 : t = a ∨ ¬ t = a := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a)); parley_set_side)
+            have s7_2_4 : t = a ∨ ¬ t = a := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a))
             -- 7.2.5. cases, from 7.2.4
             have s7_2_5 : t ∈ ({a, b} : Set α) := by
               rcases s7_2_4 with hC4 | hC5
               · skip
                 -- 7.2.5.1. mun:or-left P := t = a, Q := t = b, from C4
-                have s7_2_5_1 : t = a ∨ t = b := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := t = a) (Q := t = b) hC4) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := t = a) (Q := t = b) hC4)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := t = a) (Q := t = b) hC4) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := t = a) (Q := t = b) hC4) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := t = a) (Q := t = b) hC4); parley_set_side)
+                have s7_2_5_1 : t = a ∨ t = b := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := t = a) (Q := t = b) hC4)
                 -- 7.2.5.2. def:pair x := t, u := a, w := b, from 7.2.5.1
                 have s7_2_5_2 : t ∈ ({a, b} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr (by parley_set_side); parley_set_side)
                 all_goals parley_set_side
@@ -88,7 +86,7 @@ theorem two_elements {α : Type*} (V : Set α) :
                 have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side); parley_set_side)
                 -- 7.2.5.4. substitute
                 have s7_2_5_4 : t ∈ (∅ : Set α) := by parley_count_after (by
-                  have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by first | exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6) | exact ((Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6) | (have h := (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6); parley_set_side)
+                  have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6)
                   have row1 : t ∈ (∅ : Set α) := by parley_subst_at c1 s7_2_5_3
                   exact row1)
                 -- 7.2.5.5. inspection
@@ -99,9 +97,9 @@ theorem two_elements {α : Type*} (V : Set α) :
       -- 8. def:subset X := V, Y := {a, b}, from 7
       have s8 : V ⊆ ({a, b} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := V) (Y := ({a, b} : Set α)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := V) (Y := ({a, b} : Set α)))).mpr (by parley_set_side); parley_set_side)
       -- 9. mun:pair-subset X := V, from 2, 5
-      have s9 : ({a, b} : Set α) ⊆ V := by first | exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2) | exact ((Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2) | (have h := (Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2); parley_set_side)
+      have s9 : ({a, b} : Set α) ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2)
       -- 10. mun:subset-antisymmetric X := V, Y := {a, b}, from 8, 9
-      have s10 : V = ({a, b} : Set α) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9); ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9); parley_set_side)
+      have s10 : V = ({a, b} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9)
       -- 11. exhibit, from 2, 5, 10
       have s11 : ∃ a ∈ V, ∃ b ∈ V, ¬ a = b ∧ V = ({a, b} : Set α) := ⟨b, by parley_set_side, a, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
       all_goals parley_set_side

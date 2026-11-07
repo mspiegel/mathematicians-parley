@@ -42,7 +42,7 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
     have s2_3 : A ≠ 0 := by parley_side
     all_goals parley_side
   -- 3. axi:trichotomy x := p
-  have s3 : (p < 0 ∨ p = 0) ∨ 0 < p := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p)) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p)); parley_side)
+  have s3 : (p < 0 ∨ p = 0) ∨ 0 < p := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p))
   -- 4. cases, from 3
   -- what this block shows, Lean's types give
   all_goals parley_side

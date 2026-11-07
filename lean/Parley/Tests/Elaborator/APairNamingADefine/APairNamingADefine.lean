@@ -26,7 +26,7 @@ theorem a_pair_naming_a_define {α : Type*} (X : Set α) (a : α) (hH3 : ∀ S �
   have s2 : ∃ g : Set α → Set α, Set.BijOn g (𝒫 X) ((fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 X)) := by
     try simp only [hD1] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) (by parley_set_side)); parley_set_side)
+    exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) (by parley_set_side))
   all_goals exact s2
 
 end Parley.Tests.Elaborator.APairNamingADefine.APairNamingADefine

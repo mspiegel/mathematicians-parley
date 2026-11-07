@@ -45,7 +45,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
   -- 3. obtain N from line 2
   obtain ⟨N, s3a, s3b⟩ := s2
   -- 4. mun:first-terms-bounded
-  have s4 : ∀ K : ℤ, 0 < K → (∃ C : ℝ, ∀ m : ℤ, m ∈ Finset.Icc 1 K → abs (x m) ≤ C) := by first | exact (Parley.Items.Stdlib.Calculus.mun_first_terms_bounded (x := x)) | exact ((Parley.Items.Stdlib.Calculus.mun_first_terms_bounded (x := x))).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_first_terms_bounded (x := x)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_first_terms_bounded (x := x)) | (have h := (Parley.Items.Stdlib.Calculus.mun_first_terms_bounded (x := x)); parley_side)
+  have s4 : ∀ K : ℤ, 0 < K → (∃ C : ℝ, ∀ m : ℤ, m ∈ Finset.Icc 1 K → abs (x m) ≤ C) := by exact (Parley.Items.Stdlib.Calculus.mun_first_terms_bounded (x := x))
   -- 5. instantiate K := N in line 4
   have s5 : ∃ C : ℝ, ∀ i : ℤ, i ∈ Finset.Icc 1 N → abs (x i) ≤ C := by first | exact (s4 N (by parley_side)) | exact ((s4 N (by parley_side))).symm | simpa using (s4 N (by parley_side)) | exact_mod_cast (s4 N (by parley_side)) | (have h := (s4 N (by parley_side)); parley_side)
   -- 6. obtain C from line 5
@@ -68,7 +68,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
     intro m hK1
     -- 10.1. mun:abs-real x := x(m), from H1
     -- 10.2. axi:excluded-middle P := m ≤ N
-    have s10_2 : m ≤ N ∨ ¬ m ≤ N := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m ≤ N)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m ≤ N))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m ≤ N)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m ≤ N)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m ≤ N)); parley_side)
+    have s10_2 : m ≤ N ∨ ¬ m ≤ N := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m ≤ N))
     -- 10.3. cases, from 10.2
     have s10_3 : abs (x m) ≤ B := by
       rcases s10_2 with hC1 | hC2
@@ -88,7 +88,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
         -- 10.3.6. instantiate n := m in line 3, from 10.3.5
         have s10_3_6 : abs (x m - L) < 1 := by first | linarith [(s3b m (by parley_side) (by parley_side))] | (have h := (s3b m (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s3b m (by parley_side) (by parley_side)) | (have h := (s3b m (by parley_side) (by parley_side)); parley_side)
         -- 10.3.7. thm:triangle-inequality a := x(m) − L, b := L
-        have s10_3_7 : abs (x m - L + L) ≤ abs (x m - L) + abs L := by first | linarith [(Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L))] | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L)) | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L)); parley_side)
+        have s10_3_7 : abs (x m - L + L) ≤ abs (x m - L) + abs L := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L))
         -- 10.3.8. substitute
         have s10_3_8 : abs (x m) ≤ abs (x m - L) + abs L := by
           have c1 : x m - L + L = x m := by parley_ring

@@ -26,7 +26,7 @@ set_option maxHeartbeats 400000 in
 theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
     (P = 2 ∨ Odd P) := by
   -- 1. mun:even-or-odd n := P
-  have s1 : Even P ∨ Odd P := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := P)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := P))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := P)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := P)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := P)); parley_side)
+  have s1 : Even P ∨ Odd P := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := P))
   -- 2. cases, from 1
   have s2 : P = 2 ∨ Odd P := by
     rcases s1 with hC1 | hC2
@@ -40,7 +40,7 @@ theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
       -- 2.4. instantiate d := 2 in line 2.3
       have s2_4 : (2 : ℤ) ∣ P → (2 : ℤ) = 1 ∨ 2 = P := by first | exact (s2_3 (2 : ℤ) (by parley_side)) | exact ((s2_3 (2 : ℤ) (by parley_side))).symm | simpa using (s2_3 (2 : ℤ) (by parley_side)) | exact_mod_cast (s2_3 (2 : ℤ) (by parley_side)) | (have h := (s2_3 (2 : ℤ) (by parley_side)); parley_side)
       -- 2.5. mun:modus-ponens, from 2.2, 2.4
-      have s2_5 : (2 : ℤ) = 1 ∨ 2 = P := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ P) (Q := (2 : ℤ) = 1 ∨ 2 = P) s2_4 s2_2) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ P) (Q := (2 : ℤ) = 1 ∨ 2 = P) s2_4 s2_2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ P) (Q := (2 : ℤ) = 1 ∨ 2 = P) s2_4 s2_2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ P) (Q := (2 : ℤ) = 1 ∨ 2 = P) s2_4 s2_2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ P) (Q := (2 : ℤ) = 1 ∨ 2 = P) s2_4 s2_2); parley_side)
+      have s2_5 : (2 : ℤ) = 1 ∨ 2 = P := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ P) (Q := (2 : ℤ) = 1 ∨ 2 = P) s2_4 s2_2)
       -- 2.6. cases, from 2.5
       have s2_6 : 2 = P := by
         rcases s2_5 with hC3 | hC4
@@ -53,11 +53,11 @@ theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
       -- 2.7. restate 2.6
       have s2_7 : P = 2 := by parley_side
       -- 2.8. mun:or-left P := P = 2, Q := P is odd, from 2.7
-      have s2_8 : P = 2 ∨ Odd P := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := P = 2) (Q := Odd P) s2_7) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := P = 2) (Q := Odd P) s2_7)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := P = 2) (Q := Odd P) s2_7) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := P = 2) (Q := Odd P) s2_7) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := P = 2) (Q := Odd P) s2_7); parley_side)
+      have s2_8 : P = 2 ∨ Odd P := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := P = 2) (Q := Odd P) s2_7)
       all_goals parley_side
     · skip
       -- 2.9. mun:or-right P := P = 2, Q := P is odd, from C2
-      have s2_9 : P = 2 ∨ Odd P := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := P = 2) (Q := Odd P) hC2) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := P = 2) (Q := Odd P) hC2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := P = 2) (Q := Odd P) hC2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := P = 2) (Q := Odd P) hC2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := P = 2) (Q := Odd P) hC2); parley_side)
+      have s2_9 : P = 2 ∨ Odd P := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := P = 2) (Q := Odd P) hC2)
       all_goals parley_side
   all_goals exact s2
 

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -16,8 +15,6 @@ public import Mathlib.Tactic.NormNum.GCD
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Stdlib.Divisibility.CoprimeSquarePart
 
@@ -30,15 +27,15 @@ namespace Parley.Stdlib.Divisibility.CoprimeSquare
 theorem coprime_square (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w : ℤ) (hH3 : 0 < w) (hH4 : (Int.gcd s t : ℤ) = 1) (hH5 : w ^ 2 = s * t) :
     s = (Int.gcd s w : ℤ) ^ 2 ∧ t = (Int.gcd t w : ℤ) ^ 2 := by
   -- 1. mun:coprime-square-part, from H4, H5
-  have s1 : s = (Int.gcd s w : ℤ) ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5) | exact_mod_cast ((Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5)).symm | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5); parley_int_power h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5); parley_side)
+  have s1 : s = (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) hH4 hH5)
   -- 2. mun:gcd-commutes a := t, b := s
-  have s2 : (Int.gcd t s : ℤ) = (Int.gcd s t : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s)); parley_side)
+  have s2 : (Int.gcd t s : ℤ) = (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s))
   -- 3. transitivity, from 2, H4
   have s3 : (Int.gcd t s : ℤ) = 1 := by parley_side
   -- 4. algebra, from H5
   have s4 : w ^ 2 = t * s := by linear_combination (norm := parley_norm) hH5
   -- 5. mun:coprime-square-part s := t, t := s, from 3, 4
-  have s5 : t = (Int.gcd t w : ℤ) ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4) | exact_mod_cast ((Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4)).symm | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4); parley_int_power h) | (have h := (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4); parley_side)
+  have s5 : t = (Int.gcd t w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) (by parley_side) (t := s) (by parley_side) (w := w) (by parley_side) s3 s4)
   -- 6. join 1, 5
   have s6a : s = (Int.gcd s w : ℤ) ^ 2 := by parley_side
   have s6b : t = (Int.gcd t w : ℤ) ^ 2 := by parley_side

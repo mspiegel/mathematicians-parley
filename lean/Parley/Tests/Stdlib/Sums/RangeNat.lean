@@ -19,7 +19,7 @@ namespace Parley.Tests.Stdlib.Sums.RangeNat
 theorem range_nat (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (1 : ℤ) n) :
     0 < k := by
   -- 1. mun:sums-range-nat, from H2
-  have s1 : 0 < k := by first | exact (Parley.Items.Stdlib.Sums.mun_range_nat (n := n) (k := k) hH2) | exact ((Parley.Items.Stdlib.Sums.mun_range_nat (n := n) (k := k) hH2)).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_nat (n := n) (k := k) hH2) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_nat (n := n) (k := k) hH2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_nat (n := n) (k := k) hH2); parley_side)
+  have s1 : 0 < k := by exact (Parley.Items.Stdlib.Sums.mun_range_nat (n := n) (k := k) hH2)
   all_goals exact s1
 
 end Parley.Tests.Stdlib.Sums.RangeNat

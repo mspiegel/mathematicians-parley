@@ -68,7 +68,7 @@ theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
     have s1_3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ 5 ∧ abs (x - 5) < δ → abs (f x - 37) < ε) := ⟨ε / 8, ⟨by parley_set_side, by parley_set_side⟩⟩
     all_goals parley_set_side
   -- 2. def:limit-at D := ℝ, c := 5, L := 37, from 1
-  have r62_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))); parley_set_side)
+  have r62_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s2 : Filter.Tendsto f (nhdsWithin 5 ((Set.univ : Set ℝ) \ {5})) (nhds 37) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (5 : ℝ)) (L := (37 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (5 : ℝ)) (L := (37 : ℝ)))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 

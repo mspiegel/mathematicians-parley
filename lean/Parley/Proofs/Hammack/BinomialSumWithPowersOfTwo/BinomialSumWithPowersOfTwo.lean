@@ -59,7 +59,7 @@ theorem binomial_sum_with_powers_of_two (n : ℤ) (hH1 : 0 ≤ n) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 3.1. mun:one-power m := n − k
-    have s3_1 : (1 ^ (n - k) : ℚ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k)); parley_side)
+    have s3_1 : (1 ^ (n - k) : ℚ) = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k))
     -- 3.2. algebra, from 3.1
     have s3_2 : (LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat = 2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ) := by linear_combination (norm := parley_norm) (2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ)) * s3_1
     all_goals exact s3_2

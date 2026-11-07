@@ -4,9 +4,7 @@ public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -14,14 +12,11 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -44,9 +39,9 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
     -- 2. transitivity, from 1, H4
     have s2 : 0 < M := by parley_order
     -- 3. mun:pos-int-nat m := M, from 2
-    have s3 : 0 < M := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2); parley_side)
+    have s3 : 0 < M := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2)
     -- 4. mun:factorial-divisible n := M, m := N, from H4, 3
-    have s4 : N ∣ (LeanBridges.Counting.factorial M : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) (by parley_side) (m := N) (by parley_side) hH4) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) (by parley_side) (m := N) (by parley_side) hH4)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) (by parley_side) (m := N) (by parley_side) hH4) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) (by parley_side) (m := N) (by parley_side) hH4) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) (by parley_side) (m := N) (by parley_side) hH4); parley_side)
+    have s4 : N ∣ (LeanBridges.Counting.factorial M : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) (by parley_side) (m := N) (by parley_side) hH4)
     -- 5. algebra
     have s5 : (LeanBridges.Counting.factorial M : ℚ) + 1 = (N : ℚ) * (((LeanBridges.Counting.factorial M : ℚ) + 1) / (N : ℚ)) := by parley_ring
     -- 6. exhibit, from S, 5
@@ -54,14 +49,14 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
     -- 7. def:divides d := N, n := M! + 1, from 6
     have s7 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := (LeanBridges.Counting.factorial M : ℤ) + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := (LeanBridges.Counting.factorial M : ℤ) + 1))).mpr (by parley_side); parley_side)
     -- 8. mun:divides-difference d := N, a := M! + 1, b := M!, from 4, 7
-    have s8 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4); parley_side)
+    have s8 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4)
     -- 9. substitute
     have s9 : N ∣ (1 : ℤ) := by
       have c1 : (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) = 1 := by parley_ring
       have row1 : N ∣ (1 : ℤ) := by parley_subst_at c1 s8
       exact row1
     -- 10. mun:divides-one d := N, from 9
-    have s10 : N = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9)).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9); parley_side)
+    have s10 : N = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9)
     -- 11. inequalities
     have s11 : N ≠ 1 := by parley_side
     all_goals parley_side

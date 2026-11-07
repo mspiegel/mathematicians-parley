@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import SubstTactics
@@ -30,8 +29,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets
@@ -47,7 +44,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
     (a * x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔ (∃ r ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ), x = -((b + r * T + M / (r * T)) / (3 * a)))) := by
   -- 1. mun:i-complex
   -- 2. def:i
-  have s2 : Complex.I * Complex.I = -1 := by first | linear_combination (norm := parley_norm) Parley.Items.Stdlib.Numbers.def_i | (have h := Parley.Items.Stdlib.Numbers.def_i; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.def_i; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast Parley.Items.Stdlib.Numbers.def_i | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_i).symm | (have h := Parley.Items.Stdlib.Numbers.def_i; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.def_i; qify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.def_i; parley_int_power h) | (have h := Parley.Items.Stdlib.Numbers.def_i; parley_set_side)
+  have s2 : Complex.I * Complex.I = -1 := by exact Parley.Items.Stdlib.Numbers.def_i
   -- 3. real arithmetic
   have s3 : Real.sqrt (3 : ℝ) ^ 2 = 3 := by parley_real
   -- 4. algebra, from 1, 2, 3

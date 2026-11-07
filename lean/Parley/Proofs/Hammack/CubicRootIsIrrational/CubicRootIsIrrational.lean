@@ -55,7 +55,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     have r29_1 : q ≠ 0 := by parley_side
     have s1_3 : p ^ 3 + p * q ^ 2 + 3 * q ^ 3 = 0 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s1_2
     -- 1.4. mun:even-or-odd n := p
-    have s1_4 : Even p ∨ Odd p := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p)); parley_side)
+    have s1_4 : Even p ∨ Odd p := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p))
     -- 1.5. cases, from 1.4
     have s1_5 : Even (1 : ℤ) := by
       rcases s1_4 with hC1 | hC4
@@ -63,7 +63,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
         -- 1.5.1. obtain r: def:even n := p, from C1
         obtain ⟨r, s1_5_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := p))).mp (by parley_side)
         -- 1.5.2. mun:even-or-odd n := q
-        have s1_5_2 : Even q ∨ Odd q := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)); parley_side)
+        have s1_5_2 : Even q ∨ Odd q := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q))
         -- 1.5.3. cases, from 1.5.2
         have s1_5_3 : Even (1 : ℤ) := by
           rcases s1_5_2 with hC2 | hC3
@@ -100,7 +100,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
         -- 1.5.5. substitute p = 2r + 1 (line 1.5.4) into line 1.3
         have s1_5_5 : (2 * r + 1) ^ 3 + (2 * r + 1) * q ^ 2 + 3 * q ^ 3 = 0 := by parley_subst_at s1_5_4 s1_3
         -- 1.5.6. mun:even-or-odd n := q
-        have s1_5_6 : Even q ∨ Odd q := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)); parley_side)
+        have s1_5_6 : Even q ∨ Odd q := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q))
         -- 1.5.7. cases, from 1.5.6
         have s1_5_7 : Even (1 : ℤ) := by
           rcases s1_5_6 with hC5 | hC6
@@ -126,7 +126,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
             all_goals parley_side
         all_goals parley_side
     -- 1.6. mun:not-both n := 1, from 1.5
-    have s1_6 : ¬ Odd (1 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5); parley_side)
+    have s1_6 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5)
     -- 1.7. arithmetic
     have s1_7 : Odd (1 : ℤ) := by parley_arith
     all_goals parley_side

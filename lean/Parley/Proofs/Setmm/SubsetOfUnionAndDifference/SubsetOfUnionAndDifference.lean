@@ -30,7 +30,7 @@ theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C
         have s1_1a : u ∈ A := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).1; parley_set_side)
         have s1_1b : ¬ u ∈ B := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).2; parley_set_side)
         -- 1.2. mun:in-subset X := A, Y := B ∪ C, from D1, 1.1
-        have s1_2 : u ∈ B ∪ C := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∪ C) (u := u) hD1 s1_1a) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∪ C) (u := u) hD1 s1_1a)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∪ C) (u := u) hD1 s1_1a) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∪ C) (u := u) hD1 s1_1a) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∪ C) (u := u) hD1 s1_1a); parley_set_side)
+        have s1_2 : u ∈ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∪ C) (u := u) hD1 s1_1a)
         -- 1.3. def:union Y := B, Z := C, from 1.2
         have s1_3 : u ∈ B ∨ u ∈ C := by first | exact ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mp (by parley_set_side); parley_set_side)
         -- 1.4. cases, from 1.3
@@ -54,13 +54,13 @@ theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C
       have s3 : ∀ u ∈ A, u ∈ B ∪ C := by
         intro u hK2
         -- 3.1. axi:excluded-middle P := u ∈ B
-        have s3_1 : u ∈ B ∨ ¬ u ∈ B := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ B)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ B))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ B)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ B)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ B)); parley_set_side)
+        have s3_1 : u ∈ B ∨ ¬ u ∈ B := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ B))
         -- 3.2. cases, from 3.1
         have s3_2 : u ∈ B ∪ C := by
           rcases s3_1 with hC1 | hC2
           · skip
             -- 3.2.1. mun:or-left, from C1
-            have s3_2_1 : u ∈ B ∨ u ∈ C := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := u ∈ B) (Q := u ∈ C) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := u ∈ B) (Q := u ∈ C) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := u ∈ B) (Q := u ∈ C) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := u ∈ B) (Q := u ∈ C) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := u ∈ B) (Q := u ∈ C) hC1); parley_set_side)
+            have s3_2_1 : u ∈ B ∨ u ∈ C := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := u ∈ B) (Q := u ∈ C) hC1)
             -- 3.2.2. def:union Y := B, Z := C, from 3.2.1
             have s3_2_2 : u ∈ B ∪ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mpr (by parley_set_side); parley_set_side)
             all_goals parley_set_side
@@ -68,9 +68,9 @@ theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C
             -- 3.2.3. def:difference Y := A, Z := B, from C2, K2
             have s3_2_3 : u ∈ A \ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr (by parley_set_side); parley_set_side)
             -- 3.2.4. mun:in-subset X := A ∖ B, Y := C, from D2, 3.2.3
-            have s3_2_4 : u ∈ C := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ B) (Y := C) (u := u) hD2 s3_2_3) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ B) (Y := C) (u := u) hD2 s3_2_3)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ B) (Y := C) (u := u) hD2 s3_2_3) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ B) (Y := C) (u := u) hD2 s3_2_3) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ B) (Y := C) (u := u) hD2 s3_2_3); parley_set_side)
+            have s3_2_4 : u ∈ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ B) (Y := C) (u := u) hD2 s3_2_3)
             -- 3.2.5. mun:or-right, from 3.2.4
-            have s3_2_5 : u ∈ B ∨ u ∈ C := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := u ∈ B) (Q := u ∈ C) s3_2_4) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := u ∈ B) (Q := u ∈ C) s3_2_4)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := u ∈ B) (Q := u ∈ C) s3_2_4) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := u ∈ B) (Q := u ∈ C) s3_2_4) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := u ∈ B) (Q := u ∈ C) s3_2_4); parley_set_side)
+            have s3_2_5 : u ∈ B ∨ u ∈ C := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := u ∈ B) (Q := u ∈ C) s3_2_4)
             -- 3.2.6. def:union Y := B, Z := C, from 3.2.5
             have s3_2_6 : u ∈ B ∪ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mpr (by parley_set_side); parley_set_side)
             all_goals parley_set_side

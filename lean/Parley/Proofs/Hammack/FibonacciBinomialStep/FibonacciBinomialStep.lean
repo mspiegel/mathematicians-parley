@@ -64,7 +64,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 8.1. mun:range-difference a := 0, n := m + 1, from J
-    have s8_1 : 0 ≤ m + 1 - k := by first | exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ) | exact ((Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ)).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ) | (have h := (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ); parley_side)
+    have s8_1 : 0 ≤ m + 1 - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ)
     -- 8.2. algebra
     have s8_2 : m + 1 - k + 1 = m + 1 + 1 - k := by parley_ring
     -- 8.3. calculation
@@ -83,7 +83,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- 13. calculation
   have s13 : (LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) : ℤ) = 0 := by
     calc (LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (-1 : ℤ) : ℤ) := by norm_num
-      _ = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side)); parley_side)
+      _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side))
   -- 14. proof
   -- what this block shows, Lean's types give
   -- 15. substitute C(m + 1, 0 − 1) = 0 (line 13) into line 12

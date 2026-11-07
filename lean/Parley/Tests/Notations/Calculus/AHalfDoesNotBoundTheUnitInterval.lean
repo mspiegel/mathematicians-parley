@@ -26,7 +26,7 @@ namespace Parley.Tests.Notations.Calculus.AHalfDoesNotBoundTheUnitInterval
 theorem a_half_does_not_bound_the_unit_interval :
     ¬ (∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 / 2) := by
   -- 1. thm:one-is-in-the-unit-interval
-  have s1 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by first | exact Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval | exact (Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval).symm | simpa using Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval | exact_mod_cast Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval | (have h := Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval; parley_set_side)
+  have s1 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval
   -- 2. contradiction
   have s2 : ¬ (∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 / 2) := by
     by_contra hc_hS

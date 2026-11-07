@@ -29,9 +29,9 @@ theorem disjoint_power_set_difference {α : Type*} (A : Set α) (B : Set α) (hH
     have s1_3 : ∀ x ∈ t, x ∈ A \ B := by
       intro x hK2
       -- 1.3.1. mun:in-subset X := t, Y := A, u := x, from K2, 1.2
-      have s1_3_1 : x ∈ A := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := A) (u := x) s1_2 hK2) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := A) (u := x) s1_2 hK2)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := A) (u := x) s1_2 hK2) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := A) (u := x) s1_2 hK2) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := A) (u := x) s1_2 hK2); parley_set_side)
+      have s1_3_1 : x ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := A) (u := x) s1_2 hK2)
       -- 1.3.2. mun:disjoint-member Y := A, Z := B, u := x, from H3, 1.3.1
-      have s1_3_2 : ¬ x ∈ B := by first | exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1) | exact ((Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1); parley_set_side)
+      have s1_3_2 : ¬ x ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1)
       -- 1.3.3. def:difference u := x, Y := A, Z := B, from 1.3.1, 1.3.2
       have s1_3_3 : x ∈ A \ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr (by parley_set_side); parley_set_side)
       all_goals exact s1_3_3

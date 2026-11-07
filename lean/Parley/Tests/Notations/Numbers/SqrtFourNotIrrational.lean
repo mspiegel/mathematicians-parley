@@ -1,8 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
-public import PowerTactics
 public import RealTactics
 public import Tactics
 public import Batteries.Classes.RatCast
@@ -14,13 +12,10 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.RealSqrt
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Tests.Notations.Numbers.SqrtFour
 
@@ -33,7 +28,7 @@ namespace Parley.Tests.Notations.Numbers.SqrtFourNotIrrational
 theorem sqrt_four_not_irrational :
     ¬ Irrational (Real.sqrt (4 : ℝ)) := by
   -- 1. thm:sqrt-four
-  have s1 : Real.sqrt (4 : ℝ) = 2 := by first | linear_combination (norm := parley_norm) Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four | (have h := Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four | exact_mod_cast (Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four).symm | (have h := Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four; qify; linear_combination (norm := parley_norm) h) | (have h := Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four; parley_int_power h) | (have h := Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four; parley_side)
+  have s1 : Real.sqrt (4 : ℝ) = 2 := by exact Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four
   -- 2. calculation
   have s2 : Real.sqrt (4 : ℝ) = 2 / 1 := by
     calc Real.sqrt (4 : ℝ) = 2 := by parley_side

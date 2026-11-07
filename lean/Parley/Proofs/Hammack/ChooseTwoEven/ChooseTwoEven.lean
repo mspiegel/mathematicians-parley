@@ -3,7 +3,6 @@ module
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
@@ -20,7 +19,6 @@ public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula
 
@@ -33,7 +31,7 @@ namespace Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoEven
 theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (4 : ℤ)] ∨ a ≡ (1 : ℤ) [ZMOD (4 : ℤ)]) :
     Even (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) := by
   -- 1. thm:choose-two-formula n := a
-  have s1 : (LeanBridges.Counting.choose a (2 : ℤ) : ℚ) = (a : ℚ) * ((a : ℚ) - 1) / 2 := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)) | (have h := (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)) | exact_mod_cast ((Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side))).symm | (have h := (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)); parley_int_power h) | (have h := (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side)); parley_side)
+  have s1 : (LeanBridges.Counting.choose a (2 : ℤ) : ℚ) = (a : ℚ) * ((a : ℚ) - 1) / 2 := by exact (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side))
   -- 2. cases, from H2
   have s2 : Even (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) := by
     rcases hH2 with hC1 | hC2

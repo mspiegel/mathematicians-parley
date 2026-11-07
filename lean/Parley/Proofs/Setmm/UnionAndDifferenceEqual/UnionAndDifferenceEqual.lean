@@ -55,7 +55,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
       have s3 : ∀ u ∈ B, u ∈ C \ A := by
         intro u hK2
         -- 3.1. mun:in-union-right Y := A, Z := B, from K2
-        have s3_1 : u ∈ A ∪ B := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) hK2) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) hK2)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) hK2) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) hK2) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) hK2); parley_set_side)
+        have s3_1 : u ∈ A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) hK2)
         -- 3.2. substitute A ∪ B = C (D1) into line 3.1
         have s3_2 : u ∈ C := by parley_subst_at hD1 s3_1
         -- 3.3. contradiction
@@ -63,7 +63,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
           by_contra hc_hS
           have hS : u ∈ A := by parley_suppose hc_hS
           -- 3.3.1. mun:disjoint-member Y := A, Z := B, from H5, S
-          have s3_3_1 : ¬ u ∈ B := by first | exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := u) hH5 hS) | exact ((Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := u) hH5 hS)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := u) hH5 hS) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := u) hH5 hS) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := u) hH5 hS); parley_set_side)
+          have s3_3_1 : ¬ u ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := u) hH5 hS)
           all_goals parley_set_side
         -- 3.4. def:difference Y := C, Z := A, from 3.2, 3.3
         have s3_4 : u ∈ C \ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mpr (by parley_set_side); parley_set_side)
@@ -71,27 +71,27 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
       -- 4. def:subset X := B, Y := C ∖ A, from 3
       have s4 : B ⊆ C \ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := C \ A))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := C \ A))).mpr (by parley_set_side); parley_set_side)
       -- 5. mun:subset-antisymmetric X := C ∖ A, Y := B, from 2, 4
-      have s5 : C \ A = B := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := C \ A) (Y := B) s2 s4) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := C \ A) (Y := B) s2 s4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := C \ A) (Y := B) s2 s4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := C \ A) (Y := B) s2 s4) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := C \ A) (Y := B) s2 s4); parley_set_side)
+      have s5 : C \ A = B := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := C \ A) (Y := B) s2 s4)
       all_goals parley_set_side
     · skip
       intro hD2
       -- 6. mun:difference-subset X := C, Y := A
-      have s6 : C \ A ⊆ C := by first | exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := C) (Y := A)) | exact ((Parley.Items.Stdlib.Sets.mun_difference_subset (X := C) (Y := A))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_difference_subset (X := C) (Y := A)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_difference_subset (X := C) (Y := A)) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_subset (X := C) (Y := A)); parley_set_side)
+      have s6 : C \ A ⊆ C := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := C) (Y := A))
       -- 7. substitute C ∖ A = B (D2) into line 6
       have s7 : B ⊆ C := by parley_subst_at hD2 s6
       -- 8. mun:union-subset X := A, Y := B, Z := C, from H4, 7
-      have s8 : A ∪ B ⊆ C := by first | exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := B) (Z := C) hH4 s7) | exact ((Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := B) (Z := C) hH4 s7)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := B) (Z := C) hH4 s7) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := B) (Z := C) hH4 s7) | (have h := (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := B) (Z := C) hH4 s7); parley_set_side)
+      have s8 : A ∪ B ⊆ C := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := B) (Z := C) hH4 s7)
       -- 9. proof
       have s9 : ∀ u ∈ C, u ∈ A ∪ B := by
         intro u hK3
         -- 9.1. axi:excluded-middle P := u ∈ A
-        have s9_1 : u ∈ A ∨ ¬ u ∈ A := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A)); parley_set_side)
+        have s9_1 : u ∈ A ∨ ¬ u ∈ A := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A))
         -- 9.2. cases, from 9.1
         have s9_2 : u ∈ A ∪ B := by
           rcases s9_1 with hC3 | hC4
           · skip
             -- 9.2.1. mun:in-union-left Y := A, Z := B, from C3
-            have s9_2_1 : u ∈ A ∪ B := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC3) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC3)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC3) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC3) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC3); parley_set_side)
+            have s9_2_1 : u ∈ A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC3)
             all_goals parley_set_side
           · skip
             -- 9.2.2. def:difference Y := C, Z := A, from C4, K3
@@ -99,13 +99,13 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
             -- 9.2.3. substitute C ∖ A = B (D2) into line 9.2.2
             have s9_2_3 : u ∈ B := by parley_subst_at hD2 s9_2_2
             -- 9.2.4. mun:in-union-right Y := A, Z := B, from 9.2.3
-            have s9_2_4 : u ∈ A ∪ B := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s9_2_3) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s9_2_3)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s9_2_3) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s9_2_3) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s9_2_3); parley_set_side)
+            have s9_2_4 : u ∈ A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s9_2_3)
             all_goals parley_set_side
         all_goals exact s9_2
       -- 10. def:subset X := C, Y := A ∪ B, from 9
       have s10 : C ⊆ A ∪ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := C) (Y := A ∪ B))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := C) (Y := A ∪ B))).mpr (by parley_set_side); parley_set_side)
       -- 11. mun:subset-antisymmetric X := A ∪ B, Y := C, from 8, 10
-      have s11 : A ∪ B = C := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∪ B) (Y := C) s8 s10) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∪ B) (Y := C) s8 s10)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∪ B) (Y := C) s8 s10) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∪ B) (Y := C) s8 s10) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∪ B) (Y := C) s8 s10); parley_set_side)
+      have s11 : A ∪ B = C := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∪ B) (Y := C) s8 s10)
       all_goals parley_set_side
   all_goals parley_set_side
 

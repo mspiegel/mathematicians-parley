@@ -59,7 +59,7 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
       all_goals parley_side
     | succ j hK hIH =>
       -- 2.2. mun:nat-plus-nat0 a := n, b := j
-      have s2_2 : 0 < n + j := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)); parley_side)
+      have s2_2 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side))
       -- 2.3. mun:power-positive a := 2, m := (n + j + 1)!
       have r247_1 : (2 : ℤ) > 0 := by parley_arith
       have s2_3 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); parley_side)

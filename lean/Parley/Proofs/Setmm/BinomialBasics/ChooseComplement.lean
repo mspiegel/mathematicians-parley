@@ -40,15 +40,15 @@ set_option maxHeartbeats 400000 in
 theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     (LeanBridges.Counting.choose N K : ℤ) = (LeanBridges.Counting.choose N (N - K) : ℤ) := by
   -- 1. axi:excluded-middle P := K ∈ {0, …, N}
-  have s1 : K ∈ Finset.Icc (0 : ℤ) N ∨ ¬ K ∈ Finset.Icc (0 : ℤ) N := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := K ∈ Finset.Icc (0 : ℤ) N)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := K ∈ Finset.Icc (0 : ℤ) N))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := K ∈ Finset.Icc (0 : ℤ) N)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := K ∈ Finset.Icc (0 : ℤ) N)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := K ∈ Finset.Icc (0 : ℤ) N)); parley_side)
+  have s1 : K ∈ Finset.Icc (0 : ℤ) N ∨ ¬ K ∈ Finset.Icc (0 : ℤ) N := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := K ∈ Finset.Icc (0 : ℤ) N))
   -- 2. cases, from 1
   have s2 : (LeanBridges.Counting.choose N K : ℤ) = (LeanBridges.Counting.choose N (N - K) : ℤ) := by
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. mun:range-nat0 n := N, from C1
-      have s2_1 : 0 ≤ K := by first | exact (Parley.Items.Stdlib.Sums.mun_range_nat0 (n := N) (k := K) hC1) | exact ((Parley.Items.Stdlib.Sums.mun_range_nat0 (n := N) (k := K) hC1)).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_nat0 (n := N) (k := K) hC1) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_nat0 (n := N) (k := K) hC1) | (have h := (Parley.Items.Stdlib.Sums.mun_range_nat0 (n := N) (k := K) hC1); parley_side)
+      have s2_1 : 0 ≤ K := by exact (Parley.Items.Stdlib.Sums.mun_range_nat0 (n := N) (k := K) hC1)
       -- 2.2. mun:range-difference a := 0, n := N, from C1
-      have s2_2 : 0 ≤ N - K := by first | exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := N) (k := K) hC1) | exact ((Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := N) (k := K) hC1)).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := N) (k := K) hC1) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := N) (k := K) hC1) | (have h := (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := N) (k := K) hC1); parley_side)
+      have s2_2 : 0 ≤ N - K := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := N) (k := K) hC1)
       -- 2.3. inequalities, from 2.1, 2.2
       have s2_3a : 0 ≤ N - K := by parley_order
       have s2_3b : N - K ≤ N := by parley_order
@@ -59,9 +59,9 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
       -- 2.6. substitute N − (N − K) = K (line 2.5)
       have s2_6 : (LeanBridges.Counting.factorial (N - (N - K)) : ℤ) = (LeanBridges.Counting.factorial K : ℤ) := by parley_subst s2_5
       -- 2.7. mun:factorial-nat n := N − K, from 2.2
-      have s2_7 : 0 < (LeanBridges.Counting.factorial (N - K) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) (by parley_side)); parley_side)
+      have s2_7 : 0 < (LeanBridges.Counting.factorial (N - K) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) (by parley_side))
       -- 2.8. mun:factorial-nat n := K, from 2.1
-      have s2_8 : 0 < (LeanBridges.Counting.factorial K : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side)); parley_side)
+      have s2_8 : 0 < (LeanBridges.Counting.factorial K : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side))
       -- 2.9. calculation
       have s2_9 : (LeanBridges.Counting.choose N K : ℤ) = (LeanBridges.Counting.choose N (N - K) : ℤ) := by
         try qify
@@ -91,7 +91,7 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
         all_goals parley_side
       -- 2.11. calculation
       have s2_11 : (LeanBridges.Counting.choose N K : ℤ) = (LeanBridges.Counting.choose N (N - K) : ℤ) := by
-        calc (LeanBridges.Counting.choose N K : ℤ) = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2)).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2); parley_side)
+        calc (LeanBridges.Counting.choose N K : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2)
           _ = (LeanBridges.Counting.choose N (N - K) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10)).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10); parley_side)
       all_goals parley_side
   all_goals exact s2

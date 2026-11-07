@@ -61,7 +61,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
       have s4_6_1 : abs (x n - L) < ε / (2 * (abs C + 1)) := by first | linarith [(s4_5b n (by parley_side) (by parley_side))] | (have h := (s4_5b n (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s4_5b n (by parley_side) (by parley_side)) | (have h := (s4_5b n (by parley_side) (by parley_side)); parley_side)
       -- 4.6.2. membership, from H1
       -- 4.6.3. thm:scaled-small u := x(n) − L, from A1, 4.6.1, 4.6.2
-      have s4_6_3 : abs (C * (x n - L)) < ε := by first | linarith [(Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) hA1 s4_6_1)] | (have h := (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) hA1 s4_6_1); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) hA1 s4_6_1) | (have h := (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) hA1 s4_6_1); parley_side)
+      have s4_6_3 : abs (C * (x n - L)) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) hA1 s4_6_1)
       -- 4.6.4. substitute
       have s4_6_4 : abs (C * x n - C * L) < ε := by
         have c1 : C * (x n - L) = C * x n - C * L := by parley_ring

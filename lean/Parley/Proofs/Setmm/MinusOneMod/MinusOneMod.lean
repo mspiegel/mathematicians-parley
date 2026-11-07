@@ -25,7 +25,7 @@ theorem minus_one_mod (M : ℤ) (hH1 : 0 < M) :
   -- 2. exhibit, from 1
   have s2 : ∃ q : ℤ, q * M + (M - 1) = -1 := ⟨(-1 : ℤ), by parley_side⟩
   -- 3. mun:nat-minus-one n := M
-  have s3 : 0 ≤ M - 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) (by parley_side)); parley_side)
+  have s3 : 0 ≤ M - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) (by parley_side))
   -- 4. mun:mod-remainder a := −1, m := M, r := M − 1, from 2, 3
   have r19_1 : M - 1 < M := by parley_order
   have s4 : (-1 : ℤ) % M = M - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := M) (by parley_side) (r := M - 1) (by parley_side) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := M) (by parley_side) (r := M - 1) (by parley_side) (by parley_side))).mpr (by parley_side); parley_side)

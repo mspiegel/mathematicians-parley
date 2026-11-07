@@ -43,7 +43,7 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
       -- 2. algebra
       have s2 : n + 1 + j + 1 = n + 1 + (j + 1) := by parley_ring
       -- 3. mun:factorial-nat n := n + 1 + j
-      have s3 : 0 < (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1 + j) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1 + j) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1 + j) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1 + j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1 + j) (by parley_side)); parley_side)
+      have s3 : 0 < (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1 + j) (by parley_side))
       -- 4. algebra
       have s4 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) = (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by parley_ring
       -- 5. inequalities, from IH, 3

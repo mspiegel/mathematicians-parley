@@ -34,7 +34,7 @@ theorem log_of_a_reciprocal (x : ℝ) (b : ℝ) (hH3 : x > 0) (hH4 : b > 0) (hH5
   -- 2. substitute ln(1) = 0 (real arithmetic) into line 1
   have s2 : Real.log (1 / x) = 0 - Real.log x := by parley_subst_at (show Real.log (1 : ℝ) = 0 by parley_real) s1
   -- 3. mun:ln-nonzero x := b, from H4, H5
-  have s3 : Real.log b ≠ 0 := by first | exact (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) (by parley_side) hH5) | exact ((Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) (by parley_side) hH5)).symm | simpa using (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) (by parley_side) hH5) | exact_mod_cast (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) (by parley_side) hH5) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) (by parley_side) hH5); parley_side)
+  have s3 : Real.log b ≠ 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) (by parley_side) hH5)
   -- 4. calculation
   have s4 : Real.log (1 / x) / Real.log b = -(Real.log x / Real.log b) := by
     calc Real.log (1 / x) / Real.log b = (0 - Real.log x) / Real.log b := by parley_subst s2

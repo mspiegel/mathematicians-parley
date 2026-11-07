@@ -26,37 +26,37 @@ set_option maxHeartbeats 400000 in
 theorem three_naturals_two_same_parity (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 : 0 < c) :
     ((Even (a - b) ∨ Even (a + c)) ∨ Even (b - c)) := by
   -- 1. mun:even-or-odd n := a − b
-  have s1 : Even (a - b) ∨ Odd (a - b) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a - b)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a - b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a - b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a - b)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a - b)); parley_side)
+  have s1 : Even (a - b) ∨ Odd (a - b) := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a - b))
   -- 2. cases, from 1
   have s2 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. mun:or-left P := a − b is even, Q := a + c is even, from C1
-      have s2_1 : Even (a - b) ∨ Even (a + c) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b)) (Q := Even (a + c)) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b)) (Q := Even (a + c)) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b)) (Q := Even (a + c)) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b)) (Q := Even (a + c)) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b)) (Q := Even (a + c)) hC1); parley_side)
+      have s2_1 : Even (a - b) ∨ Even (a + c) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b)) (Q := Even (a + c)) hC1)
       -- 2.2. mun:or-left P := a − b is even or a + c is even, Q := b − c is even, from 2.1
-      have s2_2 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_1); parley_side)
+      have s2_2 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_1)
       all_goals parley_side
     · skip
       -- 2.3. mun:even-or-odd n := a + c
-      have s2_3 : Even (a + c) ∨ Odd (a + c) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a + c)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a + c))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a + c)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a + c)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a + c)); parley_side)
+      have s2_3 : Even (a + c) ∨ Odd (a + c) := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a + c))
       -- 2.4. cases, from 2.3
       have s2_4 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by
         rcases s2_3 with hC3 | hC4
         · skip
           -- 2.4.1. mun:or-right P := a − b is even, Q := a + c is even, from C3
-          have s2_4_1 : Even (a - b) ∨ Even (a + c) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b)) (Q := Even (a + c)) hC3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b)) (Q := Even (a + c)) hC3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b)) (Q := Even (a + c)) hC3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b)) (Q := Even (a + c)) hC3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b)) (Q := Even (a + c)) hC3); parley_side)
+          have s2_4_1 : Even (a - b) ∨ Even (a + c) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b)) (Q := Even (a + c)) hC3)
           -- 2.4.2. mun:or-left P := a − b is even or a + c is even, Q := b − c is even, from 2.4.1
-          have s2_4_2 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_4_1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_4_1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_4_1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_4_1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_4_1); parley_side)
+          have s2_4_2 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) s2_4_1)
           all_goals parley_side
         · skip
           -- 2.4.3. mun:even-or-odd n := b − c
-          have s2_4_3 : Even (b - c) ∨ Odd (b - c) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b - c)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b - c))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b - c)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b - c)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b - c)); parley_side)
+          have s2_4_3 : Even (b - c) ∨ Odd (b - c) := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b - c))
           -- 2.4.4. cases, from 2.4.3
           have s2_4_4 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by
             rcases s2_4_3 with hC5 | hC6
             · skip
               -- 2.4.4.1. mun:or-right P := a − b is even or a + c is even, Q := b − c is even, from C5
-              have s2_4_4_1 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) hC5) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) hC5)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) hC5) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) hC5) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) hC5); parley_side)
+              have s2_4_4_1 : (Even (a - b) ∨ Even (a + c)) ∨ Even (b - c) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a - b) ∨ Even (a + c)) (Q := Even (b - c)) hC5)
               all_goals parley_side
             · skip
               -- 2.4.4.2. obtain p: def:odd n := a − b, from C2
@@ -70,7 +70,7 @@ theorem three_naturals_two_same_parity (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 
               -- 2.4.4.6. def:even n := 1, from 2.4.4.5
               have s2_4_4_6 : Even (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨a - p - q - r - 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨a - p - q - r - 1, by parley_side⟩; parley_side)
               -- 2.4.4.7. mun:not-both n := 1, from 2.4.4.6
-              have s2_4_4_7 : ¬ Odd (1 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6); parley_side)
+              have s2_4_4_7 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6)
               -- 2.4.4.8. arithmetic
               have s2_4_4_8 : Odd (1 : ℤ) := by parley_arith
               all_goals parley_side

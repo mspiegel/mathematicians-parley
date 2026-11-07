@@ -21,9 +21,9 @@ namespace Parley.Tests.Notations.Calculus.OneIsTheLeastBoundOfTheUnitInterval
 theorem one_is_the_least_bound_of_the_unit_interval :
     ((∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1) ∧ (∀ u : ℝ, (∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ u) → 1 ≤ u)) := by
   -- 1. thm:one-bounds-the-unit-interval
-  have s1 : ∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 := by first | exact Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval.one_bounds_the_unit_interval | exact (Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval.one_bounds_the_unit_interval).symm | simpa using Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval.one_bounds_the_unit_interval | exact_mod_cast Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval.one_bounds_the_unit_interval | (have h := Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval.one_bounds_the_unit_interval; parley_set_side)
+  have s1 : ∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 := by exact Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval.one_bounds_the_unit_interval
   -- 2. thm:one-is-in-the-unit-interval
-  have s2 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by first | exact Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval | exact (Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval).symm | simpa using Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval | exact_mod_cast Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval | (have h := Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval; parley_set_side)
+  have s2 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval.one_is_in_the_unit_interval
   -- 3. proof
   have s3 : ∀ u : ℝ, (∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ u) → 1 ≤ u := by
     intro u

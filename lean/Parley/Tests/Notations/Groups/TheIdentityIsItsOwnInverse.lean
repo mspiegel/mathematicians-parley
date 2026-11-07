@@ -21,19 +21,19 @@ namespace Parley.Tests.Notations.Groups.TheIdentityIsItsOwnInverse
 theorem the_identity_is_its_own_inverse {G : Type*} [Group G] :
     (1 : G)⁻¹ = (1 : G) := by
   -- 1. axi:group-identity-closed
-  have s1 : (1 : G) ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | exact ((Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G))).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | (have h := (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)); parley_set_side)
+  have s1 : (1 : G) ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G))
   -- 2. axi:group-inverse-closed a := e, from 1
-  have s2 : (1 : G)⁻¹ ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1); parley_set_side)
+  have s2 : (1 : G)⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1)
   -- 3. axi:group-inverse a := e, from 1
-  have s3 : (1 : G) * (1 : G)⁻¹ = (1 : G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1); parley_set_side)
+  have s3 : (1 : G) * (1 : G)⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1)
   -- 4. axi:group-identity a := e, from 1
-  have s4 : (1 : G) * (1 : G) = (1 : G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := (1 : G)) s1) | exact ((Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := (1 : G)) s1)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := (1 : G)) s1) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := (1 : G)) s1) | (have h := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := (1 : G)) s1); parley_set_side)
+  have s4 : (1 : G) * (1 : G) = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := (1 : G)) s1)
   -- 5. calculation
   have s5 : (1 : G) * (1 : G)⁻¹ = (1 : G) * (1 : G) := by
     calc (1 : G) * (1 : G)⁻¹ = (1 : G) := by parley_set_side
       _ = (1 : G) * (1 : G) := by parley_set_side
   -- 6. thm:group-cancel a := e⁻¹, b := e, g := e, from 1, 2, 5
-  have s6 : (1 : G)⁻¹ = (1 : G) := by first | exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5) | exact ((Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5)).symm | simpa using (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5) | exact_mod_cast (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5) | (have h := (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5); parley_set_side)
+  have s6 : (1 : G)⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5)
   all_goals exact s6
 
 end Parley.Tests.Notations.Groups.TheIdentityIsItsOwnInverse

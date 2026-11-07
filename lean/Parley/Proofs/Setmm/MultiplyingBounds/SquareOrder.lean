@@ -27,7 +27,7 @@ theorem square_order (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B ≥ 0) :
     · skip
       intro hD1
       -- 1. thm:multiplying-bounds C := A, D := B, from D1, H3
-      have s1 : A * A < B * B := by first | linarith [(Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) hD1 (by parley_side) hD1)] | (have h := (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) hD1 (by parley_side) hD1); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) hD1 (by parley_side) hD1) | (have h := (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) hD1 (by parley_side) hD1); parley_side)
+      have s1 : A * A < B * B := by exact (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) hD1 (by parley_side) hD1)
       all_goals parley_side
     · skip
       intro hD2

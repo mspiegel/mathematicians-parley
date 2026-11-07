@@ -24,7 +24,7 @@ theorem congruent_times (a : ℤ) (b : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (h
   -- 1. def:congruent-mod, from H5
   have s1 : n ∣ a - b := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side); parley_side)
   -- 2. mun:divides-multiple e := n, a := a − b, x := c, from 1
-  have s2 : n ∣ (a - b) * c := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := c) s1) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := c) s1)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := c) s1) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := c) s1) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := c) s1); parley_side)
+  have s2 : n ∣ (a - b) * c := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := c) s1)
   -- 3. substitute
   have s3 : n ∣ a * c - b * c := by
     have c1 : (a - b) * c = a * c - b * c := by parley_ring

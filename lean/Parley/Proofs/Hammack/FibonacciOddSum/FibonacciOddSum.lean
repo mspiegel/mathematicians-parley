@@ -44,7 +44,7 @@ set_option maxHeartbeats 600000 in
 theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F (2 * k - 1) : ℤ)) = F (2 * n) := by
   -- 1. thm:fibonacci-natural
-  have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by first | exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)) | exact ((Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))).symm | simpa using (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)) | exact_mod_cast (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)) | (have h := (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)); parley_side)
+  have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. proof
@@ -53,11 +53,11 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
     -- 3.1. inequalities, from K2
     have s3_1 : 0 < 2 * k - 1 := by parley_order
     -- 3.2. mun:pos-int-nat m := 2k − 1, from 3.1
-    have s3_2 : 0 < 2 * k - 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1); parley_side)
+    have s3_2 : 0 < 2 * k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1)
     all_goals exact s3_2
   set q : ℤ → ℤ := fun k => F (2 * k - 1) with hD2
   -- 4. thm:fibonacci-recurrence
-  have s4 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by first | exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side)) | exact ((Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side))).symm | simpa using (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side)) | exact_mod_cast (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side)) | (have h := (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side)); parley_side)
+  have s4 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side))
   -- 5. induction on m starting at 1
   have s5 : ∀ m : ℤ, 0 < m → (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) = F (2 * m) := by
     intro m h_m

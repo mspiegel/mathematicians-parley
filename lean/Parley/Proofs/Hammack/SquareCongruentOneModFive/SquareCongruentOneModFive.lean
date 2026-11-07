@@ -29,7 +29,7 @@ theorem square_congruent_one_mod_five (a : ℤ) (hH2 : a ≡ (1 : ℤ) [ZMOD (5 
   -- 1. def:congruent-mod, from H2
   have s1 : (5 : ℤ) ∣ a - 1 := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := (1 : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := (1 : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := (1 : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := (1 : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := (1 : ℤ)))).mp (by parley_side); parley_side)
   -- 2. mun:divides-multiple e := 5, a := a − 1, x := a + 1, from 1
-  have s2 : (5 : ℤ) ∣ (a - 1) * (a + 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1); parley_side)
+  have s2 : (5 : ℤ) ∣ (a - 1) * (a + 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1)
   -- 3. substitute
   have s3 : (5 : ℤ) ∣ a ^ 2 - 1 := by
     have c1 : (a - 1) * (a + 1) = a ^ 2 - 1 := by parley_ring

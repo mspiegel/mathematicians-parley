@@ -1,8 +1,6 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -11,12 +9,9 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.FloorBasics.FloorAddInteger
 
@@ -34,7 +29,7 @@ theorem floor_integer_add (N : ℤ) (A : ℝ) :
   -- 3. calculation
   have s3 : ⌊(N : ℝ) + A⌋ = N + ⌊A⌋ := by
     calc ⌊(N : ℝ) + A⌋ = ⌊A + (N : ℝ)⌋ := by parley_subst s2
-      _ = ⌊A⌋ + N := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)) | exact_mod_cast ((Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N))).symm | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); parley_int_power h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); parley_side)
+      _ = ⌊A⌋ + N := by exact (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N))
       _ = N + ⌊A⌋ := by parley_ring
   all_goals exact s3
 

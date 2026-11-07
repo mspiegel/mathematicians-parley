@@ -63,7 +63,7 @@ theorem three_prime :
             -- 2.4.4.3. antisymmetry, from 2.1, 2.4.4.2
             have s2_4_4_3 : d = 3 := by parley_side
             -- 2.4.4.4. mun:or-right, from 2.4.4.3
-            have s2_4_4_4 : d = 1 ∨ d = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3); parley_side)
+            have s2_4_4_4 : d = 1 ∨ d = 3 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3)
             all_goals parley_side
           · skip
             -- 2.4.4.5. substitute d = 2 (C4) into H
@@ -77,12 +77,12 @@ theorem three_prime :
             -- 2.4.4.9. def:odd n := 3, from 2.4.4.8
             have s2_4_4_9 : Odd (3 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), by parley_side⟩; parley_side)
             -- 2.4.4.10. mun:not-both n := 3, from 2.4.4.7
-            have s2_4_4_10 : ¬ Odd (3 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7); parley_side)
+            have s2_4_4_10 : ¬ Odd (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7)
             all_goals parley_side
         all_goals parley_side
       · skip
         -- 2.4.5. mun:or-left, from C2
-        have s2_4_5 : d = 1 ∨ d = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)); parley_side)
+        have s2_4_5 : d = 1 ∨ d = 3 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side))
         all_goals parley_side
     all_goals parley_side
   -- 3. def:prime p := 3, from 1, 2

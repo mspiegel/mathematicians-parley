@@ -20,9 +20,9 @@ namespace Parley.Proofs.Setmm.GroupInverses.GroupIdempotent
 theorem group_idempotent {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : Set G)) :
     (a * a = a ↔ a = (1 : G)) := by
   -- 1. axi:group-identity-closed
-  have s1 : (1 : G) ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | exact ((Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G))).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | (have h := (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)); parley_set_side)
+  have s1 : (1 : G) ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G))
   -- 2. axi:group-identity, from H2
-  have s2 : a * (1 : G) = a := by first | exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | exact ((Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2); parley_set_side)
+  have s2 : a * (1 : G) = a := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)
   -- 3. both directions
   have s3 : a * a = a ↔ a = (1 : G) := by
     constructor
@@ -33,7 +33,7 @@ theorem group_idempotent {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
         calc a * a = a := by parley_set_side
           _ = a * (1 : G) := by parley_set_side
       -- 3.2. thm:group-cancel b := e, g := a, from H2, 1, 3.1
-      have s3_2 : a = (1 : G) := by first | exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a) (b := (1 : G)) (g := a) hH2 s1 hH2 s3_1) | exact ((Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a) (b := (1 : G)) (g := a) hH2 s1 hH2 s3_1)).symm | simpa using (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a) (b := (1 : G)) (g := a) hH2 s1 hH2 s3_1) | exact_mod_cast (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a) (b := (1 : G)) (g := a) hH2 s1 hH2 s3_1) | (have h := (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a) (b := (1 : G)) (g := a) hH2 s1 hH2 s3_1); parley_set_side)
+      have s3_2 : a = (1 : G) := by exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a) (b := (1 : G)) (g := a) hH2 s1 hH2 s3_1)
       all_goals parley_set_side
     · skip
       intro hD2

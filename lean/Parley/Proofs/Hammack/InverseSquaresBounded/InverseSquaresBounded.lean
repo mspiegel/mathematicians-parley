@@ -75,7 +75,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.7. mun:product-nonzero x := k, y := k + 1
       have r54_1 : k ≠ 0 := by parley_side
       have r54_2 : k + 1 ≠ 0 := by parley_side
-      have s2_7 : k * (k + 1) ≠ 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) (by parley_side) (by parley_side)); parley_side)
+      have s2_7 : k * (k + 1) ≠ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) (by parley_side) (by parley_side))
       -- 2.8. inequalities, from 2.6, 2.7
       have s2_8 : k * (k + 1) > 0 := by parley_order
       -- 2.9. algebra

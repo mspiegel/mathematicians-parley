@@ -8,7 +8,6 @@ public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -29,21 +28,21 @@ set_option maxHeartbeats 400000 in
 theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     abs (abs A - abs B) ≤ abs (A - B) := by
   -- 1. thm:triangle-inequality a := A − B, b := B
-  have s1 : abs (A - B + B) ≤ abs (A - B) + abs B := by first | linarith [(Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B))] | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B)) | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B)); parley_side)
+  have s1 : abs (A - B + B) ≤ abs (A - B) + abs B := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B))
   -- 2. substitute
   have s2 : abs A ≤ abs (A - B) + abs B := by
     have c1 : A - B + B = A := by parley_ring
     have row1 : abs A ≤ abs (A - B) + abs B := by parley_subst_at c1 s1
     exact row1
   -- 3. thm:triangle-inequality a := B − A, b := A
-  have s3 : abs (B - A + A) ≤ abs (B - A) + abs A := by first | linarith [(Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := B - A) (b := A))] | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := B - A) (b := A)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := B - A) (b := A)) | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := B - A) (b := A)); parley_side)
+  have s3 : abs (B - A + A) ≤ abs (B - A) + abs A := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := B - A) (b := A))
   -- 4. substitute
   have s4 : abs B ≤ abs (B - A) + abs A := by
     have c1 : B - A + A = B := by parley_ring
     have row1 : abs B ≤ abs (B - A) + abs A := by parley_subst_at c1 s3
     exact row1
   -- 5. mun:abs-negative x := A − B
-  have s5 : abs (-(A - B)) = abs (A - B) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); parley_side)
+  have s5 : abs (-(A - B)) = abs (A - B) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))
   -- 6. substitute
   have s6 : abs (B - A) = abs (A - B) := by
     have c1 : -(A - B) = B - A := by parley_ring

@@ -1,8 +1,6 @@
 module
 
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -11,13 +9,10 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Proofs.Wiedijk.Ramsey
@@ -34,16 +29,16 @@ set_option maxHeartbeats 400000 in
 theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Finite) (hH3 : 1 ≤ (X.ncard : ℤ)) :
     (∃ W ∈ 𝒫 X, 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ G)) := by
   -- 1. inequalities, from H3
-  have r61_1 : 0 ≤ (X.ncard : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2) | exact ((Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2) | (have h := (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2); parley_set_side)
+  have r61_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
   have s1 : 0 < (X.ncard : ℤ) := by parley_count_int; (parley_order)
   -- 2. mun:card-positive, from 1
-  have s2 : ¬ X = ∅ := by first | exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side)); parley_set_side)
+  have s2 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side))
   -- 3. obtain v: mun:nonempty-member, from 2
   obtain ⟨v, s3, _⟩ := (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := X) s2)
   -- 4. mun:singleton-subset, from 3
-  have s4 : ({v} : Set α) ⊆ X := by first | exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := X) (a := v) s3) | exact ((Parley.Items.Stdlib.Sets.mun_singleton_subset (X := X) (a := v) s3)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := X) (a := v) s3) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := X) (a := v) s3) | (have h := (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := X) (a := v) s3); parley_set_side)
+  have s4 : ({v} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := X) (a := v) s3)
   -- 5. mun:card-singleton x := v
-  have s5 : (({v} : Set α).ncard : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v))) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_singleton (x := v))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v)); parley_set_side)
+  have s5 : (({v} : Set α).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := v))
   -- 6. proof
   have s6 : ∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G := by
     intro Y hK1

@@ -18,7 +18,7 @@ theorem in_a_larger_set (x : ℤ) (hH1 : x ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ
     x ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) ∪ ({(7 : ℤ)} : Set ℤ) := by
   set B : Set ℤ := ({(1 : ℤ), (2 : ℤ)} : Set ℤ) with h_B
   -- 1. mun:in-union-left, from H1
-  have s1 : x ∈ B ∪ ({(7 : ℤ)} : Set ℤ) := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := ({(7 : ℤ)} : Set ℤ)) (u := x) hH1) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := ({(7 : ℤ)} : Set ℤ)) (u := x) hH1)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := ({(7 : ℤ)} : Set ℤ)) (u := x) hH1) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := ({(7 : ℤ)} : Set ℤ)) (u := x) hH1) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := ({(7 : ℤ)} : Set ℤ)) (u := x) hH1); parley_set_side)
+  have s1 : x ∈ B ∪ ({(7 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := ({(7 : ℤ)} : Set ℤ)) (u := x) hH1)
   all_goals parley_set_side
 
 end Parley.Tests.Docs.Grammar.InALargerSet

@@ -39,9 +39,9 @@ namespace Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors
 theorem three_divisors (m : ℤ) (hH1 : 0 < m) (e : ℤ) (hH2 : 0 < e) (hH3 : e ∣ m) (hH4 : 1 < e) (hH5 : e < m) :
     (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + e + m := by
   -- 1. mun:one-divides n := m
-  have s1 : (1 : ℤ) ∣ m := by first | exact (Parley.Items.Stdlib.Divisibility.mun_one_divides (n := m)) | exact ((Parley.Items.Stdlib.Divisibility.mun_one_divides (n := m))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_one_divides (n := m)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_one_divides (n := m)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_one_divides (n := m)); parley_set_side)
+  have s1 : (1 : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.mun_one_divides (n := m))
   -- 2. mun:divides-self n := m
-  have s2 : m ∣ m := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := m)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_self (n := m))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := m)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := m)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := m)); parley_set_side)
+  have s2 : m ∣ m := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := m))
   -- 3. def:set-builder u := 1, from 1
   have s3 : (1 : ℤ) ∈ {d : ℤ | 0 < d ∧ d ∣ m} := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := (1 : ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := (1 : ℤ)))).mpr (by parley_set_side); parley_set_side)
   -- 4. def:set-builder u := e, from H3

@@ -27,7 +27,7 @@ namespace Parley.Proofs.Hammack.RationalAsIrrationalProduct.RationalAsIrrational
 theorem rational_as_irrational_product (r : ℚ) (hH2 : r ≠ 0) :
     (∃ x : ℝ, ∃ y : ℝ, (Irrational x ∧ Irrational y) ∧ (r : ℝ) = x * y) := by
   -- 1. thm:sqrt2-irrational
-  have s1 : Irrational (Real.sqrt (2 : ℝ)) := by first | exact Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational | exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational).symm | simpa using Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational | exact_mod_cast Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational | (have h := Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational; parley_side)
+  have s1 : Irrational (Real.sqrt (2 : ℝ)) := by exact Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational
   -- 2. algebra, from H2
   have s2 : r / 2 ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) ((4) / ((2))) * h)
   -- 3. thm:irrational-product A := √2, B := r/2, from 1

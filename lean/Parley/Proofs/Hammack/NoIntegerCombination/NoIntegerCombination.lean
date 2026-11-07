@@ -1,20 +1,15 @@
 module
 
 public import ArithTactics
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/no-integer-combination.proof by parley build lean. -/
@@ -42,7 +37,7 @@ theorem no_integer_combination :
     -- 5. substitute 21a + 30b = 1 (line 1) into line 4
     have s5 : (3 : ℤ) ∣ (1 : ℤ) := by parley_subst_at s1 s4
     -- 6. mun:divides-one d := 3, from 5
-    have s6 : (3 : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5)).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5); parley_side)
+    have s6 : (3 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5)
     exact absurd s6 (by norm_num)
     all_goals parley_side
   all_goals parley_side

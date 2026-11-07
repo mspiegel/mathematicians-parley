@@ -64,7 +64,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       -- 1.7. instantiate c := 2·c in IH, from 1.6
       have s1_7 : (5 : ℤ) ∣ 2 * c := by first | exact (hIH (2 * c) (by parley_side)) | exact ((hIH (2 * c) (by parley_side))).symm | simpa using (hIH (2 * c) (by parley_side)) | exact_mod_cast (hIH (2 * c) (by parley_side)) | (have h := (hIH (2 * c) (by parley_side)); parley_side)
       -- 1.8. thm:five-divides-half b := c, from 1.7
-      have s1_8 : (5 : ℤ) ∣ c := by first | exact (Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf.five_divides_half (b := c) s1_7) | exact ((Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf.five_divides_half (b := c) s1_7)).symm | simpa using (Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf.five_divides_half (b := c) s1_7) | exact_mod_cast (Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf.five_divides_half (b := c) s1_7) | (have h := (Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf.five_divides_half (b := c) s1_7); parley_side)
+      have s1_8 : (5 : ℤ) ∣ c := by exact (Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf.five_divides_half (b := c) s1_7)
       all_goals parley_side
   -- 2. instantiate k := n, c := a in line 1, from H3
   have s2 : (5 : ℤ) ∣ a := by first | exact (s1 n (by parley_side) a (by parley_side)) | exact ((s1 n (by parley_side) a (by parley_side))).symm | simpa using (s1 n (by parley_side) a (by parley_side)) | exact_mod_cast (s1 n (by parley_side) a (by parley_side)) | (have h := (s1 n (by parley_side) a (by parley_side)); parley_side)

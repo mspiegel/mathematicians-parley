@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -14,8 +13,6 @@ public import Mathlib.Tactic.NormNum.GCD
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder
 
@@ -34,7 +31,7 @@ theorem congruent_same_gcd (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a 
   -- 3. algebra, from 2
   have s3 : a = k * n + b := by linear_combination (norm := parley_norm) s2
   -- 4. thm:gcd-with-remainder b := n, q := k, r := b, from 3
-  have s4 : (Int.gcd a n : ℤ) = (Int.gcd b n : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3) | (have h := (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3) | exact_mod_cast ((Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3)).symm | (have h := (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3); parley_int_power h) | (have h := (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3); parley_side)
+  have s4 : (Int.gcd a n : ℤ) = (Int.gcd b n : ℤ) := by exact (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3)
   all_goals exact s4
 
 end Parley.Proofs.Hammack.CongruentSameGcd.CongruentSameGcd

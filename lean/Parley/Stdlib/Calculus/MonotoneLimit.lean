@@ -37,7 +37,7 @@ set_option maxHeartbeats 800000 in
 theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x (n + 1)) (B : ℝ) (hH4 : ∀ n : ℤ, 0 < n → x n ≤ B) :
     (∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) := by
   -- 1. mun:subset-self
-  have s1 : {n : ℤ | 0 < n} ⊆ {n : ℤ | 0 < n} := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n}))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})); parley_set_side)
+  have s1 : {n : ℤ | 0 < n} ⊆ {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n}))
   -- 2. mun:image-within, from H1
   have s2 : x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Functions.mun_image_within (X := (Set.univ : Set ℤ)) (W := (Set.univ : Set ℝ)) (Y := {n : ℤ | 0 < n}) (f := x) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_image_within (X := (Set.univ : Set ℤ)) (W := (Set.univ : Set ℝ)) (Y := {n : ℤ | 0 < n}) (f := x) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_image_within (X := (Set.univ : Set ℤ)) (W := (Set.univ : Set ℝ)) (Y := {n : ℤ | 0 < n}) (f := x) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_image_within (X := (Set.univ : Set ℤ)) (W := (Set.univ : Set ℝ)) (Y := {n : ℤ | 0 < n}) (f := x) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_image_within (X := (Set.univ : Set ℤ)) (W := (Set.univ : Set ℝ)) (Y := {n : ℤ | 0 < n}) (f := x) (by parley_whole_side)); parley_set_side)
   -- 3. mun:value-in-image s := 1, from H1, 1
@@ -62,7 +62,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
   -- 8. def:upper-bound, from 7
   have s8 : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ c := by parley_set_side
   -- 9. mun:increasing-terms, from H2
-  have s9 : ∀ n : ℤ, 0 < n → (∀ m : ℤ, 0 < m → m ≤ n → x m ≤ x n) := by first | exact (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | exact ((Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2)).symm | simpa using (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | exact_mod_cast (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | (have h := (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2); parley_set_side)
+  have s9 : ∀ n : ℤ, 0 < n → (∀ m : ℤ, 0 < m → m ≤ n → x m ≤ x n) := by exact (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2)
   -- 10. proof
   have s10 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - c) < ε)) := by
     intro ε

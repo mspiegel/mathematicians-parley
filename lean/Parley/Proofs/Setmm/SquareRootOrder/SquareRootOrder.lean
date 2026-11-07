@@ -1,9 +1,7 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
@@ -12,15 +10,12 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/square-root-order.proof by parley build lean. -/
@@ -33,10 +28,10 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     (A ≤ B ↔ Real.sqrt A ≤ Real.sqrt B) := by
   -- 1. def:sqrt x := A, from H3
   have s1a : Real.sqrt A ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := A) hH3)] | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := A) hH3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := A) hH3) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := A) hH3); parley_side)
-  have s1b : Real.sqrt A ^ 2 = A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3); parley_side)
+  have s1b : Real.sqrt A ^ 2 = A := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3)
   -- 2. def:sqrt x := B, from H4
   have s2a : Real.sqrt B ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := B) hH4)] | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := B) hH4); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := B) hH4) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := B) hH4); parley_side)
-  have s2b : Real.sqrt B ^ 2 = B := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4); parley_side)
+  have s2b : Real.sqrt B ^ 2 = B := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4)
   -- 3. both directions
   have s3 : A ≤ B ↔ Real.sqrt A ≤ Real.sqrt B := by
     constructor

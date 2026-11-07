@@ -52,7 +52,7 @@ theorem remainder_nonnegative (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     first | linarith [(Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B))] | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B)); parley_side)
   -- 4. calculation
   have s4 : B * (q : ℝ) ≤ A := by
-    calc B * (q : ℝ) ≤ B * (A / B) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) (by parley_side) (by parley_side)); parley_side)
+    calc B * (q : ℝ) ≤ B * (A / B) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) (by parley_side) (by parley_side))
       _ = A := by parley_ring
   -- 5. inequalities
   have s5 : 0 ≤ A - B * (q : ℝ) := by parley_order

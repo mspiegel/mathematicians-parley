@@ -28,17 +28,17 @@ theorem prime_divisor_in_range (N : ℤ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   -- 1. mun:range-bounds a := 2, b := N, k := I, from H2
   have s1 : 2 ≤ I := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2); parley_side)
   -- 2. mun:range-bounds a := 2, b := N, k := I, from H2
-  have s2 : I ≤ N := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2); parley_side)
+  have s2 : I ≤ N := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2)
   -- 3. inequalities, from 1
   have s3 : 0 < I := by parley_order
   -- 4. mun:pos-int-nat m := I, from 3
-  have s4 : 0 < I := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) s3) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) s3)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) s3) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) s3) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) s3); parley_side)
+  have s4 : 0 < I := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) s3)
   -- 5. inequalities, from 1
   have s5 : I > 1 := by parley_order
   -- 6. obtain p: thm:prime-factor m := I, from 4, 5
   obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) (by parley_side) (by parley_side))
   -- 7. mun:divides-le e := p, m := I, from 4, 6
-  have s7 : p ≤ I := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) s6c)] | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) s6c); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) s6c) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) s6c); parley_side)
+  have s7 : p ≤ I := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) s6c)
   -- 8. transitivity, from 7, 2
   have s8 : p ≤ N := by parley_order
   -- 9. exhibit, from 6, 8

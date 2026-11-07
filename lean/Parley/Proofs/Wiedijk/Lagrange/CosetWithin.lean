@@ -23,16 +23,16 @@ namespace Parley.Proofs.Wiedijk.Lagrange.CosetWithin
 theorem coset_within {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (g : G) (hH3 : g ∈ (Set.univ : Set G)) :
     (g * ·) '' (H : Set G) ⊆ (Set.univ : Set G) := by
   -- 1. mun:subgroup-within, from H2
-  have s1 : (H : Set G) ⊆ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.mun_subgroup_within (G := G) (H := H) hH2) | exact ((Parley.Items.Stdlib.Groups.mun_subgroup_within (G := G) (H := H) hH2)).symm | simpa using (Parley.Items.Stdlib.Groups.mun_subgroup_within (G := G) (H := H) hH2) | exact_mod_cast (Parley.Items.Stdlib.Groups.mun_subgroup_within (G := G) (H := H) hH2) | (have h := (Parley.Items.Stdlib.Groups.mun_subgroup_within (G := G) (H := H) hH2); parley_set_side)
+  have s1 : (H : Set G) ⊆ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.mun_subgroup_within (G := G) (H := H) hH2)
   -- 2. proof
   have s2 : ∀ u ∈ (g * ·) '' (H : Set G), u ∈ (Set.univ : Set G) := by
     intro u hK1
     -- 2.1. obtain h: def:coset, from H2, H3, K1
     obtain ⟨h, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := u) (H := H) hH2 hH3)).mp (by parley_set_side)
     -- 2.2. mun:in-subset, from 1, 2.1
-    have s2_2 : h ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (H : Set G)) (Y := (Set.univ : Set G)) (u := h) s1 s2_1a) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (H : Set G)) (Y := (Set.univ : Set G)) (u := h) s1 s2_1a)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := (H : Set G)) (Y := (Set.univ : Set G)) (u := h) s1 s2_1a) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := (H : Set G)) (Y := (Set.univ : Set G)) (u := h) s1 s2_1a) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := (H : Set G)) (Y := (Set.univ : Set G)) (u := h) s1 s2_1a); parley_set_side)
+    have s2_2 : h ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (H : Set G)) (Y := (Set.univ : Set G)) (u := h) s1 s2_1a)
     -- 2.3. axi:group-closed a := g, b := h, from H3, 2.2
-    have s2_3 : g * h ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := g) (b := h) hH3 s2_2) | exact ((Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := g) (b := h) hH3 s2_2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := g) (b := h) hH3 s2_2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := g) (b := h) hH3 s2_2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := g) (b := h) hH3 s2_2); parley_set_side)
+    have s2_3 : g * h ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := g) (b := h) hH3 s2_2)
     -- 2.4. substitute u = g·h (line 2.1) into line 2.3
     have s2_4 : u ∈ (Set.univ : Set G) := by parley_subst_at s2_1b s2_3
     all_goals exact s2_4

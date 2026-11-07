@@ -18,7 +18,7 @@ namespace Parley.Proofs.Setmm.BinomialBasics.FactorialNonzero
 theorem factorial_nonzero (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.factorial N : ℤ) ≠ 0 := by
   -- 1. mun:factorial-nat n := N
-  have s1 : 0 < (LeanBridges.Counting.factorial N : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N) (by parley_side)); parley_side)
+  have s1 : 0 < (LeanBridges.Counting.factorial N : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N) (by parley_side))
   -- 2. inequalities, from 1
   have s2 : (LeanBridges.Counting.factorial N : ℤ) ≠ 0 := by parley_side
   all_goals exact s2

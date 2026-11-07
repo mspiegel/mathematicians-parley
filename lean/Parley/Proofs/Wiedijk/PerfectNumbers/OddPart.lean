@@ -73,9 +73,9 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       -- 1.4. mun:range-bounds a := 1, b := N + 1, k := j, from K3
       have s1_4 : 1 ≤ j := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3); parley_side)
       -- 1.5. mun:range-bounds a := 1, b := N + 1, k := j, from K3
-      have s1_5 : j ≤ N + 1 := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3); parley_side)
+      have s1_5 : j ≤ N + 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.6. mun:even-or-odd n := j
-      have s1_6 : Even j ∨ Odd j := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := j)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := j))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := j)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := j)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := j)); parley_side)
+      have s1_6 : Even j ∨ Odd j := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := j))
       -- 1.7. cases, from 1.6
       have s1_7 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m)) := by
         rcases s1_6 with hC1 | hC2
@@ -87,15 +87,15 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.3. mun:factor-positive a := 2, b := i
           have r197_1 : (2 : ℤ) ≥ 0 := by parley_arith
           have r197_2 : 2 * i > 0 := by parley_order
-          have s1_7_3 : 0 < i := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) (by parley_side) (by parley_side)); parley_side)
+          have s1_7_3 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) (by parley_side) (by parley_side))
           -- 1.7.4. mun:pos-int-nat m := i, from 1.7.3
-          have s1_7_4 : 0 < i := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3); parley_side)
+          have s1_7_4 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3)
           -- 1.7.5. inequalities
           have s1_7_5 : i < 2 * i := by parley_order
           -- 1.7.6. transitivity, from 1.7.5, 1.7.1, 1.5
           have s1_7_6 : i < N + 1 := by parley_order
           -- 1.7.7. mun:integer-step m := i, n := N + 1, from 1.7.6
-          have s1_7_7 : i + 1 ≤ N + 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := N + 1) s1_7_6)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := N + 1) s1_7_6); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := N + 1) s1_7_6) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := N + 1) s1_7_6); parley_side)
+          have s1_7_7 : i + 1 ≤ N + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := N + 1) s1_7_6)
           -- 1.7.8. inequalities
           have s1_7_8 : i ≤ N := by parley_order
           -- 1.7.9. def:range-between k := i, a := 1, b := N, from 1.7.8

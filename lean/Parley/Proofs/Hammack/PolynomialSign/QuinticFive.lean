@@ -8,7 +8,6 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -30,10 +29,10 @@ theorem quintic_five (x : ℝ) (hH2 : x ^ 5 - 4 * x ^ 4 + 3 * x ^ 3 - x ^ 2 + 3 
     -- 1. inequalities, from S
     have s1 : x < 0 := by parley_order
     -- 2. thm:negative-powers, from 1
-    have s2a : x ^ 2 ≥ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).1] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).1 | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).1; parley_side)
-    have s2b : x ^ 3 ≤ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.1] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.1 | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.1; parley_side)
-    have s2c : x ^ 4 ≥ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.1] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.1 | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.1; parley_side)
-    have s2d : x ^ 5 ≤ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.2] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.2; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.2 | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.2; parley_side)
+    have s2a : x ^ 2 ≥ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).1
+    have s2b : x ^ 3 ≤ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.1
+    have s2c : x ^ 4 ≥ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.1
+    have s2d : x ^ 5 ≤ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.2
     -- 3. inequalities
     have s3 : -(4 * x ^ 4) ≤ 0 := by parley_order
     -- 4. inequalities

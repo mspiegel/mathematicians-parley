@@ -20,8 +20,8 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInARequiresLineC
 theorem a_range_bound_in_a_requires_line_citing_an_item (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 : ℤ) n) :
     0 < n - k + 1 := by
   -- 1. mun:nat0-successor k := n − k
-  have r52_1 : 0 ≤ n - k := by first | exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (by parley_side)); parley_side)
-  have s1 : 0 < n - k + 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side)); parley_side)
+  have r52_1 : 0 ≤ n - k := by exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (by parley_side))
+  have s1 : 0 < n - k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side))
   all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInARequiresLineCitingAnItem

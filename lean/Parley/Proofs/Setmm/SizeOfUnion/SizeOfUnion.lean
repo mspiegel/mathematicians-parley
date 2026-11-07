@@ -1,8 +1,6 @@
 module
 
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -11,13 +9,10 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
@@ -34,15 +29,15 @@ set_option maxHeartbeats 400000 in
 theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B.Finite) :
     ((A ∪ B).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by
   -- 1. mun:difference-subset X := B, Y := A
-  have s1 : B \ A ⊆ B := by first | exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := A)) | exact ((Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := A))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := A)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := A)) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := A)); parley_set_side)
+  have s1 : B \ A ⊆ B := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := A))
   -- 2. mun:finite-part X := B, Y := B ∖ A, from H4, 1
-  have s2 : (B \ A).Finite := by first | exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := B) (Y := B \ A) hH4 s1) | exact ((Parley.Items.Stdlib.Counting.mun_finite_part (X := B) (Y := B \ A) hH4 s1)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_finite_part (X := B) (Y := B \ A) hH4 s1) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_finite_part (X := B) (Y := B \ A) hH4 s1) | (have h := (Parley.Items.Stdlib.Counting.mun_finite_part (X := B) (Y := B \ A) hH4 s1); parley_set_side)
+  have s2 : (B \ A).Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := B) (Y := B \ A) hH4 s1)
   -- 3. mun:card-nat0 X := A, from H3
-  have s3 : 0 ≤ (A.ncard : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH3) | exact ((Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH3)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH3) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH3) | (have h := (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH3); parley_set_side)
+  have s3 : 0 ≤ (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH3)
   -- 4. mun:card-nat0 X := B, from H4
-  have s4 : 0 ≤ (B.ncard : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) hH4) | exact ((Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) hH4)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) hH4) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) hH4) | (have h := (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) hH4); parley_set_side)
+  have s4 : 0 ≤ (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) hH4)
   -- 5. mun:card-nat0 X := B ∖ A, from 2
-  have s5 : 0 ≤ ((B \ A).ncard : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2) | exact ((Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2) | (have h := (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2); parley_set_side)
+  have s5 : 0 ≤ ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2)
   -- 6. mun:card-subset A := B ∖ A, from 1
   have s6 : ((B \ A).ncard : ℤ) ≤ (B.ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1); simp only [← Set.Finite.cast_ncard_eq (show (B \ A : Set α).Finite by parley_finite), ← Set.Finite.cast_ncard_eq (show (B : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
   -- 7. proof
@@ -55,11 +50,11 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
     have s7_2 : ¬ s ∈ A := by parley_set_side
     all_goals exact s7_2
   -- 8. mun:disjoint-empty Y := A, Z := B ∖ A, from 7
-  have s8 : A ∩ (B \ A) = ∅ := by first | exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7) | exact ((Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7); parley_set_side)
+  have s8 : A ∩ (B \ A) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7)
   -- 9. mun:card-disjoint-union X := A, Y := B ∖ A, m := |A|, n := |B ∖ A|, from 3, 5, 8
-  have s9 : ((A ∪ B \ A).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8) | (have h := (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8)).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8); parley_set_side)
+  have s9 : ((A ∪ B \ A).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8)
   -- 10. thm:union-split
-  have s10 : A ∪ B \ A = A ∪ B := by first | exact (Parley.Proofs.Setmm.SizeOfUnion.UnionSplit.union_split (A := A) (B := B)) | exact ((Parley.Proofs.Setmm.SizeOfUnion.UnionSplit.union_split (A := A) (B := B))).symm | simpa using (Parley.Proofs.Setmm.SizeOfUnion.UnionSplit.union_split (A := A) (B := B)) | exact_mod_cast (Parley.Proofs.Setmm.SizeOfUnion.UnionSplit.union_split (A := A) (B := B)) | (have h := (Parley.Proofs.Setmm.SizeOfUnion.UnionSplit.union_split (A := A) (B := B)); parley_set_side)
+  have s10 : A ∪ B \ A = A ∪ B := by exact (Parley.Proofs.Setmm.SizeOfUnion.UnionSplit.union_split (A := A) (B := B))
   -- 11. substitute A ∪ (B ∖ A) = A ∪ B (line 10) into line 9
   have s11 : ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_subst_at s10 s9
   -- 12. inequalities

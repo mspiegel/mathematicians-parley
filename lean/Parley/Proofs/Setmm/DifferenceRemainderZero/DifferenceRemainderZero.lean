@@ -1,9 +1,7 @@
 module
 
-public import Divisibility
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.ModEq
@@ -15,9 +13,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/difference-remainder-zero.proof by parley build lean. -/
@@ -37,7 +32,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
       have r20_1 : 0 < N := by parley_order
       obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) (by parley_side) (r := (0 : ℤ)) (by parley_side) (by parley_side))).mp (by parley_side)
       -- 2. mun:mod-multiple r := B, m := N
-      have s2 : (q * N + B) % N = B % N := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q)); parley_side)
+      have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q))
       -- 3. substitute
       have s3 : A % N = B % N := by
         have c1 : q * N + B = A := by linear_combination (norm := parley_norm) s1
@@ -47,7 +42,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     · skip
       intro hC2
       -- 4. mun:mod-equal-congruent, from C2
-      have s4 : A ≡ B [ZMOD N] := by first | exact (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2); parley_side)
+      have s4 : A ≡ B [ZMOD N] := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2)
       -- 5. def:congruent-mod, from 4
       have s5 : N ∣ A - B := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp (by parley_side); parley_side)
       -- 6. obtain k: def:divides d := N, n := A − B, from 5

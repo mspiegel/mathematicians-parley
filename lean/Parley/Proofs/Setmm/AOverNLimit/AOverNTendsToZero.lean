@@ -82,7 +82,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
         have row1 : abs (1 / (n : ℝ)) < ε / (2 * (abs A + 1)) := by first | parley_put_at c1_w s5_4_2 | parley_put_at c1 s5_4_2 | parley_subst_at c1_w s5_4_2 | parley_subst_at c1 s5_4_2
         exact row1
       -- 5.4.6. thm:scaled-small C := A, u := 1/n, from A1, 5.4.5
-      have s5_4_6 : abs (A * (1 / (n : ℝ))) < ε := by first | linarith [(Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 (by parley_side))] | (have h := (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 (by parley_side)) | (have h := (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 (by parley_side)); parley_side)
+      have s5_4_6 : abs (A * (1 / (n : ℝ))) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 (by parley_side))
       -- 5.4.7. substitute
       have s5_4_7 : abs (A / (n : ℝ)) < ε := by
         have c1 : A * (1 / (n : ℝ)) = A / (n : ℝ) := by parley_ring

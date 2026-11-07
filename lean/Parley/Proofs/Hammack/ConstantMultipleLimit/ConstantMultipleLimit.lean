@@ -1,9 +1,7 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -16,14 +14,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
@@ -75,7 +70,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
       -- 4.6.7. algebra, from 4.6.2
       have s4_6_7 : (abs c + 1) * abs (a n - L) = abs c * abs (a n - L) + abs (a n - L) := by parley_ring
       -- 4.6.8. mun:abs-product x := c, y := a(n) − L, from 4.6.1
-      have s4_6_8 : abs (c * (a n - L)) = abs c * abs (a n - L) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L)); parley_side)
+      have s4_6_8 : abs (c * (a n - L)) = abs c * abs (a n - L) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L))
       -- 4.6.9. substitute
       have s4_6_9 : abs (c * a n - c * L) = abs c * abs (a n - L) := by
         have c1 : c * (a n - L) = c * a n - c * L := by parley_ring

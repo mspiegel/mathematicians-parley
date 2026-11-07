@@ -5,7 +5,6 @@ public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -22,7 +21,7 @@ namespace Parley.Proofs.Setmm.DistanceTriangle.DistanceTriangle
 theorem distance_triangle (A : ℝ) (B : ℝ) (C : ℝ) :
     abs (A - B) ≤ abs (A - C) + abs (C - B) := by
   -- 1. thm:triangle-inequality a := A − C, b := C − B
-  have s1 : abs (A - C + (C - B)) ≤ abs (A - C) + abs (C - B) := by first | linarith [(Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - C) (b := C - B))] | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - C) (b := C - B)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - C) (b := C - B)) | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - C) (b := C - B)); parley_side)
+  have s1 : abs (A - C + (C - B)) ≤ abs (A - C) + abs (C - B) := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - C) (b := C - B))
   -- 2. substitute
   have s2 : abs (A - B) ≤ abs (A - C) + abs (C - B) := by
     have c1 : A - C + (C - B) = A - B := by parley_ring

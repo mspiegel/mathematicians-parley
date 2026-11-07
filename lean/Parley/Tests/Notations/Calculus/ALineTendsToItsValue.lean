@@ -72,7 +72,7 @@ theorem a_line_tends_to_its_value (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = 2 
     have s1_3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ 1 ∧ abs (x - 1) < δ → abs (g x - 3) < ε) := ⟨ε / 2, ⟨by parley_set_side, by parley_set_side⟩⟩
     all_goals parley_set_side
   -- 2. def:limit-at D := ℝ, c := 1, L := 3, from 1
-  have r82_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))); parley_set_side)
+  have r82_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s2 : Filter.Tendsto g (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (3 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (3 : ℝ)))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 

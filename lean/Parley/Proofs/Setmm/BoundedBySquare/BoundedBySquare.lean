@@ -35,10 +35,10 @@ set_option maxHeartbeats 600000 in
 theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     (A ≤ B ∧ -A ≤ B ↔ A ^ 2 ≤ B ^ 2) := by
   -- 1. thm:abs-bounds x := A
-  have s1a : A ≤ abs A := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).1] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).1 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).1; parley_side)
-  have s1b : -A ≤ abs A := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).2] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).2; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).2 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).2; parley_side)
+  have s1a : A ≤ abs A := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).1
+  have s1b : -A ≤ abs A := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := A)).2
   -- 2. mun:abs-square x := A
-  have s2 : abs A ^ 2 = A ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_square (x := A))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); parley_side)
+  have s2 : abs A ^ 2 = A ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A))
   -- 3. inequalities, from 1
   have s3 : 0 ≤ 2 * abs A := by parley_order
   -- 4. inequalities

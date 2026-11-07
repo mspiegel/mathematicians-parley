@@ -9,7 +9,6 @@ public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -33,13 +32,13 @@ set_option maxHeartbeats 400000 in
 theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     (a = (Int.lcm a b : ℤ) ↔ b ∣ a) := by
   -- 1. def:lcm
-  have s1 : b ∣ (Int.lcm a b : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.def_lcm_3 (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Divisibility.def_lcm_3 (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_lcm_3 (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_lcm_3 (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Divisibility.def_lcm_3 (a := a) (b := b)); parley_side)
+  have s1 : b ∣ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_lcm_3 (a := a) (b := b))
   -- 2. def:lcm
-  have s2 : a ∣ (Int.lcm a b : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)); parley_side)
+  have s2 : a ∣ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))
   -- 3. def:lcm
-  have s3 : 0 ≤ (Int.lcm a b : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.def_lcm_1 (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Divisibility.def_lcm_1 (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_lcm_1 (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_lcm_1 (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Divisibility.def_lcm_1 (a := a) (b := b)); parley_side)
+  have s3 : 0 ≤ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_lcm_1 (a := a) (b := b))
   -- 4. def:lcm
-  have s4 : ∀ k : ℤ, a ∣ k ∧ b ∣ k → (Int.lcm a b : ℤ) ∣ k := by first | exact (Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b)); parley_side)
+  have s4 : ∀ k : ℤ, a ∣ k ∧ b ∣ k → (Int.lcm a b : ℤ) ∣ k := by exact (Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b))
   -- 5. both directions
   have s5 : a = (Int.lcm a b : ℤ) ↔ b ∣ a := by
     constructor
@@ -51,14 +50,14 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     · skip
       intro hD2
       -- 5.2. mun:divides-self n := a
-      have s5_2 : a ∣ a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a)); parley_side)
+      have s5_2 : a ∣ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a))
       -- 5.3. join 5.2, D2
       have s5_3a : a ∣ a := by parley_side
       have s5_3b : b ∣ a := by parley_side
       -- 5.4. instantiate k := a in line 4
       have s5_4 : a ∣ a ∧ b ∣ a → (Int.lcm a b : ℤ) ∣ a := by first | exact (s4 a) | exact ((s4 a)).symm | simpa using (s4 a) | exact_mod_cast (s4 a) | (have h := (s4 a); parley_side)
       -- 5.5. mun:modus-ponens P := a divides a and b divides a, from 5.3, 5.4
-      have s5_5 : (Int.lcm a b : ℤ) ∣ a := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ b ∣ a) (Q := (Int.lcm a b : ℤ) ∣ a) s5_4 (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ b ∣ a) (Q := (Int.lcm a b : ℤ) ∣ a) s5_4 (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ b ∣ a) (Q := (Int.lcm a b : ℤ) ∣ a) s5_4 (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ b ∣ a) (Q := (Int.lcm a b : ℤ) ∣ a) s5_4 (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ b ∣ a) (Q := (Int.lcm a b : ℤ) ∣ a) s5_4 (by parley_side)); parley_side)
+      have s5_5 : (Int.lcm a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ b ∣ a) (Q := (Int.lcm a b : ℤ) ∣ a) s5_4 (by parley_side))
       -- 5.6. contradiction
       have s5_6 : (Int.lcm a b : ℤ) ≠ 0 := by
         by_contra hc_hS
@@ -73,11 +72,11 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
       -- 5.7. inequalities, from 3, 5.6
       have s5_7 : 0 < (Int.lcm a b : ℤ) := by parley_order
       -- 5.8. mun:pos-int-nat m := lcm(a, b), from 5.7
-      have s5_8 : 0 < (Int.lcm a b : ℤ) := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7); parley_side)
+      have s5_8 : 0 < (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7)
       -- 5.9. mun:divides-le e := lcm(a, b), m := a, from 5.5, 5.8
-      have s5_9 : (Int.lcm a b : ℤ) ≤ a := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.lcm a b : ℤ)) (by parley_side) (m := a) (by parley_side) s5_5)] | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.lcm a b : ℤ)) (by parley_side) (m := a) (by parley_side) s5_5); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.lcm a b : ℤ)) (by parley_side) (m := a) (by parley_side) s5_5) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.lcm a b : ℤ)) (by parley_side) (m := a) (by parley_side) s5_5); parley_side)
+      have s5_9 : (Int.lcm a b : ℤ) ≤ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.lcm a b : ℤ)) (by parley_side) (m := a) (by parley_side) s5_5)
       -- 5.10. mun:divides-le e := a, m := lcm(a, b), from 2, 5.8
-      have s5_10 : a ≤ (Int.lcm a b : ℤ) := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) (by parley_side) (m := (Int.lcm a b : ℤ)) (by parley_side) s2)] | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) (by parley_side) (m := (Int.lcm a b : ℤ)) (by parley_side) s2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) (by parley_side) (m := (Int.lcm a b : ℤ)) (by parley_side) s2) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) (by parley_side) (m := (Int.lcm a b : ℤ)) (by parley_side) s2); parley_side)
+      have s5_10 : a ≤ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) (by parley_side) (m := (Int.lcm a b : ℤ)) (by parley_side) s2)
       -- 5.11. antisymmetry, from 5.9, 5.10
       have s5_11 : a = (Int.lcm a b : ℤ) := by parley_side
       all_goals parley_side

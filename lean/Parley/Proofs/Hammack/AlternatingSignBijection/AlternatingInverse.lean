@@ -52,7 +52,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     -- 2.1. inequalities
     have s2_1 : 2 * m > 0 := by parley_order
     -- 2.2. mun:pos-int-nat m := 2·m, from 2.1
-    have s2_2 : 0 < 2 * m := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) (by parley_set_side)); parley_set_side)
+    have s2_2 : 0 < 2 * m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) (by parley_set_side))
     -- 2.3. def:even n := 2·m
     have s2_3 : Even (2 * m) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * m))).mpr ⟨m, by parley_set_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * m))).mpr ⟨m, by parley_set_side⟩; parley_set_side)
     -- 2.4. thm:alternating-value-even m := 2·m, from H2, 2.2, 2.3
@@ -74,7 +74,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     -- 3.2. inequalities, from 3.1
     have s3_2 : 1 - 2 * m > 0 := by parley_order
     -- 3.3. mun:pos-int-nat m := 1 − 2·m, from 3.2
-    have s3_3 : 0 < 1 - 2 * m := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) (by parley_set_side)); parley_set_side)
+    have s3_3 : 0 < 1 - 2 * m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) (by parley_set_side))
     -- 3.4. algebra
     have s3_4 : 1 - 2 * m = 2 * -m + 1 := by parley_ring
     -- 3.5. def:odd n := 1 − 2·m, from 3.4

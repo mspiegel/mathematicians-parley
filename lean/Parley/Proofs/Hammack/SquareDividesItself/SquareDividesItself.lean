@@ -62,7 +62,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
           -- 3.6.1. inequalities, from C2, C3
           have s3_6_1 : a > 0 := by parley_order
           -- 3.6.2. mun:pos-int-nat m := a, from 3.6.1
-          have s3_6_2 : 0 < a := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) (by parley_set_side)); parley_set_side)
+          have s3_6_2 : 0 < a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) (by parley_set_side))
           -- 3.6.3. restate 3.4
           have s3_6_3 : 1 = a * k := by parley_set_side
           -- 3.6.4. def:divides d := a, n := 1, from 3.6.3
@@ -79,13 +79,13 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
           -- 3.6.7. inequalities
           have s3_6_7 : -a > 0 := by parley_order
           -- 3.6.8. mun:pos-int-nat m := −a, from 3.6.7
-          have s3_6_8 : 0 < -a := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) (by parley_set_side)); parley_set_side)
+          have s3_6_8 : 0 < -a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) (by parley_set_side))
           -- 3.6.9. algebra, from 3.4
           have s3_6_9 : 1 = -a * -k := by linear_combination (norm := parley_norm) (-1) * s3_4
           -- 3.6.10. def:divides d := −a, n := 1, from 3.6.9
           have s3_6_10 : -a ∣ (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := -a) (n := (1 : ℤ)))).mpr ⟨-k, by parley_set_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := -a) (n := (1 : ℤ)))).mpr ⟨-k, by parley_set_side⟩; parley_set_side)
           -- 3.6.11. mun:divides-one d := −a, from 3.6.8, 3.6.10
-          have s3_6_11 : -a = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10)).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10); parley_set_side)
+          have s3_6_11 : -a = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10)
           -- 3.6.12. inspection
           have s3_6_12 : (-1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
           -- 3.6.13. substitute

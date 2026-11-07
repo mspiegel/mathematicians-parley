@@ -55,7 +55,7 @@ theorem intersection_then_difference {α : Type*} (A : Set α) (B : Set α) (C :
   -- 4. def:subset, from 3
   have s4 : (A \ C) ∩ (B \ C) ⊆ (A ∩ B) \ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (A \ C) ∩ (B \ C)) (Y := (A ∩ B) \ C))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (A \ C) ∩ (B \ C)) (Y := (A ∩ B) \ C))).mpr (by parley_set_side); parley_set_side)
   -- 5. mun:subset-antisymmetric, from 2, 4
-  have s5 : (A ∩ B) \ C = (A \ C) ∩ (B \ C) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (A ∩ B) \ C) (Y := (A \ C) ∩ (B \ C)) s2 s4) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (A ∩ B) \ C) (Y := (A \ C) ∩ (B \ C)) s2 s4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (A ∩ B) \ C) (Y := (A \ C) ∩ (B \ C)) s2 s4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (A ∩ B) \ C) (Y := (A \ C) ∩ (B \ C)) s2 s4) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (A ∩ B) \ C) (Y := (A \ C) ∩ (B \ C)) s2 s4); parley_set_side)
+  have s5 : (A ∩ B) \ C = (A \ C) ∩ (B \ C) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (A ∩ B) \ C) (Y := (A \ C) ∩ (B \ C)) s2 s4)
   all_goals exact s5
 
 end Parley.Proofs.Hammack.IntersectionThenDifference.IntersectionThenDifference

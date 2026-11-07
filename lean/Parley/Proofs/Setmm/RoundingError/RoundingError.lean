@@ -15,7 +15,6 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -38,9 +37,9 @@ theorem rounding_error (A : ℝ) :
     abs ((⌊A + 1 / 2⌋ : ℝ) - A) ≤ 1 / 2 := by
   -- 1. mun:floor-integer x := A + 1/2
   -- 2. mun:floor-below x := A + 1/2
-  have s2 : (⌊A + 1 / 2⌋ : ℝ) ≤ A + 1 / 2 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_floor_below (x := A + 1 / 2))] | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A + 1 / 2)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A + 1 / 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A + 1 / 2)); parley_side)
+  have s2 : (⌊A + 1 / 2⌋ : ℝ) ≤ A + 1 / 2 := by exact (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A + 1 / 2))
   -- 3. mun:floor-above x := A + 1/2
-  have s3 : A + 1 / 2 < (⌊A + 1 / 2⌋ : ℝ) + 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2))] | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2)); parley_side)
+  have s3 : A + 1 / 2 < (⌊A + 1 / 2⌋ : ℝ) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2))
   set e : ℝ := (⌊A + 1 / 2⌋ : ℝ) - A with hD1
   have hD1_kind : True := by parley_side
   -- 4. inequalities

@@ -24,16 +24,16 @@ theorem divides_sum_with_divisor (M : ℤ) (N : ℤ) :
     · skip
       intro hD1
       -- 1. mun:divides-self n := M
-      have s1 : M ∣ M := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)); parley_side)
+      have s1 : M ∣ M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M))
       -- 2. mun:divides-sum d := M, a := M, b := N, from D1, 1
-      have s2 : M ∣ M + N := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := M) (a := M) (b := N) s1 hD1) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := M) (a := M) (b := N) s1 hD1)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := M) (a := M) (b := N) s1 hD1) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := M) (a := M) (b := N) s1 hD1) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := M) (a := M) (b := N) s1 hD1); parley_side)
+      have s2 : M ∣ M + N := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := M) (a := M) (b := N) s1 hD1)
       all_goals parley_side
     · skip
       intro hD2
       -- 3. mun:divides-self n := M
-      have s3 : M ∣ M := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M)); parley_side)
+      have s3 : M ∣ M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := M))
       -- 4. mun:divides-difference d := M, a := M + N, b := M, from D2, 3
-      have s4 : M ∣ M + N - M := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) hD2 s3) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) hD2 s3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) hD2 s3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) hD2 s3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) hD2 s3); parley_side)
+      have s4 : M ∣ M + N - M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) hD2 s3)
       -- 5. substitute
       have s5 : M ∣ N := by
         have c1 : M + N - M = N := by parley_ring

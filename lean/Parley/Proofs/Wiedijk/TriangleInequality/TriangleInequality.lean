@@ -7,7 +7,6 @@ public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -29,11 +28,11 @@ theorem triangle_inequality (a : ℝ) (b : ℝ) :
   -- 1. mun:nonneg-or-neg x := a + b
   have s1 : a + b ≥ 0 ∨ a + b < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)); parley_side)
   -- 2. thm:abs-bounds x := a
-  have s2a : a ≤ abs a := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).1] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).1 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).1; parley_side)
-  have s2b : -a ≤ abs a := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).2] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).2; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).2 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).2; parley_side)
+  have s2a : a ≤ abs a := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).1
+  have s2b : -a ≤ abs a := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).2
   -- 3. thm:abs-bounds x := b
-  have s3a : b ≤ abs b := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).1] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).1 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).1; parley_side)
-  have s3b : -b ≤ abs b := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).2] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).2; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).2 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).2; parley_side)
+  have s3a : b ≤ abs b := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).1
+  have s3b : -b ≤ abs b := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := b)).2
   -- 4. cases, from 1
   have s4 : abs (a + b) ≤ abs a + abs b := by
     rcases s1 with hC1 | hC2

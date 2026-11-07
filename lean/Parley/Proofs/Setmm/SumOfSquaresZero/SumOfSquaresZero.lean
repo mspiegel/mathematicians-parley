@@ -1,8 +1,6 @@
 module
 
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
@@ -10,15 +8,12 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/sum-of-squares-zero.proof by parley build lean. -/
@@ -62,9 +57,9 @@ theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
       -- 10. antisymmetry, from 3, 9
       have s10 : B ^ 2 = 0 := by parley_side
       -- 11. mun:square-zero x := A, from 7
-      have s11 : A = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side)); parley_side)
+      have s11 : A = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side))
       -- 12. mun:square-zero x := B, from 10
-      have s12 : B = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side)); parley_side)
+      have s12 : B = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side))
       -- 13. join 11, 12
       have s13 : A = 0 ∧ B = 0 := by parley_side
       all_goals parley_side

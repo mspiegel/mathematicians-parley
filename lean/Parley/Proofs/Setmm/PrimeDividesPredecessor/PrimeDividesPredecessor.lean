@@ -2,23 +2,18 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/prime-divides-predecessor.proof by parley build lean. -/
@@ -36,14 +31,14 @@ theorem prime_divides_predecessor (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toN
     by_contra hc_hS
     have hS : P ∣ A := by parley_suppose hc_hS
     -- 2.1. mun:divides-difference d := P, a := A, b := A − 1, from H4, S
-    have s2_1 : P ∣ A - (A - 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4); parley_side)
+    have s2_1 : P ∣ A - (A - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4)
     -- 2.2. substitute
     have s2_2 : P ∣ (1 : ℤ) := by
       have c1 : A - (A - 1) = 1 := by parley_ring
       have row1 : P ∣ (1 : ℤ) := by parley_subst_at c1 s2_1
       exact row1
     -- 2.3. mun:divides-one d := P, from 2.2
-    have s2_3 : P = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2)).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2); parley_side)
+    have s2_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2)
     -- 2.4. inequalities
     have s2_4 : P ≠ 1 := by parley_side
     all_goals parley_side

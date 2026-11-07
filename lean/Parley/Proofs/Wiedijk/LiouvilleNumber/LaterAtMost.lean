@@ -50,13 +50,13 @@ set_option maxHeartbeats 400000 in
 theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
     (∀ i : ℤ, 0 < i → i ≥ n → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / 2 ^ LeanBridges.Counting.factorial (n + 1)) := by
   -- 1. thm:tail-bound
-  have s1 : ∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + j).toNat := by first | exact (Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound.tail_bound (n := n) (by parley_side)) | exact ((Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound.tail_bound (n := n) (by parley_side))).symm | simpa using (Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound.tail_bound (n := n) (by parley_side)) | exact_mod_cast (Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound.tail_bound (n := n) (by parley_side)) | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound.tail_bound (n := n) (by parley_side)); parley_side)
+  have s1 : ∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + j).toNat := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound.tail_bound (n := n) (by parley_side))
   -- 2. proof
   have s2 : ∀ i : ℤ, 0 < i → i ≥ n → (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) := by
     intro i hK
     intro hA
     -- 2.1. mun:difference-nat0 m := n, n := i, from A
-    have s2_1 : 0 ≤ i - n := by first | exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := n) (by parley_side) (n := i) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := n) (by parley_side) (n := i) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := n) (by parley_side) (n := i) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := n) (by parley_side) (n := i) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := n) (by parley_side) (n := i) (by parley_side) (by parley_side)); parley_side)
+    have s2_1 : 0 ≤ i - n := by exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := n) (by parley_side) (n := i) (by parley_side) (by parley_side))
     -- 2.2. mun:power-real a := 2, m := (n + 1)! + (i − n), from 2.1
     -- 2.3. mun:power-positive a := 2, m := (n + 1)! + (i − n)
     have r318_1 : (2 : ℤ) > 0 := by parley_arith

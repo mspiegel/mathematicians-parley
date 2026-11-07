@@ -8,7 +8,6 @@ public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -30,11 +29,11 @@ set_option maxHeartbeats 400000 in
 theorem abs_difference_of_abs (A : ℝ) (B : ℝ) :
     abs (abs A - abs B) ≤ abs (A - B) := by
   -- 1. thm:abs-difference-below
-  have s1 : abs A - abs B ≤ abs (A - B) := by first | linarith [(Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := A) (B := B))] | (have h := (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := A) (B := B)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := A) (B := B)) | (have h := (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := A) (B := B)); parley_side)
+  have s1 : abs A - abs B ≤ abs (A - B) := by exact (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := A) (B := B))
   -- 2. thm:abs-difference-below A := B, B := A
-  have s2 : abs B - abs A ≤ abs (B - A) := by first | linarith [(Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := B) (B := A))] | (have h := (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := B) (B := A)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := B) (B := A)) | (have h := (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := B) (B := A)); parley_side)
+  have s2 : abs B - abs A ≤ abs (B - A) := by exact (Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow.abs_difference_below (A := B) (B := A))
   -- 3. mun:abs-negative x := A − B
-  have s3 : abs (-(A - B)) = abs (A - B) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); parley_side)
+  have s3 : abs (-(A - B)) = abs (A - B) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))
   -- 4. substitute
   have s4 : abs (B - A) = abs (A - B) := by
     have c1 : -(A - B) = B - A := by parley_ring

@@ -33,7 +33,7 @@ theorem quadratic_plus_four_times_odd_iff_even (a : ℤ) :
     · skip
       intro hD1
       -- 1. mun:even-or-odd n := a
-      have s1 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)); parley_side)
+      have s1 : Even a ∨ Odd a := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))
       -- 2. cases, from 1
       have s2 : Even a := by
         rcases s1 with hC1 | hC2
@@ -47,7 +47,7 @@ theorem quadratic_plus_four_times_odd_iff_even (a : ℤ) :
           -- 2.3. def:even n := a² + 4a + 5, from 2.2
           have s2_3 : Even (a ^ 2 + 4 * a + 5) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 6 * k + 5, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 6 * k + 5, by parley_side⟩; parley_side)
           -- 2.4. mun:not-both n := a² + 4a + 5, from 2.3
-          have s2_4 : ¬ Odd (a ^ 2 + 4 * a + 5) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 + 4 * a + 5) s2_3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 + 4 * a + 5) s2_3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 + 4 * a + 5) s2_3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 + 4 * a + 5) s2_3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 + 4 * a + 5) s2_3); parley_side)
+          have s2_4 : ¬ Odd (a ^ 2 + 4 * a + 5) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 + 4 * a + 5) s2_3)
           all_goals parley_side
       all_goals parley_side
     · skip

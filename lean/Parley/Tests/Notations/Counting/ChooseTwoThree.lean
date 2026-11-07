@@ -3,8 +3,6 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
-public import PowerTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Interval
@@ -14,12 +12,9 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 
@@ -41,7 +36,7 @@ theorem choose_two_three :
     have s1_2 : ¬ (3 : ℤ) ≤ 2 := by parley_arith
     all_goals parley_side
   -- 2. mun:binomial-outside n := 2, k := 3, from 1
-  have s2 : (LeanBridges.Counting.choose (2 : ℤ) (3 : ℤ) : ℤ) = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1)).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1); parley_side)
+  have s2 : (LeanBridges.Counting.choose (2 : ℤ) (3 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (2 : ℤ)) (by parley_side) (k := (3 : ℤ)) s1)
   all_goals exact s2
 
 end Parley.Tests.Notations.Counting.ChooseTwoThree

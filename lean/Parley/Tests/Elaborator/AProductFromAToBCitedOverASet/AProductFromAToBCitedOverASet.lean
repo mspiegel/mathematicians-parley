@@ -21,9 +21,9 @@ namespace Parley.Tests.Elaborator.AProductFromAToBCitedOverASet.AProductFromAToB
 theorem a_product_from_a_to_b_cited_over_a_set (n : ℤ) :
     True := by
   -- 1. mun:range-finite
-  have s1 : (Set.Icc (2 : ℤ) n : Set ℤ).Finite := by first | exact (Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := n)) | exact ((Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := n))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := n)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := n)) | (have h := (Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := n)); parley_set_side)
+  have s1 : (Set.Icc (2 : ℤ) n : Set ℤ).Finite := by exact (Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := n))
   -- 2. mun:range-in-integers
-  have s2 : (Set.Icc (2 : ℤ) n : Set ℤ) ⊆ (Set.univ : Set ℤ) := by first | exact (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := n)) | exact ((Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := n))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := n)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := n)) | (have h := (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := n)); parley_set_side)
+  have s2 : (Set.Icc (2 : ℤ) n : Set ℤ) ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := n))
   -- 3. mun:product-integer, from 1, 2
   all_goals parley_set_side
 

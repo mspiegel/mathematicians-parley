@@ -29,7 +29,7 @@ set_option maxHeartbeats 400000 in
 theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 - 2 * b))) :
     (Odd a ∧ Odd b) := by
   -- 1. mun:even-or-odd n := a
-  have s1 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)); parley_side)
+  have s1 : Even a ∨ Odd a := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))
   -- 2. cases, from 1
   have s2 : Odd a := by
     rcases s1 with hC1 | hC2
@@ -41,12 +41,12 @@ theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 -
       -- 2.3. def:even n := a²·(b² − 2b), from 2.2
       have s2_3 : Even (a ^ 2 * (b ^ 2 - 2 * b)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨2 * m ^ 2 * (b ^ 2 - 2 * b), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨2 * m ^ 2 * (b ^ 2 - 2 * b), by parley_side⟩; parley_side)
       -- 2.4. mun:not-both n := a²·(b² − 2b), from 2.3
-      have s2_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3); parley_side)
+      have s2_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3)
       all_goals parley_side
     · skip
       all_goals parley_side
   -- 3. mun:even-or-odd n := b
-  have s3 : Even b ∨ Odd b := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)); parley_side)
+  have s3 : Even b ∨ Odd b := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b))
   -- 4. cases, from 3
   have s4 : Odd b := by
     rcases s3 with hC3 | hC4
@@ -58,7 +58,7 @@ theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 -
       -- 4.3. def:even n := a²·(b² − 2b), from 4.2
       have s4_3 : Even (a ^ 2 * (b ^ 2 - 2 * b)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨a ^ 2 * (2 * m ^ 2 - 2 * m), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨a ^ 2 * (2 * m ^ 2 - 2 * m), by parley_side⟩; parley_side)
       -- 4.4. mun:not-both n := a²·(b² − 2b), from 4.3
-      have s4_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3); parley_side)
+      have s4_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3)
       all_goals parley_side
     · skip
       all_goals parley_side

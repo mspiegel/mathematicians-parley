@@ -51,9 +51,9 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
     try push_cast at *
     first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))); parley_set_side)
   -- 4. mun:interval-real
-  have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)); parley_set_side)
+  have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   -- 5. mun:subset-transitive X := S, Y := [a, b], Z := ℝ, from 3, 4
-  have s5 : S ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 (by parley_whole_side)); parley_set_side)
+  have s5 : S ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 (by parley_whole_side))
   -- 6. proof
   have s6 : ∀ s ∈ S, s ≤ b := by
     intro s hK1
@@ -81,9 +81,9 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   -- 13. def:interval x := c, from 11, 12
   have s13 : c ∈ (Set.Icc a b : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := c) (a := a) (b := b))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := c) (a := a) (b := b))).mpr (by parley_set_side); parley_set_side)
   -- 14. axi:trichotomy x := f(c), from H4, 13
-  have s14 : (f c < 0 ∨ f c = 0) ∨ 0 < f c := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)); parley_set_side)
+  have s14 : (f c < 0 ∨ f c = 0) ∨ 0 < f c := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c))
   -- 15. def:continuous-on, from H5
-  have r89_1 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)); parley_set_side)
+  have r89_1 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   have s15 : ∀ c' ∈ (Set.Icc a b : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c') < δ → abs (f x - f c') < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
   -- 16. cases, from 14
   have s16 : f c = 0 := by
@@ -152,7 +152,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.20. instantiate x := x₁ in line 16.5, from 16.15, 16.19
       have s16_20 : abs (f x₁ - f c) < -f c := by first | linarith [(s16_5b x₁ (by parley_set_side) (by parley_set_side))] | (have h := (s16_5b x₁ (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s16_5b x₁ (by parley_set_side) (by parley_set_side)) | (have h := (s16_5b x₁ (by parley_set_side) (by parley_set_side)); parley_set_side)
       -- 16.21. thm:abs-bounds x := f(x₁) − f(c)
-      have s16_21 : f x₁ - f c ≤ abs (f x₁ - f c) := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f x₁ - f c)).1] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f x₁ - f c)).1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f x₁ - f c)).1 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f x₁ - f c)).1; parley_set_side)
+      have s16_21 : f x₁ - f c ≤ abs (f x₁ - f c) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f x₁ - f c)).1
       -- 16.22. transitivity, from 16.21, 16.20
       have s16_22 : f x₁ - f c < -f c := by parley_order
       -- 16.23. inequalities
@@ -195,7 +195,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         -- 16.29.6. instantiate x := s in line 16.28, from 16.29.1, 16.29.5
         have s16_29_6 : abs (f s - f c) < f c := by first | linarith [(s16_28b s (by parley_set_side) (by parley_set_side))] | (have h := (s16_28b s (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s16_28b s (by parley_set_side) (by parley_set_side)) | (have h := (s16_28b s (by parley_set_side) (by parley_set_side)); parley_set_side)
         -- 16.29.7. thm:abs-bounds x := f(s) − f(c)
-        have s16_29_7 : -(f s - f c) ≤ abs (f s - f c) := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f s - f c)).2] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f s - f c)).2; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f s - f c)).2 | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f s - f c)).2; parley_set_side)
+        have s16_29_7 : -(f s - f c) ≤ abs (f s - f c) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f s - f c)).2
         -- 16.29.8. transitivity, from 16.29.7, 16.29.6
         have s16_29_8 : -(f s - f c) < f c := by parley_order
         -- 16.29.9. inequalities

@@ -25,20 +25,20 @@ set_option maxHeartbeats 400000 in
 theorem inverse_reverses_products {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : Set G)) (b : G) (hH3 : b ∈ (Set.univ : Set G)) :
     (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
   -- 1. axi:group-closed, from H2, H3
-  have s1 : a * b ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := a) (b := b) hH2 hH3) | exact ((Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := a) (b := b) hH2 hH3)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := a) (b := b) hH2 hH3) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := a) (b := b) hH2 hH3) | (have h := (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := a) (b := b) hH2 hH3); parley_set_side)
+  have s1 : a * b ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := a) (b := b) hH2 hH3)
   -- 2. axi:group-inverse-closed, from H2
-  have s2 : a⁻¹ ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) hH2) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) hH2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) hH2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) hH2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) hH2); parley_set_side)
+  have s2 : a⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) hH2)
   -- 3. axi:group-inverse-closed a := b, from H3
-  have s3 : b⁻¹ ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) hH3) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) hH3)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) hH3) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) hH3) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) hH3); parley_set_side)
+  have s3 : b⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) hH3)
   -- 4. axi:group-closed a := b⁻¹, b := a⁻¹, from 2, 3
-  have s4 : b⁻¹ * a⁻¹ ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b⁻¹) (b := a⁻¹) s3 s2) | exact ((Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b⁻¹) (b := a⁻¹) s3 s2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b⁻¹) (b := a⁻¹) s3 s2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b⁻¹) (b := a⁻¹) s3 s2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b⁻¹) (b := a⁻¹) s3 s2); parley_set_side)
+  have s4 : b⁻¹ * a⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b⁻¹) (b := a⁻¹) s3 s2)
   -- 5. axi:group-inverse-closed a := a·b, from 1
-  have s5 : (a * b)⁻¹ ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a * b) s1) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a * b) s1)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a * b) s1) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a * b) s1) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a * b) s1); parley_set_side)
+  have s5 : (a * b)⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a * b) s1)
   -- 6. axi:group-associative a := b, b := b⁻¹, c := a⁻¹, from H3, 2, 3
-  have s6 : b * b⁻¹ * a⁻¹ = b * (b⁻¹ * a⁻¹) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := b⁻¹) (c := a⁻¹) hH3 s3 s2) | exact ((Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := b⁻¹) (c := a⁻¹) hH3 s3 s2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := b⁻¹) (c := a⁻¹) hH3 s3 s2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := b⁻¹) (c := a⁻¹) hH3 s3 s2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := b⁻¹) (c := a⁻¹) hH3 s3 s2); parley_set_side)
+  have s6 : b * b⁻¹ * a⁻¹ = b * (b⁻¹ * a⁻¹) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := b⁻¹) (c := a⁻¹) hH3 s3 s2)
   -- 7. substitute
   have s7 : (1 : G) * a⁻¹ = b * (b⁻¹ * a⁻¹) := by
-    have c1 : b * b⁻¹ = (1 : G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3); parley_set_side)
+    have c1 : b * b⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3)
     have row1 : (1 : G) * a⁻¹ = b * (b⁻¹ * a⁻¹) := by parley_subst_at c1 s6
     exact row1
   -- 8. calculation
@@ -46,7 +46,7 @@ theorem inverse_reverses_products {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Se
     calc b * (b⁻¹ * a⁻¹) = (1 : G) * a⁻¹ := by parley_set_side
       _ = a⁻¹ := by first | exact (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2) | exact ((Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2)).symm | simpa using (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2) | exact_mod_cast (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2) | (have h := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2); parley_set_side)
   -- 9. axi:group-associative c := b⁻¹·a⁻¹, from H2, H3, 4
-  have s9 : a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4) | exact ((Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4) | (have h := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4); parley_set_side)
+  have s9 : a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4)
   -- 10. substitute b·(b⁻¹·a⁻¹) = a⁻¹ (line 8) into line 9
   have s10 : a * b * (b⁻¹ * a⁻¹) = a * a⁻¹ := by parley_subst_at s8 s9
   -- 11. calculation

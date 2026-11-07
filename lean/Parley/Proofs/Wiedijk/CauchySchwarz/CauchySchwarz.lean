@@ -65,7 +65,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
   -- 3. mun:sum-nonneg a := 1, b := n, from 2
   have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) (by parley_side))] | (have h := (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) (by parley_side)); parley_side)
   -- 4. axi:trichotomy x := Σ(k = 1 to n) a(k)²
-  have s4 : ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) < 0 ∨ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) = 0) ∨ 0 < (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ))); parley_side)
+  have s4 : ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) < 0 ∨ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) = 0) ∨ 0 < (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)))
   -- 5. cases, from 4
   have s5 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by
     rcases s4 with (hC1 | hC2) | hC3
@@ -82,7 +82,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
         try push_cast at hK4
         try have hK4_bounds := Finset.mem_Icc.mp hK4
         -- 5.3.1. mun:square-zero x := a(k), from H2, K4, 5.2
-        have s5_3_1 : a k = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side)); parley_side)
+        have s5_3_1 : a k = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side))
         -- 5.3.2. algebra, from 5.3.1
         have s5_3_2 : a k * b k = 0 := by linear_combination (norm := parley_norm) (b k) * s5_3_1
         all_goals exact s5_3_2
@@ -124,7 +124,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
       have s5_13 : B ^ 2 / A ≤ C := by parley_order
       -- 5.14. mun:multiply-le, from 5.13
       have r131_1 : A > 0 := by parley_order
-      have s5_14 : A * (B ^ 2 / A) ≤ A * C := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) (by parley_side) (by parley_side)); parley_side)
+      have s5_14 : A * (B ^ 2 / A) ≤ A * C := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) (by parley_side) (by parley_side))
       -- 5.15. substitute
       have r135_1 : A ≠ 0 := by parley_side
       have s5_15 : B ^ 2 ≤ A * C := by

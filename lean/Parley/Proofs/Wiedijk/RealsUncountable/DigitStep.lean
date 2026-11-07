@@ -22,7 +22,7 @@ namespace Parley.Proofs.Wiedijk.RealsUncountable.DigitStep
 theorem digit_step (t : ℤ) :
     (t + 1) % (10 : ℤ) ≠ t := by
   -- 1. thm:digit-step-divides
-  have s1 : (10 : ℤ) ∣ t + 1 - (t + 1) % (10 : ℤ) := by first | exact (Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides.digit_step_divides (t := t)) | exact ((Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides.digit_step_divides (t := t))).symm | simpa using (Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides.digit_step_divides (t := t)) | exact_mod_cast (Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides.digit_step_divides (t := t)) | (have h := (Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides.digit_step_divides (t := t)); parley_side)
+  have s1 : (10 : ℤ) ∣ t + 1 - (t + 1) % (10 : ℤ) := by exact (Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides.digit_step_divides (t := t))
   -- 2. contradiction
   have s2 : (t + 1) % (10 : ℤ) ≠ t := by
     by_contra hc_hS1

@@ -57,7 +57,7 @@ theorem preimage_of_intersection {α : Type*} (A : Set α) (B : Set α) (f : α 
   -- 4. def:subset, from 3
   have s4 : (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) ⊆ A ∩ f ⁻¹' (Y ∩ Z) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (Y := A ∩ f ⁻¹' (Y ∩ Z)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (Y := A ∩ f ⁻¹' (Y ∩ Z)))).mpr (by parley_set_side); parley_set_side)
   -- 5. mun:subset-antisymmetric, from 2, 4
-  have s5 : A ∩ f ⁻¹' (Y ∩ Z) = (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4); parley_set_side)
+  have s5 : A ∩ f ⁻¹' (Y ∩ Z) = (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4)
   all_goals exact s5
 
 end Parley.Proofs.Hammack.PreimageOfIntersection.PreimageOfIntersection

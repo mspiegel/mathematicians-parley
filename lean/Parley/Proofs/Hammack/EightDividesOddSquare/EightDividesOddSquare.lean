@@ -36,7 +36,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     calc n ^ 2 - 1 = (2 * k + 1) ^ 2 - 1 := by parley_subst s1
       _ = 4 * (k * (k + 1)) := by parley_ring
   -- 3. mun:even-or-odd n := k
-  have s3 : Even k ∨ Odd k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)); parley_side)
+  have s3 : Even k ∨ Odd k := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))
   -- 4. cases, from 3
   have s4 : (8 : ℤ) ∣ n ^ 2 - 1 := by
     rcases s3 with hC1 | hC2

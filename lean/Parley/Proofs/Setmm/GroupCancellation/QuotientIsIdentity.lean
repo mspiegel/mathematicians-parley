@@ -29,7 +29,7 @@ theorem quotient_is_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.uni
     · skip
       intro hD1
       -- 1. thm:quotient-times-divisor, from H2, H3
-      have s1 : a * b⁻¹ * b = a := by first | exact (Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor.quotient_times_divisor (G := G) (a := a) hH2 (b := b) hH3) | exact ((Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor.quotient_times_divisor (G := G) (a := a) hH2 (b := b) hH3)).symm | simpa using (Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor.quotient_times_divisor (G := G) (a := a) hH2 (b := b) hH3) | exact_mod_cast (Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor.quotient_times_divisor (G := G) (a := a) hH2 (b := b) hH3) | (have h := (Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor.quotient_times_divisor (G := G) (a := a) hH2 (b := b) hH3); parley_set_side)
+      have s1 : a * b⁻¹ * b = a := by exact (Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor.quotient_times_divisor (G := G) (a := a) hH2 (b := b) hH3)
       -- 2. substitute a·b⁻¹ = e (D1) into line 1
       have s2 : (1 : G) * b = a := by parley_subst_at hD1 s1
       -- 3. calculation

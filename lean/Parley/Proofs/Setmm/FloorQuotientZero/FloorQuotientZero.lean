@@ -30,7 +30,7 @@ theorem floor_quotient_zero (A : ℤ) (hH1 : 0 ≤ A) (B : ℤ) (hH2 : 0 < B) :
   -- 1. algebra
   have s1 : (B : ℝ) * ((A : ℝ) / (B : ℝ)) = (A : ℝ) := by parley_ring
   -- 2. mun:quotient-nonneg x := A, y := B, from H1, H2
-  have s2 : 0 ≤ (A : ℝ) / (B : ℝ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := (A : ℝ)) (y := (B : ℝ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := (A : ℝ)) (y := (B : ℝ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := (A : ℝ)) (y := (B : ℝ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := (A : ℝ)) (y := (B : ℝ)) (by parley_side) (by parley_side)); parley_side)
+  have s2 : 0 ≤ (A : ℝ) / (B : ℝ) := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := (A : ℝ)) (y := (B : ℝ)) (by parley_side) (by parley_side))
   -- 3. both directions
   have s3 : A < B ↔ ⌊(A : ℝ) / (B : ℝ)⌋ = 0 := by
     constructor

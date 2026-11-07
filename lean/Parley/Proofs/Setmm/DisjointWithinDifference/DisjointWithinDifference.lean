@@ -27,9 +27,9 @@ theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : S
       have s1 : ∀ t ∈ A, t ∈ C \ B := by
         intro t hK
         -- 1.1. mun:in-subset X := A, Y := C, u := t, from H4, K
-        have s1_1 : t ∈ C := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := t) hH4 hK) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := t) hH4 hK)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := t) hH4 hK) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := t) hH4 hK) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := t) hH4 hK); parley_set_side)
+        have s1_1 : t ∈ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := t) hH4 hK)
         -- 1.2. mun:disjoint-member Y := A, Z := B, u := t, from D1, K
-        have s1_2 : ¬ t ∈ B := by first | exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK) | exact ((Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK); parley_set_side)
+        have s1_2 : ¬ t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK)
         -- 1.3. def:difference u := t, Y := C, Z := B, from 1.1, 1.2
         have s1_3 : t ∈ C \ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mpr (by parley_set_side); parley_set_side)
         all_goals exact s1_3
@@ -52,8 +52,8 @@ theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : S
         all_goals exact s4_3
       -- 5. calculation
       have s5 : A ∩ B = ∅ := by
-        calc A ∩ B = B ∩ A := by first | exact (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := A) (Z := B)) | exact ((Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := A) (Z := B))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := A) (Z := B)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := A) (Z := B)) | (have h := (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := A) (Z := B)); parley_set_side)
-          _ = ∅ := by first | exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A) s4) | exact ((Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A) s4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A) s4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A) s4) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A) s4); parley_set_side)
+        calc A ∩ B = B ∩ A := by exact (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := A) (Z := B))
+          _ = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A) s4)
       all_goals parley_set_side
   all_goals parley_set_side
 

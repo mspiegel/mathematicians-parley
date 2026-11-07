@@ -91,11 +91,11 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have r94_1 : 0 ≤ b - c := by parley_side
   have s21 : 0 ≤ b - c := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr (by parley_side); parley_side)
   -- 22. mun:factorial-nat n := a − b, from 20
-  have s22 : 0 < (LeanBridges.Counting.factorial (a - b) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side)); parley_side)
+  have s22 : 0 < (LeanBridges.Counting.factorial (a - b) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side))
   -- 23. mun:factorial-nat n := b − c, from 21
-  have s23 : 0 < (LeanBridges.Counting.factorial (b - c) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := b - c) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := b - c) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := b - c) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := b - c) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := b - c) (by parley_side)); parley_side)
+  have s23 : 0 < (LeanBridges.Counting.factorial (b - c) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := b - c) (by parley_side))
   -- 24. mun:factorial-nat n := a − b + c, from 17
-  have s24 : 0 < (LeanBridges.Counting.factorial (a - b + c) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b + c) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b + c) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b + c) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b + c) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b + c) (by parley_side)); parley_side)
+  have s24 : 0 < (LeanBridges.Counting.factorial (a - b + c) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b + c) (by parley_side))
   -- 25. calculation
   have s25 : (LeanBridges.Counting.choose a b : ℤ) * (LeanBridges.Counting.choose b c : ℤ) = (LeanBridges.Counting.choose a (b - c) : ℤ) * (LeanBridges.Counting.choose (a - b + c) c : ℤ) := by
     try qify

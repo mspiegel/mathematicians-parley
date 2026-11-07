@@ -28,13 +28,13 @@ theorem average_at_most_an_end (A : ℝ) (B : ℝ) :
       -- 2.1. inequalities
       have s2_1 : (A + B) / 2 ≤ B := by parley_order
       -- 2.2. mun:or-right, from 2.1
-      have s2_2 : (A + B) / 2 ≤ A ∨ (A + B) / 2 ≤ B := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_1); parley_side)
+      have s2_2 : (A + B) / 2 ≤ A ∨ (A + B) / 2 ≤ B := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_1)
       all_goals parley_side
     · skip
       -- 2.3. inequalities
       have s2_3 : (A + B) / 2 ≤ A := by parley_order
       -- 2.4. mun:or-left, from 2.3
-      have s2_4 : (A + B) / 2 ≤ A ∨ (A + B) / 2 ≤ B := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_3); parley_side)
+      have s2_4 : (A + B) / 2 ≤ A ∨ (A + B) / 2 ≤ B := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_3)
       all_goals parley_side
   all_goals exact s2
 

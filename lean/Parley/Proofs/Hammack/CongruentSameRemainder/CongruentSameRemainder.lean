@@ -1,8 +1,6 @@
 module
 
-public import Divisibility
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.ModEq
@@ -14,9 +12,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/congruent-same-remainder.proof by parley build lean. -/
@@ -32,7 +27,7 @@ theorem congruent_same_remainder (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH
   -- 2. obtain k: def:divides d := n, n := a − b, from 1
   obtain ⟨k, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := a - b))).mp (by parley_side)
   -- 3. mun:mod-multiple r := b, m := n, q := k
-  have s3 : (k * n + b) % n = b % n := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k)); parley_side)
+  have s3 : (k * n + b) % n = b % n := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k))
   -- 4. substitute
   have s4 : a % n = b % n := by
     have c1 : k * n + b = a := by linear_combination (norm := parley_norm) (-1) * s2

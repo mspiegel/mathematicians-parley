@@ -16,7 +16,7 @@ namespace Parley.Tests.Elaborator.ALetterForAConjunction.AConjunctionConcludedAs
 theorem a_conjunction_concluded_as_the_other_letter (x : ℝ) (hH2 : 0 ≤ x ∧ x < 1 ↔ x = 0) (hH3 : x = 0) :
     (0 ≤ x ∧ x < 1) := by
   -- 1. mun:iff-from-right P := 0 ≤ x and x < 1, Q := x = 0, from H2, H3
-  have s1 : 0 ≤ x ∧ x < 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_right (P := 0 ≤ x ∧ x < 1) (Q := x = 0) hH2 hH3) | exact ((Parley.Items.Stdlib.Reasoning.mun_iff_from_right (P := 0 ≤ x ∧ x < 1) (Q := x = 0) hH2 hH3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_iff_from_right (P := 0 ≤ x ∧ x < 1) (Q := x = 0) hH2 hH3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_iff_from_right (P := 0 ≤ x ∧ x < 1) (Q := x = 0) hH2 hH3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_iff_from_right (P := 0 ≤ x ∧ x < 1) (Q := x = 0) hH2 hH3); parley_side)
+  have s1 : 0 ≤ x ∧ x < 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_right (P := 0 ≤ x ∧ x < 1) (Q := x = 0) hH2 hH3)
   all_goals exact s1
 
 end Parley.Tests.Elaborator.ALetterForAConjunction.AConjunctionConcludedAsTheOtherLetter

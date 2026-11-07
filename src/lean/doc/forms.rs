@@ -500,7 +500,7 @@ fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
 /// Whether two terms are one term but for their forms: alike once every
 /// cast, `toNat` and spare bracket is taken off, with a count alike in
 /// either form.
-fn alike(a: &Term, b: &Term) -> bool {
+pub fn alike(a: &Term, b: &Term) -> bool {
     let strip = |t: &Term| -> Term {
         let mut t = t.clone();
         while let TermKind::Paren(x)

@@ -1,21 +1,16 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Wiedijk.Bezout.Bezout
 
@@ -41,15 +36,15 @@ theorem coprime_to_a_product (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c 
       _ = 1 * (b * u + c * v) := by parley_subst s2
       _ = 1 := by parley_side
   -- 6. def:gcd a := a·b, b := c
-  have s6a : 0 < (Int.gcd (a * b) c : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) (by parley_side)); parley_side)
-  have s6b : (Int.gcd (a * b) c : ℤ) ∣ a * b := by first | exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) (by parley_side)); parley_side)
-  have s6c : (Int.gcd (a * b) c : ℤ) ∣ c := by first | exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (by parley_side) (b := c) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (by parley_side) (b := c) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (by parley_side) (b := c) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (by parley_side) (b := c) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (by parley_side) (b := c) (by parley_side)); parley_side)
+  have s6a : 0 < (Int.gcd (a * b) c : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) (by parley_side))
+  have s6b : (Int.gcd (a * b) c : ℤ) ∣ a * b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) (by parley_side))
+  have s6c : (Int.gcd (a * b) c : ℤ) ∣ c := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (by parley_side) (b := c) (by parley_side))
   -- 7. mun:divides-combination e := gcd(a·b, c), a := a·b, b := c, x := x·u, y := a·x·v + y·b·u + c·y·v, from 6
-  have s7 : (Int.gcd (a * b) c : ℤ) ∣ a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (a * b) c : ℤ)) (a := a * b) (b := c) (x := x * u) (y := a * x * v + y * b * u + c * y * v) s6b s6c) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (a * b) c : ℤ)) (a := a * b) (b := c) (x := x * u) (y := a * x * v + y * b * u + c * y * v) s6b s6c)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (a * b) c : ℤ)) (a := a * b) (b := c) (x := x * u) (y := a * x * v + y * b * u + c * y * v) s6b s6c) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (a * b) c : ℤ)) (a := a * b) (b := c) (x := x * u) (y := a * x * v + y * b * u + c * y * v) s6b s6c) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (a * b) c : ℤ)) (a := a * b) (b := c) (x := x * u) (y := a * x * v + y * b * u + c * y * v) s6b s6c); parley_side)
+  have s7 : (Int.gcd (a * b) c : ℤ) ∣ a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (a * b) c : ℤ)) (a := a * b) (b := c) (x := x * u) (y := a * x * v + y * b * u + c * y * v) s6b s6c)
   -- 8. substitute a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1 (line 5) into line 7
   have s8 : (Int.gcd (a * b) c : ℤ) ∣ (1 : ℤ) := by parley_subst_at s5 s7
   -- 9. mun:divides-one d := gcd(a·b, c), from 6, 8
-  have s9 : (Int.gcd (a * b) c : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8)).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8); parley_side)
+  have s9 : (Int.gcd (a * b) c : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8)
   all_goals exact s9
 
 end Parley.Proofs.Hammack.CoprimeToAProduct.CoprimeToAProduct

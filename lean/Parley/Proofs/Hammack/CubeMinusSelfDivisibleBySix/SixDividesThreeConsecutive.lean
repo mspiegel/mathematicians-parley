@@ -24,7 +24,7 @@ namespace Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConse
 theorem six_divides_three_consecutive (k : ℤ) (hH1 : 0 ≤ k) :
     (6 : ℤ) ∣ 3 * k * (k + 1) := by
   -- 1. mun:even-or-odd n := k
-  have s1 : Even k ∨ Odd k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)); parley_side)
+  have s1 : Even k ∨ Odd k := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))
   -- 2. cases, from 1
   have s2 : (6 : ℤ) ∣ 3 * k * (k + 1) := by
     rcases s1 with hC1 | hC2

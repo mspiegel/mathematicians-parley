@@ -41,7 +41,7 @@ theorem square_plus_two_not_divisible_by_four (n : ℤ) :
     -- 1. obtain m: def:divides d := 4, n := n² + 2, from S
     obtain ⟨m, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 + 2))).mp (by parley_side)
     -- 2. mun:even-or-odd
-    have s2 : Even n ∨ Odd n := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)); parley_side)
+    have s2 : Even n ∨ Odd n := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
     -- 3. cases, from 2
     have s3 : n ^ 2 + 2 ≠ 4 * m := by
       rcases s2 with hC1 | hC2

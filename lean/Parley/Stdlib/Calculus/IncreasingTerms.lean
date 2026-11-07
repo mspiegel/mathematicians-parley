@@ -53,7 +53,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
         rcases s1_5 with hC1 | hC2
         · skip
           -- 1.6.1. mun:integer-step n := n + 1, from C1
-          have s1_6_1 : m + 1 ≤ n + 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n + 1) hC1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n + 1) hC1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n + 1) hC1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n + 1) hC1); parley_side)
+          have s1_6_1 : m + 1 ≤ n + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n + 1) hC1)
           -- 1.6.2. inequalities
           have s1_6_2 : m ≤ n := by parley_order
           -- 1.6.3. instantiate m := m in IH, from 1.6.2

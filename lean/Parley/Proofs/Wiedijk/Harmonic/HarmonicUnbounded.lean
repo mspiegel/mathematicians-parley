@@ -71,7 +71,7 @@ theorem harmonic_unbounded (M : ℝ) :
       all_goals parley_side
     | succ m hK hIH =>
       -- 2.5. thm:harmonic-block j := m
-      have s2_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by first | (have h := (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side))] | (have h := (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side)) | (have h := (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side)); parley_side)
+      have s2_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by exact (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side))
       -- 2.6. inequalities
       have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by parley_order
       -- 2.7. transitivity, from 2.5, 2.6

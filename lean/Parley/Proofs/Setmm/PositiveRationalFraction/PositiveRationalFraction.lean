@@ -45,7 +45,7 @@ theorem positive_rational_fraction (A : ℝ) (hH2 : ∃ m : ℚ, (m : ℝ) = A) 
     have s2_4 : ¬ A ≤ 0 := by parley_side
     all_goals parley_side
   -- 3. mun:pos-int-nat m := p, from 2
-  have s3 : 0 < p := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2); parley_side)
+  have s3 : 0 < p := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2)
   -- 4. exhibit, from 1, 3
   have s4 : ∃ x : ℤ, 0 < x ∧ (∃ y : ℤ, 0 < y ∧ A = (x : ℝ) / (y : ℝ)) := ⟨p, by parley_side, q, by parley_side, by parley_side⟩
   all_goals exact s4

@@ -51,7 +51,7 @@ theorem rational_cube_root_of_two :
     -- 5. def:even n := p³, from 4
     have s5 : Even (p ^ 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 3))).mpr ⟨q ^ 3, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 3))).mpr ⟨q ^ 3, by parley_side⟩; parley_side)
     -- 6. thm:even-cube n := p, from 5
-    have s6 : Even p := by first | exact (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := p) s5) | exact ((Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := p) s5)).symm | simpa using (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := p) s5) | exact_mod_cast (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := p) s5) | (have h := (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := p) s5); parley_side)
+    have s6 : Even p := by exact (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := p) s5)
     -- 7. obtain r: def:even n := p, from 6
     obtain ⟨r, s7⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := p))).mp (by parley_side)
     -- 8. substitute p = 2r (line 7) into line 4
@@ -61,7 +61,7 @@ theorem rational_cube_root_of_two :
     -- 10. def:even n := q³, from 9
     have s10 : Even (q ^ 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 3))).mpr ⟨2 * r ^ 3, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 3))).mpr ⟨2 * r ^ 3, by parley_side⟩; parley_side)
     -- 11. thm:even-cube n := q, from 10
-    have s11 : Even q := by first | exact (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := q) s10) | exact ((Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := q) s10)).symm | simpa using (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := q) s10) | exact_mod_cast (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := q) s10) | (have h := (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := q) s10); parley_side)
+    have s11 : Even q := by exact (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := q) s10)
     -- 12. obtain s: def:even n := q, from 11
     obtain ⟨s, s12⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := q))).mp (by parley_side)
     -- 13. def:divides d := 2, n := p, from 7

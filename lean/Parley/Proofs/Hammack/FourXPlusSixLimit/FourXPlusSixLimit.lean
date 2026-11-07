@@ -68,7 +68,7 @@ theorem four_x_plus_six_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x 
     have s1_3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ -1 ∧ abs (x - -1) < δ → abs (f x - 2) < ε) := ⟨ε / 4, ⟨by parley_set_side, by parley_set_side⟩⟩
     all_goals parley_set_side
   -- 2. def:limit-at D := ℝ, c := −1, L := 2, from 1
-  have r62_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))); parley_set_side)
+  have r62_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s2 : Filter.Tendsto f (nhdsWithin (-1) ((Set.univ : Set ℝ) \ {(-1)})) (nhds 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (-1 : ℝ)) (L := (2 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (-1 : ℝ)) (L := (2 : ℝ)))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 

@@ -55,11 +55,11 @@ namespace Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound
 set_option maxHeartbeats 600000 in
 theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
     (∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + j).toNat) := by
-  have hD1_kind : 0 < (LeanBridges.Counting.factorial (n + 1) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side)); parley_side)
+  have hD1_kind : 0 < (LeanBridges.Counting.factorial (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side))
   set A : ℤ := (LeanBridges.Counting.factorial (n + 1) : ℤ) with hD1
   have hD1_pos := hD1_kind
   -- 1. thm:factorial-gap
-  have s1 : ∀ j : ℤ, 0 ≤ j → (LeanBridges.Counting.factorial (n + 1) : ℤ) + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by first | exact (Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) (by parley_side)) | exact ((Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) (by parley_side))).symm | simpa using (Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) (by parley_side)) | exact_mod_cast (Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) (by parley_side)) | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) (by parley_side)); parley_side)
+  have s1 : ∀ j : ℤ, 0 ≤ j → (LeanBridges.Counting.factorial (n + 1) : ℤ) + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) (by parley_side))
   -- 2. thm:partial-sum-real m := n
   -- 3. induction on j starting at 0
   have s3 : ∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat := by
@@ -74,7 +74,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       all_goals parley_side
     | succ j hK hIH =>
       -- 3.3. mun:nat-plus-nat0 a := n, b := j
-      have s3_3 : 0 < n + j := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side)); parley_side)
+      have s3_3 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side))
       -- 3.4. mun:nat-plus-nat0 a := n + j, b := 1, from 3.3
       have s3_4 : 0 < n + j + 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) (by parley_side) (b := (1 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) (by parley_side) (b := (1 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) (by parley_side) (b := (1 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) (by parley_side) (b := (1 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) (by parley_side) (b := (1 : ℤ)) (by parley_side)); parley_side)
       -- 3.5. mun:power-positive a := 2, m := (n + j + 1)!

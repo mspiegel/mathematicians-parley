@@ -47,11 +47,11 @@ theorem five_consecutive_divisible (n : ℤ) :
       -- 2.1. inequalities, from C1
       have s2_1 : 0 < n := by parley_order
       -- 2.2. mun:pos-int-nat m := n, from 2.1
-      have s2_2 : 0 < n := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1); parley_side)
+      have s2_2 : 0 < n := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1)
       -- 2.3. mun:nat-minus-one, from 2.2
-      have s2_3 : 0 ≤ n - 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)); parley_side)
+      have s2_3 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side))
       -- 2.4. thm:five-consecutive-natural m := n − 1, from 2.3
-      have s2_4 : (120 : ℤ) ∣ (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) := by first | exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side)) | exact ((Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side))).symm | simpa using (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side)) | exact_mod_cast (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side)) | (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side)); parley_side)
+      have s2_4 : (120 : ℤ) ∣ (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side))
       -- 2.5. substitute
       have s2_5 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
         have c1 : (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by parley_ring
@@ -116,11 +116,11 @@ theorem five_consecutive_divisible (n : ℤ) :
           have s2_7_8 : 1 ≤ -n - 4 := by parley_order
           -- 2.7.9. inequalities, from 2.7.8
           have s2_7_9 : 0 < -n - 4 := by parley_order
-          have hD1_kind : 0 < -n - 4 := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -n - 4) s2_7_9) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -n - 4) s2_7_9)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -n - 4) s2_7_9) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -n - 4) s2_7_9) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -n - 4) s2_7_9); parley_side)
+          have hD1_kind : 0 < -n - 4 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -n - 4) s2_7_9)
           set k : ℤ := -n - 4 with hD1
           have hD1_pos := hD1_kind
           -- 2.7.10. mun:nat-minus-one n := k
-          have s2_7_10 : 0 ≤ k - 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side)); parley_side)
+          have s2_7_10 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side))
           set P : ℤ := (k - 1 + 1) * (k - 1 + 2) * (k - 1 + 3) * (k - 1 + 4) * (k - 1 + 5) with hD2
           have hD2_kind : True := by parley_side
           -- 2.7.11. thm:five-consecutive-natural m := k − 1, from D2, 2.7.10

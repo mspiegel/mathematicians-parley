@@ -26,7 +26,7 @@ theorem product_step_bound (t : ℝ) (p : ℝ) (hH3 : 0 < t) (hH4 : t ≤ 1 / 4)
   -- 2. inequalities, from 1
   have s2 : 0 < 1 - t := by parley_order
   -- 3. mun:multiply-le x := 1/4 + t, y := p, c := 1 − t, from H5, 2
-  have s3 : (1 - t) * (1 / 4 + t) ≤ (1 - t) * p := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 / 4 + t) (y := p) (c := 1 - t) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 / 4 + t) (y := p) (c := 1 - t) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 / 4 + t) (y := p) (c := 1 - t) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 / 4 + t) (y := p) (c := 1 - t) (by parley_side) (by parley_side)); parley_side)
+  have s3 : (1 - t) * (1 / 4 + t) ≤ (1 - t) * p := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 / 4 + t) (y := p) (c := 1 - t) (by parley_side) (by parley_side))
   -- 4. algebra
   have s4 : (1 - t) * (1 / 4 + t) = 1 / 4 + t / 2 + t * (1 / 4 - t) := by parley_ring
   -- 5. inequalities

@@ -121,7 +121,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.7. calculation
       have s9_20_7 : abs (a n) ≤ abs (a n - L) + abs L := by
         calc abs (a n) = abs (a n - L + L) := by parley_subst s9_20_6
-          _ ≤ abs (a n - L) + abs L := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n - L) (b := L))] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n - L) (b := L)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n - L) (b := L)) | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n - L) (b := L)); parley_side)
+          _ ≤ abs (a n - L) + abs L := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n - L) (b := L))
       -- 9.20.8. inequalities
       have s9_20_8 : abs (a n - L) + abs L < abs L + 1 := by parley_order
       -- 9.20.9. transitivity, from 9.20.7, 9.20.8
@@ -131,12 +131,12 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.11. calculation
       have r238_3 : 2 * s ≠ 0 := by parley_side
       have s9_20_11 : abs (a n * (b n - M)) < ε / 2 := by
-        calc abs (a n * (b n - M)) < s * (ε / (2 * s)) := by first | linarith [(Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) s3 s9_20_10 s9_20_4)] | (have h := (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) s3 s9_20_10 s9_20_4); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) s3 s9_20_10 s9_20_4) | (have h := (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) s3 s9_20_10 s9_20_4); parley_side)
+        calc abs (a n * (b n - M)) < s * (ε / (2 * s)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) s3 s9_20_10 s9_20_4)
           _ = ε / 2 := by parley_ring
       -- 9.20.12. calculation
       have r246_2 : 2 * t ≠ 0 := by parley_side
       have s9_20_12 : abs (M * (a n - L)) < ε / 2 := by
-        calc abs (M * (a n - L)) < t * (ε / (2 * t)) := by first | linarith [(Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) s6 s8 s9_20_5.2)] | (have h := (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) s6 s8 s9_20_5.2); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) s6 s8 s9_20_5.2) | (have h := (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) s6 s8 s9_20_5.2); parley_side)
+        calc abs (M * (a n - L)) < t * (ε / (2 * t)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) s6 s8 s9_20_5.2)
           _ = ε / 2 := by parley_ring
       -- 9.20.13. algebra
       have s9_20_13 : a n * b n - L * M = a n * (b n - M) + M * (a n - L) := by parley_ring
@@ -145,7 +145,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.15. calculation
       have s9_20_15 : abs (a n * b n - L * M) < ε := by
         calc abs (a n * b n - L * M) = abs (a n * (b n - M) + M * (a n - L)) := by parley_subst s9_20_13
-          _ ≤ abs (a n * (b n - M)) + abs (M * (a n - L)) := by first | linarith [(Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L)))] | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L))); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L))) | (have h := (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L))); parley_side)
+          _ ≤ abs (a n * (b n - M)) + abs (M * (a n - L)) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L)))
           _ < ε / 2 + ε / 2 := by parley_side
           _ = ε := by parley_ring
       all_goals parley_side

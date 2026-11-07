@@ -24,11 +24,11 @@ theorem or_commutes (a : ℝ) (b : ℝ) :
         rcases hD1 with hC1 | hC2
         · skip
           -- 1.1. mun:or-right, from C1
-          have s1_1 : b = 0 ∨ a = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := a = 0) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := a = 0) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := a = 0) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := a = 0) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := a = 0) hC1); parley_side)
+          have s1_1 : b = 0 ∨ a = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := a = 0) hC1)
           all_goals parley_side
         · skip
           -- 1.2. mun:or-left, from C2
-          have s1_2 : b = 0 ∨ a = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := a = 0) hC2) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := a = 0) hC2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := a = 0) hC2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := a = 0) hC2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := a = 0) hC2); parley_side)
+          have s1_2 : b = 0 ∨ a = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := a = 0) hC2)
           all_goals parley_side
       all_goals parley_side
     · skip
@@ -38,11 +38,11 @@ theorem or_commutes (a : ℝ) (b : ℝ) :
         rcases hD2 with hC3 | hC4
         · skip
           -- 2.1. mun:or-right, from C3
-          have s2_1 : a = 0 ∨ b = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC3); parley_side)
+          have s2_1 : a = 0 ∨ b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC3)
           all_goals parley_side
         · skip
           -- 2.2. mun:or-left, from C4
-          have s2_2 : a = 0 ∨ b = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC4) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC4)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC4) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC4) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC4); parley_side)
+          have s2_2 : a = 0 ∨ b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC4)
           all_goals parley_side
       all_goals parley_side
   all_goals parley_side

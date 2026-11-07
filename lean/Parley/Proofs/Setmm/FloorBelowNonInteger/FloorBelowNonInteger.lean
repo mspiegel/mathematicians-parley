@@ -26,7 +26,7 @@ namespace Parley.Proofs.Setmm.FloorBelowNonInteger.FloorBelowNonInteger
 theorem floor_below_non_integer (A : ℝ) (hH2 : ¬ (∃ m : ℤ, (m : ℝ) = A)) :
     (⌊A⌋ : ℝ) < A := by
   -- 1. mun:floor-below x := A
-  have s1 : (⌊A⌋ : ℝ) ≤ A := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_floor_below (x := A))] | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A)); parley_side)
+  have s1 : (⌊A⌋ : ℝ) ≤ A := by exact (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A))
   -- 2. mun:floor-integer x := A
   -- 3. contradiction
   have s3 : (⌊A⌋ : ℝ) ≠ A := by

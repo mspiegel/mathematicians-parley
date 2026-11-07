@@ -27,9 +27,9 @@ set_option maxHeartbeats 400000 in
 theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d : ℤ) (hH4 : 0 < d) (u : ℤ) (v : ℤ) (x₀ : ℤ) (y₀ : ℤ) (hH9 : c = a * u + b * v) (hH10 : d = a * x₀ + b * y₀) (hH11 : ∀ x : ℤ, ∀ y : ℤ, 0 < a * x + b * y → d ≤ a * x + b * y) :
     d ∣ c := by
   -- 1. mun:mod-natural a := c, b := d
-  have s1 : 0 ≤ c % d := by first | exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) (by parley_side)); parley_side)
+  have s1 : 0 ≤ c % d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) (by parley_side))
   -- 2. mun:mod-less a := c, b := d
-  have s2 : c % d < d := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side)); parley_side)
+  have s2 : c % d < d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side))
   -- 3. obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 1, 2
   obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) (by parley_side) (r := c % d) (by parley_side) s2)).mp (by parley_side)
   -- 4. algebra, from H9, H10, 3
@@ -40,7 +40,7 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
     have hS : c % d ≠ 0 := by parley_suppose hc_hS
     -- 5.1. mun:pos-int-nat m := c mod d
     have r57_2 : 0 < c % d := by parley_order
-    have s5_1 : 0 < c % d := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) (by parley_side)); parley_side)
+    have s5_1 : 0 < c % d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c % d) (by parley_side))
     -- 5.2. substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.1
     have s5_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := by parley_subst_at s4 s5_1
     -- 5.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 5.2

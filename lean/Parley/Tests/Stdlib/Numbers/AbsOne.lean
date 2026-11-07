@@ -1,19 +1,14 @@
 module
 
-public import NormTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Lattice
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/stdlib/numbers.proof by parley build lean. -/
@@ -25,7 +20,7 @@ namespace Parley.Tests.Stdlib.Numbers.AbsOne
 theorem abs_one :
     (abs 1 : ℤ) = 1 := by
   -- 1. mun:numbers-abs-one
-  have s1 : (abs 1 : ℤ) = 1 := by first | linear_combination (norm := parley_norm) Parley.Items.Stdlib.Numbers.mun_abs_one | (have h := Parley.Items.Stdlib.Numbers.mun_abs_one; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_one; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_one | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_one).symm | (have h := Parley.Items.Stdlib.Numbers.mun_abs_one; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_one; qify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_one; parley_int_power h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_one; parley_side)
+  have s1 : (abs 1 : ℤ) = 1 := by exact Parley.Items.Stdlib.Numbers.mun_abs_one
   all_goals exact s1
 
 end Parley.Tests.Stdlib.Numbers.AbsOne

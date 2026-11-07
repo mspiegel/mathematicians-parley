@@ -62,7 +62,7 @@ theorem sqrt3_irrational :
     -- 2.4. def:divides d := 3, n := p², from 2.3
     have s2_4 : (3 : ℤ) ∣ p ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2))).mpr ⟨q ^ 2, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2))).mpr ⟨q ^ 2, by parley_side⟩; parley_side)
     -- 2.5. thm:three-divides-square n := p, from 2.4
-    have s2_5 : (3 : ℤ) ∣ p := by first | exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) s2_4) | exact ((Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) s2_4)).symm | simpa using (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) s2_4) | exact_mod_cast (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) s2_4) | (have h := (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) s2_4); parley_side)
+    have s2_5 : (3 : ℤ) ∣ p := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) s2_4)
     -- 2.6. obtain r: def:divides d := 3, n := p, from 2.5
     obtain ⟨r, s2_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p))).mp (by parley_side)
     -- 2.7. substitute p = 3r (line 2.6) into line 2.3
@@ -72,7 +72,7 @@ theorem sqrt3_irrational :
     -- 2.9. def:divides d := 3, n := q², from 2.8
     have s2_9 : (3 : ℤ) ∣ q ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := q ^ 2))).mpr ⟨r ^ 2, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := q ^ 2))).mpr ⟨r ^ 2, by parley_side⟩; parley_side)
     -- 2.10. thm:three-divides-square n := q, from 2.9
-    have s2_10 : (3 : ℤ) ∣ q := by first | exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9) | exact ((Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9)).symm | simpa using (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9) | exact_mod_cast (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9) | (have h := (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9); parley_side)
+    have s2_10 : (3 : ℤ) ∣ q := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9)
     -- 2.11. exhibit, from 2.5, 2.10
     have r179_1 : (3 : ℤ) > 1 := by parley_arith
     have s2_11 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(3 : ℤ), ⟨⟨by parley_side, by parley_side⟩, by parley_side⟩⟩

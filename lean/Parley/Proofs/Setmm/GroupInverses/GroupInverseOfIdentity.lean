@@ -22,9 +22,9 @@ namespace Parley.Proofs.Setmm.GroupInverses.GroupInverseOfIdentity
 theorem group_inverse_of_identity {G : Type*} [Group G] :
     (1 : G)⁻¹ = (1 : G) := by
   -- 1. axi:group-identity-closed
-  have s1 : (1 : G) ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | exact ((Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G))).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)) | (have h := (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G)); parley_set_side)
+  have s1 : (1 : G) ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_identity_closed (G := G))
   -- 2. axi:group-inverse-closed a := e, from 1
-  have s2 : (1 : G)⁻¹ ∈ (Set.univ : Set G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1); parley_set_side)
+  have s2 : (1 : G)⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1)
   -- 3. calculation
   have s3 : (1 : G)⁻¹ = (1 : G) := by
     calc (1 : G)⁻¹ = (1 : G) * (1 : G)⁻¹ := by first | exact (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2) | exact ((Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2)).symm | simpa using (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2) | exact_mod_cast (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2) | (have h := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2); parley_set_side)

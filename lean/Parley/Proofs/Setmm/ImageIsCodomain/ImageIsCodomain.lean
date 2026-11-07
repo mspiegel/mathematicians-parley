@@ -28,7 +28,7 @@ theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α)
     -- 2.1. obtain x from H4
     obtain ⟨x, s2_1a, s2_1b⟩ := (hH4 y (by parley_set_side))
     -- 2.2. mun:value-in-image Y := A, s := x, from 2.1
-    have r25_1 : A ⊆ A := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := A))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)); parley_set_side)
+    have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
     have s2_2 : F x ∈ F '' (A ∩ A) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) (by parley_set_side) s2_1a (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) (by parley_set_side) s2_1a (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) (by parley_set_side) s2_1a (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) (by parley_set_side) s2_1a (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) (by parley_set_side) s2_1a (by parley_set_side)); parley_set_side)
     -- 2.3. substitute y = F(x) (line 2.1) into line 2.2
     have s2_3 : y ∈ F '' (A ∩ A) := by parley_subst_at s2_1b s2_2
@@ -36,7 +36,7 @@ theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α)
   -- 3. def:subset, from 2
   have s3 : B ⊆ F '' (A ∩ A) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := F '' (A ∩ A)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := F '' (A ∩ A)))).mpr (by parley_set_side); parley_set_side)
   -- 4. mun:subset-antisymmetric, from 1, 3
-  have s4 : F '' (A ∩ A) = B := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ A)) (Y := B) s1 s3) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ A)) (Y := B) s1 s3)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ A)) (Y := B) s1 s3) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ A)) (Y := B) s1 s3) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ A)) (Y := B) s1 s3); parley_set_side)
+  have s4 : F '' (A ∩ A) = B := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ A)) (Y := B) s1 s3)
   all_goals exact s4
 
 end Parley.Proofs.Setmm.ImageIsCodomain.ImageIsCodomain

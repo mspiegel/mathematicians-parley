@@ -4,7 +4,6 @@ public import Counting
 public import FactorialTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
@@ -18,8 +17,6 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm
 
@@ -41,7 +38,7 @@ theorem scaled_binomial_step (m : ℤ) (hH1 : 0 ≤ m) (i : ℤ) (hH2 : 0 ≤ i)
   have r33_1 : 1 ≤ j := by parley_order
   have s4 : j ∈ Finset.Icc (1 : ℤ) (m + i + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := j) (a := (1 : ℤ)) (b := m + i + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := j) (a := (1 : ℤ)) (b := m + i + 1))).mpr (by parley_side); parley_side)
   -- 5. thm:weighted-term m := m + i, k := j, from 4
-  have s5 : j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) (j - 1) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4) | (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4) | exact_mod_cast ((Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4)).symm | (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4); parley_int_power h) | (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4); parley_side)
+  have s5 : j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) (j - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4)
   -- 6. substitute j − 1 = i (H4) into line 5
   have s6 : j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) i : ℤ) := by parley_subst_at hH4 s5
   -- 7. algebra, from 1

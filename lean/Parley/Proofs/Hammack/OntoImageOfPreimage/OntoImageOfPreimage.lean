@@ -56,7 +56,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
         have s2_5 : ∀ y ∈ Y, y ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by
           intro y hK4
           -- 2.5.1. mun:in-subset X := Y, Y := B, u := y, from K1, K4
-          have s2_5_1 : y ∈ B := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4); parley_set_side)
+          have s2_5_1 : y ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4)
           -- 2.5.2. instantiate y := y in line 1, from 2.5.1
           have s2_5_2 : ∃ x ∈ A, y = f x := by first | exact (s1 y (by parley_set_side)) | exact ((s1 y (by parley_set_side))).symm | simpa using (s1 y (by parley_set_side)) | exact_mod_cast (s1 y (by parley_set_side)) | (have h := (s1 y (by parley_set_side)); parley_set_side)
           -- 2.5.3. obtain x from line 2.5.2
@@ -66,14 +66,14 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
           -- 2.5.5. def:preimage u := x, Z := Y, from 2.5.3, 2.5.4
           have s2_5_5 : x ∈ A ∩ f ⁻¹' Y := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := x) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := x) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
           -- 2.5.6. mun:value-in-image Y := f⁻¹[Y], s := x, from 2.2, 2.5.5
-          have s2_5_6 : f x ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (by parley_set_side)); parley_set_side)
+          have s2_5_6 : f x ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (by parley_set_side))
           -- 2.5.7. substitute y = f(x) (line 2.5.3) into line 2.5.6
           have s2_5_7 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by parley_subst_at s2_5_3b s2_5_6
           all_goals exact s2_5_7
         -- 2.6. def:subset, from 2.5
         have s2_6 : Y ⊆ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := f '' (A ∩ (A ∩ f ⁻¹' Y))))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := f '' (A ∩ (A ∩ f ⁻¹' Y))))).mpr (by parley_set_side); parley_set_side)
         -- 2.7. mun:subset-antisymmetric, from 2.4, 2.6
-        have s2_7 : f '' (A ∩ (A ∩ f ⁻¹' Y)) = Y := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y) s2_4 s2_6) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y) s2_4 s2_6)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y) s2_4 s2_6) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y) s2_4 s2_6) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y) s2_4 s2_6); parley_set_side)
+        have s2_7 : f '' (A ∩ (A ∩ f ⁻¹' Y)) = Y := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y) s2_4 s2_6)
         all_goals exact s2_7
       all_goals parley_set_side
     · skip
@@ -82,7 +82,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       have s3 : ∀ y ∈ B, ∃ x ∈ A, y = f x := by
         intro y hK5
         -- 3.1. mun:singleton-subset a := y, X := B, from K5
-        have s3_1 : ({y} : Set α) ⊆ B := by first | exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5) | exact ((Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5) | (have h := (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5); parley_set_side)
+        have s3_1 : ({y} : Set α) ⊆ B := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := B) (a := y) hK5)
         -- 3.2. def:singleton x := y, a := y
         have s3_2 : y ∈ ({y} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_singleton (a := y) (x := y))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_singleton (a := y) (x := y))).mpr (by parley_set_side); parley_set_side)
         -- 3.3. substitute

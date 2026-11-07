@@ -87,7 +87,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
     -- 6.1. inequalities, from S
     have s6_1 : M < r := by parley_order
     -- 6.2. mun:power-less, from 4, 6.1
-    have s6_2 : M ^ n.toNat < r ^ n.toNat := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) (by parley_side) (by parley_side) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) (by parley_side) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) (by parley_side) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) (by parley_side) (by parley_side) (by parley_side)); parley_side)
+    have s6_2 : M ^ n.toNat < r ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) (by parley_side) (by parley_side) (by parley_side))
     -- 6.3. substitute r^n = P (line 5) into line 6.2
     have s6_3 : M ^ n.toNat < P := by parley_subst_at s5 s6_2
     -- 6.4. inequalities, from 6.3

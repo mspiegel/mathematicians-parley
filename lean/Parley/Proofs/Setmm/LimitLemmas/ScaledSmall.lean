@@ -1,24 +1,18 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.LimitLemmas.AbsNonneg
@@ -34,7 +28,7 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
     abs (C * u) < ε := by
   -- 1. mun:abs-real x := C
   -- 2. thm:abs-nonneg x := C
-  have s2 : abs C ≥ 0 := by first | linarith [(Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C))] | (have h := (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C)) | (have h := (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C)); parley_side)
+  have s2 : abs C ≥ 0 := by exact (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C))
   set d : ℝ := abs C + 1 with hD1
   have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))); parley_side)
   -- 3. inequalities, from D1, 2
@@ -47,7 +41,7 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   have r89_1 : d ≠ 0 := by parley_side
   have s6 : abs u ≤ ε / (2 * d) := by parley_order
   -- 7. mun:multiply-le x := |u|, y := ε/(2·d), c := d, from 3, 6
-  have s7 : d * abs u ≤ d * (ε / (2 * d)) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) (by parley_side) (by parley_side)); parley_side)
+  have s7 : d * abs u ≤ d * (ε / (2 * d)) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) (by parley_side) (by parley_side))
   -- 8. algebra
   have r98_1 : 2 * d ≠ 0 := by parley_side
   have s8 : d * (ε / (2 * d)) = ε / 2 := by parley_ring
@@ -57,14 +51,14 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
     try push_cast at *
     parley_ring
   -- 10. thm:abs-nonneg x := u
-  have s10 : abs u ≥ 0 := by first | linarith [(Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u))] | (have h := (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u)) | (have h := (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u)); parley_side)
+  have s10 : abs u ≥ 0 := by exact (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u))
   -- 11. inequalities
   have s11 : abs C * abs u ≤ abs C * abs u + abs u := by parley_order
   -- 12. transitivity, from 11, 9, 7, 8
   have r114_1 : d ≠ 0 := by parley_side
   have s12 : abs C * abs u ≤ ε / 2 := by parley_order
   -- 13. mun:abs-product x := C, y := u
-  have s13 : abs (C * u) = abs C * abs u := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u)); parley_side)
+  have s13 : abs (C * u) = abs C * abs u := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))
   -- 14. inequalities
   have s14 : ε / 2 < ε := by parley_order
   -- 15. transitivity, from 13, 12, 14

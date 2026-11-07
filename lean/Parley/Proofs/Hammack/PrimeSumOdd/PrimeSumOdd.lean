@@ -46,7 +46,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
   -- 4. def:prime p := q, from H4
   have s4 : ∀ d : ℤ, 0 < d → d ∣ q → d = 1 ∨ d = q := by first | exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := q) (by parley_side))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Divisibility.def_prime (p := q) (by parley_side))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Divisibility.def_prime (p := q) (by parley_side))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Divisibility.def_prime (p := q) (by parley_side))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Divisibility.def_prime (p := q) (by parley_side))).mp (by parley_side)).2; parley_side)
   -- 5. mun:even-or-odd n := q
-  have s5 : Even q ∨ Odd q := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q)); parley_side)
+  have s5 : Even q ∨ Odd q := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q))
   -- 6. cases, from 5
   have s6 : Odd q := by
     rcases s5 with hC1 | hC4
@@ -58,7 +58,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
       -- 6.3. instantiate d := 2 in line 4
       have s6_3 : (2 : ℤ) ∣ q → (2 : ℤ) = 1 ∨ 2 = q := by first | exact (s4 (2 : ℤ) (by parley_side)) | exact ((s4 (2 : ℤ) (by parley_side))).symm | simpa using (s4 (2 : ℤ) (by parley_side)) | exact_mod_cast (s4 (2 : ℤ) (by parley_side)) | (have h := (s4 (2 : ℤ) (by parley_side)); parley_side)
       -- 6.4. mun:modus-ponens P := 2 divides q, from 6.2, 6.3
-      have s6_4 : (2 : ℤ) = 1 ∨ 2 = q := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ q) (Q := (2 : ℤ) = 1 ∨ 2 = q) s6_3 s6_2) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ q) (Q := (2 : ℤ) = 1 ∨ 2 = q) s6_3 s6_2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ q) (Q := (2 : ℤ) = 1 ∨ 2 = q) s6_3 s6_2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ q) (Q := (2 : ℤ) = 1 ∨ 2 = q) s6_3 s6_2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ q) (Q := (2 : ℤ) = 1 ∨ 2 = q) s6_3 s6_2); parley_side)
+      have s6_4 : (2 : ℤ) = 1 ∨ 2 = q := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ q) (Q := (2 : ℤ) = 1 ∨ 2 = q) s6_3 s6_2)
       -- 6.5. cases, from 6.4
       have s6_5 : 2 = q := by
         rcases s6_4 with hC2 | hC3

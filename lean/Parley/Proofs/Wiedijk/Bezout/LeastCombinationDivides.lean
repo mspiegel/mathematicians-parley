@@ -36,7 +36,7 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
     have hS : r ≠ 0 := by parley_suppose hc_hS
     -- 3.1. mun:pos-int-nat m := r
     have r39_1 : 0 < r := by parley_order
-    have s3_1 : 0 < r := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) (by parley_side)); parley_side)
+    have s3_1 : 0 < r := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) (by parley_side))
     -- 3.2. substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.1
     have s3_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := by parley_subst_at s2 s3_1
     -- 3.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 3.2

@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import Divisibility
 public import Functions
 public import NormTactics
 public import OrderTactics
@@ -20,7 +19,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF
@@ -78,9 +76,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 3.5.7. D1, from C2
           have s3_5_7 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
           -- 3.5.8. mun:nat0-nonzero, from C2, IH1
-          have s3_5_8 : 0 < b k := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2); parley_side)
+          have s3_5_8 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2)
           -- 3.5.9. mun:mod-natural, from 3.5.8
-          have s3_5_9 : 0 ≤ a k % b k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)); parley_side)
+          have s3_5_9 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
           -- 3.5.10. substitute a(k + 1) = b(k) (line 3.5.6) into IH1
           have s3_5_10 : 0 ≤ a (k + 1) := by parley_subst_at s3_5_6 hIH1
           -- 3.5.11. substitute b(k + 1) = a(k) mod b(k) (line 3.5.7) into line 3.5.9
@@ -124,17 +122,17 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 4.3.5. D1, from C4
           have s4_3_5 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC4] at h; (try ring_nf at h ⊢); linarith
           -- 4.3.6. mun:nat0-nonzero, from C4, 3
-          have s4_3_6 : 0 < b k := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4); parley_side)
+          have s4_3_6 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4)
           -- 4.3.7. mun:nat0-int, from 3
           -- 4.3.8. mun:gcd-commutes
-          have r155_2 : 0 ≤ a k % b k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)); parley_side)
-          have s4_3_8 : (Int.gcd (b k) (a k % b k) : ℤ) = (Int.gcd (a k % b k) (b k) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k)); parley_side)
+          have r155_2 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
+          have s4_3_8 : (Int.gcd (b k) (a k % b k) : ℤ) = (Int.gcd (a k % b k) (b k) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k))
           -- 4.3.9. calculation
           have s4_3_9 : (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd M N : ℤ) := by
             calc (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd (b k) (b (k + 1)) : ℤ) := by parley_subst s4_3_4
               _ = (Int.gcd (b k) (a k % b k) : ℤ) := by parley_subst s4_3_5
               _ = (Int.gcd (a k % b k) (b k) : ℤ) := by parley_side
-              _ = (Int.gcd (a k) (b k) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side)); parley_side)
+              _ = (Int.gcd (a k) (b k) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side))
               _ = (Int.gcd M N : ℤ) := by parley_side
           all_goals parley_side
       all_goals parley_side
@@ -147,7 +145,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
       -- 5.1. inequalities
       have s5_1 : b 0 ≤ N := by parley_order
       -- 5.2. mun:or-left, from 5.1
-      have s5_2 : b 0 ≤ N ∨ b 0 = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b 0 ≤ N) (Q := b 0 = 0) s5_1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := b 0 ≤ N) (Q := b 0 = 0) s5_1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b 0 ≤ N) (Q := b 0 = 0) s5_1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b 0 ≤ N) (Q := b 0 = 0) s5_1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b 0 ≤ N) (Q := b 0 = 0) s5_1); parley_side)
+      have s5_2 : b 0 ≤ N ∨ b 0 = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b 0 ≤ N) (Q := b 0 = 0) s5_1)
       all_goals parley_side
     | succ k hK3 hIH3 =>
       -- 5.3. axi:excluded-middle P := b(k) = 0
@@ -159,32 +157,32 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 5.4.1. D1, from C5
           have s5_4_1 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC5] at h; (try ring_nf at h ⊢); linarith
           -- 5.4.2. mun:or-right, from 5.4.1
-          have s5_4_2 : b (k + 1) + (k + 1) ≤ N ∨ b (k + 1) = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1); parley_side)
+          have s5_4_2 : b (k + 1) + (k + 1) ≤ N ∨ b (k + 1) = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1)
           all_goals parley_side
         · skip
           -- 5.4.3. D1, from C6
           have s5_4_3 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC6] at h; (try ring_nf at h ⊢); linarith
           -- 5.4.4. mun:nat0-nonzero, from C6, 3
-          have s5_4_4 : 0 < b k := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6); parley_side)
+          have s5_4_4 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6)
           -- 5.4.5. mun:nat0-int, from 3
           -- 5.4.6. mun:mod-less, from 5.4.4, 5.4.5
-          have s5_4_6 : a k % b k < b k := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a k) (b := b k) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a k) (b := b k) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a k) (b := b k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a k) (b := b k) (by parley_side)); parley_side)
+          have s5_4_6 : a k % b k < b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a k) (b := b k) (by parley_side))
           -- 5.4.7. mun:mod-natural, from 5.4.4, 5.4.5
-          have s5_4_7 : 0 ≤ a k % b k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side)); parley_side)
+          have s5_4_7 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
           -- 5.4.8. substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.6
           have s5_4_8 : b (k + 1) < b k := by parley_subst_at s5_4_3 s5_4_6
           -- 5.4.9. substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.7
           have s5_4_9 : 0 ≤ b (k + 1) := by parley_subst_at s5_4_3 s5_4_7
           -- 5.4.10. mun:integer-step, from 5.4.8
-          have s5_4_10 : b (k + 1) + 1 ≤ b k := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := b (k + 1)) (n := b k) s5_4_8)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := b (k + 1)) (n := b k) s5_4_8); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := b (k + 1)) (n := b k) s5_4_8) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := b (k + 1)) (n := b k) s5_4_8); parley_side)
+          have s5_4_10 : b (k + 1) + 1 ≤ b k := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := b (k + 1)) (n := b k) s5_4_8)
           -- 5.4.11. mun:disjunctive-syllogism, from C6, IH3
-          have s5_4_11 : b k + k ≤ N := by first | linarith [(Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b k + k ≤ N) (Q := b k = 0) hIH3 hC6)] | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b k + k ≤ N) (Q := b k = 0) hIH3 hC6); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b k + k ≤ N) (Q := b k = 0) hIH3 hC6) | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b k + k ≤ N) (Q := b k = 0) hIH3 hC6); parley_side)
+          have s5_4_11 : b k + k ≤ N := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b k + k ≤ N) (Q := b k = 0) hIH3 hC6)
           -- 5.4.12. inequalities
           have s5_4_12 : b (k + 1) + (k + 1) ≤ b k + k := by parley_order
           -- 5.4.13. transitivity, from 5.4.12, 5.4.11
           have s5_4_13 : b (k + 1) + (k + 1) ≤ N := by parley_order
           -- 5.4.14. mun:or-left, from 5.4.13
-          have s5_4_14 : b (k + 1) + (k + 1) ≤ N ∨ b (k + 1) = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13); parley_side)
+          have s5_4_14 : b (k + 1) + (k + 1) ≤ N ∨ b (k + 1) = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13)
           all_goals parley_side
       all_goals parley_side
   -- 6. instantiate k := N in line 3
@@ -196,9 +194,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
     by_contra hc_hS
     have hS : b N ≠ 0 := by parley_suppose hc_hS
     -- 8.1. mun:disjunctive-syllogism, from S, 7
-    have s8_1 : b N + N ≤ N := by first | linarith [(Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b N + N ≤ N) (Q := b N = 0) s7 hS)] | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b N + N ≤ N) (Q := b N = 0) s7 hS); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b N + N ≤ N) (Q := b N = 0) s7 hS) | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b N + N ≤ N) (Q := b N = 0) s7 hS); parley_side)
+    have s8_1 : b N + N ≤ N := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b N + N ≤ N) (Q := b N = 0) s7 hS)
     -- 8.2. mun:nat0-nonzero, from S, 6
-    have s8_2 : 0 < b N := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) (by parley_side) hS) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) (by parley_side) hS)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) (by parley_side) hS) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) (by parley_side) hS) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) (by parley_side) hS); parley_side)
+    have s8_2 : 0 < b N := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) (by parley_side) hS)
     -- 8.3. inequalities, from 8.2
     have s8_3 : ¬ b N + N ≤ N := by parley_side
     all_goals parley_side

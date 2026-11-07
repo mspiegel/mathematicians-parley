@@ -27,7 +27,7 @@ theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH2 : Tru
     have s1_2 : ¬ x ∈ (∅ : Set α) := by parley_set_side
     all_goals parley_set_side
   -- 2. mun:function-into, from 1
-  have s2 : Set.MapsTo F A ∅ := by first | exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1) | exact ((Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1) | (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1); parley_set_side)
+  have s2 : Set.MapsTo F A ∅ := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1)
   all_goals exact s2
 
 end Parley.Proofs.Setmm.FunctionIntoEmpty.FunctionIntoEmpty

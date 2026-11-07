@@ -6316,6 +6316,11 @@ impl<'a> Proof<'a> {
         // A line that is the item's equation turned round, compared turned
         // back and closed by the equation's `symm`.
         let mut turned = false;
+        // An item whose statement, its letters given, Lean writes as it
+        // writes the line closes the line by `exact` alone. Two that are
+        // alike but for casts are not enough: an item over any ring given
+        // ℤ writes `n ^ (2 : ℤ)`, which ℤ has no power for.
+        let mut agrees = false;
         if concluded.way == Way::AsWritten {
             // A row of a calculation is written in the calculation's type
             // (`worked_in`), and compared as it is written there.
@@ -6356,6 +6361,11 @@ impl<'a> Proof<'a> {
                         &widen,
                     );
                 }
+                agrees = found.is_empty()
+                    && !turned
+                    && counted.is_empty()
+                    && !claim.is_truth()
+                    && instance.statement.text() == claim.text();
                 for d in found {
                     self.forms.borrow_mut().push(FormNote {
                         page_line: reason.just.line,
@@ -6479,6 +6489,7 @@ impl<'a> Proof<'a> {
         // witness.
         let closed = match self.writer.integer_power_witness(node) {
             _ if !counted.is_empty() => counts_converted(&term, &counted, turned),
+            _ if agrees => Proof::By(Tactic::Exact(term)),
             Some(witness) => ways_proof(vec![
                 Tactic::Exact(witness),
                 Tactic::Exact(t::bracket(super::tactics::by_term(close(
