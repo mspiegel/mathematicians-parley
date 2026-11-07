@@ -370,6 +370,7 @@
 {"key":"fun t : ℤ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun w : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun x : α => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℚ => (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℚ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
@@ -382,6 +383,7 @@
 {"key":"fun x => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun y : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun y : α => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun y : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_left a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_right a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
@@ -840,8 +842,10 @@
 {"key":"∏ᶠ k ∈ (sorry : Set ℤ), (sorry : ℤ)","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Group.Int.Defs"]}
 {"key":"∏ᶠ r ∈ (sorry : Set ℤ), (sorry : ℤ)","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Group.Int.Defs"]}
 {"key":"∏ᶠ x ∈ (sorry : Set ℤ), (sorry : ℤ)","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Group.Int.Defs"]}
+{"key":"∏ᶠ x ∈ a, (sorry : ℝ)","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∏ᶠ x ∈ a, (sorry : ℤ)","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Group.Int.Defs"]}
 {"key":"∏ᶠ x ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∏ᶠ y ∈ a, (sorry : ℤ)","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Group.Int.Defs"]}
 {"key":"∏ᶠ y ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∏ᶠ z ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∑ i ∈ (sorry : Set ℤ), (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.Group.Int.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}

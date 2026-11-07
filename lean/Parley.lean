@@ -41,6 +41,7 @@ public import Parley.Stdlib.Divisibility.ProductCongruent
 public import Parley.Stdlib.Geometry.HalfTurn
 public import Parley.Stdlib.Numbers.AbsBounds
 public import Parley.Stdlib.Sets.SubsetAntisymmetric
+public import Parley.Stdlib.Sums.ProductConstant
 public import Parley.Stdlib.Sums.ProductFactor
 public import Parley.Proofs.Hammack.AbsLimitZero.AbsLimitZero
 public import Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne
@@ -940,6 +941,7 @@ public import Parley.Tests.Elaborator.IdentityLeftOut.AnExhibitWithoutItsZero
 public import Parley.Tests.Elaborator.IdentityLeftOut.ACitedExistentialWithoutItsZero
 public import Parley.Tests.Elaborator.IdentityLeftOut.TwoWitnessesWithoutAZero
 public import Parley.Tests.Elaborator.ImpliedBounds.ANaturalAtLeastOneForAnItem
+public import Parley.Tests.Elaborator.InductionOverASet.AProductOfOnesByInduction
 public import Parley.Tests.Elaborator.InequalityRows.HalfwayAbove
 public import Parley.Tests.Elaborator.InequalityRows.ANegativeTurned
 public import Parley.Tests.Elaborator.InequalityRows.AnEquationReadAsAnOrder

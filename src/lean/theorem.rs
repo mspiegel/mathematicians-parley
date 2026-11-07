@@ -5464,6 +5464,10 @@ impl<'a> Proof<'a> {
                 Some(d) => Route::Built(d),
                 None => Route::no(format!("{}, whose domain no line gives", g.text)),
             },
+            // A map given by its values, x ↦ c, is given on all its type.
+            Some(g) if &*g.notation_name() == "property-of" => Route::Built(
+                super::expr::Printed::head("Set.univ", super::doc::Source::Mathlib),
+            ),
             _ => Route::no(format!(
                 "a map's domain where its map {map} is given no letter"
             )),
@@ -6164,6 +6168,36 @@ impl<'a> Proof<'a> {
                     None => args.push(proof_arg(side_term(&[]))),
                 },
                 Binder::Fact { .. } => args.push(proof_arg(side_term(&[]))),
+            }
+        }
+        // A type variable the item's sentence holds and none of its letters
+        // does, the α of |(∅ : Set α)| = 0, is given by name: no argument
+        // tells Lean what it is. It is what ∅ holds where the lines say.
+        let lettered: std::collections::BTreeSet<usize> = sentence
+            .binders
+            .iter()
+            .filter_map(|b| match b {
+                Binder::Letter { ty, .. } => Some(ty.lean_type()),
+                _ => None,
+            })
+            .flat_map(|ty| things_of_type(&ty))
+            .collect();
+        if let Some(held) = &self.writer.empty_of {
+            for var in things_in(&sentence.prop) {
+                if !lettered.contains(&var) {
+                    args.insert(
+                        0,
+                        super::doc::Arg::Named {
+                            name: super::expr::things_name(var),
+                            value: super::expr::Printed::of(
+                                super::doc::TermKind::Letter(
+                                    held.letter().lean_type().text(),
+                                ),
+                                super::doc::LeanType::Universe,
+                            ),
+                        },
+                    );
+                }
             }
         }
         let decl = super::expr::Printed::head(
@@ -8525,6 +8559,31 @@ fn counts_converted(
             }),
         ],
     ))
+}
+
+/// The type variables a term's parts are of, or are sets or maps of.
+fn things_in(term: &Printed) -> std::collections::BTreeSet<usize> {
+    let mut out: std::collections::BTreeSet<usize> =
+        term.ty.iter().flat_map(things_of_type).collect();
+    for child in term.children() {
+        out.extend(things_in(child));
+    }
+    out
+}
+
+/// The type variables a type is made of.
+fn things_of_type(ty: &super::doc::LeanType) -> Vec<usize> {
+    use super::doc::LeanType;
+    match ty {
+        LeanType::Things(n) => vec![*n],
+        LeanType::Set(inner) => things_of_type(inner),
+        LeanType::Fun { from, to } => {
+            let mut out = things_of_type(from);
+            out.extend(things_of_type(to));
+            out
+        }
+        _ => Vec::new(),
+    }
 }
 
 /// `show s by t`: a term saying s, proved by t.
