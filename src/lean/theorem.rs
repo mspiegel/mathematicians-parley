@@ -6319,7 +6319,15 @@ impl<'a> Proof<'a> {
         // An item read as written says what the claim says: where the two
         // write one term in different forms, the build reports it.
         if concluded.way == Way::AsWritten {
-            if let Route::Built(claim) = self.writer.formula(node) {
+            // A row of a calculation is written in the calculation's type
+            // (`worked_in`), and compared as it is written there.
+            let written = match self.worked_in.get() {
+                Some(at) if node.notation() == EQUALITY || node.notation() == ORDER => {
+                    self.writer.closed_formula(node, at)
+                }
+                _ => self.writer.formula(node),
+            };
+            if let Route::Built(claim) = written {
                 for d in super::doc::forms::differences(&instance.statement, &claim) {
                     self.forms.borrow_mut().push(FormNote {
                         page_line: reason.just.line,
