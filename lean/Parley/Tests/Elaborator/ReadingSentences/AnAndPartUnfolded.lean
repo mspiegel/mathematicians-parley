@@ -4,6 +4,10 @@ public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Parity
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/reading-sentences.proof by parley build lean. -/

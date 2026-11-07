@@ -4,6 +4,10 @@ public import ArithTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/a-there-is-unfolded-where-the-scope-binds-its-letter.proof by parley build lean. -/

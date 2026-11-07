@@ -3,6 +3,8 @@ module
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-function-on-a-longer-range.proof by parley build lean. -/

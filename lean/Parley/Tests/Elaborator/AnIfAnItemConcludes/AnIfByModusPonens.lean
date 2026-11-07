@@ -2,6 +2,8 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Parley.Items.Stdlib.Reasoning
 
 /-! Written from tests/elaborator/an-if-an-item-concludes.proof by parley build lean. -/

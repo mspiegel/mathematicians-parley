@@ -2,10 +2,12 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
+public import NormTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
@@ -13,6 +15,13 @@ public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Prime
+public import Mathlib.Tactic.NormNum.RealSqrt
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers

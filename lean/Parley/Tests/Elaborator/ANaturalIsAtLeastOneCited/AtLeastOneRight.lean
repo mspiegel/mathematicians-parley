@@ -3,6 +3,8 @@ module
 public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 
 /-! Written from tests/elaborator/a-natural-is-at-least-one-cited.proof by parley build lean. -/
 

@@ -3,13 +3,23 @@ module
 public import SetTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Algebra.Module.Defs
+public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Calculus.Deriv.Basic
 public import Mathlib.Analysis.Calculus.FDeriv.Defs
+public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Sets
 

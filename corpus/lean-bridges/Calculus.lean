@@ -1,6 +1,11 @@
 module
 
-public import Mathlib
+public import Lean.Parser.Command
+public import Mathlib.Algebra.Order.Ring.Star
+public import Mathlib.Algebra.Order.Star.Int
+public import Mathlib.Data.Int.Interval
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.Metrizable.Uniformity
 
 /-!
 # Calculus

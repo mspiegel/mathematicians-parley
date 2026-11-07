@@ -1,12 +1,17 @@
 module
 
 public import ArithTactics
+public import NormTactics
 public import RealTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.RealSqrt
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/an-impossible-line-by-algebra.proof by parley build lean. -/
 

@@ -4,6 +4,8 @@ public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 
 /-! Written from tests/elaborator/inspection-cases-of-a-range.proof by parley build lean. -/
 

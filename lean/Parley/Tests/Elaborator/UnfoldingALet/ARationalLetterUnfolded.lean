@@ -1,8 +1,12 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/unfolding-a-let.proof by parley build lean. -/

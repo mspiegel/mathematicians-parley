@@ -6,6 +6,10 @@ public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-neither-factor.proof by parley build lean. -/

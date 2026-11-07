@@ -2,11 +2,17 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.NormNum.Abs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 

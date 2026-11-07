@@ -1,12 +1,13 @@
 module
 
-public import Mathlib
+public import Lean.Parser.Command
 public import Factorials
 public import Counting
 public import Divisibility
 public import Numbers
 public import Sums
 public import Tactics
+public import NormTactics
 public import SetTactics
 public import Roots
 public import RealTactics

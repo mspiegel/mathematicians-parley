@@ -42,6 +42,21 @@ impl LeanType {
             }
     }
 
+    /// Whether Lean reads it alike wherever it is written: no item's
+    /// general type, type variable, or group named by the page.
+    pub fn fixed(&self) -> bool {
+        match self {
+            LeanType::Num(_) | LeanType::ENat | LeanType::Prop => true,
+            LeanType::Set(inner) => inner.fixed(),
+            LeanType::Fun { from, to } => from.fixed() && to.fixed(),
+            LeanType::General
+            | LeanType::Things(_)
+            | LeanType::Elements(_)
+            | LeanType::Universe
+            | LeanType::Subgroup(_) => false,
+        }
+    }
+
     /// Whether it is a type of sets, or is made of one, `ℤ → Set ℕ`.
     pub fn has_set(&self) -> bool {
         match self {
@@ -599,10 +614,42 @@ impl Term {
             | TermKind::Open
             | TermKind::By(_)
             | TermKind::Paren(_)
-            | TermKind::App { .. }
             | TermKind::Count { .. }
             | TermKind::Field { .. }
             | TermKind::ToNat(_) => None,
+            // An application is its function's syntax, Lean's own: a sample
+            // of it asks only the instances its arguments' types take, where
+            // the function is Lean's or Mathlib's.
+            TermKind::App {
+                head,
+                args,
+                explicit,
+            } => {
+                let TermKind::Const(c) = &head.kind else {
+                    return None;
+                };
+                if !matches!(c.source, Source::Core | Source::Mathlib) {
+                    return None;
+                }
+                let sample = Term {
+                    kind: TermKind::App {
+                        head: head.clone(),
+                        args: args
+                            .iter()
+                            .map(|a| match a {
+                                Arg::Explicit(t) => Arg::Explicit(Term::placeholder(t)),
+                                Arg::Named { name, value } => Arg::Named {
+                                    name: name.clone(),
+                                    value: Term::placeholder(value),
+                                },
+                            })
+                            .collect(),
+                        explicit: *explicit,
+                    },
+                    ty: self.ty.clone(),
+                };
+                Some(sample.text())
+            }
             _ => {
                 let mut sample = self.clone();
                 for c in sample.children_mut() {
@@ -613,18 +660,23 @@ impl Term {
         }
     }
 
-    /// What stands for a term inside a sample: a letter, or `by skip` for a
-    /// proof, where the syntax asks a proof.
+    /// What stands for a term inside a sample: `(sorry : T)` of its type,
+    /// so that Lean elaborates the sample as the file does, with the
+    /// instances its types take; `by skip` for a proof; a letter where the
+    /// type is not one a sample can write.
     fn placeholder(term: &Term) -> Term {
         use super::tactic::{Proof, Tactic, TacticRef};
-        match term.kind {
-            TermKind::By(_) => Term {
+        match (&term.kind, &term.ty) {
+            (TermKind::By(_), _) => Term {
                 kind: TermKind::By(Box::new(Proof::By(Tactic::Call {
                     tactic: TacticRef::Mathlib("skip"),
                     args: Vec::new(),
                 }))),
                 ty: None,
             },
+            (_, Some(ty)) if ty.fixed() => {
+                Term::cast(Term::letter("sorry", ty.clone()), ty.clone())
+            }
             _ => Term::letter("a", LeanType::Prop),
         }
     }

@@ -2,6 +2,9 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/docs/grammar.proof by parley build lean. -/

@@ -4,10 +4,16 @@ public import ArithTactics
 public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
+public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Floor
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/integer-below-a-real.proof by parley build lean. -/

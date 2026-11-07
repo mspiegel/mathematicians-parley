@@ -3,7 +3,14 @@ module
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.GCD
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
 

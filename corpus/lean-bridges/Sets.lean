@@ -1,6 +1,8 @@
 module
 
-public import Mathlib
+public import Lean.Parser.Command
+public import Mathlib.Data.Set.Basic
+public import Mathlib.Data.Set.Insert
 
 /-!
 # Sets

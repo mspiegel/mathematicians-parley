@@ -4,8 +4,11 @@ public import SetTactics
 public import Tactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Sums
 

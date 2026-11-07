@@ -1,6 +1,9 @@
 module
 
-public import Mathlib
+public import Lean.Parser.Command
+public import Lean.Parser.Syntax
+public import Mathlib.Data.Set.Card
+public import Mathlib.Tactic.Zify
 public import Tactics
 
 /-!

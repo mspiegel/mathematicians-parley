@@ -1,17 +1,24 @@
 module
 
 public import ArithTactics
+public import NormTactics
 public import PowerTactics
 public import RealTactics
 public import Tactics
+public import Batteries.Classes.RatCast
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers

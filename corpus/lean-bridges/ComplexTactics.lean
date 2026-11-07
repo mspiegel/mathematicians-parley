@@ -1,6 +1,8 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Positivity
+public import Lean.Parser.Command
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Tactics
 
 /-!

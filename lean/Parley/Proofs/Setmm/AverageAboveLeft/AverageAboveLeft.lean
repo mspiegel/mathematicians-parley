@@ -2,7 +2,12 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from proofs/setmm/average-above-left.proof by parley build lean. -/
 

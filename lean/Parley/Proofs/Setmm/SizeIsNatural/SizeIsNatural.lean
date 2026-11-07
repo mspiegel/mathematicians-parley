@@ -1,6 +1,7 @@
 module
 
 public import ArithTactics
+public import NormTactics
 public import PowerTactics
 public import SetTactics
 public import SubstTactics
@@ -13,6 +14,9 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.TypeStar

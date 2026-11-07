@@ -2,18 +2,27 @@ module
 
 public import AlgebraTactics
 public import Functions
+public import NormTactics
 public import OrderTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Even
+public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Parity
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF

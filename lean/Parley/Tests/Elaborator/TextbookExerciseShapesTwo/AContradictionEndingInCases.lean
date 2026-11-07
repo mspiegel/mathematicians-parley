@@ -5,6 +5,7 @@ public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from tests/elaborator/textbook-exercise-shapes-two.proof by parley build lean. -/
 

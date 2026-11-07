@@ -1,12 +1,20 @@
 module
 
+public import NormTactics
 public import RealTactics
 public import Tactics
+public import Batteries.Classes.RatCast
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.RealSqrt
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Proofs.Setmm.RationalClosure.IrrationalProduct
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational
 

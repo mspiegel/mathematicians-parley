@@ -2,8 +2,13 @@ module
 
 public import RealTactics
 public import Tactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 
 /-! Written from tests/elaborator/real-arithmetic-order.proof by parley build lean. -/
 

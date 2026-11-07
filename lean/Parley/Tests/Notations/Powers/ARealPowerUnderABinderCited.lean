@@ -1,7 +1,11 @@
 module
 
 public import Tactics
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Pow
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Tests.Notations.Powers.ARealPowerUnderABinder
 
 /-! Written from tests/notations/powers.proof by parley build lean. -/

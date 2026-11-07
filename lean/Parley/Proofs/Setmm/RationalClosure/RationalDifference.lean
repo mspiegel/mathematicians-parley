@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.NormNum.Basic
 public import Parley.Proofs.Setmm.RationalClosure.RationalSum
 
 /-! Written from proofs/setmm/rational-closure.proof by parley build lean. -/

@@ -1,6 +1,20 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Mathlib.Algebra.CharP.Defs
+public import Mathlib.Algebra.Order.Star.Rat
+public import Mathlib.Computability.Reduce
+public import Mathlib.Data.ENat.Lattice
+public import Mathlib.Data.Int.Interval
+public import Mathlib.Data.Nat.Choose.Cast
+public import Mathlib.Data.Set.Card
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Ring.RingNF
+public import Lean.Parser.Command
 public import Factorials
 
 /-!

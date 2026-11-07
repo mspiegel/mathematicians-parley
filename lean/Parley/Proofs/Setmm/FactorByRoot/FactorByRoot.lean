@@ -4,6 +4,9 @@ public import Polynomials
 public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Polynomials
 
 /-! Written from proofs/setmm/factor-by-root.proof by parley build lean. -/

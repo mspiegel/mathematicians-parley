@@ -1,9 +1,11 @@
 module
 
 public import Tactics
+public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.RingTheory.Algebraic.Defs
+public import Mathlib.Tactic.NormNum.Basic
 public import Parley.Items.Stdlib.Polynomials
 
 /-! Written from tests/stdlib/polynomials.proof by parley build lean. -/

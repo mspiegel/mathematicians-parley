@@ -3,8 +3,13 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Tactics
+public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Parity
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/odd-as-sum-of-three-odds.proof by parley build lean. -/

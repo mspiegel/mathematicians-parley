@@ -3,6 +3,7 @@ module
 public import SetTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.InAUnionOnTheRight

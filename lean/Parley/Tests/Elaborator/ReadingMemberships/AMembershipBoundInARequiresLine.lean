@@ -4,6 +4,9 @@ public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/reading-memberships.proof by parley build lean. -/

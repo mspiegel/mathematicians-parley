@@ -1,7 +1,13 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.LinearCombination
+public import Lean.Parser.Command
+public import Mathlib.Algebra.Field.Defs
 public import Tactics
+public import NormTactics
 
 /-!
 # Natural numbers given as an integer's `toNat`

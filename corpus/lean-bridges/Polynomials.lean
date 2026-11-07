@@ -1,6 +1,11 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Ring
+public import Lean.Elab.MutualDef
+public import Lean.Parser.Command
+public import Mathlib.Algebra.Polynomial.Div
+public import Mathlib.Algebra.Polynomial.Eval.Defs
+public import Mathlib.Basic.Complex.Basic
 
 /-!
 # Polynomials

@@ -2,7 +2,10 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 
 /-! Written from proofs/hammack/rational-below-a-positive-rational.proof by parley build lean. -/
 

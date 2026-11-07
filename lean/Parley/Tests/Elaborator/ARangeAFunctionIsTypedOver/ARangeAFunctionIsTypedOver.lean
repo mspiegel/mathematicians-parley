@@ -2,8 +2,13 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
+public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-range-a-function-is-typed-over.proof by parley build lean. -/

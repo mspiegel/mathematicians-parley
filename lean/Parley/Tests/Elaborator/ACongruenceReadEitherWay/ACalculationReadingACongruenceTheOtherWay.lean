@@ -3,6 +3,9 @@ module
 public import Tactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.ModEq
 
 /-! Written from tests/elaborator/a-congruence-read-either-way.proof by parley build lean. -/
 

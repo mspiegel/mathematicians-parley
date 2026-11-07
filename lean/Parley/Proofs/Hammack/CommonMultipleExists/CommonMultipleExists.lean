@@ -11,6 +11,10 @@ public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
 

@@ -3,6 +3,9 @@ module
 public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/reading-equations.proof by parley build lean. -/
 

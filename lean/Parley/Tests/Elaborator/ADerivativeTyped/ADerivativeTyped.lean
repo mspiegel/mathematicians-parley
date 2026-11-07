@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from tests/elaborator/a-derivative-typed.proof by parley build lean. -/
 

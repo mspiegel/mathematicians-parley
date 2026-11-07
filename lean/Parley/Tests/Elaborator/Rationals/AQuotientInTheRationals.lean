@@ -2,6 +2,8 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 
 /-! Written from tests/elaborator/rationals.proof by parley build lean. -/
 

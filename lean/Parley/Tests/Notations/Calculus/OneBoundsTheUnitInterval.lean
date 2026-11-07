@@ -6,6 +6,8 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Calculus
 
 /-! Written from tests/notations/calculus.proof by parley build lean. -/

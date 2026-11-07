@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from tests/stdlib/logarithms.proof by parley build lean. -/

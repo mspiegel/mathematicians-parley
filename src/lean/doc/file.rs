@@ -14,6 +14,9 @@ pub enum Lookup {
     Const(String),
     Term(String),
     Tactic(String),
+    /// Declarations as Lean text, elaborated for the constants their
+    /// proofs use: a module of records' own proofs.
+    Command(String),
 }
 
 impl Lookup {
@@ -23,13 +26,17 @@ impl Lookup {
             Lookup::Const(_) => "const",
             Lookup::Term(_) => "term",
             Lookup::Tactic(_) => "tactic",
+            Lookup::Command(_) => "command",
         }
     }
 
     /// The constant's name, or the sample.
     pub fn key(&self) -> &str {
         match self {
-            Lookup::Const(k) | Lookup::Term(k) | Lookup::Tactic(k) => k,
+            Lookup::Const(k)
+            | Lookup::Term(k)
+            | Lookup::Tactic(k)
+            | Lookup::Command(k) => k,
         }
     }
 
@@ -40,6 +47,7 @@ impl Lookup {
             "const" => Some(Lookup::Const(key.to_string())),
             "term" => Some(Lookup::Term(key.to_string())),
             "tactic" => Some(Lookup::Tactic(key.to_string())),
+            "command" => Some(Lookup::Command(key.to_string())),
             _ => None,
         }
     }
@@ -166,17 +174,15 @@ impl Declaration {
 
     /// What it writes that Lean or Mathlib declares: each constant of
     /// theirs it names, and a sample of each piece of syntax, its
-    /// notations, the types it writes, the tactics it calls, its binders
-    /// and a record's own proof.
+    /// notations, the types it writes, the tactics it calls and its
+    /// binders. A record's own proof is Lean text the trees do not hold;
+    /// its module is asked of whole (`Lookup::Command`).
     pub fn lookups(&self) -> BTreeSet<Lookup> {
         let mut out = BTreeSet::new();
         for b in &self.binders {
             if let Binder::Typed { text, .. } = b {
                 out.insert(Lookup::Term(format!("∀ {text}, True")));
             }
-        }
-        if let DeclProof::Verbatim { text, .. } = &self.proof {
-            out.insert(Lookup::Term(text.clone()));
         }
         let parts = self.parts();
         for t in &parts.terms {

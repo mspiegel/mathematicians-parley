@@ -1,6 +1,10 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.NormNum
+public import Lean.Parser.Command
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith.Frontend
 public import Tactics
 
 /-!

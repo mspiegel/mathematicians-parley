@@ -3,6 +3,9 @@ module
 public import AlgebraTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/a-named-term-is-a-number.proof by parley build lean. -/

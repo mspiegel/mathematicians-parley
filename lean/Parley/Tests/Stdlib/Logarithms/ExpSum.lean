@@ -1,10 +1,14 @@
 module
 
+public import NormTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Logarithms

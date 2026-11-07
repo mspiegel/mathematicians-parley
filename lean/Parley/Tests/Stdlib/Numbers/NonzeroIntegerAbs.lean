@@ -1,9 +1,14 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Lattice
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Abs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/stdlib/numbers.proof by parley build lean. -/

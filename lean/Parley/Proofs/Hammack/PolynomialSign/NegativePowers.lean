@@ -3,8 +3,16 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Pow
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/polynomial-sign.proof by parley build lean. -/

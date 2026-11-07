@@ -4,10 +4,16 @@ public import AlgebraTactics
 public import ArithTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Classes.RatCast
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.RationalClosure.RationalQuotient
 

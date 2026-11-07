@@ -14,7 +14,7 @@ rev = "v4.35.0"
 [[lean_lib]]
 name = "LeanBridges"
 srcDir = "../corpus/lean-bridges"
-roots = ["LeanBridges", "Factorials", "Counting", "Divisibility", "Numbers", "Sums", "ParleySimp", "Tactics", "AlgebraTactics", "SubstTactics", "OrderTactics", "PowerTactics", "ComplexTactics", "ArithTactics", "FactorialTactics", "WholeTactics", "SetTactics", "Roots", "RealTactics", "Calculus", "Functions", "Sets", "Groups", "Polynomials"]
+roots = ["LeanBridges", "Factorials", "Counting", "Divisibility", "Numbers", "Sums", "ParleySimp", "Tactics", "NormTactics", "AlgebraTactics", "SubstTactics", "OrderTactics", "PowerTactics", "ComplexTactics", "ArithTactics", "FactorialTactics", "WholeTactics", "SetTactics", "Roots", "RealTactics", "Calculus", "Functions", "Sets", "Groups", "Polynomials"]
 
 [[lean_lib]]
 name = "Parley"

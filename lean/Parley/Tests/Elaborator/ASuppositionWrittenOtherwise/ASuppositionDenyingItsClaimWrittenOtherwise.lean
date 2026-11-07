@@ -4,6 +4,8 @@ public import ArithTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 
 /-! Written from tests/elaborator/a-supposition-written-otherwise.proof by parley build lean. -/
 

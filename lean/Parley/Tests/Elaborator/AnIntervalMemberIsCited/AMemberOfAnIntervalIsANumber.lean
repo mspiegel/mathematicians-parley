@@ -5,6 +5,7 @@ public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from tests/elaborator/an-interval-member-is-cited.proof by parley build lean. -/
 

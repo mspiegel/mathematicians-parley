@@ -1,5 +1,6 @@
 module
 
+public import NormTactics
 public import PowerTactics
 public import RealTactics
 public import SetTactics
@@ -12,7 +13,11 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Insert
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder

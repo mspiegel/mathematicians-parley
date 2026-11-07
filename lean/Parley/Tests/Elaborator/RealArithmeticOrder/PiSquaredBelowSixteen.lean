@@ -2,7 +2,15 @@ module
 
 public import RealTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Pow
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-order.proof by parley build lean. -/
 

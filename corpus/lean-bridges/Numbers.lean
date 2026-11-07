@@ -1,6 +1,10 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Positivity
+public import Lean.Parser.Command
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.NumberTheory.Real.Irrational
 
 /-!
 # Numbers

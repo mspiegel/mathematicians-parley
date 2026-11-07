@@ -6,6 +6,9 @@ public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds
 

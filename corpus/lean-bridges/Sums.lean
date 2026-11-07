@@ -1,6 +1,13 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Ring
+public import Lean.Parser.Command
+public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+public import Mathlib.Algebra.Order.Interval.Finset.Basic
+public import Mathlib.Algebra.Order.Star.Int
+public import Mathlib.Computability.Reduce
+public import Mathlib.Data.Int.Interval
+public import Mathlib.Tactic.Ring.RingNF
 
 /-!
 # Sums over a range of integers

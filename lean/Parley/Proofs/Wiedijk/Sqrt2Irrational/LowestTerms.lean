@@ -1,14 +1,23 @@
 module
 
 public import ArithTactics
+public import NormTactics
 public import OrderTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.GCD
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility

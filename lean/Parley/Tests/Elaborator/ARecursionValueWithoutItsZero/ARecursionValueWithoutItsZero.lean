@@ -1,10 +1,15 @@
 module
 
+public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF

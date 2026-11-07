@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/stdlib/numbers.proof by parley build lean. -/

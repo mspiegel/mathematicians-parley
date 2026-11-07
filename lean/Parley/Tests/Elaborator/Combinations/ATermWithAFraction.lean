@@ -1,8 +1,14 @@
 module
 
+public import NormTactics
 public import Tactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/combinations.proof by parley build lean. -/
 

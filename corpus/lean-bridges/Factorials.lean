@@ -1,6 +1,13 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.NormNum
+public import Lean.Elab.MutualDef
+public import Lean.Parser.Command
+public import Mathlib.Algebra.Order.Ring.Star
+public import Mathlib.Algebra.Order.Star.Int
+public import Mathlib.Data.Nat.Cast.Order.Ring
+public import Mathlib.Data.Nat.Choose.Basic
+public import Mathlib.Data.Nat.Factorial.Basic
 
 /-!
 # Factorials and binomial coefficients as the page reads them

@@ -1,6 +1,7 @@
 module
 
-public import Mathlib
+public import Mathlib.Order.Filter.Defs
+public import Lean.Parser.Command
 public import Tactics
 
 /-!

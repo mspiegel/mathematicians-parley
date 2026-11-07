@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.NormNum.Basic
 public import Parley.Proofs.Setmm.RationalClosure.RationalProduct
 public import Parley.Proofs.Setmm.RationalClosure.RationalReciprocal
 

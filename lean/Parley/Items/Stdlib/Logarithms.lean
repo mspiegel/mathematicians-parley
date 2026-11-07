@@ -1,14 +1,30 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
+public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Complex.Exponential
+public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.SpecialFunctions.Complex.Log
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Complex
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Cast.Defs
 public import Mathlib.Data.Int.Notation
-public import Mathlib.Order.Defs.Unbundled
+public import Mathlib.Data.Nat.Cast.Defs
+public import Mathlib.Order.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Pow
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from corpus/stdlib/logarithms.records by parley build lean. -/
 

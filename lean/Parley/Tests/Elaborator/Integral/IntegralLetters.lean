@@ -2,9 +2,19 @@ module
 
 public import Tactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Analysis.InnerProductSpace.Basic
+public import Mathlib.Analysis.InnerProductSpace.Defs
+public import Mathlib.Analysis.Normed.Group.Defs
+public import Mathlib.Analysis.Normed.Group.Real
+public import Mathlib.Analysis.RCLike.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/integral.proof by parley build lean. -/

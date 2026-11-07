@@ -1,9 +1,13 @@
 module
 
+public import NormTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/reading-defines.proof by parley build lean. -/

@@ -1,6 +1,16 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Lean.Elab.MutualDef
+public import Lean.Parser.Command
+public import Mathlib.Algebra.EuclideanDomain.Int
+public import Mathlib.Algebra.Order.Archimedean.Real.Basic
+public import Mathlib.Algebra.Order.Ring.Star
+public import Mathlib.Algebra.Order.Star.Int
+public import Mathlib.Algebra.Order.Star.Rat
+public import Mathlib.RingTheory.Int.Basic
 
 /-!
 # Divisibility

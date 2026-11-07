@@ -1,8 +1,8 @@
 module
 
 public import Tactics
-public import Aesop.Frontend.Tactic
 public import Mathlib.Basic.Logic.Basic
+public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from corpus/stdlib/reasoning.records by parley build lean. -/
 

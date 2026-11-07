@@ -4,7 +4,10 @@ public import Counting
 public import FactorialTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/stdlib/counting.proof by parley build lean. -/

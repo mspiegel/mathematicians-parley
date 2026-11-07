@@ -4,6 +4,7 @@ public import RealTactics
 public import Tactics
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-logarithms.proof by parley build lean. -/
 

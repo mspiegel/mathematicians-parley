@@ -1,5 +1,6 @@
 module
 
+public import NormTactics
 public import OrderTactics
 public import PowerTactics
 public import SubstTactics
@@ -10,6 +11,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Abs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter

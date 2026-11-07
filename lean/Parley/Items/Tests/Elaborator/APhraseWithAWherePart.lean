@@ -1,10 +1,14 @@
 module
 
 public import Tactics
+public import Mathlib.Data.ENat.Basic
 public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.TypeStar
 
 /-! Written from tests/elaborator/a-phrase-with-a-where-part.proof by parley build lean. -/

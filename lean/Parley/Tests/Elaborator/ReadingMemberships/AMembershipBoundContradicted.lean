@@ -4,6 +4,8 @@ public import ArithTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 
 /-! Written from tests/elaborator/reading-memberships.proof by parley build lean. -/
 

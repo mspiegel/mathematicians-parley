@@ -1,6 +1,9 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.NormNum
+public import Lean.Parser.Command
+public import Mathlib.Tactic.LinearCombination
 public import Tactics
 public import PowerTactics
 

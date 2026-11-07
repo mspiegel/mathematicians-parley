@@ -5,6 +5,9 @@ public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.ModEq
 
 /-! Written from tests/elaborator/reading-congruence.proof by parley build lean. -/
 

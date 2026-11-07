@@ -1,11 +1,20 @@
 module
 
+public import NormTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Pow
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/an-identity-a-substitution-makes.proof by parley build lean. -/
 

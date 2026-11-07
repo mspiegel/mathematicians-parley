@@ -4,6 +4,7 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar

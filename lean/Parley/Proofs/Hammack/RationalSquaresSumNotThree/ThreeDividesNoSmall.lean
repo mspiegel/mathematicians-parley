@@ -5,6 +5,9 @@ public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/rational-squares-sum-not-three.proof by parley build lean. -/

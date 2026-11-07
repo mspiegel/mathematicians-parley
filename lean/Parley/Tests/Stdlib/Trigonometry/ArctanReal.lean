@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from tests/stdlib/trigonometry.proof by parley build lean. -/

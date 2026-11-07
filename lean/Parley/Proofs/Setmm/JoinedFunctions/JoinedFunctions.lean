@@ -5,6 +5,9 @@ public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets

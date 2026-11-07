@@ -1,6 +1,7 @@
 module
 
 public import Functions
+public import NormTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
@@ -8,6 +9,10 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from corpus/stdlib/calculus.proof by parley build lean. -/

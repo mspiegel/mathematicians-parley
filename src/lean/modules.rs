@@ -32,11 +32,56 @@ pub enum Answer {
     Unread(String),
 }
 
-/// Each lookup Lean has answered, for one Mathlib revision.
+/// Each lookup Lean has answered, for one Mathlib revision and one form of
+/// the script that asks.
 #[derive(Clone, Debug, Default)]
 pub struct ModuleTable {
-    pub mathlib: String,
+    /// What the answers hold for: the revision and the script's digest.
+    pub made_for: MadeFor,
     pub answers: BTreeMap<Lookup, Answer>,
+}
+
+/// The Mathlib revision the manifest pins, and the SHA-256 of the script,
+/// as the table's first line keeps them: answers made for others are
+/// asked again.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct MadeFor {
+    pub mathlib: String,
+    pub script: String,
+}
+
+impl MadeFor {
+    /// The revision and script of the tree.
+    fn of(source: &dyn Source) -> Result<MadeFor, Problem> {
+        use sha2::{Digest, Sha256};
+        let script = format!("lean/{SCRIPT}");
+        let bytes = source
+            .read(&script)
+            .map_err(|e| Problem::new(script.clone(), 1, e.to_string()))?;
+        let digest: String = Sha256::digest(&bytes)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        Ok(MadeFor {
+            mathlib: mathlib_revision(source)?,
+            script: digest,
+        })
+    }
+
+    /// The table's first line.
+    fn line(&self) -> String {
+        serde_json::json!({ "mathlib": self.mathlib, "script": self.script })
+            .to_string()
+    }
+
+    /// What a table's first line says it was made for.
+    fn read(line: &str) -> Option<MadeFor> {
+        let v: serde_json::Value = serde_json::from_str(line).ok()?;
+        Some(MadeFor {
+            mathlib: v["mathlib"].as_str()?.to_string(),
+            script: v["script"].as_str()?.to_string(),
+        })
+    }
 }
 
 /// One line of the table or of the script's answers.
@@ -87,12 +132,12 @@ fn mathlib_revision(source: &dyn Source) -> Result<String, Problem> {
 }
 
 impl ModuleTable {
-    /// The table in the tree, for the Mathlib the manifest pins: empty
-    /// where there is none yet or it was made for another revision.
+    /// The table in the tree, for the Mathlib the manifest pins and the
+    /// script as it stands: empty where there is none yet or it was made
+    /// for another revision or script.
     pub fn read(source: &dyn Source) -> Result<ModuleTable, Problem> {
-        let mathlib = mathlib_revision(source)?;
         let mut table = ModuleTable {
-            mathlib,
+            made_for: MadeFor::of(source)?,
             answers: BTreeMap::new(),
         };
         if !source.exists(TABLE) {
@@ -103,11 +148,8 @@ impl ModuleTable {
             .map_err(|e| Problem::new(TABLE, 1, e.to_string()))?;
         let text = String::from_utf8_lossy(&bytes);
         let mut lines = text.lines().enumerate();
-        let made_for = lines
-            .next()
-            .and_then(|(_, l)| serde_json::from_str::<serde_json::Value>(l).ok())
-            .and_then(|v| v["mathlib"].as_str().map(str::to_string));
-        if made_for.as_deref() != Some(table.mathlib.as_str()) {
+        let made_for = lines.next().and_then(|(_, l)| MadeFor::read(l));
+        if made_for.as_ref() != Some(&table.made_for) {
             return Ok(table);
         }
         for (i, line) in lines {
@@ -120,7 +162,7 @@ impl ModuleTable {
 
     /// The table as the file keeps it: the revision, then each answer.
     pub fn text(&self) -> String {
-        let mut out = serde_json::json!({ "mathlib": self.mathlib }).to_string();
+        let mut out = self.made_for.line();
         out.push('\n');
         for (lookup, answer) in &self.answers {
             out.push_str(&line_of(lookup, Some(answer)));

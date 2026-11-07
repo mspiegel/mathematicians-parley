@@ -3,9 +3,18 @@ module
 public import Functions
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.SetLike.Basic
+public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/an-induction-over-a-range-it-ends.proof by parley build lean. -/

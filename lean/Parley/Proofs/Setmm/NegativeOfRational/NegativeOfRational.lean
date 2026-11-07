@@ -3,7 +3,11 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/negative-of-rational.proof by parley build lean. -/

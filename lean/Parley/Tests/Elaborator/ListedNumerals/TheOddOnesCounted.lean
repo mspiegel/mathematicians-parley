@@ -3,12 +3,16 @@ module
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Parity
 
 /-! Written from tests/elaborator/listed-numerals.proof by parley build lean. -/
 

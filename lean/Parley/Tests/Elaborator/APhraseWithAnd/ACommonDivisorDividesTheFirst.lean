@@ -2,6 +2,8 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
 public import Parley.Items.Tests.Elaborator.APhraseWithAnd
 
 /-! Written from tests/elaborator/a-phrase-with-and.proof by parley build lean. -/

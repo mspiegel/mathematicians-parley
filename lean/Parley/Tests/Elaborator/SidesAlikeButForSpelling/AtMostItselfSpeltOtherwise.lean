@@ -3,6 +3,9 @@ module
 public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/sides-alike-but-for-spelling.proof by parley build lean. -/
 

@@ -23,8 +23,8 @@ use super::{write_changed, Written};
 use crate::checker::CheckedCorpus;
 use crate::corpus::{cited_items, RecordKind};
 use crate::lean::coverage::{coverage, Covered};
-use crate::lean::doc::bridges::BridgeTactic;
-use crate::lean::doc::file::{Declaration, Lookup};
+use crate::lean::doc::bridges::{BridgeModule, BridgeTactic};
+use crate::lean::doc::file::{DeclProof, Declaration, Lookup};
 use crate::lean::doc::{Source, Tactic, TacticRef, TermKind};
 use crate::lean::expr::Writer;
 use crate::lean::items::{declaration, item, items_module, Item};
@@ -173,22 +173,29 @@ fn modules_of(decl: &Declaration) -> BTreeSet<String> {
     out
 }
 
-/// The modules of Lean and Mathlib the declarations write something of, as
-/// the table has them; what it lacks is added to `unanswered`, for the
-/// build to ask Lean and make again. A sample Lean could not read is a
-/// fault in the writer.
+/// The modules of Lean and Mathlib a file's lookups name, as the table has
+/// them; what it lacks is added to `unanswered`, for the build to ask Lean
+/// and make again. A bridge is no answer of the table's: a file's bridges
+/// are those its trees name (`modules_of`). A sample Lean could not read
+/// is a fault in the writer.
 fn mathlib_of(
-    decls: &[&Declaration],
+    lookups: BTreeSet<Lookup>,
     table: &ModuleTable,
     made: &mut Made,
 ) -> Result<BTreeSet<String>, crate::outcome::Problem> {
     let mut out = BTreeSet::new();
-    for d in decls {
-        for lookup in d.lookups() {
-            made.looked_up.insert(lookup.clone());
-            match table.answers.get(&lookup) {
-                Some(Answer::Modules(m)) => out.extend(m.iter().cloned()),
-                Some(Answer::Unread(why)) => return Err(crate::outcome::Problem::new(
+    for lookup in lookups {
+        made.looked_up.insert(lookup.clone());
+        match table.answers.get(&lookup) {
+            Some(Answer::Modules(m)) => out.extend(
+                m.iter()
+                    .filter(|m| {
+                        BridgeModule::of_name(m).is_none() && *m != "ParleySimp"
+                    })
+                    .cloned(),
+            ),
+            Some(Answer::Unread(why)) => {
+                return Err(crate::outcome::Problem::new(
                     crate::lean::modules::TABLE,
                     1,
                     format!(
@@ -196,10 +203,10 @@ fn mathlib_of(
                         lookup.kind(),
                         lookup.key()
                     ),
-                )),
-                None => {
-                    made.unanswered.insert(lookup);
-                }
+                ))
+            }
+            None => {
+                made.unanswered.insert(lookup);
             }
         }
     }
@@ -272,8 +279,20 @@ pub fn make(
         for d in decls {
             library.extend(modules_of(d));
         }
-        let all: Vec<&Declaration> = decls.iter().collect();
-        let mathlib = mathlib_of(&all, table, &mut made)?;
+        // Records' own proofs are asked of with their module whole, as
+        // Lean elaborates them.
+        let mut lookups: BTreeSet<Lookup> =
+            decls.iter().flat_map(Declaration::lookups).collect();
+        if decls
+            .iter()
+            .any(|d| matches!(d.proof, DeclProof::Verbatim { .. }))
+        {
+            lookups.insert(Lookup::Command(format!(
+                "namespace {module}\n\n{}\n\nend {module}\n",
+                texts.join("\n\n")
+            )));
+        }
+        let mathlib = mathlib_of(lookups, table, &mut made)?;
         let imports: Vec<String> = library.into_iter().chain(mathlib).collect();
         let mut text = header(&imports, path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
@@ -390,7 +409,7 @@ pub fn make(
         if of_sets {
             library.insert(SET_TACTICS.to_string());
         }
-        let mathlib = mathlib_of(&[&decl], table, &mut made)?;
+        let mathlib = mathlib_of(decl.lookups(), table, &mut made)?;
         let imports: Vec<String> =
             library.into_iter().chain(mathlib).chain(cited).collect();
         let mut text = header(&imports, &thm.path);

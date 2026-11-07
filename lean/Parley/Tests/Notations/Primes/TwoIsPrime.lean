@@ -3,6 +3,8 @@ module
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Prime
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/notations/primes.proof by parley build lean. -/

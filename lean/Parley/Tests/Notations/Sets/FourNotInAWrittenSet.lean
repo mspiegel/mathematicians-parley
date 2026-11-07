@@ -4,6 +4,7 @@ public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from tests/notations/sets.proof by parley build lean. -/
 

@@ -3,6 +3,9 @@ module
 public import AlgebraTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/a-for-all-line-read-in-a-block.proof by parley build lean. -/
 

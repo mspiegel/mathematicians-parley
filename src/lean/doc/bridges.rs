@@ -6,6 +6,7 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BridgeModule {
     Tactics,
+    NormTactics,
     SetTactics,
     AlgebraTactics,
     SubstTactics,
@@ -31,8 +32,9 @@ pub enum BridgeModule {
 
 impl BridgeModule {
     /// Every module, in no order Lean reads.
-    pub const ALL: [BridgeModule; 22] = [
+    pub const ALL: [BridgeModule; 23] = [
         BridgeModule::Tactics,
+        BridgeModule::NormTactics,
         BridgeModule::SetTactics,
         BridgeModule::AlgebraTactics,
         BridgeModule::SubstTactics,
@@ -61,6 +63,7 @@ impl BridgeModule {
     pub fn name(self) -> &'static str {
         match self {
             BridgeModule::Tactics => "Tactics",
+            BridgeModule::NormTactics => "NormTactics",
             BridgeModule::SetTactics => "SetTactics",
             BridgeModule::AlgebraTactics => "AlgebraTactics",
             BridgeModule::SubstTactics => "SubstTactics",
@@ -226,7 +229,8 @@ impl BridgeTactic {
     /// The module that defines it, which a file calling it imports.
     pub fn module(self) -> BridgeModule {
         match self {
-            BridgeTactic::Side | BridgeTactic::Norm => BridgeModule::Tactics,
+            BridgeTactic::Side => BridgeModule::Tactics,
+            BridgeTactic::Norm => BridgeModule::NormTactics,
             BridgeTactic::SetSide
             | BridgeTactic::CountAfter
             | BridgeTactic::CountExt

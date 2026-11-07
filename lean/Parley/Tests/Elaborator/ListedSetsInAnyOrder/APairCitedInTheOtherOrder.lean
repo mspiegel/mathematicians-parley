@@ -7,6 +7,8 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Insert
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Tauto
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting

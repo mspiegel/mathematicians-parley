@@ -4,8 +4,14 @@ public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.GCD
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/a-membership-a-bare-from-builds.proof by parley build lean. -/

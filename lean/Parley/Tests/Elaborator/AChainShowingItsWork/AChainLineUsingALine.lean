@@ -1,9 +1,13 @@
 module
 
 public import AlgebraTactics
+public import NormTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
 

@@ -4,7 +4,12 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Inv
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Groups
 public import Parley.Proofs.Setmm.GroupCancellation.LeftCancellation

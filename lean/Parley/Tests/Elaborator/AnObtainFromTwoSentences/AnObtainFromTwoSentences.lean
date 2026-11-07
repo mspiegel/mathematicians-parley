@@ -3,6 +3,8 @@ module
 public import SetTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.TypeStar
 
 /-! Written from tests/elaborator/an-obtain-from-two-sentences.proof by parley build lean. -/

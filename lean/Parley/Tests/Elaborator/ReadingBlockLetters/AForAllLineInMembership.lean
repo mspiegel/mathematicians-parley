@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from tests/elaborator/reading-block-letters.proof by parley build lean. -/
 

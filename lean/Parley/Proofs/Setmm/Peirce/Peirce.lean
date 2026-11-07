@@ -1,11 +1,14 @@
 module
 
 public import ArithTactics
+public import NormTactics
 public import PowerTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Reasoning

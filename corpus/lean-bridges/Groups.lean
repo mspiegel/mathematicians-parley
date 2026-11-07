@@ -1,6 +1,7 @@
 module
 
-public import Mathlib
+public import Lean.Parser.Command
+public import Mathlib.Algebra.Group.Subgroup.Defs
 
 /-!
 # Groups

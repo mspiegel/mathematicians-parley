@@ -1,11 +1,18 @@
 module
 
 public import ArithTactics
+public import NormTactics
 public import PowerTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Lattice
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Abs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers

@@ -6,7 +6,11 @@ public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides
 
 /-! Written from proofs/wiedijk/reals-uncountable.proof by parley build lean. -/

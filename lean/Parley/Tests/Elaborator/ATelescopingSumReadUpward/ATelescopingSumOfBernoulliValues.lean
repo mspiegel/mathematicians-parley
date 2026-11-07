@@ -1,15 +1,32 @@
 module
 
+public import NormTactics
 public import OrderTactics
 public import PowerTactics
 public import Tactics
+public import Mathlib.Algebra.Algebra.Defs
+public import Mathlib.Algebra.Algebra.Hom
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Polynomial.AlgebraMap
+public import Mathlib.Algebra.Polynomial.Basic
+public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.FunLike.Basic
+public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Int.Order.Basic
+public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.BernoulliPolynomials
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Sums

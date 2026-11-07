@@ -4,7 +4,11 @@ public import Counting
 public import FactorialTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/closed-pieces.proof by parley build lean. -/
 

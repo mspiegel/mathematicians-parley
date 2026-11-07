@@ -3,8 +3,14 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Pow
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/divisors-not-zero-by-their-factors.proof by parley build lean. -/
 

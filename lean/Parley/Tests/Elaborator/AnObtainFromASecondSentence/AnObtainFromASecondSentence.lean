@@ -2,6 +2,9 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Tests.Elaborator.AnObtainFromASecondSentence.FourPositiveAndEven
 
 /-! Written from tests/elaborator/an-obtain-from-a-second-sentence.proof by parley build lean. -/

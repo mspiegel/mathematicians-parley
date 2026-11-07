@@ -3,7 +3,11 @@ module
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/a-recursion-header-and-an-assumption.proof by parley build lean. -/
 

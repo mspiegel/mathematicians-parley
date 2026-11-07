@@ -3,6 +3,8 @@ module
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.AtLeastOneRight
 
 /-! Written from tests/elaborator/a-natural-is-at-least-one-cited.proof by parley build lean. -/

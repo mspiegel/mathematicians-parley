@@ -4,6 +4,9 @@ public import ArithTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Prime
 
 /-! Written from proofs/hammack/prime-between-ninety-and-a-hundred.proof by parley build lean. -/
 

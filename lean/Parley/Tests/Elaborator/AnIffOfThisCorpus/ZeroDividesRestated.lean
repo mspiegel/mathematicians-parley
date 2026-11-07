@@ -2,6 +2,9 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/an-iff-of-this-corpus.proof by parley build lean. -/

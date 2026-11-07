@@ -1,6 +1,8 @@
 module
 
-public import Mathlib
+public import Lean.Parser.Command
+public import Lean.Meta.Tactic.Simp.RegisterCommand
+public meta import Lean.Meta.Tactic.Simp.Attr
 
 /-!
 # The simp set the tactics unfold definitions with

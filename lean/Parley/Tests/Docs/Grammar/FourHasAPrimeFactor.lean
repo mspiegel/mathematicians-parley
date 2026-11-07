@@ -4,6 +4,10 @@ public import ArithTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.Prime
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/docs/grammar.proof by parley build lean. -/

@@ -3,6 +3,9 @@ module
 public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity.Basic
 
 /-! Written from tests/elaborator/reading-memberships.proof by parley build lean. -/
 

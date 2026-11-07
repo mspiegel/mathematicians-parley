@@ -4,6 +4,7 @@ public import SetTactics
 public import Tactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
 

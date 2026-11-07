@@ -1,6 +1,15 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.NormNum
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Lean.Parser.Command
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Rify
 public import ParleySimp
 
 /-!
@@ -18,19 +27,22 @@ Lean rebuilds every file that imports a module, directly or through
 another, whenever that module changes. The layout keeps each change's
 rebuild to the files that use what changed.
 
-- This module, the core, holds only `parley_side` and `parley_norm`, which
-  nearly every generated file calls and every other tactic module calls in
-  turn. A change here rebuilds every file, so it imports nothing but
-  Mathlib and changes only when these two must.
-- Each family of tactics most files do not call is a module of its own,
+- This module, the core, holds only `parley_side`, which nearly every
+  generated file calls and every other tactic module imports. A change
+  here rebuilds every file, so it imports only the Mathlib its tactic calls
+  and changes only when `parley_side` must.
+- Each family of tactics some files do not call is a module of its own,
   imported only by the files that name one of its tactics:
-  `AlgebraTactics`, `SubstTactics`, `OrderTactics`, `PowerTactics`,
-  `ComplexTactics`, `ArithTactics`, `SetTactics`, `RealTactics`,
-  `WholeTactics`.
+  `NormTactics`, `AlgebraTactics`, `SubstTactics`, `OrderTactics`,
+  `PowerTactics`, `ComplexTactics`, `ArithTactics`, `SetTactics`,
+  `RealTactics`, `WholeTactics`.
+- A module imports the whole family of each Mathlib tactic it calls,
+  `Mathlib.Tactic.NormNum` for `norm_num`, so that the tactic has every
+  extension a goal may need wherever it runs.
 - A definition only some files write, which a tactic called everywhere
   must see through, is not imported here. The tactic calls `norm_num` or
   `field_simp` with the simp set `parley_unfold` (`ParleySimp`, which
-  imports nothing but Mathlib) at the place in its list that way belongs,
+  imports only Lean) at the place in its list that way belongs,
   and a module imported only by the files that write the definition tags it
   into the set. Elsewhere the set is empty and the call is a plain one. The
   factorial and the binomial coefficient are tagged so, in
@@ -43,8 +55,10 @@ rebuild to the files that use what changed.
   in a tactic of its own with its own name, as `parley_whole_side`, rather
   than among `parley_side`'s alternatives.
 
-Which file imports which module is decided by the build from the file's
-Lean text (`library_imports` in `src/tools/build/lean.rs`).
+Which file imports which module is decided by the build from the tactics
+and constants the file's trees name (`modules_of` in
+`src/tools/build/lean.rs`), and which Mathlib modules it imports from the
+table Lean makes of them (`src/lean/modules.rs`).
 -/
 
 public section
@@ -109,25 +123,5 @@ macro "parley_side" : tactic =>
     -- out and the line applied.
     | (norm_cast at *; solve_by_elim; done)
     | (simp_all; done)))
-
-/-- An identity of `algebra` with no line cited: a ring identity, or one
-once the divisions are cleared. -/
--- The check `linear_combination` ends with: `ring1`, or `ring1` after the
--- casts are pushed in, where a function's argument is cast two ways,
--- C(↑m + 1, 1) beside C(↑(m + 1), 1), which ring1 takes as two atoms.
-macro "parley_norm" : tactic =>
-  `(tactic| first
-    | (ring1; done)
-    | (push_cast; ring1; done)
-    -- A power to an exponent the page puts in ℕ₀, written `x ^ e.toNat`:
-    -- the `toNat` of a sum or product taken apart, a^(m + 1) as a^m·a, by
-    -- the facts 0 ≤ m in scope, as set.mm's `expadd` takes m, n ∈ ℕ₀.
-    | (simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat,
-        mul_one, one_mul]; ring1; done)
-    | (simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat,
-        mul_one, one_mul]; push_cast; ring1; done)
-    -- A function of numerals written two ways, (1 + 1)! beside 2!, where
-    -- the file's modules tag the function into `parley_unfold`.
-    | (norm_num [parley_unfold]; done))
 
 end

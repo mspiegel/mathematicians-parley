@@ -1,6 +1,11 @@
 module
 
-public import Mathlib
+public import Lean.Parser.Command
+public import Mathlib.Algebra.CharP.Defs
+public import Mathlib.Algebra.Ring.Int.Defs
+public import Mathlib.Computability.Reduce
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 
 /-!
 # Functions

@@ -5,6 +5,10 @@ public import Tactics
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.NormNum.RealSqrt
 
 /-! Written from tests/elaborator/real-arithmetic.proof by parley build lean. -/
 

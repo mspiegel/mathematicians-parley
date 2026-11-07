@@ -1,7 +1,18 @@
 module
 
-public import Mathlib
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Lean.Parser.Command
+public import Mathlib.Algebra.BigOperators.Ring.Finset
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring.Basic
 public import Tactics
+public import NormTactics
 
 /-!
 # What an `algebra` step leaves to the ring and field tactics

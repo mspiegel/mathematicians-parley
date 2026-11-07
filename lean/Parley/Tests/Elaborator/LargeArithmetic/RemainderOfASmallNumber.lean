@@ -3,6 +3,9 @@ module
 public import ArithTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.DivMod
+public import Mathlib.Tactic.NormNum.Eq
 
 /-! Written from tests/elaborator/large-arithmetic.proof by parley build lean. -/
 
