@@ -164,6 +164,17 @@ impl Writer<'_> {
                     _ => None,
                 },
             },
+            // A map into sets applied, f(x) of f : A → 𝒫A, holds what each
+            // of the sets it gives does.
+            "application" => {
+                match self.letters.get(node.children.first()?.text.as_str()) {
+                    Some(LetterType::Map {
+                        to: Members::Sets(m),
+                        ..
+                    }) => Some((**m).clone()),
+                    _ => None,
+                }
+            }
             _ => None,
         }
     }

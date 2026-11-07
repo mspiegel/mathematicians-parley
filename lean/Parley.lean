@@ -582,6 +582,7 @@ public import Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides
 public import Parley.Proofs.Wiedijk.Bezout.Bezout
 public import Parley.Proofs.Wiedijk.Binomial.BinomialStep
 public import Parley.Proofs.Wiedijk.Binomial.Binomial
+public import Parley.Proofs.Wiedijk.Cantor.Cantor
 public import Parley.Proofs.Wiedijk.CauchySchwarz.CauchySchwarz
 public import Parley.Proofs.Wiedijk.Combinations.ChooseFromNone
 public import Parley.Proofs.Wiedijk.Combinations.AddElementBijection

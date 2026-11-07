@@ -372,6 +372,7 @@
 {"key":"fun t : ℤ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun w : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun x : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : α => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℚ => (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℚ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
@@ -424,6 +425,7 @@
 {"key":"{x : ℤ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{x ∈ (sorry : Set ℝ) | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{x ∈ (sorry : Set ℤ) | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"{x ∈ a | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{y : ℝ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{y ∈ a | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"¬ (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
@@ -571,6 +573,7 @@
 {"key":"∀ (e : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (e : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (e : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∀ (f : α → Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (f : α → α), True","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (f : α → β), True","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (f : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
@@ -766,6 +769,7 @@
 {"key":"∀ {α β γ : Type*}, True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ ε : ℝ, (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ B : ℝ, (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∃ B ∈ a, (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ C : ℝ, (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ L : ℝ, (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ M : ℝ, (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
