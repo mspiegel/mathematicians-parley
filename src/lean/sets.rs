@@ -1599,6 +1599,17 @@ impl Writer<'_> {
         inner
             .letters
             .insert(letter.text.to_string(), members.letter());
+        // The letter bound here is a set of its own, whatever a set of its
+        // name outside is: finite where its binder makes it so, a part of
+        // a finite set, W of `W ∈ 𝒫 X` with X finite, and not otherwise.
+        let name = self.grammar.print(letter);
+        inner.finite.remove(&name);
+        if let ("powerset", [whole]) = (&*set.notation_name(), set.children.as_slice())
+        {
+            if is_finite(self.grammar, &self.finite, whole) {
+                inner.finite.insert(name);
+            }
+        }
         let body = match inner.formula(body) {
             Route::Built(p) => p,
             Route::Declined(d) => return Some(Route::Declined(d)),

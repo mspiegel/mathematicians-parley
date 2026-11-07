@@ -2,7 +2,6 @@ module
 
 public import SetTactics
 public import Tactics
-public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
@@ -17,9 +16,9 @@ public section
 namespace Parley.Tests.Elaborator.ListedNumerals.AValueWrittenTwice
 
 theorem a_value_written_twice :
-    ({(2 : ℤ), (3 : ℤ), (2 : ℤ)} : Set ℤ).encard = ((2 : ℕ) : ℕ∞) := by
+    (({(2 : ℤ), (3 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by
   -- 1. inspection
-  have s1 : ({(2 : ℤ), (3 : ℤ), (2 : ℤ)} : Set ℤ).encard = ((2 : ℕ) : ℕ∞) := by parley_set_side
+  have s1 : (({(2 : ℤ), (3 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by parley_set_side
   all_goals exact s1
 
 end Parley.Tests.Elaborator.ListedNumerals.AValueWrittenTwice

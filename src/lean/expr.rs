@@ -2085,22 +2085,6 @@ impl Writer<'_> {
                 super::doc::LeanType::Prop,
             ));
         }
-        // A relation of counts ℕ∞ says as the page does, k ≤ |W|, counts
-        // in ℕ∞ even of a set this theorem knows is finite, as set.mm's ♯
-        // counts: one sentence is then one Lean sentence in every theorem
-        // that says or cites it (`Writer::said_in_extended`).
-        let relation = match (node.notation(), node.children.as_slice()) {
-            (LOGICAL_NOT, [inner]) => inner,
-            _ => node,
-        };
-        if matches!(relation.notation(), EQUALITY | ORDER)
-            && !self.in_extended
-            && self.said_in_extended(relation)
-        {
-            let mut w = self.with_letters(self.letters.clone());
-            w.in_extended = true;
-            return w.formula(node);
-        }
         // not (a = b) between numbers is written a ≠ b, as Mathlib writes it.
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
             if inner.notation() == EQUALITY

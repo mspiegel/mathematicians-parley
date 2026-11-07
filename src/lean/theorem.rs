@@ -1776,6 +1776,12 @@ impl<'a> Proof<'a> {
     /// read at the place the checker counted.
     fn claimed(&self, step: &Step) -> Route<Vec<(usize, Node, Printed)>> {
         let mut out = Vec::new();
+        let sentences: Vec<Option<&Node>> = step
+            .claim
+            .sentences()
+            .iter()
+            .map(|s| self.rec.page.get(s))
+            .collect();
         for (at, s) in step.claim.sentences().into_iter().enumerate() {
             let Some(node) = self.rec.page.get(&s) else {
                 return Route::no(format!(
@@ -1783,6 +1789,23 @@ impl<'a> Proof<'a> {
                     s.text()
                 ));
             };
+            // A set the claim's other sentences say is finite counts as one
+            // here, as a hypothesis counts what the others make finite: W
+            // of "W is finite and |W| ≥ k". A sentence does not vouch for
+            // itself.
+            let others: Vec<&Node> = sentences
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| *i != at)
+                .filter_map(|(_, o)| *o)
+                .collect();
+            let mut writer = self.writer.with_letters(self.writer.letters.clone());
+            writer
+                .finite
+                .extend(crate::citing::finite::finite_sets_in_words(
+                    &self.sources.checked.grammar,
+                    others,
+                ));
             // A claim of numerals alone is written in the type of the lines
             // it is reached from, where any are cited.
             let printed = if node.names().is_empty() {
@@ -1796,9 +1819,9 @@ impl<'a> Proof<'a> {
                         }
                     }
                 }
-                self.writer.closed_formula(node, floor)
+                writer.closed_formula(node, floor)
             } else {
-                self.writer.formula(node)
+                writer.formula(node)
             };
             let printed = match printed {
                 Route::Built(p) => p,
@@ -1920,6 +1943,22 @@ impl<'a> Proof<'a> {
         // says y − 3 ≥ 0 (`Writer::principal_is_real`).
         self.writer
             .bounds_from(self.trees.values().flatten().map(|(n, _)| n));
+        // A set a line in scope says is finite, W of a step "W is finite"
+        // above, is counted as a natural number from there on, as one the
+        // hypotheses make finite is (`citing::finite::finite_sets`).
+        let in_scope: Vec<Node> = self
+            .trees
+            .values()
+            .flatten()
+            .map(|(n, _)| n.clone())
+            .collect();
+        self.writer.finite = self.rec.said_finite.sets.clone();
+        self.writer
+            .finite
+            .extend(crate::citing::finite::finite_sets_in_words(
+                &self.sources.checked.grammar,
+                &in_scope,
+            ));
         // The defines written above this step in its block, where the
         // checker opens them.
         let due: Vec<usize> = (0..self.thm.defines.len())
@@ -4731,6 +4770,7 @@ impl<'a> Proof<'a> {
                     .iter()
                     .map(|c| self.writer.number(c, super::templates::Num::Nat))
                     .collect();
+                let proof = t::exact_mod_cast(name.clone());
                 match sides.as_slice() {
                     [Route::Built(l), Route::Built(r)] => Some(Tactic::Have {
                         name: "e_nat".to_string(),
@@ -4740,7 +4780,7 @@ impl<'a> Proof<'a> {
                             r.clone(),
                             super::doc::LeanType::Prop,
                         ),
-                        proof: Box::new(Proof::By(t::exact_mod_cast(name.clone()))),
+                        proof: Box::new(Proof::By(proof)),
                     }),
                     _ => None,
                 }

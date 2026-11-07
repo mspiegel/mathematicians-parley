@@ -44,7 +44,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
     ({S ∈ 𝒫 X | (S.ncard : ℤ) = j}.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1
   -- 1. mun:card-zero, from H3
-  have s1 : X = ∅ := by first | exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) hH3) | exact ((Parley.Items.Stdlib.Counting.mun_card_zero (X := X) hH3)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) hH3) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) hH3) | (have h := (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) hH3); parley_set_side)
+  have s1 : X = ∅ := by first | exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side)); parley_set_side)
   -- 2. axi:excluded-middle P := j = 0
   have s2 : j = 0 ∨ j ≠ 0 := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0)); parley_set_side)
   -- 3. cases, from 2

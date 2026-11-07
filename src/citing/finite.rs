@@ -64,7 +64,32 @@ pub fn finite_sets<'n>(
     grammar: &Grammar,
     lines: impl IntoIterator<Item = &'n Node>,
 ) -> BTreeSet<String> {
-    let mut said = SaidOfSets::default();
+    sets_said_finite(grammar, lines, true)
+}
+
+/// `finite_sets` of what the lines say in words, `A is finite` and `B ⊆
+/// A`, and not of a count given as a number, |Y| = 2: what a step's lines
+/// in scope make finite for the Lean writer, which writes a line such as
+/// |Y| = 2 in ℕ∞, a line not vouching for itself, so that its set is
+/// counted alike in that line and those after it.
+pub fn finite_sets_in_words<'n>(
+    grammar: &Grammar,
+    lines: impl IntoIterator<Item = &'n Node>,
+) -> BTreeSet<String> {
+    sets_said_finite(grammar, lines, false)
+}
+
+/// `finite_sets`, a count given as a number read as making its set finite
+/// where `by_counts`.
+fn sets_said_finite<'n>(
+    grammar: &Grammar,
+    lines: impl IntoIterator<Item = &'n Node>,
+    by_counts: bool,
+) -> BTreeSet<String> {
+    let mut said = SaidOfSets {
+        by_counts,
+        ..SaidOfSets::default()
+    };
     for line in lines {
         said.read(line);
     }
@@ -93,6 +118,8 @@ struct SaidOfSets<'n> {
     finite: Vec<&'n Node>,
     /// `B ⊆ A`, each.
     subsets: Vec<Subset<'n>>,
+    /// Whether |X| = e, a count given as a number, says X is finite.
+    by_counts: bool,
 }
 
 /// A line `part ⊆ whole`.
@@ -112,7 +139,7 @@ impl<'n> SaidOfSets<'n> {
             ("finite", _, [set]) => self.finite.push(set),
             ("subset", _, [part, whole]) => self.subsets.push(Subset { part, whole }),
             // |X| = e, a count given as a number, says X is finite.
-            (_, crate::notations::EQUALITY, [a, b]) => {
+            (_, crate::notations::EQUALITY, [a, b]) if self.by_counts => {
                 for (count, value) in [(a, b), (b, a)] {
                     let counted = &*count.notation_name() == "cardinality";
                     let a_number = !value

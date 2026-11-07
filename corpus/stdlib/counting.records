@@ -76,7 +76,7 @@ mundane theorem card-singleton
   note        A singleton has one element only when there is an element for it
               to have: `{ x }` for a proper class x is empty, and `hashsng`
               asks for the set because of it.
-  lean-proof  lean-bridges/counting/card-singleton
+  lean-proof  by simp
 
 mundane theorem card-nonempty
   let X be a set                                                      (H1)
@@ -98,7 +98,7 @@ mundane theorem card-remove
   metamath-proof hashdifsnp1 with V := X, N := a, Y := k
   note        `hashdifsnp1` states this item whole, hypotheses included:
               the size is given as k + 1, so nothing asks that X be finite.
-  lean-proof  by rw [Int.toNat_add h2 zero_le_one] at h3; have h := Set.encard_sdiff_singleton_add_one h1; rw [h3] at h; push_cast at h; exact WithTop.add_right_cancel ENat.one_ne_top h
+  lean-proof  by have hX : X.Finite := Set.finite_of_encard_eq_coe h3; have hn : X.ncard = (k + 1).toNat := (by rw [← hX.cast_ncard_eq] at h3; exact_mod_cast h3); rw [Set.ncard_diff_singleton_of_mem h1, hn]; omega
 
 mundane theorem card-bijection
   let X be a set                                                      (H1)
@@ -120,7 +120,7 @@ mundane theorem card-disjoint-union
   assume X ∩ Y = ∅                                                    (H7)
   then        |X ∪ Y| = m + n
   metamath-proof hashun with A := X, B := Y
-  lean-proof  lean-bridges/counting/card-disjoint-union
+  lean-proof  by have hX : X.Finite := Set.finite_of_encard_eq_coe h3; have hY : Y.Finite := Set.finite_of_encard_eq_coe h4; have hm : X.ncard = m.toNat := (by rw [← hX.cast_ncard_eq] at h3; exact_mod_cast h3); have hn : Y.ncard = n.toNat := (by rw [← hY.cast_ncard_eq] at h4; exact_mod_cast h4); rw [Set.ncard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5) hX hY, hm, hn]; omega
 
 definition C
   sort        number, number → number
@@ -220,7 +220,7 @@ mundane theorem binomial-nat
 mundane theorem card-empty
   then        |∅| = 0
   metamath-proof hash0
-  lean-proof  lean-bridges/counting/card-empty
+  lean-proof  by simp
 
 mundane theorem finite-part
   assume X is finite                                                  (H1)
@@ -291,7 +291,7 @@ mundane theorem card-equal
   metamath-proof metamath-bridges/sets/gcardeq
   note        Y is finite because X is, and two finite sets paired off one
               to one have the same number of elements.
-  lean-proof  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image]
+  lean-proof  by obtain ⟨g, hg⟩ := h2; rw [h1.cast_ncard_eq, ← hg.image_eq, hg.injOn.encard_image]
 
 mundane theorem partition-count
   let A be a set                                                      (H1)
@@ -397,7 +397,7 @@ mundane theorem card-pair
   metamath-proof metamath-bridges/counts/gcardpr
   note        Two things listed make a set of at most two: one, where they
               are the same.
-  lean-proof  lean-bridges/counting/card-pair
+  lean-proof  by have h := Set.ncard_insert_le u ({w} : Set α); rw [Set.ncard_singleton] at h; exact_mod_cast h
 
 mundane theorem card-subset
   let A be a set                                                      (H1)
@@ -412,7 +412,7 @@ mundane theorem card-pair-distinct
   let w be an element                                                 (H2)
   then        u ≠ w ↔ |{u, w}| = 2
   metamath-proof hashprg
-  lean-proof  lean-bridges/counting/card-pair-distinct
+  lean-proof  by constructor; (intro h; exact_mod_cast Set.ncard_pair h); (intro h huw; subst huw; simp at h)
 
 mundane theorem card-two
   let Y be a set                                                      (H1)
@@ -439,7 +439,7 @@ mundane theorem range-size
   let n ∈ ℕ₀                                                          (H1)
   then        |{1, …, n}| = n
   metamath-proof hashfz1
-  lean-proof  by rw [← Finset.coe_Icc, Set.encard_coe_eq_coe_finsetCard, Int.card_Icc]; simp
+  lean-proof  by rw [← Finset.coe_Icc, Set.ncard_coe_finset, Int.card_Icc]; omega
 
 mundane theorem card-add-one
   assume X is finite                                                  (H1)
@@ -448,7 +448,7 @@ mundane theorem card-add-one
   metamath-proof hashunsng
   note        One element more, which was not there already, counts once
               more.
-  lean-proof  by rw [Set.encard_union_eq (by simpa using h2), Set.encard_singleton]; rfl
+  lean-proof  by rw [Set.union_singleton, Set.ncard_insert_of_notMem h2 h1]; push_cast; ring
 
 mundane theorem card-product
   assume X is finite                                                  (H1)

@@ -10,18 +10,15 @@ public import Mathlib.Algebra.CharZero.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
-public import Mathlib.Algebra.Group.Nat.Defs
 public import Mathlib.Algebra.Group.Semigroup
 public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Algebra.Order.Group.Int
-public import Mathlib.Algebra.Order.Group.Nat
 public import Mathlib.Algebra.Order.Monoid.Defs
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Defs
-public import Mathlib.Algebra.Order.Monoid.Unbundled.WithTop
 public import Mathlib.Algebra.Order.Ring.Star
 public import Mathlib.Algebra.Order.Star.Int
 public import Mathlib.Algebra.Order.ZeroLEOne
@@ -42,26 +39,26 @@ public import Mathlib.Data.Int.Cast.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
-public import Mathlib.Data.Nat.Basic
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Cast.Order.Basic
 public import Mathlib.Data.Nat.Cast.Order.Ring
+public import Mathlib.Data.Nat.Init
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Data.Set.BooleanAlgebra
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Disjoint
 public import Mathlib.Data.Set.Finite.Basic
 public import Mathlib.Data.Set.Finite.Powerset
 public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Insert
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Logic.Function.Defs
-public import Mathlib.Order.BourbakiWitt
-public import Mathlib.Order.CompleteBooleanAlgebra
+public import Mathlib.Order.BoundedOrder.Basic
+public import Mathlib.Order.Defs.Lattice
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Disjoint
-public import Mathlib.Order.Heyting.Basic
 public import Mathlib.Order.Interval.Finset.Basic
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
@@ -119,24 +116,24 @@ theorem mun_card_zero {α : Type*} (X : Set α) (h1 : X.encard = ((0 : ℕ) : �
   Set.encard_eq_zero.mp (by simpa using h1)
 
 theorem mun_card_singleton {α : Type*} (x : α) :
-    ({x} : Set α).encard = ((1 : ℕ) : ℕ∞) :=
-  LeanBridges.Counting.card_singleton x
+    (({x} : Set α).ncard : ℤ) = 1 :=
+  by simp
 
 theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℤ) (h1 : 0 ≤ k) (h2 : X.encard = (((k + 1).toNat : ℕ) : ℕ∞)) :
     ∃ a ∈ X, True :=
   (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast (show (k + 1).toNat ≠ 0 by omega))).imp fun _ h => ⟨h, trivial⟩
 
 theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℤ) (h2 : 0 ≤ k) (h3 : X.encard = (((k + 1).toNat : ℕ) : ℕ∞)) :
-    (X \ ({a} : Set α)).encard = ((k.toNat : ℕ) : ℕ∞) :=
-  by rw [Int.toNat_add h2 zero_le_one] at h3; have h := Set.encard_sdiff_singleton_add_one h1; rw [h3] at h; push_cast at h; exact WithTop.add_right_cancel ENat.one_ne_top h
+    ((X \ ({a} : Set α)).ncard : ℤ) = k :=
+  by have hX : X.Finite := Set.finite_of_encard_eq_coe h3; have hn : X.ncard = (k + 1).toNat := (by rw [← hX.cast_ncard_eq] at h3; exact_mod_cast h3); rw [Set.ncard_diff_singleton_of_mem h1, hn]; omega
 
 theorem mun_card_bijection {α β : Type*} (X : Set α) (Y : Set β) (m : ℤ) (h1 : 0 ≤ m) (h2 : X.encard = ((m.toNat : ℕ) : ℕ∞)) (h3 : ∃ g : α → β, Set.BijOn g X Y) :
     Y.encard = ((m.toNat : ℕ) : ℕ∞) :=
   by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]
 
 theorem mun_card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℤ) (h1 : 0 ≤ m) (n : ℤ) (h2 : 0 ≤ n) (h3 : X.encard = ((m.toNat : ℕ) : ℕ∞)) (h4 : Y.encard = ((n.toNat : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
-    (X ∪ Y).encard = (((m + n).toNat : ℕ) : ℕ∞) :=
-  LeanBridges.Counting.card_disjoint_union X Y m h1 n h2 h3 h4 h5
+    ((X ∪ Y).ncard : ℤ) = m + n :=
+  by have hX : X.Finite := Set.finite_of_encard_eq_coe h3; have hY : Y.Finite := Set.finite_of_encard_eq_coe h4; have hm : X.ncard = m.toNat := (by rw [← hX.cast_ncard_eq] at h3; exact_mod_cast h3); have hn : Y.ncard = n.toNat := (by rw [← hY.cast_ncard_eq] at h4; exact_mod_cast h4); rw [Set.ncard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5) hX hY, hm, hn]; omega
 
 theorem def_C_1 (n : ℤ) (h1 : 0 ≤ n) :
     (LeanBridges.Counting.choose n (-1 : ℤ) : ℤ) = 0 :=
@@ -187,8 +184,8 @@ theorem mun_binomial_nat (n : ℤ) (h1 : 0 ≤ n) (k : ℤ) (h2 : k ∈ Finset.I
   LeanBridges.Counting.choose_pos n h1 k h2
 
 theorem mun_card_empty {α : Type*} :
-    (∅ : Set α).encard = ((0 : ℕ) : ℕ∞) :=
-  LeanBridges.Counting.card_empty
+    ((∅ : Set α).ncard : ℤ) = 0 :=
+  by simp
 
 theorem mun_finite_part {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y ⊆ X) :
     Y.Finite :=
@@ -223,20 +220,20 @@ theorem mun_parts_finite {α : Type*} (A : Set α) (K : Set (Set α)) (h1 : A.Fi
   (h1.finite_subsets).subset (fun Y hY => h2 Y hY)
 
 theorem mun_card_equal {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : ∃ g : α → β, Set.BijOn g X Y) :
-    X.encard = Y.encard :=
-  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image]
+    ((X.ncard : ℕ) : ℕ∞) = Y.encard :=
+  by obtain ⟨g, hg⟩ := h2; rw [h1.cast_ncard_eq, ← hg.image_eq, hg.injOn.encard_image]
 
 theorem mun_card_pair {α : Type*} (u : α) (w : α) :
-    ({u, w} : Set α).encard ≤ ((2 : ℕ) : ℕ∞) :=
-  LeanBridges.Counting.card_pair u w
+    (({u, w} : Set α).ncard : ℤ) ≤ 2 :=
+  by have h := Set.ncard_insert_le u ({w} : Set α); rw [Set.ncard_singleton] at h; exact_mod_cast h
 
 theorem mun_card_subset {α : Type*} (A : Set α) (B : Set α) (h1 : A ⊆ B) :
     A.encard ≤ B.encard :=
   Set.encard_le_encard h1
 
 theorem mun_card_pair_distinct {α : Type*} (u : α) (w : α) :
-    ¬ u = w ↔ ({u, w} : Set α).encard = ((2 : ℕ) : ℕ∞) :=
-  LeanBridges.Counting.card_pair_distinct u w
+    ¬ u = w ↔ (({u, w} : Set α).ncard : ℤ) = 2 :=
+  by constructor; (intro h; exact_mod_cast Set.ncard_pair h); (intro h huw; subst huw; simp at h)
 
 theorem mun_card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard = ((2 : ℕ) : ℕ∞)) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
     Y = ({a, b} : Set α) :=
@@ -247,12 +244,12 @@ theorem mun_card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) <
   LeanBridges.Counting.card_positive X h1
 
 theorem mun_range_size (n : ℤ) (h1 : 0 ≤ n) :
-    (Set.Icc (1 : ℤ) n : Set ℤ).encard = ((n.toNat : ℕ) : ℕ∞) :=
-  by rw [← Finset.coe_Icc, Set.encard_coe_eq_coe_finsetCard, Int.card_Icc]; simp
+    ((Set.Icc (1 : ℤ) n : Set ℤ).ncard : ℤ) = n :=
+  by rw [← Finset.coe_Icc, Set.ncard_coe_finset, Int.card_Icc]; omega
 
 theorem mun_card_add_one {α : Type*} (X : Set α) (a : α) (h1 : X.Finite) (h2 : ¬ a ∈ X) :
-    (X ∪ ({a} : Set α)).encard = X.encard + ((1 : ℕ) : ℕ∞) :=
-  by rw [Set.encard_union_eq (by simpa using h2), Set.encard_singleton]; rfl
+    ((X ∪ ({a} : Set α)).ncard : ℤ) = (X.ncard : ℤ) + 1 :=
+  by rw [Set.union_singleton, Set.ncard_insert_of_notMem h2 h1]; push_cast; ring
 
 theorem thm_pigeonhole {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) :
     X.encard ≤ Y.encard :=
