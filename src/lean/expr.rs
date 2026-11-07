@@ -1282,6 +1282,7 @@ impl Writer<'_> {
                 .set_members(set)
                 .or_else(|| self.index_taken(index, term))
                 .or_else(|| self.empty_holds(set))
+                .or_else(|| self.empty_of_numbers(set))
             {
                 Some(m) => m.letter(),
                 None => return Route::no("a sum over a set with no Lean type"),
@@ -1325,6 +1326,14 @@ impl Writer<'_> {
             "empty-set" => self.empty_of.clone(),
             _ => None,
         }
+    }
+
+    /// The integers, for ∅ in a sum that nothing else types, Σ(k ∈ ∅) k²:
+    /// the index is a number, ∅ holds none, and a formula is computed in
+    /// the least type, ℤ, that holds what it writes, as the library's
+    /// `sum-empty-set` is over a `Set ℤ`. None for any other set.
+    fn empty_of_numbers(&self, set: &Node) -> Option<Members> {
+        (&*set.notation_name() == "empty-set").then_some(Members::Numbers(Num::Int))
     }
 
     /// What a function the term applies to the index letter takes, the

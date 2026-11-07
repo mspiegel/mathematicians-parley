@@ -1540,6 +1540,7 @@ public import Parley.Tests.Stdlib.Sets.DifferenceEmpty
 public import Parley.Tests.Stdlib.Sets.IntersectionDistributes
 public import Parley.Tests.Stdlib.Sets.SubsetEmpty
 public import Parley.Tests.Stdlib.Sums.SumEmptyRange
+public import Parley.Tests.Stdlib.Sums.SumEmptySet
 public import Parley.Tests.Stdlib.Sums.RangeNat
 public import Parley.Tests.Stdlib.Sums.RangeNat0
 public import Parley.Tests.Stdlib.Sums.Range
