@@ -118,6 +118,20 @@ fn lifted(item: &Term, line: &Term, widen: &Widen) -> Option<Term> {
 fn pushed(term: &Term, widen: &Widen) -> Term {
     let mut out = match &term.kind {
         TermKind::Cast { inner, to } => cast_down(inner, to, widen),
+        // A numeral taken to ℕ is the numeral, `(3 : ℤ).toNat` 3, and a
+        // natural number cast to ℤ and taken back is itself.
+        TermKind::ToNat(inner) => match &bare(inner).kind {
+            TermKind::Numeral(digits) => Term {
+                kind: TermKind::Numeral(digits.clone()),
+                ty: Some(LeanType::Num(Num::Nat)),
+            },
+            TermKind::Cast { inner: x, .. }
+                if x.ty == Some(LeanType::Num(Num::Nat)) =>
+            {
+                (**x).clone()
+            }
+            _ => term.clone(),
+        },
         _ => term.clone(),
     };
     for child in out.children_mut() {
