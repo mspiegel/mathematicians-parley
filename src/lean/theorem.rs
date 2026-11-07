@@ -6241,11 +6241,14 @@ impl<'a> Proof<'a> {
                 },
                 [body],
             ) if &*value.notation_name() == "property-of" => {
-                let Some(takes) = things.at.get(var) else {
-                    return Route::no("a map by its values on things given no numbers");
+                // Things given things, x ↦ c of a set of the theorem's
+                // things: x one of them.
+                let x = match things.at.get(var) {
+                    Some(takes) => LetterType::Number(*takes),
+                    None => LetterType::Member(super::expr::Members::Things(*var)),
                 };
                 let mut letters = self.writer.letters.clone();
-                letters.insert(value.text.to_string(), LetterType::Number(*takes));
+                letters.insert(value.text.to_string(), x);
                 self.writer.with_letters(letters).carrier(body)
             }
             (LetterType::Map { .. }, _) => {
