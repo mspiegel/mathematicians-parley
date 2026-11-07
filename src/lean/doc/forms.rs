@@ -63,9 +63,10 @@ impl FormDifference {
 /// the parts of what it casts on both sides, as `push_cast` takes it:
 /// `((a - b : ℤ) : ℚ)` and `(a : ℚ) - (b : ℚ)` are one form, which Lean
 /// moves between by that one tactic, and only a difference it leaves is a
-/// form the writer chose. A relation the item states in a wider type than
-/// the line, sin(a + b) = … over ℂ cited by a line in ℝ, is compared with
-/// the line cast up to it, as `exact_mod_cast` takes the one to the other.
+/// form the writer chose. A relation one side states in a narrower type
+/// than the other, sin(a + b) = … over ℂ cited by a line in ℝ, or an item
+/// in ℤ cited by a row of a calculation in ℚ, is compared cast up to the
+/// wider, as `exact_mod_cast` takes the one to the other.
 ///
 /// `widen` gives the constant that is a library function at another type,
 /// `Complex.cos` of `Real.cos` at ℂ (`Templates::same_function_at`): a
@@ -73,7 +74,8 @@ impl FormDifference {
 pub fn differences(item: &Term, line: &Term, widen: &Widen) -> Vec<FormDifference> {
     let mut out = Vec::new();
     let (item, line) = (pushed(item, widen), pushed(line, widen));
-    let line = lifted(&item, &line, widen).unwrap_or(line);
+    let line = lifted(&line, &item, widen).unwrap_or(line);
+    let item = lifted(&item, &line, widen).unwrap_or(item);
     compare(&item, &line, &mut out);
     out
 }
@@ -81,22 +83,23 @@ pub fn differences(item: &Term, line: &Term, widen: &Widen) -> Vec<FormDifferenc
 /// The constant that is a library function at another type.
 pub type Widen<'a> = dyn Fn(&str, Num) -> Option<super::term::ConstRef> + 'a;
 
-/// The line with its relation's sides cast up to the type the item's are
-/// in, where both are one relation and the item's is wider; None where
-/// they are not.
-fn lifted(item: &Term, line: &Term, widen: &Widen) -> Option<Term> {
+/// The relation with its sides cast up to the type the other's are in,
+/// where both are one relation and the other's is wider; None where they
+/// are not.
+fn lifted(narrow: &Term, other: &Term, widen: &Widen) -> Option<Term> {
     let (
+        TermKind::Infix { op: b, lhs, rhs },
         TermKind::Infix {
             op: a,
-            lhs: item_lhs,
+            lhs: other_lhs,
             ..
         },
-        TermKind::Infix { op: b, lhs, rhs },
-    ) = (&bare(item).kind, &bare(line).kind)
+    ) = (&bare(narrow).kind, &bare(other).kind)
     else {
         return None;
     };
-    let (Some(LeanType::Num(wide)), Some(LeanType::Num(own))) = (&item_lhs.ty, &lhs.ty)
+    let (Some(LeanType::Num(wide)), Some(LeanType::Num(own))) =
+        (&other_lhs.ty, &lhs.ty)
     else {
         return None;
     };
@@ -110,7 +113,7 @@ fn lifted(item: &Term, line: &Term, widen: &Widen) -> Option<Term> {
             lhs: Box::new(pushed(&cast_down(lhs, &to, widen), widen)),
             rhs: Box::new(pushed(&cast_down(rhs, &to, widen), widen)),
         },
-        ty: line.ty.clone(),
+        ty: narrow.ty.clone(),
     })
 }
 
@@ -171,7 +174,12 @@ fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
             args,
             explicit,
         } => {
+            // `abs` is one function at every ordered type, ↑|a| = |↑a|
+            // (`Int.cast_abs`, `Rat.cast_abs`).
             let wider = match (&head.kind, to) {
+                (TermKind::Const(c), LeanType::Num(_)) if c.name == "abs" => {
+                    Some(c.clone())
+                }
                 (TermKind::Const(c), LeanType::Num(n)) => widen(&c.name, *n),
                 _ => None,
             };
