@@ -2613,16 +2613,45 @@ impl Writer<'_> {
             let [from, to] = set.children.as_slice() else {
                 return Route::no("a range of other than two ends");
             };
+            // A member of a wider type, f(a) of a real f: an integer that is
+            // it, in the range, as `t ∈ ℤ` of a wider t is said, `∃ m : ℤ,
+            // (m : ℝ) = f a ∧ m ∈ Finset.Icc 0 (p - 1)`.
+            if let Route::Built(own) = self.carrier(x) {
+                if own > Num::Int {
+                    let ends = (
+                        self.number_fixed(from, Num::Int),
+                        self.number_fixed(to, Num::Int),
+                    );
+                    let (Route::Built(low), Route::Built(high)) = ends else {
+                        return Route::no("a range whose ends are not integers");
+                    };
+                    let m = witness_letter(x);
+                    let value = match self.number(x, own) {
+                        Route::Built(p) => p,
+                        Route::Declined(d) => return Route::Declined(d),
+                    };
+                    let int = LeanType::Num(Num::Int);
+                    let letter = Printed::letter(m.clone(), int.clone());
+                    let is = relation_of(
+                        "=",
+                        Printed::cast(letter.clone(), self.num_type(own)),
+                        value,
+                    );
+                    let within = relation_of("∈", letter, icc(low, high));
+                    let (Route::Built(is), Route::Built(within)) = (is, within) else {
+                        return Route::no("a range member of a wider type not written");
+                    };
+                    return match conjunction(is, within) {
+                        Route::Built(said) => {
+                            Route::Built(witnessed(m, int, None, said))
+                        }
+                        Route::Declined(d) => Route::Declined(d),
+                    };
+                }
+            }
             // A range whose ends are no integers as Lean computes them, 6/3,
             // is said by the order of its integer member between them, in
-            // the type that holds all three. A member that may be no integer
-            // would lose that it is one.
-            if matches!(self.carrier(x), Route::Built(c) if c > Num::Int) {
-                return Route::no(format!(
-                    "{} is a member of a range and may be no integer",
-                    self.grammar.print(x)
-                ));
-            }
+            // the type that holds all three.
             let wide = [x, from, to]
                 .iter()
                 .any(|n| matches!(self.carrier(n), Route::Built(c) if c > Num::Int));

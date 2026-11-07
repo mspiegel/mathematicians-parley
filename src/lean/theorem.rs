@@ -2036,6 +2036,11 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let name = format!("r{}_{}", step.line, k + 1);
+            // A requires line is a line in scope from here, as a step's
+            // claim is: what names an integer it says one is.
+            if let Route::Built(node) = self.tree(&r.fact) {
+                self.trees.insert(name.clone(), vec![(node, name.clone())]);
+            }
             self.push_at(
                 depth,
                 Tactic::Have {
@@ -6691,12 +6696,18 @@ impl<'a> Proof<'a> {
     /// the integer is the witness it gives.
     fn said_integer(&self, value: &Node, ty: super::templates::Num) -> Option<Printed> {
         // Lean states each as `∃ m : T, ↑m = x` of a term wider than T, of ℤ,
-        // ℚ and ℝ; ℕ and ℕ₀ add an order beside m, and are not among them.
+        // ℚ and ℝ, and of ℕ and ℕ₀ as `∃ m : ℤ, 0 ≤ m ∧ ↑m = x`, whose
+        // witness is an integer too.
         let at = self.writer.carrier(value).built()?;
-        let system = match ty {
-            super::templates::Num::Int
-            | super::templates::Num::Rat
-            | super::templates::Num::Real => super::expr::System::Type(ty),
+        let systems: Vec<super::expr::System> = match ty {
+            super::templates::Num::Int => vec![
+                super::expr::System::Type(ty),
+                super::expr::System::NonNegative,
+                super::expr::System::Positive,
+            ],
+            super::templates::Num::Rat | super::templates::Num::Real => {
+                vec![super::expr::System::Type(ty)]
+            }
             _ => return None,
         };
         let wanted = self.writer.number(value, at).built()?.untyped();
@@ -6711,7 +6722,7 @@ impl<'a> Proof<'a> {
                 return None;
             };
             let integer = c.node.notation() == crate::notations::MEMBERSHIP
-                && super::expr::system_of(set) == Some(system);
+                && super::expr::system_of(set).is_some_and(|s| systems.contains(&s));
             let same = self.writer.number(term, at).built().map(|p| p.untyped())
                 == Some(wanted.clone());
             (integer && same).then(|| c.proof.clone())
