@@ -171,6 +171,19 @@ fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
         TermKind::Paren(x) | TermKind::Cast { inner: x, .. } => cast_down(x, to, widen),
         // A sum or product over a Finset, onto its body (`Nat.cast_sum`,
         // `Int.cast_prod`): the last of its terms.
+        // An integer power, `x ^ m` with m in ℤ, onto its base
+        // (`Rat.cast_zpow`).
+        TermKind::Notation { pieces, prec } if matches!(pieces.as_slice(), [Piece::Term { .. }, Piece::Text(t), Piece::Term { .. }] if t == " ^ ") =>
+        {
+            let mut pieces = pieces.clone();
+            if let Some(Piece::Term { term, .. }) = pieces.first_mut() {
+                **term = cast(term);
+            }
+            at(TermKind::Notation {
+                pieces,
+                prec: *prec,
+            })
+        }
         TermKind::Notation { pieces, prec } if over_finset(pieces) => {
             let mut pieces = pieces.clone();
             if let Some(Piece::Term { term, .. }) = pieces.last_mut() {
