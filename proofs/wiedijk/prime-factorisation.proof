@@ -75,6 +75,7 @@ let h(i) = g(i)    if i ≤ j
 
           4.2.4.  h(i) is prime
                   substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
+                  requires g(i) ∈ ℕ: mun:function-value f := g, from 4.2.2
 
           case
           assume not i ≤ j                                            (C2)

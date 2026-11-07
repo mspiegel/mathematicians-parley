@@ -360,6 +360,32 @@ fn over_range(node: &Node) -> Option<[&Node; 4]> {
     (set.notation() == INTEGER_RANGE).then_some([index, from, to, term])
 }
 
+/// The big operators over a set that is a range a formula has, which Lean
+/// writes over `Finset.Icc` (`over_range`), where an item over a set of
+/// numbers writes `∏ᶠ x ∈ X` of the set.
+pub struct RangedOperators {
+    pub sum: bool,
+    pub product: bool,
+}
+
+impl RangedOperators {
+    pub fn of(formula: &Node) -> RangedOperators {
+        let mut out = RangedOperators {
+            sum: false,
+            product: false,
+        };
+        for node in formula.walk() {
+            if over_range(&node).is_some() {
+                match &*node.notation_name() {
+                    "product-over" => out.product = true,
+                    _ => out.sum = true,
+                }
+            }
+        }
+        out
+    }
+}
+
 /// The node with each part of the shape of `from` put as `to`.
 pub(super) fn put_for(node: &Node, from: &Node, to: &Node) -> Node {
     if node.same_shape(from) {
@@ -1976,6 +2002,18 @@ impl Writer<'_> {
                         ))
                     }
                 };
+                // A subtraction a form computes in ℕ stops at 0, so it is
+                // the page's only where the page says the difference is at
+                // least 0, whatever its parts are: a − b of a, b ∈ ℕ is not.
+                if here == Num::Nat
+                    && node.spelling() == crate::notations::MINUS
+                    && !self.said_whole(node)
+                {
+                    return Route::no(format!(
+                        "{} would be computed in ℕ, where subtraction stops at 0",
+                        self.grammar.print(node)
+                    ));
+                }
                 // A value of a fixed type, ⌊x⌋ in ℤ, computes what it takes
                 // in that part's own least type, not the type around it.
                 let alpha = match template.yields {

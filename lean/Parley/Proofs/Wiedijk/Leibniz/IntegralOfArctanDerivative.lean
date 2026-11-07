@@ -118,7 +118,7 @@ theorem integral_of_arctan_derivative :
     have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
     -- 12.4. calculation
     have s12_4 : (deriv F) x = g x := by
-      calc (deriv F) x = 1 / (1 + x ^ 2) := by parley_set_side
+      calc (deriv F) x = 1 / (1 + x ^ 2) := by first | exact (s11 x (by parley_set_side)) | exact ((s11 x (by parley_set_side))).symm | parley_set_side
         _ = x ^ (2 * 0) / (1 + x ^ 2) := by parley_subst s12_2
         _ = g x := by parley_set_side
     all_goals exact s12_4

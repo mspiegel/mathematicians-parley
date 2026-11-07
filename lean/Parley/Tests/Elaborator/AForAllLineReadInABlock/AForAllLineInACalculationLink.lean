@@ -20,7 +20,7 @@ theorem a_for_all_line_in_a_calculation_link (n : ℤ) (hH1 : 0 < n) (c : ℤ) (
     intro b
     -- 1.1. calculation
     have s1_1 : b ≡ (1 : ℤ) [ZMOD n] := by
-      calc b ≡ c [ZMOD n] := by parley_side
+      calc b ≡ c [ZMOD n] := by first | exact (hH4 b) | exact ((hH4 b)).symm | parley_side
         _ ≡ 1 [ZMOD n] := by parley_side
     all_goals exact s1_1
   all_goals exact s1

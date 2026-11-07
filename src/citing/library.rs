@@ -1,7 +1,7 @@
 //! What each item asks a citation to supply, read once into patterns.
 
 use std::borrow::Cow;
-use std::cell::RefCell;
+use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -16,7 +16,9 @@ use crate::matching::{
     expand, free_names, standard, Context, Defined, Definitions, FxIndexMap, FxIndexSet,
 };
 use crate::methods::terms::Targets;
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
+use crate::notations::{
+    APPLICATION, APPLICATION_TO_TWO, EQUALITY, MEMBERSHIP, NUMBER_SYSTEMS,
+};
 use crate::regex;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{sorts_of_statement, statement_definitions, Env};
@@ -238,7 +240,14 @@ pub struct Library<'a> {
     /// The notations' and library functions' targets, which the deciders
     /// read a term by (`methods::terms`).
     pub targets: Targets,
+    /// `place_systems`, read once.
+    places: OnceCell<Rc<PlaceSystems>>,
 }
+
+/// The number system each place of a notation is in, by the definition
+/// that defines it: `definition divides` lets d and n in ℤ, so both places
+/// of "d divides n" are in ℤ. None at a place the definition leaves open.
+pub type PlaceSystems = FxIndexMap<NotationId, Vec<Option<crate::rules::System>>>;
 
 regex!(FIRST_WORD, r"^[a-z0-9-]+");
 
@@ -276,6 +285,7 @@ impl<'a> Library<'a> {
             negations: FxIndexSet::default(),
             ctx,
             targets,
+            places: OnceCell::new(),
         };
         // A metamath field may say more after the target, as "wrex, and wrex
         // under wn" does, so the target is its first word.
@@ -433,6 +443,60 @@ impl<'a> Library<'a> {
             })
             .collect();
         self.trees(&lines, sorts)
+    }
+
+    /// The number system each place of each notation a definition defines
+    /// is in (`PlaceSystems`), read once.
+    pub fn place_systems(&self) -> Rc<PlaceSystems> {
+        self.places
+            .get_or_init(|| Rc::new(self.read_place_systems()))
+            .clone()
+    }
+
+    /// `place_systems`, read from the definition records: the side of a
+    /// definition's `then` it defines, the left of an equivalence or an
+    /// equation, is the notation at letters, and its `let` lines put each
+    /// letter in a number system. A function's application, φ(n), is the
+    /// one notation of every function, and says no function's domain.
+    fn read_place_systems(&self) -> PlaceSystems {
+        let mut out = PlaceSystems::default();
+        for &i in self.items.values() {
+            let record = &self.records[i];
+            if record.kind != RecordKind::Definition {
+                continue;
+            }
+            let Some(sorts) = self.record_sorts.get(&i) else {
+                continue;
+            };
+            let lets: Vec<Written> = record
+                .hypotheses
+                .iter()
+                .filter(|h| h.kind == Intro::Let)
+                .map(|h| h.body(&record.path))
+                .collect();
+            let systems: FxIndexMap<String, crate::rules::System> = self
+                .trees(&lets, sorts)
+                .iter()
+                .filter_map(letter_system)
+                .collect();
+            for stated in self.trees(&record.stated(), sorts) {
+                let Some(defined) = defined_side(&stated, &self.bicond) else {
+                    continue;
+                };
+                let places: Vec<Option<crate::rules::System>> = defined
+                    .children
+                    .iter()
+                    .map(|c| match c.is_name() {
+                        true => systems.get(c.text.as_ref()).copied(),
+                        false => None,
+                    })
+                    .collect();
+                if places.iter().any(Option::is_some) {
+                    out.entry(defined.notation()).or_insert(places);
+                }
+            }
+        }
+        out
     }
 
     /// The groups of every item a citation may name, a record's and a
@@ -705,6 +769,38 @@ impl<'a> Library<'a> {
 
 /// The parts of hypothesis lines that are formula text: a `let` line's
 /// parts (`Introduction::parts`), and an `assume` line whole.
+/// The letter a `let` line puts in a number system, `d ∈ ℤ`, with the
+/// system; None for any other line.
+fn letter_system(line: &Node) -> Option<(String, crate::rules::System)> {
+    let (MEMBERSHIP, [letter, set]) = (line.notation(), line.children.as_slice())
+    else {
+        return None;
+    };
+    if !letter.is_name() || set.notation() != NUMBER_SYSTEMS {
+        return None;
+    }
+    let system = crate::rules::System::of_sign(&set.text)?;
+    Some((letter.text.to_string(), system))
+}
+
+/// The side of a definition's `then` it defines: the left of an
+/// equivalence or an equation, where that is a notation other than a
+/// function's application or a membership; None for any other sentence.
+/// A membership's definition, `k ∈ {a, …, b}`, defines the set, and says
+/// nothing of what may be put in front of ∈.
+fn defined_side<'n>(
+    stated: &'n Node,
+    bicond: &FxIndexSet<NotationId>,
+) -> Option<&'n Node> {
+    let defines = stated.notation() == EQUALITY || bicond.contains(&stated.notation());
+    let side = stated.children.first().filter(|_| defines)?;
+    let general = matches!(
+        side.notation(),
+        APPLICATION | APPLICATION_TO_TWO | MEMBERSHIP
+    );
+    (!side.is_name() && !general).then_some(side)
+}
+
 fn hypothesis_parts(lines: impl Iterator<Item = (Intro, Written)>) -> Vec<Written> {
     let mut out = Vec::new();
     for (kind, body) in lines {

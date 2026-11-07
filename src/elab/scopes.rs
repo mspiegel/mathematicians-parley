@@ -3261,6 +3261,9 @@ impl<'a> Elaborator<'a> {
                 ));
             }
         };
+        if kinded.domain.is_some() {
+            return self.kind_of_values(kinded, &shown, in_set, scope, facts);
+        }
         // The let's term is read with the letters it binds kept apart from
         // the proof's (`apart`), and its reason's fact as the page writes
         // it; where the two differ in a bound letter, the one is carried to
@@ -3317,6 +3320,68 @@ impl<'a> Elaborator<'a> {
         self.lines
             .set(kinded.label.clone(), line.restated(term, both));
         self.sets.insert(kinded.name.clone(), set);
+        self.note_introduced(scope, facts)
+    }
+
+    /// What a function's define saying a kind of number says of the
+    /// function, `f : D ⟶ ℤ` (`SYNTAX.md`): its rule is in the set at every
+    /// member of its domain by the reason, `shown`, and the map the name
+    /// stands for is then of that type (`map_into`). The function is typed
+    /// as `let f : D → ℤ` types it, and a step citing the define has the
+    /// type as a line the define says, beside its equation.
+    fn kind_of_values(
+        &mut self,
+        kinded: &Kinded,
+        shown: &Rpn,
+        in_set: Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<()> {
+        let line = kinded.shown.line;
+        self.know(facts, shown.clone(), in_set);
+        let every = self.to_term(shown);
+        let (Some("wral"), [held, _, domain]) = (every.label(), every.children())
+        else {
+            return Err(self.unreached(
+                line,
+                format!("the reason under let {} shows no for all", kinded.label),
+            ));
+        };
+        let [_, set] = held.children() else {
+            return Err(self.unreached(
+                line,
+                format!("the reason under let {} shows no membership", kinded.label),
+            ));
+        };
+        let name = self.names[&kinded.name].clone();
+        let typed = t!(self.rpn(domain), self.rpn(set), name, "wf");
+        let Some(proof) = self.map_into(&self.to_term(&typed), scope, facts, 3)? else {
+            return Err(self.defect(
+                line,
+                format!(
+                    "the reason under let {} shows {}, which is not carried to the type of {}",
+                    kinded.label, kinded.shown.fact, kinded.name
+                ),
+            ));
+        };
+        let proof = self.seal(proof, &kinded.label);
+        self.know(facts, typed.clone(), proof.clone());
+        let line = self
+            .lines
+            .get(&kinded.label)
+            .expect("the line the let laid down");
+        let said = self
+            .line_written(&kinded.label, &self.lines)
+            .expect("the line the let laid down");
+        let both = self.b.ap(
+            "jca",
+            &binds! {"ph" => scope, "ps" => &said.claim, "ch" => &typed},
+            &[&said.proof, &proof],
+        );
+        let term = t!(said.claim, typed, "wa");
+        self.know(facts, term.clone(), both.clone());
+        self.lines
+            .set(kinded.label.clone(), line.restated(term, both));
         self.note_introduced(scope, facts)
     }
 

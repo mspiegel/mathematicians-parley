@@ -194,7 +194,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
           -- 5.14.6. instantiate k := q in line 4, from 5.13
           have s5_14_6 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by first | exact (s4 q (by parley_side)) | exact ((s4 q (by parley_side))).symm | simpa using (s4 q (by parley_side)) | exact_mod_cast (s4 q (by parley_side)) | (have h := (s4 q (by parley_side)); parley_side)
           -- 5.14.7. instantiate k := 3q + 1 in line 2
-          have r274_1 : 0 ≤ 3 * q + 1 := by parley_side
+          have r277_1 : 0 ≤ 3 * q + 1 := by parley_side
           -- 5.14.8. substitute n = 3q + 1 (line 5.14.5) into P1
           have s5_14_8 : Even (F (3 * q + 1)) := by parley_subst_at s5_14_5 hP1
           -- 5.14.9. mun:not-both n := F(3q + 1), from 5.14.8
@@ -208,7 +208,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
           -- 5.14.12. instantiate k := q in line 4, from 5.13
           have s5_14_12 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by first | exact (s4 q (by parley_side)) | exact ((s4 q (by parley_side))).symm | simpa using (s4 q (by parley_side)) | exact_mod_cast (s4 q (by parley_side)) | (have h := (s4 q (by parley_side)); parley_side)
           -- 5.14.13. instantiate k := 3q + 2 in line 2
-          have r297_1 : 0 ≤ 3 * q + 2 := by parley_side
+          have r301_1 : 0 ≤ 3 * q + 2 := by parley_side
           -- 5.14.14. substitute n = 3q + 2 (line 5.14.11) into P1
           have s5_14_14 : Even (F (3 * q + 2)) := by parley_subst_at s5_14_11 hP1
           -- 5.14.15. mun:not-both n := F(3q + 2), from 5.14.14

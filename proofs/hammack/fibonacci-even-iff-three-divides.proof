@@ -144,6 +144,7 @@ theorem fibonacci-even-iff-three-divides
 
     4.19. F(3(k + 1)) is even
           substitute F(3(k + 1)) = F(3k + 1) + F(3k + 2) (line 4.17) into line 4.18
+          requires F(3(k + 1)) ∈ ℤ: instantiate k := 3(k + 1) in line 2
 
     4.20. F((3k + 2) + 2) = F(3k + 2) + F((3k + 2) + 1)
           instantiate k := 3k + 2 in line 3
@@ -168,6 +169,7 @@ theorem fibonacci-even-iff-three-divides
 
     4.25. F(3(k + 1) + 1) is odd
           substitute F(3(k + 1) + 1) = F(3k + 2) + F(3(k + 1)) (line 4.22) into line 4.24
+          requires F(3(k + 1) + 1) ∈ ℤ: instantiate k := 3(k + 1) + 1 in line 2
 
     4.26. F(3(k + 1) + 1) ∈ ℤ
           instantiate k := 3(k + 1) + 1 in line 2
@@ -181,6 +183,7 @@ theorem fibonacci-even-iff-three-divides
           substitute
             F(3(k + 1)) + F(3(k + 1) + 1) is odd      4.27
             F(3(k + 1) + 2) is odd                    instantiate k := 3(k + 1) in line 3
+          requires F(3(k + 1) + 2) ∈ ℤ: instantiate k := 3(k + 1) + 2 in line 2
 
     4.29. F(3(k + 1)) is even and F(3(k + 1) + 1) is odd and F(3(k + 1) + 2) is odd
           join 4.19, 4.25, 4.28
@@ -277,6 +280,7 @@ theorem fibonacci-even-iff-three-divides
 
           5.14.8. F(3q + 1) is even
                   substitute n = 3q + 1 (line 5.14.5) into P1
+                  requires F(3q + 1) ∈ ℤ: from 5.14.7
 
           5.14.9. F(3q + 1) is not odd
                   mun:not-both n := F(3q + 1), from 5.14.8, contradicting 5.14.6
@@ -300,6 +304,7 @@ theorem fibonacci-even-iff-three-divides
 
           5.14.14. F(3q + 2) is even
                    substitute n = 3q + 2 (line 5.14.11) into P1
+                   requires F(3q + 2) ∈ ℤ: from 5.14.13
 
           5.14.15. F(3q + 2) is not odd
                    mun:not-both n := F(3q + 2), from 5.14.14, contradicting 5.14.12
@@ -335,3 +340,4 @@ theorem fibonacci-even-iff-three-divides
 
     5.22. F(n) is even
           substitute n = 3·k (line 5.15) into line 5.21
+          requires F(n) ∈ ℤ: instantiate k := n in line 2

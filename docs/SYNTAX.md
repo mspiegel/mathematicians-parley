@@ -751,6 +751,18 @@ cites in the same sense: taken away, the method no longer decides the
 claim, or leaves one of its hypotheses unsaid
 (`checker::formulas::check_method_cites_used`).
 
+**A notation's places are in the systems its definition lets them in.** A
+step writing a notation whose definition lets a place in ℕ, ℕ₀ or ℤ (d and n
+of "d divides n", p of "p is prime", a, b and n of a ≡ b (mod n)) shows each
+term it puts there is in that system: said once, by a line it names, or
+beside a term that is, in an equation such a line says. A defined name is
+its value there; one whose define says a kind is in that kind's system, as a
+letter is. A step citing an item claims what the item concludes, whose `let`
+lines ask it, and a step that only reads its lines again (`instantiate`,
+`restate`, `join`, `obtain`, or a block or cases) puts no new term anywhere.
+So a^(p − 1) ≡ 1 (mod p), with a ∈ ℤ and p ∈ ℕ, reached by substitution,
+names a line saying p − 1 ∈ ℕ₀.
+
 A term that a line the step names puts in a number system is a part as a
 letter is, for a method's atoms and a cited item's hypotheses alike: where
 a requires line says `N(n) ∈ ℝ`, `N(n) + 1`, `2·N(n)` and `N(n)²` are real
@@ -845,7 +857,24 @@ and needs no reason. The membership m ∈ ℕ is then said there once, as an
 `obtain`'s membership sentence is: no later step writes it, and a step that
 cites the let has it as a line the let says, as `inequalities, from D1`
 reads m ≥ 1 off it (`READERS.md`). A naming line that says no kind of number
-has no reason line, and one that names a function says none.
+has no reason line.
+
+A function's define may say which numbers its values are among, in the same
+words, after its rule and before `for`:
+
+```proof
+let f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}     (D1)
+    membership, from 5.3
+    reads the inverse of a modulo p
+```
+
+It says f(a) is an integer for every a the define runs over, as `let f :
+{2, …, p − 2} → ℤ` would. A step that needs a value's membership cites the
+label with the line putting the argument in the domain, as it cites a
+function's type (`READERS.md`, a function's type is cited for its values).
+The line under it gives the reason the rule's value is in that system, read
+at a member of the domain: the argument is a letter in the set after `for`,
+and what the reason cites stands above the define.
 
 A naming line in a theorem's statement, between its hypotheses and `then`,
 says no kind of number: the statement is what the theorem assumes, and a

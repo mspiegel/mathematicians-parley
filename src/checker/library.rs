@@ -105,10 +105,13 @@ pub enum Stated {
     Introduced(Introduction),
     /// A naming `let` that says what kind of number its name is, `let m =
     /// gcd(s, w), a natural number`: the name, and the number system the
-    /// kind's record names, which the line says the name is in.
+    /// kind's record names, which the line says the name is in. Of a
+    /// function's define, the set its argument runs over, and the line
+    /// says the function's type, `f : {2, …, p − 2} → ℤ`.
     Kind {
         name: Written,
         set: Written,
+        domain: Option<Written>,
     },
     /// An induction hypothesis: what its induction's claim, "for all k ∈ X,
     /// …", says at its letter.
@@ -316,16 +319,21 @@ impl<'a> Known<'a> {
                 Ok(said) => said.into_iter().map(|n| Some(cited(n))).collect(),
                 Err(_) => vec![None],
             },
-            Stated::Kind { name, set } => {
+            Stated::Kind { name, set, domain } => {
                 let read = |w: &Written| self.read_as_written(&w.formula().ok()?);
-                let member = match (read(name), read(set)) {
-                    (Some(x), Some(s)) => {
+                let said = match (read(name), read(set), domain) {
+                    (Some(x), Some(s), None) => {
                         let fills = [("x", &x), ("S", &s)];
                         filled("x ∈ S", self.env.g, &self.sorts, &fills).ok()
                     }
+                    (Some(f), Some(s), Some(d)) => read(&Written::set(d.clone()))
+                        .and_then(|d| {
+                            let fills = [("f", &f), ("A", &d), ("S", &s)];
+                            filled("f : A → S", self.env.g, &self.sorts, &fills).ok()
+                        }),
                     _ => None,
                 };
-                vec![member.map(cited)]
+                vec![said.map(cited)]
             }
             Stated::Hypothesis(claim) => {
                 let statement = claim
@@ -889,6 +897,10 @@ pub fn statements_in_scope(
             Stated::Kind {
                 name: Written::new(&k.name, &thm.path, k.shown.line),
                 set: Written::new(&k.set, &thm.path, k.shown.line),
+                domain: k
+                    .domain
+                    .as_ref()
+                    .map(|d| Written::new(d, &thm.path, k.shown.line)),
             },
         );
     }
@@ -943,6 +955,37 @@ pub fn kinded_above(
         .filter(|(i, _)| shape.define_in_scope(thm, *i, step))
         .filter_map(|(_, d)| d.kinded(&thm.path, &env.g.members).ok().flatten())
         .collect()
+}
+
+/// The letters the reason under each function's define that says a kind of
+/// number is read with, by the define's label (`CheckedTheorem::kind_letters`):
+/// the step's below the define, and the define's argument, which the
+/// reason's fact, `for all a ∈ D, …`, puts in D's system as a step said of
+/// every member puts its member.
+pub fn kind_letters(known: &Known) -> IndexMap<String, crate::citing::Introduced> {
+    let thm = known.thm;
+    let mut out = IndexMap::new();
+    for d in &thm.defines {
+        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+            continue;
+        };
+        let (Some(_), Some(after)) = (&kinded.domain, thm.step_after(d.line)) else {
+            continue;
+        };
+        let mut letters = introduced(known, after);
+        let member = known
+            .whole_as_written(&kinded.shown.fact)
+            .and_then(|fact| crate::citing::claimed_member(&fact, known.env.g));
+        if let Some((member, _)) = member {
+            if let Some((letter, system)) =
+                crate::citing::introduction(&member, &letters)
+            {
+                letters.insert(letter, system);
+            }
+        }
+        out.insert(d.label.clone(), letters);
+    }
+    out
 }
 
 /// A citation's seed with each name a graph given in full in the cited
@@ -1313,6 +1356,10 @@ fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
         let kind = Stated::Kind {
             name: Written::new(&k.name, path, k.shown.line),
             set: Written::new(&k.set, path, k.shown.line),
+            domain: k
+                .domain
+                .as_ref()
+                .map(|d| Written::new(d, path, k.shown.line)),
         };
         said.push((k.shown.line, kind));
     }

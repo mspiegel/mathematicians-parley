@@ -42,23 +42,37 @@ fn refused(problem: crate::outcome::Problem) -> Said {
 
 /// What the Lean build makes of the tree, or what stops it.
 fn made(source: &dyn Source) -> Result<Made, Said> {
-    let checked = crate::checker::checked(source)?;
-    let table = crate::lean::modules::ModuleTable::read(source).map_err(refused)?;
-    let made = make(&checked, &table).map_err(refused)?;
+    let made = made_as_far_as_the_table(source)?;
     // The gate asks Lean nothing: a module the table lacks would change
     // the files a fresh build writes.
-    match made.unanswered.first() {
+    match unanswered(&made) {
         None => Ok(made),
-        Some(l) => Err(refused(crate::outcome::Problem::new(
+        Some(why) => Err(refused(crate::outcome::Problem::new(
             crate::lean::modules::TABLE,
             1,
-            format!(
-                "the table has no modules for the {} `{}`: run parley build lean",
-                l.kind(),
-                l.key()
-            ),
+            why,
         ))),
     }
+}
+
+/// What the Lean build makes of the tree with the table as it stands,
+/// whether or not the table answers every lookup.
+fn made_as_far_as_the_table(source: &dyn Source) -> Result<Made, Said> {
+    let checked = crate::checker::checked(source)?;
+    let table = crate::lean::modules::ModuleTable::read(source).map_err(refused)?;
+    make(&checked, &table).map_err(refused)
+}
+
+/// The first lookup the table does not answer, as what to do; None where
+/// it answers all.
+fn unanswered(made: &Made) -> Option<String> {
+    made.unanswered.first().map(|l| {
+        format!(
+            "the table has no modules for the {} `{}`: run parley build lean",
+            l.kind(),
+            l.key()
+        )
+    })
 }
 
 /// Every Lean file in the tree is what a fresh build makes, and nothing the
@@ -70,11 +84,17 @@ pub fn fresh(root: &Path) -> Said {
 /// `fresh` of a tree a source holds, which a planted-defect test edits in
 /// memory.
 pub fn fresh_in(source: &dyn Source) -> Said {
-    let made = match made(source) {
+    let made = match made_as_far_as_the_table(source) {
         Ok(made) => made,
         Err(said) => return said,
     };
     let mut said = Said::default();
+    // A lookup the table does not answer is a file a fresh build writes
+    // otherwise, as one that differs is: said with the rest, the theorems
+    // the build leaves out among them.
+    if let Some(why) = unanswered(&made) {
+        said.complained += &format!("{}:1  {why}\n", crate::lean::modules::TABLE);
+    }
     for (path, text) in &made.files {
         match source.read_text(path) {
             Ok(have) if have == *text => {}

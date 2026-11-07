@@ -155,6 +155,7 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
 
     11.4. r·a ≡ f(r) (mod n)
           substitute f(r) = (r·a) mod n (line 11.3) into line 11.2
+          requires r ∈ ℤ: mun:range-integer, from 11.1
 
 12. ∏(r ∈ S) r·a ≡ ∏(r ∈ S) f(r) (mod n)
     thm:product-congruent X := S, from 4, 5, 11

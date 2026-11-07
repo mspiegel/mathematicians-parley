@@ -129,7 +129,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     -- 19.3. calculation
     have r142_1 : m + 1 ≠ 0 := by parley_set_side
     have s19_3 : (deriv F) x = p x := by
-      calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by parley_set_side
+      calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
         _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by parley_subst s16
         _ = x ^ m.toNat := by parley_ring
         _ = p x := by first | parley_set_side | parley_line_toNat s19_2

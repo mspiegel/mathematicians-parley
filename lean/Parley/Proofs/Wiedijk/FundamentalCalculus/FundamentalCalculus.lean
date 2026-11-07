@@ -108,7 +108,9 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   have s17 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = 0 := by
     intro x hK1
     -- 17.1. substitute G′(x) = f(x) (line 13) into line 16
-    have s17_1 : (deriv H) x = f x - (deriv F) x := by parley_subst_at s13 s16
+    have s17_1 : (deriv H) x = f x - (deriv F) x := by
+      have at0 := (s16 x (by parley_set_side))
+      parley_subst_at s13 at0
     -- 17.2. substitute F′(x) = f(x) (H9) into line 17.1
     have s17_2 : (deriv H) x = f x - f x := by parley_subst_at hH9 s17_1
     -- 17.3. mun:in-subset, from K1, 4

@@ -1553,8 +1553,51 @@ struct WitnessLetter {
 /// A line whose number a citation was given: its Lean name, and the term
 /// it says is in ℤ or ℚ as the page prints it.
 struct SaidUsed {
-    line: Printed,
+    line: SaidLine,
     term: String,
+}
+
+/// A line saying a term is a whole number, `∃ m : ℤ, ↑m = t`, or of ℕ and
+/// ℕ₀ with its order, `∃ m : ℤ, 0 ≤ m ∧ ↑m = t` (`said_integer`).
+#[derive(Clone)]
+struct SaidLine {
+    /// Its Lean name, or a part of one.
+    proof: Printed,
+    /// Whether it says the order beside the equation.
+    ordered: bool,
+}
+
+impl SaidLine {
+    /// The number it gives, `Classical.choose h`.
+    fn chosen(&self, ty: super::templates::Num) -> Printed {
+        Printed::applied(
+            "Classical.choose",
+            super::doc::Source::Core,
+            vec![self.proof.clone()],
+            super::doc::LeanType::Num(ty),
+        )
+    }
+
+    /// The number's equation with the term: `Classical.choose_spec h`, or
+    /// its second part where the line says the order first.
+    fn equation(&self) -> Printed {
+        let spec = Printed::applied(
+            "Classical.choose_spec",
+            super::doc::Source::Core,
+            vec![self.proof.clone()],
+            super::doc::LeanType::Prop,
+        );
+        match self.ordered {
+            true => Printed {
+                kind: super::doc::TermKind::Field {
+                    inner: Box::new(super::tactics::bracket(spec)),
+                    field: "2".to_string(),
+                },
+                ty: None,
+            },
+            false => spec,
+        }
+    }
 }
 
 /// A recursion the header lets, as a step cites it.
@@ -2287,6 +2330,9 @@ impl<'a> Proof<'a> {
         facts: &[super::algebra::Cited],
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
+        let Some(letters) = self.rec.introduced.get(i).cloned() else {
+            return Route::no("a step the checker's record has no letters for");
+        };
         // A claim that a term Lean does not compute as a whole number is
         // one, p^(a′ − a) ∈ ℕ, written `∃ m : ℤ, 0 < m ∧ (m : ℚ) = …`
         // (`Writer::in_system`): the number the step's lines name is the
@@ -2296,10 +2342,19 @@ impl<'a> Proof<'a> {
             // Where the step's lines name no such number, the membership is
             // what the lines in scope give (`said_member`).
             if self
-                .named_atoms(&term, i, whole, facts, &mut atoms)
+                .named_atoms(&term, &letters, whole, facts, &mut atoms)
                 .built()
                 .is_none()
             {
+                // Beside an equation, as the check found it.
+                if !ordered {
+                    let line = reason.just.line;
+                    if let Some(p) =
+                        self.member_beside(line, &term, node, &letters, facts)
+                    {
+                        return Route::Built(p);
+                    }
+                }
                 return self.proof_of(reason, k, node);
             }
             let mut inner = self.writer.with_letters(self.writer.letters.clone());
@@ -2309,7 +2364,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
-            let equal = specs_equal(&specs);
+            let equal = specs_equal_of(&term, &specs);
             let mut haves: Vec<Tactic> = atoms.iter().map(|a| a.have.clone()).collect();
             if !ordered {
                 let shown = Tactic::Exact(super::expr::anonymous(vec![int, equal]));
@@ -2360,7 +2415,7 @@ impl<'a> Proof<'a> {
         let mut atoms = Vec::new();
         if let Some((term, whole)) = &claimed {
             if let Route::Declined(d) =
-                self.named_atoms(term, i, *whole, facts, &mut atoms)
+                self.named_atoms(term, &letters, *whole, facts, &mut atoms)
             {
                 return Route::Declined(d);
             }
@@ -2372,7 +2427,7 @@ impl<'a> Proof<'a> {
             .filter(|c| {
                 let before = atoms.len();
                 let named = self
-                    .named_atoms(&c.term, i, c.whole, facts, &mut atoms)
+                    .named_atoms(&c.term, &letters, c.whole, facts, &mut atoms)
                     .built()
                     .is_some();
                 if !named {
@@ -2418,6 +2473,59 @@ impl<'a> Proof<'a> {
                 name: c.name.clone(),
                 term: at,
             });
+        }
+        // Each other line the step cites is put in terms of the numbers the
+        // step names as well, and cast down to them: 5.7.7's f(a) =
+        // (a^(p − 2)) mod p, of reals, as f a = c % p of integers, which a
+        // substitution then puts into the restated 5.7.6.
+        let mut terms: Vec<Node> = Vec::new();
+        for t in claimed
+            .iter()
+            .map(|(t, _)| t)
+            .chain(cited.iter().map(|c| &c.term))
+        {
+            terms.extend(t.walk());
+        }
+        let mut rules = Vec::new();
+        for a in atoms.iter().filter(|a| a.said.value.is_none()) {
+            let Some(term) = terms
+                .iter()
+                .find(|n| self.writer.grammar.print(n) == a.said.term)
+            else {
+                continue;
+            };
+            let line = SaidLine {
+                proof: a.said.proof.clone(),
+                ordered: false,
+            };
+            if let Some(rule) = self.spec_at_real(&line, line.equation(), term) {
+                rules.push(super::tactics::backwards(rule));
+            }
+        }
+        let witnesses: Vec<&str> = cited.iter().map(|c| c.name.as_str()).collect();
+        let others: Vec<String> = self.thm.steps[i]
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| self.named.get(r))
+            .flatten()
+            .filter(|n| !witnesses.contains(&n.as_str()))
+            .cloned()
+            .collect();
+        if !rules.is_empty() {
+            use super::doc::Location;
+            use super::tactics as t;
+            for name in others {
+                let at = || TacticArg::At(vec![Location::Hypothesis(name.clone())]);
+                haves.push(t::try_(Tactic::Seq(vec![
+                    t::call("rw", vec![TacticArg::Rules(rules.clone()), at()]),
+                    t::try_(t::call(
+                        "rw",
+                        vec![TacticArg::Rules(vec![t::forwards(mod_int_cast())]), at()],
+                    )),
+                    t::call("norm_cast", vec![at()]),
+                ])));
+            }
         }
         let int = match &claimed {
             Some((term, whole)) => match inner.number_fixed(term, *whole) {
@@ -2483,8 +2591,98 @@ impl<'a> Proof<'a> {
                 });
             }
         }
-        facts.extend(self.cited_parts(&step.just.refs));
+        let cited = self.cited_parts(&step.just.refs);
+        // A "for all" line is read at the block's letter the claim names, as
+        // the checker reads it: 5.6's "for all a ∈ {2, …, p − 2}, f(a) ∈ ℤ"
+        // says f(a) ∈ ℤ at the block's a.
+        let mut names = std::collections::BTreeSet::new();
+        for s in step.claim.sentences() {
+            if let Some(n) = self.rec.page.get(&s) {
+                names.extend(n.names());
+            }
+        }
+        for c in &cited {
+            if let Some(at) = self.read_at_letters(c, &names) {
+                conjuncts(&at.node, at.proof, &mut facts);
+            }
+        }
+        facts.extend(cited);
+        let beside = self.shown_beside(i, &facts);
+        facts.extend(beside);
         facts
+    }
+
+    /// The memberships the checker found step `i` shows by an equation
+    /// (`ShownBy::Beside`), each as a line Lean has: the line putting the
+    /// equation's other side in its system, rewritten by the equation,
+    /// `(by simpa only [← e] using h : ∃ m : ℤ, ↑m = a * f a)`. The facts
+    /// are the step's, which hold both lines; a membership whose lines
+    /// Lean does not hold as the checker read them is left out.
+    fn shown_beside(
+        &self,
+        i: usize,
+        facts: &[super::algebra::Cited],
+    ) -> Vec<super::algebra::Cited> {
+        use super::doc::{Piece, Proof};
+        use super::tactics as t;
+        use crate::checker::record::ShownBy;
+        let ctx = self.sources.ctx;
+        let mut out = Vec::new();
+        for shown in self.rec.places_shown.get(i).into_iter().flatten() {
+            let ShownBy::Beside { equation, other } = &shown.by else {
+                continue;
+            };
+            let Some(e) = facts
+                .iter()
+                .find(|f| crate::matching::alike_top(&f.node, equation, ctx))
+            else {
+                continue;
+            };
+            let Some(h) = facts.iter().find(|f| {
+                matches!((f.node.notation(), f.node.children.as_slice()),
+                    (crate::notations::MEMBERSHIP, [held, set])
+                        if crate::matching::alike_top(held, other, ctx)
+                            && crate::rules::System::of_sign(&set.text)
+                                .is_some_and(|s| s.within(shown.system)))
+            }) else {
+                continue;
+            };
+            let node = h
+                .node
+                .with_children(vec![shown.term.clone(), h.node.children[1].clone()]);
+            let Route::Built(says) = self.writer.formula(&node) else {
+                continue;
+            };
+            // e is term = other or other = term: the rewrite turns other into
+            // the term.
+            let rule = match equation.children.first() {
+                Some(left) if crate::matching::alike_top(left, &shown.term, ctx) => {
+                    t::backwards(e.proof.clone())
+                }
+                _ => t::forwards(e.proof.clone()),
+            };
+            let simpa = t::call(
+                "simpa",
+                vec![
+                    TacticArg::Only,
+                    TacticArg::Rules(vec![rule]),
+                    TacticArg::Using(h.proof.clone()),
+                ],
+            );
+            let proof = Printed::notation(
+                vec![
+                    Piece::text("("),
+                    Piece::term(t::by_term(Proof::By(simpa)), 0),
+                    Piece::text(" : "),
+                    Piece::term(says, 0),
+                    Piece::text(")"),
+                ],
+                super::expr::MAX,
+                super::doc::LeanType::Prop,
+            );
+            out.push(super::algebra::Cited { node, proof });
+        }
+        out
     }
 
     /// The whole numbers a term is made of that Lean does not compute as
@@ -2498,7 +2696,7 @@ impl<'a> Proof<'a> {
     fn named_atoms(
         &self,
         term: &Node,
-        i: usize,
+        letters: &crate::citing::Introduced,
         whole: super::templates::Num,
         facts: &[super::algebra::Cited],
         out: &mut Vec<NamedAtom>,
@@ -2507,12 +2705,8 @@ impl<'a> Proof<'a> {
             super::templates::Num::Nat => crate::rules::System::N0,
             _ => crate::rules::System::Z,
         };
-        let Some(letters) = self.rec.introduced.get(i) else {
-            return Route::no("a step the checker's record has no letters for");
-        };
         let said = |t: &Node, s: crate::rules::System| {
-            stated_line(facts, t, s, self.sources.ctx)
-                .map(|_| crate::citing::OnceReason::Stated)
+            self.said_by_lines(t, s, letters, facts)
         };
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
         let Some(reason) =
@@ -2534,6 +2728,139 @@ impl<'a> Proof<'a> {
                 self.writer.grammar.print(term)
             )),
         }
+    }
+
+    /// Why a part the said-once walk does not take apart is in `system`, as
+    /// the `membership` method finds it (`methods::membership`): a line
+    /// among `facts` stating it, or an operation the closure table names
+    /// (`rules::WHOLE`), x mod n in ℕ₀ where x ∈ ℤ and n ∈ ℕ, built from
+    /// its parts the same way. Of an operation whose parts are not the
+    /// term's own children, a library function's value, none.
+    fn said_by_lines(
+        &self,
+        term: &Node,
+        system: crate::rules::System,
+        letters: &crate::citing::Introduced,
+        facts: &[super::algebra::Cited],
+    ) -> Option<crate::citing::OnceReason> {
+        use crate::citing::OnceReason;
+        use crate::rules::System;
+        if stated_line(facts, term, system, self.sources.ctx).is_some() {
+            return Some(OnceReason::Stated);
+        }
+        let op = self.sources.targets.operation(term)?;
+        let w = crate::rules::WHOLE.iter().find(|w| w.op == op.label)?;
+        let (Some(left_in), Some(right_in)) =
+            (System::of_label(w.left.1), System::of_label(w.right.1))
+        else {
+            return None;
+        };
+        let own = op.parts.len() == term.children.len()
+            && op
+                .parts
+                .iter()
+                .zip(&term.children)
+                .all(|(p, c)| std::ptr::eq(*p, c));
+        if !own || !System::N0.within(system) {
+            return None;
+        }
+        let said = |t: &Node, s: System| self.said_by_lines(t, s, letters, facts);
+        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
+        let mut parts = Vec::new();
+        for (part, within) in op.parts.iter().zip([left_in, right_in]) {
+            parts.push(crate::citing::reason_within(
+                part, within, letters, &nonzero, &said,
+            )?);
+        }
+        Some(OnceReason::Built(parts))
+    }
+
+    /// A membership `t ∈ ℤ` the check found beside an equation, by the line
+    /// its reason is on (`CheckedTheorem::members_shown`): the equation's
+    /// other side named whole from `facts` (`whole_witness`), and the
+    /// equation, among them, turning the goal's t into it, `have other :
+    /// ∃ m : ℤ, ↑m = a ^ (p − 2) * a := …; rw [s5_7_4]; exact other`. None
+    /// where the check found t otherwise, or the lines do not give it so.
+    fn member_beside(
+        &self,
+        line: usize,
+        term: &Node,
+        node: &Node,
+        letters: &crate::citing::Introduced,
+        facts: &[super::algebra::Cited],
+    ) -> Option<super::doc::Proof> {
+        use super::doc::Proof;
+        use super::tactics as t;
+        use crate::checker::record::ShownBy;
+        let ctx = self.sources.ctx;
+        let shown = self.rec.members_shown.get(&line)?;
+        let ShownBy::Beside { equation, other } = &shown.by else {
+            return None;
+        };
+        if !crate::matching::alike_top(&shown.term, term, ctx) {
+            return None;
+        }
+        let e = facts
+            .iter()
+            .find(|f| crate::matching::alike_top(&f.node, equation, ctx))?;
+        let set = node.children.get(1)?.clone();
+        let says = self
+            .writer
+            .formula(&node.with_children(vec![other.clone(), set]))
+            .built()?;
+        // Of another side Lean already computes whole, k of (N − 1)/2 = k,
+        // the equation gives the witness itself (`member_by_equation`).
+        if says.is_truth() {
+            return None;
+        }
+        let named = self.whole_witness(other, letters, facts).built()?;
+        let rule = match equation.children.first() {
+            Some(left) if crate::matching::alike_top(left, term, ctx) => {
+                t::forwards(e.proof.clone())
+            }
+            _ => t::backwards(e.proof.clone()),
+        };
+        // One tactic to a line: the have's own proof may take several.
+        Some(Proof::Block(vec![
+            Tactic::Have {
+                name: "other".to_string(),
+                says,
+                proof: Box::new(named),
+            },
+            t::call("rw", vec![TacticArg::Rules(vec![rule])]),
+            Tactic::Exact(t::hyp("other")),
+        ]))
+    }
+
+    /// `∃ m : ℤ, ↑m = t` of a term Lean computes wider, proved as a step
+    /// proves its membership (`proof_named_from`): the whole number it is
+    /// named from `facts` with `letters` (`named_atoms`), each named number's
+    /// have, then `exact ⟨n, equal⟩`.
+    fn whole_witness(
+        &self,
+        term: &Node,
+        letters: &crate::citing::Introduced,
+        facts: &[super::algebra::Cited],
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        let mut atoms = Vec::new();
+        let int = super::templates::Num::Int;
+        if let Route::Declined(d) =
+            self.named_atoms(term, letters, int, facts, &mut atoms)
+        {
+            return Route::Declined(d);
+        }
+        let mut inner = self.writer.with_letters(self.writer.letters.clone());
+        inner.integers.extend(atoms.iter().map(|a| a.said.clone()));
+        let number = match inner.number_fixed(term, int) {
+            Route::Built(p) => whole_term(p),
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
+        let equal = specs_equal_of(term, &specs);
+        let haves: Vec<Tactic> = atoms.iter().map(|a| a.have.clone()).collect();
+        let shown = Tactic::Exact(super::expr::anonymous(vec![number, equal]));
+        Route::Built(haves_then(haves, Proof::By(shown)))
     }
 
     /// `named_atoms` of one part, whose reason is `reason`, named in
@@ -2670,22 +2997,12 @@ impl<'a> Proof<'a> {
                     (System::N | System::N0, _) => (
                         Num::Int,
                         ["m", "_", "hm"].as_slice(),
-                        vec![
-                            m(),
-                            super::tactics::by_term(Proof::By(t::exact_mod_cast(
-                                t::hyp("hm"),
-                            ))),
-                        ],
+                        vec![m(), super::tactics::by_term(cast_carried(t::hyp("hm")))],
                     ),
                     _ => (
                         whole,
                         ["m", "hm"].as_slice(),
-                        vec![
-                            m(),
-                            super::tactics::by_term(Proof::By(t::exact_mod_cast(
-                                t::hyp("hm"),
-                            ))),
-                        ],
+                        vec![m(), super::tactics::by_term(cast_carried(t::hyp("hm")))],
                     ),
                 };
                 let says = Printed::of(
@@ -2813,13 +3130,53 @@ impl<'a> Proof<'a> {
         // in terms of the number first.
         let used = std::mem::take(&mut *self.said_used.borrow_mut());
         let specs = self.specs_in(node, &used);
-        Route::Built(match specs.is_empty() {
-            true => proof,
-            false => Proof::By(Tactic::Seq(vec![
-                super::tactics::call("rw", vec![TacticArg::Rules(specs)]),
-                tactic_of(&proof),
-            ])),
-        })
+        if specs.is_empty() {
+            return Route::Built(proof);
+        }
+        use super::doc::Location;
+        use super::tactics as t;
+        let mut steps = vec![t::call("rw", vec![TacticArg::Rules(specs.clone())])];
+        // A remainder of the named numbers, now of integers cast to ℝ, is
+        // put as their `%`, which a cited item of integers states.
+        if takes_remainder(node) {
+            steps.push(t::try_(t::call(
+                "rw",
+                vec![TacticArg::Rules(vec![t::forwards(mod_int_cast())])],
+            )));
+        }
+        // What the citation asks of a named number is said of it: the order
+        // a line of ℕ or ℕ₀ gives beside its equation, and each line the step
+        // cites, put in terms of the numbers as the goal is and cast down
+        // to them, 5.5.2's mod(a^(p − 2), p) < p as c < p.
+        for u in used.iter().filter(|u| u.line.ordered) {
+            let spec = u.line.equation();
+            if let super::doc::TermKind::Field { inner, .. } = &spec.kind {
+                steps.push(Tactic::Fact(Printed {
+                    kind: super::doc::TermKind::Field {
+                        inner: inner.clone(),
+                        field: "1".to_string(),
+                    },
+                    ty: None,
+                }));
+            }
+        }
+        let cited: Vec<String> = reason
+            .just
+            .refs
+            .iter()
+            .filter_map(|r| self.named.get(r))
+            .flatten()
+            .cloned()
+            .collect();
+        for name in cited {
+            let at = || TacticArg::At(vec![Location::Hypothesis(name.clone())]);
+            steps.push(t::try_(Tactic::Seq(vec![
+                t::call("rw", vec![TacticArg::Rules(specs.clone()), at()]),
+                t::call("norm_cast", vec![at()]),
+            ])));
+        }
+        steps.push(tactic_of(&proof));
+        Route::Built(Proof::By(Tactic::Seq(steps)))
     }
 
     /// Whether a citation gives its item's letters values in a letter the
@@ -3046,7 +3403,8 @@ impl<'a> Proof<'a> {
             {
                 continue;
             }
-            if let Some(line) = self.said_integer(&part, ty) {
+            if let Some(said) = self.said_integer(&part, ty) {
+                let line = said.proof;
                 if lines.contains(&line) {
                     continue;
                 }
@@ -3945,6 +4303,219 @@ impl<'a> Proof<'a> {
         Route::Built(())
     }
 
+    /// A define of a function whose kind says its values are whole, `let
+    /// f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}`, of a
+    /// value Lean computes wider: the kind's fact proved by its reason, a
+    /// witness at every member, `∀ a ∈ X, ∃ m : ℤ, ↑m = v`, and the function
+    /// the choice of each, `obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a ∈ X, ↑(g a)
+    /// = v`. Its values are then integers, as the kind says and as the
+    /// elaborator types the function (`kind_of_values`), and the define's
+    /// equation is said at each member, in the value's type, as a line a
+    /// step reads at its letter.
+    fn kinded_function(
+        &mut self,
+        d: usize,
+        def: &crate::corpus::Define,
+        from: super::templates::Num,
+        domain: Node,
+        body: Node,
+        depth: usize,
+    ) -> Route<()> {
+        use super::doc::{Piece, Proof, Quant, TermKind};
+        use super::tactics as t;
+        let Some(param) = def.params.first() else {
+            return Route::no("a kinded function of no argument");
+        };
+        let KindShown { fact, says, proof } = match self.kind_shown(d) {
+            Route::Built(s) => s,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let proof = match self.kind_by_witness(d, param, &fact) {
+            Some(p) => p,
+            None => proof,
+        };
+        // ∀ a ∈ X, ∃ m : ℤ, ↑m = v: the guard, and the value in its type.
+        let TermKind::Quantified {
+            quant: Quant::ForAll,
+            letter,
+            letter_ty,
+            guard,
+            body: each,
+        } = &says.kind
+        else {
+            return Route::no("a kinded function whose fact Lean states as no for all");
+        };
+        let TermKind::Quantified {
+            quant: Quant::Exists,
+            body: witness,
+            ..
+        } = &each.kind
+        else {
+            return Route::no(
+                "a kinded function whose values Lean states as no witness",
+            );
+        };
+        let TermKind::Infix { rhs: value, .. } = &witness.kind else {
+            return Route::no("a kinded function whose witness is no equation");
+        };
+        let Some(guard) = guard else {
+            return Route::no("a kinded function whose fact has no domain");
+        };
+        let line = &self.thm.defines[d];
+        let (at, page_label) = (line.line, line.label.clone());
+        let label = line_name(&line.label);
+        let kind = format!("{label}_kind");
+        let int = super::templates::Num::Int;
+        let function = LetterType::Function { from, to: int }.lean_type();
+        let a = || t::hyp(letter);
+        let h = || t::hyp("h");
+        // ∃ g : ℤ → ℤ, ∀ a ∈ X, ↑(g a) = v.
+        let g_a = applied_to(t::hyp("g"), a());
+        let equal = Printed::infix(
+            super::doc::Op::EQUALS,
+            Printed::cast(g_a, value.ty.clone().unwrap_or(super::doc::LeanType::Prop)),
+            (**value).clone(),
+            super::doc::LeanType::Prop,
+        );
+        let every = Printed::of(
+            TermKind::Quantified {
+                quant: Quant::ForAll,
+                letter: letter.clone(),
+                letter_ty: letter_ty.clone(),
+                guard: Some(guard.clone()),
+                body: Box::new(equal),
+            },
+            super::doc::LeanType::Prop,
+        );
+        let chosen = super::expr::witnessed("g".to_string(), function, None, every);
+        // ⟨fun a => if h : a ∈ X then (hD1_kind a h).choose else 0, fun a h
+        // => by simp only [h, ↓reduceDIte]; exact (hD1_kind a h).choose_spec⟩.
+        let at_member = || applied_to(applied_to(t::hyp(&kind), a()), h());
+        let pick = Printed::notation(
+            vec![
+                Piece::text("if h : "),
+                Piece::term((**guard).clone(), 0),
+                Piece::text(" then "),
+                Piece::term(projected(at_member(), &["choose"]), super::expr::MAX),
+                Piece::text(" else 0"),
+            ],
+            0,
+            super::doc::LeanType::Num(int),
+        );
+        // The function applied is reduced and its `if` taken by h together,
+        // as `rw` does not reach under the application.
+        let spec = t::by_term(Proof::By(Tactic::Seq(vec![
+            t::simp_only(
+                false,
+                None,
+                vec![t::forwards(h()), t::forwards(t::lemma("↓reduceDIte"))],
+                None,
+            ),
+            Tactic::Exact(projected(at_member(), &["choose_spec"])),
+        ])));
+        let made = super::expr::anonymous(vec![
+            untyped_lambda(&[letter.as_str()], pick),
+            untyped_lambda(&[letter.as_str(), "h"], spec),
+        ]);
+        self.push_at(
+            depth,
+            Tactic::Have {
+                name: kind.clone(),
+                says,
+                proof: Box::new(proof),
+            },
+            at,
+            Spot::Statement,
+        );
+        let f = super::names::letter(&def.name);
+        self.push_at(
+            depth,
+            Tactic::Obtain {
+                names: vec![f, label.clone()],
+                says: Some(chosen),
+                from: made,
+            },
+            at,
+            Spot::Statement,
+        );
+        self.writer
+            .letters
+            .insert(def.name.clone(), LetterType::Function { from, to: int });
+        // The define says its equation at every member: ∀ a ∈ X, f(a) = v.
+        let g = &self.sources.checked.grammar;
+        let a_node = Node::name(
+            domain
+                .sort
+                .held()
+                .unwrap_or_else(crate::formula::Sort::none),
+            &param.name,
+        );
+        let f_node = Node::name(crate::formula::Sort::of("function"), &def.name);
+        let Some(f_a) =
+            crate::formula::page::made_as(g, "_(_)", vec![f_node, a_node.clone()])
+        else {
+            return Route::no("the database declares no _(_)");
+        };
+        let equation = Node::of(
+            crate::notations::EQUALS,
+            crate::formula::Sort::of("formula"),
+            vec![f_a, body],
+        );
+        let Some(said) = crate::formula::page::made_as(
+            g,
+            "for all _ ∈ _, _",
+            vec![a_node, domain, equation],
+        ) else {
+            return Route::no("the database declares no for all _ ∈ _, _");
+        };
+        self.named.insert(page_label.clone(), vec![label.clone()]);
+        self.witnessed.insert(page_label.clone());
+        self.trees.insert(page_label, vec![(said, label)]);
+        Route::Built(())
+    }
+
+    /// The proof of a function's kind, `∀ a ∈ X, ∃ m : ℤ, ↑m = v`, as a
+    /// step proves a wide term whole: at a member, `intro a h_a`, the whole
+    /// number v is named from the lines its reason cites, read with the
+    /// letters the checker read the reason with (`kind_letters`). None
+    /// where those lines name no such number.
+    fn kind_by_witness(
+        &mut self,
+        d: usize,
+        param: &crate::corpus::define::Param,
+        fact: &Node,
+    ) -> Option<super::doc::Proof> {
+        use super::doc::Proof;
+        let line = &self.thm.defines[d];
+        let letters = self.rec.kind_letters.get(&line.label)?.clone();
+        let members = &self.sources.checked.grammar.members;
+        let kinded = line.kinded(&self.thm.path, members).ok()??;
+        let just = kinded.shown.by.as_ref().ok()?;
+        let facts = self.cited_parts(&just.refs);
+        let [_, _, member] = fact.children.as_slice() else {
+            return None;
+        };
+        let [term, _] = member.children.as_slice() else {
+            return None;
+        };
+        let int = super::templates::Num::Int;
+        let before = self
+            .writer
+            .letters
+            .insert(param.name.clone(), LetterType::Number(int));
+        let shown = self.whole_witness(term, &letters, &facts);
+        match before {
+            Some(ty) => self.writer.letters.insert(param.name.clone(), ty),
+            None => self.writer.letters.shift_remove(&param.name),
+        };
+        let letter = super::names::letter(&param.name);
+        let intro = Tactic::Intro(vec![letter.clone(), format!("h_{letter}")]);
+        Some(Proof::By(Tactic::Seq(vec![
+            intro,
+            tactic_of(&shown.built()?),
+        ])))
+    }
+
     /// A define of a function of one number in a proof, `let S(m) =
     /// Σ(j = 1 to m) 3^j, for m ∈ ℕ`: Lean's `set` of a function from the
     /// type of the set its argument runs over to the least type holding its
@@ -4071,6 +4642,12 @@ impl<'a> Proof<'a> {
             Route::Built(v) => v,
             Route::Declined(why) => return Route::Declined(why),
         };
+        // A function whose kind says its values are whole, which Lean
+        // computes wider: its values are the kind's witnesses.
+        if def.kind.is_some() && to > super::templates::Num::Int {
+            let (domain, body) = ((*domain).clone(), (**body).clone());
+            return self.kinded_function(d, def, from, domain, body, depth);
+        }
         let name = super::names::letter(&def.name);
         let label = line_name(&line.label);
         let function = LetterType::Function { from, to }.lean_type();
@@ -4808,11 +5385,17 @@ impl<'a> Proof<'a> {
                 super::templates::Num::Nat => "parley_witness_at_nat",
                 _ => "parley_witness_at",
             };
+            // The named number is its term by its own equation, which the
+            // step names beside the one it puts in (`named_specs`).
+            let specs: Vec<super::doc::Rule> =
+                self.named_specs.iter().cloned().map(t::forwards).collect();
             for by in [equation.clone(), negated(equation.clone())] {
-                let shows = Proof::By(Tactic::Seq(vec![
-                    t::push_cast(None),
-                    t::linear_combination(by),
-                ]));
+                let mut steps = vec![t::push_cast(None)];
+                if !specs.is_empty() {
+                    steps.push(t::try_(t::simp_only(false, None, specs.clone(), None)));
+                }
+                steps.push(t::linear_combination(by));
+                let shows = Proof::By(Tactic::Seq(steps));
                 let applied = Printed {
                     kind: super::doc::TermKind::App {
                         head: Box::new(t::bridge_lemma(
@@ -4847,12 +5430,17 @@ impl<'a> Proof<'a> {
                 claim,
             );
             let mut parts = Vec::new();
-            if let Some(at) =
-                read.filter(|_| line.notation() == crate::notations::FOR_ALL)
-            {
-                conjuncts(&at.node, at.proof, &mut parts);
+            let read = read.filter(|_| line.notation() == crate::notations::FOR_ALL);
+            if let Some(at) = &read {
+                conjuncts(&at.node, at.proof.clone(), &mut parts);
             }
-            if let Some(part) = parts.iter().find(|p| turns(&p.node)) {
+            // Of no part the equation turns into the claim, the whole line at
+            // the letter, as a "for all" line cited inside a block is read:
+            // 5.7's a·f(a) ≡ 1 at the block's a, which f(a) = 1 then turns
+            // into a·1 ≡ 1, the claim a ≡ 1 with its 1 written.
+            let whole = read.filter(|_| !parts.iter().any(|p| turns(&p.node)));
+            if let Some(part) = parts.iter().find(|p| turns(&p.node)).or(whole.as_ref())
+            {
                 let at_name = format!("at{i}");
                 haves.push(Tactic::Name {
                     name: at_name.clone(),
@@ -4935,6 +5523,22 @@ impl<'a> Proof<'a> {
             ways.push(subst_by(&equation));
             if let Some(own) = &own {
                 ways.push(subst_by(own));
+            }
+        }
+        // A range member Lean computes wider is said as the integer that is
+        // it (`wide_range_member`): an equation ↑(f k) = v put into f k ∈
+        // {0, …, n − 1} is that integer, its equation and the line.
+        if wide_range_member(&self.writer, claim) {
+            for line in &into {
+                let elided = Printed::of(
+                    super::doc::TermKind::Elided,
+                    super::doc::LeanType::Prop,
+                );
+                ways.push(Tactic::Exact(super::expr::anonymous(vec![
+                    elided,
+                    equation.clone(),
+                    line.clone(),
+                ])));
             }
         }
         ways.extend(witnessed);
@@ -5467,6 +6071,37 @@ impl<'a> Proof<'a> {
                         Some(h) => unfolded(std::slice::from_ref(h)),
                         None => Vec::new(),
                     };
+                    // A "for all" line read at the row's letter, as a line
+                    // cited inside a block is: 5.7's a·f(a) ≡ 1 at the
+                    // block's a, as it stands or turned round.
+                    let names: std::collections::BTreeSet<String> = terms[k]
+                        .names()
+                        .into_iter()
+                        .chain(terms[k + 1].names())
+                        .collect();
+                    let read = self
+                        .trees
+                        .get(cite)
+                        .into_iter()
+                        .flatten()
+                        .filter(|(node, _)| {
+                            node.notation() == crate::notations::FOR_ALL
+                        })
+                        .filter_map(|(node, name)| {
+                            self.read_at_letters(
+                                &super::algebra::Cited {
+                                    node: node.clone(),
+                                    proof: super::tactics::hyp(name),
+                                },
+                                &names,
+                            )
+                        });
+                    for at in read {
+                        ways.push(Tactic::Exact(at.proof.clone()));
+                        ways.push(Tactic::Exact(super::tactics::symm(
+                            super::tactics::bracket(at.proof),
+                        )));
+                    }
                     ways.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
                     ways.extend(in_named);
                     ways.extend(parts);
@@ -5942,12 +6577,7 @@ impl<'a> Proof<'a> {
                                     match self.said_integer(value, *n) {
                                         Some(line) => {
                                             let printed = super::tactics::bracket(
-                                                Printed::applied(
-                                                    "Classical.choose",
-                                                    super::doc::Source::Core,
-                                                    vec![line.clone()],
-                                                    super::doc::LeanType::Num(*n),
-                                                ),
+                                                line.chosen(*n),
                                             );
                                             self.said_used.borrow_mut().push(
                                                 SaidUsed {
@@ -6739,16 +7369,11 @@ impl<'a> Proof<'a> {
             }),
             Route::Declined(d) => match self.said_integer(value, ty) {
                 Some(line) => Route::Built(Witness {
-                    term: Printed::applied(
-                        "Classical.choose",
-                        super::doc::Source::Core,
-                        vec![line.clone()],
-                        super::doc::LeanType::Num(ty),
-                    ),
+                    term: line.chosen(ty),
                     known: Some(Tactic::Fact(Printed::applied(
                         "Classical.choose_spec",
                         super::doc::Source::Core,
-                        vec![line],
+                        vec![line.proof],
                         super::doc::LeanType::Prop,
                     ))),
                 }),
@@ -6757,11 +7382,16 @@ impl<'a> Proof<'a> {
         }
     }
 
-    /// The Lean name of a line in scope saying a term is an integer, `(N −
-    /// 1)/2 ∈ ℤ`, where `value` is that term as Lean writes it; None where
-    /// no line says so. Lean states that line as `∃ m : ℤ, (m : ℚ) = …`, so
-    /// the integer is the witness it gives.
-    fn said_integer(&self, value: &Node, ty: super::templates::Num) -> Option<Printed> {
+    /// A line in scope saying a term is an integer, `(N − 1)/2 ∈ ℤ`, where
+    /// `value` is that term as Lean writes it, with its Lean name and whether
+    /// it says an order beside the equation; None where no line says so.
+    /// Lean states that line as `∃ m : ℤ, (m : ℚ) = …`, so the integer is
+    /// the witness it gives.
+    fn said_integer(
+        &self,
+        value: &Node,
+        ty: super::templates::Num,
+    ) -> Option<SaidLine> {
         // Lean states each as `∃ m : T, ↑m = x` of a term wider than T, of ℤ,
         // ℚ and ℝ, and of ℕ and ℕ₀ as `∃ m : ℤ, 0 ≤ m ∧ ↑m = x`, whose
         // witness is an integer too.
@@ -6788,11 +7418,15 @@ impl<'a> Proof<'a> {
             let [term, set] = c.node.children.as_slice() else {
                 return None;
             };
+            let system = super::expr::system_of(set)?;
             let integer = c.node.notation() == crate::notations::MEMBERSHIP
-                && super::expr::system_of(set).is_some_and(|s| systems.contains(&s));
+                && systems.contains(&system);
             let same = self.writer.number(term, at).built().map(|p| p.untyped())
                 == Some(wanted.clone());
-            (integer && same).then(|| c.proof.clone())
+            (integer && same).then(|| SaidLine {
+                proof: c.proof.clone(),
+                ordered: !matches!(system, super::expr::System::Type(_)),
+            })
         })
     }
 
@@ -7076,23 +7710,78 @@ impl<'a> Proof<'a> {
             .iter()
             .map(|n| self.writer.grammar.print(n))
             .collect();
-        let mut lines: Vec<&Printed> = Vec::new();
-        for u in used {
-            if parts.contains(&u.term) && !lines.contains(&&u.line) {
-                lines.push(&u.line);
+        // A term standing where the Lean form of its notation reads it at ℝ,
+        // the a^(p − 2) of (a^(p − 2)) mod p, is there at ℝ whatever type
+        // the line naming its number says it in.
+        let mut real: Vec<(String, Node)> = Vec::new();
+        for n in claim.walk() {
+            let mut at_real: Vec<&Node> = self.writer.always_real_args(&n);
+            if let Route::Built(t) = self.writer.template(&n) {
+                let fixed = super::templates::Slot::Fixed(super::templates::Num::Real);
+                at_real.extend(
+                    n.children
+                        .iter()
+                        .zip(&t.holes)
+                        .filter(|(_, hole)| **hole == fixed)
+                        .map(|(child, _)| child),
+                );
+            }
+            for arg in at_real {
+                real.push((self.writer.grammar.print(arg), arg.clone()));
             }
         }
-        lines
-            .into_iter()
-            .map(|line| {
-                super::tactics::backwards(Printed::applied(
-                    "Classical.choose_spec",
-                    super::doc::Source::Core,
-                    vec![line.clone()],
-                    super::doc::LeanType::Prop,
-                ))
-            })
-            .collect()
+        let mut lines: Vec<&Printed> = Vec::new();
+        let mut out = Vec::new();
+        for u in used {
+            if !parts.contains(&u.term) || lines.contains(&&u.line.proof) {
+                continue;
+            }
+            lines.push(&u.line.proof);
+            let spec = u.line.equation();
+            let at_real = real
+                .iter()
+                .find(|(printed, _)| *printed == u.term)
+                .and_then(|(_, node)| self.spec_at_real(&u.line, spec.clone(), node));
+            out.push(super::tactics::backwards(at_real.unwrap_or(spec)));
+        }
+        out
+    }
+
+    /// The equation a line naming a whole number gives, `Classical.choose_spec
+    /// h`, restated at ℝ, where its term stands at ℝ: `(by exact_mod_cast
+    /// Classical.choose_spec h : ((Classical.choose h : ℤ) : ℝ) = t)`. None
+    /// where the term is not written at ℝ.
+    fn spec_at_real(
+        &self,
+        line: &SaidLine,
+        spec: Printed,
+        term: &Node,
+    ) -> Option<Printed> {
+        use super::doc::{LeanType, Piece};
+        use super::templates::Num;
+        let value = self.writer.number_fixed(term, Num::Real).built()?;
+        let chosen = line.chosen(Num::Int);
+        let says = Printed::infix(
+            super::doc::Op::EQUALS,
+            Printed::cast(
+                Printed::cast(chosen, LeanType::Num(Num::Int)),
+                LeanType::Num(Num::Real),
+            ),
+            value,
+            LeanType::Prop,
+        );
+        let proof = super::tactics::by_term(cast_carried(spec));
+        Some(Printed::notation(
+            vec![
+                Piece::text("("),
+                Piece::term(proof, 0),
+                Piece::text(" : "),
+                Piece::term(says, 0),
+                Piece::text(")"),
+            ],
+            super::expr::MAX,
+            LeanType::Prop,
+        ))
     }
 
     /// A step that owns a block: its claim proved by the block's steps,
@@ -8877,6 +9566,35 @@ fn specs_equal(specs: &[Printed]) -> Printed {
     ]))
 }
 
+/// `specs_equal` of a named number for `term`. Where the term takes a
+/// remainder, `(a^(p − 2)) mod p`, the number is Lean's `%` of integers and
+/// the term the bridge's `mod` of real numbers, which are one where the
+/// divisor is not negative (`LeanBridges.Divisibility.mod_intCast`): each
+/// way first puts the one for the other, the divisor's sign by `omega`
+/// from the lines in scope.
+fn specs_equal_of(term: &Node, specs: &[Printed]) -> Printed {
+    use super::tactics as t;
+    if !takes_remainder(term) {
+        return specs_equal(specs);
+    }
+    let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
+    t::by_term(ways_proof(vec![
+        unmod_then(&rules, t::call("done", vec![])),
+        unmod_then(&rules, t::call("ring", vec![])),
+    ]))
+}
+
+/// One way of `specs_equal_of`: the integers' `%` put as the bridge's
+/// `mod` of their casts, then the named numbers' equations and `last`.
+fn unmod_then(rules: &[super::doc::Rule], last: Tactic) -> Tactic {
+    use super::tactics as t;
+    let unmod = t::call(
+        "rw",
+        vec![TacticArg::Rules(vec![t::backwards(mod_int_cast())])],
+    );
+    Tactic::Group(Box::new(Tactic::Seq(vec![unmod, specs_then(rules, last)])))
+}
+
 /// A term where it stands as one whole, bracketed unless it already is:
 /// a witness inside `⟨…⟩`, as an argument is.
 fn whole_term(term: Printed) -> Printed {
@@ -8884,6 +9602,107 @@ fn whole_term(term: Printed) -> Printed {
         true => term,
         false => super::tactics::bracket(term),
     }
+}
+
+/// Whether a claim says a term Lean computes wider than ℤ is in a range,
+/// `f(a) ∈ {0, …, p − 1}` of a real f, which Lean says of the integer that
+/// is the term (`Writer::formula`).
+fn wide_range_member(writer: &Writer, claim: &Node) -> bool {
+    let (crate::notations::MEMBERSHIP, [term, set]) =
+        (claim.notation(), claim.children.as_slice())
+    else {
+        return false;
+    };
+    set.notation() == crate::notations::INTEGER_RANGE
+        && writer
+            .carrier(term)
+            .built()
+            .is_some_and(|c| c > super::templates::Num::Int)
+}
+
+/// Whether a term takes a remainder, x mod n, which Lean writes as the
+/// bridge's `mod` of real numbers where its parts are, and as `%` of
+/// integers where a step names them whole.
+fn takes_remainder(term: &Node) -> bool {
+    term.walk().iter().any(|n| &*n.notation_name() == "mod")
+}
+
+/// `LeanBridges.Divisibility.mod_intCast _ _ (by omega)`: the bridge's `mod`
+/// of two integers cast to ℝ is their `%`, where the divisor is not
+/// negative, which `omega` reads off the lines in scope.
+fn mod_int_cast() -> Printed {
+    use super::doc::bridges::BridgeModule;
+    use super::doc::{Arg, Proof, TermKind};
+    use super::tactics as t;
+    let elided = || Printed::of(TermKind::Elided, super::doc::LeanType::Prop);
+    let sign = t::bracket(t::by_term(Proof::By(t::call("omega", vec![]))));
+    Printed {
+        kind: TermKind::App {
+            head: Box::new(t::bridge_lemma(
+                "LeanBridges.Divisibility.mod_intCast",
+                BridgeModule::Divisibility,
+            )),
+            args: vec![
+                Arg::Explicit(elided()),
+                Arg::Explicit(elided()),
+                Arg::Explicit(sign),
+            ],
+            explicit: false,
+        },
+        ty: None,
+    }
+}
+
+/// An equation of a whole number's line carried to the type the goal
+/// writes it in: by its casts, or, from ℚ to ℝ, where `exact_mod_cast`
+/// does not carry a power to an integer, by casting the equation to ℝ and
+/// pushing the cast in, `have h := congrArg (fun x => ((x : ℚ) : ℝ)) e;
+/// push_cast at h; exact h`.
+fn cast_carried(equation: Printed) -> super::doc::Proof {
+    use super::doc::{Arg, LeanType, TermKind};
+    use super::tactics as t;
+    use super::templates::Num;
+    let to_real = untyped_lambda(
+        &["x"],
+        Printed::cast(
+            Printed::cast(t::hyp("x"), LeanType::Num(Num::Rat)),
+            LeanType::Num(Num::Real),
+        ),
+    );
+    let carried = Printed {
+        kind: TermKind::App {
+            head: Box::new(t::lemma("congrArg")),
+            args: vec![Arg::Explicit(to_real), Arg::Explicit(equation.clone())],
+            explicit: false,
+        },
+        ty: None,
+    };
+    let pushed = Tactic::Seq(vec![
+        Tactic::Name {
+            name: "h".to_string(),
+            term: carried,
+        },
+        t::push_cast(Some(t::at_h(false))),
+        Tactic::Exact(t::hyp("h")),
+    ]);
+    ways_proof(vec![
+        t::exact_mod_cast(equation),
+        Tactic::Group(Box::new(pushed)),
+    ])
+}
+
+/// `fun a h => body`: a function of these letters, whose types Lean finds
+/// from where it stands, as the proof part of `⟨…⟩` takes them.
+fn untyped_lambda(letters: &[&str], body: Printed) -> Printed {
+    let ty = body.ty.clone().unwrap_or(super::doc::LeanType::Prop);
+    Printed::notation(
+        vec![
+            super::doc::Piece::text(format!("fun {} => ", letters.join(" "))),
+            super::doc::Piece::term(body, 0),
+        ],
+        0,
+        ty,
+    )
 }
 
 /// `refine ⟨parts⟩`: the goal's parts, the ones left open proved after.
@@ -9268,6 +10087,58 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
                         t::call("simpa", vec![TacticArg::Using(cited.clone())]),
                         t::exact_mod_cast(cited.clone()),
                     ];
+                    // A range member Lean computes wider is said as the
+                    // integer that is it, `∃ m : ℤ, ↑m = t ∧ m ∈ Finset.Icc a
+                    // b` (`Writer::formula`), and the claim's t is the
+                    // integer the item puts in the range once the step
+                    // rewrites it so: that integer, its own equation, and the
+                    // item.
+                    // A product or sum over a range, which the claim writes
+                    // over `Finset.Icc`, of an item over a set of numbers
+                    // that writes `∏ᶠ x ∈ Set.Icc a b`: the item's put over
+                    // the finset the set is.
+                    let ranged = super::expr::RangedOperators::of(claim);
+                    for (on, lemma) in [
+                        (ranged.product, "finprod_mem_coe_finset"),
+                        (ranged.sum, "finsum_mem_coe_finset"),
+                    ] {
+                        if on {
+                            out.push(t::on_h(
+                                &cited,
+                                vec![
+                                    t::call(
+                                        "rw",
+                                        vec![
+                                            TacticArg::Rules(vec![
+                                                t::backwards(t::lemma(
+                                                    "Finset.coe_Icc",
+                                                )),
+                                                t::forwards(t::lemma(lemma)),
+                                            ]),
+                                            t::at_h(false),
+                                        ],
+                                    ),
+                                    Tactic::Exact(h()),
+                                ],
+                            ));
+                        }
+                    }
+                    if wide_range_member(writer, claim) {
+                        let rfl = Printed::constant(
+                            "rfl",
+                            super::doc::Source::Core,
+                            super::doc::LeanType::Prop,
+                        );
+                        let elided = Printed {
+                            kind: super::doc::TermKind::Elided,
+                            ty: None,
+                        };
+                        out.push(Tactic::Exact(super::expr::anonymous(vec![
+                            elided,
+                            rfl,
+                            cited.clone(),
+                        ])));
+                    }
                     out.extend(reorder);
                     out.extend(int_power);
                     out.extend(of_real);

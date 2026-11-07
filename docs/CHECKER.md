@@ -50,3 +50,14 @@ and not inferred inside one.
 - `asserted`, `opener_asserted`: what a `let` line asserts that the page does
   not read as a formula, such as `f : A → B be one-to-one`. Lean writes it as
   a hypothesis.
+- `places_shown`: each term a step puts where a notation's definition asks a
+  number system (both sides of a ≡, the places of "divides" and "is prime"),
+  with how the step shows it is in that system: said once, or beside an
+  equation a line the step names says. Lean proves the second from the
+  equation and the other side's line, as the check found it.
+- `members_shown`: the same of each claim the `membership` method proves
+  whose term is in its system beside an equation, by the line its reason is
+  on. Lean proves it the same way.
+- `kind_letters`: the letters the reason under a function's define that says
+  a kind of number is read with, the step's below the define and the define's
+  argument in its domain. Lean proves the kind with them.

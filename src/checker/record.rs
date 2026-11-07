@@ -257,6 +257,42 @@ pub struct CheckedTheorem {
     /// The same of each `let` opening a block, `let X ⊆ A`, by the line it
     /// is on (`library::opener_assertions`).
     pub opener_asserted: IndexMap<usize, Vec<Node>>,
+    /// Each term a step puts where a notation asks a number system, a of
+    /// a ≡ b (mod n) in ℤ, with how the step shows it is in that system
+    /// (`formulas::check_place_systems`), by the step's index: so that a
+    /// backend proves the membership as the check found it.
+    pub places_shown: Vec<Vec<PlaceShown>>,
+    /// The letters the reason under a function's define that says a kind of
+    /// number is read with, by the define's label: the step's below it, and
+    /// the define's argument in the set it runs over, as the check reads
+    /// the reason, a step said of every member (`check_kinds`).
+    pub kind_letters: IndexMap<String, crate::citing::Introduced>,
+    /// Each claim the `membership` method proves, by the line its reason
+    /// is on, whose term is in its system beside an equation a line it
+    /// names says (`ShownBy::Beside`): a^(p − 1) ∈ ℤ from a^(p − 1) =
+    /// a^(p − 2)·a and a^(p − 2) ∈ ℤ. A backend proves it the same way.
+    pub members_shown: IndexMap<usize, PlaceShown>,
+}
+
+/// A term a step puts where a notation asks a number system, and how the
+/// step shows it is in that system.
+#[derive(Clone, Debug)]
+pub struct PlaceShown {
+    pub term: Node,
+    pub system: crate::rules::System,
+    pub by: ShownBy,
+}
+
+/// How a step shows a term is in a number system.
+#[derive(Clone, Debug)]
+pub enum ShownBy {
+    /// By what the page says once and the lines the step names that state
+    /// memberships (`methods::membership::said`).
+    Said,
+    /// By an equation a line the step names says, which puts the term
+    /// beside `other`, a term in the system: a·f(a) of a·f(a) = f(a)·a
+    /// where a requires line says f(a)·a ∈ ℤ.
+    Beside { equation: Node, other: Node },
 }
 
 /// A step's citation of an item as the checker reads it (`citing::taken`,

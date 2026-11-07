@@ -669,6 +669,7 @@ public import Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality
 public import Parley.Proofs.Wiedijk.TriangularReciprocals.TriangularReciprocals
 public import Parley.Proofs.Wiedijk.Wilson.PairedProduct
 public import Parley.Proofs.Wiedijk.Wilson.CoprimeBelowPrime
+public import Parley.Proofs.Wiedijk.Wilson.Wilson
 public import Parley.Tests.Docs.Grammar.ASetWithABound
 public import Parley.Tests.Docs.Grammar.FourHasAPrimeFactor
 public import Parley.Tests.Docs.Grammar.ARealHasASign
@@ -738,6 +739,7 @@ public import Parley.Tests.Elaborator.AForAllRelatingTwoSets.AForAllRelatingTwoS
 public import Parley.Tests.Elaborator.AFunctionExhibitedByItsType.AFunctionExhibitedByItsType
 public import Parley.Tests.Elaborator.AFunctionExhibitedByItsType.AFunctionAndItsLengthExhibited
 public import Parley.Tests.Elaborator.AFunctionOnALongerRange.AFunctionOnALongerRange
+public import Parley.Tests.Elaborator.AFunctionSayingItsKind.AFunctionSayingItsKind
 public import Parley.Tests.Elaborator.AFunctionTypeWidened.AFunctionTypeWidened
 public import Parley.Tests.Elaborator.AHypothesisBuiltFromAStatedPart.AHypothesisBuiltFromAStatedPart
 public import Parley.Tests.Elaborator.AHypothesisOverADefineRestated.AHypothesisOverADefineRestated

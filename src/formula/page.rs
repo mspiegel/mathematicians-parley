@@ -63,6 +63,14 @@ enum Made {
     /// the one term where the two part, equal to what stands there in its
     /// place, `was = now` (`changed`).
     Changed { above: Written, below: Written },
+    /// What a function's define says at every member of its domain, `for
+    /// all a ∈ D, P`: the letter, the domain and what is said, which speaks
+    /// of the letter (`every_member`).
+    EveryMember {
+        letter: Written,
+        domain: Written,
+        said: Written,
+    },
 }
 
 /// One line of a define by cases: its value, and the condition it is
@@ -102,6 +110,29 @@ impl Written {
             path: Arc::from(path),
             line,
             made: Some(Box::new(Made::Member { term, set })),
+        }
+    }
+
+    /// `for all letter ∈ domain, said`, what a function's define says at
+    /// every member of its domain, which no line writes: the tree of the
+    /// for-all over the three parts' trees, binding the letter `said`
+    /// speaks of. Its text is for a message and is never read.
+    pub fn every_member(
+        letter: Written,
+        domain: Written,
+        said: Written,
+        path: &str,
+        line: usize,
+    ) -> Written {
+        Written {
+            text: format!("for all {letter} ∈ {domain}, {said}"),
+            path: Arc::from(path),
+            line,
+            made: Some(Box::new(Made::EveryMember {
+                letter,
+                domain,
+                said,
+            })),
         }
     }
 
@@ -330,6 +361,11 @@ fn parts_of(made: &Made) -> Vec<&Written> {
             from, to, modulus, ..
         } => [from, to].into_iter().chain(modulus.as_ref()).collect(),
         Made::Changed { above, below } => vec![above, below],
+        Made::EveryMember {
+            letter,
+            domain,
+            said,
+        } => vec![letter, domain, said],
     }
 }
 
@@ -451,6 +487,13 @@ fn made_of(
         Made::Member { .. } => {
             let [term, set] = <[Node; 2]>::try_from(read).expect("a term and a set");
             filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)])
+        }
+        // Made, not filled: a template binds no letter of what fills it,
+        // and this one binds the letter `said` speaks of.
+        Made::EveryMember { .. } => {
+            made_as(g, "for all _ ∈ _, _", read).ok_or_else(|| {
+                Problem::new(at.0, at.1, "the database declares no for all _ ∈ _, _")
+            })
         }
         Made::Parts { .. } => filled("𝒫A", g, sorts, &[("A", &read[0])]),
         Made::Set { .. } => {

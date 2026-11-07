@@ -629,6 +629,18 @@ impl System {
         }
     }
 
+    /// The page's sign for it: ℕ, ℕ₀, ℤ, ℚ, ℝ, ℂ.
+    pub fn sign(self) -> &'static str {
+        match self {
+            System::N => "ℕ",
+            System::N0 => "ℕ₀",
+            System::Z => "ℤ",
+            System::Q => "ℚ",
+            System::R => "ℝ",
+            System::C => "ℂ",
+        }
+    }
+
     /// Whether a rational value is a member, by `METHODS.md`'s tests on a
     /// closed number's value.
     pub fn admits(self, value: &num_rational::BigRational) -> bool {

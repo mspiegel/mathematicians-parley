@@ -1563,6 +1563,42 @@ fn codomains_unmet(
     cited: &[Node],
     known: &Known,
 ) {
+    for unmet in unmet_codomains(step, asks, cited, known) {
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "step {} cites {item}, which asks {}, and {} is declared {}, whose values need not be in {}",
+                step.number,
+                known.print(&unmet.asked),
+                known.print(&unmet.function),
+                known.print(&unmet.declared),
+                known.print(&unmet.codomain)
+            ),
+        );
+    }
+}
+
+/// A function type a citation asks of a declared function whose declared
+/// codomain does not give the one asked (`codomains_unmet`).
+struct UnmetCodomain {
+    /// The type asked, `f : X → X`.
+    asked: Node,
+    function: Node,
+    /// The type a line declares, `f : X → ℤ`.
+    declared: Node,
+    /// The codomain asked, X.
+    codomain: Node,
+}
+
+/// `codomains_unmet`, each found.
+fn unmet_codomains(
+    step: &Step,
+    asks: &FamilyAsks,
+    cited: &[Node],
+    known: &Known,
+) -> Vec<UnmetCodomain> {
+    let mut out = Vec::new();
     let declared = typed_in_scope(known, step);
     let ask = PageCodomains {
         known,
@@ -1592,20 +1628,15 @@ fn codomains_unmet(
             if codomain_reason(&ask, given, asked).is_some() {
                 continue;
             }
-            report.say(
-                &thm.path,
-                step.just.line,
-                format!(
-                    "step {} cites {item}, which asks {}, and {} is declared {}, whose values need not be in {}",
-                    step.number,
-                    known.print(&t.asked),
-                    known.print(function),
-                    known.print(line),
-                    known.print(asked)
-                ),
-            );
+            out.push(UnmetCodomain {
+                asked: t.asked.clone(),
+                function: function.clone(),
+                declared: line.clone(),
+                codomain: asked.clone(),
+            });
         }
     }
+    out
 }
 
 /// The page's codomains as `citing::codomain_reason` asks of them: sets as
@@ -3579,7 +3610,7 @@ fn applied_in_cited(
 
 /// Every letter a binder anywhere in a formula binds, by the places the
 /// notation database declares each binder holds its letters in.
-fn letters_bound(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
+pub(super) fn letters_bound(node: &Node, ctx: &Context, out: &mut BTreeSet<String>) {
     let (held, _) = ctx.held_body(node.notation());
     for at in held {
         if let Some(letter) = node.children.get(at).filter(|c| c.is_name()) {
@@ -5506,6 +5537,13 @@ pub fn check_surplus(
             || !map_domains_unsaid(step, known, library).is_empty()
             || (!requires_concluded && !unconcluded(step, known, library).is_empty())
             || !domains_unsaid(step, &functions, known, library).is_empty()
+            || !unmet_codomains(
+                step,
+                &family_asks(step, known, library),
+                &known.parts(step, library).facts,
+                known,
+            )
+            .is_empty()
         {
             return false;
         }

@@ -261,6 +261,7 @@ theorem walk-parity-by-induction
 
                              1.2.12.14.15. c(j + 1, y) is even
                                            substitute c(j + 1, y) = c(j, y) (line 1.2.12.14.11) into line 1.2.12.14.14
+                                           requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                   1.2.12.15. c(j + 1, y) is not odd
                              mun:not-both n := c(j + 1, y), from 1.2.12.14

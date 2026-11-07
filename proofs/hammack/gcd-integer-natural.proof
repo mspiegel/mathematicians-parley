@@ -79,6 +79,7 @@ theorem gcd-integer-natural
 
     6.9.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a mod b. gcd(a, b) divides b.
           substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
+          requires a mod b ∈ ℕ: from 6.7
 
     6.10. gcd(a, b) divides b·q
           mun:divides-multiple e := gcd(a, b), a := b, x := q, from 6.9

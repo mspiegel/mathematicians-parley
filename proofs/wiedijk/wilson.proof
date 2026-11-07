@@ -293,9 +293,6 @@ theorem wilson
   assume p is prime                                                   (H2)
   then (p − 1)! ≡ −1 (mod p)
 
-let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D1)
-       reads the inverse of a modulo p
-
 1.  p > 1
     def:prime, from H2
 
@@ -324,6 +321,10 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
     5.3.  p − 2 ∈ ℕ
           mun:pos-int-nat m := p − 2
           requires 0 < p − 2: inequalities, from 5.2
+
+    let f(a) = (a^(p − 2)) mod p, an integer, for a ∈ {2, …, p − 2}   (D1)
+        membership, from 5.3
+        reads the inverse of a modulo p
 
     5.4.  For all a ∈ {2, …, p − 2}, gcd(a, p) = 1.
           proof
@@ -376,6 +377,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                   substitute
                     a^φ(p) ≡ 1 (mod p)         5.7.1
                     a^(p − 1) ≡ 1 (mod p)      thm:phi-prime, from H2
+                  requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
 
           5.7.3.  a^(p − 2 + 1) = a^(p − 2)·a
                   mun:exponent-step m := p − 2, from 5.3
@@ -396,12 +398,15 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
 
           5.7.8.  a^(p − 2) ≡ f(a) (mod p)
                   substitute f(a) = (a^(p − 2)) mod p (line 5.7.7) into line 5.7.6
+                  requires a^(p − 2) ∈ ℤ: from 5.7.5
 
           5.7.9.  f(a)·a ≡ a^(p − 2)·a (mod p)
                   thm:congruent-times c := a, from 5.6, 5.7.5, 5.7.8
 
           5.7.10. f(a)·a ≡ a^(p − 1) (mod p)
                   substitute a^(p − 1) = a^(p − 2)·a (line 5.7.4) into line 5.7.9
+                  requires f(a)·a ∈ ℤ: membership, from 5.6
+                  requires a^(p − 1) ∈ ℤ: membership, from 5.7.4, 5.7.5
 
           5.7.11. a·f(a) = f(a)·a
                   algebra, from 5.6
@@ -674,3 +679,4 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
 
     5.31. (p − 1)! ≡ −1 (mod p)
           substitute 2 = p (C2) into line 5.30
+          requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p

@@ -68,6 +68,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_8b : (Int.gcd (a % b) b : ℤ) ∣ a % b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a % b) (by parley_side) (b := b) (by parley_side))
       have s6_8c : (Int.gcd (a % b) b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a % b) (by parley_side) (b := b) (by parley_side))
       -- 6.9. substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
+      have r80_1 : 0 < a % b := by parley_side
       have s6_9a : 0 < (Int.gcd a b : ℤ) := by first | parley_subst_at s1 s6_8a | (have e_nat : Int.gcd (a % b) b = Int.gcd a b := by exact_mod_cast s1; parley_subst_at e_nat s6_8a)
       have s6_9b : (Int.gcd a b : ℤ) ∣ a % b := by first | parley_subst_at s1 s6_8b | (have e_nat : Int.gcd (a % b) b = Int.gcd a b := by exact_mod_cast s1; parley_subst_at e_nat s6_8b)
       have s6_9c : (Int.gcd a b : ℤ) ∣ b := by first | parley_subst_at s1 s6_8c | (have e_nat : Int.gcd (a % b) b = Int.gcd a b := by exact_mod_cast s1; parley_subst_at e_nat s6_8c)

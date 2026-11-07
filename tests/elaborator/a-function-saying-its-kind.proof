@@ -1,0 +1,40 @@
+import mundane theorem    stdlib/divisibility/mod-less
+import mundane theorem    stdlib/divisibility/mod-natural
+import mundane theorem    stdlib/numbers/power-integer
+import mundane theorem    stdlib/numbers/nat-minus-one
+import mundane theorem    stdlib/sums/range-from-bounds
+
+theorem a-function-saying-its-kind
+  note        A function's define says its values are integers, with a reason read at a member of its domain, the line under it citing a step above the define; a step then puts a value in a range, and the define gives it back as the term.
+  let n ∈ ℕ                                                           (H1)
+  then for all k ∈ {1, …, n}, (k^(n − 1)) mod n ∈ {0, …, n − 1}
+
+1.  n − 1 ∈ ℕ₀
+    mun:nat-minus-one
+
+let f(k) = (k^(n − 1)) mod n, an integer, for k ∈ {1, …, n}           (D1)
+    membership, from 1
+    reads the remainder of k^(n − 1) on division by n
+
+2.  For all k ∈ {1, …, n}, (k^(n − 1)) mod n ∈ {0, …, n − 1}.
+    proof
+    let k ∈ {1, …, n}                                                 (K1)
+
+    2.1.  k^(n − 1) ∈ ℤ
+          mun:power-integer m := n − 1, from 1
+
+    2.2.  (k^(n − 1)) mod n < n
+          mun:mod-less, from 2.1
+
+    2.3.  (k^(n − 1)) mod n ∈ {0, …, n − 1}
+          mun:range-from-bounds, from 2.2
+          requires (k^(n − 1)) mod n ∈ ℕ₀: mun:mod-natural, from 2.1
+
+    2.4.  f(k) = (k^(n − 1)) mod n
+          D1, from K1
+
+    2.5.  f(k) ∈ {0, …, n − 1}
+          substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.3
+
+    2.6.  (k^(n − 1)) mod n ∈ {0, …, n − 1}
+          substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.5

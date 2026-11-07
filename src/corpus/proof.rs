@@ -285,6 +285,10 @@ pub struct Kinded {
     pub name: String,
     /// The set its kind is the members of, as a formula writes it: ℕ.
     pub set: String,
+    /// Of a function's define, the set its argument runs over, whose every
+    /// value the kind is of: {2, …, p − 2} of `let f(a) = …, an integer,
+    /// for a ∈ {2, …, p − 2}`. None for a name that stands for a term.
+    pub domain: Option<String>,
     /// What its reason shows, the term the let names in that set, as a
     /// requires line says it: `gcd(s, w) ∈ ℕ`.
     pub shown: Requires,
@@ -335,16 +339,42 @@ impl DefineLine {
                 ),
             ));
         };
+        let member = Written::member(
+            self.rule(&one.body),
+            Written::new(set, path, self.line),
+            path,
+            reason.line,
+        );
+        // A function's kind is its values': the rule is in the set at every
+        // member of the domain, `for all a ∈ D, rule ∈ ℤ` (`SYNTAX.md`).
+        let shown = match one.params.as_slice() {
+            [] => member,
+            [param] if param.within == super::define::Within::Members => {
+                Written::every_member(
+                    Written::new(&param.name, path, self.line),
+                    Written::set(Written::new(&param.domain, path, self.line)),
+                    member,
+                    path,
+                    reason.line,
+                )
+            }
+            _ => {
+                return Err(Problem::new(
+                    path,
+                    self.line,
+                    format!(
+                        "let {} says a kind of number of a function of one argument over the members of a set, and no other",
+                        self.label
+                    ),
+                ))
+            }
+        };
         Ok(Some(Kinded {
             label: self.label.clone(),
             name: one.name.clone(),
             set: set.clone(),
-            shown: reason.shown(Written::member(
-                self.rule(&one.body),
-                Written::new(set, path, self.line),
-                path,
-                reason.line,
-            )),
+            domain: one.params.first().map(|p| p.domain.clone()),
+            shown: reason.shown(shown),
         }))
     }
 }

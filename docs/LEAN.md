@@ -114,7 +114,13 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   and congruence take ℤ, `prime` and factorial take ℕ. A term too wide for
   it is not cast down. Where a line has said the term is an integer, `(N −
   1)/2 ∈ ℤ`, the integer that line gives is used; otherwise the writer
-  reports the term.
+  reports the term. How such a term is shown is the checker's
+  (`places_shown`, `members_shown`), and the writer proves it that way: a
+  term beside an equation is named by the other side's number, the equation
+  turning one into the other. A function's define that says its values are
+  integers is a function to ℤ whose values are its kind's witnesses,
+  `obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ a ∈ X, ↑(g a) = v`, its equation said
+  at each member.
 - `t ∈ ℤ` for a rational t is `∃ m : ℤ, (m : ℚ) = t`; a membership the
   letter's type already gives says nothing and is left out.
 

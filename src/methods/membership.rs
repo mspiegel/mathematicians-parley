@@ -99,15 +99,46 @@ fn stated_in(term: &Node, system: System, facts: &Facts) -> bool {
 /// The terms the equations among the facts put `term` beside: b of a = b
 /// where a is `term`, and a where b is.
 fn besides<'f>(term: &Node, facts: &'f Facts) -> Vec<&'f Node> {
+    besides_by(term, facts)
+        .into_iter()
+        .map(|b| b.other)
+        .collect()
+}
+
+/// A term an equation among the facts puts beside another.
+pub struct Beside<'f> {
+    /// The equation, as the facts hold it.
+    pub equation: &'f Node,
+    /// Its other side.
+    pub other: &'f Node,
+}
+
+/// `besides`, each with the equation that puts the term there.
+fn besides_by<'f>(term: &Node, facts: &'f Facts) -> Vec<Beside<'f>> {
     facts
         .facts
         .iter()
         .filter_map(|f| match (f.notation(), f.children.as_slice()) {
-            (EQUALITY, [a, b]) if same(a, term, facts.ctx) => Some(b),
-            (EQUALITY, [a, b]) if same(b, term, facts.ctx) => Some(a),
+            (EQUALITY, [a, b]) if same(a, term, facts.ctx) => Some(Beside {
+                equation: f,
+                other: b,
+            }),
+            (EQUALITY, [a, b]) if same(b, term, facts.ctx) => Some(Beside {
+                equation: f,
+                other: a,
+            }),
             _ => None,
         })
         .collect()
+}
+
+/// How an atom is in its system (`atom_held`), so that a backend proves it
+/// the way the check found it.
+pub enum Held<'f> {
+    /// Said: by the walk the page says memberships once by, or a fact.
+    Said,
+    /// Put by a cited equation beside a term in the system.
+    Beside(Beside<'f>),
 }
 
 /// Whether an atom of an `algebra` or `inequalities` step is in `system`
@@ -115,10 +146,22 @@ fn besides<'f>(term: &Node, facts: &'f Facts) -> Vec<&'f Node> {
 /// conditions are asked by): said, or given by a cited equation that puts it
 /// beside a term in `system`, as citing a(0) = 0 says a(0) is a number.
 pub fn atom_held(term: &Node, system: System, facts: &Facts) -> bool {
-    said(term, system, facts)
-        || besides(term, facts)
-            .into_iter()
-            .any(|other| holds(other, system, facts))
+    atom_held_by(term, system, facts).is_some()
+}
+
+/// `atom_held`, with how; None where the atom is not held.
+pub fn atom_held_by<'f>(
+    term: &Node,
+    system: System,
+    facts: &'f Facts,
+) -> Option<Held<'f>> {
+    if said(term, system, facts) {
+        return Some(Held::Said);
+    }
+    besides_by(term, facts)
+        .into_iter()
+        .find(|b| holds(b.other, system, facts))
+        .map(Held::Beside)
 }
 
 /// Whether a bare `from` line reads `term ∈ system` off its facts

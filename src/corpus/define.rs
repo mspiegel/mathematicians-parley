@@ -808,12 +808,6 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
             "a define says no kind of number: a let says one, with its reason on the line under it",
         );
     }
-    if kind.is_some() && !names.is_empty() {
-        return Route::no(format!(
-            "let {name}({}) says a kind of number, and a function is no number",
-            names.join(", ")
-        ));
-    }
     // A define over several lines is either one term wrapped by the comma
     // rule, or a function by cases, one case to a line.
     let pieces: Vec<&str> = body.split('\n').map(str::trim).collect();

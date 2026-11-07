@@ -10,6 +10,7 @@ public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
@@ -79,10 +80,10 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.5. mun:range-bounds a := 2, b := N + 1, k := m, from K3
       have s1_5 : 2 ≤ m := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N + 1) (k := m) hK3)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N + 1) (k := m) hK3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N + 1) (k := m) hK3) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N + 1) (k := m) hK3); parley_set_side)
       -- 1.6. mun:pos-int-nat
-      have r198_1 : 0 < m := by parley_order
+      have r199_1 : 0 < m := by parley_order
       have s1_6 : 0 < m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := m) (by parley_set_side))
       -- 1.7. obtain p: thm:prime-factor, from 1.6
-      have r202_1 : m > 1 := by parley_order
+      have r203_1 : m > 1 := by parley_order
       obtain ⟨p, s1_7a, ⟨s1_7b, s1_7c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := m) (by parley_set_side) (by parley_set_side))
       have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := by first | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
       obtain ⟨r, hD2_pos, hD2⟩ := hD2_kind
@@ -116,10 +117,10 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
           -- 1.18.1. mun:integer-step m := 1, n := r, from C1
           have s1_18_1 : 1 + 1 ≤ r := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := r) hC1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := r) hC1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := r) hC1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := r) hC1); parley_set_side)
           -- 1.18.2. def:range-between k := r, a := 2, b := N, from 1.16
-          have r257_1 : 2 ≤ r := by parley_order
+          have r258_1 : 2 ≤ r := by parley_order
           have s1_18_2 : r ∈ Finset.Icc (2 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr (by parley_set_side); parley_set_side)
           -- 1.18.3. instantiate m := r in IH, from 1.18.2
-          have s1_18_3 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by first | exact (hIH r (by parley_set_side)) | exact ((hIH r (by parley_set_side))).symm | simpa using (hIH r (by parley_set_side)) | exact_mod_cast (hIH r (by parley_set_side)) | (have h := (hIH r (by parley_set_side)); parley_set_side)
+          have s1_18_3 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by first | exact (hIH r (by parley_set_side)) | exact ((hIH r (by parley_set_side))).symm | simpa using (hIH r (by parley_set_side)) | exact_mod_cast (hIH r (by parley_set_side)) | (have h := (hIH r (by parley_set_side)); rw [← Finset.coe_Icc, finprod_mem_coe_finset] at h; exact h) | (have h := (hIH r (by parley_set_side)); parley_set_side)
           -- 1.18.4. thm:prime-times-product, from D2, 1.7, 1.18.3
           have s1_18_4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct.prime_times_product (p := p) (by parley_set_side) s1_7b (r := r) (by parley_set_side) (by parley_set_side))
           -- 1.18.5. substitute m = p·r (line 1.9) into line 1.18.4
@@ -142,7 +143,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
           -- 1.18.8. mun:function-into, from 1.18.7
           have s1_18_8 : Set.MapsTo e (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := e) (X := (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
           -- 1.18.9. D3
-          have r294_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
+          have r295_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
           have s1_18_9 : e 1 = p := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
           -- 1.18.10. substitute r = 1 (C2) into line 1.9
           have s1_18_10 : m = p := by parley_subst_at hC2 s1_9
@@ -158,12 +159,12 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
           all_goals parley_set_side
       all_goals parley_set_side
   -- 2. instantiate N := n in line 1
-  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; first | exact (s1 n (by parley_set_side) m (by parley_set_side)) | exact ((s1 n (by parley_set_side) m (by parley_set_side))).symm | simpa using (s1 n (by parley_set_side) m (by parley_set_side)) | exact_mod_cast (s1 n (by parley_set_side) m (by parley_set_side)) | (have h := (s1 n (by parley_set_side) m (by parley_set_side)); parley_set_side)
+  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; first | exact (s1 n (by parley_set_side) m (by parley_set_side)) | exact ((s1 n (by parley_set_side) m (by parley_set_side))).symm | simpa using (s1 n (by parley_set_side) m (by parley_set_side)) | exact_mod_cast (s1 n (by parley_set_side) m (by parley_set_side)) | (have h := (s1 n (by parley_set_side) m (by parley_set_side)); rw [← Finset.coe_Icc, finprod_mem_coe_finset] at h; exact h) | (have h := (s1 n (by parley_set_side) m (by parley_set_side)); parley_set_side)
   -- 3. def:range-between k := n, a := 2, b := n, from H2
-  have r316_1 : n ≤ n := by parley_order
+  have r317_1 : n ≤ n := by parley_order
   have s3 : n ∈ Finset.Icc (2 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr (by parley_set_side); parley_set_side)
   -- 4. instantiate m := n in line 2, from 3
-  have s4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (n = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by first | exact (s2 n (by parley_set_side)) | exact ((s2 n (by parley_set_side))).symm | simpa using (s2 n (by parley_set_side)) | exact_mod_cast (s2 n (by parley_set_side)) | (have h := (s2 n (by parley_set_side)); parley_set_side)
+  have s4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (n = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by first | exact (s2 n (by parley_set_side)) | exact ((s2 n (by parley_set_side))).symm | simpa using (s2 n (by parley_set_side)) | exact_mod_cast (s2 n (by parley_set_side)) | (have h := (s2 n (by parley_set_side)); rw [← Finset.coe_Icc, finprod_mem_coe_finset] at h; exact h) | (have h := (s2 n (by parley_set_side)); parley_set_side)
   all_goals exact s4
 
 end Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeFactorisation

@@ -8,12 +8,14 @@ public import NormTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -87,7 +89,7 @@ theorem scaled_sum_integer :
         exact row1
       -- 10. membership, from IH
       have s10 : ∃ m : ℤ, (m : ℚ) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) + 1 := by
-        have whole1 : ∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by obtain ⟨m, hm⟩ := hIH; exact ⟨m, by exact_mod_cast hm⟩
+        have whole1 : ∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by obtain ⟨m, hm⟩ := hIH; exact ⟨m, by first | exact_mod_cast hm | (have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h)⟩
         exact ⟨((2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (Classical.choose whole1 : ℤ) + 1), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring)⟩
       -- 11. substitute (2^(n!))^n·(2^(n!)·s(n)) + 1 = 2^((n + 1)!)·s(n + 1) (line 9) into line 10
       have s11 : ∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by parley_subst_at s9 s10

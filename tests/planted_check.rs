@@ -2733,11 +2733,11 @@ fn cases() -> Vec<Case> {
             "a define says no kind of number",
         ),
         case(
-            "say what kind of number a let's function is",
+            "a let's function whose kind its reason does not show",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("let B = {x ∈ A : x ∉ f(x)}".to_string()), "let B(x) = x, a natural number".to_string()),
+                edit("proofs/wiedijk/wilson.proof", Some("membership, from 5.3\n        reads the inverse of a modulo p".to_string()), "membership\n        reads the inverse of a modulo p".to_string()),
             ],
-            "and a function is no number",
+            "the reason under let D1 does not show",
         ),
         case(
             "give a let's name with :=",
@@ -3923,7 +3923,30 @@ fn cases() -> Vec<Case> {
                 None,
                 "theorem congruence-real\n  let a ∈ ℝ                                                           (H1)\n  let b ∈ ℝ                                                           (H2)\n  let c ∈ ℝ                                                           (H3)\n  assume a ≡ b (mod 3)                                                (H4)\n  assume b ≡ c (mod 3)                                                (H5)\n  then a ≡ c (mod 3)\n\n1.  a ≡ c (mod 3)\n    calculation\n      a ≡ b (mod 3)      H4\n        ≡ c (mod 3)      H5\n".to_string(),
             )],
-            "nothing says a ∈ ℤ, which step 1's congruence needs",
+            "nothing says a ∈ ℤ, which step 1 puts where its notation asks one",
+        ),
+        // A congruence outside a calculation asks its sides whole as a
+        // chain's does (`SYNTAX.md`, a notation's places): a substitution
+        // writing a^(p − 1) names the line making p − 1 a whole number.
+        case(
+            "substitute into a congruence a power nothing says is whole",
+            vec![edit(
+                "proofs/wiedijk/wilson.proof",
+                Some("                    a^(p − 1) ≡ 1 (mod p)      thm:phi-prime, from H2\n                  requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p\n".to_string()),
+                "                    a^(p − 1) ≡ 1 (mod p)      thm:phi-prime, from H2\n".to_string(),
+            )],
+            "nothing says a^(p − 1) ∈ ℤ, which step 5.7.2 puts where its notation asks one",
+        ),
+        // "is even" lets its number in ℤ, and a sequence's value is no number
+        // by what the page says once.
+        case(
+            "substitute under \"is even\" a value nothing says is whole",
+            vec![edit(
+                "proofs/hammack/fibonacci-even-iff-three-divides.proof",
+                Some("                  substitute n = 3q + 1 (line 5.14.5) into P1\n                  requires F(3q + 1) ∈ ℤ: from 5.14.7\n".to_string()),
+                "                  substitute n = 3q + 1 (line 5.14.5) into P1\n".to_string(),
+            )],
+            "which step 5.14.8 puts where its notation asks one",
         ),
         case(
             "write a vertex's degree where no graph is let",
@@ -6334,10 +6357,10 @@ fn cases() -> Vec<Case> {
             "a requires line from a function's type naming the let of its point",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("      algebra\n          requires d(k) ∈ ℝ: from H2\n".to_string()),
-                "      algebra\n          requires d(k) ∈ ℝ: from H2, K\n".to_string(),
+                Some("      algebra\n          requires d(k) ∈ ℤ: from H2\n".to_string()),
+                "      algebra\n          requires d(k) ∈ ℤ: from H2, K\n".to_string(),
             )],
-            "the requires line of step 1.4 cites K, and d(k) ∈ ℝ needs nothing it says",
+            "the requires line of step 1.4 cites K, and d(k) ∈ ℤ needs nothing it says",
         ),
         // An item's hypothesis at a function's value reads the point as a
         // requires line does: said once, and a citation of it surplus.

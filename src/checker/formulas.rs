@@ -2297,58 +2297,227 @@ impl Link {
 /// no other, says the same one on all of them, has no `≤` or `<`, since an
 /// order and a congruence join into nothing, and once a line says `≡` does
 /// not go back to `=` (`GRAMMAR.md`, calculation chains).
-/// A congruence relates integers (`SYNTAX.md`, congruence), so a chain
-/// that says ≡ has each of its terms an integer, said once, by a line one
-/// of its links cites, or beside one in an equation such a line says
-/// (`methods::membership::atom_held`), as an order's chain has its atoms real
-/// (`check_transitivity`): a ≡ b (mod 3) of a, b ∈ ℝ is refused, and so is
-/// one of x/y, which no integers are closed under.
-pub fn check_congruence_integers(
+/// A notation whose definition lets its places in a number system, d and
+/// n of "d divides n" in ℤ, p of "p is prime" in ℕ, a, b and n of
+/// a ≡ b (mod n) in ℤ (`citing::PlaceSystems`), asks each term a step puts
+/// there to be in that system: said once, by a line the step names, or
+/// beside one in an equation such a line says
+/// (`methods::membership::atom_held`). A chain that says ≡ joins all its
+/// terms into one congruence, so each of them is asked an integer, as an
+/// order's chain has its atoms real (`check_transitivity`). Each step shows
+/// its own terms, a backend reading a step by the lines it names: a term a
+/// cited line holds at such a place is asked again. A step citing an item
+/// claims what the item concludes, whose `let` lines ask it; and a step
+/// that only reads its lines again (`restates`) puts no new term anywhere. a^(p − 1) ≡ 1 (mod p) of a ∈ ℤ and p ∈ ℕ, reached by
+/// substitution, asks a line saying p − 1 ∈ ℕ₀.
+pub fn check_place_systems(
     report: &mut Report,
     thm: &Theorem,
     known: &Known,
-    targets: &Targets,
+    library: &Library,
 ) {
     for step in &thm.steps {
-        let links = chain_links(&step.just, &thm.path);
-        if !links.iter().any(|l| l.line.relation == "≡") {
-            continue;
-        }
-        let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
-        let Some(first) = links.first().and_then(|l| read(&l.from)) else {
-            continue; // `check_formulas` says it does not read
-        };
-        let mut terms = vec![first];
-        terms.extend(links.iter().filter_map(|l| read(&l.line.term)));
-        let mut lines = Vec::new();
-        let mut line_of = Vec::new();
-        for (i, l) in links.iter().enumerate() {
-            for said in cited_says(step, &l.line.cite, known) {
-                lines.push(said);
-                line_of.push(i);
-            }
-        }
-        let Some(claimed) = known.whole_as_written(&step.claim) else {
-            continue;
-        };
-        let read = ClosureRead::new(claimed, lines, line_of);
-        let held = MembershipIn::of(&ClosureClaim::step(step), &read, known);
-        let given = held.given(targets, known);
-        if let Some(term) = terms
-            .iter()
-            .find(|t| !methods_membership::atom_held(t, System::Z, &given))
-        {
+        for a in places_at(step, known, library).unshown {
             report.say(
                 &thm.path,
                 step.just.line,
                 format!(
-                    "nothing says {} ∈ ℤ, which step {}'s congruence needs",
-                    known.print(term),
+                    "nothing says {} ∈ {}, which step {} puts where its notation asks one",
+                    known.print(&a.term),
+                    a.system.sign(),
                     step.number
                 ),
             );
         }
     }
+}
+
+/// The terms a step puts where a notation asks a number system
+/// (`check_place_systems`): those it shows are in it, each with how, and
+/// those it does not, each once.
+pub struct PlacesAt {
+    pub shown: Vec<super::record::PlaceShown>,
+    unshown: Vec<PlaceAsked>,
+}
+
+/// `PlacesAt` of one step; none for a step the rule asks nothing of.
+pub fn places_at(step: &Step, known: &Known, library: &Library) -> PlacesAt {
+    let mut out = PlacesAt {
+        shown: Vec::new(),
+        unshown: Vec::new(),
+    };
+    let places = library.place_systems();
+    {
+        if step.just.cited_item().is_some() || restates(step) {
+            return out;
+        }
+        let Some(claimed) = known.whole_as_written(&step.claim) else {
+            return out; // `check_formulas` says it does not read
+        };
+        // A name a define in scope gives a term is that term, b of `let b =
+        // ∏(r ∈ S) r` (`SYNTAX.md`, a defined name is what it names), cited
+        // or not: a substitution carries the name where its lines write it.
+        // A function's define keeps its name, typed as its kind says.
+        let defined = known.citing(&terms_defined_in_scope(step, known));
+        let claimed = known.as_cited(&claimed, &defined);
+        let links = chain_links(&step.just, &known.thm.path);
+        let mut asked = Vec::new();
+        let mut lines = Vec::new();
+        let mut line_of = Vec::new();
+        if links.is_empty() {
+            places_asked(
+                &claimed,
+                step.openers.is_empty(),
+                &places,
+                &library.ctx,
+                &mut asked,
+            );
+            let into = step.just.into.as_ref().map(|p| p.named().to_string());
+            for (i, r) in step.just.refs.iter().chain(into.as_ref()).enumerate() {
+                for said in cited_says(step, r, known) {
+                    lines.push(said);
+                    line_of.push(i);
+                }
+            }
+        } else {
+            for l in links.iter().filter_map(|l| l.claim(known)) {
+                places_asked(&l, false, &places, &library.ctx, &mut asked);
+            }
+            if links.iter().any(|l| l.line.relation == "≡") {
+                let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
+                let terms = links
+                    .first()
+                    .and_then(|l| read(&l.from))
+                    .into_iter()
+                    .chain(links.iter().filter_map(|l| read(&l.line.term)));
+                asked.extend(terms.map(|term| PlaceAsked {
+                    term,
+                    system: System::Z,
+                }));
+            }
+            for (i, l) in links.iter().enumerate() {
+                for said in cited_says(step, &l.line.cite, known) {
+                    lines.push(said);
+                    line_of.push(i);
+                }
+            }
+        }
+        if asked.is_empty() {
+            return out;
+        }
+        let read = ClosureRead::new(claimed, lines, line_of);
+        let held = MembershipIn::of(&ClosureClaim::step(step), &read, known);
+        let given = held.given(&library.targets, known);
+        for a in asked {
+            let once =
+                |s: &PlaceAsked| s.system == a.system && known.alike(&s.term, &a.term);
+            let shown_once = |s: &super::record::PlaceShown| {
+                s.system == a.system && known.alike(&s.term, &a.term)
+            };
+            if out.unshown.iter().any(once) || out.shown.iter().any(shown_once) {
+                continue;
+            }
+            use super::record::{PlaceShown, ShownBy};
+            use methods_membership::Held;
+            match methods_membership::atom_held_by(&a.term, a.system, &given) {
+                Some(Held::Said) => out.shown.push(PlaceShown {
+                    term: a.term,
+                    system: a.system,
+                    by: ShownBy::Said,
+                }),
+                Some(Held::Beside(b)) => out.shown.push(PlaceShown {
+                    by: ShownBy::Beside {
+                        equation: b.equation.clone(),
+                        other: b.other.clone(),
+                    },
+                    term: a.term,
+                    system: a.system,
+                }),
+                None => out.unshown.push(a),
+            }
+        }
+    }
+    out
+}
+
+/// The labels of the defines in scope at `step` that name a term and say
+/// no kind of number: `let b = ∏(r ∈ S) r`, and not `let f(a) = …` or `let
+/// p = k + 1, a positive integer`, whose name is in its kind's system as a
+/// letter is.
+fn terms_defined_in_scope(step: &Step, known: &Known) -> Vec<String> {
+    let thm = known.thm;
+    thm.defines
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| known.shape().define_in_scope(thm, *i, step))
+        .filter(|(_, d)| {
+            matches!(crate::corpus::define_parts(&d.text),
+                Built(crate::corpus::DefineParts::One(one))
+                    if one.params.is_empty() && one.kind.is_none())
+        })
+        .map(|(_, d)| d.label.clone())
+        .collect()
+}
+
+/// A term put at a place of a notation, and the number system the place
+/// is in.
+struct PlaceAsked {
+    term: Node,
+    system: System,
+}
+
+/// Every term `claim` puts at a place `places` gives a number system,
+/// with that system. A term holding a letter a binder in the claim binds
+/// speaks of what no fact of the step can, and is left out, but for the
+/// member of a step said of every member (`at_member`), whose facts put it
+/// in its set.
+fn places_asked(
+    claim: &Node,
+    at_member: bool,
+    places: &crate::citing::PlaceSystems,
+    ctx: &crate::matching::Context,
+    out: &mut Vec<PlaceAsked>,
+) {
+    let body = match (at_member, claim.notation(), claim.children.as_slice()) {
+        (true, FOR_ALL, [_, _, body]) => body,
+        _ => claim,
+    };
+    let mut bound = BTreeSet::new();
+    super::citations::letters_bound(body, ctx, &mut bound);
+    for node in body.walk() {
+        let Some(systems) = places.get(&node.notation()) else {
+            continue;
+        };
+        for (term, system) in node.children.iter().zip(systems.iter()) {
+            if let (Some(system), true) = (system, term.names().is_disjoint(&bound)) {
+                out.push(PlaceAsked {
+                    term: term.clone(),
+                    system: *system,
+                });
+            }
+        }
+    }
+}
+
+/// Whether a step's claim is what the lines it names say, read again and
+/// putting no new term anywhere: a line read at a value (`instantiate`),
+/// a line said again (`restate`), lines put together (`join`), the names a
+/// "there is" line gives (`obtain`), or what its cases or its block show,
+/// whose own lines are checked where they stand.
+fn restates(step: &Step) -> bool {
+    [
+        Method::Instantiate,
+        Method::Restate,
+        Method::Obtain,
+        Method::Join,
+        Method::Cases,
+        Method::Proof,
+        Method::Induction,
+        Method::BothDirections,
+        Method::Contradiction,
+    ]
+    .into_iter()
+    .any(|m| step.just.head.is(m))
 }
 
 pub fn check_chain_congruences(report: &mut Report, thm: &Theorem) {
@@ -4949,6 +5118,69 @@ pub fn check_membership_holds(
                 report.undecided_requires(&thm.path, Method::Membership, step, req);
             }
         }
+    }
+}
+
+/// The claims the `membership` method proves whose term is in its system
+/// beside an equation a line they name says, each by the line its reason
+/// is on (`CheckedTheorem::members_shown`): how the check found the term
+/// there, which a backend proves the same way.
+pub fn members_shown(
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) -> IndexMap<usize, super::record::PlaceShown> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Membership) {
+            let at = ClosureClaim::step(step);
+            if let Some(shown) = member_beside(&at, known, targets) {
+                out.insert(step.just.line, shown);
+            }
+        }
+        for req in step.requires.iter().filter(|r| r.is(Method::Membership)) {
+            let (at, Ok(by)) = (ClosureClaim::requires(step, req), &req.by) else {
+                continue;
+            };
+            if let Some(shown) = member_beside(&at, known, targets) {
+                out.insert(by.line, shown);
+            }
+        }
+    }
+    out
+}
+
+/// Of a claim `t ∈ S` the `membership` method proves, how t is in S where
+/// an equation among what it rests on puts t beside a term in S
+/// (`methods::membership::atom_held_by`); None where t is said, or the
+/// claim is of another shape.
+fn member_beside(
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> Option<super::record::PlaceShown> {
+    use super::record::{PlaceShown, ShownBy};
+    let read = at.read(known, targets, true)?;
+    let held = MembershipIn::of(at, &read, known);
+    let (MEMBERSHIP, [term, set]) =
+        (read.claimed.notation(), read.claimed.children.as_slice())
+    else {
+        return None;
+    };
+    let system = (set.notation() == NUMBER_SYSTEMS)
+        .then(|| System::of_sign(&set.text))
+        .flatten()?;
+    let given = held.given(targets, known);
+    match methods_membership::atom_held_by(term, system, &given)? {
+        methods_membership::Held::Beside(b) => Some(PlaceShown {
+            term: term.clone(),
+            system,
+            by: ShownBy::Beside {
+                equation: b.equation.clone(),
+                other: b.other.clone(),
+            },
+        }),
+        methods_membership::Held::Said => None,
     }
 }
 

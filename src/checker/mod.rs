@@ -369,6 +369,14 @@ pub fn checked_where(
             record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
             record.asserted = library::let_assertions(&c.known[i]);
             record.opener_asserted = library::opener_assertions(&c.known[i]);
+            record.places_shown = thm
+                .steps
+                .iter()
+                .map(|step| formulas::places_at(step, &c.known[i], c.library).shown)
+                .collect();
+            record.kind_letters = library::kind_letters(&c.known[i]);
+            record.members_shown =
+                formulas::members_shown(thm, &c.known[i], &c.library.targets);
             // A block whose goals are a defect owes nothing here: the defect
             // is among the record's problems (`check_block_ends`), and the
             // build builds no theorem with one.
@@ -1821,7 +1829,7 @@ fn check_passes(
         &library.targets,
     );
     formulas::check_chain_congruences(report, thm);
-    formulas::check_congruence_integers(report, thm, k, &library.targets);
+    formulas::check_place_systems(report, thm, k, library);
     formulas::check_both_directions(report, thm, k);
     formulas::check_block_ends(report, thm, k);
     formulas::check_claimed_cases(report, thm, k);
