@@ -7205,6 +7205,9 @@ impl<'a> Proof<'a> {
         }
         let name = super::names::letter(&letter.text);
         let start = step.just.start.as_deref().unwrap_or("");
+        if start == "∅" {
+            return self.subset_induction(step, block, claimed, parts, depth);
+        }
         let from_one = match (super::expr::system_of(set), start) {
             (Some(super::expr::System::NonNegative), "0") => false,
             (Some(super::expr::System::Positive), "1") => true,
@@ -7326,6 +7329,156 @@ impl<'a> Proof<'a> {
             );
         }
         Route::Built(())
+    }
+
+    /// `induction on Y starting at ∅` of "for all Y ⊆ X": the parts of a
+    /// finite X, `LeanBridges.Sets.subset_induction`, X's finiteness from
+    /// the lines (`parley_finite`). The base is ∅; the step lets Y ⊆ X,
+    /// assumes the claim of Y under the page's label, and opens its own
+    /// lines, a ∈ X ∖ Y, before proving it of Y ∪ {a}.
+    fn subset_induction(
+        &mut self,
+        step: &Step,
+        block: &crate::checker::record::Block,
+        claimed: &Node,
+        parts: &[Option<usize>],
+        depth: usize,
+    ) -> Route<()> {
+        use super::tactics as t;
+        let spot = Self::step_spot(step);
+        let ([letter, set, body], crate::notations::FOR_ALL) =
+            (claimed.children.as_slice(), claimed.notation())
+        else {
+            return Route::no("an induction on a set whose claim says no \"for all\"");
+        };
+        let ("powerset", [whole]) = (&*set.notation_name(), set.children.as_slice())
+        else {
+            return Route::no("an induction on a set of other than the parts of a set");
+        };
+        let Some(members) = self.writer.members_of(whole) else {
+            return Route::no("an induction on the parts of a set of no Lean type");
+        };
+        let name = super::names::letter(&letter.text);
+        self.writer
+            .letters
+            .insert(letter.text.to_string(), LetterType::Set(members));
+        let open =
+            || Printed::of(super::doc::TermKind::Open, super::doc::LeanType::Prop);
+        let finite = t::by_term(super::doc::Proof::By(t::bridge(
+            BridgeTactic::Finite,
+            vec![],
+        )));
+        let induction = Printed::applied(
+            "LeanBridges.Sets.subset_induction",
+            super::doc::Source::Bridge(BridgeModule::Sets),
+            vec![finite, open(), open()],
+            super::doc::LeanType::Prop,
+        );
+        self.push_at(
+            depth,
+            t::call("refine", vec![TacticArg::Term(induction)]),
+            step.line,
+            spot.clone(),
+        );
+        for part in parts {
+            let marker = part
+                .and_then(|k| step.parts.get(k))
+                .map(|(m, _)| m.as_str())
+                .unwrap_or("");
+            let openers: Vec<crate::corpus::Opener> = step
+                .openers
+                .iter()
+                .filter(|o| o.part == *part)
+                .cloned()
+                .collect();
+            let first = match marker {
+                "base" => t::call("skip", vec![]),
+                "step" => {
+                    let guard = openers
+                        .iter()
+                        .find(|o| self.lets_part_letter(o, &letter.text))
+                        .cloned();
+                    let hypothesis = openers.iter().find(|o| o.is_hypothesis).cloned();
+                    let (Some(guard), Some(hypothesis)) = (guard, hypothesis) else {
+                        return Route::no(
+                            "an induction step on a set with no letter or hypothesis",
+                        );
+                    };
+                    let (guard_name, ih_name) =
+                        (line_name(&guard.label), line_name(&hypothesis.label));
+                    if let Some(n) = self.opener_node(&guard) {
+                        self.named
+                            .insert(guard.label.clone(), vec![guard_name.clone()]);
+                        self.trees
+                            .insert(guard.label.clone(), vec![(n, guard_name.clone())]);
+                    }
+                    self.named
+                        .insert(hypothesis.label.clone(), vec![ih_name.clone()]);
+                    self.trees.insert(
+                        hypothesis.label.clone(),
+                        vec![(body.clone(), ih_name.clone())],
+                    );
+                    Tactic::Intro(vec![name.clone(), guard_name, ih_name])
+                }
+                other => return Route::no(format!("an induction part {other:?}")),
+            };
+            self.push_at(
+                depth,
+                Tactic::Bullet(Box::new(first)),
+                step.line,
+                spot.clone(),
+            );
+            let own: Vec<crate::corpus::Opener> = openers
+                .into_iter()
+                .filter(|o| !o.is_hypothesis && !self.lets_part_letter(o, &letter.text))
+                .collect();
+            if let Route::Declined(d) = self.open_lines(step, &own, depth + 1) {
+                return Route::Declined(d);
+            }
+            let children: Vec<usize> = block
+                .children
+                .iter()
+                .copied()
+                .filter(|&c| self.rec.places[c].and_then(|pl| pl.part) == *part)
+                .collect();
+            // The base's ∅ is the part of X the letter was: a set of what
+            // X holds, ∏(x ∈ ∅) c of members of X.
+            let empty_was = self.writer.empty_of.clone();
+            if marker == "base" {
+                self.writer.empty_of = self.writer.members_of(whole);
+            }
+            let written = self.steps(&children, depth + 1);
+            self.writer.empty_of = empty_was;
+            if let Route::Declined(d) = written {
+                return Route::Declined(d);
+            }
+            self.push_at(
+                depth + 1,
+                Tactic::AllGoals(Box::new(t::bridge(BridgeTactic::Side, vec![]))),
+                step.line,
+                spot.clone(),
+            );
+        }
+        Route::Built(())
+    }
+
+    /// Whether an opening line lets the letter of an induction on parts,
+    /// `Y ⊆ X`.
+    fn lets_part_letter(&self, o: &crate::corpus::Opener, letter: &str) -> bool {
+        !o.is_hypothesis
+            && self.opener_node(o).is_some_and(|n| {
+                &*n.notation_name() == "subset"
+                    && n.children.first().is_some_and(|y| &*y.text == letter)
+            })
+    }
+
+    /// What an opening line says, as the checker read it.
+    fn opener_node(&self, o: &crate::corpus::Opener) -> Option<Node> {
+        o.body(&self.thm.path)
+            .sentences()
+            .first()
+            .and_then(|s| self.rec.page.get(s))
+            .cloned()
     }
 
     /// Whether an opening line is the `let` of a letter, the induction's.

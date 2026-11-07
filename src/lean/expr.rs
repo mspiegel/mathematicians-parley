@@ -1281,6 +1281,7 @@ impl Writer<'_> {
             Over::Set(set) => match self
                 .set_members(set)
                 .or_else(|| self.index_taken(index, term))
+                .or_else(|| self.empty_holds(set))
             {
                 Some(m) => m.letter(),
                 None => return Route::no("a sum over a set with no Lean type"),
@@ -1314,6 +1315,16 @@ impl Writer<'_> {
             over,
             term,
         })
+    }
+
+    /// What ∅ holds where the lines around it say (`empty_of`), the members
+    /// of X in the base of an induction on the parts of X; None for any
+    /// other set, or where nothing says.
+    fn empty_holds(&self, set: &Node) -> Option<Members> {
+        match &*set.notation_name() {
+            "empty-set" => self.empty_of.clone(),
+            _ => None,
+        }
     }
 
     /// What a function the term applies to the index letter takes, the
