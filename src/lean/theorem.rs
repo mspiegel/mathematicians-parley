@@ -5689,6 +5689,34 @@ impl<'a> Proof<'a> {
                 given.raise(*to, c);
             }
         }
+        // Things the citation gives nothing are what ∅ holds where the
+        // lines say: the integers of ∏(x ∈ ∅) x in the base of an induction
+        // on the parts of a set of integers.
+        if let Some(held) = &self.writer.empty_of {
+            let vars: std::collections::BTreeSet<usize> = binders
+                .iter()
+                .filter_map(|b| match b {
+                    Binder::Letter { ty, .. } => Some(ty.lean_type()),
+                    _ => None,
+                })
+                .flat_map(|ty| things_of_type(&ty))
+                .collect();
+            for var in vars {
+                let told = given.numbers.contains(&var)
+                    || given.others.contains_key(&var)
+                    || given.at.contains_key(&var);
+                match held {
+                    _ if told => {}
+                    Members::Numbers(n) => {
+                        given.numbers.insert(var);
+                        given.raise(var, *n);
+                    }
+                    other => {
+                        given.others.insert(var, other.clone());
+                    }
+                }
+            }
+        }
         given
     }
 

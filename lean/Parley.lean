@@ -37,6 +37,7 @@ public import Parley.Stdlib.Divisibility.CoprimeSquare
 public import Parley.Stdlib.Divisibility.PrimePowerNotLess
 public import Parley.Stdlib.Divisibility.PrimePowerUnique
 public import Parley.Stdlib.Divisibility.PrimePowersUnique
+public import Parley.Stdlib.Divisibility.ProductCoprime
 public import Parley.Stdlib.Divisibility.ProductCongruentTermwise
 public import Parley.Stdlib.Divisibility.ProductCongruent
 public import Parley.Stdlib.Geometry.HalfTurn

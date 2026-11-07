@@ -680,6 +680,7 @@
 {"key":"∀ V ∈ a, (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ W ∈ a, (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ X ∈ a, (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∀ Y ∈ (sorry : Set (Set ℤ)), (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ Y ∈ a, (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ Z ∈ a, (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ a ∈ (sorry : Set ℝ), (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
