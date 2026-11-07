@@ -681,6 +681,7 @@ public import Parley.Tests.Docs.Syntax.EvenSquare
 public import Parley.Tests.Docs.Syntax.SumNonnegBounded
 public import Parley.Tests.Docs.Syntax.SumNegBounded
 public import Parley.Tests.Docs.Syntax.TriangleByCases
+public import Parley.Tests.Docs.Syntax.NothingToShow
 public import Parley.Tests.Docs.Tri.TriOne
 public import Parley.Tests.Elaborator.ACalculationAsksNoMembership.ACalculationAsksNoMembership
 public import Parley.Tests.Elaborator.ACancelledFactorAgainstADroppedOne.TheOneDroppedOnTheRight

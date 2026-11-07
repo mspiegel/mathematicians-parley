@@ -980,11 +980,16 @@ impl Writer<'_> {
         let Some(map) = self.map_term(f) else {
             return Route::no(format!("{} applied, which is no map", f.text));
         };
-        let to = match self.letters.get(f.text.as_str()) {
-            Some(LetterType::Map { to, .. }) => Some(to.member_type()),
-            _ => None,
+        let (from, to) = match self.letters.get(f.text.as_str()) {
+            Some(LetterType::Map { from, to }) => (Some(from), Some(to.member_type())),
+            _ => (None, None),
         };
-        self.set_term(x).map(|p| Printed {
+        // A map from numbers, v : ℕ₀ → V, takes a number, v(0).
+        let argument = match from {
+            Some(Members::Numbers(n)) => self.number_fixed(x, *n),
+            _ => self.set_term(x),
+        };
+        argument.map(|p| Printed {
             kind: TermKind::App {
                 head: Box::new(map),
                 args: vec![super::doc::Arg::Explicit(p)],
