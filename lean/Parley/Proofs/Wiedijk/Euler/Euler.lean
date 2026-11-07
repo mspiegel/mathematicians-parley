@@ -59,6 +59,7 @@ set_option maxHeartbeats 1000000 in
 theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) :
     a ^ Nat.totient n.toNat ≡ (1 : ℤ) [ZMOD n] := by
   set S : Set ℤ := {r ∈ (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) | (Int.gcd r n : ℤ) = 1} with hD1
+  have hD1_finite : S.Finite := by rw [hD1]; exact (Set.finite_Icc _ _).subset (fun _ h => h.1)
   set f : ℤ → ℤ := fun r => r * a % n with hD2
   -- 1. mun:range-finite
   have s1 : (Set.Icc (0 : ℤ) (n - 1) : Set ℤ).Finite := by first | exact (Parley.Items.Stdlib.Sums.mun_range_finite (a := (0 : ℤ)) (b := n - 1)) | exact ((Parley.Items.Stdlib.Sums.mun_range_finite (a := (0 : ℤ)) (b := n - 1))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_finite (a := (0 : ℤ)) (b := n - 1)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_finite (a := (0 : ℤ)) (b := n - 1)) | (have h := (Parley.Items.Stdlib.Sums.mun_range_finite (a := (0 : ℤ)) (b := n - 1)); parley_set_side)

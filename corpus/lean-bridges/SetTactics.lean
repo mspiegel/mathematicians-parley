@@ -172,9 +172,10 @@ macro "parley_count_ext" : tactic => `(tactic|
 
 /-- A calculation or substitute rows, built as written, then what it built
 and the goal both taken to integers (`parley_count_int`), so each meets the
-other in the same words (`theorem::count_conversion`). -/
+other in the same words (`theorem::count_conversion`); a calculation that
+divides is built in ℚ, and is cast to the goal's type. -/
 macro "parley_count_after " e:term : tactic =>
-  `(tactic| (have hStep : _ := $e; parley_count_int; exact hStep))
+  `(tactic| (have hStep : _ := $e; parley_count_int; exact_mod_cast hStep))
 
 /-- `parley_side`, then the ways of sets. -/
 macro "parley_set_side" : tactic =>

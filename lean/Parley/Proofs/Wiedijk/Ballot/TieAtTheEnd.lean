@@ -7,6 +7,7 @@ public import SetTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -39,6 +40,7 @@ namespace Parley.Proofs.Wiedijk.Ballot.TieAtTheEnd
 theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
     {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} = ∅ := by
   set O : Set (Set ℤ) := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} with hD3
+  have hD3_finite : O.Finite := by rw [hD3]; exact ((Set.finite_Icc _ _).powerset).subset (fun _ h => h.1)
   -- 1. mun:range-end n := m + m
   have s1 : m + m ∈ Finset.Icc (1 : ℤ) (m + m) := by first | exact (Parley.Items.Stdlib.Sums.mun_range_end (n := m + m) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sums.mun_range_end (n := m + m) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_end (n := m + m) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_end (n := m + m) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_range_end (n := m + m) (by parley_set_side)); parley_set_side)
   -- 2. proof

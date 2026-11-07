@@ -3687,10 +3687,12 @@ impl<'a> Proof<'a> {
         let line = &self.thm.defines[d];
         let label = line_name(&line.label);
         let (at, page_label) = (line.line, line.label.clone());
+        let letter_name = super::names::letter(name);
+        let is_set = matches!(ty.lean_type(), super::doc::LeanType::Set(_));
         self.push_at(
             depth,
             Tactic::Set {
-                name: super::names::letter(name),
+                name: letter_name.clone(),
                 ty: ty.lean_type(),
                 value,
                 with: label.clone(),
@@ -3698,6 +3700,39 @@ impl<'a> Proof<'a> {
             at,
             Spot::Statement,
         );
+        // A set the define names that is finite by how it is made alone, U
+        // of a set-builder within 𝒫{1, …, n}, is said finite at once, with
+        // the proof how it is made gives (`finite_by_making`): Lean's
+        // tactics see the letter and not its value. One finite by what a
+        // line says is left to the tactics that have the line.
+        let made_finite = match is_set {
+            true => finite_by_making(&body),
+            false => None,
+        };
+        if let Some(made_finite) = made_finite {
+            use super::tactics as t;
+            let says = Printed {
+                kind: super::doc::TermKind::Field {
+                    inner: Box::new(t::hyp(&letter_name)),
+                    field: "Finite".to_string(),
+                },
+                ty: Some(super::doc::LeanType::Prop),
+            };
+            let proof = super::doc::Proof::By(Tactic::Seq(vec![
+                t::call("rw", vec![t::rules(vec![t::hyp(&label)])]),
+                Tactic::Exact(made_finite),
+            ]));
+            self.push_at(
+                depth,
+                Tactic::Have {
+                    name: format!("{label}_finite"),
+                    says,
+                    proof: Box::new(proof),
+                },
+                at,
+                Spot::Statement,
+            );
+        }
         self.writer.letters.insert(name.to_string(), ty);
         let letter = Node::name(body.sort.clone(), name);
         let equation = Node::of(
@@ -8132,6 +8167,62 @@ fn rewrite_then_ring(rule: super::doc::Rule) -> Tactic {
         t::push_cast(None),
         t::call("ring", vec![]),
     ])
+}
+
+/// The proof that a set is finite by how it is made alone, as
+/// `citing::finite::is_finite` reads it with no line saying a set is:
+/// `Set.finite_Icc _ _` of a range, `Set.toFinite _` of a listed set,
+/// `pA.powerset` of 𝒫A, `pA.subset (fun _ h => h.1)` of a part of A by a
+/// condition, ∩ or ∖, `pA.union pB`, `pA.image _`. None for a set finite
+/// only by what a line says, or not at all.
+fn finite_by_making(set: &Node) -> Option<Printed> {
+    use super::doc::TermKind;
+    let field = |inner: Printed, name: &str| projected(inner, &[name]);
+    let hole = || Printed::of(TermKind::Elided, super::doc::LeanType::Prop);
+    let constant = |name: &str| {
+        Printed::constant(
+            name,
+            super::doc::Source::Mathlib,
+            super::doc::LeanType::Prop,
+        )
+    };
+    let first_part = Printed::notation(
+        vec![super::doc::Piece::text("fun _ h => h.1")],
+        0,
+        super::doc::LeanType::Prop,
+    );
+    let part_of = |whole: Printed| {
+        applied_to(
+            field(whole, "subset"),
+            super::tactics::bracket(first_part.clone()),
+        )
+    };
+    match (
+        &*set.notation_name(),
+        &*set.spelling().text(),
+        set.children.as_slice(),
+    ) {
+        ("empty-set", _, _) => Some(constant("Set.finite_empty")),
+        ("singleton" | "listed-two" | "listed-three" | "listed-four", _, _) => {
+            Some(applied_to(constant("Set.toFinite"), hole()))
+        }
+        ("integer-range", _, _) => Some(applied_to(
+            applied_to(constant("Set.finite_Icc"), hole()),
+            hole(),
+        )),
+        ("powerset", _, [a]) => Some(field(finite_by_making(a)?, "powerset")),
+        ("set-builder", _, [_, a, _]) => Some(part_of(finite_by_making(a)?)),
+        ("set-operations", "∖", [a, _]) => Some(part_of(finite_by_making(a)?)),
+        ("set-operations", "∩", [a, _]) => Some(part_of(finite_by_making(a)?)),
+        ("set-operations", "∪", [a, b]) => Some(applied_to(
+            field(finite_by_making(a)?, "union"),
+            super::tactics::bracket(finite_by_making(b)?),
+        )),
+        ("set-image", _, [_, _, a]) => {
+            Some(applied_to(field(finite_by_making(a)?, "image"), hole()))
+        }
+        _ => None,
+    }
 }
 
 /// `(rify at h; (try push_cast at h ⊢); linarith)`, or `qify`: h cast up

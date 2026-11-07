@@ -189,6 +189,16 @@ pub fn is_finite(grammar: &Grammar, finite: &BTreeSet<String>, set: &Node) -> bo
         ("powerset", _, [a]) => of(a),
         ("set-builder", _, [_, a, _]) => of(a),
         ("set-image", _, [_, _, a]) => of(a),
+        // A function a define names finite sets with, G(m, n) of a G whose
+        // body is finite whatever its arguments (`finite_names`).
+        (_, _, [f, ..])
+            if matches!(
+                set.notation(),
+                crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
+            ) =>
+        {
+            f.is_name() && finite.contains(&grammar.print(f))
+        }
         _ => false,
     }
 }

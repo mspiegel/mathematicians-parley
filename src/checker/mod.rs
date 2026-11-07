@@ -293,8 +293,8 @@ pub fn set_systems_of(
     crate::citing::number_sets::set_letter_systems(&lines, &letters)
 }
 
-/// A define without parameters, as its name and the term the page reads it
-/// to name; None for a define of a function.
+/// A define, as its name and the term the page reads it to name: a
+/// function's, its body; None for a recursion.
 fn define_named<'r>(
     d: &crate::corpus::DefineLine,
     record: &'r CheckedTheorem,
@@ -309,12 +309,12 @@ fn define_named<'r>(
         .entries()
         .find(|(key, _)| key.line == d.line)
         .map(|(_, node)| node)?;
-    def.params
-        .is_empty()
-        .then_some(crate::citing::finite::Named {
-            name: def.name,
-            value,
-        })
+    // A function's define names its body for any arguments: where the body
+    // is finite whatever they are, so is each application of it.
+    Some(crate::citing::finite::Named {
+        name: def.name,
+        value,
+    })
 }
 
 /// `checked` of the theorems whose full name `wanted` holds, and of no
