@@ -529,6 +529,25 @@ impl<'a> Writer<'a> {
 
     /// This writer where these lines hold as well: what they bound added to
     /// its own.
+    /// The writer inside a quantifier over a number system, "for all x ∈
+    /// ℝ" or "there is x ∈ ℕ": its letter introduced and bounded by the
+    /// set, as `quantified` writes the body. None for a quantifier over
+    /// anything else.
+    pub fn inside_number_quantifier(
+        &self,
+        letter: &Node,
+        set: &Node,
+    ) -> Option<Writer<'a>> {
+        if set.notation() != NUMBER_SYSTEMS || !letter.is_name() {
+            return None;
+        }
+        let system = system_of(set)?;
+        let mut inner = self.with_letters(self.letters.clone());
+        inner.introduce(&letter.text, system);
+        inner.bounds = bounds::inside_quantifier(self, letter, set);
+        Some(inner)
+    }
+
     pub fn knowing(&self, lines: &[Node]) -> Writer<'a> {
         let mut said = self.bounds.clone();
         let all: Vec<&Node> = lines.iter().collect();

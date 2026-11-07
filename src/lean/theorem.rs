@@ -779,12 +779,24 @@ fn recorded_number_set_type(name: &str, rec: &CheckedTheorem) -> Option<LetterTy
 /// taking the domain's numbers (integers for ℕ, ℕ₀ or a range, as the
 /// writer's sequences do), and the equation for every x as one hypothesis
 /// named by the label.
-fn header_function(
-    writer: &mut Writer,
+/// A function the header lets by its value, as read: the set its argument
+/// is in, its value, what the argument is among, and the argument's
+/// membership in the set, where the value is read.
+struct HeaderReading {
+    domain: Node,
+    body: Node,
+    takes: super::expr::Members,
+    member: Node,
+}
+
+/// What `header_function` reads of a function the header lets, and the
+/// read-back counts the arithmetic of alike.
+fn header_reading(
+    writer: &Writer,
     d: &crate::corpus::DefineLine,
     def: &crate::corpus::Define,
     rec: &CheckedTheorem,
-) -> Route<Vec<Binder>> {
+) -> Route<HeaderReading> {
     use super::templates::Num;
     let [param] = def.params.as_slice() else {
         return Route::no("a function the header lets of more than one argument");
@@ -853,18 +865,57 @@ fn header_function(
             }
         },
     };
+    let x = Node::name(crate::formula::Sort::none(), &param.name);
+    let member = Node::of(
+        crate::notations::IN,
+        crate::formula::Sort::none(),
+        vec![x, domain.clone()],
+    );
+    Route::Built(HeaderReading {
+        domain,
+        body: (**body).clone(),
+        takes,
+        member,
+    })
+}
+
+impl HeaderReading {
+    /// The writer the value is read with: the argument of what it takes,
+    /// knowing it is in the set, √x of x ∈ {y ∈ ℝ : y > 0} the real square
+    /// root.
+    fn inside<'a>(&self, writer: &Writer<'a>, param: &str) -> Writer<'a> {
+        let mut w = writer.with_letters(writer.letters.clone());
+        w.letters.insert(param.to_string(), self.takes.letter());
+        w.knowing(std::slice::from_ref(&self.member))
+    }
+}
+
+fn header_function(
+    writer: &mut Writer,
+    d: &crate::corpus::DefineLine,
+    def: &crate::corpus::Define,
+    rec: &CheckedTheorem,
+) -> Route<Vec<Binder>> {
+    use super::templates::Num;
+    let HeaderReading {
+        domain,
+        body,
+        takes,
+        member,
+    } = match header_reading(writer, d, def, rec) {
+        Route::Built(r) => r,
+        Route::Declined(d) => return Route::Declined(d),
+    };
+    let [param] = def.params.as_slice() else {
+        return Route::no("a function the header lets of more than one argument");
+    };
+    let body = &body;
     let before = writer.letters.insert(param.name.clone(), takes.letter());
     // Said for every x of the domain: all of a type, or each member of a
     // set, x ∈ D, as the writer writes that membership.
     let whole_type = matches!(
         super::expr::system_of(&domain),
         Some(super::expr::System::Type(_))
-    );
-    let x = Node::name(crate::formula::Sort::none(), &param.name);
-    let member = Node::of(
-        crate::notations::IN,
-        crate::formula::Sort::none(),
-        vec![x, domain.clone()],
     );
     let guard = match whole_type {
         true => Route::Built(None),
@@ -1029,7 +1080,23 @@ fn recursion_arithmetic(
                     })
                     .filter(|n| !n.is_name())
                     .collect();
-                for (op, n) in super::readback::page_arithmetic(writer, &values) {
+                // The value as `header_function` reads it, knowing its
+                // argument is in the set; the rest as it stands.
+                let reading = header_reading(writer, d, &one, rec).built();
+                let (inside, rest): (Vec<Node>, Vec<Node>) =
+                    values.into_iter().partition(|n| {
+                        reading.as_ref().is_some_and(|r| {
+                            writer.grammar.print(&r.body) == writer.grammar.print(n)
+                        })
+                    });
+                let mut counts = super::readback::page_arithmetic(writer, &rest);
+                if let (Some(r), [param]) = (&reading, one.params.as_slice()) {
+                    let w = r.inside(writer, &param.name);
+                    for (op, n) in super::readback::page_arithmetic(&w, &inside) {
+                        *counts.entry(op).or_insert(0) += n;
+                    }
+                }
+                for (op, n) in counts {
                     *out.entry(op).or_insert(0) += n;
                 }
                 continue;

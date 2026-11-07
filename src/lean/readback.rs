@@ -134,8 +134,30 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
             }
         }
     }
-    for c in &node.children {
-        count(writer, c, out);
+    // Each part counted as the writer writes it: a quantifier's body with
+    // its letter introduced, and the later parts of "P and Q" or "if P then
+    // Q" knowing the earlier, √x of "x > 0 and x² < √x" the real square
+    // root (`Writer::template`).
+    if let ([letter, set, body], FOR_ALL | THERE_IS) =
+        (node.children.as_slice(), node.notation())
+    {
+        if let Some(inner) = writer.inside_number_quantifier(letter, set) {
+            count(writer, set, out);
+            count(&inner, body, out);
+            return;
+        }
+    }
+    let guarded = matches!(
+        node.notation(),
+        crate::notations::CONJUNCTION
+            | crate::notations::IMPLICATION
+            | crate::notations::CONDITIONAL
+    );
+    for (i, c) in node.children.iter().enumerate() {
+        match guarded && i > 0 {
+            true => count(&writer.knowing(&node.children[..i]), c, out),
+            false => count(writer, c, out),
+        }
     }
 }
 
