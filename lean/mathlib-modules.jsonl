@@ -538,6 +538,7 @@
 {"key":"∀ (a : K), True","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : α), True","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∀ (a : ℚ), True","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}

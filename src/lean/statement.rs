@@ -460,12 +460,22 @@ pub fn binders(
             });
             continue;
         }
-        // A membership of a letter already given its type, `assume x ∈ ℤ`
-        // after `let x ∈ ℝ`, is a fact about that letter, as set.mm's is,
-        // and no second letter.
-        let introduced = introduces(a.node)
-            .filter(|(letter, _)| !writer.letters.contains_key(letter.as_str()));
+        // A letter's membership in a number system narrower than the type it
+        // was let in, `assume m ∈ ℕ` after `let m ∈ ℝ`, binds it once in the
+        // narrower type, as the checker introduces it (`introduced`, the
+        // narrower of the two): the letter's binder is replaced, not joined
+        // by a second m.
+        let introduced = introduces(a.node).filter(|(letter, system)| {
+            match writer.letters.get(letter.as_str()) {
+                None => true,
+                Some(LetterType::Number(own)) => letter_type(*system) < *own,
+                Some(_) => false,
+            }
+        });
         if let Some((letter, system)) = introduced {
+            out.retain(
+                |b| !matches!(b, Binder::Letter { page, .. } if *page == letter),
+            );
             let ty = LetterType::Number(letter_type(system));
             writer.introduce(&letter, system);
             let name = super::names::letter(&letter);
