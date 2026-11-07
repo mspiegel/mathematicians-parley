@@ -1285,6 +1285,8 @@ public import Parley.Tests.Notations.Divisibility.SeventeenTwoModFive
 public import Parley.Tests.Notations.Divisibility.MinusOneFourModFive
 public import Parley.Tests.Notations.Divisibility.SeventeenNotThreeModFive
 public import Parley.Tests.Notations.Families.ASumOverSubsets
+public import Parley.Tests.Notations.ForAllFunctions.EveryFunctionTakesItsValuesInItsCodomain
+public import Parley.Tests.Notations.ForAllFunctions.OneFunctionTakesItsValueInItsCodomain
 public import Parley.Tests.Notations.Functions.AValueOfALine
 public import Parley.Tests.Notations.Functions.ALineIsOneToOne
 public import Parley.Tests.Notations.Functions.ALineIsOnto

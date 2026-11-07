@@ -697,6 +697,7 @@
 {"key":"∀ c' ∈ (sorry : Set ℝ), (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ d : ℤ, (sorry : Prop) → (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ e : ℤ, (sorry : Prop) → (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∀ f : α → α, (sorry : Prop) → (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ g : ℤ, (sorry : Prop) → (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ i : ℤ, (sorry : Prop) → (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ i : ℤ, i ∈ Finset.Icc (1 : ℤ) (1 : ℤ) → e i = (sorry : ℤ)","kind":"term","modules":["Mathlib.Basic.SetLike.Basic","Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Interval","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Data.Int.Order.Basic","Mathlib.Order.Interval.Finset.Defs"]}

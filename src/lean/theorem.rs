@@ -4176,19 +4176,8 @@ impl<'a> Proof<'a> {
             if let ("functions-from", [from, to]) =
                 (&*set.notation_name(), set.children.as_slice())
             {
-                let wanted = match self.writer.function_between(from, to) {
-                    Some(LetterType::Function { from, to }) => (from, to),
-                    _ => {
-                        return Route::no("a function given between sets of no numbers")
-                    }
-                };
-                match self.writer.function_type(value) {
-                    Route::Built(t) if t == wanted => {
-                        parts.push(self.writer.function_printed(value))
-                    }
-                    Route::Built(_) => {
-                        return Route::no("a function given for one of other types")
-                    }
+                match self.function_given(&self.writer, value, from, to) {
+                    Route::Built(p) => parts.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
                 parts.push(side_term(&known));
@@ -4364,6 +4353,19 @@ impl<'a> Proof<'a> {
             // A member of a set: the value, and that it is in the set.
             if let Some(members) = writer.members_of(set) {
                 match writer.element_term(&value, &members) {
+                    Route::Built(p) => args.push(p),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                args.push(side_term(&[]));
+                body = inner;
+                continue;
+            }
+            // A function or map between sets: it, and that it maps the one
+            // into the other.
+            if let ("functions-from", [from, to]) =
+                (&*set.notation_name(), set.children.as_slice())
+            {
+                match self.function_given(&writer, &value, from, to) {
                     Route::Built(p) => args.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
@@ -7592,6 +7594,42 @@ impl<'a> Proof<'a> {
             })
     }
 
+    /// A function or map given a letter of "for all f : X → Y": the value
+    /// as Lean writes it, where it is of the type the quantifier gives f.
+    fn function_given(
+        &self,
+        writer: &Writer,
+        value: &Node,
+        from: &Node,
+        to: &Node,
+    ) -> Route<Printed> {
+        match writer.function_between(from, to) {
+            Some(LetterType::Function { from, to }) => {
+                match writer.function_type(value) {
+                    Route::Built(t) if t == (from, to) => {
+                        Route::Built(writer.function_printed(value))
+                    }
+                    Route::Built(_) => {
+                        Route::no("a function given for one of other types")
+                    }
+                    Route::Declined(d) => Route::Declined(d),
+                }
+            }
+            Some(wanted @ LetterType::Map { .. }) => {
+                match writer.letters.get(&*value.text) {
+                    Some(ty) if value.is_name() && *ty == wanted => {
+                        Route::Built(Printed::letter(
+                            super::names::letter(&value.text),
+                            ty.lean_type(),
+                        ))
+                    }
+                    _ => Route::no("a map given for one of other types"),
+                }
+            }
+            _ => Route::no("a function given between sets of no Lean type"),
+        }
+    }
+
     /// What an opening line says, as the checker read it.
     fn opener_node(&self, o: &crate::corpus::Opener) -> Option<Node> {
         o.body(&self.thm.path)
@@ -7721,6 +7759,29 @@ impl<'a> Proof<'a> {
                                 &spot,
                             );
                             continue;
+                        }
+                        // `let f : X → Y` between sets: the map and the fact
+                        // that it maps X into Y, as "for all f : X → Y" gives
+                        // them (`quantified_over_functions`).
+                        if let (crate::notations::FUNCTION_TYPE, [f, from, to]) =
+                            (node.notation(), node.children.as_slice())
+                        {
+                            if let (true, Some(ty)) =
+                                (f.is_name(), self.writer.function_between(from, to))
+                            {
+                                self.writer.letters.insert(f.text.to_string(), ty);
+                                self.trees.insert(
+                                    o.label.clone(),
+                                    vec![(node.clone(), label.clone())],
+                                );
+                                self.intro(
+                                    depth,
+                                    vec![super::names::letter(&f.text), label.clone()],
+                                    o.line,
+                                    &spot,
+                                );
+                                continue;
+                            }
                         }
                         // `let t ∈ S` of a set S: the member and the fact
                         // that it is one, as "for all t ∈ S" gives them.
