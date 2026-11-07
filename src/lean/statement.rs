@@ -403,6 +403,12 @@ pub fn binders(
                 None => System::Type(super::templates::Num::Int),
             };
             writer.introduce(&letter, system);
+            // A letter let in a wider type above, k ∈ ℝ, that the range then
+            // holds is the range's integer: one binder, not a second k that
+            // hides the first.
+            out.retain(
+                |b| !matches!(b, Binder::Letter { page, .. } if *page == letter),
+            );
             out.push(Binder::Letter {
                 name: super::names::letter(&letter),
                 page: letter,
