@@ -63,30 +63,75 @@ impl FormDifference {
 /// the parts of what it casts on both sides, as `push_cast` takes it:
 /// `((a - b : ℤ) : ℚ)` and `(a : ℚ) - (b : ℚ)` are one form, which Lean
 /// moves between by that one tactic, and only a difference it leaves is a
-/// form the writer chose.
-pub fn differences(item: &Term, line: &Term) -> Vec<FormDifference> {
+/// form the writer chose. A relation the item states in a wider type than
+/// the line, sin(a + b) = … over ℂ cited by a line in ℝ, is compared with
+/// the line cast up to it, as `exact_mod_cast` takes the one to the other.
+///
+/// `widen` gives the constant that is a library function at another type,
+/// `Complex.cos` of `Real.cos` at ℂ (`Templates::same_function_at`): a
+/// cast of the function's value is the function of the cast argument.
+pub fn differences(item: &Term, line: &Term, widen: &Widen) -> Vec<FormDifference> {
     let mut out = Vec::new();
-    compare(&pushed(item), &pushed(line), &mut out);
+    let (item, line) = (pushed(item, widen), pushed(line, widen));
+    let line = lifted(&item, &line, widen).unwrap_or(line);
+    compare(&item, &line, &mut out);
     out
 }
 
+/// The constant that is a library function at another type.
+pub type Widen<'a> = dyn Fn(&str, Num) -> Option<super::term::ConstRef> + 'a;
+
+/// The line with its relation's sides cast up to the type the item's are
+/// in, where both are one relation and the item's is wider; None where
+/// they are not.
+fn lifted(item: &Term, line: &Term, widen: &Widen) -> Option<Term> {
+    let (
+        TermKind::Infix {
+            op: a,
+            lhs: item_lhs,
+            ..
+        },
+        TermKind::Infix { op: b, lhs, rhs },
+    ) = (&bare(item).kind, &bare(line).kind)
+    else {
+        return None;
+    };
+    let (Some(LeanType::Num(wide)), Some(LeanType::Num(own))) = (&item_lhs.ty, &lhs.ty)
+    else {
+        return None;
+    };
+    if a != b || own >= wide {
+        return None;
+    }
+    let to = LeanType::Num(*wide);
+    Some(Term {
+        kind: TermKind::Infix {
+            op: *b,
+            lhs: Box::new(pushed(&cast_down(lhs, &to, widen), widen)),
+            rhs: Box::new(pushed(&cast_down(rhs, &to, widen), widen)),
+        },
+        ty: line.ty.clone(),
+    })
+}
+
 /// The term with every cast taken down as far as `push_cast` takes it.
-fn pushed(term: &Term) -> Term {
+fn pushed(term: &Term, widen: &Widen) -> Term {
     let mut out = match &term.kind {
-        TermKind::Cast { inner, to } => cast_down(inner, to),
+        TermKind::Cast { inner, to } => cast_down(inner, to, widen),
         _ => term.clone(),
     };
     for child in out.children_mut() {
-        *child = pushed(child);
+        *child = pushed(child, widen);
     }
     out
 }
 
 /// `(x : to)` with the cast taken onto x's parts: a numeral is written at
 /// `to`; a cast of a cast is one cast; through + · and ^ (onto the base),
-/// through − and negation outside ℕ, whose subtraction stops at 0, and
-/// through / in a field, whose division is exact.
-fn cast_down(inner: &Term, to: &LeanType) -> Term {
+/// through − and negation outside ℕ, whose subtraction stops at 0, through
+/// / in a field, whose division is exact, and through a library function
+/// that has a form at `to`.
+fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
     use super::term::Op;
     let at = |kind: TermKind| Term {
         kind,
@@ -106,7 +151,34 @@ fn cast_down(inner: &Term, to: &LeanType) -> Term {
         Some(LeanType::Num(Num::Rat | Num::Real | Num::Complex))
     );
     match &inner.kind {
-        TermKind::Paren(x) | TermKind::Cast { inner: x, .. } => cast_down(x, to),
+        TermKind::Paren(x) | TermKind::Cast { inner: x, .. } => cast_down(x, to, widen),
+        TermKind::App {
+            head,
+            args,
+            explicit,
+        } => {
+            let wider = match (&head.kind, to) {
+                (TermKind::Const(c), LeanType::Num(n)) => widen(&c.name, *n),
+                _ => None,
+            };
+            match wider {
+                Some(c) => at(TermKind::App {
+                    head: Box::new(Term {
+                        kind: TermKind::Const(c),
+                        ty: head.ty.clone(),
+                    }),
+                    args: args
+                        .iter()
+                        .map(|a| match a {
+                            Arg::Explicit(t) => Arg::Explicit(cast(t)),
+                            named => named.clone(),
+                        })
+                        .collect(),
+                    explicit: *explicit,
+                }),
+                None => cast(inner),
+            }
+        }
         TermKind::Numeral(digits) => at(TermKind::Numeral(digits.clone())),
         TermKind::Infix { op, lhs, rhs }
             if *op == Op::PLUS
@@ -271,8 +343,11 @@ mod tests {
 
     #[test]
     fn one_count_in_two_forms_is_reported() {
-        let found =
-            differences(&count(CountForm::Extended), &count(CountForm::Natural));
+        let found = differences(
+            &count(CountForm::Extended),
+            &count(CountForm::Natural),
+            &none,
+        );
         assert_eq!(
             found,
             [FormDifference::Count {
@@ -280,6 +355,11 @@ mod tests {
                 line: CountForm::Natural
             }]
         );
+    }
+
+    /// No library functions.
+    fn none(_: &str, _: Num) -> Option<super::super::term::ConstRef> {
+        None
     }
 
     fn int_letter(name: &str) -> Term {
@@ -318,7 +398,7 @@ mod tests {
             to_rat(int_letter("b")),
             Num::Rat,
         );
-        assert!(differences(&whole, &parts).is_empty());
+        assert!(differences(&whole, &parts, &none).is_empty());
     }
 
     #[test]
@@ -327,14 +407,16 @@ mod tests {
         let nat = |n: &str| Term::letter(n, LeanType::Num(Num::Nat));
         let whole = to_rat(infix(Op::MINUS, nat("a"), nat("b"), Num::Nat));
         let parts = infix(Op::MINUS, to_rat(nat("a")), to_rat(nat("b")), Num::Rat);
-        assert!(!differences(&whole, &parts).is_empty());
+        assert!(!differences(&whole, &parts, &none).is_empty());
     }
 
     #[test]
     fn a_term_in_one_form_on_both_sides_is_not() {
-        assert!(
-            differences(&count(CountForm::Natural), &count(CountForm::Natural))
-                .is_empty()
-        );
+        assert!(differences(
+            &count(CountForm::Natural),
+            &count(CountForm::Natural),
+            &none
+        )
+        .is_empty());
     }
 }

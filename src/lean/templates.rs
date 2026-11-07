@@ -233,6 +233,36 @@ impl Templates {
         self.functions.get(name).and_then(|forms| forms.first())
     }
 
+    /// The constant that is a library function's Lean form at another
+    /// type, of the constant that is one of its forms: `Complex.cos` of
+    /// `Real.cos` at ℂ. None where the constant is no library function's,
+    /// or the function has no form taking and giving that type.
+    pub fn same_function_at(
+        &self,
+        head: &str,
+        at: Num,
+    ) -> Option<super::doc::ConstRef> {
+        let head_of = |t: &Template| match &t.skeleton.kind {
+            super::doc::TermKind::App { head, .. } => match &head.kind {
+                super::doc::TermKind::Const(c) => Some(c.clone()),
+                _ => None,
+            },
+            _ => None,
+        };
+        let forms = self.functions.values().find(|forms| {
+            forms
+                .iter()
+                .any(|t| head_of(t).is_some_and(|c| c.name == head))
+        })?;
+        forms
+            .iter()
+            .find(|t| {
+                t.yields == Slot::Fixed(at)
+                    && t.holes.iter().all(|h| *h == Slot::Fixed(at))
+            })
+            .and_then(head_of)
+    }
+
     /// The Lean form of a library function applied to arguments of the
     /// types given: the first whose holes hold them, a number of a type
     /// held in each fixed hole's type; else the first.

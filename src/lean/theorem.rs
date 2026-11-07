@@ -6321,7 +6321,11 @@ impl<'a> Proof<'a> {
                 _ => self.writer.formula(node),
             };
             if let Route::Built(claim) = written {
-                for d in super::doc::forms::differences(&instance.statement, &claim) {
+                let templates = self.writer.templates;
+                let widen = |head: &str, at| templates.same_function_at(head, at);
+                for d in
+                    super::doc::forms::differences(&instance.statement, &claim, &widen)
+                {
                     self.forms.borrow_mut().push(FormNote {
                         page_line: reason.just.line,
                         item: cited.item.clone(),
