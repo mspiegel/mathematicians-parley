@@ -46,6 +46,7 @@ public import Parley.Stdlib.Sets.SubsetAntisymmetric
 public import Parley.Stdlib.Sums.ProductIntegerTerms
 public import Parley.Stdlib.Sums.ProductConstant
 public import Parley.Stdlib.Sums.ProductFactor
+public import Parley.Proofs.Halmos.EmptySetUnique.EmptySetUnique
 public import Parley.Proofs.Hammack.AbsLimitZero.AbsLimitZero
 public import Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne
 public import Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne

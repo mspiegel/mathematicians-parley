@@ -1590,8 +1590,35 @@ impl Writer<'_> {
         body: &Node,
         exists: bool,
     ) -> Option<Route<Printed>> {
-        let members = self.members_of(set)?;
+        // ∅, which holds no one type, holds what the body puts the letter
+        // in: x of "for all x ∈ ∅, x ∈ A" is one of A's members.
+        let empty = &*set.notation_name() == "empty-set";
+        if empty && self.empty_of.is_none() {
+            let held = body.walk().into_iter().find_map(|n| {
+                match (n.notation(), n.children.as_slice()) {
+                    (crate::notations::MEMBERSHIP, [x, s])
+                        if x.is_name() && x.text == letter.text =>
+                    {
+                        self.members_of(s)
+                    }
+                    _ => None,
+                }
+            })?;
+            let mut w = self.with_letters(self.letters.clone());
+            w.empty_of = Some(held);
+            return w.quantified_over_set(letter, set, body, exists);
+        }
+        let members = match self.members_of(set) {
+            Some(m) => m,
+            None if empty => self.empty_of.clone()?,
+            None => return None,
+        };
+        // ∅ told what it holds, `(∅ : Set α)`, which nothing else in the
+        // quantifier gives Lean.
         let domain = match self.set_term(set) {
+            Route::Built(_) if empty => super::expr::empty_of_type(LeanType::Set(
+                Box::new(members.letter().lean_type()),
+            )),
             Route::Built(p) => p,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
