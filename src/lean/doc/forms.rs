@@ -121,6 +121,24 @@ fn lifted(narrow: &Term, other: &Term, widen: &Widen) -> Option<Term> {
 fn pushed(term: &Term, widen: &Widen) -> Term {
     let mut out = match &term.kind {
         TermKind::Cast { inner, to } => cast_down(inner, to, widen),
+        // A map given by its values applied, `(fun x => t) a`, is t at a,
+        // as Lean reads it.
+        TermKind::App { head, args, .. } => match (&bare(head).kind, args.as_slice()) {
+            (
+                TermKind::Quantified {
+                    quant: super::term::Quant::Fun,
+                    letter,
+                    body,
+                    ..
+                },
+                [Arg::Explicit(a)],
+            ) => {
+                let given =
+                    std::collections::BTreeMap::from([(letter.clone(), a.clone())]);
+                return pushed(&body.substituted(&given), widen);
+            }
+            _ => term.clone(),
+        },
         // A numeral taken to ℕ is the numeral, `(3 : ℤ).toNat` 3, and a
         // natural number cast to ℤ and taken back is itself.
         TermKind::ToNat(inner) => match &bare(inner).kind {
