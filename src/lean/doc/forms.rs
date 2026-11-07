@@ -253,6 +253,20 @@ fn bare(term: &Term) -> &Term {
     }
 }
 
+/// Whether a natural number is the integer `x` taken to ℕ, written as it
+/// stands: `natural` cast to ℤ, with the cast pushed down, is `x` in one
+/// form.
+fn is_to_nat_of(x: &Term, natural: &Term) -> bool {
+    if natural.ty != Some(LeanType::Num(Num::Nat)) {
+        return false;
+    }
+    let none = |_: &str, _: Num| None;
+    let up = pushed(&cast_down(natural, &LeanType::Num(Num::Int), &none), &none);
+    let mut parts = Vec::new();
+    compare(&pushed(x, &none), &up, &mut parts);
+    parts.is_empty() && alike(x, &up)
+}
+
 fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
     let (item, line) = (bare(item), bare(line));
     match (&item.kind, &line.kind) {
@@ -270,6 +284,10 @@ fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
             if !alike(a, line) => {}
         (_, TermKind::ToNat(b) | TermKind::Cast { inner: b, .. })
             if !alike(item, b) => {}
+        // x.toNat beside a natural number y that cast to ℤ is x, as
+        // `push_cast` writes it: ((2 : ℤ) ^ n).toNat beside 2 ^ n.
+        (TermKind::ToNat(a), _) if is_to_nat_of(a, line) => {}
+        (_, TermKind::ToNat(b)) if is_to_nat_of(b, item) => {}
         (TermKind::ToNat(a), _) => {
             out.push(FormDifference::ToNat { in_item: true });
             compare(a, line, out);
