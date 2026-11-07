@@ -920,7 +920,6 @@
 {"key":"qify at h","kind":"tactic","modules":["Mathlib.Tactic.Qify"]}
 {"key":"refine a","kind":"tactic","modules":[]}
 {"key":"rify","kind":"tactic","modules":["Mathlib.Tactic.Rify"]}
-{"key":"rify at h","kind":"tactic","modules":["Mathlib.Tactic.Rify"]}
 {"key":"ring","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
 {"key":"ring_nf at h","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
 {"key":"rw [a]","kind":"tactic","modules":[]}
