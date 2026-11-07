@@ -4365,7 +4365,7 @@ impl<'a> Proof<'a> {
             if let ("functions-from", [from, to]) =
                 (&*set.notation_name(), set.children.as_slice())
             {
-                match self.function_given(&writer, &value, from, to) {
+                match self.function_given(writer, &value, from, to) {
                     Route::Built(p) => args.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
