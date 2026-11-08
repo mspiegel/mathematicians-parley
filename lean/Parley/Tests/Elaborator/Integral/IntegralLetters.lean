@@ -27,7 +27,6 @@ theorem integral_letters (a : ℝ) (b : ℝ) (x : ℝ) :
     (∫ s in a..b, (x * s : ℝ)) = (∫ u in a..b, (x * u : ℝ)) := by
   set I : ℝ := ∫ s in a..b, (x * s : ℝ) with hD1
   -- 1. D1
-  have s1 : I = (∫ u in a..b, (x * u : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
-  exact s1
+  first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
 
 end Parley.Tests.Elaborator.Integral.IntegralLetters

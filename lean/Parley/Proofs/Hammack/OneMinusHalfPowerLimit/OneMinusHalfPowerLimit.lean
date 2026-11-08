@@ -48,7 +48,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by parley_arith
-      simpa only [Int.reduceToNat, pow_one] using s1_1
+      simpa using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 2, m := k
       have s1_2 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))

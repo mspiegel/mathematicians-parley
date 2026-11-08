@@ -17,8 +17,8 @@ use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
 use crate::matching::{
-    alike, expand, standard, substitute_apart, substituted_in, Binding, Context,
-    Definitions, FxIndexMap,
+    alike_how, expand, standard, standard_how, substitute_apart, substituted_in,
+    Binding, Context, Definitions, FxIndexMap,
 };
 use crate::notations::{FOR_ALL, MEMBERSHIP, PLANE, POWERSET, SUBSET};
 use crate::outcome::Route;
@@ -422,14 +422,18 @@ impl<'a> Known<'a> {
     /// The order of anything else, the two sides of an "or" among them, is
     /// kept: a disjunction has one pattern, and nothing turns it.
     pub fn alike(&self, a: &Node, b: &Node) -> bool {
+        self.alike_how(a, b).is_some()
+    }
+
+    /// `alike`, with how the two met (`matching::Meeting`): respelt where
+    /// they meet only once a side is in the standard spelling.
+    pub fn alike_how(&self, a: &Node, b: &Node) -> Option<crate::matching::Meeting> {
         let none = IndexMap::new();
-        alike(
-            &standard(a, self.ctx),
-            &standard(b, self.ctx),
-            self.ctx,
-            &none,
-            &none,
-        )
+        let (sa, ra) = standard_how(a, self.ctx);
+        let (sb, rb) = standard_how(b, self.ctx);
+        let met = alike_how(&sa, &sb, self.ctx, &none, &none)?;
+        let respelt = (ra || rb) && alike_how(a, b, self.ctx, &none, &none).is_none();
+        Some(met.respelt(respelt))
     }
 
     /// Whether `aim` is `start` with one side of `left = right` put for the

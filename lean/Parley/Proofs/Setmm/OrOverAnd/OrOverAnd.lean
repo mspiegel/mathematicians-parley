@@ -20,21 +20,25 @@ theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
   · skip
     intro hD1
     -- 1. cases, from D1
-    rcases hD1 with hC1 | hC2
-    · skip
-      -- 1.1. mun:or-left, from C1
-      have s1_1 : a = 0 ∨ b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC1)
-      -- 1.2. mun:or-left, from C1
-      have s1_2 : a = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := c = 0) hC1)
-      -- 1.3. join 1.1, 1.2
-      parley_side
-    · skip
-      -- 1.4. mun:or-right, from C2
-      have s1_4 : a = 0 ∨ b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC2.1)
-      -- 1.5. mun:or-right, from C2
-      have s1_5 : a = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := c = 0) hC2.2)
-      -- 1.6. join 1.4, 1.5
-      parley_side
+    have s1 : (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0) := by
+      rcases hD1 with hC1 | hC2
+      · skip
+        -- 1.1. mun:or-left, from C1
+        have s1_1 : a = 0 ∨ b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := b = 0) hC1)
+        -- 1.2. mun:or-left, from C1
+        have s1_2 : a = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := c = 0) hC1)
+        -- 1.3. join 1.1, 1.2
+        have s1_3 : (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0) := by parley_side
+        exact ⟨(s1_3).1, (s1_3).2⟩
+      · skip
+        -- 1.4. mun:or-right, from C2
+        have s1_4 : a = 0 ∨ b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0) hC2.1)
+        -- 1.5. mun:or-right, from C2
+        have s1_5 : a = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := c = 0) hC2.2)
+        -- 1.6. join 1.4, 1.5
+        have s1_6 : (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0) := by parley_side
+        exact ⟨(s1_6).1, (s1_6).2⟩
+    exact ⟨(s1).1, (s1).2⟩
   · skip
     intro hD2
     -- 2. restate D2

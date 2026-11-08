@@ -56,6 +56,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     -- 2.7. def:rational x := A + B, from 2.6
     have s2_7 : ∃ m : ℚ, (m : ℂ) = A + (B : ℂ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, by parley_side, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, by parley_side, by parley_side⟩; parley_side)
     -- 2.8. join 2.5, 2.7
-    parley_side
+    have s2_8 : True ∧ (∃ m : ℚ, (m : ℂ) = A + (B : ℂ)) := by parley_side
+    exact ⟨trivial, (s2_8).2⟩
 
 end Parley.Proofs.Setmm.ShiftByRational.ShiftByRational

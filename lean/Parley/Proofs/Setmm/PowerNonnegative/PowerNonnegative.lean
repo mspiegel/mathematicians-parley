@@ -43,7 +43,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
       have s1_2 : (0 : ℤ) ≤ 1 := by parley_arith
       -- 1.3. transitivity, from 1.2, 1.1
       have s1_3 : 0 ≤ a ^ 0 := by parley_order
-      simpa only [Int.reduceToNat] using s1_3
+      simpa using s1_3
     | succ m hK hIH =>
       -- 1.4. mun:exponent-step
       have s1_4 : a ^ (m + 1).toNat = a ^ m.toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m) (by parley_side))

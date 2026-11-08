@@ -16,3 +16,6 @@ read 89: a + b ≥ 0  as  order:≥(additive:+(name:a, name:b), numeral:0)  a st
 read 90: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
 read 93: a + b < 0  as  order:<(additive:+(name:a, name:b), numeral:0)  a statement
 read 94: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
+step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

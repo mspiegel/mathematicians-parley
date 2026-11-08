@@ -50,6 +50,7 @@ theorem log_two_of_three_between :
   have r63_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
   have s6 : Real.log (3 : ℝ) / Real.log (2 : ℝ) < 2 := by parley_order
   -- 7. join 3, 6
-  parley_side
+  have s7 : 1 < Real.log (3 : ℝ) / Real.log (2 : ℝ) ∧ Real.log (3 : ℝ) / Real.log (2 : ℝ) < 2 := by parley_side
+  exact ⟨(s7).1, (s7).2⟩
 
 end Parley.Proofs.Identities.LogBaseClosed.LogTwoOfThreeBetween

@@ -405,6 +405,7 @@ pub fn checked_where(
             record.opener_asserted = library::opener_assertions(&c.known[i]);
             record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);
             record.contradicted = formulas::contradictions(thm, c.env, &c.known[i]);
+            record.ends_met = formulas::ended_meetings(thm, &c.known[i]);
             record.places_shown = thm
                 .steps
                 .iter()

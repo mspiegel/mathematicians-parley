@@ -296,6 +296,10 @@ pub struct CheckedTheorem {
     /// or a case closes it on, by the step's index
     /// (`formulas::contradictions`).
     pub contradicted: IndexMap<usize, Contradicted>,
+    /// How each step that ends a block, a part of one or the proof meets
+    /// what it owes, by the step's index: one meeting for each part of its
+    /// "and" in order (`formulas::ended_meetings`).
+    pub ends_met: IndexMap<usize, Vec<crate::matching::Meeting>>,
     /// Each term a step puts where a notation asks a number system, a of
     /// a ≡ b (mod n) in ℤ, with how the step shows it is in that system
     /// (`formulas::check_place_systems`), by the step's index: so that a
@@ -455,6 +459,8 @@ pub struct Supposition {
     /// What the supposition is set against: the block's claim, or what the
     /// part owes, with the block's `let` and `assume` lines taken off it.
     pub against: Node,
+    /// How what the one denies meets the other (`Known::alike_how`).
+    pub meeting: crate::matching::Meeting,
 }
 
 /// How a contradiction's supposition stands to what the block or part is
@@ -481,6 +487,9 @@ pub struct Contradicted {
     pub said: Node,
     /// Which of the two says the other negated.
     pub negated: Negating,
+    /// How what the negating one denies meets the other
+    /// (`Known::alike_how`).
+    pub meeting: crate::matching::Meeting,
 }
 
 /// Of a step and the line it contradicts, the one that says the other

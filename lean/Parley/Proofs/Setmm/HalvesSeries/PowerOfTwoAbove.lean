@@ -36,7 +36,7 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by parley_arith
-      simpa only [Int.reduceToNat, pow_one] using s1_1
+      simpa using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k
       have s1_2 : (0 : ℤ) < 2 ^ k.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k) (by parley_side))

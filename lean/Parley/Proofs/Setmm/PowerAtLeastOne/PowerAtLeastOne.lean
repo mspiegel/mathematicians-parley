@@ -39,7 +39,7 @@ theorem power_at_least_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 1 ≤ a) :
       have s2_1 : a ^ 0 = 1 := by parley_ring
       -- 2.2. inequalities
       have s2_2 : 1 ≤ a ^ 0 := by parley_order
-      simpa only [Int.reduceToNat] using s2_2
+      simpa using s2_2
     | succ m hK hIH =>
       -- 2.3. mun:exponent-step
       have s2_3 : a ^ (m + 1).toNat = a ^ m.toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m) (by parley_side))

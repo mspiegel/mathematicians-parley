@@ -78,7 +78,6 @@
 {"key":"mul_one","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"nhds","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
 {"key":"nhdsWithin","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
-{"key":"one_mul","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"pow_one","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"rfl","kind":"const","modules":[]}
 {"key":"sub_add_cancel","kind":"const","modules":["Mathlib.Algebra.Group.Defs"]}
@@ -950,6 +949,7 @@
 {"key":"⟨(sorry : ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, (sorry : Prop), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨a, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, a, a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}

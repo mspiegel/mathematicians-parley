@@ -794,6 +794,131 @@ fn with_values(term: &Term, values: &Values, depth: usize) -> Term {
 /// The term with each identity element dropped where Lean's rewrite of that
 /// name drops it, `x + 0`, `0 + x`, `x - 0`, `x * 1`, `1 * x`, `x ^ 1`, and
 /// each numeral taken to ℕ as the numeral, the rewrites used put in `used`.
+/// What `simp only` must be told to work out the numerals the writer takes
+/// to ℕ in `term`, `(0 + 1).toNat`: `Int.reduceToNat` and each operation's
+/// own procedure, which it uses only where named.
+pub fn to_nat_rules(term: &Term) -> std::collections::BTreeSet<&'static str> {
+    let mut used = std::collections::BTreeSet::new();
+    for t in term.walk() {
+        let TermKind::ToNat(inner) = &t.kind else {
+            continue;
+        };
+        let closed = !inner
+            .walk()
+            .iter()
+            .any(|n| matches!(n.kind, TermKind::Letter(_) | TermKind::Const(_)));
+        if !closed {
+            continue;
+        }
+        used.insert("Int.reduceToNat");
+        for n in inner.walk() {
+            if let TermKind::Infix { op, .. } = &n.kind {
+                used.extend(arithmetic_rules(op.symbol).iter().copied());
+            }
+        }
+    }
+    used
+}
+
+/// The procedures `simp only` works an operation on numerals out by, in ℤ
+/// and in ℕ.
+fn arithmetic_rules(symbol: &str) -> &'static [&'static str] {
+    match symbol {
+        "+" => &["Int.reduceAdd", "Nat.reduceAdd"],
+        "-" => &["Int.reduceSub", "Nat.reduceSub"],
+        "*" => &["Int.reduceMul", "Nat.reduceMul"],
+        "^" => &["Int.reducePow", "Nat.reducePow"],
+        _ => &[],
+    }
+}
+
+/// Where the two differ only in how the writer placed their casts: the
+/// `set` equations to rewrite by first, and whether the one is in a
+/// narrower type than the other. None where they are written alike, or
+/// differ in more than casts.
+pub fn casts_differ(given: &Term, line: &Term, values: &Values) -> Option<CastsApart> {
+    if ascriptions_dropped(given) == ascriptions_dropped(line) {
+        return None;
+    }
+    // Alike once each letter a `set` names is read as its value, bound
+    // letters renamed: Lean takes the one for the other as it is.
+    let valued = |t: &Term| {
+        renamed_bound(&unfolded(&reduced(&with_values(t, values, 8))), &mut 0).untyped()
+    };
+    if valued(given) == valued(line) {
+        return None;
+    }
+    let lift = match (relation_type(given), relation_type(line)) {
+        (Some(a), Some(b)) => a != b,
+        _ => false,
+    };
+    let Meets::Casts { through, lift } = casts_alike(given, line, values, lift)? else {
+        return None;
+    };
+    let named_in = |t: &Term| -> Vec<String> {
+        let names: std::collections::BTreeSet<String> = t
+            .walk()
+            .into_iter()
+            .filter_map(|n| match &n.kind {
+                TermKind::Letter(l) => Some(l.clone()),
+                _ => None,
+            })
+            .collect();
+        values
+            .iter()
+            .filter(|(name, v)| names.contains(*name) && through.contains(&v.equation))
+            .map(|(_, v)| v.equation.clone())
+            .collect()
+    };
+    Some(CastsApart {
+        at_given: named_in(given),
+        at_line: named_in(line),
+        lift,
+    })
+}
+
+/// How two statements that differ only in casts are taken the one to the
+/// other (`casts_differ`): the `set` equations to rewrite the first by and
+/// the second by, each where one of its letters stands, and whether the
+/// first is in a narrower type.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CastsApart {
+    pub at_given: Vec<String>,
+    pub at_line: Vec<String>,
+    pub lift: bool,
+}
+
+/// A statement turned round: an equation's sides swapped, a congruence's,
+/// or those of the equation a negation denies.
+pub fn turned_statement(term: &Term) -> Term {
+    match &term.kind {
+        TermKind::Paren(inner) => turned_statement(inner),
+        TermKind::Not(inner) => negation(&turned_statement(inner)),
+        TermKind::ModEq { a, b, n } => Term {
+            kind: TermKind::ModEq {
+                a: b.clone(),
+                b: a.clone(),
+                n: n.clone(),
+            },
+            ty: term.ty.clone(),
+        },
+        _ => turned(term),
+    }
+}
+
+/// Whether Lean writes the two alike, an ascription of a term to its own
+/// type and the writer's brackets aside.
+pub fn written_alike(a: &Term, b: &Term) -> bool {
+    ascriptions_dropped(a) == ascriptions_dropped(b)
+}
+
+/// Whether the statement denies an equation, `a ≠ b` or `¬ a = b`: one
+/// turned round by `Ne.symm`.
+pub fn denies_equation(term: &Term) -> bool {
+    matches!(&unfolded(term).kind, TermKind::Not(inner)
+        if matches!(&inner.kind, TermKind::Infix { op, .. } if op.symbol == "="))
+}
+
 fn identities_dropped(
     term: &Term,
     used: &mut std::collections::BTreeSet<&'static str>,
@@ -818,14 +943,7 @@ fn identities_dropped(
             used.insert("Int.reduceToNat");
             for t in inner.walk() {
                 if let TermKind::Infix { op, .. } = &t.kind {
-                    let named: &[&'static str] = match op.symbol {
-                        "+" => &["Int.reduceAdd", "Nat.reduceAdd"],
-                        "-" => &["Int.reduceSub", "Nat.reduceSub"],
-                        "*" => &["Int.reduceMul", "Nat.reduceMul"],
-                        "^" => &["Int.reducePow", "Nat.reducePow"],
-                        _ => &[],
-                    };
-                    used.extend(named.iter().copied());
+                    used.extend(arithmetic_rules(op.symbol).iter().copied());
                 }
             }
             return (**inner).clone();

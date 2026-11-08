@@ -35,6 +35,7 @@ theorem a_label_given_again_inside_a_block :
   -- 1.3. inequalities
   have s1_3 : x ≥ 0 := by parley_order
   -- 1.4. join 1.3, 1.2
-  parley_side
+  have s1_4 : x ≥ 0 ∧ x + 1 > 0 := by parley_side
+  exact ⟨(s1_4).1, (s1_4).2⟩
 
 end Parley.Tests.Elaborator.ALabelGivenAgainInsideABlock.ALabelGivenAgainInsideABlock

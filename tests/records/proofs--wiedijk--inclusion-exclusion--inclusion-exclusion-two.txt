@@ -75,3 +75,4 @@ read 75: |B ∖ A|  as  cardinality:||(set-operations:∖(name:B, name:A))  a nu
 read 78: |B| = |A ∩ B| + |B ∖ A|  as  equality:=(cardinality:||(name:B), additive:+(cardinality:||(set-operations:∩(name:A, name:B)), cardinality:||(set-operations:∖(name:B, name:A))))  a statement
 read 79: (A ∩ B) ∪ (B ∖ A) = B  as  equality:=(set-operations:∪(set-operations:∩(name:A, name:B), set-operations:∖(name:B, name:A)), name:B)  a statement
 read 81: |A ∪ B| = |A| + |B| − |A ∩ B|  as  equality:=(cardinality:||(set-operations:∪(name:A, name:B)), additive:−(additive:+(cardinality:||(name:A), cardinality:||(name:B)), cardinality:||(set-operations:∩(name:A, name:B))))  a statement
+step 19 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

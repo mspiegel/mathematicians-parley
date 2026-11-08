@@ -63,6 +63,7 @@ theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 -
     · skip
       exact hC4
   -- 5. join 2, 4
-  parley_side
+  have s5 : Odd a ∧ Odd b := by parley_side
+  exact ⟨(s5).1, (s5).2⟩
 
 end Parley.Proofs.Hammack.OddProductOddFactors.OddProductOddFactors

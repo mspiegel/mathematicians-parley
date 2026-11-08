@@ -40,7 +40,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_1 : A ^ 0 = 1 := by parley_ring
       -- 1.2. inequalities
       have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_order
-      push_cast at s1_2 ⊢; exact s1_2
+      simpa using s1_2
     | succ k hK hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
       have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side))
@@ -70,7 +70,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k.toNat * A := by parley_order
       -- 1.12. transitivity, from 1.11, 1.3
       have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1).toNat := by parley_order
-      push_cast at s1_12 ⊢; exact s1_12
+      simpa using s1_12
   -- 2. instantiate k := n in line 1
   first | (have h := (s1 n (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
 

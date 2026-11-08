@@ -22,7 +22,9 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 9] = [
+const KEPT: [&str; 11] = [
+    "proofs/hammack/geometric-sum-base-two/geometric-sum-base-two",
+    "tests/elaborator/a-supposition-written-otherwise/a-claim-denying-its-supposition-written-otherwise",
     "proofs/wiedijk/euclid/euclid",
     "proofs/setmm/floor-quotient-zero/floor-quotient-zero",
     "proofs/wiedijk/triangular-reciprocals/triangular-reciprocals",
@@ -56,6 +58,40 @@ fn page_printed(read: &CheckedCorpus, name: &str) -> String {
     out
 }
 
+/// How the checker met each pair it compared that the build reads: each
+/// step ending a block or the proof with what it owes, each supposition with
+/// what it denies, and each contradicting step with its line. Kept apart from
+/// `record::printed_but`, since a rewrite that spells a line otherwise
+/// changes how the two meet and nothing else.
+fn meetings_printed(read: &CheckedCorpus, name: &str) -> String {
+    let record = &read.theorems[name];
+    let thm = read
+        .corpus
+        .theorems
+        .iter()
+        .find(|t| t.qualified() == name)
+        .expect("a kept theorem is in the corpus");
+    let mut out = String::new();
+    for (at, met) in &record.ends_met {
+        let step = &thm.steps[*at].number;
+        out.push_str(&format!("step {step} ends meeting {met:?}\n"));
+    }
+    for (line, s) in &record.supposed {
+        out.push_str(&format!(
+            "suppose on line {line}: {:?}, meeting {:?}\n",
+            s.shape, s.meeting
+        ));
+    }
+    for (at, c) in &record.contradicted {
+        let step = &thm.steps[*at].number;
+        out.push_str(&format!(
+            "step {step} contradicts {}: {:?}, meeting {:?}\n",
+            c.line, c.negated, c.meeting
+        ));
+    }
+    out
+}
+
 /// Where a theorem's kept record is.
 fn kept_at(root: &Path, name: &str) -> std::path::PathBuf {
     root.join("tests/records")
@@ -72,8 +108,9 @@ fn the_record_the_build_is_handed_is_the_one_kept() {
     let write = std::env::var("PARLEY_RECORD_WRITE").is_ok();
     let mut differ = Vec::new();
     for name in KEPT {
-        let now =
-            record::printed_but(&read, name, &|_| false) + &page_printed(&read, name);
+        let now = record::printed_but(&read, name, &|_| false)
+            + &page_printed(&read, name)
+            + &meetings_printed(&read, name);
         let at = kept_at(root, name);
         if write {
             std::fs::create_dir_all(at.parent().unwrap()).unwrap();

@@ -36,16 +36,20 @@ theorem and_over_or (a : ℝ) (b : ℝ) (c : ℝ) :
   · skip
     intro hD2
     -- 3. cases, from D2
-    rcases hD2 with hC3 | hC4
-    · skip
-      -- 3.1. mun:or-left, from C3
-      have s3_1 : b = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := c = 0) hC3.2)
-      -- 3.2. join C3, 3.1
-      parley_side
-    · skip
-      -- 3.3. mun:or-right, from C4
-      have s3_3 : b = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := c = 0) hC4.2)
-      -- 3.4. join C4, 3.3
-      parley_side
+    have s3 : a = 0 ∧ (b = 0 ∨ c = 0) := by
+      rcases hD2 with hC3 | hC4
+      · skip
+        -- 3.1. mun:or-left, from C3
+        have s3_1 : b = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b = 0) (Q := c = 0) hC3.2)
+        -- 3.2. join C3, 3.1
+        have s3_2 : a = 0 ∧ (b = 0 ∨ c = 0) := by parley_side
+        exact ⟨(s3_2).1, (s3_2).2⟩
+      · skip
+        -- 3.3. mun:or-right, from C4
+        have s3_3 : b = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := c = 0) hC4.2)
+        -- 3.4. join C4, 3.3
+        have s3_4 : a = 0 ∧ (b = 0 ∨ c = 0) := by parley_side
+        exact ⟨(s3_4).1, (s3_4).2⟩
+    exact ⟨(s3).1, (s3).2⟩
 
 end Parley.Proofs.Setmm.AndOverOr.AndOverOr

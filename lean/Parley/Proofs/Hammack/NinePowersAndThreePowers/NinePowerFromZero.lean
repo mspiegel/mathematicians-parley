@@ -41,7 +41,7 @@ theorem nine_power_from_zero (n : ℤ) (hH1 : 0 ≤ n) :
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (9 ^ 0 : ℤ) = 3 ^ 0 * 3 ^ 0 := by parley_arith
-      simpa only [Int.reduceToNat] using s1_1
+      simpa using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 9, m := k
       have s1_2 : (9 ^ (k + 1).toNat : ℤ) = 9 ^ k.toNat * 9 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k) (by parley_side))

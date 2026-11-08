@@ -57,6 +57,7 @@ theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
     -- 12. mun:square-zero x := B, from 10
     have s12 : B = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side))
     -- 13. join 11, 12
-    parley_side
+    have s13 : A = 0 ∧ B = 0 := by parley_side
+    exact ⟨(s13).1, (s13).2⟩
 
 end Parley.Proofs.Setmm.SumOfSquaresZero.SumOfSquaresZero

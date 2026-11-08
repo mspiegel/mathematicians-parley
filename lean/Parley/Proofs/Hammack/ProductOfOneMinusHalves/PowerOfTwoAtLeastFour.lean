@@ -35,8 +35,7 @@ theorem power_of_two_at_least_four (m : ℤ) (hH1 : 0 < m) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (2 ^ (1 + 1) : ℤ) ≥ 4 := by parley_arith
-      simpa only [Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd] using s1_1
+      parley_arith
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k + 1
       have s1_2 : (0 : ℤ) < 2 ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k + 1) (by parley_side))

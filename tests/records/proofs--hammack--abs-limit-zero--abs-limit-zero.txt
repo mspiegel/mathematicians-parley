@@ -39,3 +39,6 @@ read 50: ||a(n)|| = |a(n)|  as  equality:=(absolute-value:||(absolute-value:||(a
 read 52: There exists N ∈ ℕ such that |a(n)| < ε for all n ≥ N  as  there-is:thereis∈with(name:N, number-systems:ℕ, for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(application:()(name:a, name:n)), name:ε))))  a statement
 read 55: a(n) → 0 as n → ∞  as  tends-to:→as→∞(application:()(name:a, name:n), numeral:0, name:n)  a statement
 read 56: 0  as  numeral:0  a number
+step 1.4.6 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 1.5 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

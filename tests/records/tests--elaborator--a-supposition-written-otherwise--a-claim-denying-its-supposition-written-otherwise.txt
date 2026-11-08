@@ -1,0 +1,12 @@
+theorem tests/elaborator/a-supposition-written-otherwise/a-claim-denying-its-supposition-written-otherwise
+block of 1: 1.1
+read 1: a ≠ 1  as  logical-not:not(equality:=(name:a, numeral:1))  a statement
+read 4: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
+read 5: a ≠ 1  as  logical-not:not(equality:=(name:a, numeral:1))  a statement
+read 6: a ≠ 1  as  logical-not:not(equality:=(name:a, numeral:1))  a statement
+read 8: a ≠ 1  as  logical-not:not(equality:=(name:a, numeral:1))  a statement
+read 10: 1 = a  as  equality:=(numeral:1, name:a)  a statement
+read 12: 1 = a  as  equality:=(numeral:1, name:a)  a statement
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+suppose on line 10: Denial, meeting Meeting { turned: true, permuted: false, renamed: false, respelled: false, identities: [] }
+step 1.1 contradicts H2: Line, meeting Meeting { turned: true, permuted: false, renamed: false, respelled: false, identities: [] }

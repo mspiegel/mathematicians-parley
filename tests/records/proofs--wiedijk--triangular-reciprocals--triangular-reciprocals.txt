@@ -111,3 +111,11 @@ read 121: n  as  name:n  a number
 read 123: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement
 read 124: 2  as  numeral:2  a number
 read 125: for all k ∈ ℕ, 1/T(k) ∈ ℝ  as  for-all:forall∈,(name:k, number-systems:ℕ, membership:∈(multiplicative:/(numeral:1, application:()(name:T, name:k)), number-systems:ℝ))  a statement
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 3.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 4.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 5.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 6.2.10 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 6.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 8 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

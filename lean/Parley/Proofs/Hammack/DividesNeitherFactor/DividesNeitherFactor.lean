@@ -40,6 +40,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
     have s2_3 : ¬ x ∣ y * z := by parley_side
     exact s2_3 s2_2
   -- 3. join 1, 2
-  parley_side
+  have s3 : ¬ x ∣ y ∧ ¬ x ∣ z := by parley_side
+  exact ⟨(s3).1, (s3).2⟩
 
 end Parley.Proofs.Hammack.DividesNeitherFactor.DividesNeitherFactor

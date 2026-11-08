@@ -20,6 +20,7 @@ theorem values_by_name (a : ℤ) (c : ℤ) (hH3 : c = a * 2) (hH4 : True) :
   have s1 : a ∣ c := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := c))).mpr ⟨(2 : ℤ), hH3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := c))).mpr ⟨(2 : ℤ), hH3⟩; parley_side)
   -- 2. instantiate y := 1, x := a in H4
   -- 3. join 1, 2
-  parley_side
+  have s3 : a ∣ c ∧ True := by parley_side
+  exact ⟨(s3).1, trivial⟩
 
 end Parley.Tests.Elaborator.ByName.ValuesByName

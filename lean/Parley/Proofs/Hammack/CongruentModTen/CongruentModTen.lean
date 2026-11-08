@@ -42,7 +42,8 @@ theorem congruent_mod_ten (a : ℤ) (b : ℤ) :
     -- 8. def:congruent-mod, from 7
     have s8 : a ≡ b [ZMOD (5 : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := b))).mpr s7 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := b))).mpr s7; parley_side)
     -- 9. join 5, 8
-    parley_side
+    have s9 : a ≡ b [ZMOD (2 : ℤ)] ∧ a ≡ b [ZMOD (5 : ℤ)] := by parley_side
+    exact ⟨(s9).1, (s9).2⟩
   · skip
     intro hD2
     -- 10. def:congruent-mod, from D2

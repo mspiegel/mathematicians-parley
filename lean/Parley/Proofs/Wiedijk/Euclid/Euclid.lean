@@ -50,38 +50,43 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
       -- 3.2. substitute b(0) = N (line 2) into H2
       have s3_2 : 0 ≤ b 0 := by parley_subst_at s2 hH2
       -- 3.3. join 3.1, 3.2
-      parley_side
+      have s3_3 : 0 ≤ a 0 ∧ 0 ≤ b 0 := by parley_side
+      exact ⟨(s3_3).1, (s3_3).2⟩
     | succ k hK1 hIH1 =>
       -- 3.4. axi:excluded-middle P := b(k) = 0
       have s3_4 : b k = 0 ∨ b k ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := b k = 0))
       -- 3.5. cases, from 3.4
-      rcases s3_4 with hC1 | hC2
-      · skip
-        -- 3.5.1. D1, from C1
-        have s3_5_1 : a (k + 1) = a k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); linarith
-        -- 3.5.2. D1, from C1
-        have s3_5_2 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); linarith
-        -- 3.5.3. substitute a(k + 1) = a(k) (line 3.5.1) into IH1
-        have s3_5_3 : 0 ≤ a (k + 1) := by parley_subst_at s3_5_1 hIH1
-        -- 3.5.4. membership, from 3.5.2
-        have s3_5_4 : 0 ≤ b (k + 1) := by parley_side
-        -- 3.5.5. join 3.5.3, 3.5.4
-        parley_side
-      · skip
-        -- 3.5.6. D1, from C2
-        have s3_5_6 : a (k + 1) = b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
-        -- 3.5.7. D1, from C2
-        have s3_5_7 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
-        -- 3.5.8. mun:nat0-nonzero, from C2, IH1
-        have s3_5_8 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2)
-        -- 3.5.9. mun:mod-natural, from 3.5.8
-        have s3_5_9 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
-        -- 3.5.10. substitute a(k + 1) = b(k) (line 3.5.6) into IH1
-        have s3_5_10 : 0 ≤ a (k + 1) := by parley_subst_at s3_5_6 hIH1
-        -- 3.5.11. substitute b(k + 1) = a(k) mod b(k) (line 3.5.7) into line 3.5.9
-        have s3_5_11 : 0 ≤ b (k + 1) := by parley_subst_at s3_5_7 s3_5_9
-        -- 3.5.12. join 3.5.10, 3.5.11
-        parley_side
+      have s3_5 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := by
+        rcases s3_4 with hC1 | hC2
+        · skip
+          -- 3.5.1. D1, from C1
+          have s3_5_1 : a (k + 1) = a k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); linarith
+          -- 3.5.2. D1, from C1
+          have s3_5_2 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); linarith
+          -- 3.5.3. substitute a(k + 1) = a(k) (line 3.5.1) into IH1
+          have s3_5_3 : 0 ≤ a (k + 1) := by parley_subst_at s3_5_1 hIH1
+          -- 3.5.4. membership, from 3.5.2
+          have s3_5_4 : 0 ≤ b (k + 1) := by parley_side
+          -- 3.5.5. join 3.5.3, 3.5.4
+          have s3_5_5 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := by parley_side
+          exact ⟨(s3_5_5).1, (s3_5_5).2⟩
+        · skip
+          -- 3.5.6. D1, from C2
+          have s3_5_6 : a (k + 1) = b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
+          -- 3.5.7. D1, from C2
+          have s3_5_7 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
+          -- 3.5.8. mun:nat0-nonzero, from C2, IH1
+          have s3_5_8 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2)
+          -- 3.5.9. mun:mod-natural, from 3.5.8
+          have s3_5_9 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
+          -- 3.5.10. substitute a(k + 1) = b(k) (line 3.5.6) into IH1
+          have s3_5_10 : 0 ≤ a (k + 1) := by parley_subst_at s3_5_6 hIH1
+          -- 3.5.11. substitute b(k + 1) = a(k) mod b(k) (line 3.5.7) into line 3.5.9
+          have s3_5_11 : 0 ≤ b (k + 1) := by parley_subst_at s3_5_7 s3_5_9
+          -- 3.5.12. join 3.5.10, 3.5.11
+          have s3_5_12 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := by parley_side
+          exact ⟨(s3_5_12).1, (s3_5_12).2⟩
+      exact ⟨(s3_5).1, (s3_5).2⟩
   -- 4. induction on k starting at 0
   have s4 : ∀ k : ℤ, 0 ≤ k → (Int.gcd (a k) (b k) : ℤ) = (Int.gcd M N : ℤ) := by
     intro k h_k

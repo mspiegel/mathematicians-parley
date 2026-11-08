@@ -680,10 +680,19 @@ fn filled(
 /// x² as x^2, `∏(k ∈ {1, …, n}) k` as `∏(k = 1 to n) k`. A message that
 /// prints a tree read so prints the standard spelling.
 pub fn standard(node: &Node, ctx: &Context) -> Node {
+    standard_how(node, ctx).0
+}
+
+/// `standard`, with whether it respelt anything: true where the tree had a
+/// spelling to turn, a hole to fill or a map applied to read as its rule.
+pub fn standard_how(node: &Node, ctx: &Context) -> (Node, bool) {
     if ctx.turned.is_empty() && ctx.filled.is_empty() {
-        return node.clone();
+        return (node.clone(), false);
     }
-    turned_to_standard(node, ctx).unwrap_or_else(|| node.clone())
+    match turned_to_standard(node, ctx) {
+        Some(respelt) => (respelt, true),
+        None => (node.clone(), false),
+    }
 }
 
 /// What a node is in its standard spelling, where it is another's.
@@ -1396,17 +1405,39 @@ fn fit_in_any_order(
 fn paired_in_some_order(
     a: &[Node],
     b: &[Node],
-    related: &dyn Fn(&Node, &Node) -> bool,
-) -> bool {
+    related: &dyn Fn(&Node, &Node) -> Option<Meeting>,
+) -> Option<Meeting> {
     if a.len() != b.len() {
-        return false;
+        return None;
     }
-    let pairs: Vec<Vec<bool>> = a
+    let met: Vec<Vec<Option<Meeting>>> = a
         .iter()
         .map(|x| b.iter().map(|y| related(x, y)).collect())
         .collect();
+    // Each part in its own place where that pairs them: {2, 3, 2} meets
+    // itself as written, not with its two 2s crossed.
+    let in_place: Option<Vec<Meeting>> =
+        (0..a.len()).map(|i| met[i][i].clone()).collect();
+    if let Some(in_place) = in_place {
+        return Some(in_place.into_iter().fold(Meeting::default(), Meeting::with));
+    }
+    let pairs: Vec<Vec<bool>> = met
+        .iter()
+        .map(|row| row.iter().map(Option::is_some).collect())
+        .collect();
     let mut partner: Vec<Option<usize>> = vec![None; b.len()];
-    (0..a.len()).all(|i| augmented(i, &pairs, &mut partner, &mut vec![false; b.len()]))
+    if !(0..a.len())
+        .all(|i| augmented(i, &pairs, &mut partner, &mut vec![false; b.len()]))
+    {
+        return None;
+    }
+    let mut out = Meeting::default();
+    for (j, i) in partner.iter().enumerate() {
+        let i = (*i)?;
+        out.permuted |= i != j;
+        out = out.with(met[i][j].clone()?);
+    }
+    Some(out)
 }
 
 /// Whether `a`'s part `i` is given a partner, taking a free one of `b`'s
@@ -1440,15 +1471,34 @@ fn parts_related(
     ctx: &Context,
     related: &dyn Fn(&Node, &Node) -> bool,
 ) -> bool {
+    parts_related_how(a, b, ctx, &|x, y| related(x, y).then(Meeting::default)).is_some()
+}
+
+/// `parts_related`, with how the parts met: each pair's meeting, the parts
+/// taken the other way round where the second of `orders` paired them, and
+/// paired out of order where an unordered notation's matching did.
+fn parts_related_how(
+    a: &Node,
+    b: &Node,
+    ctx: &Context,
+    related: &dyn Fn(&Node, &Node) -> Option<Meeting>,
+) -> Option<Meeting> {
     if ctx.unordered.contains(&a.notation()) {
         return paired_in_some_order(&a.children, &b.children, related);
     }
-    orders(a, b, ctx).iter().any(|kids| {
-        a.children
-            .iter()
-            .zip(kids.iter())
-            .all(|(x, y)| related(x, y))
-    })
+    orders(a, b, ctx)
+        .iter()
+        .enumerate()
+        .find_map(|(way, kids)| {
+            let mut out = Meeting {
+                turned: way > 0,
+                ..Meeting::default()
+            };
+            for (x, y) in a.children.iter().zip(kids.iter()) {
+                out = out.with(related(x, y)?);
+            }
+            Some(out)
+        })
 }
 
 /// Whether one of `sites`, the occurrences that may decide a property or
@@ -1559,12 +1609,84 @@ pub fn alike(
     ours: &IndexMap<Symbol, Symbol>,
     theirs: &IndexMap<Symbol, Symbol>,
 ) -> bool {
-    if alike_as_written(a, b, ctx, ours, theirs) {
-        return true;
+    alike_how(a, b, ctx, ours, theirs).is_some()
+}
+
+/// How two formulas `alike` finds one are one: what pairing them took.
+/// Each backend carries out the same differences by its own lemmas, and
+/// reads them here instead of comparing the two again.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Meeting {
+    /// An equation, or two holes that stand in no order, taken the other
+    /// way round somewhere.
+    pub turned: bool,
+    /// The parts of a notation whose parts stand in any order paired other
+    /// than in their places.
+    pub permuted: bool,
+    /// A letter one binds paired with a different letter the other binds.
+    pub renamed: bool,
+    /// One side read in another spelling of the same notation, `x > 0` as
+    /// `0 < x` or x² as x^2, or a map applied read as its rule
+    /// (`standard`).
+    pub respelled: bool,
+    /// Each identity element dropped, x + 0 read as x.
+    pub identities: Vec<Dropped>,
+}
+
+impl Meeting {
+    /// Whether the two are written alike: nothing was taken to pair them.
+    pub fn as_written(&self) -> bool {
+        *self == Meeting::default()
+    }
+
+    /// Both meetings at once: what either took.
+    fn with(mut self, other: Meeting) -> Meeting {
+        self.turned |= other.turned;
+        self.permuted |= other.permuted;
+        self.renamed |= other.renamed;
+        self.respelled |= other.respelled;
+        self.identities.extend(other.identities);
+        self
+    }
+
+    /// The same meeting, with a side read in another spelling where
+    /// `respelled`.
+    pub fn respelt(mut self, respelled: bool) -> Meeting {
+        self.respelled |= respelled;
+        self
+    }
+}
+
+/// An identity element dropped: the operation by its notation's name and
+/// the literal it is written with, the hole the element stood in, and the
+/// element, `additive` written `+` with 0 in hole 1 for x + 0.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Dropped {
+    pub operation: String,
+    pub literal: String,
+    pub hole: usize,
+    pub element: String,
+}
+
+/// `alike`, with how the two met; None where they are not alike.
+pub fn alike_how(
+    a: &Node,
+    b: &Node,
+    ctx: &Context,
+    ours: &IndexMap<Symbol, Symbol>,
+    theirs: &IndexMap<Symbol, Symbol>,
+) -> Option<Meeting> {
+    if let Some(met) = alike_as_written(a, b, ctx, ours, theirs) {
+        return Some(met);
     }
     // x + 0 is x wherever it stands (`Context::identities`).
-    identity_kept(a, ctx).is_some_and(|k| alike(&k, b, ctx, ours, theirs))
-        || identity_kept(b, ctx).is_some_and(|k| alike(a, &k, ctx, ours, theirs))
+    if let Some((k, dropped)) = identity_kept_how(a, ctx) {
+        if let Some(met) = alike_how(&k, b, ctx, ours, theirs) {
+            return Some(met.with(dropped));
+        }
+    }
+    let (k, dropped) = identity_kept_how(b, ctx)?;
+    alike_how(a, &k, ctx, ours, theirs).map(|met| met.with(dropped))
 }
 
 /// The operand an identity element leaves, where `node` is an operation
@@ -1572,14 +1694,31 @@ pub fn alike(
 /// otherwise. The identity may itself be written with one left out, so
 /// a^(0 + 1) leaves a.
 fn identity_kept(node: &Node, ctx: &Context) -> Option<Node> {
+    identity_kept_how(node, ctx).map(|(kept, _)| kept)
+}
+
+/// `identity_kept`, with the elements dropped: the operation's, and one
+/// its identity was itself written with.
+fn identity_kept_how(node: &Node, ctx: &Context) -> Option<(Node, Meeting)> {
     let law = identity_of(node, ctx)?;
-    law.holes
-        .iter()
-        .find(|&&hole| {
-            let at = &node.children[hole];
-            law.is(at) || identity_kept(at, ctx).is_some_and(|k| law.is(&k))
-        })
-        .map(|&hole| node.children[1 - hole].clone())
+    law.holes.iter().find_map(|&hole| {
+        let at = &node.children[hole];
+        let mut met = Meeting::default();
+        if !law.is(at) {
+            let (inner, inner_met) = identity_kept_how(at, ctx)?;
+            if !law.is(&inner) {
+                return None;
+            }
+            met = inner_met;
+        }
+        met.identities.push(Dropped {
+            operation: node.notation_name().to_string(),
+            literal: node.spelling().text().to_string(),
+            hole,
+            element: law.element.clone(),
+        });
+        Some((node.children[1 - hole].clone(), met))
+    })
 }
 
 /// What each identity element dropped between `instance` and `ground`
@@ -1647,29 +1786,35 @@ pub fn bare(node: &Node, ctx: &Context) -> Node {
     out
 }
 
-/// `alike`, the two read as written at the head.
+/// `alike_how`, the two read as written at the head.
 fn alike_as_written(
     a: &Node,
     b: &Node,
     ctx: &Context,
     ours: &IndexMap<Symbol, Symbol>,
     theirs: &IndexMap<Symbol, Symbol>,
-) -> bool {
+) -> Option<Meeting> {
     if a.is_name() && b.is_name() {
         if ours.contains_key(&a.text) || theirs.contains_key(&b.text) {
-            return ours.get(&a.text) == Some(&b.text)
+            let paired = ours.get(&a.text) == Some(&b.text)
                 && theirs.get(&b.text) == Some(&a.text);
+            return paired.then(|| Meeting {
+                renamed: a.text != b.text,
+                ..Meeting::default()
+            });
         }
-        return a.text == b.text;
+        return (a.text == b.text).then(Meeting::default);
     }
     if a.notation() != b.notation()
         || a.text != b.text
         || a.children.len() != b.children.len()
     {
-        return false;
+        return None;
     }
     let Some(shape) = ctx.binders.get(&a.notation()) else {
-        return parts_related(a, b, ctx, &|x, y| alike(x, y, ctx, ours, theirs));
+        return parts_related_how(a, b, ctx, &|x, y| {
+            alike_how(x, y, ctx, ours, theirs)
+        });
     };
     let pairs: Vec<(&Node, &Node)> = shape
         .held
@@ -1677,7 +1822,7 @@ fn alike_as_written(
         .map(|&at| (&a.children[at], &b.children[at]))
         .collect();
     if pairs.iter().any(|(x, y)| !x.is_name() || !y.is_name()) {
-        return a.same_shape(b);
+        return a.same_shape(b).then(Meeting::default);
     }
     let mut inner_ours = ours.clone();
     let mut inner_theirs = theirs.clone();
@@ -1687,20 +1832,21 @@ fn alike_as_written(
     for (x, y) in &pairs {
         inner_theirs.insert(y.text, x.text);
     }
-    a.children
-        .iter()
-        .zip(b.children.iter())
-        .enumerate()
-        .all(|(i, (p, q))| {
-            if shape.held.contains(&i) {
-                return true;
-            }
-            if shape.body.contains(&i) {
-                alike(p, q, ctx, &inner_ours, &inner_theirs)
-            } else {
-                alike(p, q, ctx, ours, theirs)
-            }
-        })
+    let mut out = Meeting {
+        renamed: pairs.iter().any(|(x, y)| x.text != y.text),
+        ..Meeting::default()
+    };
+    for (i, (p, q)) in a.children.iter().zip(b.children.iter()).enumerate() {
+        if shape.held.contains(&i) {
+            continue;
+        }
+        let met = match shape.body.contains(&i) {
+            true => alike_how(p, q, ctx, &inner_ours, &inner_theirs),
+            false => alike_how(p, q, ctx, ours, theirs),
+        };
+        out = out.with(met?);
+    }
+    Some(out)
 }
 
 /// Whether two trees are one formula, compared from the top.

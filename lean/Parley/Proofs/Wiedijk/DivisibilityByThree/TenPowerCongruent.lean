@@ -44,7 +44,7 @@ theorem ten_power_congruent (k : ℤ) (hH1 : 0 ≤ k) :
       have s1_1 : (10 ^ 0 : ℤ) ≡ (1 : ℤ) [ZMOD (3 : ℤ)] := by
         calc (10 ^ 0 : ℤ) = 1 := by norm_num
           _ ≡ 1 [ZMOD (3 : ℤ)] := by norm_num
-      simpa only [Int.reduceToNat] using s1_1
+      simpa using s1_1
     | succ m hK hIH =>
       -- 1.2. mun:exponent-step a := 10
       have s1_2 : (10 ^ (m + 1).toNat : ℤ) = 10 ^ m.toNat * 10 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m) (by parley_side))

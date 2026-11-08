@@ -68,7 +68,7 @@ theorem harmonic_unbounded (M : ℝ) :
       have s2_3 : (1 : ℚ) ≥ 0 / 2 := by parley_arith
       -- 2.4. transitivity, from 2.2, 2.3
       have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 0 / 2 := by parley_order
-      push_cast at s2_4 ⊢; exact s2_4
+      simpa using s2_4
     | succ m hK hIH =>
       -- 2.5. thm:harmonic-block j := m
       have s2_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by exact (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side))
@@ -76,7 +76,7 @@ theorem harmonic_unbounded (M : ℝ) :
       have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by parley_order
       -- 2.7. transitivity, from 2.5, 2.6
       have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ ((m : ℚ) + 1) / 2 := by parley_order
-      push_cast at s2_7 ⊢; exact s2_7
+      simpa using s2_7
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))
   -- 4. instantiate m := N in line 2

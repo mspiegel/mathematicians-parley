@@ -36,7 +36,7 @@ theorem two_power_bound (d : ℤ) (hH1 : 0 < d) :
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (2 ^ 1 : ℤ) ≥ 1 + 1 := by parley_arith
-      simpa only [Int.reduceToNat, pow_one] using s1_1
+      simpa using s1_1
     | succ m hK hIH =>
       -- 1.2. mun:exponent-step a := 2
       have s1_2 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (by parley_side))

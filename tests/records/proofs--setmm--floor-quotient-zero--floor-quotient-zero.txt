@@ -36,3 +36,6 @@ read 42: 1  as  numeral:1  a number
 read 42: A/B  as  multiplicative:/(name:A, name:B)  a number
 read 42: B  as  name:B  a number
 read 44: A < B  as  order:<(name:A, name:B)  a statement
+step 3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 3.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 3.6 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

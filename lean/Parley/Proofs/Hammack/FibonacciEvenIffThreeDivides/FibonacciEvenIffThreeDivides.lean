@@ -90,7 +90,8 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 4.11. def:odd n := F(3·0 + 2), from 4.10
       have s4_11 : Odd (F (3 * 0 + 2)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 2)))).mpr ⟨(0 : ℤ), s4_10⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 2)))).mpr ⟨(0 : ℤ), s4_10⟩; parley_side)
       -- 4.12. join 4.7, 4.9, 4.11
-      parley_side
+      have s4_12 : (Even (F (3 * 0)) ∧ Odd (F (3 * 0 + 1))) ∧ Odd (F (3 * 0 + 2)) := by parley_side
+      exact ⟨⟨((s4_12).1).1, ((s4_12).1).2⟩, (s4_12).2⟩
     | succ k hK3 hIH2 =>
       -- 4.13. instantiate k := 3k + 1 in line 2
       -- 4.14. instantiate k := 3k + 2 in line 2
@@ -136,7 +137,8 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
         have row1 : Odd (F (3 * (k + 1) + 2)) := by parley_subst_at c1 s4_27
         exact row1
       -- 4.29. join 4.19, 4.25, 4.28
-      parley_side
+      have s4_29 : (Even (F (3 * (k + 1))) ∧ Odd (F (3 * (k + 1) + 1))) ∧ Odd (F (3 * (k + 1) + 2)) := by parley_side
+      exact ⟨⟨((s4_29).1).1, ((s4_29).1).2⟩, (s4_29).2⟩
   -- 5. both directions
   constructor
   · skip

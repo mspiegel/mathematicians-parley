@@ -61,7 +61,8 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
     -- 2.6. D7
     have s2_6 : e n = (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) := by first | (simp (disch := omega) only [hD7]; done) | (simp (disch := omega) only [hD7]; push_cast; norm_num; done) | parley_side
     -- 2.7. substitute e(n) = s(D(f(n), n)) (line 2.6) into line 2.5
-    parley_subst_at s2_6 s2_5
+    have s2_7 : (((True ∧ 0 ≤ e n) ∧ e n ≤ 9) ∧ e n ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ (e n + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_subst_at s2_6 s2_5
+    exact ⟨⟨⟨⟨trivial, ((((s2_7).1).1).1).2⟩, (((s2_7).1).1).2⟩, ((s2_7).1).2⟩, (s2_7).2⟩
   -- 3. proof
   -- what this block shows, Lean's types give
   -- 4. mun:function-into, from 3
@@ -69,7 +70,8 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
   have s5 : ∀ n : ℤ, 0 < n → 0 ≤ e n ∧ e n ≤ 9 := by
     intro n hK4
     -- 5.1. inequalities, from 2
-    have := (s2 n (by parley_side)); parley_side
+    have s5_1 : 0 ≤ e n ∧ e n ≤ 9 := by have := (s2 n (by parley_side)); parley_side
+    exact ⟨(s5_1).1, (s5_1).2⟩
   -- 6. obtain x: thm:decimal-number d := e, from 5
   obtain ⟨x, s6⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.DecimalNumber.decimal_number (d := e) s5)
   -- 7. proof

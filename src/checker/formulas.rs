@@ -1173,12 +1173,21 @@ fn negates(
     wrappers: &FxIndexSet<NotationId>,
     known: &Known,
 ) -> bool {
-    let (Some(a), Some(b)) = (a, b) else {
-        return false;
-    };
-    !a.children.is_empty()
-        && wrappers.contains(&a.notation())
-        && known.alike(&a.children[0], b)
+    negates_how(a, b, wrappers, known).is_some()
+}
+
+/// `negates`, with how what `a` denies meets `b` (`Known::alike_how`).
+fn negates_how(
+    a: Option<&Node>,
+    b: Option<&Node>,
+    wrappers: &FxIndexSet<NotationId>,
+    known: &Known,
+) -> Option<crate::matching::Meeting> {
+    let (a, b) = (a?, b?);
+    if a.children.is_empty() || !wrappers.contains(&a.notation()) {
+        return None;
+    }
+    known.alike_how(&a.children[0], b)
 }
 
 fn wrappers(env: Env) -> FxIndexSet<NotationId> {
@@ -1213,15 +1222,13 @@ impl SupposedReading {
         &self,
         wrappers: &FxIndexSet<NotationId>,
         known: &Known,
-    ) -> Option<Supposed> {
+    ) -> Option<(Supposed, crate::matching::Meeting)> {
         let (supposed, claimed) = (self.supposed.as_ref(), self.claimed.as_ref());
-        if negates(supposed, claimed, wrappers, known) {
-            Some(Supposed::ClaimDenied)
-        } else if negates(claimed, supposed, wrappers, known) {
-            Some(Supposed::Denial)
-        } else {
-            None
+        if let Some(met) = negates_how(supposed, claimed, wrappers, known) {
+            return Some((Supposed::ClaimDenied, met));
         }
+        negates_how(claimed, supposed, wrappers, known)
+            .map(|met| (Supposed::Denial, met))
     }
 }
 
@@ -1315,9 +1322,16 @@ pub fn suppositions(
     readings
         .iter()
         .filter_map(|r| {
-            let shape = r.kind(&wrappers, known)?;
+            let (shape, meeting) = r.kind(&wrappers, known)?;
             let against = r.written.clone()?;
-            Some((r.line, Supposition { shape, against }))
+            Some((
+                r.line,
+                Supposition {
+                    shape,
+                    against,
+                    meeting,
+                },
+            ))
         })
         .collect()
 }
@@ -1350,24 +1364,29 @@ pub fn contradictions(
             .into_iter()
             .find_map(|s| {
                 let there = Some(s.cited.clone());
-                let negated =
-                    if negates(claimed.as_ref(), there.as_ref(), &wrappers, known) {
-                        Negating::Step
-                    } else if negates(
-                        there.as_ref(),
-                        claimed.as_ref(),
-                        &wrappers,
-                        known,
-                    ) {
-                        Negating::Line
-                    } else {
-                        return None;
-                    };
+                let (negated, meeting) = match negates_how(
+                    claimed.as_ref(),
+                    there.as_ref(),
+                    &wrappers,
+                    known,
+                ) {
+                    Some(met) => (Negating::Step, met),
+                    None => (
+                        Negating::Line,
+                        negates_how(
+                            there.as_ref(),
+                            claimed.as_ref(),
+                            &wrappers,
+                            known,
+                        )?,
+                    ),
+                };
                 Some(Contradicted {
                     line: other.clone(),
                     from: s.from,
                     said: s.written,
                     negated,
+                    meeting,
                 })
             });
         if let Some(c) = found {
@@ -2062,15 +2081,46 @@ fn endings(thm: &Theorem, step: &Step, known: &Known) -> Vec<Ending> {
         }
     }
     // A theorem proved `by` a method ends with its block, which owes the
-    // statement part by part, above; no top-level step owes it whole.
+    // statement part by part, above; its own step, whose claim is the
+    // statement, ends the proof, and owes it as written. Otherwise the last
+    // top-level step owes it.
     let by_method = thm.steps.first().is_some_and(Step::proves_theorem);
     let last = thm.steps.iter().rev().find(|s| s.number.depth() == 1);
-    if !by_method && last.is_some_and(|l| l.line == step.line) {
+    let ends_proof = match by_method {
+        true => step.proves_theorem(),
+        false => last.is_some_and(|l| l.line == step.line),
+    };
+    if ends_proof {
         let stated = Written::new(&thm.conclusion, &thm.path, thm.line);
         let said = conjuncts_read(&step.claim, |s| known.read_as_written(s));
         let owed = conjuncts_read(&stated, |s| known.read_as_written(s));
         if let (Some(said), Some(owed)) = (said, owed) {
             paired(said, owed, "the proof", &mut out);
+        }
+    }
+    out
+}
+
+/// How each step that ends a block, a part of one or the proof meets what it
+/// owes there (`endings`), by the step's index: one meeting for each part of
+/// its "and" in order, as the check paired them. A step whose parts do not
+/// all meet what they owe has none, and the check reports it.
+pub fn ended_meetings(
+    thm: &Theorem,
+    known: &Known,
+) -> IndexMap<usize, Vec<crate::matching::Meeting>> {
+    let mut out = IndexMap::new();
+    for (at, step) in thm.steps.iter().enumerate() {
+        let ends = endings(thm, step, known);
+        if ends.is_empty() {
+            continue;
+        }
+        let met: Option<Vec<_>> = ends
+            .iter()
+            .map(|e| known.alike_how(&e.said, &e.owed))
+            .collect();
+        if let Some(met) = met {
+            out.insert(at, met);
         }
     }
     out

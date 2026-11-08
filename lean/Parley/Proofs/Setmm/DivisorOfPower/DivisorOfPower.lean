@@ -41,7 +41,7 @@ theorem divisor_of_power (K : ℤ) (M : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : K �
     | base =>
       -- 1.1. restate H4
       have s1_1 : K ∣ M ^ 1 := by parley_side
-      simpa only [Int.reduceToNat, pow_one] using s1_1
+      simpa using s1_1
     | succ m hK hIH =>
       -- 1.2. mun:divides-multiple e := K, a := M^m, x := M, from IH
       have s1_2 : K ∣ M ^ m.toNat * M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := K) (a := M ^ m.toNat) (x := M) hIH)

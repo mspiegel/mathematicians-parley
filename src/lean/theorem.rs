@@ -77,17 +77,16 @@ enum Proved {
     /// By this term.
     Term(Printed),
     /// By the line `line`, once the goal and it are rewritten by Mathlib's
-    /// lemmas `rules`.
+    /// lemmas `rules`, or simplified alike where none is named.
     Simplified {
         rules: Vec<&'static str>,
         line: Printed,
     },
-    /// By the line `line`, its casts and the goal's moved alike, once it is
-    /// rewritten by the `set` equations `through`; taken up to the goal's
-    /// type where `lift`.
+    /// By the line `line`, its casts and the goal's moved alike, once each
+    /// is rewritten by the `set` equations its letters name; taken up to the
+    /// goal's type where it is narrower (`forms::CastsApart`).
     Cast {
-        through: Vec<String>,
-        lift: bool,
+        apart: super::doc::forms::CastsApart,
         line: Printed,
     },
 }
@@ -98,45 +97,47 @@ impl Proved {
         use super::tactics as t;
         match self {
             Proved::Term(term) => Tactic::Exact(term.clone()),
+            Proved::Simplified { rules, line } if rules.is_empty() => {
+                t::call("simpa", vec![TacticArg::Using(line.clone())])
+            }
             Proved::Simplified { rules, line } => {
                 t::simpa_only(rules.clone(), line.clone())
             }
-            // The casts pushed down on both, `push_cast at h ⊢`, and the line
-            // taken as it then reads. `exact_mod_cast` moves them up instead,
-            // and a cast numeral under a division, ↑1 / 3, it leaves as
-            // `NNRat.divNat` on the one side and not the other.
-            Proved::Cast {
-                through,
-                lift,
-                line,
-            } => {
+            // Each side rewritten by the `set` equations its letters name, and
+            // then the casts taken up to the goal's, `exact_mod_cast`. Where
+            // nothing was rewritten and neither is narrower, both are
+            // simplified alike, `simpa using`: `exact_mod_cast` leaves a cast
+            // numeral under a division, ↑1 / 3, as `NNRat.divNat` on the one
+            // side and not the other, and a goal of numerals alone the
+            // simplifying closes itself.
+            Proved::Cast { apart, line } => {
                 let super::doc::TermKind::Letter(name) = &line.kind else {
                     return t::exact_mod_cast(line.clone());
                 };
-                let at = |goal: bool| {
-                    let mut places =
-                        vec![super::doc::Location::Hypothesis(name.clone())];
-                    if goal {
-                        places.push(super::doc::Location::Goal);
-                    }
-                    TacticArg::At(places)
-                };
-                let mut steps = Vec::new();
-                if !through.is_empty() {
-                    steps.push(t::call(
+                let rewrite = |by: &[String], at: Vec<super::doc::Location>| {
+                    t::call(
                         "rw",
                         vec![
-                            t::rules(through.iter().map(|e| t::hyp(e)).collect()),
-                            at(false),
+                            t::rules(by.iter().map(|e| t::hyp(e)).collect()),
+                            TacticArg::At(at),
                         ],
+                    )
+                };
+                let mut steps = Vec::new();
+                if !apart.at_given.is_empty() {
+                    let at = vec![super::doc::Location::Hypothesis(name.clone())];
+                    steps.push(rewrite(&apart.at_given, at));
+                }
+                if !apart.at_line.is_empty() {
+                    steps.push(rewrite(
+                        &apart.at_line,
+                        vec![super::doc::Location::Goal],
                     ));
                 }
-                match lift {
+                match apart.lift || !steps.is_empty() {
                     true => steps.push(t::exact_mod_cast(line.clone())),
-                    false => {
-                        steps.push(t::push_cast(Some(at(true))));
-                        steps.push(Tactic::Exact(line.clone()));
-                    }
+                    false => steps
+                        .push(t::call("simpa", vec![TacticArg::Using(line.clone())])),
                 }
                 match steps.len() {
                     1 => steps.remove(0),
@@ -232,6 +233,95 @@ fn range_bounds(says: &Printed, proof: &Printed) -> Vec<(Printed, Printed)> {
     vec![(side("1"), at_most(a, lhs)), (side("2"), at_most(lhs, b))]
 }
 
+/// The parts of a sentence's "and" as the page writes it, `node`, each as
+/// Lean writes it, `says` taken apart alike, with the term that proves the
+/// part where `proof` proves the whole, `.1` and `.2` as it nests; a part
+/// of a truth has none.
+fn and_leaves(
+    node: &Node,
+    says: &Printed,
+    proof: Option<Printed>,
+    out: &mut Vec<(Printed, Option<Printed>)>,
+) {
+    match (page_and(node), and_sides(says)) {
+        (Some((nl, nr)), Some((l, r))) => {
+            let side = |field: &str| {
+                proof
+                    .clone()
+                    .map(|p| fields(super::tactics::bracket(p), &[field]))
+            };
+            and_leaves(nl, &l, side("1"), out);
+            and_leaves(nr, &r, side("2"), out);
+        }
+        _ => out.push((says.clone(), proof)),
+    }
+}
+
+/// The two sides of an "and" the page writes; None for another sentence.
+fn page_and(node: &Node) -> Option<(&Node, &Node)> {
+    match (node.notation(), node.children.as_slice()) {
+        (crate::notations::CONJUNCTION, [l, r]) => Some((l, r)),
+        _ => None,
+    }
+}
+
+/// The proof of `owe`, the sentence `node`, from the proofs of its parts in
+/// order, `⟨a, b⟩` as the page's "and" nests (`and_leaves`); None where
+/// too few are left.
+fn assembled_as(
+    node: &Node,
+    owe: &Printed,
+    proofs: &mut impl Iterator<Item = Proved>,
+) -> Option<Proved> {
+    match (page_and(node), and_sides(owe)) {
+        (Some((nl, nr)), Some((l, r))) => {
+            let a = assembled_as(nl, &l, proofs)?.term();
+            let b = assembled_as(nr, &r, proofs)?.term();
+            Some(Proved::Term(super::expr::anonymous(vec![a, b])))
+        }
+        _ => proofs.next(),
+    }
+}
+
+/// `trivial`, the proof of `True`.
+fn trivial() -> Printed {
+    Printed::constant(
+        "trivial",
+        super::doc::Source::Core,
+        super::doc::LeanType::Prop,
+    )
+}
+
+/// A proof of `says` turned round: `Ne.symm` of a denied equation, and
+/// `.symm` of an equation, a congruence or an "if and only if".
+fn turned_proof(proof: Printed, says: &Printed) -> Printed {
+    match super::doc::forms::denies_equation(says) {
+        true => Printed::applied(
+            "Ne.symm",
+            super::doc::Source::Core,
+            vec![proof],
+            super::doc::LeanType::Prop,
+        ),
+        false => super::tactics::symm(proof),
+    }
+}
+
+/// Mathlib's rewrite that drops an identity element the checker dropped
+/// (`matching::Dropped`): `add_zero` of x + 0, `zero_add` of 0 + x, and so
+/// for the other operations; None for one it has no rewrite of.
+fn identity_lemma(d: &crate::matching::Dropped) -> Option<&'static str> {
+    Some(match (d.literal.as_str(), d.hole) {
+        ("+", 0) => "zero_add",
+        ("+", 1) => "add_zero",
+        ("−", 1) => "sub_zero",
+        ("·", 0) => "one_mul",
+        ("·", 1) => "mul_one",
+        ("/", 1) => "div_one",
+        (_, 1) if d.operation == "power" => "pow_one",
+        _ => return None,
+    })
+}
+
 /// The two sides of an "and", as Lean writes it: `a ∧ b`, bracketed or
 /// not, or several sentences joined by ` ∧ `, the first and the rest.
 fn and_sides(term: &Printed) -> Option<(Printed, Printed)> {
@@ -281,8 +371,12 @@ enum Owing<'a> {
     /// None, or none, for a block that ends on a contradiction.
     Written(Option<&'a [Node]>),
     /// The goal as Lean has it, where Lean makes it itself: an induction's
-    /// motive at its start or at the next value.
-    Lean(Vec<Printed>),
+    /// motive at its start or at the next value, `goal`, with the record's
+    /// sentences it says (`nodes`), whose "and" the parts are split by.
+    Lean {
+        nodes: Option<&'a [Node]>,
+        goal: Vec<Printed>,
+    },
 }
 
 /// What ends a block, a part of one or a theorem (`Proof::closing`).
@@ -2020,6 +2114,16 @@ impl<'a> Proof<'a> {
     /// Lean's types already give, √x ∈ ℝ, is left out, and a citation is
     /// read at the place the checker counted.
     fn claimed(&self, step: &Step) -> Route<Vec<(usize, Node, Printed)>> {
+        self.claimed_all(step).map(|all| {
+            all.into_iter()
+                .filter(|(_, _, printed)| !printed.is_truth())
+                .collect()
+        })
+    }
+
+    /// Every sentence of a step's claim with its place and its Lean text,
+    /// those Lean's types already give among them, as `True`.
+    fn claimed_all(&self, step: &Step) -> Route<Vec<(usize, Node, Printed)>> {
         let mut out = Vec::new();
         let sentences: Vec<Option<&Node>> = step
             .claim
@@ -2072,9 +2176,7 @@ impl<'a> Proof<'a> {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            if !printed.is_truth() {
-                out.push((at, node.clone(), printed));
-            }
+            out.push((at, node.clone(), printed));
         }
         Route::Built(out)
     }
@@ -4292,10 +4394,10 @@ impl<'a> Proof<'a> {
     /// written, its last step being `last` and what it owes `owed`, the
     /// goal with the block's lines taken off (`Owed::written`): nothing
     /// after a step shown impossible, which closed it; the two lines a step
-    /// written `contradicting N` opposes; and otherwise the last step's
-    /// sentences, each as Lean has it beside what is owed.
+    /// written `contradicting N` opposes; and otherwise each part of the
+    /// last step's "and" proving the part it owes, as the checker met them
+    /// (`CheckedTheorem::ends_met`).
     fn closing(&self, last: Option<usize>, owed: Owing) -> Route<Closing> {
-        use super::doc::forms::{self, Meets};
         let Some(at) = last else {
             return Route::no("a block with no steps");
         };
@@ -4303,7 +4405,7 @@ impl<'a> Proof<'a> {
         if step.impossible {
             return Route::Built(Closing::Closed);
         }
-        let owes = match owed {
+        let (owes, owed_nodes) = match owed {
             Owing::Written(Some(owed)) => {
                 let mut owes = Vec::new();
                 for o in owed {
@@ -4312,10 +4414,10 @@ impl<'a> Proof<'a> {
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
-                owes
+                (owes, owed.to_vec())
             }
-            Owing::Written(None) => Vec::new(),
-            Owing::Lean(owes) => owes,
+            Owing::Written(None) => (Vec::new(), Vec::new()),
+            Owing::Lean { nodes, goal } => (goal, nodes.unwrap_or_default().to_vec()),
         };
         // Two lines that oppose close a contradiction, whose goal is False;
         // a case or a proof block whose assumption cannot hold they close by
@@ -4331,88 +4433,184 @@ impl<'a> Proof<'a> {
                 step.number
             ));
         }
-        let said = match self.claim(step) {
+        // How the step meets what it owes, one meeting to each part of its
+        // "and", as the checker paired them.
+        let Some(meetings) = self.rec.ends_met.get(&at) else {
+            return Route::no(format!(
+                "step {} ends its block, and the checker recorded no meeting of it with what it owes",
+                step.number
+            ));
+        };
+        let all = match self.claimed_all(step) {
             Route::Built(c) => c,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let names = Self::names_of(step, said.len());
-        let lines: Vec<(Printed, Printed)> = said
-            .iter()
-            .zip(&names)
-            .map(|((_, says), name)| (says.clone(), super::tactics::hyp(name)))
-            .collect();
-        // The last step's sentence that says what is owed as written proves
-        // it by its `have`, the goal's own proof.
-        if let ([(says, _)], [owe], [name]) =
-            (lines.as_slice(), owes.as_slice(), names.as_slice())
+        let named = all.iter().filter(|(_, _, says)| !says.is_truth()).count();
+        let names = Self::names_of(step, named);
+        let mut name_of = names.iter();
+        // Each side taken apart at the page's "and", as the checker paired
+        // them, not at an "and" Lean's statement alone writes.
+        let mut parts = Vec::new();
+        for (_, node, says) in &all {
+            let proof = match says.is_truth() {
+                true => None,
+                false => name_of.next().map(|n| super::tactics::hyp(n)),
+            };
+            and_leaves(node, says, proof, &mut parts);
+        }
+        if owed_nodes.len() != owes.len() {
+            return Route::no(format!(
+                "step {} ends a block whose goal the record says in {} sentences and Lean in {}",
+                step.number,
+                owed_nodes.len(),
+                owes.len()
+            ));
+        }
+        let mut owed_parts = Vec::new();
+        for (node, owe) in owed_nodes.iter().zip(&owes) {
+            and_leaves(node, owe, None, &mut owed_parts);
+        }
+        // A sentence the checker met whole that the record writes out as an
+        // "and", a phrase as its meaning, is met whole here too.
+        let mut whole = false;
+        if let ([(_, _, says)], [owe], [_]) =
+            (all.as_slice(), owes.as_slice(), meetings.as_slice())
         {
-            if forms::meets(says, owe, &self.set_values()) == Some(Meets::Same) {
+            if parts.len() != 1 {
+                parts =
+                    vec![(says.clone(), names.first().map(|n| super::tactics::hyp(n)))];
+                owed_parts = vec![(owe.clone(), None)];
+                whole = true;
+            }
+        }
+        if parts.len() != owed_parts.len() || parts.len() != meetings.len() {
+            return Route::no(format!(
+                "step {} ends its block in {} parts, and it owes {}, of which the checker met {}",
+                step.number,
+                parts.len(),
+                owed_parts.len(),
+                meetings.len()
+            ));
+        }
+        let values = self.set_values();
+        // The last step that says what is owed as written proves it by its
+        // `have`, the goal's own proof.
+        if let ([(_, _, says)], [owe], [met], [name]) = (
+            all.as_slice(),
+            owes.as_slice(),
+            meetings.as_slice(),
+            names.as_slice(),
+        ) {
+            if met.as_written()
+                && super::doc::forms::casts_differ(says, owe, &values).is_none()
+            {
                 return Route::Built(Closing::Last(name.clone()));
             }
         }
-        let mut left = lines.iter();
-        let mut proved = Vec::new();
-        for owe in &owes {
-            match self.proved_from(owe, &mut left) {
-                Some(p) => proved.push(p),
+        let mut proofs = Vec::new();
+        for (((says, proof), (owe, _)), met) in
+            parts.iter().zip(&owed_parts).zip(meetings)
+        {
+            let proved = match (owe.is_truth(), proof) {
+                (true, _) => Some(Proved::Term(trivial())),
+                (false, Some(proof)) => self.met_proof(proof.clone(), says, owe, met),
+                (false, None) => None,
+            };
+            match proved {
+                Some(p) => proofs.push(p),
                 None => {
                     return Route::no(format!(
-                        "step {} ends its block on {}, and the block owes {}",
+                        "step {} ends its block on {}, met with {} as {met:?}, which no one tactic takes to the other",
                         step.number,
-                        lines
-                            .iter()
-                            .map(|(s, _)| s.text())
-                            .collect::<Vec<_>>()
-                            .join(". "),
-                        owes.iter().map(|o| o.text()).collect::<Vec<_>>().join(". ")
+                        says.text(),
+                        owe.text()
                     ))
                 }
             }
         }
-        if left.next().is_some() {
-            return Route::no(format!(
-                "step {} ends its block claiming more than the block owes",
-                step.number
-            ));
+        let mut assembled = Vec::new();
+        match whole {
+            true => assembled = proofs,
+            false => {
+                let mut proofs = proofs.into_iter();
+                for (node, owe) in owed_nodes.iter().zip(&owes) {
+                    match assembled_as(node, owe, &mut proofs) {
+                        Some(p) => assembled.push(p),
+                        None => {
+                            return Route::no(
+                                "an ending whose parts do not make what it owes",
+                            )
+                        }
+                    }
+                }
+            }
         }
-        Route::Built(Closing::Tactic(Box::new(match proved.len() {
-            1 => proved.remove(0).closer(),
+        Route::Built(Closing::Tactic(Box::new(match assembled.len() {
+            1 => assembled.remove(0).closer(),
             _ => Tactic::Exact(super::expr::anonymous(
-                proved.into_iter().map(Proved::term).collect(),
+                assembled.into_iter().map(Proved::term).collect(),
             )),
         })))
     }
 
-    /// The term that proves `owe` from the lines `left` gives in order: the
-    /// next line where it says `owe` as Lean reads both, turned round where
-    /// it says it the other way; `trivial` of what Lean's types make true;
-    /// and an "and" each of whose sides is proved so, `⟨a, b⟩`. A line that
-    /// says `owe` once identity elements are dropped is `Simplified`, which
-    /// only a tactic proves. None where none of these holds.
-    fn proved_from<'l>(
+    /// How `proof`, a line that says `says`, proves `wanted`, the two met as
+    /// the checker recorded (`Meeting`): turned round by `.symm`, its
+    /// identity elements dropped by `simpa only`, and otherwise as it is,
+    /// its casts moved where the writer placed them otherwise on the two.
+    /// None for parts paired out of order, which no one tactic takes.
+    fn met_proof(
         &self,
-        owe: &Printed,
-        left: &mut std::slice::Iter<'l, (Printed, Printed)>,
+        proof: Printed,
+        says: &Printed,
+        wanted: &Printed,
+        met: &crate::matching::Meeting,
     ) -> Option<Proved> {
-        if owe.is_truth() {
-            return Some(Proved::Term(Printed::constant(
-                "trivial",
-                super::doc::Source::Core,
-                super::doc::LeanType::Prop,
-            )));
+        use super::doc::forms;
+        if met.permuted {
+            return None;
         }
-        let mut ahead = left.clone();
-        if let Some((says, line)) = ahead.next() {
-            let proved = self.proof_meeting(line.clone(), says, owe);
-            if proved.is_some() {
-                *left = ahead;
-                return proved;
+        let (proof, says) = match met.turned {
+            true => (turned_proof(proof, says), forms::turned_statement(says)),
+            false => (proof, says.clone()),
+        };
+        // A numeral the writer takes to ℕ on one side, `2 ^ (1 : ℤ).toNat`
+        // beside 2 ^ 1, is worked out as identity elements are dropped.
+        let to_nat: Vec<&'static str> = match forms::written_alike(&says, wanted) {
+            true => Vec::new(),
+            false => forms::to_nat_rules(&says)
+                .into_iter()
+                .chain(forms::to_nat_rules(wanted))
+                .collect(),
+        };
+        // Numerals taken to ℕ beside casts the writer placed otherwise are
+        // simplified alike on both, `simpa using`.
+        if met.identities.is_empty() && !to_nat.is_empty() {
+            return Some(Proved::Simplified {
+                rules: Vec::new(),
+                line: proof,
+            });
+        }
+        if !met.identities.is_empty() {
+            let mut rules: Vec<&'static str> = Vec::new();
+            for d in &met.identities {
+                let rule = identity_lemma(d)?;
+                if !rules.contains(&rule) {
+                    rules.push(rule);
+                }
             }
+            for rule in to_nat {
+                if !rules.contains(&rule) {
+                    rules.push(rule);
+                }
+            }
+            return Some(Proved::Simplified { rules, line: proof });
         }
-        let (l, r) = and_sides(owe)?;
-        let a = self.proved_from(&l, left)?.term();
-        let b = self.proved_from(&r, left)?.term();
-        Some(Proved::Term(super::expr::anonymous(vec![a, b])))
+        Some(
+            match forms::casts_differ(&says, wanted, &self.set_values()) {
+                Some(apart) => Proved::Cast { apart, line: proof },
+                None => Proved::Term(proof),
+            },
+        )
     }
 
     /// The letters the proof so far names by `set`, with their values.
@@ -4444,7 +4642,7 @@ impl<'a> Proof<'a> {
         c: &Contradicted,
         to_false: bool,
     ) -> Route<Printed> {
-        use super::doc::forms::{self, Meets};
+        use super::doc::forms;
         let own = match self.claim(step) {
             Route::Built(said) => match said.as_slice() {
                 [(_, says)] => (
@@ -4474,16 +4672,19 @@ impl<'a> Proof<'a> {
                 step.number, c.line
             ));
         };
-        let positive = match forms::meets(&says, &denied, &self.set_values()) {
-            Some(Meets::Same | Meets::Unfolded) => positive,
-            Some(Meets::Turned { negated: false }) => super::tactics::symm(positive),
-            _ => {
+        // The one met with what the other denies as the checker met them
+        // (`Contradicted::meeting`).
+        let positive = match self.met_proof(positive, &says, &denied, &c.meeting) {
+            Some(Proved::Term(t)) => t,
+            Some(other) => other.term(),
+            None => {
                 return Route::no(format!(
-                    "step {} contradicts {}: Lean writes the one as {} and the other denies {}",
+                    "step {} contradicts {}: Lean writes the one as {} and the other denies {}, met as {:?}",
                     step.number,
                     c.line,
                     says.text(),
-                    denied.text()
+                    denied.text(),
+                    c.meeting
                 ))
             }
         };
@@ -4582,11 +4783,12 @@ impl<'a> Proof<'a> {
                 super::doc::LeanType::Prop,
             )),
             Meets::Identities(rules) => Proved::Simplified { rules, line: proof },
-            Meets::Casts { through, lift } => Proved::Cast {
-                through,
-                lift,
-                line: proof,
-            },
+            Meets::Casts { .. } => {
+                match forms::casts_differ(says, wanted, &self.set_values()) {
+                    Some(apart) => Proved::Cast { apart, line: proof },
+                    None => Proved::Term(proof),
+                }
+            }
         })
     }
 
@@ -9195,7 +9397,10 @@ impl<'a> Proof<'a> {
                     goal.text()
                 ));
             };
-            let owing = Owing::Lean(vec![goal]);
+            let owing = Owing::Lean {
+                nodes: block.ends_written(*part),
+                goal: vec![goal],
+            };
             let closing = match self.closing(children.last().copied(), owing) {
                 Route::Built(c) => c,
                 Route::Declined(d) => return Route::Declined(d),
@@ -9664,7 +9869,25 @@ impl<'a> Proof<'a> {
         };
         let opening =
             |name: Printed| super::tactics::call(open, vec![TacticArg::Term(name)]);
-        match forms::meets(&given, &says, &self.set_values()) {
+        // How the supposition meets what the block denies is the checker's
+        // (`Supposition::meeting`); Lean's own writing of the two decides
+        // only whether the hypothesis is ascribed the page's words.
+        let met = &supposition.meeting;
+        if met.permuted || !met.identities.is_empty() {
+            return Route::no(format!(
+                "the supposition {}, met with what `{open}` gives, {}, as {met:?}",
+                says.text(),
+                given.text()
+            ));
+        }
+        let shape = match (met.turned, forms::written_alike(&given, &says)) {
+            (true, _) => Some(Meets::Turned {
+                negated: forms::denies_equation(&given),
+            }),
+            (false, true) => Some(Meets::Same),
+            (false, false) => Some(Meets::Unfolded),
+        };
+        match shape {
             Some(Meets::Same) => {
                 self.push_at(
                     depth,

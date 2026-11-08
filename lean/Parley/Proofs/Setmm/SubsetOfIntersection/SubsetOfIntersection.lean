@@ -51,6 +51,7 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
     -- 9. def:subset X := A, Y := C, from 7
     have s9 : A ⊆ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s7 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s7; parley_set_side)
     -- 10. join 8, 9
-    parley_set_side
+    have s10 : A ⊆ B ∧ A ⊆ C := by parley_set_side
+    exact ⟨(s10).1, (s10).2⟩
 
 end Parley.Proofs.Setmm.SubsetOfIntersection.SubsetOfIntersection

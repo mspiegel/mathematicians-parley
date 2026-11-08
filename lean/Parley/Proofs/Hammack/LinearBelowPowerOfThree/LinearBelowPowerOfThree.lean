@@ -36,7 +36,7 @@ theorem linear_below_power_of_three (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (2 * 1 + 1 : ℤ) ≤ 3 ^ 1 := by parley_arith
-      simpa only [Int.reduceToNat, mul_one, pow_one] using s1_1
+      simpa using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 3
       have s1_2 : (3 ^ (k + 1).toNat : ℤ) = 3 ^ k.toNat * 3 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k) (by parley_side))

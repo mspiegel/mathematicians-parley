@@ -9,3 +9,4 @@ read 11: {u ∈ ℤ : there are x, y ∈ ℤ with x ≠ y and u = x + y}  as  se
 read 13: c ∈ S  as  membership:∈(name:c, name:S)  a statement
 read 15: c ∈ S  as  membership:∈(name:c, name:S)  a statement
 read 16: c  as  name:c  a number
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

@@ -59,7 +59,7 @@ const ALLOWED: &[(&str, &str, &str)] = &[
     ),
     (
         "src/matching.rs",
-        "return a.same_shape(b);",
+        "return a.same_shape(b).then(Meeting::default);",
         "`alike` itself: a binder over something other than a name is the same only as written",
     ),
     (

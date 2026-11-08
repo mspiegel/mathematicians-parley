@@ -58,7 +58,7 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
       have s1_2 : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = (1 - a) / (1 - a) := by
         calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = 1 := by first | parley_side | parley_line_toNat s1_1
           _ = (1 - a) / (1 - a) := by parley_ring
-      simpa only [Int.reduceToNat, pow_one, zero_add] using s1_2
+      simpa only [zero_add, pow_one, Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd] using s1_2
     | succ k hK hIH =>
       -- 1.3. calculation
       have s1_3 : (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by

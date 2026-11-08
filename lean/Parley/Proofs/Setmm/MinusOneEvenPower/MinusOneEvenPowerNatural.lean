@@ -43,8 +43,7 @@ theorem minus_one_even_power_natural (n : ℤ) (hH1 : 0 ≤ n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : ((-1) ^ (2 * 0) : ℤ) = 1 := by parley_arith
-      simpa only [Int.reduceMul, Int.reduceToNat, Nat.reduceMul] using s1_1
+      parley_arith
     | succ k hK hIH =>
       -- 1.2. algebra
       have s1_2 : 2 * (k + 1) = 2 * k + 1 + 1 := by parley_ring

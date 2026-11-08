@@ -79,7 +79,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.5. join 4.3, 4.4
       have s4_5a : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by parley_side
       have s4_5b : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_side
-      exact ⟨by simpa only [Int.reduceToNat] using s4_5a, by simpa only [Int.reduceToNat, pow_one, zero_add] using s4_5b⟩
+      exact ⟨by simpa using s4_5a, by simpa using s4_5b⟩
     | succ j hK hIH =>
       -- 4.6. D1
       have s4_6 : F (j + 1) = G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith

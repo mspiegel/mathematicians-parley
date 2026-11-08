@@ -124,7 +124,8 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
         _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by first | parley_set_side | parley_line_toNat s3_19
         _ = U k := by first | (simp (disch := omega) only [hD6]; done) | (simp (disch := omega) only [hD6]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD6
     -- 3.22. join 3.20, 3.21
-    parley_set_side
+    have s3_22 : L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := by parley_set_side
+    exact ⟨(s3_22).1, (s3_22).2⟩
   -- 4. proof
   have s4 : ∀ k : ℤ, 0 ≤ k → (True ∧ True) ∧ L k ≤ U k := by
     intro k hK2
@@ -152,7 +153,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       intro p hP1
       -- 5.1. inequalities, from 4
       have s5_1 : L p ≤ L p ∧ U p ≤ U p := by have := (s4 p (by parley_set_side)); parley_set_side
-      simpa only [add_zero] using s5_1
+      exact ⟨by simpa only [add_zero] using (s5_1).1, by simpa only [add_zero] using (s5_1).2⟩
     | succ g hG hIH2 =>
       intro p hP2
       -- 5.2. instantiate p := p in IH2
@@ -182,7 +183,8 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 5.14. algebra
       have s5_14 : p + g + 1 = p + (g + 1) := by parley_ring
       -- 5.15. substitute (p + g) + 1 = p + (g + 1) (line 5.14) into line 5.13
-      parley_subst_at s5_14 s5_13
+      have s5_15 : L p ≤ L (p + (g + 1)) ∧ U (p + (g + 1)) ≤ U p := by parley_subst_at s5_14 s5_13
+      exact ⟨(s5_15).1, (s5_15).2⟩
   -- 6. proof
   have s6 : ∀ j : ℤ, 0 ≤ j → (∀ k : ℤ, 0 ≤ k → L j ≤ U k) := by
     intro j hJ1
@@ -278,7 +280,8 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 15.2. instantiate u := U(k) in line 13, from 10
     have s15_2 : c ≤ (U k : ℝ) := by first | linarith [(s13b (U k : ℝ) (by parley_set_side))] | (have h := (s13b (U k : ℝ) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s13b (U k : ℝ) (by parley_set_side)) | (have h := (s13b (U k : ℝ) (by parley_set_side)); parley_set_side)
     -- 15.3. join 15.1, 15.2
-    parley_set_side
+    have s15_3 : (L k : ℝ) ≤ c ∧ c ≤ (U k : ℝ) := by parley_set_side
+    exact ⟨(s15_3).1, (s15_3).2⟩
   -- 16. proof
   have s16 : ∀ n : ℤ, 0 < n → ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n ∨ ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by
     intro n hK6

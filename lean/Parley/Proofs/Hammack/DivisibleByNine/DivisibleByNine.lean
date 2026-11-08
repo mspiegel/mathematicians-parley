@@ -46,8 +46,7 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.1. arithmetic
       have s1_1 : (4 ^ (3 * 0) + 8 : ℤ) = 9 * 1 := by parley_arith
       -- 1.2. def:divides d := 9, n := 4^(3·0) + 8, from 1.1
-      have s1_2 : (9 : ℤ) ∣ (4 ^ (3 * 0) + 8 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (4 ^ (3 * 0) + 8 : ℤ)))).mpr ⟨(1 : ℤ), s1_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (4 ^ (3 * 0) + 8 : ℤ)))).mpr ⟨(1 : ℤ), s1_1⟩; parley_side)
-      simpa only [Int.reduceMul, Int.reduceToNat, Nat.reduceMul] using s1_2
+      first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (4 ^ (3 * 0) + 8 : ℤ)))).mpr ⟨(1 : ℤ), s1_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (4 ^ (3 * 0) + 8 : ℤ)))).mpr ⟨(1 : ℤ), s1_1⟩; parley_side)
     | succ m hK hIH =>
       -- 1.3. algebra
       have s1_3 : 3 * (m + 1) = 3 * m + 3 := by parley_ring

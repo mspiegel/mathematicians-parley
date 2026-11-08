@@ -30,7 +30,7 @@ theorem rational_product (A : ℚ) (B : ℚ) :
       _ = (p : ℚ) / (q : ℚ) * ((r : ℚ) / (s : ℚ)) := by parley_subst s2b
       _ = (p : ℚ) * (r : ℚ) / ((q : ℚ) * (s : ℚ)) := by parley_ring
   -- 4. exhibit, from 3
-  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A * B = (a : ℚ) / (b : ℚ) := ⟨p * r, q * s, by parley_side, by push_cast at s3 ⊢; exact s3⟩
+  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A * B = (a : ℚ) / (b : ℚ) := ⟨p * r, q * s, by parley_side, by simpa using s3⟩
   -- 5. def:rational x := A·B, from 4
   exact trivial
 

@@ -1,0 +1,54 @@
+theorem proofs/hammack/geometric-sum-base-two/geometric-sum-base-two
+block of 1: 1.1, 1.2, 1.3, 1.4
+  part 0 owes S(0) = 2^(0 + 1) − 1
+  part 1 owes S(k + 1) = 2^(k + 1 + 1) − 1
+step 1.3 cites stdlib/numbers/exponent-step group 0; a := 2, m := k + 1; concludes 0 AsWritten; from no line
+requires line on line 21 cites stdlib/sums/sum-single group 0; a := 0, t := property-of(2^j); concludes 0 AsWritten; from no line
+requires line on line 31 cites stdlib/sums/sum-extended group 0; a := 0, n := k, t := property-of(2^j); concludes 0 AsWritten; from no line
+step 2 says once Σ(k = 0 to n) 2^k is a number
+read 5: Σ(k = 0 to n) 2^k = 2^(n + 1) − 1  as  equality:=(sum:Σ(=to)(name:k, numeral:0, name:n, power:^(numeral:2, name:k)), additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1))  a statement
+read 8: n ∈ ℕ  as  membership:∈(name:n, number-systems:ℕ)  a statement
+read 9: Σ(k = 0 to n) 2^k = 2^(n + 1) − 1  as  equality:=(sum:Σ(=to)(name:k, numeral:0, name:n, power:^(numeral:2, name:k)), additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1))  a statement
+read 11: m  as  name:m  a number
+read 11: Σ(j = 0 to m) 2^j  as  sum:Σ(=to)(name:j, numeral:0, name:m, power:^(numeral:2, name:j))  a number
+read 11: ℕ₀  as  number-systems:ℕ₀  a set
+read 14: For all k ∈ ℕ₀, S(k) = 2^(k + 1) − 1  as  for-all:forall∈,(name:k, number-systems:ℕ₀, equality:=(application:()(name:S, name:k), additive:−(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:1)))  a statement
+read 15: 0  as  numeral:0  a number
+read 18: S(0) = 2^1 − 1  as  equality:=(application:()(name:S, numeral:0), additive:−(power:^(numeral:2, numeral:1), numeral:1))  a statement
+read 20: S(0)  as  application:()(name:S, numeral:0)  a number
+read 20: Σ(j = 0 to 0) 2^j  as  sum:Σ(=to)(name:j, numeral:0, numeral:0, power:^(numeral:2, name:j))  a number
+read 21: 0  as  numeral:0  a number
+read 21: 2^0  as  power:^(numeral:2, numeral:0)  a number
+read 21: Σ(j = 0 to 0) 2^j = 2^0  as  equality:=(sum:Σ(=to)(name:j, numeral:0, numeral:0, power:^(numeral:2, name:j)), power:^(numeral:2, numeral:0))  a statement
+read 22: 2^1 − 1  as  additive:−(power:^(numeral:2, numeral:1), numeral:1)  a number
+read 25: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 28: S(k + 1) = S(k) + 2^(k + 1)  as  equality:=(application:()(name:S, additive:+(name:k, numeral:1)), additive:+(application:()(name:S, name:k), power:^(numeral:2, additive:+(name:k, numeral:1))))  a statement
+read 30: S(k + 1)  as  application:()(name:S, additive:+(name:k, numeral:1))  a number
+read 30: Σ(j = 0 to k + 1) 2^j  as  sum:Σ(=to)(name:j, numeral:0, additive:+(name:k, numeral:1), power:^(numeral:2, name:j))  a number
+read 31: 0  as  numeral:0  a number
+read 31: k  as  name:k  a number
+read 31: Σ(j = 0 to k + 1) 2^j = Σ(j = 0 to k) 2^j + 2^(k + 1)  as  equality:=(sum:Σ(=to)(name:j, numeral:0, additive:+(name:k, numeral:1), power:^(numeral:2, name:j)), additive:+(sum:Σ(=to)(name:j, numeral:0, name:k, power:^(numeral:2, name:j)), power:^(numeral:2, additive:+(name:k, numeral:1))))  a statement
+read 31: Σ(j = 0 to k) 2^j + 2^(k + 1)  as  additive:+(sum:Σ(=to)(name:j, numeral:0, name:k, power:^(numeral:2, name:j)), power:^(numeral:2, additive:+(name:k, numeral:1)))  a number
+read 32: S(k) + 2^(k + 1)  as  additive:+(application:()(name:S, name:k), power:^(numeral:2, additive:+(name:k, numeral:1)))  a number
+read 33: k ≥ 0  as  order:≥(name:k, numeral:0)  a statement
+read 35: 2^((k + 1) + 1) = 2^(k + 1)·2  as  equality:=(power:^(numeral:2, additive:+(additive:+(name:k, numeral:1), numeral:1)), multiplicative:·(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:2))  a statement
+read 36: 2  as  numeral:2  a number
+read 36: k + 1  as  additive:+(name:k, numeral:1)  a number
+read 38: S(k + 1) = 2^((k + 1) + 1) − 1  as  equality:=(application:()(name:S, additive:+(name:k, numeral:1)), additive:−(power:^(numeral:2, additive:+(additive:+(name:k, numeral:1), numeral:1)), numeral:1))  a statement
+read 40: S(k + 1)  as  application:()(name:S, additive:+(name:k, numeral:1))  a number
+read 40: S(k) + 2^(k + 1)  as  additive:+(application:()(name:S, name:k), power:^(numeral:2, additive:+(name:k, numeral:1)))  a number
+read 41: 2^(k + 1) − 1 + 2^(k + 1)  as  additive:+(additive:−(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:1), power:^(numeral:2, additive:+(name:k, numeral:1)))  a number
+read 41: S(k) + 2^(k + 1) = 2^(k + 1) − 1 + 2^(k + 1)  as  equality:=(additive:+(application:()(name:S, name:k), power:^(numeral:2, additive:+(name:k, numeral:1))), additive:+(additive:−(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:1), power:^(numeral:2, additive:+(name:k, numeral:1))))  a statement
+read 42: 2^(k + 1) − 1 + 2^(k + 1) = 2^(k + 1)·2 − 1  as  equality:=(additive:+(additive:−(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:1), power:^(numeral:2, additive:+(name:k, numeral:1))), additive:−(multiplicative:·(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:2), numeral:1))  a statement
+read 42: 2^(k + 1)·2 − 1  as  additive:−(multiplicative:·(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:2), numeral:1)  a number
+read 43: 2^((k + 1) + 1) − 1  as  additive:−(power:^(numeral:2, additive:+(additive:+(name:k, numeral:1), numeral:1)), numeral:1)  a number
+read 43: 2^(k + 1)·2 − 1 = 2^((k + 1) + 1) − 1  as  equality:=(additive:−(multiplicative:·(power:^(numeral:2, additive:+(name:k, numeral:1)), numeral:2), numeral:1), additive:−(power:^(numeral:2, additive:+(additive:+(name:k, numeral:1), numeral:1)), numeral:1))  a statement
+read 45: Σ(k = 0 to n) 2^k = 2^(n + 1) − 1  as  equality:=(sum:Σ(=to)(name:k, numeral:0, name:n, power:^(numeral:2, name:k)), additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1))  a statement
+read 47: S(n)  as  application:()(name:S, name:n)  a number
+read 47: Σ(k = 0 to n) 2^k  as  sum:Σ(=to)(name:k, numeral:0, name:n, power:^(numeral:2, name:k))  a number
+read 48: 2^(n + 1) − 1  as  additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1)  a number
+read 48: S(n) = 2^(n + 1) − 1  as  equality:=(application:()(name:S, name:n), additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1))  a statement
+read 48: n  as  name:n  a number
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 0, element: "0" }] }]
+step 1.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
