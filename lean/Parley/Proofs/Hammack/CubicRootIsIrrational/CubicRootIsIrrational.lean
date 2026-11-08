@@ -68,9 +68,9 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           -- 1.5.3.1. obtain s: def:even n := q, from C2
           obtain ⟨s, s1_5_3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := q))).mp hC2
           -- 1.5.3.2. def:divides d := 2, n := p, from 1.5.1
-          have s1_5_3_2 : (2 : ℤ) ∣ p := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s1_5_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s1_5_1⟩; parley_side)
+          have s1_5_3_2 : (2 : ℤ) ∣ p := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s1_5_1⟩
           -- 1.5.3.3. def:divides d := 2, n := q, from 1.5.3.1
-          have s1_5_3_3 : (2 : ℤ) ∣ q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s1_5_3_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s1_5_3_1⟩; parley_side)
+          have s1_5_3_3 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s1_5_3_1⟩
           -- 1.5.3.4. exhibit, from 1.5.3.2, 1.5.3.3
           have r63_1 : (2 : ℤ) > 1 := by parley_arith
           have s1_5_3_4 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r63_1, s1_5_3_2⟩, s1_5_3_3⟩⟩
@@ -88,7 +88,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           -- 1.5.3.7. algebra, from 1.5.3.6
           have s1_5_3_7 : 1 = 2 * -(4 * r ^ 3 + 4 * r * s ^ 2 + 4 * r * s + r + 12 * s ^ 3 + 18 * s ^ 2 + 9 * s + 1) := by linear_combination (norm := parley_norm) s1_5_3_6
           -- 1.5.3.8. def:even n := 1, from 1.5.3.7
-          first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 4 * r * s ^ 2 + 4 * r * s + r + 12 * s ^ 3 + 18 * s ^ 2 + 9 * s + 1), s1_5_3_7⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 4 * r * s ^ 2 + 4 * r * s + r + 12 * s ^ 3 + 18 * s ^ 2 + 9 * s + 1), s1_5_3_7⟩; parley_side)
+          exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 4 * r * s ^ 2 + 4 * r * s + r + 12 * s ^ 3 + 18 * s ^ 2 + 9 * s + 1), s1_5_3_7⟩
       · skip
         -- 1.5.4. obtain r: def:odd n := p, from C4
         obtain ⟨r, s1_5_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := p))).mp hC4
@@ -106,7 +106,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           -- 1.5.7.3. algebra, from 1.5.7.2
           have s1_5_7_3 : 1 = 2 * -(4 * r ^ 3 + 6 * r ^ 2 + 3 * r + 4 * r * s ^ 2 + 2 * s ^ 2 + 12 * s ^ 3) := by linear_combination (norm := parley_norm) s1_5_7_2
           -- 1.5.7.4. def:even n := 1, from 1.5.7.3
-          first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 3 * r + 4 * r * s ^ 2 + 2 * s ^ 2 + 12 * s ^ 3), s1_5_7_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 3 * r + 4 * r * s ^ 2 + 2 * s ^ 2 + 12 * s ^ 3), s1_5_7_3⟩; parley_side)
+          exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 3 * r + 4 * r * s ^ 2 + 2 * s ^ 2 + 12 * s ^ 3), s1_5_7_3⟩
         · skip
           -- 1.5.7.5. obtain s: def:odd n := q, from C6
           obtain ⟨s, s1_5_7_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := q))).mp hC6
@@ -115,13 +115,13 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           -- 1.5.7.7. algebra, from 1.5.7.6
           have s1_5_7_7 : 1 = 2 * -(4 * r ^ 3 + 6 * r ^ 2 + 4 * r + 4 * r * s ^ 2 + 4 * r * s + 12 * s ^ 3 + 20 * s ^ 2 + 11 * s + 2) := by linear_combination (norm := parley_norm) s1_5_7_6
           -- 1.5.7.8. def:even n := 1, from 1.5.7.7
-          first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 4 * r + 4 * r * s ^ 2 + 4 * r * s + 12 * s ^ 3 + 20 * s ^ 2 + 11 * s + 2), s1_5_7_7⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 4 * r + 4 * r * s ^ 2 + 4 * r * s + 12 * s ^ 3 + 20 * s ^ 2 + 11 * s + 2), s1_5_7_7⟩; parley_side)
+          exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 4 * r + 4 * r * s ^ 2 + 4 * r * s + 12 * s ^ 3 + 20 * s ^ 2 + 11 * s + 2), s1_5_7_7⟩
     -- 1.6. mun:not-both n := 1, from 1.5
     have s1_6 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_5)
     -- 1.7. arithmetic
     have s1_7 : Odd (1 : ℤ) := by parley_arith
     exact s1_6 s1_7
   -- 2. def:irrational, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.CubicRootIsIrrational.CubicRootIsIrrational

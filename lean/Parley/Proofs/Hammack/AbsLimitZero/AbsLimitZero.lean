@@ -56,6 +56,6 @@ theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (
     -- 1.5. exhibit, from 1.4
     exact ⟨N, s1_3a, s1_4⟩
   -- 2. def:tends-to L := 0, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1); parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1)
 
 end Parley.Proofs.Hammack.AbsLimitZero.AbsLimitZero

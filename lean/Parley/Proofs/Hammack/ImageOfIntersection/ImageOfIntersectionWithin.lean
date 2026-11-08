@@ -29,7 +29,7 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     -- 1.2. mun:in-subset X := W, Y := A, u := s, from H4, 1.1
     exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := W) (Y := A) (u := s) hH4 s1_1a)
   -- 2. def:subset, from 1
-  have s2 : W ∩ X ⊆ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := W ∩ X) (Y := A))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := W ∩ X) (Y := A))).mpr s1; parley_set_side)
+  have s2 : W ∩ X ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := W ∩ X) (Y := A))).mpr s1
   -- 3. proof
   have s3 : ∀ y ∈ f '' (A ∩ (W ∩ X)), y ∈ f '' (A ∩ W) ∩ f '' (A ∩ X) := by
     intro y hK2
@@ -47,8 +47,8 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     -- 3.6. substitute y = f(s) (line 3.1) into line 3.4
     have s3_6 : y ∈ f '' (A ∩ X) := by parley_subst_at s3_1b s3_4
     -- 3.7. def:intersection u := y, Y := f[W], Z := f[X], from 3.5, 3.6
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side)
   -- 4. def:subset, from 3
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr s3; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr s3
 
 end Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin

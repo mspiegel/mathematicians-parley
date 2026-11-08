@@ -36,6 +36,6 @@ theorem square_congruent_one_mod_five (a : ℤ) (hH2 : a ≡ (1 : ℤ) [ZMOD (5 
     have row1 : (5 : ℤ) ∣ a ^ 2 - 1 := by parley_subst_at c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a ^ 2) (b := (1 : ℤ)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a ^ 2) (b := (1 : ℤ)))).mpr s3; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a ^ 2) (b := (1 : ℤ)))).mpr s3
 
 end Parley.Proofs.Hammack.SquareCongruentOneModFive.SquareCongruentOneModFive

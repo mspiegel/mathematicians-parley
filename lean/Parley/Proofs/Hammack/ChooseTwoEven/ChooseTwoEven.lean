@@ -42,7 +42,7 @@ theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (
     -- 2.3. algebra, from 1, 2.2
     have s2_3 : (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) = 2 * (k * (4 * k - 1)) := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s1 + ((1 / 2 : ℚ) * (a : ℚ) + 2 * (k : ℚ) - (1 / 2 : ℚ)) * s2_2
     -- 2.4. def:even n := C(a, 2), from 2.3
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k - 1), s2_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k - 1), s2_3⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k - 1), s2_3⟩
   · skip
     -- 2.5. def:congruent-mod, from C2
     have s2_5 : (4 : ℤ) ∣ a - 1 := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (1 : ℤ)))).mp hC2
@@ -51,6 +51,6 @@ theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (
     -- 2.7. algebra, from 1, 2.6
     have s2_7 : (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) = 2 * (k * (4 * k + 1)) := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s1 + ((1 / 2 : ℚ) * (a : ℚ) + 2 * (k : ℚ)) * s2_6
     -- 2.8. def:even n := C(a, 2), from 2.7
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k + 1), s2_7⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k + 1), s2_7⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k + 1), s2_7⟩
 
 end Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoEven

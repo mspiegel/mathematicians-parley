@@ -59,7 +59,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 6. inequalities
   have s6 : p / 2 ≠ 0 := by parley_set_side
   -- 7. mun:remove-member u := p/2, from 6
-  have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr (by parley_set_side); parley_set_side)
+  have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr (by parley_set_side)
   -- 8. def:abs x := p/2
   have r48_1 : p / 2 ≥ 0 := by parley_set_side
   have s8 : abs (p / 2) = p / 2 := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := p / 2)) (by parley_set_side)
@@ -83,7 +83,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 16. inequalities
   have s16 : -p / 2 ≠ 0 := by parley_set_side
   -- 17. mun:remove-member u := (−p)/2, from 16
-  have s17 : -p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr (by parley_set_side); parley_set_side)
+  have s17 : -p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr (by parley_set_side)
   -- 18. mun:abs-negative x := p/2
   have s18 : abs (-(p / 2)) = abs (p / 2) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := p / 2))
   -- 19. substitute

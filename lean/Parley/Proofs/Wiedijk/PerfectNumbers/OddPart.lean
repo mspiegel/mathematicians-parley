@@ -94,7 +94,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           have s1_7_8 : i ≤ N := by parley_order
           -- 1.7.9. def:range-between k := i, a := 1, b := N, from 1.7.8
           have r222_1 : 1 ≤ i := by parley_order
-          have s1_7_9 : i ∈ Finset.Icc (1 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
+          have s1_7_9 : i ∈ Finset.Icc (1 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := N))).mpr (by parley_side)
           -- 1.7.10. instantiate j := i in IH, from 1.7.9
           have s1_7_10 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ i = 2 ^ k.toNat * m)) := by exact (hIH i (by parley_side))
           -- 1.7.11. D1, from 1.7.10
@@ -119,7 +119,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
   -- 3. def:range-between k := n, a := 1, b := n
   have r260_1 : 1 ≤ n := by parley_order
   have r260_2 : n ≤ n := by parley_order
-  have s3 : n ∈ Finset.Icc (1 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := n))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := n))).mpr (by parley_side); parley_side)
+  have s3 : n ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := n))).mpr (by parley_side)
   -- 4. instantiate j := n in line 2, from 3
   have s4 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ n = 2 ^ k.toNat * m)) := by exact (s2 n (by parley_side))
   -- 5. D1, from 4

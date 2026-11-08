@@ -47,7 +47,7 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     have s2_3a : 0 ≤ N - K := by parley_order
     have s2_3b : N - K ≤ N := by parley_order
     -- 2.4. def:range-between k := N − K, a := 0, b := N, from 2.3
-    have s2_4 : N - K ∈ Finset.Icc (0 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
+    have s2_4 : N - K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
     -- 2.5. algebra
     have s2_5 : N - (N - K) = K := by parley_ring
     -- 2.6. substitute N − (N − K) = K (line 2.5)
@@ -76,7 +76,7 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
       -- 2.10.3. inequalities
       have s2_10_3 : K ≤ N := by parley_order
       -- 2.10.4. def:range-between k := K, a := 0, b := N, from 2.10.2, 2.10.3
-      have s2_10_4 : K ∈ Finset.Icc (0 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
+      have s2_10_4 : K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
       -- 2.10.5. restate C2
       have s2_10_5 : ¬ K ∈ Finset.Icc (0 : ℤ) N := by parley_side
       exact s2_10_5 s2_10_4

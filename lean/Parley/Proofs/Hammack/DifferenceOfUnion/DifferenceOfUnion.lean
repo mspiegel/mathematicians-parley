@@ -38,13 +38,13 @@ theorem difference_of_union {α : Type*} (A : Set α) (B : Set α) (C : Set α) 
       have s1_3_1 : t ∈ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := B) (Z := C) (u := t) hS2)
       exact s1_1b s1_3_1
     -- 1.4. def:difference u := t, Y := A, Z := B, from 1.1, 1.2
-    have s1_4 : t ∈ A \ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side); parley_set_side)
+    have s1_4 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
     -- 1.5. def:difference u := t, Y := A, Z := C, from 1.1, 1.3
-    have s1_5 : t ∈ A \ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mpr (by parley_set_side); parley_set_side)
+    have s1_5 : t ∈ A \ C := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mpr (by parley_set_side)
     -- 1.6. def:intersection u := t, Y := A ∖ B, Z := A ∖ C, from 1.4, 1.5
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A \ B) (Z := A \ C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A \ B) (Z := A \ C) (u := t))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A \ B) (Z := A \ C) (u := t))).mpr (by parley_set_side)
   -- 2. def:subset, from 1
-  have s2 : A \ (B ∪ C) ⊆ (A \ B) ∩ (A \ C) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A \ (B ∪ C)) (Y := (A \ B) ∩ (A \ C)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ (B ∪ C)) (Y := (A \ B) ∩ (A \ C)))).mpr s1; parley_set_side)
+  have s2 : A \ (B ∪ C) ⊆ (A \ B) ∩ (A \ C) := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ (B ∪ C)) (Y := (A \ B) ∩ (A \ C)))).mpr s1
   -- 3. proof
   have s3 : ∀ t ∈ (A \ B) ∩ (A \ C), t ∈ A \ (B ∪ C) := by
     intro t hK2
@@ -65,9 +65,9 @@ theorem difference_of_union {α : Type*} (A : Set α) (B : Set α) (C : Set α) 
       have s3_4_2 : t ∈ C := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := t ∈ B) (Q := t ∈ C) s3_4_1 s3_2b)
       exact s3_3 s3_4_2
     -- 3.5. def:difference u := t, Y := A, Z := B ∪ C, from 3.2, 3.4
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∪ C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∪ C) (u := t))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∪ C) (u := t))).mpr (by parley_set_side)
   -- 4. def:subset, from 3
-  have s4 : (A \ B) ∩ (A \ C) ⊆ A \ (B ∪ C) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (A \ B) ∩ (A \ C)) (Y := A \ (B ∪ C)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (A \ B) ∩ (A \ C)) (Y := A \ (B ∪ C)))).mpr s3; parley_set_side)
+  have s4 : (A \ B) ∩ (A \ C) ⊆ A \ (B ∪ C) := ((Parley.Items.Stdlib.Sets.def_subset (X := (A \ B) ∩ (A \ C)) (Y := A \ (B ∪ C)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∪ C)) (Y := (A \ B) ∩ (A \ C)) s2 s4)
 

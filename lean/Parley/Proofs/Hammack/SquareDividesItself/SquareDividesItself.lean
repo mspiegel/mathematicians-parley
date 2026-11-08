@@ -60,7 +60,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       -- 3.6.3. restate 3.4
       have s3_6_3 : 1 = a * k := by parley_set_side
       -- 3.6.4. def:divides d := a, n := 1, from 3.6.3
-      have s3_6_4 : a ∣ (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := (1 : ℤ)))).mpr ⟨k, s3_6_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := (1 : ℤ)))).mpr ⟨k, s3_6_3⟩; parley_set_side)
+      have s3_6_4 : a ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := (1 : ℤ)))).mpr ⟨k, s3_6_3⟩
       -- 3.6.5. inspection
       have s3_6_5 : (1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
       -- 3.6.6. substitute
@@ -75,7 +75,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       -- 3.6.9. algebra, from 3.4
       have s3_6_9 : 1 = -a * -k := by linear_combination (norm := parley_norm) (-1) * s3_4
       -- 3.6.10. def:divides d := −a, n := 1, from 3.6.9
-      have s3_6_10 : -a ∣ (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := -a) (n := (1 : ℤ)))).mpr ⟨-k, s3_6_9⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := -a) (n := (1 : ℤ)))).mpr ⟨-k, s3_6_9⟩; parley_set_side)
+      have s3_6_10 : -a ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := -a) (n := (1 : ℤ)))).mpr ⟨-k, s3_6_9⟩
       -- 3.6.11. mun:divides-one d := −a, from 3.6.8, 3.6.10
       have s3_6_11 : -a = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) (by parley_set_side) s3_6_10)
       -- 3.6.12. inspection

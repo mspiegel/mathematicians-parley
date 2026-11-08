@@ -27,6 +27,6 @@ theorem a_direction_ending_on_a_proof_block {α : Type*} (A : Set α) (B : Set �
   · skip
     intro hD2
     -- 1.2. def:subset, from D2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr hD2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr hD2; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr hD2
 
 end Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock

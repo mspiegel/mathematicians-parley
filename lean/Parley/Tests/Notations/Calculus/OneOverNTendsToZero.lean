@@ -53,7 +53,7 @@ theorem one_over_n_tends_to_zero :
       -- 1.2.6. transitivity, from 1.2.1, 1.2.5
       have s1_2_6 : 1 / (n : ℝ) < 0 + ε := by parley_order
       -- 1.2.7. mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from 1.2.4, 1.2.6
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / (n : ℝ)) (c := (0 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / (n : ℝ)) (c := (0 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / (n : ℝ)) (c := (0 : ℝ)) (δ := ε))).mpr (by parley_side)
     -- 1.3. exhibit, from 1.2
     exact ⟨N, s1_1a, s1_2⟩
   -- 2. proof

@@ -45,6 +45,6 @@ theorem arithmetic_geometric_mean (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B �
   -- 9. transitivity, from 2, 8, 6
   have s9 : Real.sqrt (A * B) ^ 2 ≤ ((A + B) / 2) ^ 2 := by parley_order
   -- 10. mun:square-le x := √(A·B), y := (A + B)/2, from 3, 5, 9
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) (by parley_side) (by parley_side))).mpr s9 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) (by parley_side) (by parley_side))).mpr s9; parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) (by parley_side) (by parley_side))).mpr s9
 
 end Parley.Proofs.Setmm.ArithmeticGeometricMean.ArithmeticGeometricMean

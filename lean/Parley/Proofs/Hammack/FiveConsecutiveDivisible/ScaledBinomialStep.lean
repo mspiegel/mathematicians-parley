@@ -36,7 +36,7 @@ theorem scaled_binomial_step (m : ℤ) (hH1 : 0 ≤ m) (i : ℤ) (hH2 : 0 ≤ i)
   have s3 : j ≤ m + i + 1 := by parley_order
   -- 4. def:range-between k := j, a := 1, b := (m + i) + 1, from 3
   have r33_1 : 1 ≤ j := by parley_order
-  have s4 : j ∈ Finset.Icc (1 : ℤ) (m + i + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := j) (a := (1 : ℤ)) (b := m + i + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := j) (a := (1 : ℤ)) (b := m + i + 1))).mpr (by parley_side); parley_side)
+  have s4 : j ∈ Finset.Icc (1 : ℤ) (m + i + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := j) (a := (1 : ℤ)) (b := m + i + 1))).mpr (by parley_side)
   -- 5. thm:weighted-term m := m + i, k := j, from 4
   have s5 : j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) (j - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (by parley_side) (k := j) s4)
   -- 6. substitute j − 1 = i (H4) into line 5

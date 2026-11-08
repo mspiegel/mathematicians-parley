@@ -64,7 +64,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     -- 6.2.3. mun:square-less x := B, y := |A|, from 6.2.2
     have r70_1 : abs A ≥ 0 := by parley_side
     have r70_2 : B ≥ 0 := by parley_side
-    have s6_2_3 : B < abs A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := B) (y := abs A) (by parley_side) (by parley_side))).mpr s6_2_2 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := B) (y := abs A) (by parley_side) (by parley_side))).mpr s6_2_2; parley_side)
+    have s6_2_3 : B < abs A := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := B) (y := abs A) (by parley_side) (by parley_side))).mpr s6_2_2
     -- 6.2.4. inequalities, from 6.2.3
     have s6_2_4 : ¬ abs A ≤ B := by parley_side
     exact s6_2_4 s6_1

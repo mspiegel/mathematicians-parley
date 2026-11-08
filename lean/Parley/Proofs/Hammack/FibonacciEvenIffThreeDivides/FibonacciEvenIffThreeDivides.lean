@@ -73,21 +73,21 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
           _ = 0 := by parley_side
           _ = 2 * 0 := by norm_num
       -- 4.7. def:even n := F(3·0), from 4.6
-      have s4_7 : Even (F (3 * 0)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := F (3 * 0)))).mpr ⟨(0 : ℤ), s4_6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := F (3 * 0)))).mpr ⟨(0 : ℤ), s4_6⟩; parley_side)
+      have s4_7 : Even (F (3 * 0)) := ((Parley.Items.Stdlib.Divisibility.def_even (n := F (3 * 0)))).mpr ⟨(0 : ℤ), s4_6⟩
       -- 4.8. calculation
       have s4_8 : F (3 * 0 + 1) = 2 * 0 + 1 := by
         calc F (3 * 0 + 1) = F 1 := by norm_num
           _ = 1 := by parley_side
           _ = 2 * 0 + 1 := by norm_num
       -- 4.9. def:odd n := F(3·0 + 1), from 4.8
-      have s4_9 : Odd (F (3 * 0 + 1)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 1)))).mpr ⟨(0 : ℤ), s4_8⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 1)))).mpr ⟨(0 : ℤ), s4_8⟩; parley_side)
+      have s4_9 : Odd (F (3 * 0 + 1)) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 1)))).mpr ⟨(0 : ℤ), s4_8⟩
       -- 4.10. calculation
       have s4_10 : F (3 * 0 + 2) = 2 * 0 + 1 := by
         calc F (3 * 0 + 2) = F 2 := by norm_num
           _ = 1 := by linear_combination (norm := parley_norm) s4_1 + s4_4 + s4_5
           _ = 2 * 0 + 1 := by norm_num
       -- 4.11. def:odd n := F(3·0 + 2), from 4.10
-      have s4_11 : Odd (F (3 * 0 + 2)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 2)))).mpr ⟨(0 : ℤ), s4_10⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 2)))).mpr ⟨(0 : ℤ), s4_10⟩; parley_side)
+      have s4_11 : Odd (F (3 * 0 + 2)) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 2)))).mpr ⟨(0 : ℤ), s4_10⟩
       -- 4.12. join 4.7, 4.9, 4.11
       have s4_12 : (Even (F (3 * 0)) ∧ Odd (F (3 * 0 + 1))) ∧ Odd (F (3 * 0 + 2)) := by parley_side
       exact ⟨⟨((s4_12).1).1, ((s4_12).1).2⟩, (s4_12).2⟩
@@ -181,7 +181,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.14.2. algebra, from 5.14.1
       have s5_14_2 : n = 3 * q := by linear_combination (norm := parley_norm) (-1) * s5_14_1
       -- 5.14.3. def:divides d := 3, from 5.14.2
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mpr ⟨q, s5_14_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mpr ⟨q, s5_14_2⟩; parley_side)
+      exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mpr ⟨q, s5_14_2⟩
     · skip
       -- 5.14.4. substitute n mod 3 = 1 (C2) into line 5.4
       have s5_14_4 : q * 3 + 1 = n := by parley_subst_at hC2 s5_4

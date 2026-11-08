@@ -114,11 +114,11 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.7.7. join 10.7.5, 10.7.6
       have s10_7_7 : c - ε < x n ∧ x n < c + ε := by parley_set_side
       -- 10.7.8. mun:abs-difference-lt x := x(n), δ := ε, from 10.7.7
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side)
     -- 10.8. exhibit, from 10.7
     exact ⟨N, s10_4a, s10_7⟩
   -- 11. def:tends-to L := c, from 10
-  have s11 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds c) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s10 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s10; parley_set_side)
+  have s11 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds c) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s10
   -- 12. exhibit, from 11
   exact ⟨c, s11⟩
 

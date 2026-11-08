@@ -42,11 +42,11 @@ theorem zero_derivative_ends (a : ℝ) (b : ℝ) (hH3 : a < b) (H : ℝ → ℝ)
   -- 1. def:interval x := a
   have r26_1 : a ≤ a := by parley_order
   have r26_2 : a ≤ b := by parley_set_side
-  have s1 : a ∈ (Set.Icc a b : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side); parley_set_side)
+  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side)
   -- 2. def:interval x := b
   have r31_1 : a ≤ b := by parley_set_side
   have r31_2 : b ≤ b := by parley_order
-  have s2 : b ∈ (Set.Icc a b : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr (by parley_set_side); parley_set_side)
+  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr (by parley_set_side)
   -- 3. obtain c: thm:mean-value f := H, from H3, H5, H6
   obtain ⟨c, s3a, s3b⟩ := (Parley.Proofs.Wiedijk.MeanValue.MeanValue.mean_value (a := a) (b := b) hH3 (f := H) (by parley_set_side) hH5 hH6)
   -- 4. calculation

@@ -31,6 +31,6 @@ theorem divides_cubic (a : ℤ) (b : ℤ) (hH3 : a ∣ b) :
     calc 3 * b ^ 3 - b ^ 2 + 5 * b = 3 * (a * k) ^ 3 - (a * k) ^ 2 + 5 * (a * k) := by parley_subst s1
       _ = a * (3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k) := by parley_ring
   -- 3. def:divides d := a, n := 3b³ − b² + 5b, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := 3 * b ^ 3 - b ^ 2 + 5 * b))).mpr ⟨3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k, s2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := 3 * b ^ 3 - b ^ 2 + 5 * b))).mpr ⟨3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k, s2⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := 3 * b ^ 3 - b ^ 2 + 5 * b))).mpr ⟨3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k, s2⟩
 
 end Parley.Proofs.Hammack.DividesCubic.DividesCubic

@@ -92,6 +92,6 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
     -- 1.4. exhibit, from 1.3
     exact ⟨N, s1_2a, s1_3⟩
   -- 2. def:tends-to L := 0, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1); parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1)
 
 end Parley.Proofs.Hammack.TwoPowerOverFactorial.TwoPowerOverFactorial

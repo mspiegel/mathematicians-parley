@@ -55,7 +55,7 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   set m : ℝ := min p q with hD1
   have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)); parley_set_side)
   -- 9. mun:lt-min z := 0, x := p, y := q, from 7, 8
-  have s9 : 0 < min p q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side); parley_set_side)
+  have s9 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side)
   -- 10. mun:min-le x := p, y := q
   have s10a : min p q ≤ p := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := p) (y := q))
   have s10b : min p q ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := p) (y := q))
@@ -96,9 +96,9 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 27. inequalities, from D2, 21, 25
   have s27 : c - q < x₁ ∧ x₁ < c + q := by parley_set_side
   -- 28. mun:abs-difference-lt x := x₁, δ := p, from 26
-  have s28 : abs (x₁ - c) < p := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := p))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := p))).mpr (by parley_set_side); parley_set_side)
+  have s28 : abs (x₁ - c) < p := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := p))).mpr (by parley_set_side)
   -- 29. mun:abs-difference-lt x := x₁, δ := q, from 27
-  have s29 : abs (x₁ - c) < q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := q))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := q))).mpr (by parley_set_side); parley_set_side)
+  have s29 : abs (x₁ - c) < q := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := q))).mpr (by parley_set_side)
   -- 30. instantiate x := x₁ in line 7, from 14, 28
   have s30 : abs (f x₁ - L) < (M - L) / 3 := by exact (s7b x₁ (by parley_set_side))
   -- 31. instantiate x := x₁ in line 8, from 14, 29

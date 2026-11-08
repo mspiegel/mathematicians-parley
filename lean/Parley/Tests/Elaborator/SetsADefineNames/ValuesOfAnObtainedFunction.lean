@@ -28,7 +28,7 @@ theorem values_of_an_obtained_function (n : ℤ) (hH1 : 0 < n) (m : ℤ) (hH2 : 
   obtain ⟨g, s1a, s1b⟩ := hH3
   -- 2. def:range-between k := 1, a := 1, b := n, from H1
   have r115_1 : (1 : ℤ) ≤ 1 := by parley_arith
-  have s2 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := n))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := n))).mpr (by parley_set_side); parley_set_side)
+  have s2 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := n))).mpr (by parley_set_side)
   -- 3. inequalities
   have s3 : g 1 ≤ g 1 := by parley_order
   -- 4. exhibit, from 1, 3

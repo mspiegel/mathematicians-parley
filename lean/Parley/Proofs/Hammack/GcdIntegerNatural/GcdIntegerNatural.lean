@@ -50,7 +50,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       -- 6.3. algebra, from C1, 4
       have s6_3 : a = b * q := by linear_combination (norm := parley_norm) hC1 + (-1) * s4
       -- 6.4. def:divides d := b, n := a, from 6.3
-      have s6_4 : b ∣ a := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, s6_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, s6_3⟩; parley_side)
+      have s6_4 : b ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, s6_3⟩
       -- 6.5. join H2, 6.2, 6.4
       have s6_5a : 0 < b := by parley_side
       have s6_5b : b ∣ a := by parley_side

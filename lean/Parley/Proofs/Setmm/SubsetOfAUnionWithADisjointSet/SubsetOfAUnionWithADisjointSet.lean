@@ -40,7 +40,7 @@ theorem subset_of_a_union_with_a_disjoint_set {α : Type*} (A : Set α) (B : Set
       · skip
         exact hC2
     -- 2. def:subset, from 1
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s1; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s1
   · skip
     intro hD2
     -- 3. proof
@@ -51,6 +51,6 @@ theorem subset_of_a_union_with_a_disjoint_set {α : Type*} (A : Set α) (B : Set
       -- 3.2. mun:in-union-right Y := B, Z := C, from 3.1
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := B) (Z := C) (u := t) s3_1)
     -- 4. def:subset, from 3
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∪ C))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∪ C))).mpr s3; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∪ C))).mpr s3
 
 end Parley.Proofs.Setmm.SubsetOfAUnionWithADisjointSet.SubsetOfAUnionWithADisjointSet

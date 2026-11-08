@@ -49,6 +49,6 @@ theorem mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     have r29_2 : t - 2 ≠ 0 := by parley_set_side
     linear_combination (norm := parley_field) (-(1 / 11 : ℝ) * s * t + (2 / 11 : ℝ) * s + (2 / 11 : ℝ) * t - (4 / 11 : ℝ)) * s1_3
   -- 2. def:one-to-one, from H1, 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.MobiusOneToOne.MobiusOneToOne

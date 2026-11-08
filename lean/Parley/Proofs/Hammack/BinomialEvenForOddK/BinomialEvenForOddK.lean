@@ -50,7 +50,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     have s2_2a : 1 ≤ k := by parley_order
     have s2_2b : k ≤ n - 1 + 1 := by parley_order
     -- 2.3. def:range n := (n − 1) + 1, from 2.2
-    have s2_3 : k ∈ Finset.Icc (1 : ℤ) (n - 1 + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n - 1 + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n - 1 + 1))).mpr (by parley_side); parley_side)
+    have s2_3 : k ∈ Finset.Icc (1 : ℤ) (n - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n - 1 + 1))).mpr (by parley_side)
     -- 2.4. thm:weighted-term m := n − 1, from 2.3
     have r78_1 : 0 ≤ n - 1 := by parley_side
     have s2_4 : k * (LeanBridges.Counting.choose (n - 1 + 1) k : ℤ) = (n - 1 + 1) * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := n - 1) (by parley_side) (k := k) s2_3)
@@ -78,6 +78,6 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
       calc (LeanBridges.Counting.choose n k : ℤ) = 0 := by parley_side
         _ = 2 * 0 := by norm_num
     -- 2.13. def:even n := C(n, k), from 2.12
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose n k : ℤ)))).mpr ⟨(0 : ℤ), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose n k : ℤ)))).mpr ⟨(0 : ℤ), by parley_side⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose n k : ℤ)))).mpr ⟨(0 : ℤ), by parley_side⟩
 
 end Parley.Proofs.Hammack.BinomialEvenForOddK.BinomialEvenForOddK

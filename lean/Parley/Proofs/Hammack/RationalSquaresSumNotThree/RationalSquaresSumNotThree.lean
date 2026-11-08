@@ -79,7 +79,7 @@ theorem rational_squares_sum_not_three :
   -- 12. obtain p, q from line 11
   obtain ⟨p, q, s12⟩ := s11b
   -- 13. def:divides d := 3, n := p² + q², from 11, 12
-  have s13 : (3 : ℤ) ∣ p ^ 2 + q ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2 + q ^ 2))).mpr ⟨m ^ 2, s12⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2 + q ^ 2))).mpr ⟨m ^ 2, s12⟩; parley_set_side)
+  have s13 : (3 : ℤ) ∣ p ^ 2 + q ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2 + q ^ 2))).mpr ⟨m ^ 2, s12⟩
   -- 14. thm:three-divides-sum-of-squares, from 13
   have s14 : (3 : ℤ) ∣ p := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesSumOfSquares.three_divides_sum_of_squares (p := p) (q := q) (by parley_set_side))
   -- 15. substitute
@@ -100,7 +100,7 @@ theorem rational_squares_sum_not_three :
   -- 21. algebra, from 11, 20
   have s21 : m ^ 2 = 3 * (s ^ 2 + t ^ 2) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s20
   -- 22. def:divides d := 3, n := m², from 11, 21
-  have s22 : (3 : ℤ) ∣ m ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := m ^ 2))).mpr ⟨s ^ 2 + t ^ 2, s21⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := m ^ 2))).mpr ⟨s ^ 2 + t ^ 2, s21⟩; parley_set_side)
+  have s22 : (3 : ℤ) ∣ m ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := m ^ 2))).mpr ⟨s ^ 2 + t ^ 2, s21⟩
   -- 23. thm:three-divides-square n := m, from 11, 22
   have s23 : (3 : ℤ) ∣ m := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := m) (by parley_set_side))
   -- 24. obtain u: def:divides d := 3, n := m, from 11, 23

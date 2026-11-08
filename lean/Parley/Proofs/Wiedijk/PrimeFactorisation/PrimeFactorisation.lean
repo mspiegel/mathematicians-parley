@@ -114,7 +114,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         have s1_18_1 : 1 + 1 ≤ r := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := r) hC1)
         -- 1.18.2. def:range-between k := r, a := 2, b := N, from 1.16
         have r258_1 : 2 ≤ r := by parley_order
-        have s1_18_2 : r ∈ Finset.Icc (2 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr (by parley_set_side); parley_set_side)
+        have s1_18_2 : r ∈ Finset.Icc (2 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr (by parley_set_side)
         -- 1.18.3. instantiate m := r in IH, from 1.18.2
         have s1_18_3 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (hIH r (by parley_set_side))
         -- 1.18.4. thm:prime-times-product, from D2, 1.7, 1.18.3
@@ -154,7 +154,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
   have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; first | exact (s1 n (by parley_set_side) m (by parley_set_side)) | exact ((s1 n (by parley_set_side) m (by parley_set_side))).symm | simpa using (s1 n (by parley_set_side) m (by parley_set_side)) | exact_mod_cast (s1 n (by parley_set_side) m (by parley_set_side)) | (have h := (s1 n (by parley_set_side) m (by parley_set_side)); rw [← Finset.coe_Icc, finprod_mem_coe_finset] at h; exact h) | (have h := (s1 n (by parley_set_side) m (by parley_set_side)); parley_set_side)
   -- 3. def:range-between k := n, a := 2, b := n, from H2
   have r317_1 : n ≤ n := by parley_order
-  have s3 : n ∈ Finset.Icc (2 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr (by parley_set_side); parley_set_side)
+  have s3 : n ∈ Finset.Icc (2 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr (by parley_set_side)
   -- 4. instantiate m := n in line 2, from 3
   exact (s2 n (by parley_set_side))
 

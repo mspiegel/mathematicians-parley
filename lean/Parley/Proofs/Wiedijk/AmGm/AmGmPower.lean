@@ -80,7 +80,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.9. thm:first-terms m := j + 1, from C2, H3
       have s1_9 : ∀ k : ℤ, k ∈ Finset.Icc 1 (j + 1) → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) (by parley_side) (a := a) (by parley_side) (m := j + 1) hC2).2
       -- 1.10. def:range k := j + 1, from C2
-      have s1_10 : j + 1 ∈ Finset.Icc (1 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr (by parley_side); parley_side)
+      have s1_10 : j + 1 ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr (by parley_side)
       -- 1.11. instantiate k := j + 1 in H3, from 1.10
       have s1_11 : a (j + 1) ≥ 0 := by exact (hH3 (j + 1) (by parley_side))
       set x : ℝ := a (j + 1) with hD1

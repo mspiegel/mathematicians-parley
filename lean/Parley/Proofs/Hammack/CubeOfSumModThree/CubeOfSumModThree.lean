@@ -28,8 +28,8 @@ theorem cube_of_sum_mod_three (a : ℤ) (b : ℤ) :
   -- 1. algebra
   have s1 : (a + b) ^ 3 - (a ^ 3 + b ^ 3) = 3 * (a ^ 2 * b + a * b ^ 2) := by parley_ring
   -- 2. def:divides d := 3, n := (a + b)³ − (a³ + b³), from 1
-  have s2 : (3 : ℤ) ∣ (a + b) ^ 3 - (a ^ 3 + b ^ 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (a + b) ^ 3 - (a ^ 3 + b ^ 3)))).mpr ⟨a ^ 2 * b + a * b ^ 2, s1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (a + b) ^ 3 - (a ^ 3 + b ^ 3)))).mpr ⟨a ^ 2 * b + a * b ^ 2, s1⟩; parley_side)
+  have s2 : (3 : ℤ) ∣ (a + b) ^ 3 - (a ^ 3 + b ^ 3) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (a + b) ^ 3 - (a ^ 3 + b ^ 3)))).mpr ⟨a ^ 2 * b + a * b ^ 2, s1⟩
   -- 3. def:congruent-mod n := 3, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := (a + b) ^ 3) (b := a ^ 3 + b ^ 3))).mpr s2 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := (a + b) ^ 3) (b := a ^ 3 + b ^ 3))).mpr s2; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := (a + b) ^ 3) (b := a ^ 3 + b ^ 3))).mpr s2
 
 end Parley.Proofs.Hammack.CubeOfSumModThree.CubeOfSumModThree

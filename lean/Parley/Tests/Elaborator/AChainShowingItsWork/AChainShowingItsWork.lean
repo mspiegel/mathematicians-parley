@@ -34,6 +34,6 @@ theorem a_chain_showing_its_work (n : ℤ) (hH2 : Odd n) :
       _ = 4 * k ^ 2 + 4 * k + 1 := by parley_ring
       _ = 2 * (2 * k ^ 2 + 2 * k) + 1 := by parley_ring
   -- 3. def:odd n := n², from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * k ^ 2 + 2 * k, s2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * k ^ 2 + 2 * k, s2⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * k ^ 2 + 2 * k, s2⟩
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainShowingItsWork

@@ -356,7 +356,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have r642_2 : d n < 10 := by have := (hH2 n (by parley_set_side)); parley_order
       have s16_24_5 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n := by
         calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) := by first | parley_set_side | parley_line_toNat s16_20
-          _ = d n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := ⌊10 ^ n.toNat * c⌋) (m := (10 : ℤ)) (by parley_set_side) (r := d n) (by parley_set_side) r642_2)).mpr s16_24_4 | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := ⌊10 ^ n.toNat * c⌋) (m := (10 : ℤ)) (by parley_set_side) (r := d n) (by parley_set_side) r642_2)).mpr s16_24_4; parley_set_side)
+          _ = d n := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := ⌊10 ^ n.toNat * c⌋) (m := (10 : ℤ)) (by parley_set_side) (r := d n) (by parley_set_side) r642_2)).mpr s16_24_4
       -- 16.24.6. mun:or-left, from 16.24.5
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n) (Q := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) s16_24_5)
     · skip

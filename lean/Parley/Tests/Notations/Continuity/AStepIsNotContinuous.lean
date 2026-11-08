@@ -46,7 +46,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 1. def:interval a := 0, b := 1, x := 1/2
   have r22_1 : (0 : ℚ) ≤ 1 / 2 := by parley_arith
   have r22_2 : (1 / 2 : ℚ) ≤ 1 := by parley_arith
-  have s1 : (1 / 2 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 / 2 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 / 2 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+  have s1 : (1 / 2 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 / 2 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
   -- 2. arithmetic
   have s2 : ¬ (1 / 2 : ℚ) < 1 / 2 := by parley_arith
   -- 3. D1, from 1, 2
@@ -69,7 +69,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have hD3_kind : True := by parley_set_side
   -- 4.4. mun:lt-min z := 0, x := δ, y := 1/2, from 4.3
   have r62_1 : (0 : ℚ) < 1 / 2 := by parley_arith
-  have s4_4 : 0 < min δ (1 / 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+  have s4_4 : 0 < min δ (1 / 2) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr (by parley_set_side)
   -- 4.5. mun:min-le x := δ, y := 1/2
   have s4_5a : min δ (1 / 2) ≤ δ := (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := δ) (y := (1 / 2 : ℝ)))
   have s4_5b : min δ (1 / 2) ≤ 1 / 2 := (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := δ) (y := (1 / 2 : ℝ)))

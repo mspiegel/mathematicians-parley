@@ -36,11 +36,11 @@ theorem a_product_reindexed_through_a_define (X : Set ℤ) (hH1 : X ⊆ (Set.uni
   -- 1. mun:function-into, from D1, H6
   have s1 : Set.MapsTo g L U := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := L) (Y := U) (by parley_set_side) (by parley_set_side))
   -- 2. def:one-to-one, from D1, H7, 1
-  have s2 : Set.MapsTo g L U ∧ Set.InjOn g L := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Set.MapsTo g L U ∧ Set.InjOn g L := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side)
   -- 3. def:onto, from D1, H8, 1
-  have s3 : Set.MapsTo g L U ∧ Set.SurjOn g L U := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s3 : Set.MapsTo g L U ∧ Set.SurjOn g L U := ((Parley.Items.Stdlib.Functions.def_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side)
   -- 4. def:one-to-one-onto, from 2, 3
-  have s4 : Set.MapsTo g L U ∧ Set.InjOn g L ∧ Set.SurjOn g L U := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s4 : Set.MapsTo g L U ∧ Set.InjOn g L ∧ Set.SurjOn g L U := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side)
   -- 5. mun:subset-transitive, from H1, H5
   have s5 : U ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := U) (Y := X) (Z := (Set.univ : Set ℤ)) hH5 (by parley_whole_side))
   -- 6. mun:product-reindex, from D1, H4, 4, 5

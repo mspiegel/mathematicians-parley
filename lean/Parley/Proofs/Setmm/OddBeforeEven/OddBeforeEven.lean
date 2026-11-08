@@ -30,7 +30,7 @@ theorem odd_before_even (N : ℤ) :
     -- 2. algebra, from 1
     have s2 : N + 1 = 2 * (k + 1) := by linear_combination (norm := parley_norm) s1
     -- 3. def:divides d := 2, n := N + 1, from 2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N + 1))).mpr ⟨k + 1, s2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N + 1))).mpr ⟨k + 1, s2⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N + 1))).mpr ⟨k + 1, s2⟩
   · skip
     intro hD2
     -- 4. obtain j: def:divides d := 2, n := N + 1, from D2
@@ -38,6 +38,6 @@ theorem odd_before_even (N : ℤ) :
     -- 5. algebra, from 4
     have s5 : N = 2 * (j - 1) + 1 := by linear_combination (norm := parley_norm) s4
     -- 6. def:odd n := N, from 5
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨j - 1, s5⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨j - 1, s5⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨j - 1, s5⟩
 
 end Parley.Proofs.Setmm.OddBeforeEven.OddBeforeEven

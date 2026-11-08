@@ -36,7 +36,7 @@ theorem choose_next_row (N : ℤ) (hH1 : 0 ≤ N) :
   have s1a : 0 ≤ N := by parley_order
   have s1b : N ≤ N + 1 := by parley_order
   -- 2. def:range-between k := N, a := 0, b := N + 1, from 1
-  have s2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side); parley_side)
+  have s2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side)
   -- 3. algebra
   have s3 : N + 1 - N = 1 := by parley_ring
   -- 4. calculation

@@ -55,11 +55,11 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 1. def:interval x := a
   have r78_1 : a ≤ a := by parley_order
   have r78_2 : a ≤ b := by parley_set_side
-  have s1 : a ∈ (Set.Icc a b : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side); parley_set_side)
+  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side)
   -- 2. def:interval x := b
   have r83_1 : a ≤ b := by parley_set_side
   have r83_2 : b ≤ b := by parley_order
-  have s2 : b ∈ (Set.Icc a b : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr (by parley_set_side); parley_set_side)
+  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr (by parley_set_side)
   -- 3. mun:interval-real
   have s3 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   -- 4. mun:open-within-closed

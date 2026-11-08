@@ -58,7 +58,7 @@ theorem square_not_prime (A : ℤ) :
   -- 6. algebra, from 3
   have s6 : A ^ 2 = abs A * abs A := by linear_combination (norm := parley_norm) (-1) * s3
   -- 7. def:divides d := |A|, n := A², from 6
-  have s7 : abs A ∣ A ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := abs A) (n := A ^ 2))).mpr ⟨abs A, s6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := abs A) (n := A ^ 2))).mpr ⟨abs A, s6⟩; parley_side)
+  have s7 : abs A ∣ A ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := abs A) (n := A ^ 2))).mpr ⟨abs A, s6⟩
   -- 8. def:prime p := A², from S, 1
   have s8 : ∀ d : ℤ, 0 < d → d ∣ A ^ 2 → d = 1 ∨ d = A ^ 2 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := A ^ 2) (by parley_side))).mp hS).2
   -- 9. instantiate d := |A| in line 8, from 5

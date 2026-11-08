@@ -36,13 +36,13 @@ theorem rational_times_irrational (a : ℝ) (b : ℝ) (hH3 : ∃ m : ℚ, (m : �
         _ = (p : ℝ) / (q : ℝ) * ((r : ℝ) / (s : ℝ)) := by parley_subst s1_2b
         _ = (p : ℝ) * (r : ℝ) / ((q : ℝ) * (s : ℝ)) := by parley_ring
     -- 1.4. def:rational x := a·b, from 1.3
-    have s1_4 : ∃ m : ℚ, (m : ℝ) = a * b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := a * b))).mpr ⟨p * r, q * s, by parley_side, by simpa using s1_3⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := a * b))).mpr ⟨p * r, q * s, by parley_side, by simpa using s1_3⟩; parley_side)
+    have s1_4 : ∃ m : ℚ, (m : ℝ) = a * b := ((Parley.Items.Stdlib.Numbers.def_rational (x := a * b))).mpr ⟨p * r, q * s, by parley_side, by simpa using s1_3⟩
     -- 1.5. def:irrational x := a·b, from H4
     have s1_5 : ¬ (∃ m : ℚ, (m : ℝ) = a * b) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := a * b))).mp hH4).2
     -- 1.6. restate 1.5
     have s1_6 : ¬ (∃ m : ℚ, (m : ℝ) = a * b) := by parley_side
     exact s1_6 s1_4
   -- 2. def:irrational x := b, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := b))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := b))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := b))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.RationalTimesIrrational.RationalTimesIrrational

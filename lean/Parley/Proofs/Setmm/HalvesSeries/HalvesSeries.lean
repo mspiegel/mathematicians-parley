@@ -122,7 +122,7 @@ theorem halves_series :
       -- 3.2.11. join 3.2.7, 3.2.10
       have s3_2_11 : 1 - ε < 1 - 1 / 2 ^ n.toNat ∧ 1 - 1 / 2 ^ n.toNat < 1 + ε := by parley_side
       -- 3.2.12. mun:abs-difference-lt x := 1 − 1/2^n, c := 1, δ := ε, from 3.2.11
-      have s3_2_12 : abs (1 - 1 / 2 ^ n.toNat - 1) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (1 - 1 / 2 ^ n.toNat : ℝ)) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (1 - 1 / 2 ^ n.toNat : ℝ)) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
+      have s3_2_12 : abs (1 - 1 / 2 ^ n.toNat - 1) < ε := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (1 - 1 / 2 ^ n.toNat : ℝ)) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side)
       -- 3.2.13. substitute
       have c1 : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℚ)) := by exact (s2 n (by parley_side)).symm
       have c1_w : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h; linear_combination (norm := parley_norm) h

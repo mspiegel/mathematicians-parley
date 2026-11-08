@@ -173,7 +173,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.24. transitivity, from 4.8.22, A2, 4.8.23
       have s4_8_24 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) < Real.sqrt c * ε := by parley_order
       -- 4.8.25. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.24
-      have s4_8_25 : abs (Real.sqrt x - Real.sqrt c) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_24 | (have h := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_24; parley_set_side)
+      have s4_8_25 : abs (Real.sqrt x - Real.sqrt c) < ε := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_24
       -- 4.8.26. substitute g(x) = √x (line 4.8.8) into line 4.8.25
       have s4_8_26 : abs (g x - Real.sqrt c) < ε := by parley_subst_at s4_8_8 s4_8_25
       -- 4.8.27. substitute g(c) = √c (line 4.8.9) into line 4.8.26
@@ -182,6 +182,6 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     exact ⟨ε * Real.sqrt c, ⟨s4_7, s4_8⟩⟩
   -- 5. def:continuous-on f := g, from 1, 4
   have r222_1 : Set.MapsTo g D (Set.univ : Set ℝ) := by parley_set_side
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1)).mpr s4 | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1)).mpr s4; parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1)).mpr s4
 
 end Parley.Tests.Elaborator.AMapOverASetBindingItsLetter.AMapOverASetBindingItsLetter

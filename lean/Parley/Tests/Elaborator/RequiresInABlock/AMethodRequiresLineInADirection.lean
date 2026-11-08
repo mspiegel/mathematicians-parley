@@ -33,6 +33,6 @@ theorem a_method_requires_line_in_a_direction (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A
     -- 1.2. mun:square-less x := A, y := B, from D2
     have r25_1 : A ≥ 0 := by parley_side
     have r25_2 : B ≥ 0 := by parley_side
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mpr hD2 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mpr hD2; parley_side)
+    exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mpr hD2
 
 end Parley.Tests.Elaborator.RequiresInABlock.AMethodRequiresLineInADirection

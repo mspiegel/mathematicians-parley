@@ -39,9 +39,9 @@ theorem floor_quotient_zero (A : ℤ) (hH1 : 0 ≤ A) (B : ℤ) (hH2 : 0 < B) :
     -- 3.1. transitivity, from 1, C1
     have s3_1 : (B : ℝ) * ((A : ℝ) / (B : ℝ)) < (B : ℝ) := by parley_order
     -- 3.2. mun:less-scaled x := A/B, y := 1, c := B, from H2, 3.1
-    have s3_2 : (A : ℝ) / (B : ℝ) < 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (A : ℝ) / (B : ℝ)) (y := (1 : ℝ)) (c := (B : ℝ)) (by parley_side))).mpr (by simpa only [mul_one] using s3_1) | (have h := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (A : ℝ) / (B : ℝ)) (y := (1 : ℝ)) (c := (B : ℝ)) (by parley_side))).mpr (by simpa only [mul_one] using s3_1); parley_side)
+    have s3_2 : (A : ℝ) / (B : ℝ) < 1 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (A : ℝ) / (B : ℝ)) (y := (1 : ℝ)) (c := (B : ℝ)) (by parley_side))).mpr (by simpa only [mul_one] using s3_1)
     -- 3.3. mun:floor-between x := A/B, k := 0, from 2, 3.2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mpr (by parley_side); parley_side)
+    exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mpr (by parley_side)
   · skip
     intro hC2
     -- 3.4. mun:floor-between x := A/B, k := 0, from C2

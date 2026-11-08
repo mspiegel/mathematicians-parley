@@ -42,7 +42,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     -- 2.5. def:set-image u := y, from 2.4
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 3. def:subset, from 2
-  have s3 : f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) ⊆ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr s2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr s2; parley_set_side)
+  have s3 : f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) ⊆ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr s2
   -- 4. proof
   have s4 : ∀ y ∈ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ), y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by
     intro y hK2
@@ -57,7 +57,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     have row1 : y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by parley_subst_at c1 s4_3
     exact row1
   -- 5. def:subset, from 4
-  have s5 : (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) ⊆ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))))).mpr s4; parley_set_side)
+  have s5 : (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) ⊆ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))))).mpr s4
   -- 6. mun:subset-antisymmetric, from 3, 5
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) s3 s5)
 

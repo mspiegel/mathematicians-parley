@@ -36,13 +36,13 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 1.4.2. mun:in-subset X := t, Y := B, u := x, from K2, 1.3
       have s1_4_2 : x ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := B) (u := x) s1_3 hK2)
       -- 1.4.3. def:intersection u := x, Y := A, Z := B, from 1.4.1, 1.4.2
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mpr (by parley_set_side)
     -- 1.5. def:subset, from 1.4
-    have s1_5 : t ⊆ A ∩ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A ∩ B))).mpr s1_4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A ∩ B))).mpr s1_4; parley_set_side)
+    have s1_5 : t ⊆ A ∩ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A ∩ B))).mpr s1_4
     -- 1.6. def:powerset S := t, A := A ∩ B, from 1.5
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A ∩ B) (S := t))).mpr s1_5 | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := A ∩ B) (S := t))).mpr s1_5; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A ∩ B) (S := t))).mpr s1_5
   -- 2. def:subset, from 1
-  have s2 : 𝒫 A ∩ 𝒫 B ⊆ 𝒫 (A ∩ B) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 A ∩ 𝒫 B) (Y := 𝒫 (A ∩ B)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 A ∩ 𝒫 B) (Y := 𝒫 (A ∩ B)))).mpr s1; parley_set_side)
+  have s2 : 𝒫 A ∩ 𝒫 B ⊆ 𝒫 (A ∩ B) := ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 A ∩ 𝒫 B) (Y := 𝒫 (A ∩ B)))).mpr s1
   -- 3. proof
   have s3 : ∀ t ∈ 𝒫 (A ∩ B), t ∈ 𝒫 A ∩ 𝒫 B := by
     intro t hK3
@@ -63,17 +63,17 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 3.3.2. def:intersection u := x, Y := A, Z := B, from 3.3.1
       exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mp s3_3_1).2
     -- 3.4. def:subset, from 3.2
-    have s3_4 : t ⊆ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A))).mpr s3_2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A))).mpr s3_2; parley_set_side)
+    have s3_4 : t ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A))).mpr s3_2
     -- 3.5. def:subset, from 3.3
-    have s3_5 : t ⊆ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := B))).mpr s3_3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := B))).mpr s3_3; parley_set_side)
+    have s3_5 : t ⊆ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := B))).mpr s3_3
     -- 3.6. def:powerset S := t, from 3.4
-    have s3_6 : t ∈ 𝒫 A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := t))).mpr s3_4 | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := t))).mpr s3_4; parley_set_side)
+    have s3_6 : t ∈ 𝒫 A := ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := t))).mpr s3_4
     -- 3.7. def:powerset S := t, A := B, from 3.5
-    have s3_7 : t ∈ 𝒫 B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := t))).mpr s3_5 | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := t))).mpr s3_5; parley_set_side)
+    have s3_7 : t ∈ 𝒫 B := ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := t))).mpr s3_5
     -- 3.8. def:intersection u := t, Y := 𝒫A, Z := 𝒫B, from 3.6, 3.7
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mpr (by parley_set_side)
   -- 4. def:subset, from 3
-  have s4 : 𝒫 (A ∩ B) ⊆ 𝒫 A ∩ 𝒫 B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 (A ∩ B)) (Y := 𝒫 A ∩ 𝒫 B))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 (A ∩ B)) (Y := 𝒫 A ∩ 𝒫 B))).mpr s3; parley_set_side)
+  have s4 : 𝒫 (A ∩ B) ⊆ 𝒫 A ∩ 𝒫 B := ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 (A ∩ B)) (Y := 𝒫 A ∩ 𝒫 B))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := 𝒫 A ∩ 𝒫 B) (Y := 𝒫 (A ∩ B)) s2 s4)
 

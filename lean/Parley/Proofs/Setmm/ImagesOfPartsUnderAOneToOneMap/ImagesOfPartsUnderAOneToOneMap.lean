@@ -38,7 +38,7 @@ theorem images_of_parts_under_a_one_to_one_map {α : Type*} (A : Set α) (B : Se
       -- 1.5. mun:iff-from-left P := F(t) ∈ F[D], Q := t ∈ D, from 1.3, 1.4
       exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := F t ∈ F '' (A ∩ D)) (Q := t ∈ D) s1_4 s1_3)
     -- 2. def:subset, from 1
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := C) (Y := D))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := C) (Y := D))).mpr s1; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := C) (Y := D))).mpr s1
   · skip
     intro hD2
     -- 3. mun:image-monotone Y := C, Z := D, from D2

@@ -44,7 +44,7 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
   -- 4. inequalities
   have s4 : k ≤ p - 1 + 1 := by parley_order
   -- 5. def:range-between a := 1, b := (p − 1) + 1, from 3, 4
-  have s5 : k ∈ Finset.Icc (1 : ℤ) (p - 1 + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (1 : ℤ)) (b := p - 1 + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (1 : ℤ)) (b := p - 1 + 1))).mpr (by parley_side); parley_side)
+  have s5 : k ∈ Finset.Icc (1 : ℤ) (p - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (1 : ℤ)) (b := p - 1 + 1))).mpr (by parley_side)
   -- 6. thm:weighted-term m := p − 1, from 2, 5
   have s6 : k * (LeanBridges.Counting.choose (p - 1 + 1) k : ℤ) = (p - 1 + 1) * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := p - 1) (by parley_side) (k := k) s5)
   -- 7. substitute

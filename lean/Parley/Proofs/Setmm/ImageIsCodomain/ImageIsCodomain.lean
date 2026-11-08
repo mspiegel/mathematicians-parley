@@ -33,7 +33,7 @@ theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α)
     -- 2.3. substitute y = F(x) (line 2.1) into line 2.2
     parley_subst_at s2_1b s2_2
   -- 3. def:subset, from 2
-  have s3 : B ⊆ F '' (A ∩ A) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := F '' (A ∩ A)))).mpr s2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := F '' (A ∩ A)))).mpr s2; parley_set_side)
+  have s3 : B ⊆ F '' (A ∩ A) := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := F '' (A ∩ A)))).mpr s2
   -- 4. mun:subset-antisymmetric, from 1, 3
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ A)) (Y := B) s1 s3)
 

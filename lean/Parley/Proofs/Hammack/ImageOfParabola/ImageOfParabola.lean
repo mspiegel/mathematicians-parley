@@ -78,9 +78,9 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
         _ ≤ 28 := by parley_set_side
     -- 2.13. membership, from 2.3
     -- 2.14. def:interval a := 3, b := 28, x := y, from 2.6, 2.12, 2.13
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mpr (by parley_set_side)
   -- 3. def:subset, from 2
-  have s3 : f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) ⊆ (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))) (Y := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)))).mpr s2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))) (Y := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)))).mpr s2; parley_set_side)
+  have s3 : f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) ⊆ (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))) (Y := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)))).mpr s2
   -- 4. proof
   have s4 : ∀ y ∈ (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ), y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by
     intro y hK2
@@ -101,11 +101,11 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
         _ = 5 ^ 2 := by norm_num
     -- 4.6. mun:square-le x := √(y − 3), y := 5, from 4.3, 4.5
     have r121_1 : (0 : ℤ) ≤ 5 := by parley_arith
-    have s4_6 : Real.sqrt (y - 3) ≤ 5 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (y - 3)) (y := (5 : ℝ)) (by parley_set_side) (by parley_set_side))).mpr s4_5 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (y - 3)) (y := (5 : ℝ)) (by parley_set_side) (by parley_set_side))).mpr s4_5; parley_set_side)
+    have s4_6 : Real.sqrt (y - 3) ≤ 5 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (y - 3)) (y := (5 : ℝ)) (by parley_set_side) (by parley_set_side))).mpr s4_5
     -- 4.7. inequalities, from 4.3
     have s4_7 : -3 ≤ Real.sqrt (y - 3) := by parley_order
     -- 4.8. def:interval a := −3, b := 5, x := √(y − 3), from 4.3, 4.6, 4.7
-    have s4_8 : Real.sqrt (y - 3) ∈ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+    have s4_8 : Real.sqrt (y - 3) ∈ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr (by parley_set_side)
     -- 4.9. instantiate x := √(y − 3) in H2, from 4.3
     have s4_9 : f (Real.sqrt (y - 3)) = Real.sqrt (y - 3) ^ 2 + 3 := by exact (hH2 (Real.sqrt (y - 3)))
     -- 4.10. mun:value-in-image Y := [−3, 5], s := √(y − 3), from 1, 4.8
@@ -115,7 +115,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have row1 : y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by parley_subst_at c1 s4_10
     exact row1
   -- 5. def:subset, from 4
-  have s5 : (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) ⊆ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)) (Y := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)) (Y := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))))).mpr s4; parley_set_side)
+  have s5 : (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) ⊆ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := ((Parley.Items.Stdlib.Sets.def_subset (X := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)) (Y := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))))).mpr s4
   -- 6. mun:subset-antisymmetric, from 3, 5
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))) (Y := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)) s3 s5)
 

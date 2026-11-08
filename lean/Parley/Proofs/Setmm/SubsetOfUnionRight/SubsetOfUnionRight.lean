@@ -22,6 +22,6 @@ theorem subset_of_union_right {α : Type*} (A : Set α) (B : Set α) :
     -- 1.1. mun:in-union-right, from K1
     exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := B) (Z := A) (u := u) hK1)
   -- 2. def:subset, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∪ A))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∪ A))).mpr s1; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∪ A))).mpr s1
 
 end Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight

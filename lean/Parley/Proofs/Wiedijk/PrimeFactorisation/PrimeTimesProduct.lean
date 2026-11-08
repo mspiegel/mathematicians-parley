@@ -77,7 +77,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have s4_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
       -- 4.2.2. def:range-between k := i, a := 1, b := j, from C1
       have r69_1 : 1 ≤ i := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2)
-      have s4_2_2 : i ∈ Finset.Icc (1 : ℤ) j := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side); parley_set_side)
+      have s4_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side)
       -- 4.2.3. instantiate i := i in line 2, from 4.2.2
       have s4_2_3 : Nat.Prime (g i).toNat := by exact (s2d i (by parley_set_side))
       -- 4.2.4. substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
@@ -102,7 +102,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have s5_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
       -- 5.2.2. def:range-between k := i, a := 1, b := j, from C3
       have r105_1 : 1 ≤ i := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3)
-      have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side); parley_set_side)
+      have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side)
       -- 5.2.3. mun:function-value f := g, from 5.2.2
       have s5_2_3 : 0 < g i := by first | exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
       -- 5.2.4. substitute h(i) = g(i) (line 5.2.1) into line 5.2.3
@@ -122,7 +122,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 9. def:range-between k := j + 1, a := 1, b := j + 1
   have r135_1 : 1 ≤ j + 1 := by parley_order
   have r135_2 : j + 1 ≤ j + 1 := by parley_order
-  have s9 : j + 1 ∈ Finset.Icc (1 : ℤ) (j + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := j + 1) (a := (1 : ℤ)) (b := j + 1))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := j + 1) (a := (1 : ℤ)) (b := j + 1))).mpr (by parley_set_side); parley_set_side)
+  have s9 : j + 1 ∈ Finset.Icc (1 : ℤ) (j + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := j + 1) (a := (1 : ℤ)) (b := j + 1))).mpr (by parley_set_side)
   -- 10. D2, from 8, 9
   have s10 : h (j + 1) = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 11. substitute r = ∏(i ∈ {1, …, j}) g(i) (line 2)

@@ -34,7 +34,7 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 1.2.3. join 1.2.1, 1.2.2
       have s1_2_3 : u ∈ A ∪ B ∧ u ∈ A ∪ C := by parley_set_side
       -- 1.2.4. def:intersection, from 1.2.3
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr (by parley_set_side)
     · skip
       -- 1.2.5. def:intersection, from C2
       have s1_2_5 : u ∈ B ∧ u ∈ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mp hC2
@@ -45,9 +45,9 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 1.2.8. join 1.2.6, 1.2.7
       have s1_2_8 : u ∈ A ∪ B ∧ u ∈ A ∪ C := by parley_set_side
       -- 1.2.9. def:intersection, from 1.2.8
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr (by parley_set_side)
   -- 2. def:subset, from 1
-  have s2 : A ∪ B ∩ C ⊆ (A ∪ B) ∩ (A ∪ C) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∪ B ∩ C) (Y := (A ∪ B) ∩ (A ∪ C)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∪ B ∩ C) (Y := (A ∪ B) ∩ (A ∪ C)))).mpr s1; parley_set_side)
+  have s2 : A ∪ B ∩ C ⊆ (A ∪ B) ∩ (A ∪ C) := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∪ B ∩ C) (Y := (A ∪ B) ∩ (A ∪ C)))).mpr s1
   -- 3. proof
   have s3 : ∀ u ∈ (A ∪ B) ∩ (A ∪ C), u ∈ A ∪ B ∩ C := by
     intro u hK2
@@ -72,11 +72,11 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 3.5.4. join 3.5.2, 3.5.3
       have s3_5_4 : u ∈ B ∧ u ∈ C := by parley_set_side
       -- 3.5.5. def:intersection, from 3.5.4
-      have s3_5_5 : u ∈ B ∩ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side); parley_set_side)
+      have s3_5_5 : u ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side)
       -- 3.5.6. mun:in-union-right, from 3.5.5
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B ∩ C) (u := u) s3_5_5)
   -- 4. def:subset, from 3
-  have s4 : (A ∪ B) ∩ (A ∪ C) ⊆ A ∪ B ∩ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∪ B) ∩ (A ∪ C)) (Y := A ∪ B ∩ C))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∪ B) ∩ (A ∪ C)) (Y := A ∪ B ∩ C))).mpr s3; parley_set_side)
+  have s4 : (A ∪ B) ∩ (A ∪ C) ⊆ A ∪ B ∩ C := ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∪ B) ∩ (A ∪ C)) (Y := A ∪ B ∩ C))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∪ B ∩ C) (Y := (A ∪ B) ∩ (A ∪ C)) s2 s4)
 

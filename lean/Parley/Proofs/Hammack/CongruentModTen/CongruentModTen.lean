@@ -32,15 +32,15 @@ theorem congruent_mod_ten (a : ℤ) (b : ℤ) :
     -- 3. algebra, from 2
     have s3 : a - b = 2 * (5 * k) := by linear_combination (norm := parley_norm) s2
     -- 4. def:divides d := 2, n := a − b, from 3
-    have s4 : (2 : ℤ) ∣ a - b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a - b))).mpr ⟨5 * k, s3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a - b))).mpr ⟨5 * k, s3⟩; parley_side)
+    have s4 : (2 : ℤ) ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a - b))).mpr ⟨5 * k, s3⟩
     -- 5. def:congruent-mod, from 4
-    have s5 : a ≡ b [ZMOD (2 : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (2 : ℤ)) (a := a) (b := b))).mpr s4 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (2 : ℤ)) (a := a) (b := b))).mpr s4; parley_side)
+    have s5 : a ≡ b [ZMOD (2 : ℤ)] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (2 : ℤ)) (a := a) (b := b))).mpr s4
     -- 6. algebra, from 2
     have s6 : a - b = 5 * (2 * k) := by linear_combination (norm := parley_norm) s2
     -- 7. def:divides d := 5, n := a − b, from 6
-    have s7 : (5 : ℤ) ∣ a - b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (5 : ℤ)) (n := a - b))).mpr ⟨2 * k, s6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (5 : ℤ)) (n := a - b))).mpr ⟨2 * k, s6⟩; parley_side)
+    have s7 : (5 : ℤ) ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (5 : ℤ)) (n := a - b))).mpr ⟨2 * k, s6⟩
     -- 8. def:congruent-mod, from 7
-    have s8 : a ≡ b [ZMOD (5 : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := b))).mpr s7 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := b))).mpr s7; parley_side)
+    have s8 : a ≡ b [ZMOD (5 : ℤ)] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := b))).mpr s7
     -- 9. join 5, 8
     have s9 : a ≡ b [ZMOD (2 : ℤ)] ∧ a ≡ b [ZMOD (5 : ℤ)] := by parley_side
     exact ⟨(s9).1, (s9).2⟩
@@ -61,8 +61,8 @@ theorem congruent_mod_ten (a : ℤ) (b : ℤ) :
     -- 16. algebra, from 14, 15
     have s16 : a - b = 10 * (s - 2 * t) := by linear_combination (norm := parley_norm) s14 + (-1) * s15
     -- 17. def:divides d := 10, n := a − b, from 16
-    have s17 : (10 : ℤ) ∣ a - b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (10 : ℤ)) (n := a - b))).mpr ⟨s - 2 * t, s16⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (10 : ℤ)) (n := a - b))).mpr ⟨s - 2 * t, s16⟩; parley_side)
+    have s17 : (10 : ℤ) ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (10 : ℤ)) (n := a - b))).mpr ⟨s - 2 * t, s16⟩
     -- 18. def:congruent-mod, from 17
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (10 : ℤ)) (a := a) (b := b))).mpr s17 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (10 : ℤ)) (a := a) (b := b))).mpr s17; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (10 : ℤ)) (a := a) (b := b))).mpr s17
 
 end Parley.Proofs.Hammack.CongruentModTen.CongruentModTen

@@ -52,7 +52,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have r185_1 : 0 < w := by parley_side
   have s4 : 0 < w := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := w) r185_1)
   -- 5. def:divides d := 2, n := a, from 1
-  have s5 : (2 : ℤ) ∣ a := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a))).mpr ⟨w, s1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a))).mpr ⟨w, s1⟩; parley_side)
+  have s5 : (2 : ℤ) ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a))).mpr ⟨w, s1⟩
   -- 6. contradiction
   have s6 : Odd b := by
     by_contra hS1
@@ -63,7 +63,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     -- 6.3. obtain v: def:even n := b, from 6.2
     obtain ⟨v, s6_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp s6_2
     -- 6.4. def:divides d := 2, n := b, from 6.3
-    have s6_4 : (2 : ℤ) ∣ b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := b))).mpr ⟨v, s6_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := b))).mpr ⟨v, s6_3⟩; parley_side)
+    have s6_4 : (2 : ℤ) ∣ b := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := b))).mpr ⟨v, s6_3⟩
     -- 6.5. thm:divides-gcd d := 2, from 5, 6.4
     have s6_5 : (2 : ℤ) ∣ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (2 : ℤ)) (a := a) (b := b) s5 s6_4)
     -- 6.6. substitute gcd(a, b) = 1 (H5) into line 6.5
@@ -92,20 +92,20 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     -- 9.5. algebra, from 9.4
     have s9_5 : 1 = 2 * (2 * r ^ 2 - 2 * w ^ 2 - 2 * q ^ 2 - 2 * q) := by linear_combination (norm := parley_norm) s9_4
     -- 9.6. def:divides d := 2, n := 1, from 9.5
-    have s9_6 : (2 : ℤ) ∣ (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨2 * r ^ 2 - 2 * w ^ 2 - 2 * q ^ 2 - 2 * q, s9_5⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨2 * r ^ 2 - 2 * w ^ 2 - 2 * q ^ 2 - 2 * q, s9_5⟩; parley_side)
+    have s9_6 : (2 : ℤ) ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨2 * r ^ 2 - 2 * w ^ 2 - 2 * q ^ 2 - 2 * q, s9_5⟩
     exact absurd s9_6 (by norm_num)
   -- 10. obtain r: def:odd n := c, from 9
   obtain ⟨r, s10⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := c))).mp s9
   -- 11. algebra, from 7, 10
   have s11 : c + b = 2 * (r + q + 1) := by linear_combination (norm := parley_norm) s7 + s10
   -- 12. def:even n := c + b, from 11
-  have s12 : Even (c + b) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := c + b))).mpr ⟨r + q + 1, s11⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := c + b))).mpr ⟨r + q + 1, s11⟩; parley_side)
+  have s12 : Even (c + b) := ((Parley.Items.Stdlib.Divisibility.def_even (n := c + b))).mpr ⟨r + q + 1, s11⟩
   -- 13. obtain s: def:even n := c + b, from 12
   obtain ⟨s, s13⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := c + b))).mp s12
   -- 14. algebra, from 7, 10
   have s14 : c - b = 2 * (r - q) := by linear_combination (norm := parley_norm) (-1) * s7 + s10
   -- 15. def:even n := c − b, from 14
-  have s15 : Even (c - b) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := c - b))).mpr ⟨r - q, s14⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := c - b))).mpr ⟨r - q, s14⟩; parley_side)
+  have s15 : Even (c - b) := ((Parley.Items.Stdlib.Divisibility.def_even (n := c - b))).mpr ⟨r - q, s14⟩
   -- 16. obtain t: def:even n := c − b, from 15
   obtain ⟨t, s16⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := c - b))).mp s15
   -- 17. algebra, from 13, 16
@@ -138,7 +138,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 26. mun:square-less x := b, y := c, from 25
   have r303_1 : b ≥ 0 := by parley_order
   have r303_2 : c ≥ 0 := by parley_order
-  have s26 : b < c := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := b) (y := c) (by parley_side) (by parley_side))).mpr s25 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := b) (y := c) (by parley_side) (by parley_side))).mpr s25; parley_side)
+  have s26 : b < c := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := b) (y := c) (by parley_side) (by parley_side))).mpr s25
   -- 27. inequalities
   have s27 : 0 < c - b := by parley_order
   -- 28. substitute c − b = 2t (line 16) into line 27
@@ -250,7 +250,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 58. mun:square-less x := n, y := m, from 57
   have r441_1 : n ≥ 0 := by parley_order
   have r441_2 : m ≥ 0 := by parley_order
-  have s58 : n < m := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := n) (y := m) (by parley_side) (by parley_side))).mpr s57 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := n) (y := m) (by parley_side) (by parley_side))).mpr s57; parley_side)
+  have s58 : n < m := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := n) (y := m) (by parley_side) (by parley_side))).mpr s57
   -- 59. def:gcd a := m, b := n
   have s59a : 0 < (Int.gcd m n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := m) (by parley_side) (b := n) (by parley_side))
   have s59b : (Int.gcd m n : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := m) (by parley_side) (b := n) (by parley_side))
@@ -294,7 +294,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
         _ = 2 * u * (m - n) := by parley_side
         _ = 2 * (u * (m - n)) := by parley_ring
     -- 67.7. def:even n := b, from 67.6
-    have s67_7 : Even b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mpr ⟨u * (m - n), s67_6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mpr ⟨u * (m - n), s67_6⟩; parley_side)
+    have s67_7 : Even b := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mpr ⟨u * (m - n), s67_6⟩
     -- 67.8. mun:not-both n := b, from 67.7
     have s67_8 : ¬ Odd b := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := b) s67_7)
     exact s67_8 s6

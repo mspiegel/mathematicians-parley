@@ -28,6 +28,6 @@ theorem odd_minus_odd (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Odd B) :
   -- 3. algebra, from 1, 2
   have s3 : A - B = 2 * (k - l) := by linear_combination (norm := parley_norm) s1 + (-1) * s2
   -- 4. def:even n := A − B, from 3
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := A - B))).mpr ⟨k - l, s3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := A - B))).mpr ⟨k - l, s3⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_even (n := A - B))).mpr ⟨k - l, s3⟩
 
 end Parley.Proofs.Setmm.Parity.OddMinusOdd

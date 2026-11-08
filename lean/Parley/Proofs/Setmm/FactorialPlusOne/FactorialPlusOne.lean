@@ -43,7 +43,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- 6. exhibit, from S, 5
   have s6 : ∃ k : ℤ, (LeanBridges.Counting.factorial M : ℤ) + 1 = N * k := ⟨Classical.choose hS, by have := Classical.choose_spec hS; parley_side⟩
   -- 7. def:divides d := N, n := M! + 1, from 6
-  have s7 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := (LeanBridges.Counting.factorial M : ℤ) + 1))).mpr s6 | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := (LeanBridges.Counting.factorial M : ℤ) + 1))).mpr s6; parley_side)
+  have s7 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := (LeanBridges.Counting.factorial M : ℤ) + 1))).mpr s6
   -- 8. mun:divides-difference d := N, a := M! + 1, b := M!, from 4, 7
   have s8 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4)
   -- 9. substitute

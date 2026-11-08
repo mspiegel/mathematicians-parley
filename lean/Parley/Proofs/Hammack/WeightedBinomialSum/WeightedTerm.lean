@@ -42,14 +42,14 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
   have s2b : 0 ≤ k := by parley_order
   have s2c : k ≤ m + 1 := by parley_order
   -- 3. def:range-between a := 0, b := m + 1, from 2
-  have s3 : k ∈ Finset.Icc (0 : ℤ) (m + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := m + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := m + 1))).mpr (by parley_side); parley_side)
+  have s3 : k ∈ Finset.Icc (0 : ℤ) (m + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := m + 1))).mpr (by parley_side)
   -- 4. def:C n := m + 1, from 3
   have s4 : (LeanBridges.Counting.choose (m + 1) k : ℚ) = (LeanBridges.Counting.factorial (m + 1) : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := m + 1) (by parley_side) (k := k)) s3
   -- 5. inequalities, from 1
   have s5a : 0 ≤ k - 1 := by parley_order
   have s5b : k - 1 ≤ m := by parley_order
   -- 6. def:range-between k := k − 1, a := 0, b := m, from 5
-  have s6 : k - 1 ∈ Finset.Icc (0 : ℤ) m := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 1) (a := (0 : ℤ)) (b := m))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 1) (a := (0 : ℤ)) (b := m))).mpr (by parley_side); parley_side)
+  have s6 : k - 1 ∈ Finset.Icc (0 : ℤ) m := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 1) (a := (0 : ℤ)) (b := m))).mpr (by parley_side)
   -- 7. algebra
   have s7 : m - (k - 1) = m + 1 - k := by parley_ring
   -- 8. substitute m − (k − 1) = (m + 1) − k (line 7)

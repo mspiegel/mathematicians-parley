@@ -23,6 +23,6 @@ theorem modulus_plus_remainder (A : ℤ) (hH1 : 0 ≤ A) (M : ℤ) (hH2 : 0 < M)
   -- 2. exhibit, from 1
   have s2 : ∃ q : ℤ, q * M + A = M + A := ⟨(1 : ℤ), s1⟩
   -- 3. mun:mod-remainder a := M + A, m := M, r := A, from H3, 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := M + A) (m := M) (by parley_side) (r := A) (by parley_side) hH3)).mpr s2 | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := M + A) (m := M) (by parley_side) (r := A) (by parley_side) hH3)).mpr s2; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := M + A) (m := M) (by parley_side) (r := A) (by parley_side) hH3)).mpr s2
 
 end Parley.Proofs.Setmm.ModulusPlusRemainder.ModulusPlusRemainder

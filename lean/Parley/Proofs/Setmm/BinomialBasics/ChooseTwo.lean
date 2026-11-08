@@ -57,7 +57,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
       have s2_3_2a : (0 : ℤ) ≤ 2 := by parley_order
       have s2_3_2b : 2 ≤ N := by parley_order
       -- 2.3.3. def:range-between k := 2, a := 0, b := N, from 2.3.2
-      have s2_3_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
+      have s2_3_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
       -- 2.3.4. algebra
       have s2_3_4 : N - 2 = N - 1 - 1 := by parley_ring
       -- 2.3.5. substitute N − 2 = (N − 1) − 1 (line 2.3.4)

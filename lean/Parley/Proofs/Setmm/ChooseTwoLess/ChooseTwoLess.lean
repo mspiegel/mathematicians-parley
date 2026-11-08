@@ -56,7 +56,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
       have s2_3_2a : 0 ≤ N - 1 := by parley_order
       have s2_3_2b : N - 1 ≤ N + 1 := by parley_order
       -- 2.3.3. def:range-between k := N − 1, a := 0, b := N + 1, from 2.3.2
-      have s2_3_3 : N - 1 ∈ Finset.Icc (0 : ℤ) (N + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := N - 1) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - 1) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side); parley_side)
+      have s2_3_3 : N - 1 ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - 1) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side)
       -- 2.3.4. algebra
       have s2_3_4 : N + 1 - (N - 1) = 2 := by parley_ring
       -- 2.3.5. def:factorial n := 1

@@ -71,7 +71,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
     rcases s10_2 with hC1 | hC2
     · skip
       -- 10.3.1. def:range n := N, k := m, from C1
-      have s10_3_1 : m ∈ Finset.Icc (1 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := N))).mpr (by parley_side); parley_side)
+      have s10_3_1 : m ∈ Finset.Icc (1 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := N))).mpr (by parley_side)
       -- 10.3.2. instantiate i := m in line 6, from 10.3.1
       have s10_3_2 : abs (x m) ≤ C := by exact (s6 m (by parley_side))
       -- 10.3.3. transitivity, from 10.3.2, 8

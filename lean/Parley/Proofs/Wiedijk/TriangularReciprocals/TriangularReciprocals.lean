@@ -96,7 +96,7 @@ theorem triangular_reciprocals :
       -- 6.2.9. transitivity, from 5, 6.2.8
       have s6_2_9 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) < 2 + ε := by have := (s5 n (by parley_side)); parley_order
       -- 6.2.10. mun:abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 6.2.6, 6.2.9
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_side)
     -- 6.3. exhibit, from 6.2
     exact ⟨N, s6_1a, s6_2⟩
   -- 7. def:tends-to L := 2, from 6

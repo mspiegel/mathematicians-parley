@@ -54,11 +54,11 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
     set n : ℝ := min m r with hD2
     have hD2_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := m) (y := r)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := m) (y := r))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := m) (y := r)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := m) (y := r)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := m) (y := r)); parley_set_side)
     -- 1.8. mun:lt-min z := 0, x := p, y := q, from 1.5, 1.6
-    have s1_8 : 0 < min p q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side); parley_set_side)
+    have s1_8 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side)
     -- 1.9. inequalities, from D1, 1.8
     have s1_9 : 0 < m := by parley_order
     -- 1.10. mun:lt-min z := 0, x := m, y := r, from 1.7, 1.9
-    have s1_10 : 0 < min m r := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := m) (y := r))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := m) (y := r))).mpr (by parley_set_side); parley_set_side)
+    have s1_10 : 0 < min m r := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := m) (y := r))).mpr (by parley_set_side)
     -- 1.11. inequalities, from D2, 1.10
     have s1_11 : n > 0 := by parley_order
     -- 1.12. proof
@@ -98,11 +98,11 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
       -- 1.12.13. join 1.12.11, 1.12.12
       have s1_12_13 : L - ε < f x ∧ f x < L + ε := by parley_set_side
       -- 1.12.14. mun:abs-difference-lt x := f(x), c := L, δ := ε, from 1.12.13
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := L) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := L) (δ := ε))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := L) (δ := ε))).mpr (by parley_set_side)
     -- 1.13. exhibit, from 1.11, 1.12
     exact ⟨n, ⟨s1_11, s1_12⟩⟩
   -- 2. def:limit-at D := ℝ, from 1
   have r129_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.SqueezeForLimits.SqueezeForLimits

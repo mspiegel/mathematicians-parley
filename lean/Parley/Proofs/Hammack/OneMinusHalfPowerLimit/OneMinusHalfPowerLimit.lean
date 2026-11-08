@@ -100,10 +100,10 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.12. join 2.2.7, 2.2.11
       have s2_2_12 : 1 - ε < a n ∧ a n < 1 + ε := by parley_side
       -- 2.2.13. mun:abs-difference-lt x := a(n), c := 1, δ := ε, from 2.2.12
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side)
     -- 2.3. exhibit, from 2.2
     exact ⟨N, s2_1a, s2_2⟩
   -- 3. def:tends-to L := 1, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (1 : ℝ)))).mpr s2 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (1 : ℝ)))).mpr s2; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (1 : ℝ)))).mpr s2
 
 end Parley.Proofs.Hammack.OneMinusHalfPowerLimit.OneMinusHalfPowerLimit

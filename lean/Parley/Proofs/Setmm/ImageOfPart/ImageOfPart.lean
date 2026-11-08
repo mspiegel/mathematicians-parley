@@ -32,6 +32,6 @@ theorem image_of_part {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
     -- 1.4. substitute u = F(s) (line 1.1) into line 1.3
     parley_subst_at s1_1b s1_3
   -- 2. def:subset, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr s1; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr s1
 
 end Parley.Proofs.Setmm.ImageOfPart.ImageOfPart

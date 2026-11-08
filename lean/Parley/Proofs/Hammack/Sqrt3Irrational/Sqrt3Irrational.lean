@@ -55,7 +55,7 @@ theorem sqrt3_irrational :
     have r154_1 : q ≠ 0 := by parley_side
     have s2_3 : p ^ 2 = 3 * q ^ 2 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 2) * s2_2
     -- 2.4. def:divides d := 3, n := p², from 2.3
-    have s2_4 : (3 : ℤ) ∣ p ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2))).mpr ⟨q ^ 2, s2_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2))).mpr ⟨q ^ 2, s2_3⟩; parley_side)
+    have s2_4 : (3 : ℤ) ∣ p ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2))).mpr ⟨q ^ 2, s2_3⟩
     -- 2.5. thm:three-divides-square n := p, from 2.4
     have s2_5 : (3 : ℤ) ∣ p := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) (by parley_side))
     -- 2.6. obtain r: def:divides d := 3, n := p, from 2.5
@@ -65,7 +65,7 @@ theorem sqrt3_irrational :
     -- 2.8. algebra, from 2.7
     have s2_8 : q ^ 2 = 3 * r ^ 2 := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s2_7
     -- 2.9. def:divides d := 3, n := q², from 2.8
-    have s2_9 : (3 : ℤ) ∣ q ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := q ^ 2))).mpr ⟨r ^ 2, s2_8⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := q ^ 2))).mpr ⟨r ^ 2, s2_8⟩; parley_side)
+    have s2_9 : (3 : ℤ) ∣ q ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := q ^ 2))).mpr ⟨r ^ 2, s2_8⟩
     -- 2.10. thm:three-divides-square n := q, from 2.9
     have s2_10 : (3 : ℤ) ∣ q := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) (by parley_side))
     -- 2.11. exhibit, from 2.5, 2.10
@@ -73,6 +73,6 @@ theorem sqrt3_irrational :
     have s2_11 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(3 : ℤ), ⟨⟨r179_1, s2_5⟩, s2_10⟩⟩
     exact s2_1c s2_11
   -- 3. def:irrational x := √3, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (3 : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (3 : ℝ)))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (3 : ℝ)))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational

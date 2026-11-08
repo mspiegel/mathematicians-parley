@@ -50,7 +50,7 @@ theorem divisor_of_prime (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (M : 
       parley_subst_at hC3 s3_3_1
     · skip
       -- 3.3.3. def:divides d := 1, n := P
-      have s3_3_3 : (1 : ℤ) ∣ P := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (1 : ℤ)) (n := P))).mpr ⟨P, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (1 : ℤ)) (n := P))).mpr ⟨P, by parley_side⟩; parley_side)
+      have s3_3_3 : (1 : ℤ) ∣ P := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (1 : ℤ)) (n := P))).mpr ⟨P, by parley_side⟩
       -- 3.3.4. substitute M = 1 (C4) into line 3.3.3
       parley_subst_at hC4 s3_3_3
 

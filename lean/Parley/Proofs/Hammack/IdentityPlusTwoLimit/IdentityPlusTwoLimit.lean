@@ -54,11 +54,11 @@ theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 
       -- 1.1.7. join 1.1.4, 1.1.6
       have s1_1_7 : 2 - ε < f x ∧ f x < 2 + ε := by parley_set_side
       -- 1.1.8. mun:abs-difference-lt x := f(x), c := 2, δ := ε, from 1.1.7
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_set_side)
     -- 1.2. exhibit, from A1, 1.1
     exact ⟨ε, ⟨hA1, s1_1⟩⟩
   -- 2. def:limit-at D := ℝ, c := 0, L := 2, from 1
   have r55_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (0 : ℝ)) (L := (2 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (0 : ℝ)) (L := (2 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (0 : ℝ)) (L := (2 : ℝ)))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.IdentityPlusTwoLimit.IdentityPlusTwoLimit

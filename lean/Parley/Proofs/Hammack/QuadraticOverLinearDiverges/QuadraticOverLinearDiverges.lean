@@ -64,7 +64,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 <
         _ < 2 * (n : ℝ) ^ 2 + 1 := by parley_side
         _ = (3 * (n : ℝ) - 1) * a n := by linear_combination (norm := parley_field) (-3 * (n : ℝ) + 1) * (hH2 n (by parley_side))
     -- 1.2.11. mun:less-scaled x := n/3, y := a(n), c := 3n − 1, from 1.2.4, 1.2.10
-    have s1_2_11 : (n : ℝ) / 3 < a n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a n) (c := 3 * (n : ℝ) - 1) (by parley_side))).mpr s1_2_10 | (have h := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a n) (c := 3 * (n : ℝ) - 1) (by parley_side))).mpr s1_2_10; parley_side)
+    have s1_2_11 : (n : ℝ) / 3 < a n := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a n) (c := 3 * (n : ℝ) - 1) (by parley_side))).mpr s1_2_10
     -- 1.2.12. transitivity, from 1.1, A2
     have s1_2_12 : 3 * M < (n : ℝ) := by parley_order
     -- 1.2.13. inequalities

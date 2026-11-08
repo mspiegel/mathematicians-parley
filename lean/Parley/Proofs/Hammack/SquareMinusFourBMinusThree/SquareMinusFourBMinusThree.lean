@@ -54,7 +54,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       -- 3.3. algebra, from 3.2
       have s3_3 : 1 = 2 * (2 * k ^ 2 - 2 * b - 1) := by linear_combination (norm := parley_norm) (-1) * s3_2
       -- 3.4. def:even n := 1, from 3.3
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨2 * k ^ 2 - 2 * b - 1, s3_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨2 * k ^ 2 - 2 * b - 1, s3_3⟩; parley_side)
+      exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨2 * k ^ 2 - 2 * b - 1, s3_3⟩
     · skip
       -- 3.5. obtain k: def:odd n := a, from C2
       obtain ⟨k, s3_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a))).mp hC2
@@ -66,7 +66,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       -- 3.7. algebra, from 3.6
       have s3_7 : 1 = 2 * (k ^ 2 + k - b) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s3_6
       -- 3.8. def:even n := 1, from 3.7
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k ^ 2 + k - b, s3_7⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k ^ 2 + k - b, s3_7⟩; parley_side)
+      exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k ^ 2 + k - b, s3_7⟩
   -- 4. mun:not-both n := 1, from 3
   have s4 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s3)
   -- 5. arithmetic

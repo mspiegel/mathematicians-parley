@@ -49,7 +49,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
       calc n ^ 2 - 1 = 4 * (2 * j * (2 * j + 1)) := by parley_side
         _ = 8 * (j * (2 * j + 1)) := by parley_ring
     -- 4.4. def:divides d := 8, n := n² − 1, from 4.3
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), s4_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), s4_3⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), s4_3⟩
   · skip
     -- 4.5. obtain j: def:odd n := k, from C2
     obtain ⟨j, s4_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := k))).mp hC2
@@ -60,6 +60,6 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
       calc n ^ 2 - 1 = 4 * ((2 * j + 1) * (2 * j + 1 + 1)) := by parley_side
         _ = 8 * ((2 * j + 1) * (j + 1)) := by parley_ring
     -- 4.8. def:divides d := 8, n := n² − 1, from 4.7
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), s4_7⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), s4_7⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), s4_7⟩
 
 end Parley.Proofs.Hammack.EightDividesOddSquare.EightDividesOddSquare

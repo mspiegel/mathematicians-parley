@@ -50,10 +50,10 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     -- 3.5. exhibit, from 3.4
     have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, by parley_set_side, by simpa using s3_4⟩
     -- 3.6. def:rational x := A, from 3.5
-    have s3_6 : ∃ m : ℚ, (m : ℝ) = A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr s3_5 | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr s3_5; parley_set_side)
+    have s3_6 : ∃ m : ℚ, (m : ℝ) = A := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr s3_5
     exact s1 s3_6
   -- 4. mun:real-closure x := A, y := B, from 1
   -- 5. def:difference Y := ℝ, Z := ℚ, from 3, 4
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A + B))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A + B))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A + B))).mpr (by parley_set_side)
 
 end Parley.Proofs.Setmm.IrrationalPlusRational.IrrationalPlusRational

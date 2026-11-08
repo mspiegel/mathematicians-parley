@@ -34,7 +34,7 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
       have s1_2 : t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 s1_1a)
       exact absurd s1_2 s1_1b
     -- 2. def:subset, from 1
-    have s2 : A \ B ⊆ ∅ := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B) (Y := ∅))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B) (Y := ∅))).mpr s1; parley_set_side)
+    have s2 : A \ B ⊆ ∅ := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B) (Y := ∅))).mpr s1
     -- 3. mun:subset-empty Y := A ∖ B, from 2
     exact ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := A \ B))).mp s2
   · skip
@@ -44,13 +44,13 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
       intro t hK2
       by_contra hS
       -- 4.1. def:difference u := t, Y := A, Z := B, from K2, S
-      have s4_1 : t ∈ A \ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side); parley_set_side)
+      have s4_1 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
       -- 4.2. substitute A ∖ B = ∅ (D2) into line 4.1
       have s4_2 : t ∈ (∅ : Set α) := by parley_subst_at hD2 s4_1
       -- 4.3. inspection
       have s4_3 : ¬ t ∈ (∅ : Set α) := by parley_set_side
       exact s4_3 s4_2
     -- 5. def:subset, from 4
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4
 
 end Parley.Proofs.Hammack.SubsetIffDifferenceEmpty.SubsetIffDifferenceEmpty

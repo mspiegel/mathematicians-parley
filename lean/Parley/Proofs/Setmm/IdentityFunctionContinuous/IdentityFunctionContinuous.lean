@@ -53,6 +53,6 @@ theorem identity_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
     -- 1.1.2. exhibit, from A1, 1.1.1
     exact ⟨ε, ⟨hA1, s1_1_1⟩⟩
   -- 2. def:continuous-on, from H1, 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1; parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1
 
 end Parley.Proofs.Setmm.IdentityFunctionContinuous.IdentityFunctionContinuous

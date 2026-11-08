@@ -59,7 +59,7 @@ theorem sqrt6_irrational :
     -- 2.4. algebra, from 2.3
     have s2_4 : p ^ 2 = 2 * (3 * q ^ 2) := by linear_combination (norm := parley_norm) s2_3
     -- 2.5. def:even n := p², from 2.4
-    have s2_5 : Even (p ^ 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 2))).mpr ⟨3 * q ^ 2, s2_4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 2))).mpr ⟨3 * q ^ 2, s2_4⟩; parley_side)
+    have s2_5 : Even (p ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 2))).mpr ⟨3 * q ^ 2, s2_4⟩
     -- 2.6. thm:even-square n := p, from 2.5
     have s2_6 : Even p := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := p) (by parley_side))
     -- 2.7. obtain r: def:even n := p, from 2.6
@@ -71,20 +71,20 @@ theorem sqrt6_irrational :
     -- 2.10. algebra, from 2.9
     have s2_10 : q ^ 2 = 2 * (r ^ 2 - q ^ 2) := by linear_combination (norm := parley_norm) (-1) * s2_9
     -- 2.11. def:even n := q², from 2.10
-    have s2_11 : Even (q ^ 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 2))).mpr ⟨r ^ 2 - q ^ 2, s2_10⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 2))).mpr ⟨r ^ 2 - q ^ 2, s2_10⟩; parley_side)
+    have s2_11 : Even (q ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 2))).mpr ⟨r ^ 2 - q ^ 2, s2_10⟩
     -- 2.12. thm:even-square n := q, from 2.11
     have s2_12 : Even q := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := q) (by parley_side))
     -- 2.13. obtain s: def:even n := q, from 2.12
     obtain ⟨s, s2_13⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := q))).mp s2_12
     -- 2.14. def:divides d := 2, n := p, from 2.7
-    have s2_14 : (2 : ℤ) ∣ p := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s2_7⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s2_7⟩; parley_side)
+    have s2_14 : (2 : ℤ) ∣ p := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s2_7⟩
     -- 2.15. def:divides d := 2, n := q, from 2.13
-    have s2_15 : (2 : ℤ) ∣ q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s2_13⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s2_13⟩; parley_side)
+    have s2_15 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s2_13⟩
     -- 2.16. exhibit, from 2.14, 2.15
     have r69_1 : (2 : ℤ) > 1 := by parley_arith
     have s2_16 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r69_1, s2_14⟩, s2_15⟩⟩
     exact s2_1c s2_16
   -- 3. def:irrational x := √6, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ)))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ)))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational

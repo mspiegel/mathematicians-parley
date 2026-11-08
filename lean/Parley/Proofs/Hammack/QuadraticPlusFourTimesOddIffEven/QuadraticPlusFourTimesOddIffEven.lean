@@ -43,7 +43,7 @@ theorem quadratic_plus_four_times_odd_iff_even (a : ℤ) :
       -- 2.2. algebra, from 2.1
       have s2_2 : a ^ 2 + 4 * a + 5 = 2 * (2 * k ^ 2 + 6 * k + 5) := by linear_combination (norm := parley_norm) (a + 2 * k + 5) * s2_1
       -- 2.3. def:even n := a² + 4a + 5, from 2.2
-      have s2_3 : Even (a ^ 2 + 4 * a + 5) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 6 * k + 5, s2_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 6 * k + 5, s2_2⟩; parley_side)
+      have s2_3 : Even (a ^ 2 + 4 * a + 5) := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 6 * k + 5, s2_2⟩
       -- 2.4. mun:not-both n := a² + 4a + 5, from 2.3
       have s2_4 : ¬ Odd (a ^ 2 + 4 * a + 5) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 + 4 * a + 5) s2_3)
       exact absurd hD1 s2_4
@@ -54,6 +54,6 @@ theorem quadratic_plus_four_times_odd_iff_even (a : ℤ) :
     -- 4. algebra, from 3
     have s4 : a ^ 2 + 4 * a + 5 = 2 * (2 * k ^ 2 + 4 * k + 2) + 1 := by linear_combination (norm := parley_norm) (a + 2 * k + 4) * s3
     -- 5. def:odd n := a² + 4a + 5, from 4
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 4 * k + 2, s4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 4 * k + 2, s4⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 2 + 4 * a + 5))).mpr ⟨2 * k ^ 2 + 4 * k + 2, s4⟩
 
 end Parley.Proofs.Hammack.QuadraticPlusFourTimesOddIffEven.QuadraticPlusFourTimesOddIffEven

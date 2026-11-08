@@ -83,10 +83,10 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.11. join 1.15.9, 1.15.10
       have s1_15_11 : L - ε < b n ∧ b n < L + ε := by parley_side
       -- 1.15.12. mun:abs-difference-lt x := b(n), c := L, δ := ε, from 1.15.11
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side); parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side)
     -- 1.16. exhibit, from 1.15
     exact ⟨P + Q + R, by parley_side, s1_15⟩
   -- 2. def:tends-to x := b, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr s1
 
 end Parley.Proofs.Hammack.SqueezeForSequences.SqueezeForSequences

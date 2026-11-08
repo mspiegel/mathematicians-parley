@@ -35,6 +35,6 @@ theorem powers_of_two_onto (f : ℤ → ℚ) (hH1 : Set.MapsTo f (Set.univ : Set
     -- 1.3. exhibit, from 1.2
     exact ⟨m, s1_2⟩
   -- 2. def:onto, from H1, 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.PowersOfTwoOnto.PowersOfTwoOnto

@@ -33,6 +33,6 @@ theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (
   -- 3. thm:coprime-divides x := x − y, from H6, 2
   have s3 : n ∣ x - y := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) s2 hH6)
   -- 4. def:congruent-mod a := x, b := y, from 3
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x) (b := y))).mpr s3 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x) (b := y))).mpr s3; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x) (b := y))).mpr s3
 
 end Parley.Stdlib.Divisibility.CongruentCancel

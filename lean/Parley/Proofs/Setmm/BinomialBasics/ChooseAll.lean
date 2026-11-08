@@ -37,7 +37,7 @@ theorem choose_all (N : ℤ) (hH1 : 0 ≤ N) :
   have s1a : 0 ≤ N := by parley_order
   have s1b : N ≤ N := by parley_order
   -- 2. def:range-between k := N, a := 0, b := N, from 1
-  have s2 : N ∈ Finset.Icc (0 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
+  have s2 : N ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
   -- 3. algebra
   have s3 : N - N = 0 := by parley_ring
   -- 4. calculation

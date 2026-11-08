@@ -63,10 +63,10 @@ theorem two_elements {α : Type*} (V : Set α) :
         -- 7.2.1. mun:or-right P := t = a, Q := t = b, from C2
         have s7_2_1 : t = a ∨ t = b := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := t = a) (Q := t = b) hC2)
         -- 7.2.2. def:pair x := t, u := a, w := b, from 7.2.1
-        first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_1 | (have h := ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_1; parley_set_side)
+        exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_1
       · skip
         -- 7.2.3. mun:remove-member u := t, Y := V, a := b, from C3, K1
-        have s7_2_3 : t ∈ V \ ({b} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := t))).mpr (by parley_set_side); parley_set_side)
+        have s7_2_3 : t ∈ V \ ({b} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := t))).mpr (by parley_set_side)
         -- 7.2.4. axi:excluded-middle P := t = a
         have s7_2_4 : t = a ∨ ¬ t = a := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a))
         -- 7.2.5. cases, from 7.2.4
@@ -75,10 +75,10 @@ theorem two_elements {α : Type*} (V : Set α) :
           -- 7.2.5.1. mun:or-left P := t = a, Q := t = b, from C4
           have s7_2_5_1 : t = a ∨ t = b := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := t = a) (Q := t = b) hC4)
           -- 7.2.5.2. def:pair x := t, u := a, w := b, from 7.2.5.1
-          first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_5_1 | (have h := ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_5_1; parley_set_side)
+          exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_5_1
         · skip
           -- 7.2.5.3. mun:remove-member u := t, Y := V ∖ {b}, from C5, 7.2.3
-          have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side); parley_set_side)
+          have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side)
           -- 7.2.5.4. substitute
           have s7_2_5_4 : t ∈ (∅ : Set α) := by parley_count_after (by
             have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by parley_set_side))
@@ -88,7 +88,7 @@ theorem two_elements {α : Type*} (V : Set α) :
           have s7_2_5_5 : ¬ t ∈ (∅ : Set α) := by parley_set_side
           exact absurd s7_2_5_4 s7_2_5_5
     -- 8. def:subset X := V, Y := {a, b}, from 7
-    have s8 : V ⊆ ({a, b} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := V) (Y := ({a, b} : Set α)))).mpr s7 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := V) (Y := ({a, b} : Set α)))).mpr s7; parley_set_side)
+    have s8 : V ⊆ ({a, b} : Set α) := ((Parley.Items.Stdlib.Sets.def_subset (X := V) (Y := ({a, b} : Set α)))).mpr s7
     -- 9. mun:pair-subset X := V, from 2, 5
     have s9 : ({a, b} : Set α) ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := V) (a := a) (b := b) s5a s2)
     -- 10. mun:subset-antisymmetric X := V, Y := {a, b}, from 8, 9

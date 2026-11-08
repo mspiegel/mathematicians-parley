@@ -325,7 +325,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.13.12. inequalities
       have s5_13_12 : f a ≤ p - 2 := by parley_order
       -- 5.13.13. def:range-between k := f(a), a := 2, b := p − 2, from 5.6, 5.13.9, 5.13.12
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := f a) (a := (2 : ℤ)) (b := p - 2))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := f a) (a := (2 : ℤ)) (b := p - 2))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sums.def_range_between (k := f a) (a := (2 : ℤ)) (b := p - 2))).mpr (by parley_set_side)
     -- 5.14. proof
     have s5_14 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ≠ a := by
       intro a hK8

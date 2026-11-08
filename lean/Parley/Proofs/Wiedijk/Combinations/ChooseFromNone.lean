@@ -69,9 +69,9 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         -- 3.4.3. mun:subset-empty, from 3.4.2
         have s3_4_3 : R = ∅ := ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := R))).mp s3_4_2
         -- 3.4.4. def:singleton x := R, a := ∅, from 3.4.3
-        first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_singleton (a := (∅ : Set α)) (x := R))).mpr s3_4_3 | (have h := ((Parley.Items.Stdlib.Sets.def_singleton (a := (∅ : Set α)) (x := R))).mpr s3_4_3; parley_set_side)
+        exact ((Parley.Items.Stdlib.Sets.def_singleton (a := (∅ : Set α)) (x := R))).mpr s3_4_3
       -- 3.5. def:subset, from 3.4
-      have s3_5 : F ⊆ ({∅} : Set (Set α)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := ({∅} : Set (Set α))))).mpr s3_4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := ({∅} : Set (Set α))))).mpr s3_4; parley_set_side)
+      have s3_5 : F ⊆ ({∅} : Set (Set α)) := ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := ({∅} : Set (Set α))))).mpr s3_4
       -- 3.6. mun:singleton-subset, from 3.3
       have s3_6 : ({∅} : Set (Set α)) ⊆ F := by first | exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)); parley_set_side)
       -- 3.7. mun:subset-antisymmetric, from 3.5, 3.6

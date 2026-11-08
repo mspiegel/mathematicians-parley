@@ -136,7 +136,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 18. def:interval a := 0, b := 1, x := 1
   have r653_1 : (0 : ℤ) ≤ 1 := by parley_arith
   have r653_2 : (1 : ℤ) ≤ 1 := by parley_arith
-  have s18 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+  have s18 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
   -- 19. mun:integral-real a := 0, b := 1, f := g, x := 1, from 7, 9, 12, 18
   -- 20. substitute J(n) = ∫(0 to 1) g(t) dt (line 17) into line 19
   -- 21. transitivity, from 17, 13

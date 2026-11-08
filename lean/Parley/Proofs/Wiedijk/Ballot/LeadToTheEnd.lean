@@ -68,7 +68,7 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       -- 2.2.7. inequalities, from 2.2.6
       have s2_2_7 : i ≤ m + n - 1 := by parley_order
       -- 2.2.8. def:range-between k := i, a := 1, b := (m + n) − 1, from 2.2.4, 2.2.7
-      have s2_2_8 : i ∈ Finset.Icc (1 : ℤ) (m + n - 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr (by parley_set_side); parley_set_side)
+      have s2_2_8 : i ∈ Finset.Icc (1 : ℤ) (m + n - 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr (by parley_set_side)
       -- 2.2.9. instantiate i := i in line 1, from 2.2.8
       exact (s1 i (by parley_set_side))
   -- 3. D1, from 2

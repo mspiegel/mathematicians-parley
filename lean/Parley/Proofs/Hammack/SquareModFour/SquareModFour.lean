@@ -39,7 +39,7 @@ theorem square_mod_four (n : ℤ) :
     -- 2.2. algebra, from 2.1
     have s2_2 : n ^ 2 = 4 * k ^ 2 := by linear_combination (norm := parley_norm) (2 * k + n) * s2_1
     -- 2.3. def:divides d := 4, n := n², from 2.2
-    have s2_3 : (4 : ℤ) ∣ n ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2))).mpr ⟨k ^ 2, s2_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2))).mpr ⟨k ^ 2, s2_2⟩; parley_side)
+    have s2_3 : (4 : ℤ) ∣ n ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2))).mpr ⟨k ^ 2, s2_2⟩
     -- 2.4. mun:or-left, from 2.3
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_3)
   · skip
@@ -48,7 +48,7 @@ theorem square_mod_four (n : ℤ) :
     -- 2.6. algebra, from 2.5
     have s2_6 : n ^ 2 - 1 = 4 * (k ^ 2 + k) := by linear_combination (norm := parley_norm) (2 * k + n + 1) * s2_5
     -- 2.7. def:divides d := 4, n := n² − 1, from 2.6
-    have s2_7 : (4 : ℤ) ∣ n ^ 2 - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨k ^ 2 + k, s2_6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨k ^ 2 + k, s2_6⟩; parley_side)
+    have s2_7 : (4 : ℤ) ∣ n ^ 2 - 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨k ^ 2 + k, s2_6⟩
     -- 2.8. mun:or-right, from 2.7
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_7)
 

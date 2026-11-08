@@ -42,8 +42,8 @@ theorem multiples_of_twelve :
     -- 1.7. def:set-image u := t, from 1.6
     have s1_7 : t ∈ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
     -- 1.8. def:intersection u := t, from 1.4, 1.7
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side)
   -- 2. def:subset, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => 12 * n) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => 12 * n) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)))).mpr s1; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => 12 * n) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)))).mpr s1
 
 end Parley.Proofs.Hammack.MultiplesOfTwelve.MultiplesOfTwelve

@@ -22,6 +22,6 @@ theorem minus_three_is_odd :
   -- 1. arithmetic
   have s1 : (-3 : ℤ) = 2 * -2 + 1 := by parley_arith
   -- 2. def:odd n := −3, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (-3 : ℤ)))).mpr ⟨(-2 : ℤ), s1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (-3 : ℤ)))).mpr ⟨(-2 : ℤ), s1⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (-3 : ℤ)))).mpr ⟨(-2 : ℤ), s1⟩
 
 end Parley.Tests.Notations.Divisibility.MinusThreeIsOdd

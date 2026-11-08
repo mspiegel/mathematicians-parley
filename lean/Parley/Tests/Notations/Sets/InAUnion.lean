@@ -17,10 +17,10 @@ namespace Parley.Tests.Notations.Sets.InAUnion
 theorem in_a_union :
     (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) ∪ ({(3 : ℤ)} : Set ℤ) := by
   -- 1. def:singleton x := 3, a := 3
-  have s1 : (3 : ℤ) ∈ ({(3 : ℤ)} : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_singleton (a := (3 : ℤ)) (x := (3 : ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_singleton (a := (3 : ℤ)) (x := (3 : ℤ)))).mpr (by parley_set_side); parley_set_side)
+  have s1 : (3 : ℤ) ∈ ({(3 : ℤ)} : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_singleton (a := (3 : ℤ)) (x := (3 : ℤ)))).mpr (by parley_set_side)
   -- 2. mun:or-right, from 1
   have s2 : (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) ∨ (3 : ℤ) ∈ ({(3 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (Q := (3 : ℤ) ∈ ({(3 : ℤ)} : Set ℤ)) s1)
   -- 3. def:union, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_union (Y := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (Z := ({(3 : ℤ)} : Set ℤ)) (u := (3 : ℤ)))).mpr s2 | (have h := ((Parley.Items.Stdlib.Sets.def_union (Y := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (Z := ({(3 : ℤ)} : Set ℤ)) (u := (3 : ℤ)))).mpr s2; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_union (Y := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (Z := ({(3 : ℤ)} : Set ℤ)) (u := (3 : ℤ)))).mpr s2
 
 end Parley.Tests.Notations.Sets.InAUnion

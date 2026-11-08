@@ -49,13 +49,13 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 6. inequalities
   have s6 : k - 2 ≤ n - 2 := by parley_order
   -- 7. def:range-between k := 2, a := 0, b := n, from 2
-  have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr (by parley_side); parley_side)
+  have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr (by parley_side)
   -- 8. def:range-between k := 2, a := 0, b := k, from 3
-  have s8 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) k := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := k))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := k))).mpr (by parley_side); parley_side)
+  have s8 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) k := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := k))).mpr (by parley_side)
   -- 9. def:range-between a := 0, b := n, from 4
-  have s9 : k ∈ Finset.Icc (0 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := n))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := n))).mpr (by parley_side); parley_side)
+  have s9 : k ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := n))).mpr (by parley_side)
   -- 10. def:range-between k := k − 2, a := 0, b := n − 2, from 5, 6
-  have s10 : k - 2 ∈ Finset.Icc (0 : ℤ) (n - 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 2) (a := (0 : ℤ)) (b := n - 2))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 2) (a := (0 : ℤ)) (b := n - 2))).mpr (by parley_side); parley_side)
+  have s10 : k - 2 ∈ Finset.Icc (0 : ℤ) (n - 2) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 2) (a := (0 : ℤ)) (b := n - 2))).mpr (by parley_side)
   -- 11. mun:range-difference a := 0, k := 2, from 7
   have s11 : 0 ≤ n - 2 := (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := n) (k := (2 : ℤ)) s7)
   -- 12. mun:range-difference a := 0, n := k, k := 2, from 8

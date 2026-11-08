@@ -30,9 +30,9 @@ theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : S
       -- 1.2. mun:disjoint-member Y := A, Z := B, u := t, from D1, K
       have s1_2 : ¬ t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK)
       -- 1.3. def:difference u := t, Y := C, Z := B, from 1.1, 1.2
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mpr (by parley_set_side)
     -- 2. def:subset X := A, Y := C ∖ B, from 1
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C \ B))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C \ B))).mpr s1; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C \ B))).mpr s1
   · skip
     intro hD2
     -- 3. def:subset X := A, Y := C ∖ B, from D2

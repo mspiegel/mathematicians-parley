@@ -56,11 +56,11 @@ theorem two_x_minus_seven_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * 
       -- 1.2.7. join 1.2.4, 1.2.6
       have s1_2_7 : 9 - ε < f x ∧ f x < 9 + ε := by parley_set_side
       -- 1.2.8. mun:abs-difference-lt x := f(x), c := 9, δ := ε, from 1.2.7
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (9 : ℝ)) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (9 : ℝ)) (δ := ε))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (9 : ℝ)) (δ := ε))).mpr (by parley_set_side)
     -- 1.3. exhibit, from 1.1, 1.2
     exact ⟨ε / 2, ⟨s1_1, s1_2⟩⟩
   -- 2. def:limit-at D := ℝ, c := 8, L := 9, from 1
   have r62_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (8 : ℝ)) (L := (9 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (8 : ℝ)) (L := (9 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (8 : ℝ)) (L := (9 : ℝ)))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.TwoXMinusSevenLimit.TwoXMinusSevenLimit

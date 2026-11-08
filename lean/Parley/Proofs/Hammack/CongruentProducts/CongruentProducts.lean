@@ -33,6 +33,6 @@ theorem congruent_products (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (n : ℤ) (hH
     have row1 : n ∣ a * c - b * d := by parley_subst_at c1 s3
     exact row1
   -- 5. def:congruent-mod, from 4
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr s4 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr s4; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr s4
 
 end Parley.Proofs.Hammack.CongruentProducts.CongruentProducts

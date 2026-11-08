@@ -8437,6 +8437,19 @@ impl<'a> Proof<'a> {
                     },
                     ty: None,
                 };
+                // The definition's left side as Lean states it at the
+                // citation's values, where it is the claim as Lean writes it:
+                // the reading proves the claim as it stands.
+                let left = left_side(&statement);
+                let as_claimed = match (&left, &claim_lean) {
+                    (Some(left), Some(claim)) => {
+                        super::doc::forms::written_alike(left, claim)
+                    }
+                    _ => false,
+                };
+                if as_claimed && !by_to_nat {
+                    return Route::Built(Proof::Term(mpr));
+                }
                 let mut ways = vec![
                     t::steps(vec![
                         t::call("assumption", vec![]),

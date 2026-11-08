@@ -98,7 +98,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.15. mun:in-union-left, from 1.3.14
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := U) (Z := W) (u := R) s1_3_14)
   -- 2. def:subset, from 1
-  have s2 : F ⊆ U ∪ W := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := U ∪ W))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := U ∪ W))).mpr s1; parley_set_side)
+  have s2 : F ⊆ U ∪ W := ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := U ∪ W))).mpr s1
   -- 3. mun:difference-subset
   have s3 : X \ ({a} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := X) (Y := ({a} : Set α)))
   -- 4. proof
@@ -118,7 +118,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     -- 4.3. def:part-builder u := R, from D1, 4.1, 4.2
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mpr (by parley_set_side); parley_set_side)
   -- 5. def:subset, from 4
-  have s5 : U ⊆ F := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := U) (Y := F))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := U) (Y := F))).mpr s4; parley_set_side)
+  have s5 : U ⊆ F := ((Parley.Items.Stdlib.Sets.def_subset (X := U) (Y := F))).mpr s4
   -- 6. proof
   have s6 : ∀ T ∈ V, T ∪ ({a} : Set α) ∈ F := by
     intro T hK3

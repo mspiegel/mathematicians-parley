@@ -25,8 +25,8 @@ theorem subset_minus_a_set {α : Type*} (A : Set α) (B : Set α) (C : Set α) (
     -- 1.2. mun:in-subset X := A, Y := B, u := t, from H4, 1.1
     have s1_2 : t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hH4 s1_1a)
     -- 1.3. def:difference u := t, Y := B, Z := C, from 1.1, 1.2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := C) (u := t))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := C) (u := t))).mpr (by parley_set_side)
   -- 2. def:subset, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A \ C) (Y := B \ C))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ C) (Y := B \ C))).mpr s1; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_subset (X := A \ C) (Y := B \ C))).mpr s1
 
 end Parley.Proofs.Hammack.DifferenceKeepsSubset.SubsetMinusASet

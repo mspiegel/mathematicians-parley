@@ -93,6 +93,6 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
     -- 1.4. exhibit, from 1.3
     exact ⟨N, s1_2a, s1_3⟩
   -- 2. def:tends-to L := 5, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (5 : ℝ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (5 : ℝ)))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (5 : ℝ)))).mpr s1
 
 end Parley.Proofs.Hammack.TwoOverSquareLimit.TwoOverSquareLimit

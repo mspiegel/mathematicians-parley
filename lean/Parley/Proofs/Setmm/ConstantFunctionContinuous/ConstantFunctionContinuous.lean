@@ -56,6 +56,6 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
     have r45_1 : (1 : ℤ) > 0 := by parley_arith
     exact ⟨(1 : ℝ), ⟨by parley_set_side, s1_1_1⟩⟩
   -- 2. def:continuous-on, from H1, 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1; parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1
 
 end Parley.Proofs.Setmm.ConstantFunctionContinuous.ConstantFunctionContinuous

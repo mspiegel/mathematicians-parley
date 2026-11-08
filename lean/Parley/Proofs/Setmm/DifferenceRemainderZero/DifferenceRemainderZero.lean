@@ -51,6 +51,6 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     have s8 : ∃ q : ℤ, q * N = A - B := ⟨k, s7⟩
     -- 9. mun:mod-remainder a := A − B, m := N, r := 0, from 8
     have r50_1 : 0 < N := by parley_order
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) (by parley_side) (r := (0 : ℤ)) (by parley_side) r50_1)).mpr (by simpa only [add_zero] using s8) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) (by parley_side) (r := (0 : ℤ)) (by parley_side) r50_1)).mpr (by simpa only [add_zero] using s8); parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) (by parley_side) (r := (0 : ℤ)) (by parley_side) r50_1)).mpr (by simpa only [add_zero] using s8)
 
 end Parley.Proofs.Setmm.DifferenceRemainderZero.DifferenceRemainderZero

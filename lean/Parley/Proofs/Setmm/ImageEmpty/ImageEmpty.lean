@@ -36,7 +36,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
       have s1_3 : ¬ F t ∈ (∅ : Set α) := by parley_set_side
       exact absurd s1_2 s1_3
     -- 2. def:subset, from 1
-    have s2 : B ⊆ ∅ := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := ∅))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := ∅))).mpr s1; parley_set_side)
+    have s2 : B ⊆ ∅ := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := ∅))).mpr s1
     -- 3. mun:subset-empty, from 2
     exact ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := B))).mp s2
   · skip
@@ -54,7 +54,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
       have s4_4 : ¬ s ∈ (∅ : Set α) := by parley_set_side
       exact absurd s4_3 s4_4
     -- 5. def:subset, from 4
-    have s5 : F '' (A ∩ B) ⊆ ∅ := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B)) (Y := ∅))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B)) (Y := ∅))).mpr s4; parley_set_side)
+    have s5 : F '' (A ∩ B) ⊆ ∅ := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B)) (Y := ∅))).mpr s4
     -- 6. mun:subset-empty, from 5
     exact ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := F '' (A ∩ B)))).mp s5
 

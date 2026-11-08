@@ -31,7 +31,7 @@ theorem sqrt_four_not_irrational :
     calc Real.sqrt (4 : ℝ) = 2 := by parley_side
       _ = 2 / 1 := by norm_num
   -- 3. def:rational x := √4, from 2
-  have s3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), (1 : ℤ), by parley_side, by simpa using s2⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), (1 : ℤ), by parley_side, by simpa using s2⟩; parley_side)
+  have s3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), (1 : ℤ), by parley_side, by simpa using s2⟩
   -- 4. contradiction
   intro hS
   -- 4.1. def:irrational x := √4, from S

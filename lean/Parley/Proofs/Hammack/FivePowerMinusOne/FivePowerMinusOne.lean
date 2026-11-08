@@ -46,7 +46,7 @@ theorem five_power_minus_one (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.1. arithmetic
       have s1_1 : (5 ^ (2 * 0) - 1 : ℤ) = 3 * 0 := by parley_arith
       -- 1.2. def:divides d := 3, n := 5^(2·0) − 1, from 1.1
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (5 ^ (2 * 0) - 1 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (5 ^ (2 * 0) - 1 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩; parley_side)
+      exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (5 ^ (2 * 0) - 1 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩
     | succ m hK hIH =>
       -- 1.3. algebra
       have s1_3 : 2 * (m + 1) = 2 * m + 2 := by parley_ring
@@ -58,7 +58,7 @@ theorem five_power_minus_one (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_5 : (3 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (5 ^ (2 * m).toNat - 1 : ℤ)) (x := (25 : ℤ)) hIH)
       -- 1.6. def:divides d := 3, n := 24
       have r37_1 : (24 : ℤ) = 3 * 8 := by parley_arith
-      have s1_6 : (3 : ℤ) ∣ (24 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (24 : ℤ)))).mpr ⟨(8 : ℤ), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (24 : ℤ)))).mpr ⟨(8 : ℤ), by parley_side⟩; parley_side)
+      have s1_6 : (3 : ℤ) ∣ (24 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (24 : ℤ)))).mpr ⟨(8 : ℤ), by parley_side⟩
       -- 1.7. mun:divides-sum d := 3, a := (5^(2m) − 1)·25, b := 24, from 1.5, 1.6
       have s1_7 : (3 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := ((5 ^ (2 * m).toNat - 1) * 25 : ℤ)) (b := (24 : ℤ)) s1_5 s1_6)
       -- 1.8. substitute

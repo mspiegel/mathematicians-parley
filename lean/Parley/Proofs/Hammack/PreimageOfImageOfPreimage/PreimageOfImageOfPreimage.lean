@@ -27,7 +27,7 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     -- 1.1. def:preimage Z := Y, from K1
     exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).1
   -- 2. def:subset, from 1
-  have s2 : A ∩ f ⁻¹' Y ⊆ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' Y) (Y := A))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' Y) (Y := A))).mpr s1; parley_set_side)
+  have s2 : A ∩ f ⁻¹' Y ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' Y) (Y := A))).mpr s1
   -- 3. proof
   have s3 : ∀ u ∈ A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))), u ∈ A ∩ f ⁻¹' Y := by
     intro u hK2
@@ -42,9 +42,9 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     -- 3.4. substitute f(u) = f(s) (line 3.2) into line 3.3
     have s3_4 : f u ∈ Y := by parley_subst_at s3_2b s3_3b
     -- 3.5. def:preimage Z := Y, from 3.1, 3.4
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
   -- 4. def:subset, from 3
-  have s4 : A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) ⊆ A ∩ f ⁻¹' Y := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))) (Y := A ∩ f ⁻¹' Y))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))) (Y := A ∩ f ⁻¹' Y))).mpr s3; parley_set_side)
+  have s4 : A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) ⊆ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))) (Y := A ∩ f ⁻¹' Y))).mpr s3
   -- 5. proof
   have s5 : ∀ u ∈ A ∩ f ⁻¹' Y, u ∈ A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) := by
     intro u hK3
@@ -54,9 +54,9 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     -- 5.2. mun:value-in-image Y := f⁻¹[Y], from K3, 2
     have s5_2 : f u ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := u) (W := Set.univ) s2 hK3 (by parley_set_side))
     -- 5.3. def:preimage Z := f[f⁻¹[Y]], from 5.1, 5.2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
   -- 6. def:subset, from 5
-  have s6 : A ∩ f ⁻¹' Y ⊆ A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' Y) (Y := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))))).mpr s5 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' Y) (Y := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))))).mpr s5; parley_set_side)
+  have s6 : A ∩ f ⁻¹' Y ⊆ A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' Y) (Y := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))))).mpr s5
   -- 7. mun:subset-antisymmetric, from 4, 6
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))) (Y := A ∩ f ⁻¹' Y) s4 s6)
 

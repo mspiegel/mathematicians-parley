@@ -38,6 +38,6 @@ theorem odd_line_one_to_one (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 2 * n + 
     -- 1.2. algebra, from 1.1
     qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1_1
   -- 2. def:one-to-one, from H1, 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.OddLineOneToOne.OddLineOneToOne

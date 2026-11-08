@@ -41,7 +41,7 @@ theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
   -- 3. inequalities, from H1
   have s3 : n ≤ 2 * n - 1 + 1 := by parley_order
   -- 4. def:range-between k := n, a := 1, b := (2n − 1) + 1, from 2, 3
-  have s4 : n ∈ Finset.Icc (1 : ℤ) (2 * n - 1 + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := 2 * n - 1 + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := 2 * n - 1 + 1))).mpr (by parley_side); parley_side)
+  have s4 : n ∈ Finset.Icc (1 : ℤ) (2 * n - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := 2 * n - 1 + 1))).mpr (by parley_side)
   -- 5. thm:weighted-term m := 2n − 1, k := n, from 1, 4
   have s5 : n * (LeanBridges.Counting.choose (2 * n - 1 + 1) n : ℤ) = (2 * n - 1 + 1) * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := 2 * n - 1) (by parley_side) (k := n) s4)
   -- 6. substitute
@@ -56,6 +56,6 @@ theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
   -- 9. mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 8
   have s9 : (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (LeanBridges.Counting.choose (2 * n) n : ℤ)) (b := 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ)) (c := n) (by parley_side) (by parley_side))
   -- 10. def:even n := C(2n, n), from 9
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose (2 * n) n : ℤ)))).mpr ⟨(LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ), s9⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose (2 * n) n : ℤ)))).mpr ⟨(LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ), s9⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose (2 * n) n : ℤ)))).mpr ⟨(LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ), s9⟩
 
 end Parley.Proofs.Hammack.CentralBinomialEven.CentralBinomialEven

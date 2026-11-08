@@ -31,9 +31,9 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
       -- 1.3. join 1.1, 1.2
       have s1_3 : u ∈ B ∧ u ∈ C := by parley_set_side
       -- 1.4. def:intersection, from 1.3
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side)
     -- 2. def:subset, from 1
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr s1; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr s1
   · skip
     intro hD2
     -- 3. proof
@@ -55,9 +55,9 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
       -- 5.1. restate 3
       parley_set_side
     -- 6. def:subset, from 4
-    have s6 : A ⊆ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4; parley_set_side)
+    have s6 : A ⊆ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4
     -- 7. def:subset X := A, Y := C, from 5
-    have s7 : A ⊆ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s5 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s5; parley_set_side)
+    have s7 : A ⊆ C := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s5
     -- 8. join 6, 7
     have s8 : A ⊆ B ∧ A ⊆ C := by parley_set_side
     exact ⟨(s8).1, (s8).2⟩

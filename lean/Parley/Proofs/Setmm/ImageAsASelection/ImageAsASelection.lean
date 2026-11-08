@@ -40,7 +40,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 1.7. def:set-builder, from 1.5, 1.6
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mpr (by parley_set_side); parley_set_side)
   -- 2. def:subset, from 1
-  have s2 : F '' (A ∩ X) ⊆ {y ∈ B | ∃ x ∈ X, F x = y} := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := {y ∈ B | ∃ x ∈ X, F x = y}))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := {y ∈ B | ∃ x ∈ X, F x = y}))).mpr s1; parley_set_side)
+  have s2 : F '' (A ∩ X) ⊆ {y ∈ B | ∃ x ∈ X, F x = y} := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := {y ∈ B | ∃ x ∈ X, F x = y}))).mpr s1
   -- 3. proof
   have s3 : ∀ u ∈ {y ∈ B | ∃ x ∈ X, F x = y}, u ∈ F '' (A ∩ X) := by
     intro u hK2
@@ -53,7 +53,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 3.4. substitute F(x) = u (line 3.2) into line 3.3
     parley_subst_at s3_2b s3_3
   -- 4. def:subset, from 3
-  have s4 : {y ∈ B | ∃ x ∈ X, F x = y} ⊆ F '' (A ∩ X) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := {y ∈ B | ∃ x ∈ X, F x = y}) (Y := F '' (A ∩ X)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := {y ∈ B | ∃ x ∈ X, F x = y}) (Y := F '' (A ∩ X)))).mpr s3; parley_set_side)
+  have s4 : {y ∈ B | ∃ x ∈ X, F x = y} ⊆ F '' (A ∩ X) := ((Parley.Items.Stdlib.Sets.def_subset (X := {y ∈ B | ∃ x ∈ X, F x = y}) (Y := F '' (A ∩ X)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ X)) (Y := {y ∈ B | ∃ x ∈ X, F x = y}) s2 s4)
 

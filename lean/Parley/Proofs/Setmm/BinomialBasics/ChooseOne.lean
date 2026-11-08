@@ -47,7 +47,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_2a : (0 : ℤ) ≤ 1 := by parley_order
     have s2_2b : 1 ≤ N := by parley_order
     -- 2.3. def:range-between k := 1, a := 0, b := N, from 2.2
-    have s2_3 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
+    have s2_3 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
     -- 2.4. def:factorial
     have s2_4 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
     -- 2.5. thm:factorial-by-predecessor, from C1

@@ -35,6 +35,6 @@ theorem odd_cube (n : ℤ) (hH2 : Odd n) :
   -- 4. transitivity, from 2, 3
   have s4 : n ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by parley_side
   -- 5. def:odd n := n³, from 4
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, s4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, s4⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, s4⟩
 
 end Parley.Proofs.Hammack.RationalCubeRootOfTwo.OddCube

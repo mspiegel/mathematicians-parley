@@ -95,7 +95,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         -- 1.8.4.2. inequalities
         have s1_8_4_2 : m ≤ K := by parley_order
         -- 1.8.4.3. def:range n := K, k := m, from 1.8.4.2
-        have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr (by parley_side); parley_side)
+        have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr (by parley_side)
         -- 1.8.4.4. instantiate i := m in line 1.4, from 1.8.4.3
         have s1_8_4_4 : abs (x m) ≤ C := by exact (s1_4 m (by parley_side))
         -- 1.8.4.5. transitivity, from 1.8.4.4, 1.6

@@ -28,6 +28,6 @@ theorem odd_plus_even (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Even B) :
   -- 3. algebra, from 1, 2
   have s3 : A + B = 2 * (k + l) + 1 := by linear_combination (norm := parley_norm) s1 + s2
   -- 4. def:odd n := A + B, from 3
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := A + B))).mpr ⟨k + l, s3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A + B))).mpr ⟨k + l, s3⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := A + B))).mpr ⟨k + l, s3⟩
 
 end Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.OddPlusEven

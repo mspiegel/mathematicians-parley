@@ -39,7 +39,7 @@ theorem quadratic_plus_four_even (n : ℤ) :
       calc n ^ 2 + 3 * n + 4 = (2 * k) ^ 2 + 3 * (2 * k) + 4 := by parley_subst s2_1
         _ = 2 * (2 * k ^ 2 + 3 * k + 2) := by parley_ring
     -- 2.3. def:even n := n² + 3n + 4, from 2.2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 3 * k + 2, s2_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 3 * k + 2, s2_2⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 3 * k + 2, s2_2⟩
   · skip
     -- 2.4. obtain k: def:odd, from C2
     obtain ⟨k, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hC2
@@ -48,6 +48,6 @@ theorem quadratic_plus_four_even (n : ℤ) :
       calc n ^ 2 + 3 * n + 4 = (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 4 := by parley_subst s2_4
         _ = 2 * (2 * k ^ 2 + 5 * k + 4) := by parley_ring
     -- 2.6. def:even n := n² + 3n + 4, from 2.5
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 5 * k + 4, s2_5⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 5 * k + 4, s2_5⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 5 * k + 4, s2_5⟩
 
 end Parley.Proofs.Hammack.QuadraticPlusFourEven.QuadraticPlusFourEven

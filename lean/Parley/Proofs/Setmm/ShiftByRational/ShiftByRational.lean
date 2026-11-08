@@ -40,7 +40,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
             first | parley_subst s1b_w | parley_subst s1b
         _ = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
     -- 2.3. def:rational x := A, from 2.2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr ⟨p * s - r * q, q * s, by parley_side, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr ⟨p * s - r * q, q * s, by parley_side, by parley_side⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr ⟨p * s - r * q, q * s, by parley_side, by parley_side⟩
   · skip
     intro hD2
     -- 2.4. obtain p, q: def:rational x := A, from D2
@@ -54,7 +54,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
             first | parley_subst s1b_w | parley_subst s1b
         _ = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
     -- 2.7. def:rational x := A + B, from 2.6
-    have s2_7 : ∃ m : ℚ, (m : ℂ) = A + (B : ℂ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, by parley_side, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, by parley_side, by parley_side⟩; parley_side)
+    have s2_7 : ∃ m : ℚ, (m : ℂ) = A + (B : ℂ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, by parley_side, by parley_side⟩
     -- 2.8. join 2.5, 2.7
     have s2_8 : True ∧ (∃ m : ℚ, (m : ℂ) = A + (B : ℂ)) := by parley_side
     exact ⟨trivial, (s2_8).2⟩

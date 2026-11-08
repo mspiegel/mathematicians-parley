@@ -53,7 +53,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
     have r36_1 : (0 : ℤ) < 1 := by parley_arith
     have r36_2 : 0 < ε / 12 := by parley_set_side
-    have s1_2 : 0 < min 1 (ε / 12) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr (by parley_set_side); parley_set_side)
+    have s1_2 : 0 < min 1 (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr (by parley_set_side)
     -- 1.3. inequalities, from D1, 1.2
     have s1_3 : m > 0 := by parley_order
     -- 1.4. proof
@@ -104,6 +104,6 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     exact ⟨m, ⟨s1_3, s1_4⟩⟩
   -- 2. def:limit-at D := ℝ, c := 1, L := 5, from 1
   have r111_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (5 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (5 : ℝ)))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (5 : ℝ)))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.QuadraticLimit.QuadraticLimit

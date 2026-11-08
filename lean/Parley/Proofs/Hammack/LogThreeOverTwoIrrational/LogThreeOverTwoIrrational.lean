@@ -108,6 +108,6 @@ theorem log_three_over_two_irrational :
   -- 3. mun:quotient-real x := ln(3), y := ln(2)
   have r150_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
   -- 4. def:irrational x := ln(3)/ln(2), from 2, 3
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.LogThreeOverTwoIrrational

@@ -28,7 +28,7 @@ theorem empty_domain {α : Type*} (A : Set α) (F : α → α) (hH2 : Set.MapsTo
     have s1_2 : ¬ F t ∈ (∅ : Set α) := by parley_set_side
     exact absurd s1_1 s1_2
   -- 2. def:subset, from 1
-  have s2 : A ⊆ ∅ := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := ∅))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := ∅))).mpr s1; parley_set_side)
+  have s2 : A ⊆ ∅ := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := ∅))).mpr s1
   -- 3. mun:subset-empty, from 2
   exact ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := A))).mp s2
 

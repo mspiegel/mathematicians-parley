@@ -33,12 +33,12 @@ theorem disjoint_power_set_difference {α : Type*} (A : Set α) (B : Set α) (hH
       -- 1.3.2. mun:disjoint-member Y := A, Z := B, u := x, from H3, 1.3.1
       have s1_3_2 : ¬ x ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1)
       -- 1.3.3. def:difference u := x, Y := A, Z := B, from 1.3.1, 1.3.2
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr (by parley_set_side)
     -- 1.4. def:subset, from 1.3
-    have s1_4 : t ⊆ A \ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A \ B))).mpr s1_3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A \ B))).mpr s1_3; parley_set_side)
+    have s1_4 : t ⊆ A \ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A \ B))).mpr s1_3
     -- 1.5. def:powerset S := t, A := A ∖ B, from 1.4
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A \ B) (S := t))).mpr s1_4 | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := A \ B) (S := t))).mpr s1_4; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A \ B) (S := t))).mpr s1_4
   -- 2. def:subset, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 A \ 𝒫 B) (Y := 𝒫 (A \ B)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 A \ 𝒫 B) (Y := 𝒫 (A \ B)))).mpr s1; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 A \ 𝒫 B) (Y := 𝒫 (A \ B)))).mpr s1
 
 end Parley.Proofs.Hammack.DisjointPowerSetDifference.DisjointPowerSetDifference

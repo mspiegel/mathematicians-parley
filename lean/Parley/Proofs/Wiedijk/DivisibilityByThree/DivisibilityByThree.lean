@@ -58,7 +58,7 @@ theorem divisibility_by_three (n : ℤ) (hH1 : 0 ≤ n) (d : ℤ → ℤ) :
     have row1 : (3 : ℤ) ∣ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) - (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) := by parley_subst_at c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3
-  have s4 : (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) ≡ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) [ZMOD (3 : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) (b := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) (b := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)))).mpr s3; parley_side)
+  have s4 : (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) ≡ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) [ZMOD (3 : ℤ)] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) (b := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)))).mpr s3
   -- 5. mun:congruent-divides m := 3, from 4
   exact (Parley.Items.Stdlib.Divisibility.mun_congruent_divides (m := (3 : ℤ)) (a := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) (b := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) s4)
 

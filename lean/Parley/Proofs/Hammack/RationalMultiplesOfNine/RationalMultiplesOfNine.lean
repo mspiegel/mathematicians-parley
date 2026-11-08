@@ -38,7 +38,7 @@ theorem rational_multiples_of_nine :
     -- 1.4. def:set-image u := t, from 1.3
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℚ => 3 * n)) (Y := (Set.univ : Set ℚ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℚ => 3 * n)) (Y := (Set.univ : Set ℚ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 2. def:subset, from 1
-  have s2 : (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ) ⊆ (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ)) (Y := (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ)) (Y := (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ)))).mpr s1; parley_set_side)
+  have s2 : (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ) ⊆ (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ) := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ)) (Y := (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ)))).mpr s1
   -- 3. proof
   have s3 : ∀ t ∈ (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ), t ∈ (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ) := by
     intro t hK2
@@ -51,7 +51,7 @@ theorem rational_multiples_of_nine :
     -- 3.4. def:set-image u := t, from 3.3
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℚ => 9 * n)) (Y := (Set.univ : Set ℚ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℚ => 9 * n)) (Y := (Set.univ : Set ℚ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 4. def:subset, from 3
-  have s4 : (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ) ⊆ (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ)) (Y := (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ)) (Y := (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ)))).mpr s3; parley_set_side)
+  have s4 : (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ) ⊆ (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ) := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ)) (Y := (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ)) (Y := (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ)) s2 s4)
 

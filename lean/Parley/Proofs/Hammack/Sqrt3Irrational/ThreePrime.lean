@@ -67,11 +67,11 @@ theorem three_prime :
         -- 2.4.4.6. obtain k: def:divides d := 2, n := 3, from 2.4.4.5
         obtain ⟨k, s2_4_4_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (3 : ℤ)))).mp s2_4_4_5
         -- 2.4.4.7. def:even n := 3, from 2.4.4.6
-        have s2_4_4_7 : Even (3 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (3 : ℤ)))).mpr ⟨k, s2_4_4_6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (3 : ℤ)))).mpr ⟨k, s2_4_4_6⟩; parley_side)
+        have s2_4_4_7 : Even (3 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (3 : ℤ)))).mpr ⟨k, s2_4_4_6⟩
         -- 2.4.4.8. arithmetic
         have s2_4_4_8 : (3 : ℤ) = 2 * 1 + 1 := by parley_arith
         -- 2.4.4.9. def:odd n := 3, from 2.4.4.8
-        have s2_4_4_9 : Odd (3 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), s2_4_4_8⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), s2_4_4_8⟩; parley_side)
+        have s2_4_4_9 : Odd (3 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), s2_4_4_8⟩
         -- 2.4.4.10. mun:not-both n := 3, from 2.4.4.7
         have s2_4_4_10 : ¬ Odd (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7)
         exact absurd s2_4_4_9 s2_4_4_10
@@ -79,6 +79,6 @@ theorem three_prime :
       -- 2.4.5. mun:or-left, from C2
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) hC2.symm)
   -- 3. def:prime p := 3, from 1, 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by parley_side))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by parley_side))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime

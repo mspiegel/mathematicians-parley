@@ -49,6 +49,6 @@ theorem constant_sequence_limit (c : ℝ) (x : ℤ → ℝ) (hH3 : ∀ n : ℤ, 
     -- 1.2. exhibit, from 1.1
     exact ⟨(1 : ℤ), by parley_side, s1_1⟩
   -- 2. def:tends-to L := c, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s1
 
 end Parley.Proofs.Setmm.ConstantSequenceLimit.ConstantSequenceLimit

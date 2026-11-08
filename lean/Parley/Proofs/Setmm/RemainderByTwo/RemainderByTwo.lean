@@ -36,13 +36,13 @@ theorem remainder_by_two (N : ℤ) :
     -- 2. algebra, from 1
     have s2 : N = 2 * q + 1 := by linear_combination (norm := parley_norm) (-1) * s1
     -- 3. def:odd n := N, from 2
-    have s3 : Odd N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨q, s2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨q, s2⟩; parley_side)
+    have s3 : Odd N := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨q, s2⟩
     -- 4. contradiction
     intro hS1
     -- 4.1. obtain k: def:divides d := 2, n := N, from S1
     obtain ⟨k, s4_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N))).mp hS1
     -- 4.2. def:even n := N, from 4.1
-    have s4_2 : Even N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := N))).mpr ⟨k, s4_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := N))).mpr ⟨k, s4_1⟩; parley_side)
+    have s4_2 : Even N := ((Parley.Items.Stdlib.Divisibility.def_even (n := N))).mpr ⟨k, s4_1⟩
     -- 4.3. mun:not-both n := N, from 4.2
     have s4_3 : ¬ Odd N := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) s4_2)
     exact s4_3 s3
@@ -54,7 +54,7 @@ theorem remainder_by_two (N : ℤ) :
       -- 5.1. obtain k: def:even n := N, from S2
       obtain ⟨k, s5_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := N))).mp hS2
       -- 5.2. def:divides d := 2, n := N, from 5.1
-      have s5_2 : (2 : ℤ) ∣ N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N))).mpr ⟨k, s5_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N))).mpr ⟨k, s5_1⟩; parley_side)
+      have s5_2 : (2 : ℤ) ∣ N := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N))).mpr ⟨k, s5_1⟩
       exact hD2 s5_2
     -- 6. mun:even-or-odd
     have s6 : Even N ∨ Odd N := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := N))
@@ -68,6 +68,6 @@ theorem remainder_by_two (N : ℤ) :
     have s10 : ∃ q : ℤ, q * 2 + 1 = N := ⟨k, s9⟩
     -- 11. mun:mod-remainder a := N, m := 2, r := 1, from 10
     have r69_1 : (1 : ℤ) < 2 := by parley_arith
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) r69_1)).mpr s10 | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) r69_1)).mpr s10; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) r69_1)).mpr s10
 
 end Parley.Proofs.Setmm.RemainderByTwo.RemainderByTwo

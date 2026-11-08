@@ -53,7 +53,7 @@ theorem powers_of_nine_in_powers_of_three :
     -- 1.4. def:set-image u := t, from 1.3
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 2. def:subset, from 1
-  have s2 : (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ)))).mpr s1; parley_set_side)
+  have s2 : (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ)))).mpr s1
   -- 3. contradiction
   have s3 : ¬ (3 : ℚ) ∈ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by
     intro hS1

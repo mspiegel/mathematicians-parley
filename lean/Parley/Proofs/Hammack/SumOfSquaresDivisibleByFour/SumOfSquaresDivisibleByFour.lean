@@ -50,7 +50,7 @@ theorem sum_of_squares_divisible_by_four (a : ℤ) (b : ℤ) (hH3 : (4 : ℤ) �
   -- 2.6. algebra, from 2.5
   have s2_6 : 1 = 2 * (k - m ^ 2 - m - n ^ 2 - n) := by qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s2_5
   -- 2.7. def:even n := 1, from 2.6
-  have s2_7 : Even (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k - m ^ 2 - m - n ^ 2 - n, s2_6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k - m ^ 2 - m - n ^ 2 - n, s2_6⟩; parley_side)
+  have s2_7 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k - m ^ 2 - m - n ^ 2 - n, s2_6⟩
   -- 2.8. mun:not-both n := 1, from 2.7
   have s2_8 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_7)
   -- 2.9. arithmetic

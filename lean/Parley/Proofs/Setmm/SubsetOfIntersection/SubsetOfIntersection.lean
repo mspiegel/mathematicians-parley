@@ -29,9 +29,9 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
     have s3 : ∀ t ∈ A, t ∈ B ∩ C := by
       intro t hK
       -- 3.1. def:intersection u := t, from 1, 2
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr (by parley_set_side)
     -- 4. def:subset X := A, Y := B ∩ C, from 3
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr s3; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr s3
   · skip
     intro hD2
     -- 5. def:subset X := A, Y := B ∩ C, from D2
@@ -47,9 +47,9 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
       -- 7.1. def:intersection u := t, from 5
       exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (s5 t (by parley_set_side))).2
     -- 8. def:subset X := A, Y := B, from 6
-    have s8 : A ⊆ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s6 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s6; parley_set_side)
+    have s8 : A ⊆ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s6
     -- 9. def:subset X := A, Y := C, from 7
-    have s9 : A ⊆ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s7 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s7; parley_set_side)
+    have s9 : A ⊆ C := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s7
     -- 10. join 8, 9
     have s10 : A ⊆ B ∧ A ⊆ C := by parley_set_side
     exact ⟨(s10).1, (s10).2⟩

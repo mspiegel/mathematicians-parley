@@ -28,6 +28,6 @@ theorem minus_one_mod (M : ℤ) (hH1 : 0 < M) :
   have s3 : 0 ≤ M - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) (by parley_side))
   -- 4. mun:mod-remainder a := −1, m := M, r := M − 1, from 2, 3
   have r19_1 : M - 1 < M := by parley_order
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := M) (by parley_side) (r := M - 1) (by parley_side) r19_1)).mpr s2 | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := M) (by parley_side) (r := M - 1) (by parley_side) r19_1)).mpr s2; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := M) (by parley_side) (r := M - 1) (by parley_side) r19_1)).mpr s2
 
 end Parley.Proofs.Setmm.MinusOneMod.MinusOneMod

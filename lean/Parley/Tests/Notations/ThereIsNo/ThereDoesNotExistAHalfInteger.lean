@@ -27,7 +27,7 @@ theorem there_does_not_exist_a_half_integer :
   -- 1.2. restate 1.1
   have s1_2 : 1 = 2 * x := by parley_side
   -- 1.3. def:even n := 1, from 1.2
-  have s1_3 : Even (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨x, s1_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨x, s1_2⟩; parley_side)
+  have s1_3 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨x, s1_2⟩
   -- 1.4. mun:not-both n := 1, from 1.3
   have s1_4 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s1_3)
   -- 1.5. arithmetic

@@ -118,10 +118,10 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.33. join 1.2.32, 1.2.29
       have s1_2_33 : 5 / 4 - ε < a n ∧ a n < 5 / 4 + ε := by parley_side
       -- 1.2.34. mun:abs-difference-lt x := a(n), c := 5/4, δ := ε, from 1.2.33
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (5 / 4 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (5 / 4 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (5 / 4 : ℝ)) (δ := ε))).mpr (by parley_side)
     -- 1.3. exhibit, from 1.2
     exact ⟨N, s1_1a, s1_2⟩
   -- 2. def:tends-to L := 5/4, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (5 / 4 : ℝ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (5 / 4 : ℝ)))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (5 / 4 : ℝ)))).mpr s1
 
 end Parley.Proofs.Hammack.RationalFunctionLimit.RationalFunctionLimit

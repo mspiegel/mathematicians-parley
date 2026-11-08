@@ -29,16 +29,16 @@ theorem subset_iff_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 1.1. def:intersection u := t, Y := A, Z := B, from K1
       exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hK1).1
     -- 2. def:subset, from 1
-    have s2 : A ∩ B ⊆ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B) (Y := A))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B) (Y := A))).mpr s1; parley_set_side)
+    have s2 : A ∩ B ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B) (Y := A))).mpr s1
     -- 3. proof
     have s3 : ∀ t ∈ A, t ∈ A ∩ B := by
       intro t hK2
       -- 3.1. mun:in-subset X := A, Y := B, u := t, from D1, K2
       have s3_1 : t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2)
       -- 3.2. def:intersection u := t, Y := A, Z := B, from K2, 3.1
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mpr (by parley_set_side); parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
     -- 4. def:subset, from 3
-    have s4 : A ⊆ A ∩ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := A ∩ B))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := A ∩ B))).mpr s3; parley_set_side)
+    have s4 : A ⊆ A ∩ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := A ∩ B))).mpr s3
     -- 5. mun:subset-antisymmetric, from 2, 4
     exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ B) (Y := A) s2 s4)
   · skip
@@ -51,6 +51,6 @@ theorem subset_iff_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 6.2. def:intersection u := t, Y := A, Z := B, from 6.1
       exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp s6_1).2
     -- 7. def:subset, from 6
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s6 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s6; parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s6
 
 end Parley.Proofs.Hammack.SubsetAndIntersection.SubsetIffIntersection

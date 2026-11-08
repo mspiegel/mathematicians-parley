@@ -113,7 +113,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
             first | parley_subst s4_2_w | parley_subst s4_2
         _ = (2 ^ d.toNat - 1) * (q : ℚ) := by first | parley_side | parley_line_toNat s4_8a | parley_line_toNat s4_8b | parley_line_toNat s4_8c
     -- 4.10. def:divides d := 2^d − 1, n := 2^n − 1, from 4.9
-    have s4_10 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ d.toNat - 1 : ℤ)) (n := (2 ^ n.toNat - 1 : ℤ)))).mpr ⟨q, s4_9⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ d.toNat - 1 : ℤ)) (n := (2 ^ n.toNat - 1 : ℤ)))).mpr ⟨q, s4_9⟩; parley_side)
+    have s4_10 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ d.toNat - 1 : ℤ)) (n := (2 ^ n.toNat - 1 : ℤ)))).mpr ⟨q, s4_9⟩
     -- 4.11. thm:two-power-bound
     have s4_11 : 2 ^ d.toNat ≥ d + 1 := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side))
     -- 4.12. inequalities
@@ -163,6 +163,6 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         exact absurd s4_18_7 s4_18_11
     exact s4_1b s4_18
   -- 5. def:prime p := n, from 3, 4
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := n) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := n) (by parley_side))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := n) (by parley_side))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.PrimeExponent

@@ -38,7 +38,7 @@ theorem root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     -- 3.2. mun:square-less x := √A, y := √B, from 3.1
     have r28_3 : Real.sqrt A ≥ 0 := by parley_side
     have r28_4 : Real.sqrt B ≥ 0 := by parley_side
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mpr s3_1 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mpr s3_1; parley_side)
+    exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mpr s3_1
   · skip
     intro hD2
     -- 3.3. mun:square-less x := √A, y := √B, from D2

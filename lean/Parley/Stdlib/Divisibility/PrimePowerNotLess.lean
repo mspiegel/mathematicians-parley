@@ -86,7 +86,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   have s3_11 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) ∧ p ∣ m := by
     have whole1 : ((p : ℚ) : ℚ) ^ (a' - a).toNat = (p : ℚ) ^ (a' - a) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s3_2)]
     refine ⟨(p ^ (a' - a).toNat), by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring), ?_⟩
-    (first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_power (p := p) (by parley_side) hH2 (a := p) (n := a' - a) (by parley_side))).mpr s3_10 | (have h := ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_power (p := p) (by parley_side) hH2 (a := p) (n := a' - a) (by parley_side))).mpr s3_10; parley_side))
+    exact (((Parley.Items.Stdlib.Divisibility.thm_prime_divides_power (p := p) (by parley_side) hH2 (a := p) (n := a' - a) (by parley_side))).mpr s3_10)
   -- 3.12. mun:divides-multiple e := p, a := p^(a′ − a), x := m′, from 3.11
   have r443_1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by
     have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, _, hm⟩ := s3_3; exact ⟨m, by first | exact_mod_cast hm | (have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h)⟩

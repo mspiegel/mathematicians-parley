@@ -36,6 +36,6 @@ theorem coset_within {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (g : G)
     -- 2.4. substitute u = g·h (line 2.1) into line 2.3
     parley_subst_at s2_1b s2_3
   -- 3. def:subset, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (g * ·) '' (H : Set G)) (Y := (Set.univ : Set G)))).mpr s2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (g * ·) '' (H : Set G)) (Y := (Set.univ : Set G)))).mpr s2; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_subset (X := (g * ·) '' (H : Set G)) (Y := (Set.univ : Set G)))).mpr s2
 
 end Parley.Proofs.Wiedijk.Lagrange.CosetWithin

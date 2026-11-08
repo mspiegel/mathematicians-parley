@@ -15,6 +15,6 @@ namespace Parley.Tests.Stdlib.Polynomials.ANumberNotAlgebraicIsTranscendental
 theorem a_number_not_algebraic_is_transcendental (β : ℂ) (hH2 : ¬ IsAlgebraic ℤ β) :
     Transcendental ℤ β := by
   -- 1. def:transcendental α := β, from H2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Polynomials.def_transcendental (α := β))).mpr hH2 | (have h := ((Parley.Items.Stdlib.Polynomials.def_transcendental (α := β))).mpr hH2; parley_side)
+  exact ((Parley.Items.Stdlib.Polynomials.def_transcendental (α := β))).mpr hH2
 
 end Parley.Tests.Stdlib.Polynomials.ANumberNotAlgebraicIsTranscendental

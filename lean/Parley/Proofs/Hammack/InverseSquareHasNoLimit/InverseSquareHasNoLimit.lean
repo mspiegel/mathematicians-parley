@@ -108,7 +108,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.9. inequalities
     have s10_9 : t ≠ 0 := by parley_set_side
     -- 10.10. mun:remove-member u := t, from 10.9
-    have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr (by parley_set_side); parley_set_side)
+    have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr (by parley_set_side)
     -- 10.11. def:abs x := t
     have r112_1 : t ≥ 0 := by parley_set_side
     have s10_11 : abs t = t := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) (by parley_set_side)

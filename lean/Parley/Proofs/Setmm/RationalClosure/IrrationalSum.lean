@@ -37,6 +37,6 @@ theorem irrational_sum (A : ℝ) (B : ℚ) (hH3 : Irrational A) :
     have s2_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_side
     exact s2_3 s2_2
   -- 3. def:irrational x := A + B, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := A + (B : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := A + (B : ℝ)))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := A + (B : ℝ)))).mpr (by parley_side)
 
 end Parley.Proofs.Setmm.RationalClosure.IrrationalSum

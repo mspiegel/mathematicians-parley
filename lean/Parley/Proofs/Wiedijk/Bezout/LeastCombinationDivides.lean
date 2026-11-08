@@ -48,6 +48,6 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
   -- 5. algebra, from 4
   have s5 : c = d * q := by linear_combination (norm := parley_norm) s4
   -- 6. def:divides n := c, from 5
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := d) (n := c))).mpr ⟨q, s5⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := d) (n := c))).mpr ⟨q, s5⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := d) (n := c))).mpr ⟨q, s5⟩
 
 end Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides

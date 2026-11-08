@@ -23,6 +23,6 @@ theorem seven_divides_four_times (a : ℤ) (hH2 : (7 : ℤ) ∣ 4 * a) :
   -- 2. algebra, from 1
   have s2 : a = 7 * (2 * k - a) := by linear_combination (norm := parley_norm) (2) * s1
   -- 3. def:divides d := 7, n := a, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (7 : ℤ)) (n := a))).mpr ⟨2 * k - a, s2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (7 : ℤ)) (n := a))).mpr ⟨2 * k - a, s2⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (7 : ℤ)) (n := a))).mpr ⟨2 * k - a, s2⟩
 
 end Parley.Proofs.Hammack.SevenDividesFourTimes.SevenDividesFourTimes

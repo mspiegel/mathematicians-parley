@@ -56,7 +56,7 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
         _ < A := by parley_side
         _ = Real.sqrt A ^ 2 := by parley_side
     -- 3.6. mun:square-less x := √B, y := √A, from 1, 2, 3.5
-    have s3_6 : Real.sqrt B < Real.sqrt A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mpr s3_5 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mpr s3_5; parley_side)
+    have s3_6 : Real.sqrt B < Real.sqrt A := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mpr s3_5
     -- 3.7. inequalities, from 3.6
     have s3_7 : ¬ Real.sqrt A ≤ Real.sqrt B := by parley_side
     exact s3_7 hD2

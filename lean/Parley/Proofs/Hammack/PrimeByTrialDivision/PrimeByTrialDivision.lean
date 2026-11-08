@@ -91,7 +91,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.8. algebra, from 1.1
         have s1_11_8 : p = e * d := by linear_combination (norm := parley_norm) s1_1
         -- 1.11.9. def:divides d := e, n := p, from 1.11.8
-        have s1_11_9 : e ∣ p := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := e) (n := p))).mpr ⟨d, s1_11_8⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := e) (n := p))).mpr ⟨d, s1_11_8⟩; parley_side)
+        have s1_11_9 : e ∣ p := ((Parley.Items.Stdlib.Divisibility.def_divides (d := e) (n := p))).mpr ⟨d, s1_11_8⟩
         -- 1.11.10. thm:divisor-exceeds-root d := e, from H3, 1.9, 1.11.9
         have s1_11_10 : p < e * e := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) (by parley_side) (d := e) (by parley_side) s1_9 s1_11_9 (by parley_side))
         -- 1.11.11. transitivity, from 1.11.7, 1.11.8
@@ -104,6 +104,6 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
   have s2a : p > 1 := by parley_side
   have s2b : ∀ d : ℤ, 0 < d → d ∣ p → d = 1 ∨ d = p := by intro d h_d; parley_side
   -- 3. def:prime, from 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mpr (by parley_side); parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mpr (by parley_side)
 
 end Parley.Proofs.Hammack.PrimeByTrialDivision.PrimeByTrialDivision

@@ -65,6 +65,6 @@ theorem gcd_with_successor_two_from_minus_one (n : ℤ) (hH2 : n ≥ -1) :
       -- 7.6. mun:or-right, from C2
       exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (Int.gcd n (n + 2) : ℤ) = 1) (Q := (Int.gcd n (n + 2) : ℤ) = 2) hC2)
   -- 8. def:pair x := gcd(n, n + 2), u := 1, w := 2, from 7
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (Int.gcd n (n + 2) : ℤ)))).mpr s7 | (have h := ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (Int.gcd n (n + 2) : ℤ)))).mpr s7; parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (Int.gcd n (n + 2) : ℤ)))).mpr s7
 
 end Parley.Proofs.Hammack.GcdWithSuccessorTwoFromMinusOne.GcdWithSuccessorTwoFromMinusOne

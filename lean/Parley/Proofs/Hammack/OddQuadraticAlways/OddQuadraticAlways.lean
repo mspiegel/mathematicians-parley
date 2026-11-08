@@ -39,7 +39,7 @@ theorem odd_quadratic_always (n : ℤ) :
       calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k) ^ 2 + 3 * (2 * k) + 7 := by parley_subst s2_1
         _ = 2 * (10 * k ^ 2 + 3 * k + 3) + 1 := by parley_ring
     -- 2.3. def:odd n := 5n² + 3n + 7, from 2.2
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 3 * k + 3, s2_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 3 * k + 3, s2_2⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 3 * k + 3, s2_2⟩
   · skip
     -- 2.4. obtain k: def:odd, from C2
     obtain ⟨k, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hC2
@@ -48,6 +48,6 @@ theorem odd_quadratic_always (n : ℤ) :
       calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 7 := by parley_subst s2_4
         _ = 2 * (10 * k ^ 2 + 13 * k + 7) + 1 := by parley_ring
     -- 2.6. def:odd n := 5n² + 3n + 7, from 2.5
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, s2_5⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, s2_5⟩; parley_side)
+    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, s2_5⟩
 
 end Parley.Proofs.Hammack.OddQuadraticAlways.OddQuadraticAlways

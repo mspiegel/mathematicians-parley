@@ -39,7 +39,7 @@ theorem power_of_three_odd (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.1. arithmetic
       have s1_1 : (3 ^ 0 : ℤ) = 2 * 0 + 1 := by parley_arith
       -- 1.2. def:odd n := 3^0, from 1.1
-      have s1_2 : Odd (3 ^ 0 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩; parley_side)
+      have s1_2 : Odd (3 ^ 0 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩
       simpa using s1_2
     | succ j hK hIH =>
       -- 1.3. obtain k: def:odd n := 3^j, from IH
@@ -50,7 +50,7 @@ theorem power_of_three_odd (n : ℤ) (hH1 : 0 ≤ n) :
           _ = (2 * k + 1) * 3 := by parley_subst s1_3
           _ = 2 * (3 * k + 1) + 1 := by parley_ring
       -- 1.5. def:odd n := 3^(j + 1), from 1.4
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, s1_4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, s1_4⟩; parley_side)
+      exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, s1_4⟩
   -- 2. instantiate j := n in line 1
   exact (s1 n (by parley_side))
 

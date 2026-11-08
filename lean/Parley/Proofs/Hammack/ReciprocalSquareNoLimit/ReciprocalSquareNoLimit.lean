@@ -85,7 +85,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 16. inequalities
   have s16 : 1 + 1 / (N : ℚ) ≠ 1 := by parley_set_side
   -- 17. mun:remove-member u := 1 + 1/N, from 16
-  have s17 : 1 + 1 / (N : ℝ) ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := 1 + 1 / (N : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := 1 + 1 / (N : ℝ)))).mpr (by parley_set_side); parley_set_side)
+  have s17 : 1 + 1 / (N : ℝ) ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := 1 + 1 / (N : ℝ)))).mpr (by parley_set_side)
   -- 18. mun:reciprocal-order-strict x := 1/p, y := N, from 6, 7, 12, 14
   have s18 : 1 / (N : ℝ) < 1 / (1 / p) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order_strict (x := 1 / p) (by parley_set_side) (y := (N : ℝ)) (by parley_set_side))).mp s12
   -- 19. substitute

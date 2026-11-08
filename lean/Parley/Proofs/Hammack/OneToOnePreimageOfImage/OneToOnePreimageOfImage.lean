@@ -45,7 +45,7 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
       -- 2.1.5. substitute u = s (line 2.1.4) into line 2.1.2
       parley_subst_at s2_1_4 s2_1_2a
     -- 2.2. def:subset, from 2.1
-    have s2_2 : A ∩ f ⁻¹' (f '' (A ∩ X)) ⊆ X := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ X))) (Y := X))).mpr s2_1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ X))) (Y := X))).mpr s2_1; parley_set_side)
+    have s2_2 : A ∩ f ⁻¹' (f '' (A ∩ X)) ⊆ X := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ X))) (Y := X))).mpr s2_1
     -- 2.3. thm:subset-of-preimage-of-image, from K1
     have s2_3 : X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by exact (Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage.subset_of_preimage_of_image (A := A) (B := Set.univ) (f := f) (by parley_set_side) (X := X) (by parley_set_side))
     -- 2.4. mun:subset-antisymmetric, from 2.2, 2.3
@@ -60,13 +60,13 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
       -- 3.1. mun:singleton-subset a := t, X := A, from K4
       have s3_1 : ({t} : Set α) ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := A) (a := t) hK4)
       -- 3.2. def:singleton x := t, a := t
-      have s3_2 : t ∈ ({t} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_singleton (a := t) (x := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_singleton (a := t) (x := t))).mpr (by parley_set_side); parley_set_side)
+      have s3_2 : t ∈ ({t} : Set α) := ((Parley.Items.Stdlib.Sets.def_singleton (a := t) (x := t))).mpr (by parley_set_side)
       -- 3.3. mun:value-in-image Y := {t}, s := t, from 3.1, 3.2
       have s3_3 : f t ∈ f '' (A ∩ ({t} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({t} : Set α)) (f := f) (s := t) (W := Set.univ) s3_1 s3_2 (by parley_set_side))
       -- 3.4. substitute f(s) = f(t) (A1) into line 3.3
       have s3_4 : f s ∈ f '' (A ∩ ({t} : Set α)) := by parley_subst_at hA1 s3_3
       -- 3.5. def:preimage Z := f[{t}], from K3, 3.4
-      have s3_5 : s ∈ A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+      have s3_5 : s ∈ A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
       -- 3.6. substitute
       have s3_6 : s ∈ ({t} : Set α) := by
         have c1 : A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) = ({t} : Set α) := by first | exact (hD2 ({t} : Set α) (by parley_set_side)) | exact ((hD2 ({t} : Set α) (by parley_set_side))).symm | simpa using (hD2 ({t} : Set α) (by parley_set_side)) | exact_mod_cast (hD2 ({t} : Set α) (by parley_set_side)) | (have h := (hD2 ({t} : Set α) (by parley_set_side)); parley_set_side)
@@ -75,6 +75,6 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
       -- 3.7. def:singleton x := s, a := t, from 3.6
       exact ((Parley.Items.Stdlib.Sets.def_singleton (a := t) (x := s))).mp s3_6
     -- 4. def:one-to-one, from H3, 3
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.OneToOnePreimageOfImage.OneToOnePreimageOfImage

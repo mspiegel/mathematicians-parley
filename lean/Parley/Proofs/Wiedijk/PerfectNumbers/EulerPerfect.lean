@@ -161,7 +161,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   -- 17. algebra, from 15
   have s17 : m * 2 ^ p.toNat = (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by linear_combination (norm := parley_norm) (-1) * s15
   -- 18. def:divides d := 2^p − 1, n := m·2^p, from 16, 17
-  have s18 : (2 ^ p.toNat - 1 : ℤ) ∣ m * 2 ^ p.toNat := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ p.toNat - 1 : ℤ)) (n := m * 2 ^ p.toNat))).mpr ⟨(ArithmeticFunction.sigma 1 m.toNat : ℤ), s17⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ p.toNat - 1 : ℤ)) (n := m * 2 ^ p.toNat))).mpr ⟨(ArithmeticFunction.sigma 1 m.toNat : ℤ), s17⟩; parley_side)
+  have s18 : (2 ^ p.toNat - 1 : ℤ) ∣ m * 2 ^ p.toNat := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ p.toNat - 1 : ℤ)) (n := m * 2 ^ p.toNat))).mpr ⟨(ArithmeticFunction.sigma 1 m.toNat : ℤ), s17⟩
   -- 19. thm:coprime-divides x := m, c := 2^p, n := 2^p − 1, from 7, 11, 18
   have s19 : (2 ^ p.toNat - 1 : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := m) (c := (2 ^ p.toNat : ℤ)) (n := (2 ^ p.toNat - 1 : ℤ)) (by parley_side) s18 s11)
   have hD3_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (2 ^ p.toNat - 1) := by first | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19 | exact (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19).symm | simpa using ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19 | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19 | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19; simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19; parley_side)
@@ -196,7 +196,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 23.6. algebra, from 20
     have s23_6 : m = c * (2 ^ p.toNat - 1) := by linear_combination (norm := parley_norm) s20
     -- 23.7. def:divides d := c, n := m, from 23.6
-    have s23_7 : c ∣ m := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := c) (n := m))).mpr ⟨(2 ^ p.toNat - 1 : ℤ), s23_6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := c) (n := m))).mpr ⟨(2 ^ p.toNat - 1 : ℤ), s23_6⟩; parley_side)
+    have s23_7 : c ∣ m := ((Parley.Items.Stdlib.Divisibility.def_divides (d := c) (n := m))).mpr ⟨(2 ^ p.toNat - 1 : ℤ), s23_6⟩
     -- 23.8. thm:three-divisors e := c, from 23.4, 23.5, 23.7
     have s23_8 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + c + m := by exact (Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors.three_divisors (m := m) (by parley_side) (e := c) (by parley_side) s23_7 s23_5 s23_4)
     -- 23.9. transitivity, from 23.8, 22
@@ -234,7 +234,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   -- 27. substitute m = 2^p − 1 (line 24) into line 6
   have s27 : m > 1 := by parley_subst_at s24 s6
   -- 28. def:prime p := m, from 26, 27
-  have s28 : Nat.Prime m.toNat := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := m) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := m) (by parley_side))).mpr (by parley_side); parley_side)
+  have s28 : Nat.Prime m.toNat := ((Parley.Items.Stdlib.Divisibility.def_prime (p := m) (by parley_side))).mpr (by parley_side)
   -- 29. substitute m = 2^p − 1 (line 24) into line 28
   have s29 : Nat.Prime (2 ^ p.toNat - 1 : ℤ).toNat := by parley_subst_at s24 s28
   -- 30. algebra, from D2

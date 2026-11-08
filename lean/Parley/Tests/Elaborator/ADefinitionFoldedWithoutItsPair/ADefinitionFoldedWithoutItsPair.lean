@@ -171,7 +171,7 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       -- 4.8.23. transitivity, from 4.8.21, A2, 4.8.22
       have s4_8_23 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) < Real.sqrt c * ε := by parley_order
       -- 4.8.24. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.23
-      have s4_8_24 : abs (Real.sqrt x - Real.sqrt c) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_23 | (have h := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_23; parley_set_side)
+      have s4_8_24 : abs (Real.sqrt x - Real.sqrt c) < ε := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_23
       -- 4.8.25. substitute g(x) = √x (line 4.8.8) into line 4.8.24
       have s4_8_25 : abs (g x - Real.sqrt c) < ε := by parley_subst_at s4_8_8 s4_8_24
       -- 4.8.26. substitute g(c) = √c (line 4.8.9) into line 4.8.25
@@ -180,6 +180,6 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
     exact ⟨ε * Real.sqrt c, ⟨s4_7, s4_8⟩⟩
   -- 5. def:continuous-on, from 1, 4
   have r217_1 : Set.MapsTo g D (Set.univ : Set ℝ) := by parley_set_side
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1)).mpr s4 | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1)).mpr s4; parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1)).mpr s4
 
 end Parley.Tests.Elaborator.ADefinitionFoldedWithoutItsPair.ADefinitionFoldedWithoutItsPair

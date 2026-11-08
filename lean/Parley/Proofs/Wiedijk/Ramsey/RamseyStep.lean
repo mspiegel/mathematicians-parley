@@ -50,7 +50,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 2. inequalities, from H2
   have s2 : k ≤ k + j := by parley_order
   -- 3. def:range0 n := k + j, from 2
-  have s3 : k ∈ Finset.Icc (0 : ℤ) (k + j) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range0 (k := k) (n := k + j) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range0 (k := k) (n := k + j) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s3 : k ∈ Finset.Icc (0 : ℤ) (k + j) := ((Parley.Items.Stdlib.Sums.def_range0 (k := k) (n := k + j) (by parley_set_side))).mpr (by parley_set_side)
   -- 4. mun:binomial-nat, from 3
   have s4 : 0 < (LeanBridges.Counting.choose (k + j) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat (n := k + j) (by parley_set_side) (k := k) s3)
   -- 5. inequalities, from 4

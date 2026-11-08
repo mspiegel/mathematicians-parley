@@ -46,7 +46,7 @@ theorem rational_cube_root_of_two :
   have r75_1 : q ≠ 0 := by parley_side
   have s4 : p ^ 3 = 2 * q ^ 3 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s3
   -- 5. def:even n := p³, from 4
-  have s5 : Even (p ^ 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 3))).mpr ⟨q ^ 3, s4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 3))).mpr ⟨q ^ 3, s4⟩; parley_side)
+  have s5 : Even (p ^ 3) := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 3))).mpr ⟨q ^ 3, s4⟩
   -- 6. thm:even-cube n := p, from 5
   have s6 : Even p := by exact (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := p) (by parley_side))
   -- 7. obtain r: def:even n := p, from 6
@@ -56,15 +56,15 @@ theorem rational_cube_root_of_two :
   -- 9. algebra, from 8
   have s9 : q ^ 3 = 2 * (2 * r ^ 3) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s8
   -- 10. def:even n := q³, from 9
-  have s10 : Even (q ^ 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 3))).mpr ⟨2 * r ^ 3, s9⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 3))).mpr ⟨2 * r ^ 3, s9⟩; parley_side)
+  have s10 : Even (q ^ 3) := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 3))).mpr ⟨2 * r ^ 3, s9⟩
   -- 11. thm:even-cube n := q, from 10
   have s11 : Even q := by exact (Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube.even_cube (n := q) (by parley_side))
   -- 12. obtain s: def:even n := q, from 11
   obtain ⟨s, s12⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := q))).mp s11
   -- 13. def:divides d := 2, n := p, from 7
-  have s13 : (2 : ℤ) ∣ p := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s7⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s7⟩; parley_side)
+  have s13 : (2 : ℤ) ∣ p := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := p))).mpr ⟨r, s7⟩
   -- 14. def:divides d := 2, n := q, from 12
-  have s14 : (2 : ℤ) ∣ q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s12⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s12⟩; parley_side)
+  have s14 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s12⟩
   -- 15. exhibit, from 13, 14
   have r109_1 : (2 : ℤ) > 1 := by parley_arith
   have s15 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r109_1, s13⟩, s14⟩⟩

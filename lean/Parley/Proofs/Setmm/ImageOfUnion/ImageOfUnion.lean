@@ -49,7 +49,7 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
       -- 2.4.6. mun:in-union-right, from 2.4.5
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := F '' (A ∩ B)) (Z := F '' (A ∩ C)) (u := u) s2_4_5)
   -- 3. def:subset, from 2
-  have s3 : F '' (A ∩ (B ∪ C)) ⊆ F '' (A ∩ B) ∪ F '' (A ∩ C) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ (B ∪ C))) (Y := F '' (A ∩ B) ∪ F '' (A ∩ C)))).mpr s2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ (B ∪ C))) (Y := F '' (A ∩ B) ∪ F '' (A ∩ C)))).mpr s2; parley_set_side)
+  have s3 : F '' (A ∩ (B ∪ C)) ⊆ F '' (A ∩ B) ∪ F '' (A ∩ C) := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ (B ∪ C))) (Y := F '' (A ∩ B) ∪ F '' (A ∩ C)))).mpr s2
   -- 4. proof
   have s4 : ∀ u ∈ F '' (A ∩ B) ∪ F '' (A ∩ C), u ∈ F '' (A ∩ (B ∪ C)) := by
     intro u hK2
@@ -80,7 +80,7 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
       -- 4.2.10. substitute u = F(s) (line 4.2.7) into line 4.2.9
       parley_subst_at s4_2_7b s4_2_9
   -- 5. def:subset, from 4
-  have s5 : F '' (A ∩ B) ∪ F '' (A ∩ C) ⊆ F '' (A ∩ (B ∪ C)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B) ∪ F '' (A ∩ C)) (Y := F '' (A ∩ (B ∪ C))))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B) ∪ F '' (A ∩ C)) (Y := F '' (A ∩ (B ∪ C))))).mpr s4; parley_set_side)
+  have s5 : F '' (A ∩ B) ∪ F '' (A ∩ C) ⊆ F '' (A ∩ (B ∪ C)) := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B) ∪ F '' (A ∩ C)) (Y := F '' (A ∩ (B ∪ C))))).mpr s4
   -- 6. mun:subset-antisymmetric, from 3, 5
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F '' (A ∩ (B ∪ C))) (Y := F '' (A ∩ B) ∪ F '' (A ∩ C)) s3 s5)
 

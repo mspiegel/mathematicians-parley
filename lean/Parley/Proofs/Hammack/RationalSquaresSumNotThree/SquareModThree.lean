@@ -45,7 +45,7 @@ theorem square_mod_three (n : ℤ) :
     -- 5.2. algebra, from 5.1
     have s5_2 : n ^ 2 = 3 * (3 * q ^ 2) := by linear_combination (norm := parley_norm) (-n - 3 * q) * s5_1
     -- 5.3. def:divides d := 3, n := n², from 5.2
-    have s5_3 : (3 : ℤ) ∣ n ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2))).mpr ⟨3 * q ^ 2, s5_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2))).mpr ⟨3 * q ^ 2, s5_2⟩; parley_side)
+    have s5_3 : (3 : ℤ) ∣ n ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2))).mpr ⟨3 * q ^ 2, s5_2⟩
     -- 5.4. mun:or-left, from 5.3
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (3 : ℤ) ∣ n ^ 2) (Q := (3 : ℤ) ∣ n ^ 2 - 1) s5_3)
   · skip
@@ -54,7 +54,7 @@ theorem square_mod_three (n : ℤ) :
     -- 5.6. algebra, from 5.5
     have s5_6 : n ^ 2 - 1 = 3 * (3 * q ^ 2 + 2 * q) := by linear_combination (norm := parley_norm) (-n - 3 * q - 1) * s5_5
     -- 5.7. def:divides d := 3, n := n² − 1, from 5.6
-    have s5_7 : (3 : ℤ) ∣ n ^ 2 - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨3 * q ^ 2 + 2 * q, s5_6⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨3 * q ^ 2 + 2 * q, s5_6⟩; parley_side)
+    have s5_7 : (3 : ℤ) ∣ n ^ 2 - 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨3 * q ^ 2 + 2 * q, s5_6⟩
     -- 5.8. mun:or-right, from 5.7
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (3 : ℤ) ∣ n ^ 2) (Q := (3 : ℤ) ∣ n ^ 2 - 1) s5_7)
   · skip
@@ -63,7 +63,7 @@ theorem square_mod_three (n : ℤ) :
     -- 5.10. algebra, from 5.9
     have s5_10 : n ^ 2 - 1 = 3 * (3 * q ^ 2 + 4 * q + 1) := by linear_combination (norm := parley_norm) (-n - 3 * q - 2) * s5_9
     -- 5.11. def:divides d := 3, n := n² − 1, from 5.10
-    have s5_11 : (3 : ℤ) ∣ n ^ 2 - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨3 * q ^ 2 + 4 * q + 1, s5_10⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨3 * q ^ 2 + 4 * q + 1, s5_10⟩; parley_side)
+    have s5_11 : (3 : ℤ) ∣ n ^ 2 - 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨3 * q ^ 2 + 4 * q + 1, s5_10⟩
     -- 5.12. mun:or-right, from 5.11
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (3 : ℤ) ∣ n ^ 2) (Q := (3 : ℤ) ∣ n ^ 2 - 1) s5_11)
 

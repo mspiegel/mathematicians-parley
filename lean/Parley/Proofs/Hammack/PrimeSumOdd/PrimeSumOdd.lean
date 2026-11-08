@@ -53,7 +53,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
       -- 6.1. obtain k: def:even n := q, from C1
       obtain ⟨k, s6_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := q))).mp hC1
       -- 6.2. def:divides d := 2, n := q, from 6.1
-      have s6_2 : (2 : ℤ) ∣ q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨k, s6_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨k, s6_1⟩; parley_side)
+      have s6_2 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨k, s6_1⟩
       -- 6.3. instantiate d := 2 in line 4
       have s6_3 : (2 : ℤ) ∣ q → (2 : ℤ) = 1 ∨ 2 = q := by exact (s4 (2 : ℤ) (by parley_side))
       -- 6.4. mun:modus-ponens P := 2 divides q, from 6.2, 6.3
@@ -77,6 +77,6 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
   -- 8. algebra, from 7
   have s8 : 2 * p + q ^ 2 = 2 * (p + 2 * k ^ 2 + 2 * k) + 1 := by linear_combination (norm := parley_norm) (2 * k + q + 1) * s7
   -- 9. def:odd n := 2p + q², from 8
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 2 * p + q ^ 2))).mpr ⟨p + 2 * k ^ 2 + 2 * k, s8⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 2 * p + q ^ 2))).mpr ⟨p + 2 * k ^ 2 + 2 * k, s8⟩; parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 2 * p + q ^ 2))).mpr ⟨p + 2 * k ^ 2 + 2 * k, s8⟩
 
 end Parley.Proofs.Hammack.PrimeSumOdd.PrimeSumOdd

@@ -51,14 +51,14 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
       _ = Real.sqrt (2 : ℝ) ^ 2 := by parley_side
   -- 4. mun:square-less x := 0, y := √2, from 1, 3
   have r33_1 : (0 : ℤ) ≥ 0 := by parley_arith
-  have s4 : 0 < Real.sqrt (2 : ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))).mpr s3 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))).mpr s3; parley_side)
+  have s4 : 0 < Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))).mpr s3
   -- 5. calculation
   have s5 : Real.sqrt (2 : ℝ) ^ 2 < 2 ^ 2 := by
     calc Real.sqrt (2 : ℝ) ^ 2 = 2 := by parley_side
       _ < 2 ^ 2 := by norm_num
   -- 6. mun:square-less x := √2, y := 2, from 1, 5
   have r42_1 : (2 : ℤ) ≥ 0 := by parley_arith
-  have s6 : Real.sqrt (2 : ℝ) < 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (by parley_side) (by parley_side))).mpr s5 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (by parley_side) (by parley_side))).mpr s5; parley_side)
+  have s6 : Real.sqrt (2 : ℝ) < 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (by parley_side) (by parley_side))).mpr s5
   -- 7. mun:product-positive x := 1/2, y := √2, from 4
   have r46_1 : (1 / 2 : ℚ) > 0 := by parley_arith
   have s7 : 0 < 1 / 2 * Real.sqrt (2 : ℝ) := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (1 / 2 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))
@@ -138,12 +138,12 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.16. algebra, from 17.15
     have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by linear_combination (norm := parley_field) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15
     -- 17.17. def:rational x := √2, from 17.16
-    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by parley_side⟩; parley_side)
+    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by parley_side⟩
     -- 17.18. def:irrational x := √2, from 2
     have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp s2).2
     exact s17_18 s17_17
   -- 18. def:irrational x := u, from 17
-  have s18 : Irrational u := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr (by parley_side); parley_side)
+  have s18 : Irrational u := ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr (by parley_side)
   -- 19. exhibit, from 12, 16, 18
   exact ⟨u, ⟨⟨s18, s12⟩, s16⟩⟩
 

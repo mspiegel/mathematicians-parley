@@ -42,7 +42,7 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_1a : 0 ≤ N := by parley_order
     have s2_1b : N ≤ N + 1 := by parley_order
     -- 2.2. def:range-between k := N, a := 0, b := N + 1, from 2.1
-    have s2_2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side); parley_side)
+    have s2_2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side)
     -- 2.3. algebra
     have s2_3 : N + 1 - N = 1 := by parley_ring
     -- 2.4. calculation

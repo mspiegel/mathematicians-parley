@@ -62,7 +62,7 @@ theorem three_naturals_two_same_parity (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 
         -- 2.4.4.5. algebra, from 2.4.4.2, 2.4.4.3, 2.4.4.4
         have s2_4_4_5 : 1 = 2 * (a - p - q - r - 1) := by linear_combination (norm := parley_norm) (-1) * s2_4_4_2 + (-1) * s2_4_4_3 + (-1) * s2_4_4_4
         -- 2.4.4.6. def:even n := 1, from 2.4.4.5
-        have s2_4_4_6 : Even (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨a - p - q - r - 1, s2_4_4_5⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨a - p - q - r - 1, s2_4_4_5⟩; parley_side)
+        have s2_4_4_6 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨a - p - q - r - 1, s2_4_4_5⟩
         -- 2.4.4.7. mun:not-both n := 1, from 2.4.4.6
         have s2_4_4_7 : ¬ Odd (1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) s2_4_4_6)
         -- 2.4.4.8. arithmetic
