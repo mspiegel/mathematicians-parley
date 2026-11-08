@@ -1478,6 +1478,15 @@ struct Proof<'a> {
     /// r: a citation given the value, as the checker reads one from the
     /// define's fact `m/p ∈ ℕ`, is given the letter.
     witness_letters: Vec<WitnessLetter>,
+    /// While a step's reason is written, the lines it names, by the keys of
+    /// `trees`: the references it cites and its requires lines. A line
+    /// saying a term is an integer is one of these (`said_integer`), as
+    /// the page puts a term in a system only in the steps that name the
+    /// line (`docs/SYNTAX.md`).
+    named_now: std::cell::RefCell<Option<std::collections::BTreeSet<String>>>,
+    /// The index of the step being written, whose lines a witness's whole
+    /// number is named from (`witness`).
+    step_now: std::cell::Cell<Option<usize>>,
 }
 
 /// The fact a define of a kind says of its value, as `Proof::kind_shown`
@@ -1518,9 +1527,12 @@ fn stated_line(
             return None;
         };
         let system = crate::rules::System::of_sign(&set.text)?;
+        // Each in its standard spelling, x² as x^2, as the membership method
+        // reads them (`methods::membership`).
+        let standard = |n: &Node| crate::matching::standard(n, ctx);
         (f.node.notation() == crate::notations::MEMBERSHIP
             && set.notation() == crate::notations::NUMBER_SYSTEMS
-            && crate::matching::alike_top(x, t, ctx)
+            && crate::matching::alike_top(&standard(x), &standard(t), ctx)
             && system.within(within))
         .then(|| StatedLine {
             name: f.proof.clone(),
@@ -1557,14 +1569,26 @@ struct SaidUsed {
     term: String,
 }
 
-/// A line saying a term is a whole number, `∃ m : ℤ, ↑m = t`, or of ℕ and
-/// ℕ₀ with its order, `∃ m : ℤ, 0 ≤ m ∧ ↑m = t` (`said_integer`).
+/// A line saying a term is a whole number, `∃ m : ℤ, ↑m = t`; of ℕ and ℕ₀
+/// with its order, `∃ m : ℤ, 0 ≤ m ∧ ↑m = t`; or of a range, `∃ m : ℤ, ↑m
+/// = t ∧ m ∈ Finset.Icc a b` (`said_integer`).
 #[derive(Clone)]
 struct SaidLine {
     /// Its Lean name, or a part of one.
     proof: Printed,
-    /// Whether it says the order beside the equation.
-    ordered: bool,
+    /// What the line says of its number besides the equation.
+    beside: Beside,
+}
+
+/// What a `SaidLine` says of its number besides its equation with the term.
+#[derive(Clone, Copy, PartialEq)]
+enum Beside {
+    /// Nothing: `↑m = t`.
+    Nothing,
+    /// Its order, first: `0 ≤ m ∧ ↑m = t`.
+    Order,
+    /// Its range, after: `↑m = t ∧ m ∈ Finset.Icc a b`.
+    Range,
 }
 
 impl SaidLine {
@@ -1578,24 +1602,44 @@ impl SaidLine {
         )
     }
 
-    /// The number's equation with the term: `Classical.choose_spec h`, or
-    /// its second part where the line says the order first.
-    fn equation(&self) -> Printed {
-        let spec = Printed::applied(
+    /// `Classical.choose_spec h`.
+    fn spec(&self) -> Printed {
+        Printed::applied(
             "Classical.choose_spec",
             super::doc::Source::Core,
             vec![self.proof.clone()],
             super::doc::LeanType::Prop,
-        );
-        match self.ordered {
-            true => Printed {
-                kind: super::doc::TermKind::Field {
-                    inner: Box::new(super::tactics::bracket(spec)),
-                    field: "2".to_string(),
-                },
-                ty: None,
+        )
+    }
+
+    /// One part of the spec, `.1` or `.2`.
+    fn part(&self, field: &str) -> Printed {
+        Printed {
+            kind: super::doc::TermKind::Field {
+                inner: Box::new(super::tactics::bracket(self.spec())),
+                field: field.to_string(),
             },
-            false => spec,
+            ty: None,
+        }
+    }
+
+    /// The number's equation with the term: the spec, or its part that is
+    /// the equation where the line says more of the number.
+    fn equation(&self) -> Printed {
+        match self.beside {
+            Beside::Nothing => self.spec(),
+            Beside::Order => self.part("2"),
+            Beside::Range => self.part("1"),
+        }
+    }
+
+    /// What else the line says of the number, its order or its range; None
+    /// where it says only the equation.
+    fn besides(&self) -> Option<Printed> {
+        match self.beside {
+            Beside::Nothing => None,
+            Beside::Order => Some(self.part("1")),
+            Beside::Range => Some(self.part("2")),
         }
     }
 }
@@ -1634,6 +1678,8 @@ pub fn theorem(
         named_specs: Vec::new(),
         witnessed: std::collections::BTreeSet::new(),
         witness_letters: Vec::new(),
+        named_now: std::cell::RefCell::new(None),
+        step_now: std::cell::Cell::new(None),
     };
     proof.writer.reals = held_real(rec, &proof.writer);
     proof.writer.finite_from(&rec.said_finite);
@@ -2126,6 +2172,7 @@ impl<'a> Proof<'a> {
                 just,
                 cited: self.rec.cited_requires.get(&r.line),
             };
+            *self.named_now.borrow_mut() = Some(just.refs.iter().cloned().collect());
             let proof = match &under {
                 // Its whole numbers named from the lines its own reason
                 // cites, p^(a′ − a) ∈ ℤ from 3.3.
@@ -2162,6 +2209,13 @@ impl<'a> Proof<'a> {
                 spot.clone(),
             );
         }
+        let mut named: std::collections::BTreeSet<String> =
+            step_cited_refs(step, &self.thm.path).into_iter().collect();
+        named.extend(
+            (0..step.requires.len()).map(|k| format!("r{}_{}", step.line, k + 1)),
+        );
+        *self.named_now.borrow_mut() = Some(named);
+        self.step_now.set(Some(i));
         if let Head::Method(Method::Obtain) = step.just.head {
             return self.obtain(i, depth);
         }
@@ -2496,7 +2550,7 @@ impl<'a> Proof<'a> {
             };
             let line = SaidLine {
                 proof: a.said.proof.clone(),
-                ordered: false,
+                beside: Beside::Nothing,
             };
             if let Some(rule) = self.spec_at_real(&line, line.equation(), term) {
                 rules.push(super::tactics::backwards(rule));
@@ -2615,9 +2669,11 @@ impl<'a> Proof<'a> {
     /// The memberships the checker found step `i` shows by an equation
     /// (`ShownBy::Beside`), each as a line Lean has: the line putting the
     /// equation's other side in its system, rewritten by the equation,
-    /// `(by simpa only [← e] using h : ∃ m : ℤ, ↑m = a * f a)`. The facts
-    /// are the step's, which hold both lines; a membership whose lines
-    /// Lean does not hold as the checker read them is left out.
+    /// `(by simpa only [← e] using h : ∃ m : ℤ, ↑m = a * f a)`; or, where
+    /// the other side is said once and Lean computes it as an integer, that
+    /// integer with the equation, `⟨p ^ 2 + q ^ 2, by exact_mod_cast e⟩`.
+    /// The facts are the step's, which hold both lines; a membership whose
+    /// lines Lean does not hold as the checker read them is left out.
     fn shown_beside(
         &self,
         i: usize,
@@ -2638,41 +2694,85 @@ impl<'a> Proof<'a> {
             else {
                 continue;
             };
-            let Some(h) = facts.iter().find(|f| {
+            // e is term = other or other = term.
+            let term_first = equation
+                .children
+                .first()
+                .is_some_and(|left| crate::matching::alike_top(left, &shown.term, ctx));
+            let held = facts.iter().find(|f| {
                 matches!((f.node.notation(), f.node.children.as_slice()),
                     (crate::notations::MEMBERSHIP, [held, set])
                         if crate::matching::alike_top(held, other, ctx)
                             && crate::rules::System::of_sign(&set.text)
                                 .is_some_and(|s| s.within(shown.system)))
-            }) else {
-                continue;
+            });
+            let (node, proved) = match held {
+                // A line puts the other side in the system: it, rewritten by
+                // the equation, which turns the other side into the term.
+                Some(h) => {
+                    let node = h.node.with_children(vec![
+                        shown.term.clone(),
+                        h.node.children[1].clone(),
+                    ]);
+                    let rule = match term_first {
+                        true => t::backwards(e.proof.clone()),
+                        false => t::forwards(e.proof.clone()),
+                    };
+                    let simpa = t::call(
+                        "simpa",
+                        vec![
+                            TacticArg::Only,
+                            TacticArg::Rules(vec![rule]),
+                            TacticArg::Using(h.proof.clone()),
+                        ],
+                    );
+                    (node, t::by_term(Proof::By(simpa)))
+                }
+                // The other side is said once, an integer Lean computes as
+                // one, p² + q² of integers: that integer, and the equation
+                // cast down.
+                None if shown.system == crate::rules::System::Z => {
+                    let int = super::templates::Num::Int;
+                    let lean_whole =
+                        self.writer.carrier(other).built().is_some_and(|c| c <= int);
+                    let Some(number) = self.writer.number_fixed(other, int).built()
+                    else {
+                        continue;
+                    };
+                    if !lean_whole {
+                        continue;
+                    }
+                    let Some(set) = crate::formula::page::made_as(
+                        &self.sources.checked.grammar,
+                        "ℤ",
+                        vec![],
+                    ) else {
+                        continue;
+                    };
+                    let node = crate::formula::page::made_as(
+                        &self.sources.checked.grammar,
+                        "_ ∈ _",
+                        vec![shown.term.clone(), set],
+                    );
+                    let Some(node) = node else {
+                        continue;
+                    };
+                    let equal = match term_first {
+                        true => t::symm(e.proof.clone()),
+                        false => e.proof.clone(),
+                    };
+                    let cast = t::by_term(Proof::By(t::exact_mod_cast(equal)));
+                    (node, super::expr::anonymous(vec![number, cast]))
+                }
+                None => continue,
             };
-            let node = h
-                .node
-                .with_children(vec![shown.term.clone(), h.node.children[1].clone()]);
             let Route::Built(says) = self.writer.formula(&node) else {
                 continue;
             };
-            // e is term = other or other = term: the rewrite turns other into
-            // the term.
-            let rule = match equation.children.first() {
-                Some(left) if crate::matching::alike_top(left, &shown.term, ctx) => {
-                    t::backwards(e.proof.clone())
-                }
-                _ => t::forwards(e.proof.clone()),
-            };
-            let simpa = t::call(
-                "simpa",
-                vec![
-                    TacticArg::Only,
-                    TacticArg::Rules(vec![rule]),
-                    TacticArg::Using(h.proof.clone()),
-                ],
-            );
             let proof = Printed::notation(
                 vec![
                     Piece::text("("),
-                    Piece::term(t::by_term(Proof::By(simpa)), 0),
+                    Piece::term(proved, 0),
                     Piece::text(" : "),
                     Piece::term(says, 0),
                     Piece::text(")"),
@@ -2956,8 +3056,11 @@ impl<'a> Proof<'a> {
                 }
                 // Of a wider term, the line is a witness: `∃ m : ℤ, 0 ≤ m ∧
                 // ↑m = t` for ℕ₀, `0 < m` for ℕ, `↑m = t` for ℤ. A natural
-                // number asked is that integer's `toNat`, by its order.
-                let m = || t::hyp("m");
+                // number asked is that integer's `toNat`, by its order. The
+                // witness's letter is one the term does not write, m₀ of a
+                // term in m (`witness_letter`).
+                let letter = super::expr::witness_letter(term);
+                let m = || t::hyp(&letter);
                 let (letter_ty, names, witness) = match (system, whole) {
                     (System::N | System::N0, Num::Nat) => {
                         let m_nat = Printed::of(
@@ -2990,25 +3093,25 @@ impl<'a> Proof<'a> {
                         ]));
                         (
                             Num::Nat,
-                            ["m", "h0", "hm"].as_slice(),
+                            vec![letter.as_str(), "h0", "hm"],
                             vec![m_nat, super::tactics::by_term(rewritten)],
                         )
                     }
                     (System::N | System::N0, _) => (
                         Num::Int,
-                        ["m", "_", "hm"].as_slice(),
+                        vec![letter.as_str(), "_", "hm"],
                         vec![m(), super::tactics::by_term(cast_carried(t::hyp("hm")))],
                     ),
                     _ => (
                         whole,
-                        ["m", "hm"].as_slice(),
+                        vec![letter.as_str(), "hm"],
                         vec![m(), super::tactics::by_term(cast_carried(t::hyp("hm")))],
                     ),
                 };
                 let says = Printed::of(
                     super::doc::TermKind::Quantified {
                         quant: super::doc::Quant::Exists,
-                        letter: "m".to_string(),
+                        letter: letter.clone(),
                         letter_ty: LeanType::Num(letter_ty),
                         guard: None,
                         body: Box::new(Printed::infix(
@@ -3145,27 +3248,25 @@ impl<'a> Proof<'a> {
             )));
         }
         // What the citation asks of a named number is said of it: the order
-        // a line of ℕ or ℕ₀ gives beside its equation, and each line the step
-        // cites, put in terms of the numbers as the goal is and cast down
-        // to them, 5.5.2's mod(a^(p − 2), p) < p as c < p.
-        for u in used.iter().filter(|u| u.line.ordered) {
-            let spec = u.line.equation();
-            if let super::doc::TermKind::Field { inner, .. } = &spec.kind {
-                steps.push(Tactic::Fact(Printed {
-                    kind: super::doc::TermKind::Field {
-                        inner: inner.clone(),
-                        field: "1".to_string(),
-                    },
-                    ty: None,
-                }));
+        // a line of ℕ or ℕ₀ gives beside its equation, or the range a line
+        // of a range does, and each line the step cites, put in terms of the
+        // numbers as the goal is and cast down to them, 5.5.2's mod(a^(p −
+        // 2), p) < p as c < p.
+        for u in &used {
+            if let Some(beside) = u.line.besides() {
+                steps.push(Tactic::Fact(beside));
             }
         }
+        // A line that gives a number is left as it is: the number is chosen
+        // from it, and a rewritten copy would be another line.
+        let giving: Vec<String> = used.iter().map(|u| u.line.proof.text()).collect();
         let cited: Vec<String> = reason
             .just
             .refs
             .iter()
             .filter_map(|r| self.named.get(r))
             .flatten()
+            .filter(|name| !giving.contains(name))
             .cloned()
             .collect();
         for name in cited {
@@ -7377,16 +7478,94 @@ impl<'a> Proof<'a> {
                         super::doc::LeanType::Prop,
                     ))),
                 }),
+                None if ty == super::templates::Num::Int => {
+                    match self.named_witness(value) {
+                        Route::Built(w) => Route::Built(w),
+                        Route::Declined(_) => Route::Declined(d),
+                    }
+                }
                 None => Route::Declined(d),
             },
         }
     }
 
-    /// A line in scope saying a term is an integer, `(N − 1)/2 ∈ ℤ`, where
-    /// `value` is that term as Lean writes it, with its Lean name and whether
-    /// it says an order beside the equation; None where no line says so.
-    /// Lean states that line as `∃ m : ℤ, (m : ℚ) = …`, so the integer is
-    /// the witness it gives.
+    /// A witness in ℤ of a term Lean computes wider, m² of an m a line the
+    /// step names puts in ℕ: the whole number the step's lines name
+    /// (`whole_witness`), chosen from the proof that there is one, and that
+    /// proof's spec put in scope where the witness's facts are proved.
+    fn named_witness(&self, value: &Node) -> Route<Witness> {
+        use super::doc::{LeanType, Op, Proof};
+        use super::tactics as t;
+        let Some(i) = self.step_now.get() else {
+            return Route::no("a witness outside a step");
+        };
+        let Some(letters) = self.rec.introduced.get(i) else {
+            return Route::no("a step the checker's record has no letters for");
+        };
+        let facts = self.step_facts(i);
+        // The witness stands inside a term, so its proof is one line.
+        let proof = match self.whole_witness(value, letters, &facts) {
+            Route::Built(p) => on_one_line(p),
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let at = match self.writer.carrier(value) {
+            Route::Built(n) => n,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let written = match self.writer.number_fixed(value, at) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let ty = self.writer.num_type(at);
+        let letter = super::expr::witness_letter(value);
+        let says = Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: super::doc::Quant::Exists,
+                letter: letter.clone(),
+                letter_ty: LeanType::Num(super::templates::Num::Int),
+                guard: None,
+                body: Box::new(Printed::infix(
+                    Op::EQUALS,
+                    Printed::cast(t::hyp(&letter), ty),
+                    written,
+                    LeanType::Prop,
+                )),
+            },
+            LeanType::Prop,
+        );
+        let name = "named_witness".to_string();
+        let have = have_bracketed(Tactic::Have {
+            name: name.clone(),
+            says,
+            proof: Box::new(proof),
+        });
+        let chosen = Printed::applied(
+            "Classical.choose",
+            super::doc::Source::Core,
+            vec![t::hyp(&name)],
+            LeanType::Num(super::templates::Num::Int),
+        );
+        let spec = Printed::applied(
+            "Classical.choose_spec",
+            super::doc::Source::Core,
+            vec![t::hyp(&name)],
+            LeanType::Prop,
+        );
+        let term = t::bracket(t::by_term(Proof::By(Tactic::Seq(vec![
+            have.clone(),
+            Tactic::Exact(chosen),
+        ]))));
+        Route::Built(Witness {
+            term,
+            known: Some(Tactic::Seq(vec![have, Tactic::Fact(spec)])),
+        })
+    }
+
+    /// A line the step names saying a term is an integer, `(N − 1)/2 ∈ ℤ`,
+    /// or that it is in a range, where `value` is that term as Lean writes
+    /// it, with its Lean name and what it says beside the equation; None
+    /// where no line says so. Lean states that line as `∃ m : ℤ, (m : ℚ) =
+    /// …`, so the integer is the witness it gives.
     fn said_integer(
         &self,
         value: &Node,
@@ -7408,24 +7587,44 @@ impl<'a> Proof<'a> {
             _ => return None,
         };
         let wanted = self.writer.number(value, at).built()?.untyped();
-        // The latest such line, or part of an "and": an earlier one may
-        // stand in a block the step is not in.
+        // The latest such line the step names, or part of an "and".
+        let named = self.named_now.borrow();
         let mut parts = Vec::new();
-        for (node, name) in self.trees.values().flatten() {
-            conjuncts(node, super::tactics::hyp(name), &mut parts);
+        for (key, lines) in &self.trees {
+            if !named.as_ref().is_some_and(|n| n.contains(key)) {
+                continue;
+            }
+            for (node, name) in lines {
+                conjuncts(node, super::tactics::hyp(name), &mut parts);
+            }
         }
         parts.iter().rev().find_map(|c| {
             let [term, set] = c.node.children.as_slice() else {
                 return None;
             };
-            let system = super::expr::system_of(set)?;
-            let integer = c.node.notation() == crate::notations::MEMBERSHIP
-                && systems.contains(&system);
+            if c.node.notation() != crate::notations::MEMBERSHIP {
+                return None;
+            }
+            // A range of a wider term, k ∈ {1, …, n} of a real k, is its
+            // integer with the range, `∃ m : ℤ, ↑m = k ∧ m ∈ …`
+            // (`wide_range_member`).
+            let beside = match super::expr::system_of(set) {
+                Some(s) if systems.contains(&s) => match s {
+                    super::expr::System::Type(_) => Beside::Nothing,
+                    _ => Beside::Order,
+                },
+                None if ty == super::templates::Num::Int
+                    && wide_range_member(&self.writer, &c.node) =>
+                {
+                    Beside::Range
+                }
+                _ => return None,
+            };
             let same = self.writer.number(term, at).built().map(|p| p.untyped())
                 == Some(wanted.clone());
-            (integer && same).then(|| SaidLine {
+            same.then(|| SaidLine {
                 proof: c.proof.clone(),
-                ordered: !matches!(system, super::expr::System::Type(_)),
+                beside,
             })
         })
     }
@@ -9238,6 +9437,41 @@ fn with_intros(intros: &[String], proof: super::doc::Proof) -> super::doc::Proof
 
 /// A proof as a tactic that closes the goal with it: `(t)` of `by t`,
 /// `exact (t)` of a term, `exact (by …)` of a block.
+/// A proof written on one line, as a term inside another needs it: a block's
+/// tactics joined by `;`, and each `have`'s own tactic proof in brackets, so
+/// that it does not take the tactics after it as its own.
+fn on_one_line(proof: super::doc::Proof) -> super::doc::Proof {
+    use super::doc::Proof;
+    match proof {
+        Proof::Block(tactics) => Proof::By(Tactic::Seq(
+            tactics.into_iter().map(have_bracketed).collect(),
+        )),
+        other => other,
+    }
+}
+
+/// A `have` whose proof is tactics, its proof as a bracketed `by` term; any
+/// other tactic as it is.
+fn have_bracketed(tactic: Tactic) -> Tactic {
+    use super::doc::Proof;
+    match tactic {
+        Tactic::Have { name, says, proof } => {
+            let proof = match *proof {
+                Proof::Term(t) => Proof::Term(t),
+                tactics => Proof::Term(super::tactics::bracket(
+                    super::tactics::by_term(on_one_line(tactics)),
+                )),
+            };
+            Tactic::Have {
+                name,
+                says,
+                proof: Box::new(proof),
+            }
+        }
+        other => other,
+    }
+}
+
 fn tactic_of(proof: &super::doc::Proof) -> Tactic {
     use super::doc::Proof;
     match proof {

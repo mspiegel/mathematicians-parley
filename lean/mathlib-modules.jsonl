@@ -78,6 +78,7 @@
 {"key":"ℤ","kind":"const","modules":[]}
 {"key":"↓reduceDIte","kind":"const","modules":[]}
 {"key":"∅","kind":"const","modules":[]}
+{"key":"((sorry : Prop) : (sorry : Prop))","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"((sorry : Set (Set ℤ)) : Set (Set ℤ))","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"((sorry : Set ℂ) : Set ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"((sorry : Set ℝ) : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
@@ -549,7 +550,6 @@
 {"key":"∀ (a : K), True","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : α), True","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic"]}
-{"key":"∀ (a : ℚ), True","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ (a : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
@@ -824,6 +824,7 @@
 {"key":"∃ m : ℝ, (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ m : ℤ, (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ m : ℤ, (sorry : Prop) ∧ (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∃ m₀ : ℤ, (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ m₀ : ℤ, (sorry : Prop) ∧ (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ n : ℚ, (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∃ n : ℤ, (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}

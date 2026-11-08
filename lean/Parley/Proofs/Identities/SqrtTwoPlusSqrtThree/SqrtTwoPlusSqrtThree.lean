@@ -48,7 +48,10 @@ theorem sqrt_two_plus_sqrt_three :
     -- 4.1. thm:rational-product A := √2 + √3, B := √2 + √3, from S
     have s4_1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by (exact ⟨(Classical.choose hS : ℚ) * (Classical.choose hS : ℚ), by push_cast; (try simp only [Classical.choose_spec hS]); first | done | parley_ring⟩)
     -- 4.2. substitute
-    have s4_2 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by (exact ⟨(Classical.choose hS : ℚ) ^ 2, by push_cast; (try simp only [Classical.choose_spec hS]); first | done | parley_ring⟩)
+    have s4_2 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by
+      have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by parley_real
+      have row1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by parley_subst_at c1 s4_1
+      exact row1
     -- 4.3. substitute
     have s4_3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := by
       have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 = Real.sqrt (6 : ℝ) * 2 + 5 := by parley_real

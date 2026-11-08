@@ -1,12 +1,14 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Sums
 
@@ -16,10 +18,10 @@ public section
 
 namespace Parley.Tests.Stdlib.Sums.Range
 
-theorem range (n : ℤ) (k : ℤ) (hH3 : k ∈ Finset.Icc (1 : ℤ) n) :
-    (0 < k ∧ k ≤ n) := by
+theorem range (n : ℤ) (k : ℝ) (hH3 : ∃ m : ℤ, (m : ℝ) = k ∧ m ∈ Finset.Icc (1 : ℤ) n) :
+    ((∃ m : ℤ, 0 < m ∧ (m : ℝ) = k) ∧ k ≤ (n : ℝ)) := by
   -- 1. def:sums-range, from H3
-  have s1 : 0 < k ∧ k ≤ n := by first | exact ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n))).mp (by parley_side); parley_side)
+  have s1 : (∃ m : ℤ, 0 < m ∧ (m : ℝ) = k) ∧ k ≤ (n : ℝ) := by rw [← (Classical.choose_spec hH3).1]; have := (Classical.choose_spec hH3).2; (first | exact ((Parley.Items.Stdlib.Sums.def_range (k := (Classical.choose hH3)) (n := n))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sums.def_range (k := (Classical.choose hH3)) (n := n))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sums.def_range (k := (Classical.choose hH3)) (n := n))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sums.def_range (k := (Classical.choose hH3)) (n := n))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := (Classical.choose hH3)) (n := n))).mp (by parley_side); parley_side))
   all_goals exact s1
 
 end Parley.Tests.Stdlib.Sums.Range

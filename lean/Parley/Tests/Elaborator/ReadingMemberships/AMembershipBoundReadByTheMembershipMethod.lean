@@ -1,8 +1,10 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 
 /-! Written from tests/elaborator/reading-memberships.proof by parley build lean. -/
@@ -11,7 +13,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundReadByTheMembershipMethod
 
-theorem a_membership_bound_read_by_the_membership_method (x : ℤ) (hH2 : 0 < x) :
+theorem a_membership_bound_read_by_the_membership_method (x : ℝ) (hH2 : ∃ m : ℤ, 0 < m ∧ (m : ℝ) = x) :
     True := by
   -- 1. membership, from H2
   all_goals parley_side

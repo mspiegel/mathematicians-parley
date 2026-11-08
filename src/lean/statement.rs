@@ -394,21 +394,19 @@ pub fn binders(
             }
         }
         record_domain(writer, a.node);
-        // A letter of a range is an integer, in ℕ or ℕ₀ where the range
-        // starts at 1 or 0, and the range a fact about it.
-        if let Some(letter) = range_letter(a.node) {
+        // A letter a range introduces is an integer, in ℕ or ℕ₀ where the
+        // range starts at 1 or 0, and the range a fact about it. A range
+        // holding a letter let above, k ∈ ℝ, is a fact about that letter,
+        // as `assume k ∈ ℤ` is.
+        let ranged = range_letter(a.node)
+            .filter(|letter| !writer.letters.contains_key(letter.as_str()));
+        if let Some(letter) = ranged {
             let ty = LetterType::Number(super::templates::Num::Int);
             let system = match a.node.children.get(1) {
                 Some(range) => super::expr::range_letter_system(range),
                 None => System::Type(super::templates::Num::Int),
             };
             writer.introduce(&letter, system);
-            // A letter let in a wider type above, k ∈ ℝ, that the range then
-            // holds is the range's integer: one binder, not a second k that
-            // hides the first.
-            out.retain(
-                |b| !matches!(b, Binder::Letter { page, .. } if *page == letter),
-            );
             out.push(Binder::Letter {
                 name: super::names::letter(&letter),
                 page: letter,
@@ -460,22 +458,14 @@ pub fn binders(
             });
             continue;
         }
-        // A letter's membership in a number system narrower than the type it
-        // was let in, `assume m ∈ ℕ` after `let m ∈ ℝ`, binds it once in the
-        // narrower type, as the checker introduces it (`introduced`, the
-        // narrower of the two): the letter's binder is replaced, not joined
-        // by a second m.
-        let introduced = introduces(a.node).filter(|(letter, system)| {
-            match writer.letters.get(letter.as_str()) {
-                None => true,
-                Some(LetterType::Number(own)) => letter_type(*system) < *own,
-                Some(_) => false,
-            }
-        });
+        // A membership of a letter already given its type, `assume x ∈ ℤ`
+        // after `let x ∈ ℝ`, is a fact about that letter, as set.mm's is,
+        // and no second letter: the page puts x in ℤ only in the steps that
+        // name the line (`docs/SYNTAX.md`), as the checker's `introduced`
+        // does.
+        let introduced = introduces(a.node)
+            .filter(|(letter, _)| !writer.letters.contains_key(letter.as_str()));
         if let Some((letter, system)) = introduced {
-            out.retain(
-                |b| !matches!(b, Binder::Letter { page, .. } if *page == letter),
-            );
             let ty = LetterType::Number(letter_type(system));
             writer.introduce(&letter, system);
             let name = super::names::letter(&letter);
