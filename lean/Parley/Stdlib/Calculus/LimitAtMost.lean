@@ -47,7 +47,7 @@ theorem limit_at_most (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n :
     -- 6. inequalities, from H5
     have s6 : M + N ≥ M := by parley_order
     -- 7. inequalities, from 5
-    have s7 : M + N ≥ N := by have := (s5b N (by parley_side)); parley_order
+    have s7 : M + N ≥ N := by parley_order
     -- 8. instantiate n := M + N in line 5, from 6
     have s8 : abs (x (M + N) - L) < L - B := by first | linarith [(s5b (M + N) (by parley_side) (by parley_side))] | (have h := (s5b (M + N) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s5b (M + N) (by parley_side) (by parley_side)) | (have h := (s5b (M + N) (by parley_side) (by parley_side)); parley_side)
     -- 9. instantiate n := M + N in H6, from 7

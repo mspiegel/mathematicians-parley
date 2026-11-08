@@ -189,7 +189,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         -- 16.29.3. inequalities, from S2
         have s16_29_3 : c - δ < s := by parley_order
         -- 16.29.4. inequalities, from 10, 16.28
-        have s16_29_4 : s < c + δ := by have := (s10 s (by parley_set_side)); have := (s16_28b s (by parley_set_side)); parley_order
+        have s16_29_4 : s < c + δ := by have := (s10 s (by parley_set_side)); parley_order
         -- 16.29.5. mun:abs-difference-lt x := s, from 16.29.3, 16.29.4
         have s16_29_5 : abs (s - c) < δ := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := s) (c := c) (δ := δ))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := s) (c := c) (δ := δ))).mpr (by parley_set_side); parley_set_side)
         -- 16.29.6. instantiate x := s in line 16.28, from 16.29.1, 16.29.5

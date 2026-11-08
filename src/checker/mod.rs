@@ -379,6 +379,18 @@ pub fn checked_where(
                 formulas::members_shown(thm, &c.known[i], &c.library.targets);
             record.held_by_lines =
                 formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
+            record.read_at = thm
+                .steps
+                .iter()
+                .map(|step| {
+                    let known = &c.known[i];
+                    known
+                        .scope(step)
+                        .values()
+                        .flat_map(|stated| known.letters_read_at(stated))
+                        .collect()
+                })
+                .collect();
             // A block whose goals are a defect owes nothing here: the defect
             // is among the record's problems (`check_block_ends`), and the
             // build builds no theorem with one.

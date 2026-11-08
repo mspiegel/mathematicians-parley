@@ -68,3 +68,7 @@ and not inferred inside one.
   beside a term in the system, or the closure table puts it there. Lean
   names a part whole only from such a line, m of m² from `m ∈ ℕ` where the
   step names it, and never from a line the reason does not name.
+- `read_at`: each "for all" a line a step may cite says that the step reads
+  at the letter of a block around it, with that letter, by the step's index:
+  "for all x ∈ ℝ, x < x + 1" read at the y of the block's `let y ∈ ℝ`. Lean
+  reads a cited "for all" at that letter and at no other.

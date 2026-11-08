@@ -46,15 +46,15 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
     -- 1.8. obtain R: thm:archimedean-natural x := M
     obtain ⟨R, s1_8a, s1_8b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := (M : ℝ)))
     -- 1.9. inequalities, from 1.6, 1.8
-    have s1_9 : Q + R > 0 := by have := (s1_6b R (by parley_side)); parley_order
+    have s1_9 : Q + R > 0 := by parley_order
     -- 1.10. inequalities
     have s1_10 : P + Q + R ≥ P := by parley_order
     -- 1.11. inequalities, from 1.5, 1.8
-    have s1_11 : P + R > 0 := by have := (s1_5b R (by parley_side)); parley_order
+    have s1_11 : P + R > 0 := by parley_order
     -- 1.12. inequalities
     have s1_12 : P + Q + R ≥ Q := by parley_order
     -- 1.13. inequalities, from 1.5, 1.6
-    have s1_13 : P + Q > 0 := by have := (s1_5b Q (by parley_side)); have := (s1_6b P (by parley_side)); parley_order
+    have s1_13 : P + Q > 0 := by parley_order
     -- 1.14. inequalities
     have s1_14 : P + Q + R > R := by parley_order
     -- 1.15. proof

@@ -99,7 +99,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
     have s4_12 : -δ ≤ -min δ (1 / 2) := by parley_order
     -- 4.13. mun:abs-difference-lt x := x₁, c := 1/2, from D3
     have r106_1 : 1 / 2 - δ < x₁ := by parley_order
-    have r106_2 : x₁ < 1 / 2 + δ := by have := (s4_3b x₁ (by parley_set_side)); parley_order
+    have r106_2 : x₁ < 1 / 2 + δ := by parley_order
     have s4_13 : abs (x₁ - 1 / 2) < δ := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / 2 - m / 2) (c := (1 / 2 : ℝ)) (δ := δ))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / 2 - m / 2) (c := (1 / 2 : ℝ)) (δ := δ))).mpr (by parley_set_side); parley_set_side)
     -- 4.14. instantiate x := x₁ in line 4.3, from 4.11, 4.13
     have s4_14 : abs (f x₁ - f (1 / 2)) < 1 / 2 := by first | linarith [(s4_3b x₁ (by parley_set_side) (by parley_set_side))] | (have h := (s4_3b x₁ (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4_3b x₁ (by parley_set_side) (by parley_set_side)) | (have h := (s4_3b x₁ (by parley_set_side) (by parley_set_side)); parley_set_side)

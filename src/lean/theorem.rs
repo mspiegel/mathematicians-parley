@@ -210,6 +210,9 @@ pub fn outside_written<'r>(
             *b = binding(b);
         }
     }
+    for read in written.read_at.iter_mut().flatten() {
+        read.said = out(&read.said);
+    }
     for held in written.held_by_lines.values_mut().flatten() {
         use crate::checker::record::LinesHold;
         held.term = out(&held.term);
@@ -5704,9 +5707,10 @@ impl<'a> Proof<'a> {
     }
 
     /// A cited "for all" of one letter, read where a closure method reads
-    /// it: at the one letter of the claim of its type that it does not
-    /// itself name, the letter of the block the step stands in. None where
-    /// the line says no such "for all", or the claim has no one such letter.
+    /// it: at the letter of the block the step stands in that the check read
+    /// it at (`CheckedTheorem::read_at`). None where the line says no such
+    /// "for all", the check read it at no letter, or the claim does not
+    /// name that letter.
     fn read_at_claim(
         &self,
         cited: &super::algebra::Cited,
@@ -5715,8 +5719,7 @@ impl<'a> Proof<'a> {
         self.read_at_letters(cited, &claim.names())
     }
 
-    /// `read_at_claim`, at the one letter among `names` of the type the
-    /// "for all" ranges over that it does not itself name.
+    /// `read_at_claim`, where the letter is among `names`.
     fn read_at_letters(
         &self,
         cited: &super::algebra::Cited,
@@ -5747,25 +5750,23 @@ impl<'a> Proof<'a> {
                 guard_by(super::tactics::bridge(BridgeTactic::SetSide, vec![])),
             ),
         };
-        // The names the line writes free: the letter it binds may be named
-        // as the block's is.
-        let own = crate::matching::free_names(
-            &cited.node,
-            &self.sources.checked.grammar.binders(),
-        );
-        let mut candidates: Vec<&String> = names
+        // The block's letter the check read the line at (`read_at`), where
+        // the claim names it.
+        let ctx = self.sources.ctx;
+        let standard = |n: &Node| crate::matching::standard(n, ctx);
+        let said = standard(&cited.node);
+        let i = self.step_now.get()?;
+        let read_at = self
+            .rec
+            .read_at
+            .get(i)?
             .iter()
-            .filter(|n| !own.contains(*n))
-            .filter(|n| self.writer.letters.get(n.as_str()) == Some(&ty))
-            .collect();
-        // Of several, the one named as the line's own letter, s of "for all
-        // s ∈ S" read in the block that lets s.
-        if candidates.len() > 1 {
-            candidates.retain(|n| **n == *letter.text);
-        }
-        let [at] = candidates.as_slice() else {
+            .find(|r| crate::matching::alike_top(&standard(&r.said), &said, ctx))?;
+        let at = read_at.letter.text.to_string();
+        if !names.contains(&at) || self.writer.letters.get(at.as_str()) != Some(&ty) {
             return None;
-        };
+        }
+        let at = &at;
         let put = crate::matching::Binding::from([(
             letter.text,
             Node::name(letter.sort.clone(), at),

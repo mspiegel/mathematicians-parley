@@ -24,9 +24,7 @@ theorem a_for_all_line_a_substitute_is_put_into (b : ℝ) (hH2 : ∀ x : ℝ, x 
     intro y
     intro hA1
     -- 1.1. substitute y = b (A1) into H2
-    have s1_1 : b ^ 2 ≥ 0 := by
-      have at0 := (hH2 b)
-      parley_subst_at hA1 at0
+    have s1_1 : b ^ 2 ≥ 0 := by parley_subst_at hA1 hH2
     all_goals parley_side
   all_goals exact s1
 

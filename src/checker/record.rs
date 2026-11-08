@@ -280,6 +280,22 @@ pub struct CheckedTheorem {
     /// whole from the line the check found, m of m² from `m ∈ ℕ`, and from
     /// no line the reason does not name.
     pub held_by_lines: IndexMap<usize, Vec<HeldByLines>>,
+    /// Each "for all" a line a step may cite says that the step reads at a
+    /// block's letter, with that letter, by the step's index
+    /// (`Known::letters_read_at`): 5.6's "for all a ∈ {2, …, p − 2}, f(a) ∈
+    /// ℤ" says f(a) ∈ ℤ at the a of the block 5.7 stands in. A backend
+    /// reads the line at the letter the check read it at.
+    pub read_at: Vec<Vec<ReadAt>>,
+}
+
+/// A "for all" a cited line says, and the block's letter it is read at
+/// (`CheckedTheorem::read_at`).
+#[derive(Clone, Debug)]
+pub struct ReadAt {
+    /// The "for all", as the line says it.
+    pub said: Node,
+    /// The letter of the block around the step that its set holds.
+    pub letter: Node,
 }
 
 /// A part a reason's lines put in a number system, and how

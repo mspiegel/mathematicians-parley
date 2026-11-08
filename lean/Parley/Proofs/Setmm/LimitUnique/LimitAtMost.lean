@@ -48,9 +48,9 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.7. obtain Q from line 1.5
     obtain ⟨Q, s1_7a, s1_7b⟩ := s1_5
     -- 1.8. inequalities, from 1.7
-    have s1_8 : P + Q ≥ P := by have := (s1_7b P (by parley_side)); parley_order
+    have s1_8 : P + Q ≥ P := by parley_order
     -- 1.9. inequalities, from 1.6
-    have s1_9 : P + Q ≥ Q := by have := (s1_6b Q (by parley_side)); parley_order
+    have s1_9 : P + Q ≥ Q := by parley_order
     -- 1.10. instantiate n := P + Q in line 1.6, from 1.8
     have s1_10 : abs (x (P + Q) - A) < r / 2 := by first | linarith [(s1_6b (P + Q) (by parley_side) (by parley_side))] | (have h := (s1_6b (P + Q) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1_6b (P + Q) (by parley_side) (by parley_side)) | (have h := (s1_6b (P + Q) (by parley_side) (by parley_side)); parley_side)
     -- 1.11. instantiate n := P + Q in line 1.7, from 1.9

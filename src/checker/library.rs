@@ -733,37 +733,84 @@ impl<'a> Known<'a> {
         said: &[Node],
         defined: Option<&Definitions>,
     ) -> Vec<Node> {
+        let members = self.block_members(stated, defined);
+        let mut out = Vec::new();
+        for sentence in said {
+            let Some(letter) = self.block_letter(&members, sentence) else {
+                continue;
+            };
+            let [bound, _, body] = sentence.children.as_slice() else {
+                continue;
+            };
+            let mut put = Binding::new();
+            put.insert(bound.text, letter);
+            out.push(substitute_apart(body, &put, self.ctx));
+        }
+        out
+    }
+
+    /// The memberships the `let` lines of the blocks a line is cited from
+    /// inside say, `x ∈ X` (`Stated::InBlocks`); none for a line cited
+    /// otherwise.
+    fn block_members(
+        &self,
+        stated: &Stated,
+        defined: Option<&Definitions>,
+    ) -> Vec<Node> {
         let Stated::InBlocks { lets, .. } = stated else {
             return Vec::new();
         };
-        let members: Vec<Node> = lets
-            .iter()
+        lets.iter()
             .flat_map(|i| {
                 let introduced = Stated::Introduced(i.clone());
                 self.said_parts(&introduced, defined)
             })
             .flatten()
             .filter(|m| m.notation() == MEMBERSHIP && m.children.len() == 2)
+            .collect()
+    }
+
+    /// The block's letter a sentence "for all a ∈ X, P" is read at: the one
+    /// letter `members` puts in X. None for any other sentence, or where
+    /// none or several do.
+    fn block_letter(&self, members: &[Node], sentence: &Node) -> Option<Node> {
+        let [_, domain, _] = sentence.children.as_slice() else {
+            return None;
+        };
+        if sentence.notation() != FOR_ALL {
+            return None;
+        }
+        let letters: Vec<&Node> = members
+            .iter()
+            .filter(|m| self.alike(&m.children[1], domain))
+            .map(|m| &m.children[0])
             .collect();
+        match letters.as_slice() {
+            [letter] => Some((*letter).clone()),
+            _ => None,
+        }
+    }
+
+    /// Each "for all" a cited line says that is read at a block's letter
+    /// (`at_block_letters`), a sentence of it or one "and" part of one, with
+    /// that letter (`CheckedTheorem::read_at`).
+    pub fn letters_read_at(&self, stated: &Stated) -> Vec<super::record::ReadAt> {
+        let members = self.block_members(stated, None);
+        if members.is_empty() {
+            return Vec::new();
+        }
         let mut out = Vec::new();
-        for sentence in said {
-            let [bound, domain, body] = sentence.children.as_slice() else {
-                continue;
-            };
-            if sentence.notation() != FOR_ALL {
-                continue;
+        for sentence in self.said_parts(stated, None).into_iter().flatten() {
+            let mut sentences = vec![sentence.clone()];
+            let parts = conjuncts_in(&sentence, self.ctx, self.env.g);
+            if parts.len() > 1 {
+                sentences.extend(parts);
             }
-            let letters: Vec<&Node> = members
-                .iter()
-                .filter(|m| self.alike(&m.children[1], domain))
-                .map(|m| &m.children[0])
-                .collect();
-            let [letter] = letters.as_slice() else {
-                continue;
-            };
-            let mut put = Binding::new();
-            put.insert(bound.text, (*letter).clone());
-            out.push(substitute_apart(body, &put, self.ctx));
+            for said in sentences {
+                if let Some(letter) = self.block_letter(&members, &said) {
+                    out.push(super::record::ReadAt { said, letter });
+                }
+            }
         }
         out
     }
