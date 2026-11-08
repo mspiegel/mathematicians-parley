@@ -272,6 +272,38 @@ pub struct CheckedTheorem {
     /// names says (`ShownBy::Beside`): a^(p − 1) ∈ ℤ from a^(p − 1) =
     /// a^(p − 2)·a and a^(p − 2) ∈ ℤ. A backend proves it the same way.
     pub members_shown: IndexMap<usize, PlaceShown>,
+    /// The parts of the terms a reason's claim and lines write that the
+    /// lines it names put in a number system, each with how, by the line
+    /// the reason is on: a step's, or a requires line's
+    /// (`formulas::held_by_lines`). The said-once walk takes a term apart
+    /// into its parts and reads each here, so that a backend names a part
+    /// whole from the line the check found, m of m² from `m ∈ ℕ`, and from
+    /// no line the reason does not name.
+    pub held_by_lines: IndexMap<usize, Vec<HeldByLines>>,
+}
+
+/// A part a reason's lines put in a number system, and how
+/// (`CheckedTheorem::held_by_lines`).
+#[derive(Clone, Debug)]
+pub struct HeldByLines {
+    pub term: Node,
+    pub system: crate::rules::System,
+    pub by: LinesHold,
+}
+
+/// How a reason's lines put a part in a number system
+/// (`methods::membership::HeldHow`).
+#[derive(Clone, Debug)]
+pub enum LinesHold {
+    /// A line states it, of a system inside the one recorded: `line` is
+    /// that sentence, as the check read it.
+    Stated { line: Node },
+    /// An equation a line says puts it beside `other`, a term in the
+    /// system.
+    Beside { equation: Node, other: Node },
+    /// The closure table puts it there by its operation, x mod n in ℕ₀ of
+    /// x ∈ ℤ and n ∈ ℕ, its parts held as the walk reads them.
+    Closed,
 }
 
 /// A term a step puts where a notation asks a number system, and how the

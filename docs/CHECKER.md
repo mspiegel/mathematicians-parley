@@ -61,3 +61,10 @@ and not inferred inside one.
 - `kind_letters`: the letters the reason under a function's define that says
   a kind of number is read with, the step's below the define and the define's
   argument in its domain. Lean proves the kind with them.
+- `held_by_lines`: the parts of the terms each reason writes, and of the
+  lines it names, that those lines put in a number system, by the line the
+  reason is on: a step's, a requires line's, or the reason under a define
+  that says a kind. Each says how: a line states it, an equation puts it
+  beside a term in the system, or the closure table puts it there. Lean
+  names a part whole only from such a line, m of m² from `m ∈ ℕ` where the
+  step names it, and never from a line the reason does not name.

@@ -87,7 +87,13 @@ pub fn said(term: &Node, system: System, facts: &Facts) -> bool {
 
 /// Whether a fact states `term` is in a number system inside `system`.
 fn stated_in(term: &Node, system: System, facts: &Facts) -> bool {
-    facts.facts.iter().any(|f| {
+    stated_by(term, system, facts).is_some()
+}
+
+/// The fact stating `term` is in a number system inside `system`; None
+/// where none does.
+fn stated_by<'f>(term: &Node, system: System, facts: &'f Facts) -> Option<&'f Node> {
+    facts.facts.iter().find(|f| {
         f.notation() == MEMBERSHIP
             && matches!(f.children.as_slice(), [held, set]
                 if set.notation() == NUMBER_SYSTEMS
@@ -283,21 +289,55 @@ pub fn unsaid_part(divisor: &Node, facts: &Facts) -> Option<Node> {
 /// that is; or the closure table puts it there, by its operation, as a sum
 /// over a range, a power, a function's value or a term by cases.
 fn said_otherwise(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    if stated_in(term, system, facts) {
-        return true;
+    held_at(term, system, facts, depth).is_some()
+}
+
+/// How a part the walk does not take apart is in its system
+/// (`held_otherwise`), so that a backend proves it the way the check found
+/// it.
+pub enum HeldHow<'f> {
+    /// A fact states it, of a system inside the one asked.
+    Stated(&'f Node),
+    /// A cited equation puts it beside a term in the system.
+    Beside(Beside<'f>),
+    /// The closure table puts it there, by its operation, as a sum over a
+    /// range, a power, a function's value or a term by cases.
+    Closed,
+}
+
+/// How a part the walk does not take apart is in `system` by what `facts`
+/// give (`said_otherwise`); None where it is not.
+pub fn held_otherwise<'f>(
+    term: &Node,
+    system: System,
+    facts: &'f Facts,
+) -> Option<HeldHow<'f>> {
+    held_at(term, system, facts, CARRIED)
+}
+
+fn held_at<'f>(
+    term: &Node,
+    system: System,
+    facts: &'f Facts,
+    depth: usize,
+) -> Option<HeldHow<'f>> {
+    if let Some(line) = stated_by(term, system, facts) {
+        return Some(HeldHow::Stated(line));
     }
-    if depth > 0
-        && besides(term, facts)
+    if depth > 0 {
+        if let Some(b) = besides_by(term, facts)
             .into_iter()
-            .any(|other| member(other, system, facts, depth - 1))
-    {
-        return true;
+            .find(|b| member(b.other, system, facts, depth - 1))
+        {
+            return Some(HeldHow::Beside(b));
+        }
     }
-    whole(term, system, facts, depth)
+    let closed = whole(term, system, facts, depth)
         || summed(term, system, facts, depth)
         || powered(term, system, facts, depth)
         || valued(term, system, facts, depth)
-        || cased(term, system, facts, depth)
+        || cased(term, system, facts, depth);
+    closed.then_some(HeldHow::Closed)
 }
 
 /// A term by cases, what a define by cases writes out to, in a system

@@ -518,7 +518,11 @@ pub fn binders(
         });
         // A term of a wider type said to be an integer is, in what is
         // asked after, the integer this hypothesis gives. A letter is not:
-        // A ∈ ℤ of a real A says a fact of A, which stays the letter.
+        // A ∈ ℤ of a real A says a fact of A, which stays the letter. The
+        // steps write the term so too: a later hypothesis Lean can state
+        // only of an integer, f(a)·a ≡ b (mod n), is stated of this one,
+        // and a term has one Lean form in a theorem (`GOALS.md` decision
+        // 20).
         if let [term, set] = a.node.children.as_slice() {
             let integer = a.node.notation() == crate::notations::MEMBERSHIP
                 && !term.is_name()

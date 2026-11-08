@@ -5150,6 +5150,106 @@ pub fn members_shown(
     out
 }
 
+/// The parts each reason's lines put in a number system, by the line the
+/// reason is on (`CheckedTheorem::held_by_lines`): of a step's claim and the
+/// lines it names, and of each requires line and the lines its own reason
+/// names, read as the `membership` method reads what a claim rests on
+/// (`MembershipIn`, `methods::membership::held_otherwise`).
+pub fn held_by_lines(
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) -> IndexMap<usize, Vec<super::record::HeldByLines>> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let at = ClosureClaim::step(step);
+        out.insert(step.just.line, held_at(&at, known, targets));
+        for req in &step.requires {
+            if let Ok(by) = &req.by {
+                let at = ClosureClaim::requires(step, req);
+                out.insert(by.line, held_at(&at, known, targets));
+            }
+        }
+    }
+    // The reason under a define that says a kind, read as the requires line
+    // it is checked as, under the step after the define
+    // (`citations::check_kinds`, `Reason::under`).
+    for d in &thm.defines {
+        let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
+            continue;
+        };
+        let (Some(after), Some(reason)) = (thm.step_after(d.line), d.reason.as_ref())
+        else {
+            continue;
+        };
+        let under = reason.under(&d.label, after, kinded.shown.fact.clone());
+        let Some(req) = under.requires.last() else {
+            continue;
+        };
+        if let Ok(by) = &req.by {
+            let at = ClosureClaim::requires(&under, req);
+            out.insert(by.line, held_at(&at, known, targets));
+        }
+    }
+    out
+}
+
+/// The number systems a part may be asked in.
+const HELD_IN: [System; 5] = [System::N, System::N0, System::Z, System::Q, System::R];
+
+/// `held_by_lines` of one claim: every part of its terms and of its lines'
+/// that those lines put in a system, once for each system, with how.
+fn held_at(
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> Vec<super::record::HeldByLines> {
+    use super::record::{HeldByLines, LinesHold};
+    use methods_membership::HeldHow;
+    let Some(read) = at.read(known, targets, true) else {
+        return Vec::new();
+    };
+    let mut held = MembershipIn::of(at, &read, known);
+    // A claim said of every member is read at a member, as
+    // `membership_holds` decides it: its letter in the set's system.
+    if let (FOR_ALL, [bound, set, _]) =
+        (read.claimed.notation(), read.claimed.children.as_slice())
+    {
+        member_of(bound, set, &mut held.letters, &mut held.ranged);
+    }
+    let given = held.given(targets, known);
+    let mut out: Vec<HeldByLines> = Vec::new();
+    let mut seen: FxIndexSet<(crate::formula::ByShape, System)> = FxIndexSet::default();
+    for part in std::iter::once(&read.claimed)
+        .chain(&read.lines)
+        .flat_map(|n| n.walk())
+    {
+        if part.notation() == NUMERAL {
+            continue;
+        }
+        for system in HELD_IN {
+            if !seen.insert((part.by_shape(), system)) {
+                continue;
+            }
+            let by = match methods_membership::held_otherwise(&part, system, &given) {
+                Some(HeldHow::Stated(line)) => LinesHold::Stated { line: line.clone() },
+                Some(HeldHow::Beside(b)) => LinesHold::Beside {
+                    equation: b.equation.clone(),
+                    other: b.other.clone(),
+                },
+                Some(HeldHow::Closed) => LinesHold::Closed,
+                None => continue,
+            };
+            out.push(HeldByLines {
+                term: part.clone(),
+                system,
+                by,
+            });
+        }
+    }
+    out
+}
+
 /// Of a claim `t ∈ S` the `membership` method proves, how t is in S where
 /// an equation among what it rests on puts t beside a term in S
 /// (`methods::membership::atom_held_by`); None where t is said, or the

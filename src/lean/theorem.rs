@@ -210,6 +210,18 @@ pub fn outside_written<'r>(
             *b = binding(b);
         }
     }
+    for held in written.held_by_lines.values_mut().flatten() {
+        use crate::checker::record::LinesHold;
+        held.term = out(&held.term);
+        match &mut held.by {
+            LinesHold::Stated { line } => *line = out(line),
+            LinesHold::Beside { equation, other } => {
+                *equation = out(equation);
+                *other = out(other);
+            }
+            LinesHold::Closed => {}
+        }
+    }
     // The sets the page makes finite, read of the page as written here: a
     // letter bound in a define written out, the c of {c ∈ 𝒫{1, …, k} : …},
     // is one the page as read does not bind.
@@ -1484,6 +1496,9 @@ struct Proof<'a> {
     /// the page puts a term in a system only in the steps that name the
     /// line (`docs/SYNTAX.md`).
     named_now: std::cell::RefCell<Option<std::collections::BTreeSet<String>>>,
+    /// While a reason is written, the parts its lines put in a number
+    /// system, as the check found them (`CheckedTheorem::held_by_lines`).
+    held_now: std::cell::RefCell<Vec<crate::checker::record::HeldByLines>>,
     /// The index of the step being written, whose lines a witness's whole
     /// number is named from (`witness`).
     step_now: std::cell::Cell<Option<usize>>,
@@ -1679,6 +1694,7 @@ pub fn theorem(
         witnessed: std::collections::BTreeSet::new(),
         witness_letters: Vec::new(),
         named_now: std::cell::RefCell::new(None),
+        held_now: std::cell::RefCell::new(Vec::new()),
         step_now: std::cell::Cell::new(None),
     };
     proof.writer.reals = held_real(rec, &proof.writer);
@@ -2173,6 +2189,7 @@ impl<'a> Proof<'a> {
                 cited: self.rec.cited_requires.get(&r.line),
             };
             *self.named_now.borrow_mut() = Some(just.refs.iter().cloned().collect());
+            *self.held_now.borrow_mut() = self.held_at(just.line);
             let proof = match &under {
                 // Its whole numbers named from the lines its own reason
                 // cites, p^(a′ − a) ∈ ℤ from 3.3.
@@ -2215,6 +2232,7 @@ impl<'a> Proof<'a> {
             (0..step.requires.len()).map(|k| format!("r{}_{}", step.line, k + 1)),
         );
         *self.named_now.borrow_mut() = Some(named);
+        *self.held_now.borrow_mut() = self.held_at(step.just.line);
         self.step_now.set(Some(i));
         if let Head::Method(Method::Obtain) = step.just.head {
             return self.obtain(i, depth);
@@ -2830,9 +2848,39 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// The record's parts held by the lines of the reason on `line`
+    /// (`CheckedTheorem::held_by_lines`); none for a line it has none of.
+    fn held_at(&self, line: usize) -> Vec<crate::checker::record::HeldByLines> {
+        self.rec
+            .held_by_lines
+            .get(&line)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    /// How the lines of the reason being written hold `term` in `system`, as
+    /// the check found it; None where they do not.
+    fn held(
+        &self,
+        term: &Node,
+        system: crate::rules::System,
+    ) -> Option<crate::checker::record::LinesHold> {
+        let ctx = self.sources.ctx;
+        let standard = |n: &Node| crate::matching::standard(n, ctx);
+        let term = standard(term);
+        self.held_now
+            .borrow()
+            .iter()
+            .find(|h| {
+                h.system == system
+                    && crate::matching::alike_top(&standard(&h.term), &term, ctx)
+            })
+            .map(|h| h.by.clone())
+    }
+
     /// Why a part the said-once walk does not take apart is in `system`, as
-    /// the `membership` method finds it (`methods::membership`): a line
-    /// among `facts` stating it, or an operation the closure table names
+    /// the check found it (`held`): a line among `facts` stating it, or an
+    /// operation the closure table names
     /// (`rules::WHOLE`), x mod n in ℕ₀ where x ∈ ℤ and n ∈ ℕ, built from
     /// its parts the same way. Of an operation whose parts are not the
     /// term's own children, a library function's value, none.
@@ -2843,10 +2891,18 @@ impl<'a> Proof<'a> {
         letters: &crate::citing::Introduced,
         facts: &[super::algebra::Cited],
     ) -> Option<crate::citing::OnceReason> {
+        use crate::checker::record::LinesHold;
         use crate::citing::OnceReason;
         use crate::rules::System;
-        if stated_line(facts, term, system, self.sources.ctx).is_some() {
-            return Some(OnceReason::Stated);
+        // How the check found the part held, of the lines the reason names;
+        // a line stating it, or one the equation it stands beside makes
+        // (`shown_beside`), is among `facts` under its Lean name.
+        match self.held(term, system)? {
+            LinesHold::Stated { .. } | LinesHold::Beside { .. } => {
+                return stated_line(facts, term, system, self.sources.ctx)
+                    .map(|_| OnceReason::Stated);
+            }
+            LinesHold::Closed => {}
         }
         let op = self.sources.targets.operation(term)?;
         let w = crate::rules::WHOLE.iter().find(|w| w.op == op.label)?;
@@ -4593,6 +4649,7 @@ impl<'a> Proof<'a> {
         let kinded = line.kinded(&self.thm.path, members).ok()??;
         let just = kinded.shown.by.as_ref().ok()?;
         let facts = self.cited_parts(&just.refs);
+        *self.held_now.borrow_mut() = self.held_at(just.line);
         let [_, _, member] = fact.children.as_slice() else {
             return None;
         };
@@ -7587,6 +7644,19 @@ impl<'a> Proof<'a> {
             _ => return None,
         };
         let wanted = self.writer.number(value, at).built()?.untyped();
+        // Whether the check found a line the reason names stating the term
+        // in that system (`held`): such a line is the one taken. A range is
+        // no statement of a system, and its integer is Lean's way of
+        // writing the line.
+        let asked = match ty {
+            super::templates::Num::Int => crate::rules::System::Z,
+            super::templates::Num::Rat => crate::rules::System::Q,
+            _ => crate::rules::System::R,
+        };
+        let stated = matches!(
+            self.held(value, asked),
+            Some(crate::checker::record::LinesHold::Stated { .. })
+        );
         // The latest such line the step names, or part of an "and".
         let named = self.named_now.borrow();
         let mut parts = Vec::new();
@@ -7609,7 +7679,7 @@ impl<'a> Proof<'a> {
             // integer with the range, `∃ m : ℤ, ↑m = k ∧ m ∈ …`
             // (`wide_range_member`).
             let beside = match super::expr::system_of(set) {
-                Some(s) if systems.contains(&s) => match s {
+                Some(s) if stated && systems.contains(&s) => match s {
                     super::expr::System::Type(_) => Beside::Nothing,
                     _ => Beside::Order,
                 },

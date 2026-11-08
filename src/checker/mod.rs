@@ -377,6 +377,8 @@ pub fn checked_where(
             record.kind_letters = library::kind_letters(&c.known[i]);
             record.members_shown =
                 formulas::members_shown(thm, &c.known[i], &c.library.targets);
+            record.held_by_lines =
+                formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
             // A block whose goals are a defect owes nothing here: the defect
             // is among the record's problems (`check_block_ends`), and the
             // build builds no theorem with one.

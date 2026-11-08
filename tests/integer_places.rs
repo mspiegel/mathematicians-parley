@@ -10,13 +10,15 @@
 
 use std::path::Path;
 
-use parley::checker::record::{CheckedTheorem, ShownBy};
+use parley::checker::record::{CheckedTheorem, LinesHold, ShownBy};
 use parley::checker::{checked_where, CheckedCorpus};
 use parley::source::Disk;
 
 const WILSON: &str = "proofs/wiedijk/wilson/wilson";
 const FIBONACCI: &str =
     "proofs/hammack/fibonacci-even-iff-three-divides/fibonacci-even-iff-three-divides";
+const WITNESS: &str =
+    "tests/elaborator/a-divides-fold-with-its-witness/a-divides-fold-with-its-witness";
 
 /// The checker's records of these theorems, as the build reads them.
 fn read(names: &[&str]) -> CheckedCorpus {
@@ -108,5 +110,75 @@ fn even_asks_its_number_whole_and_no_membership_asks_anything() {
     assert!(
         !places.iter().any(|(t, _, _)| t == "k" || t == "q"),
         "{places:?}"
+    );
+}
+
+/// Each part the record says a reason's lines hold, by the reason's line:
+/// the part as the page prints it, the system's sign, and the line stating
+/// it, where one does.
+fn held(
+    read: &CheckedCorpus,
+    record: &CheckedTheorem,
+) -> Vec<(usize, String, String, String)> {
+    record
+        .held_by_lines
+        .iter()
+        .flat_map(|(line, held)| held.iter().map(move |h| (*line, h)))
+        .map(|(line, h)| {
+            let stated = match &h.by {
+                LinesHold::Stated { line } => read.grammar.print(line),
+                LinesHold::Beside { .. } | LinesHold::Closed => String::new(),
+            };
+            (
+                line,
+                read.grammar.print(&h.term),
+                h.system.sign().to_string(),
+                stated,
+            )
+        })
+        .collect()
+}
+
+#[test]
+fn a_line_a_step_names_holds_a_letter_only_in_that_step() {
+    let read = read(&[WITNESS]);
+    let record = &read.theorems[WITNESS];
+    let held = held(&read, record);
+    // Step 2's reason, `def:divides …, from H2, 1` on line 16, names H2,
+    // m ∈ ℕ: there m is held in ℕ by that line, and so in ℤ.
+    for system in ["ℕ", "ℤ"] {
+        assert!(
+            held.iter().any(|(l, t, s, by)| *l == 16
+                && t == "m"
+                && s == system
+                && by == "m ∈ ℕ"),
+            "{held:?}"
+        );
+    }
+    // Step 3's reason, on line 19, names lines 1 and 2 and not H2: no line
+    // holds m.
+    assert!(
+        !held.iter().any(|(l, t, _, _)| *l == 19 && t == "m"),
+        "{held:?}"
+    );
+}
+
+#[test]
+fn a_kinds_reason_is_held_as_the_check_reads_it() {
+    let read = read(&[WILSON]);
+    let record = &read.theorems[WILSON];
+    let held = held(&read, record);
+    // D1's reason, `membership, from 5.3`, read at a member of its domain:
+    // 5.3 says p − 2 ∈ ℕ, which holds it in ℕ₀ too, and the remainder is
+    // whole by the closure table.
+    assert!(
+        held.iter()
+            .any(|(_, t, s, by)| t == "p − 2" && s == "ℕ₀" && by == "p − 2 ∈ ℕ"),
+        "{held:?}"
+    );
+    assert!(
+        held.iter()
+            .any(|(_, t, s, _)| t == "a^(p − 2) mod p" && s == "ℕ₀"),
+        "{held:?}"
     );
 }
