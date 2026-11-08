@@ -24,7 +24,7 @@ theorem value_of_onto {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
   have s1 : y ∈ F '' (A ∩ A) := by parley_subst_at hH4 hH5
   -- 2. obtain x: def:image u := y, Y := A, from 1
   have r16_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
-  obtain ⟨x, s2a, s2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A) (f := F) (u := y) (W := Set.univ) r16_1 (by parley_set_side))).mp (by parley_set_side)
+  obtain ⟨x, s2a, s2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A) (f := F) (u := y) (W := Set.univ) r16_1 (by parley_set_side))).mp s1
   -- 3. exhibit, from 2
   exact ⟨x, by parley_set_side, by parley_set_side⟩
 

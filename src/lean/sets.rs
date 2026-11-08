@@ -721,10 +721,18 @@ impl Writer<'_> {
                 f.text
             ));
         };
+        // The function is a term of the notation, not text, so that a
+        // value put for its letter, the citing page's F for an item's f,
+        // stands in its place.
+        let function = Printed {
+            kind: TermKind::Letter(super::names::letter(&f.text)),
+            ty: None,
+        };
         Route::Built(Printed {
             kind: TermKind::Notation {
                 pieces: vec![
-                    Piece::text(format!("{} '' (", super::names::letter(&f.text))),
+                    Piece::term(function, MAX),
+                    Piece::text(" '' ("),
                     Piece::term(domain, MAX),
                     Piece::text(" ∩ "),
                     Piece::term(set.clone(), 71),
