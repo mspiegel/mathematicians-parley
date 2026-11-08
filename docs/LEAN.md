@@ -77,6 +77,19 @@ described under "Sets and functions", and any other difference fails the
 build. An item that Lean writes exactly as it writes the line closes the step
 by `exact` alone.
 
+The same comparison (`forms::meets`) decides how a line proves a statement
+elsewhere: a hypothesis of a cited item, the side a reading of a definition
+starts from, what a block owes at its end. It finds the two alike, or alike
+once read as Lean reads them (`a ≠ b` as `¬ a = b`, `a ≥ b` as `b ≤ a`, a
+letter `set` names as its value, bound letters renamed, a rule applied to its
+argument), or one the other turned round, or alike once identity elements are
+dropped or casts pushed down. Each answer is one tactic: the line as it is, its
+`.symm`, `simpa only [add_zero, …] using` it, or `push_cast at h ⊢; exact h`.
+Where an item's statement meets the claim only after casts or identity
+elements, the step keeps its alternatives: the statement as printed carries
+the types the writer gives the item's letters, not those Lean infers where it
+is cited.
+
 ## Which theorems are in
 
 A theorem is in the Lean build when every notation its page uses, every
@@ -259,9 +272,9 @@ them, as Mathlib's own proofs do.
 
 | method | Lean |
 |---|---|
-| a citation | the item's theorem at the citation's values, its hypotheses by `parley_side`; `.mp` or `.mpr` for a definition |
-| obtain | `obtain ⟨k, …⟩ :=` the item's or the line's "there is" |
-| exhibit | `⟨w, by parley_side⟩` |
+| a citation | the item's theorem at the citation's values, each hypothesis by the line the checker found it supplied by (`Cited::supplied`), `parley_side` where none states it; `.mp` from the line the reading starts from, `.mpr` with the witnesses' facts by the lines that say them |
+| obtain | `obtain ⟨k, …⟩ :=` the item's or the line's "there is"; a part Lean states otherwise than the page's sentence is obtained under a name of its own and stated after as the page says it |
+| exhibit | `⟨w, h⟩`, each fact of the values by the line the step names that says it, or a line in scope; `parley_side` where none does |
 | instantiate | the line at the values given, a letter given none at the block's letter |
 | algebra | `ring`; from cited lines, `linear_combination` with the multipliers the method's decision finds |
 | arithmetic, real arithmetic | `parley_arith` |
@@ -270,7 +283,7 @@ them, as Mathlib's own proofs do.
 | substitute | `parley_subst`, the equation either way round; rows one at a time |
 | calculation | `calc`, each link by its reason |
 | proof | `intro` |
-| contradiction | `by_contra`, the suppose line from it |
+| contradiction | `by_contra hS` where the supposition is the claim negated, `intro hS` where the claim is the supposition negated, the supposition ascribed or turned where Lean writes it otherwise |
 | cases | `rcases` on the line that says "or" |
 | both directions | `constructor` |
 | induction | from 0 over ℕ₀, Lean's induction; from 1 over ℕ, `Nat.le_induction`; on the parts of a finite set from ∅, `LeanBridges.Sets.subset_induction` |
@@ -278,6 +291,24 @@ them, as Mathlib's own proofs do.
 A requires line is a `have` proved by its own reason, and a define is
 `set m : ℝ := … with D1`. A define the statement is read with is written out
 in Lean's statement and named again by `set` at the head of the proof.
+
+## How a block ends
+
+A block, a part of one, or the theorem ends on its last step. Where that step
+says what is owed as Lean writes both, its proof is the goal's: its `have`
+goes, a term proves the goal by `exact`, and a block's tactics stand in its
+place. Where the two differ in a way `forms::meets` takes one to the other,
+the step's name closes it by that one tactic, `⟨a, b⟩` for what is owed as an
+"and" of its sentences and `trivial` for a part Lean's types make true. What a
+block owes is the record's (`Owed::written`). An induction's part owes the
+motive Lean makes at the start or at k + 1, the cast of the letter a cast of
+that value, `↑(k + 1)`, with the binders its own lines introduce taken off.
+
+A step written `contradicting N` closes on the two lines: the one that says
+the other negated, applied to it, `exact h₁ h₂`, where the goal is False, and
+`exact absurd h₂ h₁` in a case or a proof block whose assumption cannot hold.
+A step shown impossible closes its block itself. A case that says it is the
+claim closes by its assumption.
 
 ## The gate
 

@@ -28,9 +28,34 @@ and not inferred inside one.
   with the item, the group of its conclusions taken, and what each of its
   letters stands for. Both backends apply the item from this and do not match
   it again.
+- `Cited::supplied`: for each hypothesis of the group a citation takes, in
+  the group's order, where the fact the search took for it stands: a line the
+  citation names, a sentence or part of one, with the fact as the page writes
+  it; one of the step's requires lines; or no line, a membership said once.
+  Lean names that line as the item's argument.
+- `Cited::firsts`: the line, or the sentence of one, a reading of a
+  definition starts from, with the fact as the page writes it
+  (`FirstAt::written`). Metamath unfolds the definition from it; Lean gives
+  it to `.mp`, and to `.mpr` for the witnesses' facts.
 - `exhibited`: the values each `exhibit` step shows. Both read it.
 - `links`: the relation each line a `transitivity` step cites gives its
   chain. Metamath reads it; Lean writes the chain by linear arithmetic.
+
+## Blocks
+
+- `blocks`: each block's owner, its steps, and what each part owes (`Owed`):
+  the claim, what the last step ends on as the checks compare it (`ends`),
+  and the same as the page writes it, the block's `let` and `assume` lines
+  taken off (`written`). Metamath reads `ends`; Lean closes each part on
+  `written`.
+- `supposed`: how each contradiction's supposition stands to what it shows,
+  by the line of the `suppose`: the claim negated, or the thing the claim
+  negates, with what it is set against as written. Lean opens the block by
+  `by_contra` or by `intro` from it.
+- `contradicted`: for each step written `contradicting N` that ends a block
+  or a case, the line N, what of it the step opposes as the page writes it,
+  and which of the two says the other negated. Lean closes the block on the
+  pair.
 
 ## Facts about terms
 
