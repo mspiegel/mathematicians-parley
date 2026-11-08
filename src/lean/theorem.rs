@@ -18,7 +18,7 @@ use super::names::{line_name, snake};
 use super::statement::{binders, introduces, Asked, Binder};
 use super::templates::Templates;
 use crate::checker::record::{
-    Cited, Contradicted, Negating, Supplied, SuppliedBy, Supposed,
+    Cited, Contradicted, FirstAt, Negating, Supplied, SuppliedBy, Supposed,
 };
 use crate::checker::{CheckedCorpus, CheckedTheorem};
 use crate::citing::Way;
@@ -69,6 +69,32 @@ struct ProofLine {
     depth: usize,
     tactic: Tactic,
     origin: Origin,
+}
+
+/// One sentence of a line the page can cite, with the Lean name of its
+/// proof.
+#[derive(Clone, Debug)]
+struct LineSentence {
+    /// Its place among the sentences the line writes, from 0, as the
+    /// checker counts a cited line's sentences (`FirstAt::sentence`).
+    at: usize,
+    node: Node,
+    name: String,
+}
+
+impl LineSentence {
+    /// A line's one sentence.
+    fn only(node: Node, name: String) -> LineSentence {
+        LineSentence { at: 0, node, name }
+    }
+
+    /// The sentence with the term that proves it, its name.
+    fn cited(&self) -> super::algebra::Cited {
+        super::algebra::Cited {
+            node: self.node.clone(),
+            proof: super::tactics::hyp(&self.name),
+        }
+    }
 }
 
 /// How what a block owes is proved from its last step's lines
@@ -194,6 +220,18 @@ fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
         };
     }
     Some(goal)
+}
+
+/// What turns Lean's bound for a membership of ℕ or ℕ₀, `0 < x` or `0 ≤ x`,
+/// into the fact the lemma `lemma` says of it (`rules::IMPLIED`): the bound
+/// itself, None, or the field of it that says the fact, `ne'` for `x ≠ 0`.
+/// None for a lemma not in that table.
+fn system_fact_field(lemma: &str) -> Option<Option<&'static str>> {
+    match lemma {
+        "nngt0" | "nnge1" | "nn0ge0" => Some(None),
+        "nnne0" => Some(Some("ne'")),
+        _ => None,
+    }
 }
 
 /// The bounds a range line gives, `x ∈ Finset.Icc a b` proved by `proof`:
@@ -501,7 +539,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
     let n = stated.conclusion.len();
     let mut written: Vec<Node> = hypothesis_sentences(thm, rec)
         .into_iter()
-        .flat_map(|(_, s)| s.into_iter().map(|(node, _)| node))
+        .flat_map(|(_, s)| s.into_iter().map(|s| s.node))
         .collect();
     written.extend(stated.conclusion.iter().map(|c| c.says.clone()));
     let mut arithmetic = super::readback::page_arithmetic(&writer, &written);
@@ -822,33 +860,41 @@ fn fields(term: Printed, path: &[&str]) -> Printed {
 fn hypothesis_sentences(
     thm: &Theorem,
     rec: &CheckedTheorem,
-) -> Vec<(String, Vec<(Node, String)>)> {
+) -> Vec<(String, Vec<LineSentence>)> {
     let mut out = Vec::new();
     for (i, h) in thm.hypotheses.iter().enumerate() {
         let label = h.label.clone().unwrap_or_else(|| format!("H{}", i + 1));
-        let mut nodes: Vec<Node> = h
+        let mut nodes: Vec<(usize, Node)> = h
             .body(&thm.path)
             .sentences()
             .iter()
-            .filter_map(|s| rec.page.get(s).cloned())
+            .enumerate()
+            .filter_map(|(at, s)| rec.page.get(s).map(|n| (at, n.clone())))
             .collect();
         // A `let` the page does not read as a formula, `f : A → B be
         // one-to-one`, says what the checker reads it to assert.
         if nodes.is_empty() {
-            nodes = rec.asserted.get(i).cloned().unwrap_or_default();
+            nodes = rec
+                .asserted
+                .get(i)
+                .cloned()
+                .unwrap_or_default()
+                .into_iter()
+                .enumerate()
+                .collect();
         }
         let base = line_name(&label);
         let n = nodes.len();
         let said = nodes
             .into_iter()
             .enumerate()
-            .map(|(k, node)| {
+            .map(|(k, (at, node))| {
                 let name = if n == 1 {
                     base.clone()
                 } else {
                     format!("{base}{}", (b'a' + k as u8) as char)
                 };
-                (node, name)
+                LineSentence { at, node, name }
             })
             .collect();
         out.push((label, said));
@@ -1563,8 +1609,8 @@ fn statement(
             true => &mut written_above,
             false => &mut written_below,
         };
-        for (node, name) in s {
-            into.push((defined_out(node, rec, writer), name.clone()));
+        for s in s {
+            into.push((defined_out(&s.node, rec, writer), s.name.clone()));
         }
     }
     let first = match binders(writer, &asked_of(&written_above), &[]) {
@@ -1646,7 +1692,7 @@ struct Proof<'a> {
     /// What each line the page can cite says, sentence by sentence, with
     /// the Lean name of each sentence's proof, by the reference that cites
     /// it.
-    trees: IndexMap<String, Vec<(Node, String)>>,
+    trees: IndexMap<String, Vec<LineSentence>>,
     /// The defines written so far, by their index in the theorem's.
     defined: indexmap::IndexSet<usize>,
     /// While a calculation's rows are written, the type it is worked out
@@ -1894,11 +1940,11 @@ pub fn theorem(
     let bound: std::collections::BTreeSet<&str> =
         binders.iter().map(Binder::name).collect();
     for (label, said) in hypothesis_sentences(thm, rec) {
-        let said: Vec<(Node, String)> = said
+        let said: Vec<LineSentence> = said
             .into_iter()
-            .filter(|(_, n)| bound.contains(n.as_str()))
+            .filter(|s| bound.contains(s.name.as_str()))
             .collect();
-        let names: Vec<String> = said.iter().map(|(_, n)| n.clone()).collect();
+        let names: Vec<String> = said.iter().map(|s| s.name.clone()).collect();
         proof.named.insert(label.clone(), names);
         proof.trees.insert(label, said);
     }
@@ -2108,6 +2154,32 @@ impl<'a> Proof<'a> {
                 .map(|(_, node, printed)| (node, printed))
                 .collect()
         })
+    }
+
+    /// The sentences of a step's claim Lean has a line for, `claimed`, each
+    /// by its place on the page and under its name of `names`, in order. A
+    /// truth Lean's types give has no line, so its place is kept by none.
+    fn claim_sentences(
+        claimed: &[(usize, Node, Printed)],
+        names: &[String],
+    ) -> Vec<LineSentence> {
+        claimed
+            .iter()
+            .zip(names)
+            .map(|((at, node, _), name)| LineSentence {
+                at: *at,
+                node: node.clone(),
+                name: name.clone(),
+            })
+            .collect()
+    }
+
+    /// A claim's sentences as `claimed` gives them, without their places.
+    fn without_places(claimed: &[(usize, Node, Printed)]) -> Vec<(Node, Printed)> {
+        claimed
+            .iter()
+            .map(|(_, node, printed)| (node.clone(), printed.clone()))
+            .collect()
     }
 
     /// `claim`, each sentence with its place among the page's: a sentence
@@ -2381,7 +2453,8 @@ impl<'a> Proof<'a> {
             // A requires line is a line in scope from here, as a step's
             // claim is: what names an integer it says one is.
             if let Route::Built(node) = self.tree(&r.fact) {
-                self.trees.insert(name.clone(), vec![(node, name.clone())]);
+                self.trees
+                    .insert(name.clone(), vec![LineSentence::only(node, name.clone())]);
             }
             self.push_at(
                 depth,
@@ -2406,18 +2479,15 @@ impl<'a> Proof<'a> {
             return self.obtain(i, depth);
         }
         self.introduce(step);
-        let claim = match self.claim(step) {
+        let claimed = match self.claimed(step) {
             Route::Built(c) => c,
             Route::Declined(d) => return Route::Declined(d),
         };
+        let claim = Self::without_places(&claimed);
         let names = Self::names_of(step, claim.len());
         if let Some(n) = step.number.number() {
             self.named.insert(n.to_string(), names.clone());
-            let said = claim
-                .iter()
-                .zip(&names)
-                .map(|((node, _), name)| (node.clone(), name.clone()))
-                .collect();
+            let said = Self::claim_sentences(&claimed, &names);
             self.trees.insert(n.to_string(), said);
         }
         if let Head::Method(m) = step.just.head {
@@ -4658,7 +4728,7 @@ impl<'a> Proof<'a> {
             },
             Route::Declined(d) => return Route::Declined(d),
         };
-        let other = match self.line_says(&c.line, &c.said) {
+        let other = match self.line_says(&c.at) {
             Route::Built(o) => o,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -4669,7 +4739,7 @@ impl<'a> Proof<'a> {
         let Some(denied) = forms::denied(&says_not) else {
             return Route::no(format!(
                 "step {} contradicts {}, and Lean writes neither as a negation",
-                step.number, c.line
+                step.number, c.at.line
             ));
         };
         // The one met with what the other denies as the checker met them
@@ -4681,7 +4751,7 @@ impl<'a> Proof<'a> {
                 return Route::no(format!(
                     "step {} contradicts {}: Lean writes the one as {} and the other denies {}, met as {:?}",
                     step.number,
-                    c.line,
+                    c.at.line,
                     says.text(),
                     denied.text(),
                     c.meeting
@@ -4699,57 +4769,161 @@ impl<'a> Proof<'a> {
         })
     }
 
-    /// The sentence of line `line`, or the part of one joined by "and", that
-    /// says `said`, a fact as the page writes it, as a term that proves it
-    /// and the statement Lean writes for it.
-    fn line_says(&self, line: &str, said: &Node) -> Route<(Printed, Printed)> {
-        use super::doc::forms::{self, Meets};
+    /// What stands where the checker found a fact in a line (`FirstAt`), as
+    /// a term that proves it and the statement Lean writes for it: the
+    /// sentence at that place, a "for all" of the line read at the block's
+    /// letter the step names, `hH1 y`, or one part of either joined by
+    /// "and", `hH1.2`.
+    fn line_says(&self, at: &FirstAt) -> Route<(Printed, Printed)> {
+        let line = &at.line;
         let Some(sentences) = self.trees.get(line) else {
             return Route::no(format!("line {line}, which no name in Lean holds"));
         };
-        let wanted = match self.writer.formula(said) {
-            Route::Built(w) => w,
+        let own = self.written_sentences(line);
+        let found = match (at.sentence, sentences.as_slice()) {
+            (None, [one]) => Some(one.cited()),
+            (None, _) => {
+                return Route::no(format!(
+                    "the sentences of line {line} together, which Lean names apart"
+                ))
+            }
+            (Some(k), _) if k < own => sentences
+                .iter()
+                .find(|s| s.at == k)
+                .map(LineSentence::cited),
+            (Some(k), _) => {
+                let letters: std::collections::BTreeSet<String> =
+                    at.written.names().into_iter().collect();
+                sentences
+                    .iter()
+                    .filter_map(|s| self.at_recorded_letter(&s.cited(), &letters))
+                    .nth(k - own)
+            }
+        };
+        let Some(found) = found else {
+            return Route::no(format!(
+                "sentence {:?} of line {line}, which Lean has no line for",
+                at.sentence
+            ));
+        };
+        let found = match at.part {
+            None => found,
+            Some(j) => {
+                let mut parts = Vec::new();
+                conjuncts(&found.node, found.proof, &mut parts);
+                match parts.into_iter().nth(j) {
+                    Some(part) => part,
+                    None => {
+                        return Route::no(format!(
+                            "part {j} of what line {line} says, which Lean does not join by \"and\""
+                        ))
+                    }
+                }
+            }
+        };
+        let Some(rule) = at.implied else {
+            return self
+                .writer
+                .formula(&found.node)
+                .map(|says| (found.proof, says));
+        };
+        let proof = match self.implied_proof(&found, rule) {
+            Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let mut parts = Vec::new();
-        for (node, name) in sentences {
-            conjuncts(node, super::tactics::hyp(name), &mut parts);
+        self.writer.formula(&at.written).map(|says| (proof, says))
+    }
+
+    /// Whether Lean writes the membership `node` as a bound, `0 < x` or
+    /// `0 ≤ x`.
+    fn written_as_bound(&self, node: &Node) -> bool {
+        match self.writer.formula(node) {
+            Route::Built(says) => matches!(
+                &says.kind,
+                super::doc::TermKind::Infix { op, .. } if op.symbol == "<" || op.symbol == "≤"
+            ),
+            Route::Declined(_) => false,
         }
-        // A "for all" of the line, read at the block's letter the step
-        // names, `hH1 y`.
-        let letters: std::collections::BTreeSet<String> =
-            said.names().into_iter().collect();
-        let at_letter: Vec<_> = parts
+    }
+
+    /// The proof of what `found`, a sentence or part of a line, implies by
+    /// `rule` (`FirstAt::implied`), from how Lean writes `found`: a range
+    /// membership is `x ∈ Finset.Icc a b`, whose bounds `Finset.mem_Icc`
+    /// gives; a membership of ℕ or ℕ₀ is the bound `0 < x` or `0 ≤ x`
+    /// itself, which is also `x ≥ 1` in ℤ.
+    fn implied_proof(
+        &self,
+        found: &super::algebra::Cited,
+        rule: crate::citing::Implication,
+    ) -> Route<Printed> {
+        use crate::citing::Implication;
+        match rule {
+            Implication::RangeBound { lemma } => {
+                let says = match self.writer.formula(&found.node) {
+                    Route::Built(s) => s,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let side = crate::rules::RANGE_BOUNDS
+                    .iter()
+                    .position(|(_, l)| *l == lemma);
+                match side.and_then(|k| range_bounds(&says, &found.proof).into_iter().nth(k)) {
+                    Some((proof, _)) => Route::Built(proof),
+                    None => Route::no(format!(
+                        "the bound {lemma} of {}, which Lean does not write as a range",
+                        says.text()
+                    )),
+                }
+            }
+            // Lean writes a letter's membership as its bound, and a term's
+            // as a whole number equal to it, `∃ m₀, 0 < m₀ ∧ ↑m₀ = 3 ^ m`.
+            Implication::SystemFact { lemma } if !self.written_as_bound(&found.node) => {
+                Route::no(format!(
+                    "what {lemma} gives of a membership Lean writes as a whole number"
+                ))
+            }
+            Implication::SystemFact { lemma } => match system_fact_field(lemma) {
+                Some(None) => Route::Built(found.proof.clone()),
+                Some(Some(field)) => Route::Built(fields(found.proof.clone(), &[field])),
+                None => Route::no(format!(
+                    "what {lemma} gives of a membership, which Lean's bound does not"
+                )),
+            },
+            // `X ∈ 𝒫S` is `X ∈ Set.powerset S`, which is `X ⊆ S` by
+            // definition: the line's proof is a proof of either.
+            Implication::OtherForm {
+                lemma: "gsspw" | "elpwi",
+            } => Route::Built(found.proof.clone()),
+            other => Route::no(format!(
+                "a fact a line implies by {other:?}, which the Lean build does not prove yet"
+            )),
+        }
+    }
+
+    /// How many sentences the line `line` writes, by the reference that
+    /// cites it: a step's claim, a hypothesis, a block's opening line; one
+    /// for any other line the writer names, a define or a requires line.
+    fn written_sentences(&self, line: &str) -> usize {
+        let thm = self.thm;
+        let count = |w: Written| w.sentences().len();
+        if let Some(step) = thm
+            .steps
             .iter()
-            .filter_map(|p| self.at_recorded_letter(p, &letters))
-            .collect();
-        let wholes = sentences
-            .iter()
-            .map(|(node, name)| (node.clone(), super::tactics::hyp(name)));
-        let parts = parts
-            .into_iter()
-            .chain(at_letter)
-            .map(|p| (p.node, p.proof));
-        let mut stated = Vec::new();
-        for (node, proof) in wholes.chain(parts) {
-            if let Route::Built(says) = self.writer.formula(&node) {
-                stated.extend(range_bounds(&says, &proof));
-                stated.push((proof, says));
+            .find(|s| s.number.number().is_some_and(|n| n.to_string() == line))
+        {
+            return step.claim.sentences().len();
+        }
+        for (i, h) in thm.hypotheses.iter().enumerate() {
+            let label = h.label.clone().unwrap_or_else(|| format!("H{}", i + 1));
+            if label == line {
+                return count(h.body(&thm.path));
             }
         }
-        let values = self.set_values();
-        for (proof, says) in stated {
-            if matches!(
-                forms::meets(&says, &wanted, &values),
-                Some(Meets::Same | Meets::Unfolded)
-            ) {
-                return Route::Built((proof, says));
+        for o in thm.steps.iter().flat_map(|s| &s.openers) {
+            if o.label == line {
+                return count(o.body(&thm.path));
             }
         }
-        Route::no(format!(
-            "what line {line} says, {}, which it does not write",
-            wanted.text()
-        ))
+        1
     }
 
     /// How `proof`, a line that says `says`, proves `wanted` as Lean has it
@@ -4862,7 +5036,7 @@ impl<'a> Proof<'a> {
             return None;
         }
         cited.firsts.iter().find_map(|at| {
-            let (proof, says) = self.line_says(&at.line, &at.written).built()?;
+            let (proof, says) = self.line_says(at).built()?;
             if !super::doc::forms::relation_types_agree(&says, wanted) {
                 return None;
             }
@@ -4881,16 +5055,16 @@ impl<'a> Proof<'a> {
             return None;
         }
         let (proof, says) = match by {
-            SuppliedBy::Line(at) => self.line_says(&at.line, &at.written).built()?,
+            SuppliedBy::Line(at) => self.line_says(at).built()?,
             SuppliedBy::Requires(k) => {
                 let step = &self.thm.steps[self.step_now.get()?];
                 let name = format!("r{}_{}", step.line, k + 1);
-                let [(node, _)] = self.trees.get(&name)?.as_slice() else {
+                let [line] = self.trees.get(&name)?.as_slice() else {
                     return None;
                 };
                 (
                     super::tactics::hyp(&name),
-                    self.writer.formula(node).built()?,
+                    self.writer.formula(&line.node).built()?,
                 )
             }
             SuppliedBy::Unstated => return self.said_in_scope(wanted),
@@ -4921,13 +5095,13 @@ impl<'a> Proof<'a> {
             .rev()
             .filter(|(label, _)| Some(*label) != own.as_ref())
             .flat_map(|(_, said)| said);
-        earlier.into_iter().find_map(|(node, name)| {
-            let says = self.writer.formula(node).built()?;
+        earlier.into_iter().find_map(|line| {
+            let says = self.writer.formula(&line.node).built()?;
             matches!(
                 forms::meets(&says, wanted, &values),
                 Some(Meets::Same | Meets::Unfolded)
             )
-            .then(|| super::tactics::hyp(name))
+            .then(|| super::tactics::hyp(&line.name))
         })
     }
 
@@ -5060,7 +5234,8 @@ impl<'a> Proof<'a> {
             vec![letter, body],
         );
         self.named.insert(page_label.clone(), vec![label.clone()]);
-        self.trees.insert(page_label, vec![(equation, label)]);
+        self.trees
+            .insert(page_label, vec![LineSentence::only(equation, label)]);
     }
 
     /// The fact a define of a kind says of its value, `gcd(t, w) ∈ ℕ` of
@@ -5195,7 +5370,8 @@ impl<'a> Proof<'a> {
         );
         self.named.insert(page_label.clone(), vec![label.clone()]);
         self.witnessed.insert(page_label.clone());
-        self.trees.insert(page_label, vec![(equation, label)]);
+        self.trees
+            .insert(page_label, vec![LineSentence::only(equation, label)]);
         Route::Built(())
     }
 
@@ -5366,7 +5542,8 @@ impl<'a> Proof<'a> {
         };
         self.named.insert(page_label.clone(), vec![label.clone()]);
         self.witnessed.insert(page_label.clone());
-        self.trees.insert(page_label, vec![(said, label)]);
+        self.trees
+            .insert(page_label, vec![LineSentence::only(said, label)]);
         Route::Built(())
     }
 
@@ -6028,12 +6205,12 @@ impl<'a> Proof<'a> {
             .filter(|r| self.thm.defines.iter().any(|d| d.label == **r))
             .filter(|r| !self.witnessed.contains(*r))
             .flat_map(|r| self.trees.get(r).into_iter().flatten())
-            .filter_map(|(n, proof)| match n.children.as_slice() {
-                [name, value] if n.notation() == EQUALITY && name.is_name() => {
+            .filter_map(|line| match line.node.children.as_slice() {
+                [name, value] if line.node.notation() == EQUALITY && name.is_name() => {
                     Some(CitedDefine {
                         name: name.clone(),
                         value: value.clone(),
-                        proof: proof.clone(),
+                        proof: line.name.clone(),
                         param: None,
                     })
                 }
@@ -6300,13 +6477,16 @@ impl<'a> Proof<'a> {
             self.at_recorded_letter(&cited, &claim.names())
                 .map_or_else(|| node.clone(), |at| at.node)
         };
-        let candidates: Vec<&(Node, String)> = just
+        let candidates: Vec<(&Node, &String)> = just
             .into
             .as_ref()
             .and_then(|place| self.trees.get(place.named()))
             .map(|t| {
+                let t: Vec<(&Node, &String)> =
+                    t.iter().map(|s| (&s.node, &s.name)).collect();
                 let turned: Vec<_> = t
                     .iter()
+                    .copied()
                     .filter(|(n, _)| turns(&at_claim(n)))
                     .take(1)
                     .collect();
@@ -6315,12 +6495,13 @@ impl<'a> Proof<'a> {
                 }
                 let alike: Vec<_> = t
                     .iter()
+                    .copied()
                     .filter(|(n, _)| at_claim(n).notation() == claim.notation())
                     .collect();
                 if !alike.is_empty() {
                     return alike;
                 }
-                t.iter().take(1).collect()
+                t.into_iter().take(1).collect()
             })
             .unwrap_or_default();
         let mut into = Vec::new();
@@ -6630,7 +6811,7 @@ impl<'a> Proof<'a> {
             .trees
             .get(first.cite.trim())
             .and_then(|t| t.first())
-            .map(|(n, _)| n.clone());
+            .map(|s| s.node.clone());
         let mut haves = Vec::new();
         for (k, row) in rows.iter().enumerate().skip(1) {
             let row_node = match self.tree(&row.formula) {
@@ -6992,7 +7173,7 @@ impl<'a> Proof<'a> {
                         .trees
                         .get(cite)
                         .and_then(|t| t.first())
-                        .and_then(|(node, _)| self.writer.formula(node).built())
+                        .and_then(|s| self.writer.formula(&s.node).built())
                         .is_some_and(|p| p.has_to_nat());
                     let to_nat = [&printed[k], &printed[k + 1]]
                         .iter()
@@ -7031,14 +7212,12 @@ impl<'a> Proof<'a> {
                         .get(cite)
                         .into_iter()
                         .flatten()
-                        .filter(|(node, _)| {
-                            node.notation() == crate::notations::FOR_ALL
-                        })
-                        .filter_map(|(node, name)| {
+                        .filter(|s| s.node.notation() == crate::notations::FOR_ALL)
+                        .filter_map(|s| {
                             self.at_recorded_letter(
                                 &super::algebra::Cited {
-                                    node: node.clone(),
-                                    proof: super::tactics::hyp(name),
+                                    node: s.node.clone(),
+                                    proof: super::tactics::hyp(&s.name),
                                 },
                                 &names,
                             )
@@ -7087,8 +7266,8 @@ impl<'a> Proof<'a> {
     fn cited_parts(&self, refs: &[String]) -> Vec<super::algebra::Cited> {
         let mut out = Vec::new();
         for r in refs {
-            for (node, name) in self.trees.get(r).into_iter().flatten() {
-                conjuncts(node, super::tactics::hyp(name), &mut out);
+            for s in self.trees.get(r).into_iter().flatten() {
+                conjuncts(&s.node, super::tactics::hyp(&s.name), &mut out);
             }
         }
         out
@@ -8462,8 +8641,8 @@ impl<'a> Proof<'a> {
             if !named.as_ref().is_some_and(|n| n.contains(key)) {
                 continue;
             }
-            for (node, name) in lines {
-                conjuncts(node, super::tactics::hyp(name), &mut parts);
+            for s in lines {
+                conjuncts(&s.node, super::tactics::hyp(&s.name), &mut parts);
             }
         }
         parts.iter().rev().find_map(|c| {
@@ -8595,18 +8774,15 @@ impl<'a> Proof<'a> {
         let used = std::mem::take(&mut *self.said_used.borrow_mut());
         let step = &self.thm.steps[i];
         self.introduce(step);
-        let claim = match self.claim(step) {
+        let claimed = match self.claimed(step) {
             Route::Built(c) => c,
             Route::Declined(d) => return Route::Declined(d),
         };
+        let claim = Self::without_places(&claimed);
         let names = Self::names_of(step, claim.len());
         if let Some(n) = step.number.number() {
             self.named.insert(n.to_string(), names.clone());
-            let said = claim
-                .iter()
-                .zip(&names)
-                .map(|((node, _), name)| (node.clone(), name.clone()))
-                .collect();
+            let said = Self::claim_sentences(&claimed, &names);
             self.trees.insert(n.to_string(), said);
         }
         // Lean nests a "there is" as the page does: each letter, then the
@@ -9112,7 +9288,7 @@ impl<'a> Proof<'a> {
                         if let [node] = nodes.as_slice() {
                             self.trees.insert(
                                 o.label.clone(),
-                                vec![(node.clone(), label.clone())],
+                                vec![LineSentence::only(node.clone(), label.clone())],
                             );
                         }
                     }
@@ -9324,7 +9500,7 @@ impl<'a> Proof<'a> {
                         self.named.insert(o.label.clone(), vec![hypothesis.clone()]);
                         self.trees.insert(
                             o.label.clone(),
-                            vec![(body.clone(), hypothesis.clone())],
+                            vec![LineSentence::only(body.clone(), hypothesis.clone())],
                         );
                     }
                     let guard = openers
@@ -9492,14 +9668,16 @@ impl<'a> Proof<'a> {
                     if let Some(n) = self.opener_node(&guard) {
                         self.named
                             .insert(guard.label.clone(), vec![guard_name.clone()]);
-                        self.trees
-                            .insert(guard.label.clone(), vec![(n, guard_name.clone())]);
+                        self.trees.insert(
+                            guard.label.clone(),
+                            vec![LineSentence::only(n, guard_name.clone())],
+                        );
                     }
                     self.named
                         .insert(hypothesis.label.clone(), vec![ih_name.clone()]);
                     self.trees.insert(
                         hypothesis.label.clone(),
-                        vec![(body.clone(), ih_name.clone())],
+                        vec![LineSentence::only(body.clone(), ih_name.clone())],
                     );
                     Tactic::Intro(vec![name.clone(), guard_name, ih_name])
                 }
@@ -9667,7 +9845,7 @@ impl<'a> Proof<'a> {
                             let letter = super::names::letter(&letter);
                             self.trees.insert(
                                 o.label.clone(),
-                                vec![(node.clone(), label.clone())],
+                                vec![LineSentence::only(node.clone(), label.clone())],
                             );
                             self.intro(
                                 depth,
@@ -9735,7 +9913,10 @@ impl<'a> Proof<'a> {
                                 self.writer.letters.insert(f.text.to_string(), ty);
                                 self.trees.insert(
                                     o.label.clone(),
-                                    vec![(node.clone(), label.clone())],
+                                    vec![LineSentence::only(
+                                        node.clone(),
+                                        label.clone(),
+                                    )],
                                 );
                                 self.intro(
                                     depth,
@@ -9768,7 +9949,10 @@ impl<'a> Proof<'a> {
                                 self.writer.letters.insert(t.text.to_string(), ty);
                                 self.trees.insert(
                                     o.label.clone(),
-                                    vec![(node.clone(), label.clone())],
+                                    vec![LineSentence::only(
+                                        node.clone(),
+                                        label.clone(),
+                                    )],
                                 );
                                 self.intro(
                                     depth,
@@ -9805,8 +9989,10 @@ impl<'a> Proof<'a> {
                     let said = nodes
                         .iter()
                         .enumerate()
-                        .map(|(k, node)| {
-                            (node.clone(), format!("{label}{}", projection(k, n)))
+                        .map(|(k, node)| LineSentence {
+                            at: k,
+                            node: node.clone(),
+                            name: format!("{label}{}", projection(k, n)),
                         })
                         .collect();
                     self.trees.insert(o.label.clone(), said);
@@ -9820,8 +10006,10 @@ impl<'a> Proof<'a> {
                         Route::Built(s) => s,
                         Route::Declined(d) => return Route::Declined(d),
                     };
-                    self.trees
-                        .insert(o.label.clone(), vec![(node.clone(), label.clone())]);
+                    self.trees.insert(
+                        o.label.clone(),
+                        vec![LineSentence::only(node.clone(), label.clone())],
+                    );
                     if let Route::Declined(d) =
                         self.suppose(&label, says, o.line, &spot, depth)
                     {

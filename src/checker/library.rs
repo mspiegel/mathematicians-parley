@@ -8,9 +8,10 @@ use indexmap::IndexMap;
 
 use super::record::{CheckedTheorem, PageReading, PartKey};
 use super::structure::{labels_in_scope, Declared};
+use crate::citing::implied_by;
 use crate::citing::{
-    self, at_a_member, conjuncts_in, finished, implied_facts, introduction, said_once,
-    subset_members, Introduced, Library, Parts, Taken,
+    self, at_a_member, conjuncts_in, finished, introduction, said_once, subset_members,
+    Introduced, Library, Parts, Taken,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepPlace, Theorem, Values};
 use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
@@ -59,6 +60,34 @@ pub struct Said {
     /// spelt as its rule spells it.
     pub written: Node,
     pub from: SaidFrom,
+    /// Of a fact the line implies (`SaidFrom::Implied`), what implies it.
+    pub implied: Option<Implied>,
+}
+
+/// What implies a fact a line says without writing it: another thing the
+/// line says, and the rule.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Implied {
+    /// Where in the line the implying fact comes from; never itself implied.
+    pub source: SaidFrom,
+    pub rule: crate::citing::Implication,
+}
+
+/// One thing a line says, before it is read as a citation reads it.
+struct Saying {
+    node: Node,
+    from: SaidFrom,
+    implied: Option<Implied>,
+}
+
+impl Saying {
+    fn of(node: Node, from: SaidFrom) -> Saying {
+        Saying {
+            node,
+            from,
+            implied: None,
+        }
+    }
 }
 
 /// Where in a line one thing it says comes from, each counted from 0.
@@ -550,6 +579,12 @@ impl<'a> Known<'a> {
             .collect()
     }
 
+    /// How many sentences the line writes, those that do not read among
+    /// them: what `SaidFrom::Sentence` counts.
+    pub fn sentence_count(&self, stated: &Stated) -> usize {
+        self.said_parts(stated, None).len()
+    }
+
     /// Everything a cited line says (`SYNTAX.md`, What a cited line says):
     /// each sentence, and where it has several their conjunction; the parts
     /// of a sentence joined by "and"; every equation of a chain; a "for all"
@@ -560,7 +595,7 @@ impl<'a> Known<'a> {
     /// out, as `check_formulas` reports it.
     pub fn says(&self, stated: &Stated, defined: &Definitions) -> Vec<Said> {
         let sentences: Vec<Option<Node>> = self.said_parts(stated, None);
-        let mut written: Vec<(Node, SaidFrom)> = Vec::new();
+        let mut written: Vec<Saying> = Vec::new();
         let read: Vec<&Node> = sentences.iter().flatten().collect();
         for (i, sentence) in sentences.iter().enumerate() {
             let Some(sentence) = sentence else {
@@ -598,29 +633,30 @@ impl<'a> Known<'a> {
             // letter as a written one is.
             let members: Vec<Node> = written
                 .iter()
-                .filter(|(_, from)| *from == SaidFrom::Members(i))
-                .map(|(n, _)| n.clone())
+                .filter(|s| s.from == SaidFrom::Members(i))
+                .map(|s| s.node.clone())
                 .collect();
             for at in self.at_block_letters(stated, &members, None) {
-                written.push((at, SaidFrom::Members(i)));
+                written.push(Saying::of(at, SaidFrom::Members(i)));
             }
         }
         if sentences.len() > 1 && read.len() == sentences.len() {
             let all: Vec<Node> = read.into_iter().cloned().collect();
             if let Some(whole) = conjoined(self.env.g, all) {
-                written.push((whole, SaidFrom::Whole));
+                written.push(Saying::of(whole, SaidFrom::Whole));
             }
         }
         let mut out: Vec<Said> = Vec::new();
-        for (node, from) in written {
-            let cited = self.as_cited(&node, defined);
+        for saying in written {
+            let cited = self.as_cited(&saying.node, defined);
             if out.iter().any(|s| self.alike(&s.cited, &cited)) {
                 continue;
             }
             out.push(Said {
                 cited,
-                written: node,
-                from,
+                written: saying.node,
+                from: saying.from,
+                implied: saying.implied,
             });
         }
         out
@@ -628,15 +664,9 @@ impl<'a> Known<'a> {
 
     /// What one sentence of a line, or its reading at a block's letter,
     /// says: itself as `from`, its "and" parts and a chain's equations, and
-    /// what each of those implies (`implied_facts`).
-    fn say_of(
-        &self,
-        sentence: &Node,
-        i: usize,
-        from: SaidFrom,
-        out: &mut Vec<(Node, SaidFrom)>,
-    ) {
-        let mut here: Vec<(Node, SaidFrom)> = vec![(sentence.clone(), from)];
+    /// what each of those implies, with the rule (`implied_by`).
+    fn say_of(&self, sentence: &Node, i: usize, from: SaidFrom, out: &mut Vec<Saying>) {
+        let mut here: Vec<Saying> = vec![Saying::of(sentence.clone(), from)];
         let parts = conjuncts_in(sentence, self.ctx, self.env.g);
         if parts.len() > 1 {
             for (j, part) in parts.into_iter().enumerate() {
@@ -650,25 +680,40 @@ impl<'a> Known<'a> {
                         part: j,
                     },
                 };
-                here.push((part, tag));
+                here.push(Saying::of(part, tag));
             }
         }
         let pairs: Vec<Node> = here
             .iter()
-            .filter_map(|(n, _)| chain_pairs(self.env.g, n))
+            .filter_map(|s| chain_pairs(self.env.g, &s.node))
             .flatten()
             .collect();
-        here.extend(pairs.into_iter().map(|p| (p, SaidFrom::Pair(i))));
+        here.extend(pairs.into_iter().map(|p| Saying::of(p, SaidFrom::Pair(i))));
         let members: Vec<Node> = here
             .iter()
-            .filter_map(|(n, _)| subset_members(n, self.env, &self.sorts))
+            .filter_map(|s| subset_members(&s.node, self.env, &self.sorts))
             .collect();
-        here.extend(members.into_iter().map(|m| (m, SaidFrom::Members(i))));
-        let implied: Vec<Node> = here
+        here.extend(
+            members
+                .into_iter()
+                .map(|m| Saying::of(m, SaidFrom::Members(i))),
+        );
+        let implied: Vec<Saying> = here
             .iter()
-            .flat_map(|(n, _)| implied_facts(n, self.env, &self.sorts))
+            .flat_map(|s| {
+                implied_by(&s.node, self.env, &self.sorts).into_iter().map(
+                    |(node, rule)| Saying {
+                        node,
+                        from: SaidFrom::Implied(i),
+                        implied: Some(Implied {
+                            source: s.from,
+                            rule,
+                        }),
+                    },
+                )
+            })
             .collect();
-        here.extend(implied.into_iter().map(|n| (n, SaidFrom::Implied(i))));
+        here.extend(implied);
         out.extend(here);
     }
 

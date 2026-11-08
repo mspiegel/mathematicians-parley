@@ -409,6 +409,15 @@ pub fn type_said_otherwise(fact: &Node, library: &Library) -> Option<Node> {
 /// (a, b) ⊆ dom g′ in the kernel. The elaborator asks this of its page
 /// reading of a fact, so both tools apply the rule to the same lines.
 pub fn said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node> {
+    said_otherwise_by(fact, env, sorts).map(|(other, _)| other)
+}
+
+/// `said_otherwise`, with the lemma from the one form to the other.
+fn said_otherwise_by(
+    fact: &Node,
+    env: Env,
+    sorts: &Sorts,
+) -> Option<(Node, &'static str)> {
     for family in rules::OTHER_FORMS {
         let mut letters = sorts.clone();
         for (letter, sort) in family.letters {
@@ -418,11 +427,12 @@ pub fn said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node> {
             let mut put = Binding::new();
             let written = template(form.written, env, &letters);
             if fits_form(&written, fact, family.letters, &mut put) {
-                return Some(substitute_apart_by(
+                let other = substitute_apart_by(
                     &template(form.also, env, &letters),
                     &put,
                     &env.g.binders(),
-                ));
+                );
+                return Some((other, form.lemma));
             }
         }
     }
@@ -465,7 +475,7 @@ fn wider_types(fact: &Node, env: Env) -> Option<Vec<Node>> {
 
 /// What `x ∈ {a, …, b}` says of x besides itself: a ≤ x and x ≤ b
 /// (`rules::RANGE_BOUNDS`).
-fn range_bounds(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
+fn range_bounds(fact: &Node, env: Env, sorts: &Sorts) -> Vec<(Node, &'static str)> {
     let [term, range] = fact.children.as_slice() else {
         return Vec::new();
     };
@@ -484,28 +494,68 @@ fn range_bounds(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     let binders = env.g.binders();
     rules::RANGE_BOUNDS
         .iter()
-        .map(|(form, _)| {
-            substitute_apart_by(&template(form, env, &local), &put, &binders)
+        .map(|(form, lemma)| {
+            let bound =
+                substitute_apart_by(&template(form, env, &local), &put, &binders);
+            (bound, *lemma)
         })
         .collect()
 }
 
+/// The rule by which a fact implies another it does not write
+/// (`implied_by`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Implication {
+    /// The fact written in its other form, `C ⊆ A` as `C ∈ 𝒫A`, by the
+    /// lemma (`rules::OTHER_FORMS`).
+    OtherForm { lemma: &'static str },
+    /// Two vertices of a triangle apart, `P ≠ Q`.
+    TriangleApart,
+    /// A function's type with a wider number system as its codomain.
+    WiderCodomain,
+    /// A bound of a range, `a ≤ x` or `x ≤ b` of `x ∈ {a, …, b}`, by the
+    /// lemma (`rules::RANGE_BOUNDS`).
+    RangeBound { lemma: &'static str },
+    /// A membership of a wider number system, `x ∈ ℝ` of `x ∈ ℤ`.
+    WiderSystem,
+    /// What a membership of a number system says of its term, `x > 0` of
+    /// `x ∈ ℕ`, by the lemma (`rules::IMPLIED`).
+    SystemFact { lemma: &'static str },
+}
+
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
-    if let Some(other) = said_otherwise(fact, env, sorts) {
-        return vec![other];
+    implied_by(fact, env, sorts)
+        .into_iter()
+        .map(|(implied, _)| implied)
+        .collect()
+}
+
+/// `implied_facts`, each with the rule that gives it.
+pub fn implied_by(fact: &Node, env: Env, sorts: &Sorts) -> Vec<(Node, Implication)> {
+    if let Some((other, lemma)) = said_otherwise_by(fact, env, sorts) {
+        return vec![(other, Implication::OtherForm { lemma })];
     }
     if let Some(apart) = triangle_apart(fact, env, sorts) {
-        return apart;
+        return apart
+            .into_iter()
+            .map(|a| (a, Implication::TriangleApart))
+            .collect();
     }
     if let Some(wider) = wider_types(fact, env) {
-        return wider;
+        return wider
+            .into_iter()
+            .map(|w| (w, Implication::WiderCodomain))
+            .collect();
     }
     let both = fact.children.len() == 2;
     if fact.notation() == MEMBERSHIP
         && both
         && fact.children[1].notation() == INTEGER_RANGE
     {
-        return range_bounds(fact, env, sorts);
+        return range_bounds(fact, env, sorts)
+            .into_iter()
+            .map(|(bound, lemma)| (bound, Implication::RangeBound { lemma }))
+            .collect();
     }
     if fact.notation() != MEMBERSHIP
         || !both
@@ -520,7 +570,7 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     let binders = env.g.binders();
     // Each says one thing of x, `x ∈ ℝ` or `x ≥ 0`: a membership is `x ∈ S`
     // with the number system at S.
-    let mut said: Vec<Node> = rules::SYSTEM_OF
+    let mut said: Vec<(Node, Implication)> = rules::SYSTEM_OF
         .iter()
         .filter(|(_, big)| {
             let big = rules::System::of_label(big);
@@ -536,12 +586,18 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
                 (Symbol::of("x"), term.clone()),
                 (Symbol::of("S"), set),
             ]);
-            substitute_apart_by(&template("x ∈ S", env, &systems), &put, &binders)
+            let wider =
+                substitute_apart_by(&template("x ∈ S", env, &systems), &put, &binders);
+            (wider, Implication::WiderSystem)
         })
         .collect();
     let put = Binding::from([(Symbol::of("x"), term)]);
     said.extend(rules::implied(system.map(rules::System::label)).iter().map(
-        |(form, _)| substitute_apart_by(&template(form, env, &local), &put, &binders),
+        |(form, lemma)| {
+            let fact =
+                substitute_apart_by(&template(form, env, &local), &put, &binders);
+            (fact, Implication::SystemFact { lemma })
+        },
     ));
     said
 }

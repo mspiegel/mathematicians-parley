@@ -478,13 +478,10 @@ pub enum Supposed {
 /// on.
 #[derive(Clone, Debug)]
 pub struct Contradicted {
-    /// Line N, by the reference that names it.
-    pub line: String,
-    /// What of line N the step's claim opposes: a sentence of it, the
-    /// sentences together, or another thing it says (`Known::says`).
-    pub from: super::library::SaidFrom,
-    /// That thing as the page writes it (`Said::written`).
-    pub said: Node,
+    /// What of line N the step's claim opposes, and where it stands in the
+    /// line: a sentence of it, a part of one, the sentences together, or a
+    /// "for all" of it read at a block's letter.
+    pub at: FirstAt,
     /// Which of the two says the other negated.
     pub negated: Negating,
     /// How what the negating one denies meets the other
@@ -508,8 +505,9 @@ pub struct FirstAt {
     /// The line, by the reference that names it.
     pub line: String,
     /// The sentence of the line that states the fact, or a part of which
-    /// does, counted from 0 among the things the line says
-    /// (`Known::says`); None where the fact is the line's sentences
+    /// does, by its place among the sentences the line writes, from 0; past
+    /// them, a "for all" of the line read at a block's letter, in the order
+    /// the line writes them. None where the fact is the line's sentences
     /// together.
     pub sentence: Option<usize>,
     /// Where the fact is one part of the sentence's conjunction, which part,
@@ -519,6 +517,10 @@ pub struct FirstAt {
     /// The fact as the page writes it, with its defines kept: what a
     /// backend that names the line's sentences its own way finds it by.
     pub written: Node,
+    /// Where the line does not write the fact but implies it, the rule:
+    /// the sentence or part named above says what implies it, `k ∈ {1, …,
+    /// n}` of `k ≤ n`.
+    pub implied: Option<crate::citing::Implication>,
 }
 
 impl FirstAt {

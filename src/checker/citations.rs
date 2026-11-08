@@ -442,39 +442,98 @@ fn fact_at(
     let defined = known.citing_item(refs, Some(item));
     refs.iter().find_map(|r| {
         let stated = scope.get(r)?;
-        // Counted as the build counts them: the line's sentences, then
-        // each "for all" of it read at a block's letter.
+        // Counted as the page writes them: the line's sentences by their
+        // place, then each "for all" of it read at a block's letter, in
+        // order, past the line's own.
         let says = known.says(stated, &defined);
-        let sentences = says
-            .iter()
-            .filter(|s| matches!(s.from, SaidFrom::Sentence(_)));
+        let own = known.sentence_count(stated);
+        let sentences = says.iter().filter_map(|s| match s.from {
+            SaidFrom::Sentence(k) => Some((k, s)),
+            _ => None,
+        });
         let at = says
             .iter()
-            .filter(|s| matches!(s.from, SaidFrom::AtLetter { part: None, .. }));
-        let said: Vec<&super::library::Said> = sentences.chain(at).collect();
-        line_states(fact, r, &said, library)
+            .filter(|s| matches!(s.from, SaidFrom::AtLetter { part: None, .. }))
+            .enumerate()
+            .map(|(k, s)| (own + k, s));
+        let said: Vec<(usize, &super::library::Said)> = sentences.chain(at).collect();
+        line_states(fact, r, &said, library).or_else(|| {
+            // What the line implies, where it writes nothing that states
+            // the fact.
+            says.iter()
+                .filter(|s| s.implied.is_some())
+                .find(|s| states(&s.cited, fact, library))
+                .and_then(|s| placed(r, s, &says, own))
+        })
     })
 }
 
-/// Where `fact` stands in the line `line`, whose sentences read as `said`
-/// (`firsts_at`), with what the page writes there.
+/// Whether `said`, read in the standard order, states `fact`.
+fn states(said: &Node, fact: &Node, library: &Library) -> bool {
+    let ctx = &library.ctx;
+    let none = IndexMap::new();
+    alike(&standard(said, ctx), fact, ctx, &none, &none)
+}
+
+/// Where `s`, one of the things the line `line` says (`says`, of a line
+/// writing `own` sentences), stands as `FirstAt` counts it: a sentence, a
+/// part of one, the sentences together, or a "for all" read at a block's
+/// letter past the line's own; or what one of those implies. None for a
+/// chain's equation between two terms, a subset's members, or a part of a
+/// "for all" read at a letter.
+pub(super) fn placed(
+    line: &str,
+    s: &super::library::Said,
+    says: &[super::library::Said],
+    own: usize,
+) -> Option<FirstAt> {
+    let (from, implied) = match (s.from, s.implied) {
+        (SaidFrom::Implied(_), Some(i)) => (i.source, Some(i.rule)),
+        (SaidFrom::Implied(_), None) => return None,
+        (from, _) => (from, None),
+    };
+    let (sentence, part) = match from {
+        SaidFrom::Whole => (None, None),
+        SaidFrom::Sentence(k) => (Some(k), None),
+        SaidFrom::Part { sentence, part } => (Some(sentence), Some(part)),
+        SaidFrom::AtLetter { part: None, .. } => {
+            let reading = says
+                .iter()
+                .filter(|o| matches!(o.from, SaidFrom::AtLetter { part: None, .. }))
+                .position(|o| o.from == from)?;
+            (Some(own + reading), None)
+        }
+        SaidFrom::AtLetter { part: Some(_), .. }
+        | SaidFrom::Pair(_)
+        | SaidFrom::Implied(_)
+        | SaidFrom::Members(_) => return None,
+    };
+    Some(FirstAt {
+        line: line.to_string(),
+        sentence,
+        part,
+        written: s.written.clone(),
+        implied,
+    })
+}
+
+/// Where `fact` stands in the line `line`, whose sentences read as `said`,
+/// each by its place (`FirstAt::sentence`), with what the page writes there.
 fn line_states(
     fact: &Node,
     line: &str,
-    said: &[&super::library::Said],
+    said: &[(usize, &super::library::Said)],
     library: &Library,
 ) -> Option<FirstAt> {
-    let ctx = &library.ctx;
-    let none = IndexMap::new();
-    // Each read in the standard order the fact is in.
-    let states = |n: &Node| alike(&standard(n, ctx), fact, ctx, &none, &none);
+    let states = |n: &Node| states(n, fact, library);
     let at = |sentence, part, written| FirstAt {
         line: line.to_string(),
         sentence,
         part,
         written,
+        implied: None,
     };
-    for (i, s) in said.iter().enumerate() {
+    for &(i, s) in said {
         if states(&s.cited) {
             return Some(at(Some(i), None, s.written.clone()));
         }
@@ -489,11 +548,11 @@ fn line_states(
     }
     let whole = conjoined(
         library.env.g,
-        said.iter().map(|s| s.cited.clone()).collect(),
+        said.iter().map(|(_, s)| s.cited.clone()).collect(),
     )?;
     let written = conjoined(
         library.env.g,
-        said.iter().map(|s| s.written.clone()).collect(),
+        said.iter().map(|(_, s)| s.written.clone()).collect(),
     )?;
     states(&whole).then(|| at(None, None, written))
 }

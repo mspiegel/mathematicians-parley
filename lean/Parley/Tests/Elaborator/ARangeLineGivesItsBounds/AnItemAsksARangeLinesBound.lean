@@ -2,10 +2,13 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.SetLike.Basic
+public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
@@ -22,6 +25,6 @@ namespace Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AnItemAsksARangeLines
 theorem an_item_asks_a_range_lines_bound (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (1 : ℤ) n) :
     (Set.Icc (1 : ℤ) k : Set ℤ) ⊆ (Set.Icc (1 : ℤ) n : Set ℤ) := by
   -- 1. mun:range-within a := 1, from H2
-  exact (Parley.Items.Stdlib.Sums.mun_range_within (a := (1 : ℤ)) (k := k) (n := n) (by parley_set_side))
+  exact (Parley.Items.Stdlib.Sums.mun_range_within (a := (1 : ℤ)) (k := k) (n := n) (Finset.mem_Icc.mp hH2).2)
 
 end Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AnItemAsksARangeLinesBound

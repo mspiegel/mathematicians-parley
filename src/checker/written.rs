@@ -107,7 +107,7 @@ pub fn written_out(
         s.against = out(&s.against);
     }
     for c in written.contradicted.values_mut() {
-        c.said = out(&c.said);
+        c.at.written = out(&c.at.written);
     }
     for held in written.held_by_lines.values_mut().flatten() {
         use super::record::LinesHold;

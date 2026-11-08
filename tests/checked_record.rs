@@ -86,7 +86,7 @@ fn meetings_printed(read: &CheckedCorpus, name: &str) -> String {
         let step = &thm.steps[*at].number;
         out.push_str(&format!(
             "step {step} contradicts {}: {:?}, meeting {:?}\n",
-            c.line, c.negated, c.meeting
+            c.at.line, c.negated, c.meeting
         ));
     }
     out

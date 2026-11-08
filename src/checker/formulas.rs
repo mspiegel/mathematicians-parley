@@ -1359,17 +1359,12 @@ pub fn contradictions(
             continue;
         };
         let claimed = known.whole(step, &step.claim);
-        let found = known
-            .says(said, &known.citing_step(step))
-            .into_iter()
-            .find_map(|s| {
-                let there = Some(s.cited.clone());
-                let (negated, meeting) = match negates_how(
-                    claimed.as_ref(),
-                    there.as_ref(),
-                    &wrappers,
-                    known,
-                ) {
+        let says = known.says(said, &known.citing_step(step));
+        let own = known.sentence_count(said);
+        let found = says.iter().find_map(|s| {
+            let there = Some(s.cited.clone());
+            let (negated, meeting) =
+                match negates_how(claimed.as_ref(), there.as_ref(), &wrappers, known) {
                     Some(met) => (Negating::Step, met),
                     None => (
                         Negating::Line,
@@ -1381,14 +1376,15 @@ pub fn contradictions(
                         )?,
                     ),
                 };
-                Some(Contradicted {
-                    line: other.clone(),
-                    from: s.from,
-                    said: s.written,
-                    negated,
-                    meeting,
-                })
-            });
+            // A thing the line says that `FirstAt` cannot place, a chain's
+            // equation between two terms, is no line a backend can name.
+            let placed = super::citations::placed(other, s, &says, own)?;
+            Some(Contradicted {
+                at: placed,
+                negated,
+                meeting,
+            })
+        });
         if let Some(c) = found {
             out.insert(at, c);
         }

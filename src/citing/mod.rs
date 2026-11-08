@@ -36,9 +36,9 @@ pub use once::{
     OnceReason, Shape,
 };
 pub use parts::{
-    at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,
-    said_otherwise, stood_for, subset_members, type_said_otherwise, typed_seed, Bound,
-    Parts,
+    at_a_member, bound_in, claimed_member, finished, function_values, implied_by,
+    implied_facts, said_otherwise, stood_for, subset_members, type_said_otherwise,
+    typed_seed, Bound, Implication, Parts,
 };
 pub use supply::{largest_search, names_of, search, set_within, supply, Sites, Ways};
 pub use typed::{codomain_reason, CodomainAsk, CodomainReason};
