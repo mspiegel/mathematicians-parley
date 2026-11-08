@@ -189,20 +189,11 @@ fn parts_of_numbers(
     }
 }
 
-/// Whether a line gives the function letter a type between sets of numbers
-/// by their shape, f : D → ℝ with D among numbers (`among_numbers`).
+/// Whether a line gives the function letter a type between sets of
+/// numbers, f : D → ℝ, as the checker records it
+/// (`CheckedTheorem::function_systems`).
 fn between_number_sets(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
-    let of_numbers = |s: &crate::formula::Node| {
-        set_of_numbers(s) || (s.is_name() && among_numbers(&s.text, rec))
-    };
-    rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
-        matches!(n.children.as_slice(), [f, from, to]
-            if n.notation() == crate::notations::FUNCTION_TYPE
-                && f.is_name()
-                && *f.text == *name
-                && of_numbers(from)
-                && of_numbers(to))
-    })
+    rec.function_systems.contains_key(name)
 }
 
 /// Whether a set's members have a type its sort says, or, for A ∪ B, A ∩ B,
@@ -271,17 +262,11 @@ fn set_line(
             true
         }
         // An element a line puts in a set of numbers, A ∈ ℝ ∖ ℚ, is a number
-        // of that set's type (`theorem::element_number_type`); one nothing
-        // settles a sort of, a thing (`theorem::statement`).
+        // of that set's type, as the checker records it
+        // (`CheckedTheorem::element_systems`, `theorem::element_number_type`);
+        // one nothing settles a sort of, a thing (`theorem::statement`).
         Form::Element(name) => {
-            rec.sorts.get(&name).is_none()
-                || rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
-                    matches!(n.children.as_slice(), [x, set]
-                if n.notation() == crate::notations::MEMBERSHIP
-                    && x.is_name()
-                    && *x.text == *name
-                    && set_of_numbers(set))
-                })
+            rec.sorts.get(&name).is_none() || rec.element_systems.contains_key(&name)
         }
         // A group is a type with Mathlib's group on it (`theorem::statement`);
         // a polynomial a function from ℂ to ℂ among set.mm's polynomials.

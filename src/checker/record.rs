@@ -286,6 +286,28 @@ pub struct CheckedTheorem {
     /// ℤ" says f(a) ∈ ℤ at the a of the block 5.7 stands in. A backend
     /// reads the line at the letter the check read it at.
     pub read_at: Vec<Vec<ReadAt>>,
+    /// What the statement's hypotheses bound below, y − 3 ≥ 0 of `y ≥ 3`
+    /// (`citing::bounds`), read with the letters the header lets.
+    pub statement_bounds: crate::citing::bounds::SaidBounds,
+    /// What the lines in scope at each step bound below, by the step's
+    /// index, read with the step's letters (`checker::bounds`). A backend
+    /// writes a square root or a real power of a base at least 0 as a real
+    /// one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
+    pub bounds: Vec<crate::citing::bounds::SaidBounds>,
+    /// The sets the lines in scope at each step say are finite in words,
+    /// `W is finite` or `B ⊆ A` of a finite A, as printed, by the step's
+    /// index (`citing::finite::finite_sets_in_words`): a count of one is a
+    /// natural number from there on, as of one `said_finite` holds.
+    pub finite_at: Vec<std::collections::BTreeSet<String>>,
+    /// The number system each letter the page's lines put in sets of
+    /// numbers is in, the widest of them, A of `let A be an element` and
+    /// `A ∈ ℝ ∖ ℚ` (`citing::number_sets::element_systems`): what a backend
+    /// whose letters are typed gives the letter.
+    pub element_systems: IndexMap<String, crate::rules::System>,
+    /// The function letters the page's lines give a type between sets of
+    /// numbers, f of `f : D → ℝ`, with the systems of the domain and the
+    /// codomain (`citing::number_sets::function_systems`).
+    pub function_systems: IndexMap<String, crate::citing::number_sets::Between>,
 }
 
 /// A "for all" a cited line says, and the block's letter it is read at

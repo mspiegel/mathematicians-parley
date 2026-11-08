@@ -138,6 +138,14 @@ impl<'n> SaidOfSets<'n> {
         ) {
             ("finite", _, [set]) => self.finite.push(set),
             ("subset", _, [part, whole]) => self.subsets.push(Subset { part, whole }),
+            // A member of 𝒫A is a part of A: `let Y ⊆ X` read as Y ∈ 𝒫X.
+            (_, crate::notations::MEMBERSHIP, [part, set])
+                if &*set.notation_name() == "powerset" =>
+            {
+                if let [whole] = set.children.as_slice() {
+                    self.subsets.push(Subset { part, whole });
+                }
+            }
             // |X| = e, a count given as a number, says X is finite.
             (_, crate::notations::EQUALITY, [a, b]) if self.by_counts => {
                 for (count, value) in [(a, b), (b, a)] {

@@ -213,6 +213,18 @@ pub fn outside_written<'r>(
     for read in written.read_at.iter_mut().flatten() {
         read.said = out(&read.said);
     }
+    for said in written
+        .bounds
+        .iter_mut()
+        .chain([&mut written.statement_bounds])
+    {
+        for b in &mut said.terms {
+            b.term = out(&b.term);
+        }
+        for line in &mut said.over_ranges {
+            *line = out(line);
+        }
+    }
     for held in written.held_by_lines.values_mut().flatten() {
         use crate::checker::record::LinesHold;
         held.term = out(&held.term);
@@ -230,6 +242,8 @@ pub fn outside_written<'r>(
     // is one the page as read does not bind.
     written.said_finite = crate::checker::finite_of(&checked.grammar, thm, &written);
     written.set_systems = crate::checker::set_systems_of(&written);
+    written.element_systems = crate::checker::element_systems_of(&written);
+    written.function_systems = crate::checker::function_systems_of(&written);
     std::borrow::Cow::Owned(written)
 }
 
@@ -381,7 +395,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
     let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
     writer.reals = held_real(rec, &writer);
     writer.finite_from(&rec.said_finite);
-    writer.bounds_from(&crate::checker::hypothesis_lines(thm, rec));
+    writer.bounds = rec.statement_bounds.clone();
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -749,31 +763,12 @@ struct Concluded {
 }
 
 /// The number type of `let A be an element` where later lines say A is in
-/// sets of numbers, A ∈ ℝ ∖ ℚ: the widest of those sets' types. None where
-/// no line puts A in a set of numbers.
-fn element_number_type(
-    name: &str,
-    rec: &CheckedTheorem,
-    writer: &Writer,
-) -> Option<LetterType> {
-    rec.page
-        .entries()
-        .flat_map(|(_, node)| node.walk())
-        .filter_map(|n| match n.children.as_slice() {
-            [x, set]
-                if n.notation() == crate::notations::MEMBERSHIP
-                    && x.is_name()
-                    && *x.text == *name =>
-            {
-                match writer.set_members(set)? {
-                    super::expr::Members::Numbers(at) => Some(at),
-                    _ => None,
-                }
-            }
-            _ => None,
-        })
-        .max()
-        .map(LetterType::Number)
+/// sets of numbers, A ∈ ℝ ∖ ℚ: the widest of those sets' types, as the
+/// checker records it (`CheckedTheorem::element_systems`). None where no
+/// line puts A in a set of numbers.
+fn element_number_type(name: &str, rec: &CheckedTheorem) -> Option<LetterType> {
+    let system = rec.element_systems.get(name)?;
+    Some(LetterType::Number(super::expr::recorded_set_type(*system)))
 }
 
 /// The type of `let T be a set` where T is a set of numbers the checker
@@ -1317,7 +1312,7 @@ fn statement(
             .sorts
             .get(&name)
             .and_then(super::sets::set_letter_type)
-            .or_else(|| element_number_type(&name, rec, writer))
+            .or_else(|| element_number_type(&name, rec))
             .or_else(|| recorded_number_set_type(&name, rec))
             .or_else(|| {
                 unsorted_element
@@ -1702,9 +1697,7 @@ pub fn theorem(
     };
     proof.writer.reals = held_real(rec, &proof.writer);
     proof.writer.finite_from(&rec.said_finite);
-    proof
-        .writer
-        .bounds_from(&crate::checker::hypothesis_lines(thm, rec));
+    proof.writer.bounds = rec.statement_bounds.clone();
     let Statement {
         binders,
         conclusion,
@@ -2115,25 +2108,18 @@ impl<'a> Proof<'a> {
     fn step(&mut self, i: usize, depth: usize) -> Route<()> {
         let step = &self.thm.steps[i];
         // A square root of y − 3 is Mathlib's real one once a line in scope
-        // says y − 3 ≥ 0 (`Writer::principal_is_real`).
-        self.writer
-            .bounds_from(self.trees.values().flatten().map(|(n, _)| n));
+        // says y − 3 ≥ 0 (`Writer::principal_is_real`), as the check read
+        // the lines in scope (`CheckedTheorem::bounds`).
+        if let Some(said) = self.rec.bounds.get(i) {
+            self.writer.bounds = said.clone();
+        }
         // A set a line in scope says is finite, W of a step "W is finite"
         // above, is counted as a natural number from there on, as one the
-        // hypotheses make finite is (`citing::finite::finite_sets`).
-        let in_scope: Vec<Node> = self
-            .trees
-            .values()
-            .flatten()
-            .map(|(n, _)| n.clone())
-            .collect();
+        // hypotheses make finite is (`CheckedTheorem::finite_at`).
         self.writer.finite = self.rec.said_finite.sets.clone();
-        self.writer
-            .finite
-            .extend(crate::citing::finite::finite_sets_in_words(
-                &self.sources.checked.grammar,
-                &in_scope,
-            ));
+        if let Some(said) = self.rec.finite_at.get(i) {
+            self.writer.finite.extend(said.iter().cloned());
+        }
         // The defines written above this step in its block, where the
         // checker opens them.
         let due: Vec<usize> = (0..self.thm.defines.len())

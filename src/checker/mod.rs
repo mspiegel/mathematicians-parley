@@ -7,6 +7,7 @@
 //! build the kernel proof; that needs the elaborator.
 
 mod angles;
+mod bounds;
 mod citations;
 mod database;
 mod formulas;
@@ -293,6 +294,38 @@ pub fn set_systems_of(
     crate::citing::number_sets::set_letter_systems(&lines, &letters)
 }
 
+/// The number system each letter the page's lines put in sets of numbers
+/// is in, the widest of them, A of `A ∈ ℝ ∖ ℚ` (`CheckedTheorem::
+/// element_systems`), read from the record's page as `set_systems_of`.
+pub fn element_systems_of(
+    record: &CheckedTheorem,
+) -> IndexMap<String, crate::rules::System> {
+    let mut letters = crate::citing::Introduced::new();
+    for step in &record.introduced {
+        for (name, system) in step {
+            letters.entry(name.clone()).or_insert(*system);
+        }
+    }
+    let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
+    crate::citing::number_sets::element_systems(&lines, &letters, &record.set_systems)
+}
+
+/// The function letters the page's lines give a type between sets of
+/// numbers, with their systems (`CheckedTheorem::function_systems`), read
+/// from the record's page as `set_systems_of`.
+pub fn function_systems_of(
+    record: &CheckedTheorem,
+) -> IndexMap<String, crate::citing::number_sets::Between> {
+    let mut letters = crate::citing::Introduced::new();
+    for step in &record.introduced {
+        for (name, system) in step {
+            letters.entry(name.clone()).or_insert(*system);
+        }
+    }
+    let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
+    crate::citing::number_sets::function_systems(&lines, &letters, &record.set_systems)
+}
+
 /// A define, as its name and the term the page reads it to name: a
 /// function's, its body; None for a recursion.
 fn define_named<'r>(
@@ -379,6 +412,23 @@ pub fn checked_where(
                 formulas::members_shown(thm, &c.known[i], &c.library.targets);
             record.held_by_lines =
                 formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
+            let ctx = &c.library.ctx;
+            let in_scope: Vec<Vec<Node>> = thm
+                .steps
+                .iter()
+                .map(|step| c.known[i].scope_lines(step))
+                .collect();
+            record.bounds = in_scope
+                .iter()
+                .zip(&record.introduced)
+                .map(|(lines, letters)| bounds::said_by(lines, letters, ctx))
+                .collect();
+            record.finite_at = in_scope
+                .iter()
+                .map(|lines| {
+                    crate::citing::finite::finite_sets_in_words(c.env.g, lines)
+                })
+                .collect();
             record.read_at = thm
                 .steps
                 .iter()
@@ -410,8 +460,16 @@ pub fn checked_where(
                     .collect();
             }
             record.page = c.known[i].page_reading();
+            let header = record.introduced.first().cloned().unwrap_or_default();
+            record.statement_bounds = bounds::said_by(
+                &hypothesis_lines(thm, &record),
+                &header,
+                &c.library.ctx,
+            );
             record.said_finite = finite_of(c.env.g, thm, &record);
             record.set_systems = set_systems_of(&record);
+            record.element_systems = element_systems_of(&record);
+            record.function_systems = function_systems_of(&record);
             record.items = std::rc::Rc::clone(&items);
             record.outside = c.known[i].outside_definitions().clone();
             record.statement_definitions =

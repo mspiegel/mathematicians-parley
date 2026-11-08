@@ -136,6 +136,17 @@ impl Stated {
             Stated::InBlocks { line, .. } => line.text(),
         }
     }
+
+    /// The line it stands on; None for a kind, which stands under its
+    /// define.
+    pub fn line(&self) -> Option<usize> {
+        match self {
+            Stated::Written(w) | Stated::Hypothesis(w) => Some(w.line()),
+            Stated::Introduced(i) => Some(i.body.line()),
+            Stated::InBlocks { line, .. } => Some(line.line()),
+            Stated::Kind { .. } => None,
+        }
+    }
 }
 
 /// What a theorem's lines give every check of it, read once a run.
@@ -789,6 +800,33 @@ impl<'a> Known<'a> {
             [letter] => Some((*letter).clone()),
             _ => None,
         }
+    }
+
+    /// What the lines in scope above a step say, sentence by sentence, as
+    /// read: those it may cite (`scope`) that stand above it, a step only
+    /// where it is in reach (`structure::out_of_reach`), and not the lines
+    /// of the blocks the step owns, which it cites as their ends.
+    pub fn scope_lines(&self, step: &Step) -> Vec<Node> {
+        let thm = self.thm;
+        let shape = self.shape();
+        let reached = |key: &String| match thm
+            .steps
+            .iter()
+            .find(|s| s.number.number().is_some_and(|n| n.to_string() == *key))
+        {
+            Some(s) => {
+                super::structure::out_of_reach(thm, shape, &s.number, step).is_none()
+            }
+            None => true,
+        };
+        self.scope(step)
+            .iter()
+            .filter(|(key, _)| reached(key))
+            .map(|(_, stated)| stated)
+            .filter(|stated| stated.line().is_none_or(|l| l < step.line))
+            .flat_map(|stated| self.said_parts(stated, None))
+            .flatten()
+            .collect()
     }
 
     /// Each "for all" a cited line says that is read at a block's letter

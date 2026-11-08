@@ -14,6 +14,79 @@ use crate::rules::System;
 
 use super::once::{set_system, Introduced};
 
+/// The number system each letter is in by the lines putting it in sets of
+/// numbers, A of `A ∈ ℝ ∖ ℚ`: the widest of those sets' systems, a set
+/// letter's by `sets` (`set_letter_systems`). A letter no line puts in such
+/// a set is not among them.
+pub fn element_systems(
+    lines: &[&Node],
+    letters: &Introduced,
+    sets: &IndexMap<String, System>,
+) -> IndexMap<String, System> {
+    let mut out: IndexMap<String, System> = IndexMap::new();
+    for node in lines.iter().flat_map(|l| l.walk()) {
+        let [x, set] = node.children.as_slice() else {
+            continue;
+        };
+        if node.notation() != crate::notations::MEMBERSHIP || !x.is_name() {
+            continue;
+        }
+        let system = match set_system(set, letters) {
+            Some(s) => s,
+            None if set.is_name() => match sets.get(&*set.text) {
+                Some(s) => *s,
+                None => continue,
+            },
+            None => continue,
+        };
+        out.entry(x.text.to_string())
+            .and_modify(|held| {
+                if held.within(system) {
+                    *held = system;
+                }
+            })
+            .or_insert(system);
+    }
+    out
+}
+
+/// The function letters a line gives a type between sets of numbers, f of
+/// `f : D → ℝ` with D a set of numbers, each with the systems of its domain
+/// and codomain: a number system's, a range's or an interval's, or a set
+/// letter's by `sets`.
+pub fn function_systems(
+    lines: &[&Node],
+    letters: &Introduced,
+    sets: &IndexMap<String, System>,
+) -> IndexMap<String, Between> {
+    let system = |set: &Node| match set_system(set, letters) {
+        Some(s) => Some(s),
+        None if set.is_name() => sets.get(&*set.text).copied(),
+        None => None,
+    };
+    let mut out = IndexMap::new();
+    for node in lines.iter().flat_map(|l| l.walk()) {
+        let [f, from, to] = node.children.as_slice() else {
+            continue;
+        };
+        if node.notation() != crate::notations::FUNCTION_TYPE || !f.is_name() {
+            continue;
+        }
+        if let (Some(from), Some(to)) = (system(from), system(to)) {
+            out.entry(f.text.to_string())
+                .or_insert(Between { from, to });
+        }
+    }
+    out
+}
+
+/// The systems of a function's domain and codomain (`function_systems`).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Between {
+    pub from: System,
+    pub to: System,
+}
+
 /// The number system each set letter of numbers holds, by the first line
 /// that says it, in the order the lines are walked: a subset or member of
 /// 𝒫 of a set of numbers, or a letter joined by ∪, ∩ or ∖ with one.

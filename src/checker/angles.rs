@@ -11,7 +11,7 @@
 //! theorem's statement says it among its hypotheses.
 
 use super::formulas::{claim_parts, one_formula_parts, FormulaPart};
-use super::library::{Known, Stated};
+use super::library::Known;
 use super::structure::in_scope;
 use super::Report;
 use std::collections::BTreeSet;
@@ -373,7 +373,7 @@ fn above(
         if key.starts_with(|c: char| c.is_ascii_digit()) {
             continue;
         }
-        if stated_line(stated).is_some_and(|l| l < line) {
+        if stated.line().is_some_and(|l| l < line) {
             out.extend(known.sentences(stated).iter().flat_map(|n| apart(n, ids)));
         }
     }
@@ -381,16 +381,6 @@ fn above(
         out.extend(sentences(known, &r.fact).iter().flat_map(|n| apart(n, ids)));
     }
     out
-}
-
-/// The line a statement in scope stands on.
-fn stated_line(stated: &Stated) -> Option<usize> {
-    match stated {
-        Stated::Written(w) | Stated::Hypothesis(w) => Some(w.line()),
-        Stated::Introduced(i) => Some(i.body.line()),
-        Stated::InBlocks { line, .. } => Some(line.line()),
-        Stated::Kind { .. } => None,
-    }
 }
 
 /// A naming `let` above a step and the requires lines under its reason, as
