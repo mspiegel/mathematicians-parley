@@ -401,6 +401,8 @@ pub fn checked_where(
                 citations::requires_cited(thm, c.library, &c.known[i]);
             record.links = formulas::transitivity_links(thm, &c.known[i]);
             record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
+            record.obtained_parts =
+                citations::obtained_parts(thm, c.library, &c.known[i]);
             record.asserted = library::let_assertions(&c.known[i]);
             record.opener_asserted = library::opener_assertions(&c.known[i]);
             record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);

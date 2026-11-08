@@ -1703,7 +1703,8 @@ impl<'a> Elaborator<'a> {
             .get(&step.line)
             .and_then(|v| v.last())
             .cloned()
-            .flatten();
+            .flatten()
+            .map(|e| e.values);
         let Some(values) = values else {
             return Err(self.unreached(
                 step.line,

@@ -75,14 +75,23 @@ pub fn written_out(
             f.written = out(&f.written);
         }
         for s in &mut c.supplied {
-            if let super::record::SuppliedBy::Line(at) = &mut s.by {
+            if let super::record::SuppliedBy::Line(at)
+            | super::record::SuppliedBy::SaidOnce(at) = &mut s.by
+            {
                 at.written = out(&at.written);
             }
         }
     }
     for all in written.exhibited.values_mut() {
-        for b in all.iter_mut().flatten() {
-            *b = binding(b);
+        for e in all.iter_mut().flatten() {
+            e.values = binding(&e.values);
+            for s in &mut e.shown {
+                if let super::record::SuppliedBy::Line(at)
+                | super::record::SuppliedBy::SaidOnce(at) = &mut s.by
+                {
+                    at.written = out(&at.written);
+                }
+            }
         }
     }
     for read in written.read_at.iter_mut().flatten() {

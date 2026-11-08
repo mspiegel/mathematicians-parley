@@ -33,6 +33,6 @@ theorem a_requires_line_adding_what_the_checker_added (p : ℝ) (hH2 : p > 0) (h
   have r27_3 : p ≠ 0 := by parley_side
   have s4 : 1 / (m : ℝ) ≤ 1 / (2 / p) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_side) (y := (m : ℝ)) (by parley_side))).mp s3
   -- 5. exhibit, from 4
-  exact ⟨m, r27_2, s4⟩
+  exact ⟨m, s2a, s4⟩
 
 end Parley.Tests.Elaborator.ARequiresLineAddingWhatTheCheckerAdded.ARequiresLineAddingWhatTheCheckerAdded

@@ -2401,6 +2401,9 @@ impl<'a> Proof<'a> {
             .first()
             .and_then(|s| self.rec.page.get(s))
             .cloned();
+        // A requires line is the step's, and the citation on one reads the
+        // step's requires lines above it by the step's names.
+        self.step_now.set(Some(i));
         for (k, r) in step.requires.iter().enumerate() {
             let node = match self.tree(&r.fact) {
                 Route::Built(n) => n,
@@ -5046,7 +5049,8 @@ impl<'a> Proof<'a> {
 
     /// The proof of a hypothesis of a cited item from where the checker
     /// found it supplied (`Cited::supplied`): the line, the sentence or
-    /// the part of one the citation names, or the step's requires line,
+    /// the part of one the citation names or the `let` line that says it
+    /// once, or the step's requires line, or what one of those implies,
     /// meeting `wanted`, the hypothesis as Lean asks it at the citation's
     /// values. None where no line supplies it, or the line says it
     /// otherwise than Lean asks.
@@ -5055,54 +5059,34 @@ impl<'a> Proof<'a> {
             return None;
         }
         let (proof, says) = match by {
-            SuppliedBy::Line(at) => self.line_says(at).built()?,
-            SuppliedBy::Requires(k) => {
+            SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => {
+                self.line_says(at).built()?
+            }
+            SuppliedBy::Requires { line, implied } => {
                 let step = &self.thm.steps[self.step_now.get()?];
-                let name = format!("r{}_{}", step.line, k + 1);
-                let [line] = self.trees.get(&name)?.as_slice() else {
+                let name = format!("r{}_{}", step.line, line + 1);
+                let [said] = self.trees.get(&name)?.as_slice() else {
                     return None;
                 };
-                (
-                    super::tactics::hyp(&name),
-                    self.writer.formula(&line.node).built()?,
-                )
+                match implied {
+                    None => (
+                        super::tactics::hyp(&name),
+                        self.writer.formula(&said.node).built()?,
+                    ),
+                    // What the line implies is what the checker found
+                    // `wanted` to be.
+                    Some(rule) => (
+                        self.implied_proof(&said.cited(), *rule).built()?,
+                        wanted.clone(),
+                    ),
+                }
             }
-            SuppliedBy::Unstated => return self.said_in_scope(wanted),
+            SuppliedBy::Unstated => return None,
         };
         if !super::doc::forms::relation_types_agree(&says, wanted) {
             return None;
         }
         self.proof_meeting(proof, &says, wanted).map(Proved::term)
-    }
-
-    /// A line in scope that says `wanted` as Lean writes both, by its name:
-    /// a membership said once, which the line letting the letter states,
-    /// `hH1 : 0 < n` of `let n ∈ ℕ`. The latest such line, the innermost
-    /// block's; None where no line says it so.
-    fn said_in_scope(&self, wanted: &Printed) -> Option<Printed> {
-        use super::doc::forms::{self, Meets};
-        let values = self.set_values();
-        // The step being written is named before its proof is, and is no
-        // line it may use.
-        let own = self
-            .step_now
-            .get()
-            .and_then(|i| self.thm.steps[i].number.number())
-            .map(|n| n.to_string());
-        let earlier = self
-            .trees
-            .iter()
-            .rev()
-            .filter(|(label, _)| Some(*label) != own.as_ref())
-            .flat_map(|(_, said)| said);
-        earlier.into_iter().find_map(|line| {
-            let says = self.writer.formula(&line.node).built()?;
-            matches!(
-                forms::meets(&says, wanted, &values),
-                Some(Meets::Same | Meets::Unfolded)
-            )
-            .then(|| super::tactics::hyp(&line.name))
-        })
     }
 
     /// Puts what ends a block, a part or a theorem at `depth`: its last
@@ -5823,13 +5807,14 @@ impl<'a> Proof<'a> {
     }
 
     /// `exhibit`: the claim's "there is", with the values the checker read
-    /// for its letters, and what it says of them left to `parley_side`.
+    /// for its letters, and what it says of them by the lines the checker
+    /// found to state it (`Exhibit::shown`), `parley_side` where none does.
     fn exhibit(&self, just: &Justification, node: &Node) -> Route<super::doc::Proof> {
         let Some(step) = self.thm.steps.iter().find(|s| s.just.line == just.line)
         else {
             return Route::no("an exhibit that is no step's");
         };
-        let Some(binding) = self
+        let Some(exhibit) = self
             .rec
             .exhibited
             .get(&step.line)
@@ -5837,6 +5822,10 @@ impl<'a> Proof<'a> {
         else {
             return Route::no("an exhibit the checker read no values for");
         };
+        let binding = &exhibit.values;
+        // The facts asked of the values, in the checker's order: each
+        // letter's membership, then the body's parts.
+        let mut shown = exhibit.shown.iter();
         // there is a ∈ X with nothing said of a, `∃ a ∈ X, True`: the
         // member, that it is in X, and nothing.
         if let ("there-is-some", [letter, set]) =
@@ -5862,7 +5851,6 @@ impl<'a> Proof<'a> {
                 ]))
             });
         }
-        let refs = &step.just.refs;
         let mut parts = Vec::new();
         let mut known = Vec::new();
         let mut body = node;
@@ -5876,6 +5864,7 @@ impl<'a> Proof<'a> {
             let Some(value) = binding.get(&letter.text) else {
                 return Route::no(format!("no value for {}", letter.text));
             };
+            let membership = shown.next();
             // A member of a set: the value as the writer writes a member,
             // and its membership by the line that says it.
             if let Some(members) = self.writer.members_of(set) {
@@ -5885,7 +5874,7 @@ impl<'a> Proof<'a> {
                 };
                 let (guard, next) = exists_at(lean_body.as_ref(), &term);
                 parts.push(term);
-                parts.push(self.fact_shown(guard.as_ref(), &known, refs));
+                parts.push(self.fact_shown(guard.as_ref(), &known, membership));
                 lean_body = next;
                 body = inner;
                 continue;
@@ -5937,7 +5926,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             if guarded {
-                parts.push(self.fact_shown(guard.as_ref(), &known, refs));
+                parts.push(self.fact_shown(guard.as_ref(), &known, membership));
             }
             lean_body = next;
             body = inner;
@@ -5945,42 +5934,38 @@ impl<'a> Proof<'a> {
         if parts.is_empty() {
             return Route::no("an exhibit of no \"there is\"");
         }
-        parts.push(self.facts_shown(body, lean_body.as_ref(), &known, refs));
+        parts.push(self.facts_shown(body, lean_body.as_ref(), &known, &mut shown));
         Route::Built(super::doc::Proof::Term(super::expr::anonymous(parts)))
     }
 
     /// What proves a fact an exhibit says of its values, `wanted` as Lean
-    /// has it where it is known: a line the step names, met as Lean has it,
-    /// or a line in scope that says it; `parley_side` where none does, or a
-    /// witness's facts must be put in scope first (`known`).
+    /// has it where it is known, from where the checker found it stated
+    /// (`shown`); `parley_side` where no line states it, or a witness's
+    /// facts must be put in scope first (`known`).
     fn fact_shown(
         &self,
         wanted: Option<&Printed>,
         known: &[Tactic],
-        refs: &[String],
+        shown: Option<&Supplied>,
     ) -> Printed {
-        let (true, Some(wanted)) = (known.is_empty(), wanted) else {
+        let (true, Some(wanted), Some(shown)) = (known.is_empty(), wanted, shown)
+        else {
             return side_term(known);
         };
-        self.cited_parts(refs)
-            .into_iter()
-            .find_map(|c| {
-                let says = self.writer.formula(&c.node).built()?;
-                self.proof_meeting(c.proof, &says, wanted).map(Proved::term)
-            })
-            .or_else(|| self.said_in_scope(wanted))
+        self.supplied_proof(&shown.by, wanted)
             .unwrap_or_else(|| side_term(&[]))
     }
 
     /// The facts an exhibit says of its values, `said`, taken apart as Lean
     /// nests its "and", each proved as `fact_shown` proves it: `wanted` is
-    /// the same as Lean has it, where it is known.
-    fn facts_shown(
+    /// the same as Lean has it, where it is known, and `shown` gives where
+    /// each part stands, in order.
+    fn facts_shown<'s>(
         &self,
         said: &Node,
         wanted: Option<&Printed>,
         known: &[Tactic],
-        refs: &[String],
+        shown: &mut impl Iterator<Item = &'s Supplied>,
     ) -> Printed {
         match (said.notation(), said.children.as_slice()) {
             (
@@ -5991,12 +5976,11 @@ impl<'a> Proof<'a> {
                     Some((a, b)) => (Some(a), Some(b)),
                     None => (None, None),
                 };
-                super::expr::anonymous(vec![
-                    self.facts_shown(l, wl.as_ref(), known, refs),
-                    self.facts_shown(r, wr.as_ref(), known, refs),
-                ])
+                let left = self.facts_shown(l, wl.as_ref(), known, shown);
+                let right = self.facts_shown(r, wr.as_ref(), known, shown);
+                super::expr::anonymous(vec![left, right])
             }
-            _ => self.fact_shown(wanted, known, refs),
+            _ => self.fact_shown(wanted, known, shown.next()),
         }
     }
 
@@ -8931,20 +8915,31 @@ impl<'a> Proof<'a> {
             let values = self.set_values();
             let mut lean_names = Vec::new();
             for (name, part) in body.iter().zip(&parts) {
-                let page = claim
-                    .iter()
-                    .zip(&names)
-                    .find(|(_, n)| *n == name)
-                    .map(|((_, p), _)| p.clone());
+                let at = claimed.iter().zip(&names).find(|(_, n)| *n == name);
+                let page = at.map(|((_, _, p), _)| p.clone());
+                // How the checker met the sentence's parts with those of
+                // the "there is" (`CheckedTheorem::obtained_parts`), and
+                // where the writer placed casts on the one and not the
+                // other.
+                let met = at.map(|((place, _, _), _)| {
+                    self.rec
+                        .obtained_parts
+                        .get(&i)
+                        .into_iter()
+                        .flatten()
+                        .filter(|p| p.sentence == *place)
+                        .any(|p| {
+                            p.meeting.turned
+                                || p.meeting.permuted
+                                || !p.meeting.identities.is_empty()
+                        })
+                });
                 let lean = self.writer.formula(part).built();
-                let differs = match (&page, &lean) {
-                    (Some(says), Some(lean)) => !matches!(
-                        super::doc::forms::meets(lean, says, &values),
-                        Some(
-                            super::doc::forms::Meets::Same
-                                | super::doc::forms::Meets::Unfolded
-                        ) | None
-                    ),
+                let differs = match (&page, &lean, met) {
+                    (Some(says), Some(lean), Some(met)) => {
+                        met || super::doc::forms::casts_differ(lean, says, &values)
+                            .is_some()
+                    }
                     _ => false,
                 };
                 match (differs, page, lean) {

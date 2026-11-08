@@ -102,6 +102,7 @@ pub fn printed_but(
         for (i, value) in values.iter().enumerate() {
             let shown = match value {
                 Some(at) => at
+                    .values
                     .iter()
                     .map(|(letter, v)| format!("{letter} := {}", g.print(v)))
                     .collect::<Vec<_>>()

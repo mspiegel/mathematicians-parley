@@ -11,16 +11,16 @@ use super::library::{
     introduced, listed_seed, parts_in_scope, typed_in_scope, typed_seed, Known,
     SaidFrom, Search,
 };
-use super::record::{Cited, FirstAt, Supplied, SuppliedBy};
+use super::record::{Cited, Exhibit, FirstAt, ObtainedPart, Supplied, SuppliedBy};
 use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, codomain_reason, concludes, conjuncts, derives,
-    filled, finished, function_values, identities_unsaid, index_system, obtained,
-    obtains, range_system, readings, said_once, said_otherwise, search, stood_for,
-    substitution_unsaid, supply, taken, taken_ways, type_said_otherwise, with_parts,
-    witnesses_unsaid, Bound, CodomainAsk, Concluded, Group, Introduced, Library, Parts,
-    Sites, Taken, Ways,
+    filled, finished, function_values, identities_unsaid, implied_by, index_system,
+    obtained, obtains, range_system, readings, said_once, said_otherwise, search,
+    stood_for, substitution_unsaid, supply, taken, taken_ways, type_said_otherwise,
+    with_parts, witnesses_unsaid, Bound, CodomainAsk, Concluded, Group, Introduced,
+    Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{chain_reasons, reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -256,9 +256,10 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let supplied = supplied_at(
         step,
         &step.just.refs,
-        &item,
+        Some(&item),
         supplying,
-        true,
+        &taken.binding,
+        None,
         known,
         library,
     );
@@ -389,8 +390,16 @@ pub fn cited_requires(
     let stated = taken.first_facts(&groups, &parts.facts, library);
     let firsts = firsts_at(step, req.lines(), &item, &stated, known, library);
     let supplying = taken.supplying_facts(&groups, &parts.facts, library);
-    let supplied =
-        supplied_at(step, req.lines(), &item, supplying, false, known, library);
+    let supplied = supplied_at(
+        step,
+        req.lines(),
+        Some(&item),
+        supplying,
+        &taken.binding,
+        Some(req.line),
+        known,
+        library,
+    );
     Some(Cited {
         item,
         group: taken.group,
@@ -418,7 +427,7 @@ fn firsts_at(
 ) -> Vec<FirstAt> {
     let mut out: Vec<FirstAt> = Vec::new();
     for first in firsts {
-        if let Some(at) = fact_at(step, refs, item, first, known, library) {
+        if let Some(at) = fact_at(step, refs, Some(item), first, known, library) {
             if !out.iter().any(|o| o.same_place(&at)) {
                 out.push(at);
             }
@@ -428,18 +437,18 @@ fn firsts_at(
 }
 
 /// Where `fact` stands among the lines `refs` names at `step`, each read as
-/// the citation of `item` reads them (`firsts_at`); None where no line
-/// names says it.
+/// the citation of `item` reads them (`firsts_at`), or as the step reads
+/// them where it cites no item; None where no line names says it.
 fn fact_at(
     step: &Step,
     refs: &[String],
-    item: &str,
+    item: Option<&str>,
     fact: &Node,
     known: &Known,
     library: &Library,
 ) -> Option<FirstAt> {
     let scope = known.scope(step);
-    let defined = known.citing_item(refs, Some(item));
+    let defined = known.citing_item(refs, item);
     refs.iter().find_map(|r| {
         let stated = scope.get(r)?;
         // Counted as the page writes them: the line's sentences by their
@@ -466,6 +475,37 @@ fn fact_at(
                 .and_then(|s| placed(r, s, &says, own))
         })
     })
+}
+
+/// Where `fact`, a membership the page says once, stands among the lines
+/// in scope at `step` that introduce a letter (`SYNTAX.md`, a membership is
+/// said once): a `let`, or an `obtain` above the step in a block around it,
+/// as `library::introducing` reads them; the line itself, or what it
+/// implies, `n > 0` of `let n ∈ ℕ`. None where no such line states it.
+fn said_once_at(
+    step: &Step,
+    item: Option<&str>,
+    fact: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<FirstAt> {
+    let scope = known.scope(step);
+    let mut lines: Vec<String> = scope
+        .iter()
+        .filter(|(_, stated)| matches!(stated, super::library::Stated::Introduced(_)))
+        .map(|(label, _)| label.clone())
+        .collect();
+    lines.extend(
+        known
+            .thm
+            .steps
+            .iter()
+            .filter(|o| o.just.head.is(Method::Obtain) && o.line < step.line)
+            .filter(|o| o.number.parent().contains(&step.number))
+            .filter_map(|o| o.number.number().map(|n| n.to_string()))
+            .filter(|n| scope.contains_key(n)),
+    );
+    fact_at(step, &lines, item, fact, known, library)
 }
 
 /// Whether `said`, read in the standard order, states `fact`.
@@ -559,50 +599,70 @@ fn line_states(
 
 /// What supplies each hypothesis of the group `taken` takes, in the group's
 /// order (`Cited::supplied`): the fact the search took for it, placed among
-/// the lines `refs` names, or among the step's requires lines where
-/// `requires` reads them.
+/// the lines `refs` names, or among the step's requires lines the citation
+/// reads: all of them for the step's own, those above it for a citation on
+/// the line `below` (`Step::requires_above`). A hypothesis the search took
+/// no fact for, one the citation's values make true, is placed where a line
+/// states it at those values (`binding`) all the same, since a backend that
+/// cannot work it out takes that line.
 #[allow(clippy::too_many_arguments)]
 fn supplied_at(
     step: &Step,
     refs: &[String],
-    item: &str,
+    item: Option<&str>,
     supplying: Vec<(Node, Option<Node>)>,
-    requires: bool,
+    binding: &Binding,
+    below: Option<usize>,
     known: &Known,
     library: &Library,
 ) -> Vec<Supplied> {
     let ctx = &library.ctx;
     let none = IndexMap::new();
     let defined = known.citing_step(step);
-    let required: Vec<Vec<Node>> = match requires {
-        true => step
-            .requires
+    let read = |r: &Requires| -> Vec<Node> {
+        r.fact
+            .sentences()
             .iter()
-            .map(|r| {
-                r.fact
-                    .sentences()
-                    .iter()
-                    .filter_map(|s| known.read_citing(s, &defined))
-                    .collect()
-            })
-            .collect(),
-        false => Vec::new(),
+            .filter_map(|s| known.read_citing(s, &defined))
+            .collect()
+    };
+    let required: Vec<Vec<Node>> = match below {
+        None => step.requires.iter().map(read).collect(),
+        Some(line) => step.requires_above(line).map(read).collect(),
     };
     supplying
         .into_iter()
         .map(|(want, fact)| {
-            let by = match fact {
-                None => SuppliedBy::Unstated,
-                Some(fact) => match fact_at(step, refs, item, &fact, known, library) {
-                    Some(at) => SuppliedBy::Line(at),
-                    None => required
-                        .iter()
-                        .position(|said| {
-                            said.iter().any(|s| {
-                                alike(&standard(s, ctx), &fact, ctx, &none, &none)
-                            })
+            let fact = fact.unwrap_or_else(|| {
+                standard(&substitute_apart(&want, binding, ctx), ctx)
+            });
+            let states = |s: &Node| alike(&standard(s, ctx), &fact, ctx, &none, &none);
+            // A requires line that writes the fact, or else one that
+            // implies it, `[0, 1] ⊆ ℝ` of `[0, 1] ∈ 𝒫ℝ`.
+            let written = required
+                .iter()
+                .position(|said| said.iter().any(states))
+                .map(|line| SuppliedBy::Requires {
+                    line,
+                    implied: None,
+                });
+            let implied = || {
+                required.iter().enumerate().find_map(|(line, said)| {
+                    said.iter()
+                        .flat_map(|s| implied_by(s, known.env, &known.sorts))
+                        .find(|(i, _)| states(i))
+                        .map(|(_, rule)| SuppliedBy::Requires {
+                            line,
+                            implied: Some(rule),
                         })
-                        .map_or(SuppliedBy::Unstated, SuppliedBy::Requires),
+                })
+            };
+            let by = match fact_at(step, refs, item, &fact, known, library) {
+                Some(at) => SuppliedBy::Line(at),
+                None => match written.or_else(implied) {
+                    Some(by) => by,
+                    None => said_once_at(step, item, &fact, known, library)
+                        .map_or(SuppliedBy::Unstated, SuppliedBy::SaidOnce),
                 },
             };
             Supplied { want, by }
@@ -2445,228 +2505,275 @@ pub fn check_obtained_claims(
     known: &Known,
 ) {
     for step in &thm.steps {
-        let just = &step.just;
-        if !just.head.is(Method::Obtain) {
-            continue;
+        if let Some(read) = obtained_reading(step, thm, library, known) {
+            for (line, said) in read.faults {
+                report.say(&thm.path, line, said);
+            }
         }
-        if just.obtained.is_empty() {
-            continue;
-        }
-        let names: Vec<&str> = just.obtained.iter().map(String::as_str).collect();
-        let existence = match just.cited_item() {
-            None => {
-                let Some(stated) = just
-                    .refs
-                    .first()
-                    .and_then(|r| known.scope(step).get(r).cloned())
-                else {
-                    continue;
-                };
-                if !known.reads(&stated) {
-                    continue; // `check_formulas` says a sentence does not read
-                }
-                // The line's one "there is" among what it says
-                // (`Known::says`): a sentence, a part of one, or a "for all"
-                // read at a block's letter; with none or several the line
-                // states no one existence to obtain from.
-                let defined = known.citing_step(step);
-                let said = known.says(&stated, &defined);
-                let existences: Vec<&Node> = said
-                    .iter()
-                    .map(|s| &s.cited)
-                    .filter(|s| library.ctx.existences.contains(&s.notation()))
-                    .collect();
-                let sentences: Vec<&Node> = said
-                    .iter()
-                    .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
-                    .map(|s| &s.cited)
-                    .collect();
-                // A line of one sentence with no "there is" is read on: a
-                // part or a function said otherwise is the elaborator's to
-                // read, and a line saying none is told below.
-                if let ([], [one]) = (existences.as_slice(), sentences.as_slice()) {
-                    Some((*one).clone())
-                } else {
-                    match existences.as_slice() {
-                        [one] => Some((*one).clone()),
-                        none_or_more => {
-                            let says = if none_or_more.is_empty() {
-                                "says no \"there is\""
-                            } else {
-                                "says more than one \"there is\"; obtain from a line that says one"
-                            };
-                            report.say(
-                                &thm.path,
-                                just.line,
-                                format!(
-                                    "step {} obtains {} from a line, which {says}",
-                                    step.number,
-                                    names.join(", ")
-                                ),
-                            );
-                            continue;
-                        }
+    }
+}
+
+/// How each obtain step's sentences after its memberships meet the parts of
+/// the "there is" it obtains from (`record::ObtainedPart`), by the step's
+/// index; none for a step whose sentences do not meet them.
+pub fn obtained_parts(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Vec<ObtainedPart>> {
+    thm.steps
+        .iter()
+        .enumerate()
+        .filter_map(|(i, step)| {
+            let read = obtained_reading(step, thm, library, known)?;
+            read.faults.is_empty().then_some((i, read.parts))
+        })
+        .collect()
+}
+
+/// An obtain step read against the "there is" it obtains from: what is
+/// wrong with its claim, by line, and how its sentences meet the parts.
+struct ObtainedReading {
+    faults: Vec<(usize, String)>,
+    parts: Vec<ObtainedPart>,
+}
+
+/// `check_obtained_claims` of one step; None for a step that is no obtain,
+/// or one another check reports or the elaborator reads.
+fn obtained_reading(
+    step: &Step,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> Option<ObtainedReading> {
+    let mut reading = ObtainedReading {
+        faults: Vec::new(),
+        parts: Vec::new(),
+    };
+    let just = &step.just;
+    if !just.head.is(Method::Obtain) {
+        return None;
+    }
+    if just.obtained.is_empty() {
+        return None;
+    }
+    let names: Vec<&str> = just.obtained.iter().map(String::as_str).collect();
+    let existence = match just.cited_item() {
+        None => {
+            let stated = just
+                .refs
+                .first()
+                .and_then(|r| known.scope(step).get(r).cloned())?;
+            if !known.reads(&stated) {
+                return None; // `check_formulas` says a sentence does not read
+            }
+            // The line's one "there is" among what it says
+            // (`Known::says`): a sentence, a part of one, or a "for all"
+            // read at a block's letter; with none or several the line
+            // states no one existence to obtain from.
+            let defined = known.citing_step(step);
+            let said = known.says(&stated, &defined);
+            let existences: Vec<&Node> = said
+                .iter()
+                .map(|s| &s.cited)
+                .filter(|s| library.ctx.existences.contains(&s.notation()))
+                .collect();
+            let sentences: Vec<&Node> = said
+                .iter()
+                .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
+                .map(|s| &s.cited)
+                .collect();
+            // A line of one sentence with no "there is" is read on: a
+            // part or a function said otherwise is the elaborator's to
+            // read, and a line saying none is told below.
+            if let ([], [one]) = (existences.as_slice(), sentences.as_slice()) {
+                Some((*one).clone())
+            } else {
+                match existences.as_slice() {
+                    [one] => Some((*one).clone()),
+                    none_or_more => {
+                        let says = if none_or_more.is_empty() {
+                            "says no \"there is\""
+                        } else {
+                            "says more than one \"there is\"; obtain from a line that says one"
+                        };
+                        reading.faults.push((
+                            just.line,
+                            format!(
+                                "step {} obtains {} from a line, which {says}",
+                                step.number,
+                                names.join(", ")
+                            ),
+                        ));
+                        return Some(reading);
                     }
                 }
             }
-            Some(item) => {
-                let name = just.item(&item);
-                let Some(groups) = library.groups(&name) else {
-                    continue;
-                };
-                // A definition unfolded is its right side at the step's own
-                // values: from `n is even ↔ there is k ∈ ℤ with n = 2k`,
-                // `def:even n := P` obtains a k with P = 2k.
-                if library.item(&name).is_some_and(|i| i.unfolds()) {
-                    let Some(read) = searched(step, Search::Obtains, known, library)
-                    else {
-                        continue;
-                    };
-                    let Built(taken) = &*read else {
-                        continue;
-                    };
-                    let seed = &taken.binding;
-                    groups
-                        .iter()
-                        .flat_map(|g| &g.gives)
-                        .filter(|g| {
-                            g.notation() == BICONDITIONAL && g.children.len() == 2
-                        })
-                        .map(|g| filled(&g.children[1], seed, &library.ctx))
-                        .find(|right| exhibited(right, library).is_some())
-                } else {
-                    let Some(read) = searched(step, Search::Obtains, known, library)
-                    else {
-                        continue;
-                    };
-                    let Built(taken) = &*read else {
-                        continue; // `check_obtained` reports it
-                    };
-                    groups[taken.group]
-                        .gives
-                        .iter()
-                        .map(|g| filled(g, &taken.binding, &library.ctx))
-                        .find(|g| exhibited(g, library).is_some())
-                }
-            }
-        };
-        let Some(existence) = existence else {
-            continue;
-        };
-        // The letters in the order the "there is" binds them, each the name
-        // obtained in its place.
-        let mut order: Vec<(&Node, &Node)> = Vec::new();
-        let mut body = &existence;
-        while order.len() < names.len() {
-            let Some(last) = body.children.last() else {
-                break;
-            };
-            let kids = &body.children;
-            match body.notation() {
-                THERE_IS if kids.len() == 3 => order.push((&kids[0], &kids[1])),
-                _ => break,
-            }
-            body = last;
         }
-        if order.len() != names.len() {
-            // A line or an item that says no "there is" at all where one is
-            // left to take has nothing to obtain; another spelling of one, a
-            // part or a function, is the elaborator's to read.
-            if !library.ctx.existences.contains(&body.notation()) {
-                let from = just.cited_item().unwrap_or_else(|| "a line".to_string());
-                report.say(
-                    &thm.path,
+        Some(item) => {
+            let name = just.item(&item);
+            let groups = library.groups(&name)?;
+            // A definition unfolded is its right side at the step's own
+            // values: from `n is even ↔ there is k ∈ ℤ with n = 2k`,
+            // `def:even n := P` obtains a k with P = 2k.
+            if library.item(&name).is_some_and(|i| i.unfolds()) {
+                let read = searched(step, Search::Obtains, known, library)?;
+                let Built(taken) = &*read else {
+                    return None;
+                };
+                let seed = &taken.binding;
+                groups
+                    .iter()
+                    .flat_map(|g| &g.gives)
+                    .filter(|g| g.notation() == BICONDITIONAL && g.children.len() == 2)
+                    .map(|g| filled(&g.children[1], seed, &library.ctx))
+                    .find(|right| exhibited(right, library).is_some())
+            } else {
+                let read = searched(step, Search::Obtains, known, library)?;
+                let Built(taken) = &*read else {
+                    return None; // `check_obtained` reports it
+                };
+                groups[taken.group]
+                    .gives
+                    .iter()
+                    .map(|g| filled(g, &taken.binding, &library.ctx))
+                    .find(|g| exhibited(g, library).is_some())
+            }
+        }
+    };
+    let existence = existence?;
+    // The letters in the order the "there is" binds them, each the name
+    // obtained in its place.
+    let mut order: Vec<(&Node, &Node)> = Vec::new();
+    let mut body = &existence;
+    while order.len() < names.len() {
+        let Some(last) = body.children.last() else {
+            break;
+        };
+        let kids = &body.children;
+        match body.notation() {
+            THERE_IS if kids.len() == 3 => order.push((&kids[0], &kids[1])),
+            _ => break,
+        }
+        body = last;
+    }
+    if order.len() != names.len() {
+        // A line or an item that says no "there is" at all where one is
+        // left to take has nothing to obtain; another spelling of one, a
+        // part or a function, is the elaborator's to read.
+        if !library.ctx.existences.contains(&body.notation()) {
+            let from = just.cited_item().unwrap_or_else(|| "a line".to_string());
+            reading.faults.push((
                     just.line,
                     format!(
                         "step {} obtains {} from {from}, which says no \"there is\" of as many",
                         step.number,
                         names.join(", ")
                     ),
-                );
-            }
-            continue;
+                ));
+            return Some(reading);
         }
-        let mut put = Binding::new();
-        for ((letter, _), name) in order.iter().zip(&names) {
-            if letter.text != *name {
-                let written = Written::new(*name, &thm.path, just.line);
-                let Some(named) = written
-                    .formula()
-                    .ok()
-                    .and_then(|s| known.read_as_written(&s))
-                else {
-                    continue;
-                };
-                put.insert(letter.text, named);
-            }
-        }
-        let Some(said) = step
-            .claim
-            .sentences()
-            .iter()
-            .map(|s| known.read(step, s))
-            .collect::<Option<Vec<Node>>>()
-        else {
-            continue; // `check_formulas` says it does not read
-        };
-        // A membership written `x ∈ S` is the one the "there is" gives, and
-        // `X ⊆ A` is `X ∈ 𝒫A` written the other way; one its notation spells
-        // otherwise, `f : X → Y`, is the elaborator's to read.
-        for ((letter, domain), claimed) in order.iter().zip(&said) {
-            let member = match (claimed.notation(), domain.notation()) {
-                (SUBSET, POWERSET) if domain.children.len() == 1 => {
-                    bound_in(Bound::Part, letter, &domain.children[0], library.env.g)
-                }
-                _ => bound_in(Bound::Member, letter, domain, library.env.g),
+        return None;
+    }
+    let mut put = Binding::new();
+    for ((letter, _), name) in order.iter().zip(&names) {
+        if letter.text != *name {
+            let written = Written::new(*name, &thm.path, just.line);
+            let Some(named) = written
+                .formula()
+                .ok()
+                .and_then(|s| known.read_as_written(&s))
+            else {
+                continue;
             };
-            let member = substitute_apart(&member, &put, &library.ctx);
-            if claimed.notation() == member.notation() && !known.alike(claimed, &member)
-            {
-                report.say(
-                    &thm.path,
-                    step.line,
-                    format!(
-                        "step {} claims {}, and what it obtains says {}",
-                        step.number,
-                        known.print(claimed),
-                        known.print(&member)
-                    ),
-                );
-            }
-        }
-        let owes: Vec<Node> = conjuncts(body, library)
-            .iter()
-            .map(|w| substitute_apart(w, &put, &library.ctx))
-            .collect();
-        let claimed: Vec<Node> = said
-            .iter()
-            .skip(names.len())
-            .flat_map(|c| conjuncts(c, library))
-            .collect();
-        let mut left: Vec<&Node> = owes.iter().collect();
-        let all =
-            claimed
-                .iter()
-                .all(|c| match left.iter().position(|o| known.alike(c, o)) {
-                    Some(at) => {
-                        left.remove(at);
-                        true
-                    }
-                    None => false,
-                });
-        if !all || !left.is_empty() {
-            let says: Vec<String> = owes.iter().map(|o| known.print(o)).collect();
-            report.say(
-                &thm.path,
-                step.line,
-                format!(
-                    "step {} claims other than what it obtains, which says {}",
-                    step.number,
-                    says.join(". ")
-                ),
-            );
+            put.insert(letter.text, named);
         }
     }
+    let Some(said) = step
+        .claim
+        .sentences()
+        .iter()
+        .map(|s| known.read(step, s))
+        .collect::<Option<Vec<Node>>>()
+    else {
+        return None; // `check_formulas` says it does not read
+    };
+    // A membership written `x ∈ S` is the one the "there is" gives, and
+    // `X ⊆ A` is `X ∈ 𝒫A` written the other way; one its notation spells
+    // otherwise, `f : X → Y`, is the elaborator's to read.
+    for ((letter, domain), claimed) in order.iter().zip(&said) {
+        let member = match (claimed.notation(), domain.notation()) {
+            (SUBSET, POWERSET) if domain.children.len() == 1 => {
+                bound_in(Bound::Part, letter, &domain.children[0], library.env.g)
+            }
+            _ => bound_in(Bound::Member, letter, domain, library.env.g),
+        };
+        let member = substitute_apart(&member, &put, &library.ctx);
+        if claimed.notation() == member.notation() && !known.alike(claimed, &member) {
+            reading.faults.push((
+                step.line,
+                format!(
+                    "step {} claims {}, and what it obtains says {}",
+                    step.number,
+                    known.print(claimed),
+                    known.print(&member)
+                ),
+            ));
+        }
+    }
+    let owes: Vec<Node> = conjuncts(body, library)
+        .iter()
+        .map(|w| substitute_apart(w, &put, &library.ctx))
+        .collect();
+    // Each part of each sentence after the memberships, with its
+    // sentence's place in the claim and its own in the sentence.
+    let claimed: Vec<(usize, usize, Node)> = said
+        .iter()
+        .enumerate()
+        .skip(names.len())
+        .flat_map(|(s, c)| {
+            conjuncts(c, library)
+                .into_iter()
+                .enumerate()
+                .map(move |(p, part)| (s, p, part))
+        })
+        .collect();
+    // Each part meets the first part of the "there is" left that it is
+    // alike, the one in its own place first.
+    let mut left: Vec<usize> = (0..owes.len()).collect();
+    let mut all = true;
+    for (k, (sentence, part, c)) in claimed.iter().enumerate() {
+        let ahead = left.iter().position(|&o| o == k);
+        let found = ahead
+            .and_then(|at| Some((at, known.alike_how(c, &owes[k])?)))
+            .or_else(|| {
+                left.iter()
+                    .enumerate()
+                    .find_map(|(at, &o)| Some((at, known.alike_how(c, &owes[o])?)))
+            });
+        let Some((at, meeting)) = found else {
+            all = false;
+            break;
+        };
+        reading.parts.push(ObtainedPart {
+            sentence: *sentence,
+            part: *part,
+            owed: left.remove(at),
+            meeting,
+        });
+    }
+    if !all || !left.is_empty() {
+        let says: Vec<String> = owes.iter().map(|o| known.print(o)).collect();
+        reading.faults.push((
+            step.line,
+            format!(
+                "step {} claims other than what it obtains, which says {}",
+                step.number,
+                says.join(". ")
+            ),
+        ));
+    }
+    Some(reading)
 }
 
 /// A requires line needs what the item it cites concludes.
@@ -4697,15 +4804,17 @@ fn shown_value(
     })
 }
 
-/// The values each exhibit step shows, by the line the step is on: for each
+/// What each exhibit step shows, by the line the step is on: for each
 /// sentence of its claim, the value each letter of its "there is" stands
-/// for, as `check_exhibit` reads it; None for a sentence that is no "there
+/// for, as `check_exhibit` reads it, and where each fact it asks of them
+/// stands among the lines the step names, its requires lines and the `let`
+/// lines in scope (`supplied_at`); None for a sentence that is no "there
 /// is" the step gives a value of. The build exhibits these values.
 pub fn exhibit_values(
     thm: &Theorem,
     library: &Library,
     known: &Known,
-) -> IndexMap<usize, Vec<Option<Binding>>> {
+) -> IndexMap<usize, Vec<Option<Exhibit>>> {
     thm.steps
         .iter()
         .filter(|s| s.just.head.is(Method::Exhibit))
@@ -4716,8 +4825,20 @@ pub fn exhibit_values(
                 .claims
                 .iter()
                 .map(|claim| {
-                    exhibited(claim, library)
-                        .and_then(|ex| shown_value(&ex, &facts, library, known))
+                    let ex = exhibited(claim, library)?;
+                    let values = shown_value(&ex, &facts, library, known)?;
+                    let asked = ex.wants.iter().map(|w| (w.clone(), None)).collect();
+                    let shown = supplied_at(
+                        step,
+                        &step.just.refs,
+                        None,
+                        asked,
+                        &values,
+                        None,
+                        known,
+                        library,
+                    );
+                    Some(Exhibit { values, shown })
                 })
                 .collect();
             (step.line, values)

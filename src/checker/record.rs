@@ -277,10 +277,14 @@ pub struct CheckedTheorem {
     /// in the order cited, by the line the step is on: the line's own, or
     /// of a line saying several, the one that meets the chain.
     pub links: IndexMap<usize, Vec<Node>>,
-    /// The values each `exhibit` step shows, by the line the step is on: for
-    /// each sentence of its claim, what each letter of its "there is" stands
-    /// for (`citations::exhibit_values`).
-    pub exhibited: IndexMap<usize, Vec<Option<Binding>>>,
+    /// What each `exhibit` step shows, by the line the step is on: for each
+    /// sentence of its claim, the values of its "there is" and where each
+    /// fact it says of them stands (`citations::exhibit_values`).
+    pub exhibited: IndexMap<usize, Vec<Option<Exhibit>>>,
+    /// How each obtain step's sentences after its memberships are the parts
+    /// of the "there is" it obtains from, by the step's index
+    /// (`citations::obtained_parts`).
+    pub obtained_parts: IndexMap<usize, Vec<ObtainedPart>>,
     /// What each of the theorem's `let` lines asserts that the page does not
     /// read as a formula, `f : A → B be one-to-one` as `f : A → B is
     /// one-to-one`, by the hypothesis's index; empty for any other line
@@ -532,6 +536,34 @@ impl FirstAt {
     }
 }
 
+/// One part of what an obtain step claims after its memberships, and the
+/// part of the "there is" it obtains from that the part is
+/// (`citations::check_obtained_claims`).
+#[derive(Clone, Debug)]
+pub struct ObtainedPart {
+    /// The claim's sentence, by its place among the step's sentences.
+    pub sentence: usize,
+    /// The part of that sentence, joined by "and", counted from 0
+    /// (`citing::conjuncts`).
+    pub part: usize,
+    /// The part of the "there is"'s body it is, counted alike.
+    pub owed: usize,
+    /// How the two meet (`Known::alike_how`).
+    pub meeting: crate::matching::Meeting,
+}
+
+/// What one sentence of an exhibit's claim shows, a "there is".
+#[derive(Clone, Debug)]
+pub struct Exhibit {
+    /// What each letter of the "there is" stands for.
+    pub values: Binding,
+    /// Each fact the "there is" asks of its values, in order: each letter
+    /// in its domain, then each part of its body joined by "and"
+    /// (`citing::conjuncts`), with where it stands, as a citation's
+    /// hypotheses are placed.
+    pub shown: Vec<Supplied>,
+}
+
 /// What supplies one hypothesis of a cited item (`Cited::supplied`).
 #[derive(Clone, Debug)]
 pub struct Supplied {
@@ -545,11 +577,18 @@ pub struct Supplied {
 pub enum SuppliedBy {
     /// A line the citation names, a sentence of it, or a part of one.
     Line(FirstAt),
-    /// One of the step's own `requires` lines, by its place among them,
-    /// counted from 0.
-    Requires(usize),
-    /// No line the step names: a membership said once, or a fact the
-    /// citation's values make true.
+    /// One of the step's own `requires` lines.
+    Requires {
+        /// The line, by its place among the step's, counted from 0.
+        line: usize,
+        /// Where the line does not write the fact but implies it, the rule.
+        implied: Option<crate::citing::Implication>,
+    },
+    /// A `let` line in scope the step does not name: a membership said once
+    /// where the letter is let, or what that membership implies.
+    SaidOnce(FirstAt),
+    /// No line: a fact the citation's values make true, or a membership
+    /// said once of a term no `let` line writes.
     Unstated,
 }
 
