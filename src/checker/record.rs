@@ -180,6 +180,24 @@ pub struct LibraryReading {
     /// by its full name, which its groups leave out
     /// (`citing::Library::function_types`).
     pub function_types: IndexMap<String, Vec<crate::formula::Node>>,
+    /// What each group of each item says of its terms, its phrases written
+    /// out, by the item's full name and the group's place
+    /// (`checker::written::item_facts`).
+    pub item_facts: IndexMap<String, Vec<GroupFacts>>,
+}
+
+/// What one group of an item says of its terms, read as a theorem's lines
+/// are (`LibraryReading::item_facts`).
+#[derive(Clone, Debug)]
+pub struct GroupFacts {
+    /// What its hypotheses bound below (`citing::bounds`).
+    pub bounds: crate::citing::bounds::SaidBounds,
+    /// The sets its hypotheses make finite (`citing::finite::said_finite`).
+    pub finite: crate::citing::finite::SaidFinite,
+    /// For each sentence it concludes, the number system each set letter of
+    /// numbers holds by the hypotheses and that sentence
+    /// (`citing::number_sets::set_letter_systems`).
+    pub set_systems: Vec<IndexMap<String, crate::rules::System>>,
 }
 
 /// A theorem as the checker reads it.
@@ -308,6 +326,11 @@ pub struct CheckedTheorem {
     /// numbers, f of `f : D → ℝ`, with the systems of the domain and the
     /// codomain (`citing::number_sets::function_systems`).
     pub function_systems: IndexMap<String, crate::citing::number_sets::Between>,
+    /// The record with what the theorem's file defines outside it written
+    /// out, and each phrase as its meaning, read again of the page as
+    /// written (`checker::written`); None where the file defines nothing
+    /// so and the record stands as read.
+    pub written: Option<Box<CheckedTheorem>>,
 }
 
 /// A "for all" a cited line says, and the block's letter it is read at

@@ -14,6 +14,7 @@ mod formulas;
 mod library;
 pub mod record;
 mod structure;
+pub mod written;
 
 use std::borrow::Cow;
 use std::collections::BTreeSet;
@@ -476,11 +477,16 @@ pub fn checked_where(
                 statement_definitions(thm, c.env, &c.known[i].sorts);
             out.insert(thm.qualified(), record);
         }
+        let groups = c.library.all_groups();
+        let phrases = written::library_phrases(&read.corpus.records, &groups);
+        let item_facts =
+            written::item_facts(&groups, &phrases, c.env.g, &c.library.ctx);
         let library = LibraryReading {
             record_sorts: c.record_sorts.clone(),
             cited: c.cited.clone(),
-            groups: c.library.all_groups(),
+            groups,
             function_types: c.library.all_function_types(),
+            item_facts,
         };
         (out, library)
     });
@@ -492,12 +498,31 @@ pub fn checked_where(
         report.problems.push(p);
         summary(report, counts_of(&read.corpus))
     })?;
-    Ok(CheckedCorpus {
+    let mut checked = CheckedCorpus {
         corpus: read.corpus,
         grammar,
         theorems,
         library,
-    })
+    };
+    // Each record as the page reads with its file's outside defines written
+    // out, made once the corpus is read, which it reads the phrases from.
+    let written: Vec<(String, Box<CheckedTheorem>)> = checked
+        .corpus
+        .theorems
+        .iter()
+        .filter_map(|thm| {
+            let name = thm.qualified();
+            let rec = checked.theorems.get(&name)?;
+            let made = written::written_out(&checked, thm, rec)?;
+            Some((name, Box::new(made)))
+        })
+        .collect();
+    for (name, made) in written {
+        if let Some(rec) = checked.theorems.get_mut(&name) {
+            rec.written = Some(made);
+        }
+    }
+    Ok(checked)
 }
 
 /// How many theorems, steps, items and methods the corpus holds, which a

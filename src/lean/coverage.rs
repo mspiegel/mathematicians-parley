@@ -364,9 +364,8 @@ fn covered(
         };
     };
     // Its file's functions written out where applied, as the writer reads
-    // it (`theorem::outside_written`).
-    let written = super::theorem::outside_written(checked, thm, rec);
-    let rec: &crate::checker::CheckedTheorem = &written;
+    // it (`CheckedTheorem::written`).
+    let rec = super::theorem::as_written(rec);
     let set_valued = thm.defines.iter().any(|d| {
         matches!(crate::corpus::define_parts(&d.text),
             crate::outcome::Route::Built(crate::corpus::DefineParts::One(def))

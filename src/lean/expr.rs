@@ -544,15 +544,6 @@ impl<'a> Writer<'a> {
         self.integers.iter().find(|s| s.term == printed)
     }
 
-    /// What these lines bound below is what this writer knows of its terms'
-    /// least values.
-    pub fn bounds_from<'n>(&mut self, lines: impl IntoIterator<Item = &'n Node>) {
-        let lines: Vec<&Node> = lines.into_iter().collect();
-        let mut out = SaidBounds::default();
-        bounds::from_lines(self, &lines, &mut out);
-        self.bounds = out;
-    }
-
     /// This writer where these lines hold as well: what they bound added to
     /// its own.
     /// The writer inside a quantifier over a number system, "for all x ∈

@@ -872,21 +872,30 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
     let mut sentences = Vec::new();
     let groups_let = group_lines(record);
     // A phrase a define gives is written out as its meaning, as a theorem's
-    // page is (`theorem::outside_written`).
-    let phrases = super::theorem::library_phrases(checked);
+    // page is (`checker::written`).
+    let phrases = crate::checker::written::library_phrases(
+        &checked.corpus.records,
+        &checked.library.groups,
+    );
+    let facts = checked.library.item_facts.get(&full);
     let groups: Vec<crate::citing::Group> = groups
         .iter()
-        .map(|g| super::theorem::group_written(g, &phrases, writer.grammar))
+        .map(|g| crate::checker::written::group_written(g, &phrases, writer.grammar))
         .collect();
-    for group in groups.iter() {
-        for says in &group.gives {
+    for (gi, group) in groups.iter().enumerate() {
+        // What the checker read the group's lines to say of its terms
+        // (`LibraryReading::item_facts`).
+        let Some(read) = facts.and_then(|f| f.get(gi)) else {
+            return Route::no("an item group the checker read no facts of");
+        };
+        for (si, says) in group.gives.iter().enumerate() {
             let mut w = Writer::new(writer.grammar, writer.templates);
             for g in &groups_let {
                 w.letters.insert(g.group.clone(), LetterType::Group);
                 w.letters
                     .insert(g.identity.clone(), LetterType::Identity(g.group.clone()));
             }
-            w.bounds_from(group.wants.iter().map(|(_, n)| n));
+            w.bounds = read.bounds.clone();
             let functions: &[Node] = checked
                 .library
                 .function_types
@@ -912,13 +921,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // A set the item's hypotheses say is finite is counted as a
             // natural number; one only its conclusion says is, X of "if
             // |X| = m then X is finite", is not, as the count comes first.
-            let wants: Vec<Node> = group.wants.iter().map(|(_, n)| n.clone()).collect();
-            w.finite_from(&crate::citing::finite::said_finite(
-                w.grammar,
-                &wants,
-                &[],
-                &[],
-            ));
+            w.finite_from(&read.finite);
             let mut sets: Vec<(String, LetterType)> = free
                 .iter()
                 .filter_map(|f| {
@@ -940,10 +943,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // of the numbers the item puts it among: D of D ⊆ ℝ, D ∈ 𝒫ℝ.
             // Or of the numbers of a set it is joined with or taken from:
             // c of {1, …, i} ∖ c is a set of integers.
-            let systems = crate::citing::number_sets::set_letter_systems(
-                &said,
-                &crate::citing::Introduced::new(),
-            );
+            let systems = read.set_systems.get(si).cloned().unwrap_or_default();
             for (name, system) in systems {
                 let ty = LetterType::Set(super::expr::Members::Numbers(
                     super::expr::recorded_set_type(system),

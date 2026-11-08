@@ -155,243 +155,18 @@ pub fn set_valued(rec: &CheckedTheorem, name: &str) -> bool {
     )
 }
 
-/// The theorem as the checker read it with each function its file defines
-/// outside it written out where it is applied, T(k + 1) of `define T(k) :=
-/// k(k + 1)/2` as (k + 1)(k + 2)/2, as the Metamath build reads it
-/// (`elab::reading`): Lean has no name for such a function, and set.mm's
-/// statement never names one. Unchanged where the file defines none.
-pub fn outside_written<'r>(
-    checked: &CheckedCorpus,
-    thm: &Theorem,
-    rec: &'r CheckedTheorem,
-) -> std::borrow::Cow<'r, CheckedTheorem> {
-    let rules: crate::matching::Definitions = rec
-        .outside
-        .iter()
-        .filter(|(_, d)| matches!(d, crate::matching::Defined::Rule(_)))
-        .map(|(n, d)| (n.clone(), d.clone()))
-        .collect();
-    let phrases = phrase_meanings(checked, rec);
-    let written_page = rec
-        .page
-        .entries()
-        .flat_map(|(_, n)| n.walk())
-        .any(|n| phrases.contains_key(&n.notation()));
-    if rules.is_empty() && !written_page {
-        return std::borrow::Cow::Borrowed(rec);
-    }
-    let out = |n: &Node| {
-        let n = crate::matching::expand(n, &rules);
-        phrases_written(&n, &phrases, &checked.grammar, 8)
-    };
-    let binding = |b: &crate::matching::Binding| -> crate::matching::Binding {
-        b.iter().map(|(k, v)| (*k, out(v))).collect()
-    };
-    let mut written = rec.clone();
-    written.page = crate::checker::record::PageReading::new(
-        rec.page
-            .entries()
-            .map(|(k, n)| (k.clone(), out(n)))
-            .collect(),
-    );
-    written.asserted = rec
-        .asserted
-        .iter()
-        .map(|line| line.iter().map(out).collect())
-        .collect();
-    for c in written.cited.iter_mut().flatten() {
-        c.binding = binding(&c.binding);
-    }
-    for c in written.cited_requires.values_mut() {
-        c.binding = binding(&c.binding);
-    }
-    for all in written.exhibited.values_mut() {
-        for b in all.iter_mut().flatten() {
-            *b = binding(b);
-        }
-    }
-    for read in written.read_at.iter_mut().flatten() {
-        read.said = out(&read.said);
-    }
-    for said in written
-        .bounds
-        .iter_mut()
-        .chain([&mut written.statement_bounds])
-    {
-        for b in &mut said.terms {
-            b.term = out(&b.term);
-        }
-        for line in &mut said.over_ranges {
-            *line = out(line);
-        }
-    }
-    for held in written.held_by_lines.values_mut().flatten() {
-        use crate::checker::record::LinesHold;
-        held.term = out(&held.term);
-        match &mut held.by {
-            LinesHold::Stated { line } => *line = out(line),
-            LinesHold::Beside { equation, other } => {
-                *equation = out(equation);
-                *other = out(other);
-            }
-            LinesHold::Closed => {}
-        }
-    }
-    // The sets the page makes finite, read of the page as written here: a
-    // letter bound in a define written out, the c of {c ∈ 𝒫{1, …, k} : …},
-    // is one the page as read does not bind.
-    written.said_finite = crate::checker::finite_of(&checked.grammar, thm, &written);
-    written.set_systems = crate::checker::set_systems_of(&written);
-    written.element_systems = crate::checker::element_systems_of(&written);
-    written.function_systems = crate::checker::function_systems_of(&written);
-    std::borrow::Cow::Owned(written)
-}
-
-/// A phrase a define gives, `c is a counting ahead through k`: its slots
-/// and what it means, from the definition record the define stands for,
-/// whose statement is the phrase, `↔`, and the meaning.
-pub(super) struct Phrase {
-    slots: Vec<crate::formula::symbol::Symbol>,
-    meaning: Node,
-}
-
-/// Each phrase the library's phrase defines give, by its notation, read
-/// from the definition records' own groups, for the items that state one.
-pub(super) fn library_phrases(
-    checked: &CheckedCorpus,
-) -> IndexMap<crate::formula::notation_id::NotationId, Phrase> {
-    let mut out = IndexMap::new();
-    let made = checked.corpus.records.iter().filter(|r| {
-        r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
-    });
-    for r in made {
-        let full = format!("{}/{}", r.module(), r.name);
-        let Some(Some(groups)) = checked.library.groups.get(&full) else {
-            continue;
-        };
-        for read in groups.iter().flat_map(|g| &g.gives) {
-            let [phrase, meaning] = read.children.as_slice() else {
-                continue;
-            };
-            if read.notation() != crate::notations::BICONDITIONAL
-                || !phrase.children.iter().all(Node::is_name)
-            {
-                continue;
-            }
-            out.insert(
-                phrase.notation(),
-                Phrase {
-                    slots: phrase.children.iter().map(|c| c.text).collect(),
-                    meaning: meaning.clone(),
-                },
-            );
-        }
-    }
-    out
-}
-
-/// An item's group with each phrase in it written out as its meaning, as a
-/// theorem's page is (`outside_written`).
-pub(super) fn group_written(
-    group: &crate::citing::Group,
-    phrases: &IndexMap<crate::formula::notation_id::NotationId, Phrase>,
-    grammar: &crate::formula::Grammar,
-) -> crate::citing::Group {
-    let out = |n: &Node| phrases_written(n, phrases, grammar, 8);
-    crate::citing::Group {
-        wants: group
-            .wants
-            .iter()
-            .map(|(text, n)| (text.clone(), out(n)))
-            .collect(),
-        gives: group.gives.iter().map(out).collect(),
-        functions: group.functions.clone(),
-        identities: group.identities.clone(),
-    }
-}
-
-/// Each phrase a theorem can read, by its notation, as the Metamath build
-/// reads it (`Elaborator::phrase_meanings`).
-fn phrase_meanings(
-    checked: &CheckedCorpus,
-    rec: &CheckedTheorem,
-) -> IndexMap<crate::formula::notation_id::NotationId, Phrase> {
-    let mut out = IndexMap::new();
-    let made = checked.corpus.records.iter().filter(|r| {
-        r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
-    });
-    for r in made {
-        for written in r.stated() {
-            let Ok(sentence) = written.formula() else {
-                continue;
-            };
-            let Some(Ok(read)) = rec.items.get(&sentence) else {
-                continue;
-            };
-            let [phrase, meaning] = read.children.as_slice() else {
-                continue;
-            };
-            if read.notation() != crate::notations::BICONDITIONAL
-                || !phrase.children.iter().all(Node::is_name)
-            {
-                continue;
-            }
-            out.insert(
-                phrase.notation(),
-                Phrase {
-                    slots: phrase.children.iter().map(|c| c.text).collect(),
-                    meaning: meaning.clone(),
-                },
-            );
-        }
-    }
-    out
-}
-
-/// The tree with each phrase written out as its meaning at what fills its
-/// slots, the meaning's own letters kept apart from what is put in.
-fn phrases_written(
-    node: &Node,
-    phrases: &IndexMap<crate::formula::notation_id::NotationId, Phrase>,
-    grammar: &crate::formula::Grammar,
-    depth: usize,
-) -> Node {
-    if depth == 0 {
-        return node.clone();
-    }
-    if let Some(p) = phrases.get(&node.notation()) {
-        if p.slots.len() == node.children.len() {
-            let put: crate::matching::Binding = p
-                .slots
-                .iter()
-                .copied()
-                .zip(node.children.iter().cloned())
-                .collect();
-            let at = crate::matching::substitute_apart_by(
-                &p.meaning,
-                &put,
-                &grammar.binders(),
-            );
-            return phrases_written(&at, phrases, grammar, depth - 1);
-        }
-    }
-    if node.children.is_empty() {
-        return node.clone();
-    }
-    node.with_children(
-        node.children
-            .iter()
-            .map(|c| phrases_written(c, phrases, grammar, depth))
-            .collect(),
-    )
+/// The record the writer reads: the checker's with what the theorem's file
+/// defines outside it written out (`CheckedTheorem::written`), or as read
+/// where it defines nothing so.
+pub fn as_written(rec: &CheckedTheorem) -> &CheckedTheorem {
+    rec.written.as_deref().unwrap_or(rec)
 }
 
 /// The theorem as an item of the library: its statement's binders, and its
 /// `then` sentences joined into one Lean statement, each taken by its
 /// projection.
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
-    let written = outside_written(sources.checked, thm, rec);
-    let rec: &CheckedTheorem = &written;
+    let rec = as_written(rec);
     let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
     writer.reals = held_real(rec, &writer);
     writer.finite_from(&rec.said_finite);
@@ -1674,8 +1449,7 @@ pub fn theorem(
     thm: &Theorem,
     rec: &CheckedTheorem,
 ) -> Route<LeanFile> {
-    let written = outside_written(sources.checked, thm, rec);
-    let rec: &CheckedTheorem = &written;
+    let rec = as_written(rec);
     let mut proof = Proof {
         sources,
         thm,

@@ -90,6 +90,24 @@ fn a_letter_in_a_set_of_numbers_takes_the_widest_system() {
 }
 
 #[test]
+fn an_items_hypotheses_make_its_sets_finite_and_bound_its_terms() {
+    let read = read(&[]);
+    // finite-part asks X is finite.
+    let facts = &read.library.item_facts["stdlib/counting/finite-part"];
+    assert!(
+        facts.iter().any(|g| g.finite.sets.contains("X")),
+        "{:?}",
+        facts.iter().map(|g| &g.finite.sets).collect::<Vec<_>>()
+    );
+    // real-power-positive asks its base above 0.
+    let facts = &read.library.item_facts["stdlib/numbers/real-power-positive"];
+    assert!(
+        facts.iter().any(|g| !g.bounds.terms.is_empty()),
+        "{facts:?}"
+    );
+}
+
+#[test]
 fn a_function_typed_between_number_systems_records_both() {
     let read = read(&[CONGRUENCE_CHAIN]);
     let record = &read.theorems[CONGRUENCE_CHAIN];
