@@ -10,6 +10,12 @@ The writer follows the Metamath backend's strategy wherever Lean allows it
 (`GOALS.md` decision 20). Each term has one Lean form. What the writer needs
 to know about a term, that it is an integer or at least 0, it takes from the
 page's lines and from the checker's record, never from a reading of its own.
+Which line a step names puts a part in a number system, the letter a cited
+"for all" is read at, what the lines in scope bound below and make finite,
+and the page with outside defines written out are the record's
+(`docs/CHECKER.md`). The writer keeps the choices that are Lean's own: the
+Lean type of an item's untyped letter, and how a fact is written, a range
+line's integer `∃ m : ℤ, ↑m = k ∧ m ∈ …` among them.
 Where Lean's types force a difference, this document says so where it
 describes it: a rational's membership in ℤ as a witness, `∃ m : ℤ, (m : ℚ) =
 t`, or a real power of a base not shown at least 0 as the complex principal

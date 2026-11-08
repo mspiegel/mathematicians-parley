@@ -72,3 +72,24 @@ and not inferred inside one.
   at the letter of a block around it, with that letter, by the step's index:
   "for all x ∈ ℝ, x < x + 1" read at the y of the block's `let y ∈ ℝ`. Lean
   reads a cited "for all" at that letter and at no other.
+- `statement_bounds`, `bounds`: what the statement's hypotheses, and the
+  lines in scope above each step, bound below, y − 3 ≥ 0 of `y ≥ 3` or
+  x ≥ 1 of `x ∈ ℕ` (`citing::bounds`), read with the letters in scope.
+  Lean writes a square root or a real power of a base at least 0 as a real
+  one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
+- `finite_at`: the sets the lines in scope above each step say are finite
+  in words, `W is finite`, or a part of a finite set, `Y ⊆ X` or `Y ∈ 𝒫X`.
+  Lean counts such a set as a natural number from that step on.
+- `element_systems`: the number system each letter the page puts in sets
+  of numbers is in, the widest of them, A of `A ∈ ℝ ∖ ℚ`. Lean gives `let A
+  be an element` that type.
+- `function_systems`: the function letters a line types between sets of
+  numbers, f of `f : ℤ → ℝ`, with the systems of the domain and the
+  codomain.
+- `written`: the record with what the theorem's file defines outside it
+  written out, T(k + 1) of `define T(k) := k(k + 1)/2` as (k + 1)(k + 2)/2,
+  and each phrase as its meaning, its facts read again of the page as
+  written. Lean, which has no name for such a function, reads this record.
+- `item_facts`, of the library's reading rather than a theorem's: for each
+  group of each item, what its hypotheses bound below and make finite, and
+  for each sentence it concludes, the number systems of its set letters.
