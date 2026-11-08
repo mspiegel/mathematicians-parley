@@ -329,7 +329,7 @@ pub struct SaidInteger {
     /// line's witness, `Classical.choose proof`.
     pub value: Option<Printed>,
     /// Whether the number stands for the term only where a whole number is
-    /// asked, as a step names one (`theorem::named_atoms`): elsewhere the
+    /// asked, as a step names one (`theorem::name_wholes`): elsewhere the
     /// term keeps its own form. A line saying the term is an integer gives
     /// one that stands for it everywhere after.
     pub slot_only: bool,

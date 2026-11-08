@@ -1265,7 +1265,7 @@ struct Proof<'a> {
     witness_letters: Vec<WitnessLetter>,
     /// While a step's reason is written, the lines it names, by the keys of
     /// `trees`: the references it cites and its requires lines. A line
-    /// saying a term is an integer is one of these (`said_integer`), as
+    /// saying a term is an integer is one of these (`integer_line`), as
     /// the page puts a term in a system only in the steps that name the
     /// line (`docs/SYNTAX.md`).
     named_now: std::cell::RefCell<Option<std::collections::BTreeSet<String>>>,
@@ -1297,19 +1297,20 @@ struct NamedAtom {
 
 /// A line a step names that puts a term in a number system, `p − 1 ∈ ℕ₀`:
 /// its Lean name and the system it says.
-struct StatedLine {
+struct NamedLine {
     name: Printed,
     system: crate::rules::System,
 }
 
-/// The line among `facts` that puts the term `t` in `within` or a system
-/// inside it, `p − 1 ∈ ℕ₀` asked of ℕ₀; None where none does.
-fn stated_line(
+/// The Lean name of the line among `facts` that puts the term `t` in
+/// `within` or a system inside it, `p − 1 ∈ ℕ₀` asked of ℕ₀, as the check
+/// found the line held it (`Proof::held`); None where none does.
+fn named_line(
     facts: &[super::algebra::Cited],
     t: &Node,
     within: crate::rules::System,
     ctx: &crate::matching::Context,
-) -> Option<StatedLine> {
+) -> Option<NamedLine> {
     facts.iter().find_map(|f| {
         let [x, set] = f.node.children.as_slice() else {
             return None;
@@ -1322,7 +1323,7 @@ fn stated_line(
             && set.notation() == crate::notations::NUMBER_SYSTEMS
             && crate::matching::alike_top(&standard(x), &standard(t), ctx)
             && system.within(within))
-        .then(|| StatedLine {
+        .then(|| NamedLine {
             name: f.proof.clone(),
             system,
         })
@@ -1359,7 +1360,7 @@ struct SaidUsed {
 
 /// A line saying a term is a whole number, `∃ m : ℤ, ↑m = t`; of ℕ and ℕ₀
 /// with its order, `∃ m : ℤ, 0 ≤ m ∧ ↑m = t`; or of a range, `∃ m : ℤ, ↑m
-/// = t ∧ m ∈ Finset.Icc a b` (`said_integer`).
+/// = t ∧ m ∈ Finset.Icc a b` (`integer_line`).
 #[derive(Clone)]
 struct SaidLine {
     /// Its Lean name, or a part of one.
@@ -2141,7 +2142,7 @@ impl<'a> Proof<'a> {
     /// "2^p − 1 divides 2^(p − 1)·2", written `∃ m : ℤ, (m : ℚ) = … ∧ …`
     /// (`Writer::slot_witness`): the whole number it is, named from the
     /// lines the step names as Metamath proves its membership from them
-    /// (`named_atoms`), given as the witness, and the reason proving the
+    /// (`name_wholes`), given as the witness, and the reason proving the
     /// claim of it. Of any other claim, `proof_of`.
     fn proof_with_named(
         &mut self,
@@ -2175,9 +2176,9 @@ impl<'a> Proof<'a> {
         if let Some((term, whole, ordered)) = self.wide_member(node) {
             let mut atoms = Vec::new();
             // Where the step's lines name no such number, the membership is
-            // what the lines in scope give (`said_member`).
+            // what the lines in scope give (`member_by_integers`).
             if self
-                .named_atoms(&term, &letters, whole, facts, &mut atoms)
+                .name_wholes(&term, &letters, whole, facts, &mut atoms)
                 .built()
                 .is_none()
             {
@@ -2250,7 +2251,7 @@ impl<'a> Proof<'a> {
         let mut atoms = Vec::new();
         if let Some((term, whole)) = &claimed {
             if let Route::Declined(d) =
-                self.named_atoms(term, &letters, *whole, facts, &mut atoms)
+                self.name_wholes(term, &letters, *whole, facts, &mut atoms)
             {
                 return Route::Declined(d);
             }
@@ -2262,7 +2263,7 @@ impl<'a> Proof<'a> {
             .filter(|c| {
                 let before = atoms.len();
                 let named = self
-                    .named_atoms(&c.term, &letters, c.whole, facts, &mut atoms)
+                    .name_wholes(&c.term, &letters, c.whole, facts, &mut atoms)
                     .built()
                     .is_some();
                 if !named {
@@ -2437,7 +2438,7 @@ impl<'a> Proof<'a> {
             }
         }
         for c in &cited {
-            if let Some(at) = self.read_at_letters(c, &names) {
+            if let Some(at) = self.at_recorded_letter(c, &names) {
                 conjuncts(&at.node, at.proof, &mut facts);
             }
         }
@@ -2569,12 +2570,14 @@ impl<'a> Proof<'a> {
     /// The whole numbers a term is made of that Lean does not compute as
     /// whole numbers, each named from a line step `i` names, by the said-once
     /// walk both backends read memberships with (`citing::reason_within`,
-    /// over the checker's letters): 2^(p − 1) from the requires line `p − 1
+    /// over the checker's letters), each part the walk does not take apart
+    /// held as the check found it (`held_reason`): 2^(p − 1) from the
+    /// requires line `p − 1
     /// ∈ ℕ₀`, as `⟨2 ^ (p − 1).toNat, …⟩`; a term a line says is in ℤ, ℕ₀ or
     /// ℕ, from that line. A term made of such by +, − and · is written of
     /// them (`Writer::number`), so it keeps one form. Declined where no line
     /// the step names makes the term a whole number.
-    fn named_atoms(
+    fn name_wholes(
         &self,
         term: &Node,
         letters: &crate::citing::Introduced,
@@ -2586,9 +2589,8 @@ impl<'a> Proof<'a> {
             super::templates::Num::Nat => crate::rules::System::N0,
             _ => crate::rules::System::Z,
         };
-        let said = |t: &Node, s: crate::rules::System| {
-            self.said_by_lines(t, s, letters, facts)
-        };
+        let said =
+            |t: &Node, s: crate::rules::System| self.held_reason(t, s, letters, facts);
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
         let Some(reason) =
             crate::citing::reason_within(term, system, letters, &nonzero, &said)
@@ -2647,7 +2649,7 @@ impl<'a> Proof<'a> {
     /// (`rules::WHOLE`), x mod n in ℕ₀ where x ∈ ℤ and n ∈ ℕ, built from
     /// its parts the same way. Of an operation whose parts are not the
     /// term's own children, a library function's value, none.
-    fn said_by_lines(
+    fn held_reason(
         &self,
         term: &Node,
         system: crate::rules::System,
@@ -2662,7 +2664,7 @@ impl<'a> Proof<'a> {
         // (`shown_beside`), is among `facts` under its Lean name.
         match self.held(term, system)? {
             LinesHold::Stated { .. } | LinesHold::Beside { .. } => {
-                return stated_line(facts, term, system, self.sources.ctx)
+                return named_line(facts, term, system, self.sources.ctx)
                     .map(|_| OnceReason::Stated);
             }
             LinesHold::Closed => {}
@@ -2683,7 +2685,7 @@ impl<'a> Proof<'a> {
         if !own || !System::N0.within(system) {
             return None;
         }
-        let said = |t: &Node, s: System| self.said_by_lines(t, s, letters, facts);
+        let said = |t: &Node, s: System| self.held_reason(t, s, letters, facts);
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
         let mut parts = Vec::new();
         for (part, within) in op.parts.iter().zip([left_in, right_in]) {
@@ -2753,7 +2755,7 @@ impl<'a> Proof<'a> {
 
     /// `∃ m : ℤ, ↑m = t` of a term Lean computes wider, proved as a step
     /// proves its membership (`proof_named_from`): the whole number it is
-    /// named from `facts` with `letters` (`named_atoms`), each named number's
+    /// named from `facts` with `letters` (`name_wholes`), each named number's
     /// have, then `exact ⟨n, equal⟩`.
     fn whole_witness(
         &self,
@@ -2765,7 +2767,7 @@ impl<'a> Proof<'a> {
         let mut atoms = Vec::new();
         let int = super::templates::Num::Int;
         if let Route::Declined(d) =
-            self.named_atoms(term, letters, int, facts, &mut atoms)
+            self.name_wholes(term, letters, int, facts, &mut atoms)
         {
             return Route::Declined(d);
         }
@@ -2782,7 +2784,7 @@ impl<'a> Proof<'a> {
         Route::Built(haves_then(haves, Proof::By(shown)))
     }
 
-    /// `named_atoms` of one part, whose reason is `reason`, named in
+    /// `name_wholes` of one part, whose reason is `reason`, named in
     /// `whole`, ℤ or ℕ: false where a part is none the walk can name.
     fn atoms_of(
         &self,
@@ -2829,8 +2831,8 @@ impl<'a> Proof<'a> {
                     Num::Nat => System::N0,
                     _ => System::Z,
                 };
-                let Some(StatedLine { name: line, system }) =
-                    stated_line(facts, term, asked, self.sources.ctx)
+                let Some(NamedLine { name: line, system }) =
+                    named_line(facts, term, asked, self.sources.ctx)
                 else {
                     return false;
                 };
@@ -2967,8 +2969,8 @@ impl<'a> Proof<'a> {
                 if self.writer.natural(exponent) || self.writer.said_whole(exponent) {
                     return self.atoms_of(base, base_reason, whole, top, facts, out);
                 }
-                let Some(StatedLine { name: line, system }) =
-                    stated_line(facts, exponent, System::N0, self.sources.ctx)
+                let Some(NamedLine { name: line, system }) =
+                    named_line(facts, exponent, System::N0, self.sources.ctx)
                 else {
                     return false;
                 };
@@ -3039,7 +3041,7 @@ impl<'a> Proof<'a> {
         node: &Node,
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
-        if let Some(witness) = self.said_member(node) {
+        if let Some(witness) = self.member_by_integers(node) {
             return Route::Built(witness);
         }
         self.said_used.borrow_mut().clear();
@@ -3288,11 +3290,11 @@ impl<'a> Proof<'a> {
 
     /// A claim that a term of a wider type is an integer, a rational or a
     /// real, (A + B) − B ∈ ℚ of reals or √b + 1 ∈ ℝ of a square root in ℂ,
-    /// where some part of it a line says is in
-    /// that type: the term written there, that part the number the line
-    /// gives, as Lean's witness. A citation of an item over ℚ gives such a
+    /// where some part of it a line the step names says is in that type, as
+    /// the check found it (`integer_line`): the term written there, that
+    /// part the number the line gives, as Lean's witness. A citation of an item over ℚ gives such a
     /// claim nothing, as of rationals it holds by their type.
-    fn said_member(&self, node: &Node) -> Option<super::doc::Proof> {
+    fn member_by_integers(&self, node: &Node) -> Option<super::doc::Proof> {
         let [term, set] = node.children.as_slice() else {
             return None;
         };
@@ -3323,7 +3325,7 @@ impl<'a> Proof<'a> {
             {
                 continue;
             }
-            if let Some(said) = self.said_integer(&part, ty) {
+            if let Some(said) = self.integer_line(&part, ty) {
                 let line = said.proof;
                 if lines.contains(&line) {
                     continue;
@@ -3636,7 +3638,7 @@ impl<'a> Proof<'a> {
                 // claim's type has it.
                 let mut cited = self.cited_parts(&just.refs);
                 for c in &mut cited {
-                    if let Some(read) = self.read_at_claim(c, node) {
+                    if let Some(read) = self.at_recorded_letter(c, &node.names()) {
                         *c = read;
                     }
                 }
@@ -3721,7 +3723,7 @@ impl<'a> Proof<'a> {
                 let mut steps: Vec<Tactic> = self
                     .cited_parts(&just.refs)
                     .iter()
-                    .filter_map(|c| self.read_at_claim(c, node))
+                    .filter_map(|c| self.at_recorded_letter(c, &node.names()))
                     .map(|at| Tactic::Fact(at.proof))
                     .collect();
                 let close = match node.notation() == ORDER {
@@ -4855,7 +4857,7 @@ impl<'a> Proof<'a> {
         // With no values given, the line is read at the block's letter, as
         // the checker reads it.
         if just.values.is_empty() {
-            if let Some(read) = self.read_at_claim(part, node) {
+            if let Some(read) = self.at_recorded_letter(part, &node.names()) {
                 return Route::Built(close(&self.writer, node, read.proof));
             }
         }
@@ -5260,7 +5262,7 @@ impl<'a> Proof<'a> {
                     super::doc::LeanType::Prop,
                 ),
             };
-            self.read_at_claim(&cited, claim)
+            self.at_recorded_letter(&cited, &claim.names())
                 .map_or_else(|| node.clone(), |at| at.node)
         };
         let candidates: Vec<&(Node, String)> = just
@@ -5343,12 +5345,12 @@ impl<'a> Proof<'a> {
             // the equation turns into the claim: line 2's "e(n) ≠ D(f(n),
             // n)" at the block's n, the equation being of that n, which no
             // rewriting under the line's own binder reaches.
-            let read = self.read_at_claim(
+            let read = self.at_recorded_letter(
                 &super::algebra::Cited {
                     node: line.clone(),
                     proof: t::hyp(name),
                 },
-                claim,
+                &claim.names(),
             );
             let mut parts = Vec::new();
             let read = read.filter(|_| line.notation() == crate::notations::FOR_ALL);
@@ -5466,21 +5468,12 @@ impl<'a> Proof<'a> {
         Route::Built(haves_then(haves, ways_proof(ways)))
     }
 
-    /// A cited "for all" of one letter, read where a closure method reads
-    /// it: at the letter of the block the step stands in that the check read
-    /// it at (`CheckedTheorem::read_at`). None where the line says no such
-    /// "for all", the check read it at no letter, or the claim does not
-    /// name that letter.
-    fn read_at_claim(
-        &self,
-        cited: &super::algebra::Cited,
-        claim: &Node,
-    ) -> Option<super::algebra::Cited> {
-        self.read_at_letters(cited, &claim.names())
-    }
-
-    /// `read_at_claim`, where the letter is among `names`.
-    fn read_at_letters(
+    /// A cited "for all" of one letter written at the block's letter the
+    /// check read it at (`CheckedTheorem::read_at`): its body with the
+    /// letter put in, proved by the line applied to it, `hH2 y`. None where
+    /// the line says no such "for all", the check read it at no letter, or
+    /// that letter is not among `names`, the letters the claim writes.
+    fn at_recorded_letter(
         &self,
         cited: &super::algebra::Cited,
         names: &std::collections::BTreeSet<String>,
@@ -6007,7 +6000,7 @@ impl<'a> Proof<'a> {
                             node.notation() == crate::notations::FOR_ALL
                         })
                         .filter_map(|(node, name)| {
-                            self.read_at_letters(
+                            self.at_recorded_letter(
                                 &super::algebra::Cited {
                                     node: node.clone(),
                                     proof: super::tactics::hyp(name),
@@ -6493,7 +6486,7 @@ impl<'a> Proof<'a> {
                         (LetterType::Number(n), None) => {
                             match self.writer.number_fixed(value, *n) {
                                 Route::Declined(d) => {
-                                    match self.said_integer(value, *n) {
+                                    match self.integer_line(value, *n) {
                                         Some(line) => {
                                             let printed = super::tactics::bracket(
                                                 line.chosen(*n),
@@ -7286,7 +7279,7 @@ impl<'a> Proof<'a> {
                 term: p,
                 known: None,
             }),
-            Route::Declined(d) => match self.said_integer(value, ty) {
+            Route::Declined(d) => match self.integer_line(value, ty) {
                 Some(line) => Route::Built(Witness {
                     term: line.chosen(ty),
                     known: Some(Tactic::Fact(Printed::applied(
@@ -7384,7 +7377,7 @@ impl<'a> Proof<'a> {
     /// it, with its Lean name and what it says beside the equation; None
     /// where no line says so. Lean states that line as `∃ m : ℤ, (m : ℚ) =
     /// …`, so the integer is the witness it gives.
-    fn said_integer(
+    fn integer_line(
         &self,
         value: &Node,
         ty: super::templates::Num,
@@ -7481,7 +7474,7 @@ impl<'a> Proof<'a> {
             return match self
                 .cited_parts(&step.just.from)
                 .into_iter()
-                .map(|c| self.read_at_letters(&c, &names).unwrap_or(c))
+                .map(|c| self.at_recorded_letter(&c, &names).unwrap_or(c))
                 .find(|c| {
                     c.node.notation() == crate::notations::THERE_IS
                         || &*c.node.notation_name() == "there-is-some"
@@ -7925,7 +7918,7 @@ impl<'a> Proof<'a> {
                 let Some(said) = self
                     .cited_parts(&step.just.from)
                     .into_iter()
-                    .map(|c| self.read_at_letters(&c, &letters).unwrap_or(c))
+                    .map(|c| self.at_recorded_letter(&c, &letters).unwrap_or(c))
                     .find(|c| c.node.notation() == crate::notations::DISJUNCTION)
                 else {
                     return Route::no("cases from no line that says \"or\"");
