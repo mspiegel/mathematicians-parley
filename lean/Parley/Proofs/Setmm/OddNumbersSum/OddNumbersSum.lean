@@ -50,16 +50,16 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. calculation
-      calc S 1 = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (2 * j - 1 : ℤ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+      calc S 1 = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (2 * j - 1 : ℤ)) := by simp (disch := omega) only [hD1]
         _ = 2 * 1 - 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 2 * j - 1)) (a := (1 : ℤ)))
         _ = 1 ^ 2 := by norm_num
     | succ k hK hIH =>
       -- 1.2. calculation
       have r29_1 : k ≥ 1 := by parley_side
       have s1_2 : S (k + 1) = S k + (2 * (k + 1) - 1) := by
-        calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (2 * j - 1 : ℤ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+        calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (2 * j - 1 : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (2 * j - 1 : ℤ)) + (2 * (k + 1) - 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 2 * j - 1)) (a := (1 : ℤ)) (n := k) r29_1)
-          _ = S k + (2 * (k + 1) - 1) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+          _ = S k + (2 * (k + 1) - 1) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
       calc S (k + 1) = S k + (2 * (k + 1) - 1) := by parley_side
         _ = k ^ 2 + (2 * (k + 1) - 1) := by parley_subst hIH
@@ -70,10 +70,10 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
   rcases s2 with hC1 | hC2
   · skip
     -- 3.1. D1, from C1
-    have s3_1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+    have s3_1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := by simp (disch := omega) only [hD1]
     -- 3.2. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := by parley_side
-      _ = N ^ 2 := by first | linear_combination (norm := parley_norm) (s1 N (by parley_side)) | (have h := (s1 N (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 N (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 N (by parley_side)) | exact_mod_cast ((s1 N (by parley_side))).symm | (have h := (s1 N (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 N (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 N (by parley_side)); parley_int_power h) | (have h := (s1 N (by parley_side)); parley_side)
+      _ = N ^ 2 := by exact (s1 N (by parley_side))
   · skip
     -- 3.3. mun:sum-single a := 0
     have s3_3 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 2 * 0 - 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 2 * k - 1)) (a := (0 : ℤ)))

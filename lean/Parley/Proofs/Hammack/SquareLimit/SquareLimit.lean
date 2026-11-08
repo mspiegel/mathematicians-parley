@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import SubstTactics
@@ -27,8 +26,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -87,7 +84,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.10. inequalities
       have s1_4_10 : abs (x + 3) ≤ 7 := by parley_order
       -- 1.4.11. instantiate x := x in H2
-      have s1_4_11 : f x = x ^ 2 - 2 := by first | linear_combination (norm := parley_norm) (hH2 x) | (have h := (hH2 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 x) | exact_mod_cast ((hH2 x)).symm | (have h := (hH2 x); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x); parley_int_power h) | (have h := (hH2 x); parley_set_side)
+      have s1_4_11 : f x = x ^ 2 - 2 := by exact (hH2 x)
       -- 1.4.12. mun:abs-product x := x + 3, y := x − 3
       have s1_4_12 : abs ((x + 3) * (x - 3)) = abs (x + 3) * abs (x - 3) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := x + 3) (y := x - 3))
       -- 1.4.13. substitute

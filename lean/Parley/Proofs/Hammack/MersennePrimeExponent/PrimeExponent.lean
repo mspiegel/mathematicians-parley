@@ -8,7 +8,6 @@ public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -17,8 +16,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -27,7 +24,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -130,7 +126,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     have r283_1 : (0 : ℤ) < 2 ^ d.toNat - 1 := by parley_order
     have s4_15 : (0 : ℤ) < 2 ^ d.toNat - 1 := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ d.toNat - 1 : ℤ)) r283_1)
     -- 4.16. instantiate c := 2^d − 1 in line 2, from 4.15
-    have s4_16 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) → (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by first | exact (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side)) | exact ((s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side))).symm | simpa using (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side)) | exact_mod_cast (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side)) | (have h := (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side)); parley_side)
+    have s4_16 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) → (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by exact (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side))
     -- 4.17. mun:modus-ponens, from 4.10, 4.16
     have s4_17 : (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ)) (Q := (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1) s4_16 s4_10)
     -- 4.18. cases, from 4.17

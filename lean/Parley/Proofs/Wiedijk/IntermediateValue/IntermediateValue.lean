@@ -75,7 +75,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   -- 11. instantiate s := a in line 10, from 2
   have s11 : a ≤ c := by first | linarith [(s10 a (by parley_set_side))] | (have h := (s10 a (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 a (by parley_set_side)) | (have h := (s10 a (by parley_set_side)); parley_set_side)
   -- 12. instantiate u := b in line 9, from 7
-  have s12 : c ≤ b := by first | linarith [(s9b b (by parley_set_side))] | (have h := (s9b b (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s9b b (by parley_set_side)) | (have h := (s9b b (by parley_set_side)); parley_set_side)
+  have s12 : c ≤ b := by exact (s9b b (by parley_set_side))
   -- 13. def:interval x := c, from 11, 12
   have s13 : c ∈ (Set.Icc a b : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := c) (a := a) (b := b))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := c) (a := a) (b := b))).mpr (by parley_set_side); parley_set_side)
   -- 14. axi:trichotomy x := f(c), from H4, 13
@@ -202,7 +202,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.30. def:upper-bound, from 16.29
       have s16_30 : ∀ s ∈ S, s ≤ c - δ := by parley_set_side
       -- 16.31. instantiate u := c − δ in line 9, from 16.30
-      have s16_31 : c ≤ c - δ := by first | linarith [(s9b (c - δ) (by parley_set_side))] | (have h := (s9b (c - δ) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s9b (c - δ) (by parley_set_side)) | (have h := (s9b (c - δ) (by parley_set_side)); parley_set_side)
+      have s16_31 : c ≤ c - δ := by exact (s9b (c - δ) (by parley_set_side))
       -- 16.32. inequalities
       have s16_32 : c - δ < c := by parley_order
       -- 16.33. inequalities, from 16.32

@@ -82,7 +82,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.10. def:range k := j + 1, from C2
       have s1_10 : j + 1 ∈ Finset.Icc (1 : ℤ) n := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr (by parley_side); parley_side)
       -- 1.11. instantiate k := j + 1 in H3, from 1.10
-      have s1_11 : a (j + 1) ≥ 0 := by first | linarith [(hH3 (j + 1) (by parley_side))] | (have h := (hH3 (j + 1) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (hH3 (j + 1) (by parley_side)) | (have h := (hH3 (j + 1) (by parley_side)); parley_side)
+      have s1_11 : a (j + 1) ≥ 0 := by exact (hH3 (j + 1) (by parley_side))
       set x : ℝ := a (j + 1) with hD1
       have hD1_kind : True := by parley_side
       set A : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ) with hD2
@@ -171,7 +171,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       have r222_1 : j ≥ 1 := by parley_side
       have s1_20 : (∏ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by
         calc (∏ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) = (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) * a (j + 1) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := a) (a := (1 : ℤ)) (n := j) r222_1)
-          _ = (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) * x := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+          _ = (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) * x := by simp (disch := omega) only [hD1]
           _ ≤ A ^ j.toNat * x := by
               try simp only [hD1, hD2] at *
               try push_cast at *
@@ -180,7 +180,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           _ = ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD3
       simpa using s1_20
   -- 2. instantiate j := n in line 1
-  have s2 : n ≤ n → (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ)) ^ n.toNat := by first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_side)
+  have s2 : n ≤ n → (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ)) ^ n.toNat := by exact (s1 n (by parley_side))
   -- 3. inequalities
   have s3 : n ≤ n := by parley_order
   -- 4. mun:modus-ponens, from 2, 3

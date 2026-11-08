@@ -23,7 +23,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -31,7 +30,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
@@ -80,7 +78,7 @@ theorem harmonic_unbounded (M : ℝ) :
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))
   -- 4. instantiate m := N in line 2
-  have s4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (N : ℚ) / 2 := by first | (have h := (s2 N (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s2 N (by parley_side))] | (have h := (s2 N (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2 N (by parley_side)) | (have h := (s2 N (by parley_side)); parley_side)
+  have s4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (N : ℚ) / 2 := by exact (s2 N (by parley_side))
   -- 5. inequalities
   have s5 : (N : ℝ) / 2 > M := by parley_order
   -- 6. transitivity, from 4, 5

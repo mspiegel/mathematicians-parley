@@ -30,7 +30,7 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{walk, Node, Sort, Sorts};
 use crate::matching::{
     alike_top, free_names, identities_dropped, standard, substitute_apart_by, Binding,
-    FxIndexSet,
+    FxIndexSet, Meeting,
 };
 use crate::methods::field::{decide_closed, Verdict};
 use crate::methods::membership as methods_membership;
@@ -6410,6 +6410,66 @@ fn membership_claim_refused(step: &Step, known: &Known) -> Option<String> {
     None
 }
 
+/// The labels of the defines a theorem's links may cite: its own, its
+/// file's and those its file imports.
+fn define_labels<'t>(thm: &'t Theorem, scopes: &'t [FileScope]) -> BTreeSet<&'t str> {
+    let scope = &scopes[thm.scope];
+    let mut defines: BTreeSet<&str> =
+        thm.defines.iter().map(|d| d.label.as_str()).collect();
+    defines.extend(scope.defines.iter().map(|d| d.label.as_str()));
+    defines.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
+    defines
+}
+
+/// How the two sides of a link citing a define meet once the define is
+/// written out (`Known::alike_how`): Some(None) where they do not; None
+/// where the link does not read or is no equation.
+fn define_link_meeting(link: &Link, known: &Known) -> Option<Option<Meeting>> {
+    let claim = link.claim(known)?;
+    let cite = &link.line.cite;
+    let written = known.as_cited(&claim, &known.citing(std::slice::from_ref(cite)));
+    match (written.notation(), written.children.as_slice()) {
+        (EQUALITY, [one, other]) => Some(known.alike_how(one, other)),
+        _ => None,
+    }
+}
+
+/// How each link citing a define, and each step whose reason is defines it
+/// names, meets the defines written out: the two sides of the equation it
+/// claims, by the link's line or the line of the step's reason
+/// (`CheckedTheorem::define_links`).
+pub fn define_link_meetings(thm: &Theorem, known: &Known) -> IndexMap<usize, Meeting> {
+    let defines = define_labels(thm, known.env.scopes);
+    let mut out: IndexMap<usize, Meeting> = thm
+        .steps
+        .iter()
+        .flat_map(|step| chain_links(&step.just, &thm.path))
+        .filter(|link| defines.contains(link.line.cite.as_str()))
+        .filter_map(|link| Some((link.line.line, define_link_meeting(&link, known)??)))
+        .collect();
+    for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
+        let Some(claim) = known.whole(step, &step.claim) else {
+            continue;
+        };
+        let cited: Vec<String> = step
+            .just
+            .refs
+            .iter()
+            .filter(|r| defines.contains(r.as_str()))
+            .cloned()
+            .collect();
+        let written = known.as_cited(&claim, &known.citing(&cited));
+        if let (EQUALITY, [one, other]) =
+            (written.notation(), written.children.as_slice())
+        {
+            if let Some(met) = known.alike_how(one, other) {
+                out.insert(step.just.line, met);
+            }
+        }
+    }
+    out
+}
+
 /// Each link of a calculation cites a line that says it.
 ///
 /// `SYNTAX.md`: a link `rel t  L` cites one line whose claim is exactly the
@@ -6426,11 +6486,7 @@ pub fn check_chain_links(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let scope = &scopes[thm.scope];
-    let mut defines: BTreeSet<&str> =
-        thm.defines.iter().map(|d| d.label.as_str()).collect();
-    defines.extend(scope.defines.iter().map(|d| d.label.as_str()));
-    defines.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
+    let defines = define_labels(thm, scopes);
     for step in &thm.steps {
         let defined = known.citing_step(step);
         for link in chain_links(&step.just, &thm.path) {
@@ -6438,24 +6494,15 @@ pub fn check_chain_links(
             // A link citing a define is what the define makes its name: with
             // the define written out, an equation's two sides are one.
             if defines.contains(cite.as_str()) {
-                let Some(claim) = link.claim(known) else {
-                    continue;
-                };
-                let written =
-                    known.as_cited(&claim, &known.citing(std::slice::from_ref(cite)));
-                if let (EQUALITY, [one, other]) =
-                    (written.notation(), written.children.as_slice())
-                {
-                    if !known.alike(one, other) {
-                        report.say(
-                            &thm.path,
-                            link.line.line,
-                            format!(
-                                "{} is not what {cite} makes it",
-                                link.line.quoted(&link.from)
-                            ),
-                        );
-                    }
+                if let Some(None) = define_link_meeting(&link, known) {
+                    report.say(
+                        &thm.path,
+                        link.line.line,
+                        format!(
+                            "{} is not what {cite} makes it",
+                            link.line.quoted(&link.from)
+                        ),
+                    );
                 }
                 continue;
             }

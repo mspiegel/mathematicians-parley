@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
@@ -20,8 +19,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Proofs.Hammack.SquareFromChoose.ChooseOne
 
@@ -60,6 +57,6 @@ theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
       -- 1.9. algebra, from IH, 1.6, 1.7, 1.8
       linear_combination (norm := parley_norm) hIH + (2) * s1_6 + (-1) * s1_7 + (-1) * s1_8
   -- 2. instantiate m := n in line 1
-  first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.SquareFromChoose.SquareFromChoose

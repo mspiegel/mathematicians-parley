@@ -63,7 +63,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       have s2_2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
       -- 2.3. calculation
       have s2_3 : S 0 = G 0 := by
-        calc S 0 = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 - k) k : ℤ) : ℤ)) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+        calc S 0 = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
           _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))); parley_side)
           _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
           _ = G 0 := by parley_side
@@ -95,7 +95,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       have s2_13 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
       -- 2.14. calculation
       have s2_14 : S 1 = G 1 := by
-        calc S 1 = (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+        calc S 1 = (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
           _ = 1 := by parley_side
           _ = 0 + 1 := by norm_num
           _ = 0 + G 0 := by parley_subst s2_2
@@ -110,14 +110,14 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       have s2_16 : S (j + 1) = G (j + 1) := by parley_side
       -- 2.17. calculation
       have s2_17 : S (j + 1 + 1) = S (j + 1) + S j := by
-        calc S (j + 1 + 1) = (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1 + 1), ((LeanBridges.Counting.choose (j + 1 + 1 - k) k : ℤ) : ℤ)) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+        calc S (j + 1 + 1) = (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1 + 1), ((LeanBridges.Counting.choose (j + 1 + 1 - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
           _ = (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), ((LeanBridges.Counting.choose (j + 1 - k) k : ℤ) : ℤ)) + (∑ k ∈ Finset.Icc (0 : ℤ) j, ((LeanBridges.Counting.choose (j - k) k : ℤ) : ℤ)) := by exact (Parley.Proofs.Hammack.FibonacciBinomialStep.FibonacciBinomialStep.fibonacci_binomial_step (m := j) (by parley_side))
-          _ = S (j + 1) + (∑ k ∈ Finset.Icc (0 : ℤ) j, ((LeanBridges.Counting.choose (j - k) k : ℤ) : ℤ)) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
-          _ = S (j + 1) + S j := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+          _ = S (j + 1) + (∑ k ∈ Finset.Icc (0 : ℤ) j, ((LeanBridges.Counting.choose (j - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
+          _ = S (j + 1) + S j := by simp (disch := omega) only [hD2]
       -- 2.18. instantiate i := j + 1 in line 1
-      have s2_18 : 0 ≤ F (j + 1) ∧ 0 ≤ G (j + 1) := by first | exact (s1 (j + 1) (by parley_side)) | exact ((s1 (j + 1) (by parley_side))).symm | simpa using (s1 (j + 1) (by parley_side)) | exact_mod_cast (s1 (j + 1) (by parley_side)) | (have h := (s1 (j + 1) (by parley_side)); parley_side)
+      have s2_18 : 0 ≤ F (j + 1) ∧ 0 ≤ G (j + 1) := by exact (s1 (j + 1) (by parley_side))
       -- 2.19. instantiate i := j in line 1
-      have s2_19 : 0 ≤ F j ∧ 0 ≤ G j := by first | exact (s1 j (by parley_side)) | exact ((s1 j (by parley_side))).symm | simpa using (s1 j (by parley_side)) | exact_mod_cast (s1 j (by parley_side)) | (have h := (s1 j (by parley_side)); parley_side)
+      have s2_19 : 0 ≤ F j ∧ 0 ≤ G j := by exact (s1 j (by parley_side))
       -- 2.20. D1
       have s2_20 : G (j + 1 + 1) = F (j + 1) + G (j + 1) := by have h := (hD1.2.2 ((j + 1 + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 2.21. D1
@@ -137,13 +137,13 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       have s2_23b : S (j + 1 + 1) = G (j + 1 + 1) := by parley_side
       exact ⟨s2_23a, s2_23b⟩
   -- 3. instantiate j := n in line 2
-  have s3 : S n = G n ∧ S (n + 1) = G (n + 1) := by first | exact (s2 n (by parley_side)) | exact ((s2 n (by parley_side))).symm | simpa using (s2 n (by parley_side)) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)
+  have s3 : S n = G n ∧ S (n + 1) = G (n + 1) := by exact (s2 n (by parley_side))
   -- 4. calculation
   have s4 : S n = G n := by parley_side
   -- 5. D1
   have s5 : F (n + 1) = G n := by have h := (hD1.2.2 ((n + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
   -- 6. calculation
-  calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = S n := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+  calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = S n := by simp (disch := omega) only [hD2]
     _ = G n := by parley_side
     _ = F (n + 1) := by parley_side
 

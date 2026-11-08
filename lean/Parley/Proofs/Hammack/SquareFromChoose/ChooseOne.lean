@@ -59,6 +59,6 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       -- 1.10. algebra, from IH, 1.8, 1.9
       linear_combination (norm := parley_norm) hIH + (-1) * s1_8 + s1_9
   -- 2. instantiate k := n in line 1
-  first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.SquareFromChoose.ChooseOne

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -16,7 +15,6 @@ public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from proofs/hammack/odd-line-one-to-one.proof by parley build lean. -/
@@ -34,9 +32,9 @@ theorem odd_line_one_to_one (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 2 * n + 
     intro hA1
     -- 1.1. calculation
     have s1_1 : 2 * s + 1 = 2 * t + 1 := by
-      calc 2 * s + 1 = f s := by first | linear_combination (norm := parley_norm) (hH2 s) | (have h := (hH2 s); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 s); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 s) | exact_mod_cast ((hH2 s)).symm | (have h := (hH2 s); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 s); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 s); parley_int_power h) | (have h := (hH2 s); parley_set_side)
+      calc 2 * s + 1 = f s := by exact (hH2 s).symm
         _ = f t := by parley_set_side
-        _ = 2 * t + 1 := by first | linear_combination (norm := parley_norm) (hH2 t) | (have h := (hH2 t); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 t); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 t) | exact_mod_cast ((hH2 t)).symm | (have h := (hH2 t); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t); parley_int_power h) | (have h := (hH2 t); parley_set_side)
+        _ = 2 * t + 1 := by exact (hH2 t)
     -- 1.2. algebra, from 1.1
     qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1_1
   -- 2. def:one-to-one, from H1, 1

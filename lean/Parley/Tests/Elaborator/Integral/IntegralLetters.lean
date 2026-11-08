@@ -12,7 +12,6 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
@@ -27,6 +26,6 @@ theorem integral_letters (a : ℝ) (b : ℝ) (x : ℝ) :
     (∫ s in a..b, (x * s : ℝ)) = (∫ u in a..b, (x * u : ℝ)) := by
   set I : ℝ := ∫ s in a..b, (x * s : ℝ) with hD1
   -- 1. D1
-  first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+  simp (disch := omega) only [hD1]
 
 end Parley.Tests.Elaborator.Integral.IntegralLetters

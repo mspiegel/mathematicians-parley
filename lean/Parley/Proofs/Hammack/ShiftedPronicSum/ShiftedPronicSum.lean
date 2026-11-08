@@ -47,7 +47,7 @@ theorem shifted_pronic_sum (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 1.1. calculation
       have s1_1 : (S 1 : ℚ) = 1 * (1 + 1) * (2 * 1 + 7) / 6 := by
-        calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((j : ℚ) * ((j : ℚ) + 2) : ℚ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+        calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((j : ℚ) * ((j : ℚ) + 2) : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
           _ = 1 * (1 + 2) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 2))) (a := (1 : ℤ))); parley_side)
           _ = 1 * (1 + 1) * (2 * 1 + 7) / 6 := by norm_num
       simpa using s1_1
@@ -55,9 +55,9 @@ theorem shifted_pronic_sum (n : ℤ) (hH1 : 0 < n) :
       -- 1.2. calculation
       have r27_1 : k ≥ 1 := by parley_side
       have s1_2 : S (k + 1) = S k + (k + 1) * (k + 1 + 2) := by
-        calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (j * (j + 2) : ℤ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+        calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (j * (j + 2) : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (j * (j + 2) : ℤ)) + (k + 1) * (k + 1 + 2) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j * (j + 2))) (a := (1 : ℤ)) (n := k) r27_1)
-          _ = S k + (k + 1) * (k + 1 + 2) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+          _ = S k + (k + 1) * (k + 1 + 2) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
       have s1_3 : (S (k + 1) : ℚ) = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) * (2 * ((k : ℚ) + 1) + 7) / 6 := by
         calc (S (k + 1) : ℚ) = (S k : ℚ) + ((k : ℚ) + 1) * ((k : ℚ) + 1 + 2) := by parley_side
@@ -65,7 +65,7 @@ theorem shifted_pronic_sum (n : ℤ) (hH1 : 0 < n) :
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) * (2 * ((k : ℚ) + 1) + 7) / 6 := by parley_ring
       simpa using s1_3
   -- 2. calculation
-  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * ((k : ℚ) + 2) : ℚ)) = (S n : ℚ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
-    _ = (n : ℚ) * ((n : ℚ) + 1) * (2 * (n : ℚ) + 7) / 6 := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
+  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * ((k : ℚ) + 2) : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num
+    _ = (n : ℚ) * ((n : ℚ) + 1) * (2 * (n : ℚ) + 7) / 6 := by exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.ShiftedPronicSum.ShiftedPronicSum

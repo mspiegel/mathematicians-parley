@@ -58,7 +58,7 @@ theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k �
   have s9_1a : (LeanBridges.Counting.factorial n : ℤ) + k > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (LeanBridges.Counting.factorial n : ℤ) + k) (by parley_side))).mp hS).1
   have s9_1b : ∀ d : ℤ, 0 < d → d ∣ (LeanBridges.Counting.factorial n : ℤ) + k → d = 1 ∨ d = (LeanBridges.Counting.factorial n : ℤ) + k := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (LeanBridges.Counting.factorial n : ℤ) + k) (by parley_side))).mp hS).2
   -- 9.2. instantiate d := k in line 9.1, from 3
-  have s9_2 : k ∣ (LeanBridges.Counting.factorial n : ℤ) + k → k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k := by first | exact (s9_1b k (by parley_side)) | exact ((s9_1b k (by parley_side))).symm | simpa using (s9_1b k (by parley_side)) | exact_mod_cast (s9_1b k (by parley_side)) | (have h := (s9_1b k (by parley_side)); parley_side)
+  have s9_2 : k ∣ (LeanBridges.Counting.factorial n : ℤ) + k → k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k := by exact (s9_1b k (by parley_side))
   -- 9.3. mun:modus-ponens P := k divides n! + k, from 8, 9.2
   have s9_3 : k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := k ∣ (LeanBridges.Counting.factorial n : ℤ) + k) (Q := k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k) s9_2 s8)
   -- 9.4. cases, from 9.3

@@ -12,12 +12,10 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/product-of-one-minus-halves.proof by parley build lean. -/
@@ -48,6 +46,6 @@ theorem power_of_two_at_least_four (m : ℤ) (hH1 : 0 < m) :
         _ = 2 ^ (k + 1).toNat + 2 ^ (k + 1).toNat := by parley_ring
         _ ≥ 4 := by first | parley_side | parley_line_toNat s1_4
   -- 2. instantiate k := m in line 1
-  first | (have h := (s1 m (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s1 m (by parley_side))] | (have h := (s1 m (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); parley_side)
+  exact (s1 m (by parley_side))
 
 end Parley.Proofs.Hammack.ProductOfOneMinusHalves.PowerOfTwoAtLeastFour

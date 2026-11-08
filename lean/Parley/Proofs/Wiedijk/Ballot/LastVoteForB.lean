@@ -21,7 +21,6 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -92,7 +91,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 6.7.1. mun:in-subset X := {1, …, m + (n − 1)}, Y := {1, …, m + n}, u := i, from K2, 4
       have s6_7_1 : i ∈ Finset.Icc (1 : ℤ) (m + n) := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
       -- 6.7.2. instantiate i := i in line 6.3, from 6.7.1
-      first | linarith [(s6_3 i (by parley_set_side))] | (have h := (s6_3 i (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s6_3 i (by parley_set_side)) | (have h := (s6_3 i (by parley_set_side)); parley_set_side)
+      exact (s6_3 i (by parley_set_side))
     -- 6.8. D1, from 6.7
     have s6_8 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by parley_set_side
     -- 6.9. def:part-builder u := c, X := {1, …, m + (n − 1)}, from 6.4, 6.6

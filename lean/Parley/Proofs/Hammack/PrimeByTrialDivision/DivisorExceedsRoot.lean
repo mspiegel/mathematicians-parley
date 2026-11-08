@@ -48,7 +48,7 @@ theorem divisor_exceeds_root (p : ℤ) (hH1 : 0 < p) (d : ℤ) (hH2 : 0 < d) (hH
   have s2_4a : 2 ≤ d := by parley_side
   have s2_4b : (d : ℝ) ≤ Real.sqrt (p : ℝ) := by parley_side
   -- 2.5. instantiate n := d in H5, from H2
-  have s2_5 : 2 ≤ d ∧ (d : ℝ) ≤ Real.sqrt (p : ℝ) → ¬ d ∣ p := by first | exact (hH5 d (by parley_side)) | exact ((hH5 d (by parley_side))).symm | simpa using (hH5 d (by parley_side)) | exact_mod_cast (hH5 d (by parley_side)) | (have h := (hH5 d (by parley_side)); parley_side)
+  have s2_5 : 2 ≤ d ∧ (d : ℝ) ≤ Real.sqrt (p : ℝ) → ¬ d ∣ p := by exact (hH5 d (by parley_side))
   -- 2.6. mun:modus-ponens P := 2 ≤ d and d ≤ √p, from 2.4, 2.5
   have s2_6 : ¬ d ∣ p := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := 2 ≤ d ∧ (d : ℝ) ≤ Real.sqrt (p : ℝ)) (Q := ¬ d ∣ p) s2_5 (by parley_side))
   exact s2_6 hH4

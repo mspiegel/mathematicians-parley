@@ -19,6 +19,6 @@ theorem one_function_takes_its_value_in_its_codomain {α : Type*} (X : Set α) (
   -- 1. thm:every-function-takes-its-values-in-its-codomain, from H3
   have s1 : ∀ f : α → α, Set.MapsTo f X Y → f a ∈ Y := by exact (Parley.Tests.Notations.ForAllFunctions.EveryFunctionTakesItsValuesInItsCodomain.every_function_takes_its_values_in_its_codomain (X := X) (Y := Y) (a := a) hH3)
   -- 2. instantiate f := g in line 1, from H4
-  first | exact (s1 g (by parley_set_side)) | exact ((s1 g (by parley_set_side))).symm | simpa using (s1 g (by parley_set_side)) | exact_mod_cast (s1 g (by parley_set_side)) | (have h := (s1 g (by parley_set_side)); parley_set_side)
+  exact (s1 g (by parley_set_side))
 
 end Parley.Tests.Notations.ForAllFunctions.OneFunctionTakesItsValueInItsCodomain

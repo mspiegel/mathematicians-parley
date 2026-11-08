@@ -2,11 +2,8 @@ module
 
 public import AlgebraTactics
 public import Functions
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -14,9 +11,6 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -24,7 +18,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -73,7 +66,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
         exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q ^ m.toNat) (Q := P = Q) hIH hC3)
       · skip
         -- 3.8.2. instantiate d := P in line 2
-        have s3_8_2 : P ∣ Q → P = 1 ∨ P = Q := by first | exact (s2 P (by parley_side)) | exact ((s2 P (by parley_side))).symm | simpa using (s2 P (by parley_side)) | exact_mod_cast (s2 P (by parley_side)) | (have h := (s2 P (by parley_side)); parley_side)
+        have s3_8_2 : P ∣ Q → P = 1 ∨ P = Q := by exact (s2 P (by parley_side))
         -- 3.8.3. mun:modus-ponens, from C4, 3.8.2
         have s3_8_3 : P = 1 ∨ P = Q := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q) (Q := P = 1 ∨ P = Q) s3_8_2 hC4)
         -- 3.8.4. cases, from 3.8.3
@@ -85,7 +78,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
         · skip
           exact hC6
   -- 4. instantiate m := N in line 3
-  have s4 : P ∣ Q ^ N.toNat → P = Q := by first | exact (s3 N (by parley_side)) | exact ((s3 N (by parley_side))).symm | simpa using (s3 N (by parley_side)) | exact_mod_cast (s3 N (by parley_side)) | (have h := (s3 N (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s3 N (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s3 N (by parley_side)); parley_side)
+  have s4 : P ∣ Q ^ N.toNat → P = Q := by exact (s3 N (by parley_side))
   -- 5. mun:modus-ponens, from H6, 4
   exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q ^ N.toNat) (Q := P = Q) s4 hH6)
 

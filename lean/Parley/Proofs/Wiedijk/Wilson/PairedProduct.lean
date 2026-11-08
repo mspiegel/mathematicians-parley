@@ -18,7 +18,6 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
@@ -111,9 +110,9 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 10.2. mun:in-subset, from K3, 3
     have s10_2 : t ∈ X := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := L) (Y := X) (u := t) s3 hK3)
     -- 10.3. D3, from K2
-    have s10_3 : g s = f s := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+    have s10_3 : g s = f s := by simp (disch := omega) only [hD3]
     -- 10.4. D3, from K3
-    have s10_4 : g t = f t := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+    have s10_4 : g t = f t := by simp (disch := omega) only [hD3]
     -- 10.5. calculation
     have s10_5 : f s = f t := by
       calc f s = g s := by parley_set_side
@@ -150,7 +149,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 12.6. def:set-builder u := f(u), from D1, H4, 12.1, 12.5
     have s12_6 : f u ∈ L := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := f u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := f u))).mpr (by parley_set_side); parley_set_side)
     -- 12.7. D3, from 12.6
-    have s12_7 : g (f u) = f (f u) := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+    have s12_7 : g (f u) = f (f u) := by simp (disch := omega) only [hD3]
     -- 12.8. calculation
     have s12_8 : u = g (f u) := by
       calc u = f (f u) := by parley_set_side

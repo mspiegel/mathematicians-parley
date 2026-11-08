@@ -4,21 +4,16 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from proofs/hammack/binomial-on-the-diagonal.proof by parley build lean. -/
@@ -55,6 +50,6 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
         _ = 0 + 1 := by parley_subst hIH
         _ = 1 := by norm_num
   -- 2. instantiate j := m in line 1
-  first | linear_combination (norm := parley_norm) (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 m (by parley_side)) | exact_mod_cast ((s1 m (by parley_side))).symm | (have h := (s1 m (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); parley_int_power h) | (have h := (s1 m (by parley_side)); parley_side)
+  exact (s1 m (by parley_side))
 
 end Parley.Proofs.Hammack.BinomialOnTheDiagonal.BinomialOnTheDiagonal

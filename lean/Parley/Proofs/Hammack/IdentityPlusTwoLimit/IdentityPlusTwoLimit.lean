@@ -1,8 +1,6 @@
 module
 
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import Tactics
@@ -12,14 +10,11 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
@@ -45,7 +40,7 @@ theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 
       intro x
       intro hA2
       -- 1.1.1. instantiate x := x in H2
-      have s1_1_1 : f x = x + 2 := by first | linear_combination (norm := parley_norm) (hH2 x) | (have h := (hH2 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 x) | exact_mod_cast ((hH2 x)).symm | (have h := (hH2 x); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x); parley_int_power h) | (have h := (hH2 x); parley_set_side)
+      have s1_1_1 : f x = x + 2 := by exact (hH2 x)
       -- 1.1.2. mun:abs-difference-lt c := 0, δ := ε, from A2
       have s1_1_2 : 0 - ε < x ∧ x < ε := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2); parley_set_side)
       -- 1.1.3. inequalities

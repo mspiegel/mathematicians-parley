@@ -11,7 +11,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
@@ -31,7 +30,7 @@ theorem a_named_value_of_a_function (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (k
   -- 1. mun:square-nonneg
   have s1 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 2. calculation
-  calc a k ^ 2 = x ^ 2 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+  calc a k ^ 2 = x ^ 2 := by simp (disch := omega) only [hD1]
     _ ≥ 0 := by parley_side
 
 end Parley.Tests.Elaborator.ANamedValueOfAFunction.ANamedValueOfAFunction

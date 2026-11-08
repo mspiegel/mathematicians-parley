@@ -2,10 +2,8 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -15,8 +13,6 @@ public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -24,9 +20,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Proofs.Hammack.AlternatingSignBijection.SignOfOdd
 
 /-! Written from proofs/hammack/alternating-sign-bijection.proof by parley build lean. -/
@@ -40,7 +33,7 @@ theorem alternating_value_odd (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
   -- 1. thm:sign-of-odd n := m, from H4
   have s1 : ((-1) ^ m.toNat : ℤ) = -1 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.SignOfOdd.sign_of_odd (n := m) (by parley_side) hH4)
   -- 2. calculation
-  calc (f m : ℚ) = ((-1) ^ m.toNat * (2 * (m : ℚ) - 1) + 1) / 4 := by first | linear_combination (norm := parley_norm) (hH2 m (by parley_side)) | (have h := (hH2 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 m (by parley_side)) | exact_mod_cast ((hH2 m (by parley_side))).symm | (have h := (hH2 m (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 m (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 m (by parley_side)); parley_int_power h) | (have h := (hH2 m (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (hH2 m (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (hH2 m (by parley_side)); parley_side)
+  calc (f m : ℚ) = ((-1) ^ m.toNat * (2 * (m : ℚ) - 1) + 1) / 4 := by exact (hH2 m (by parley_side))
     _ = (-1 * (2 * (m : ℚ) - 1) + 1) / 4 := by
         have s1_w : ((-1) ^ m.toNat : ℚ) = -1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
         first | parley_subst s1_w | parley_subst s1

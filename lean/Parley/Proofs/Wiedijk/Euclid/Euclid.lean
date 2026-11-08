@@ -1,9 +1,7 @@
 module
 
 public import Functions
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -12,15 +10,12 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -174,9 +169,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 5.4.14. mun:or-left, from 5.4.13
         exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13)
   -- 6. instantiate k := N in line 3
-  have s6 : 0 ≤ a N ∧ 0 ≤ b N := by first | exact (s3 N (by parley_side)) | exact ((s3 N (by parley_side))).symm | simpa using (s3 N (by parley_side)) | exact_mod_cast (s3 N (by parley_side)) | (have h := (s3 N (by parley_side)); parley_side)
+  have s6 : 0 ≤ a N ∧ 0 ≤ b N := by exact (s3 N (by parley_side))
   -- 7. instantiate k := N in line 5
-  have s7 : b N + N ≤ N ∨ b N = 0 := by first | exact (s5 N (by parley_side)) | exact ((s5 N (by parley_side))).symm | simpa using (s5 N (by parley_side)) | exact_mod_cast (s5 N (by parley_side)) | (have h := (s5 N (by parley_side)); parley_side)
+  have s7 : b N + N ≤ N ∨ b N = 0 := by exact (s5 N (by parley_side))
   -- 8. contradiction
   have s8 : b N = 0 := by
     by_contra (hS : b N ≠ 0)
@@ -190,6 +185,6 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
   -- 9. calculation
   calc a N = (Int.gcd (a N) (0 : ℤ) : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := a N) (by parley_side)).symm
     _ = (Int.gcd (a N) (b N) : ℤ) := by parley_subst s8
-    _ = (Int.gcd M N : ℤ) := by first | linear_combination (norm := parley_norm) (s4 N (by parley_side)) | (have h := (s4 N (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s4 N (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s4 N (by parley_side)) | exact_mod_cast ((s4 N (by parley_side))).symm | (have h := (s4 N (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s4 N (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s4 N (by parley_side)); parley_int_power h) | (have h := (s4 N (by parley_side)); parley_side)
+    _ = (Int.gcd M N : ℤ) := by exact (s4 N (by parley_side))
 
 end Parley.Proofs.Wiedijk.Euclid.Euclid

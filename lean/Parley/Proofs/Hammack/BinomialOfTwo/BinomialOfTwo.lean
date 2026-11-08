@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
@@ -16,8 +15,6 @@ public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne
 
@@ -52,6 +49,6 @@ theorem binomial_of_two (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.7. algebra, from IH, 1.5, 1.6
       linear_combination (norm := parley_norm) hIH + (-2) * s1_5 + (2) * s1_6
   -- 2. instantiate j := m in line 1
-  first | linear_combination (norm := parley_norm) (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 m (by parley_side)) | exact_mod_cast ((s1 m (by parley_side))).symm | (have h := (s1 m (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); parley_int_power h) | (have h := (s1 m (by parley_side)); parley_side)
+  exact (s1 m (by parley_side))
 
 end Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo

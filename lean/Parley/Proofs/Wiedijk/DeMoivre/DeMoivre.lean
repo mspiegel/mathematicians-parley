@@ -8,7 +8,6 @@ public import PowerTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Complex.Order
@@ -17,15 +16,12 @@ public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
@@ -89,6 +85,6 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
               first | parley_subst s2_7_w | parley_subst s2_7
       simpa using s2_8
   -- 3. instantiate k := n in line 2
-  first | linear_combination (norm := parley_norm) (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s2 n (by parley_side)) | exact_mod_cast ((s2 n (by parley_side))).symm | (have h := (s2 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); parley_int_power h) | (have h := (s2 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s2 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); parley_side)
+  exact (s2 n (by parley_side))
 
 end Parley.Proofs.Wiedijk.DeMoivre.DeMoivre

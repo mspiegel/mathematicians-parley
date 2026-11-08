@@ -46,7 +46,7 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     have s5_3a : a ∣ a := by parley_side
     have s5_3b : b ∣ a := by parley_side
     -- 5.4. instantiate k := a in line 4
-    have s5_4 : a ∣ a ∧ b ∣ a → (Int.lcm a b : ℤ) ∣ a := by first | exact (s4 a) | exact ((s4 a)).symm | simpa using (s4 a) | exact_mod_cast (s4 a) | (have h := (s4 a); parley_side)
+    have s5_4 : a ∣ a ∧ b ∣ a → (Int.lcm a b : ℤ) ∣ a := by exact (s4 a)
     -- 5.5. mun:modus-ponens P := a divides a and b divides a, from 5.3, 5.4
     have s5_5 : (Int.lcm a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ b ∣ a) (Q := (Int.lcm a b : ℤ) ∣ a) s5_4 (by parley_side))
     -- 5.6. contradiction

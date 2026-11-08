@@ -15,7 +15,6 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -71,7 +70,7 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       -- 2.2.8. def:range-between k := i, a := 1, b := (m + n) − 1, from 2.2.4, 2.2.7
       have s2_2_8 : i ∈ Finset.Icc (1 : ℤ) (m + n - 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr (by parley_set_side); parley_set_side)
       -- 2.2.9. instantiate i := i in line 1, from 2.2.8
-      first | linarith [(s1 i (by parley_set_side))] | (have h := (s1 i (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s1 i (by parley_set_side)) | (have h := (s1 i (by parley_set_side)); parley_set_side)
+      exact (s1 i (by parley_set_side))
   -- 3. D1, from 2
   parley_set_side
 

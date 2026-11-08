@@ -202,14 +202,14 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 46. calculation
   have s46 : s = m ^ 2 := by
     calc s = (Int.gcd s w : ℤ) ^ 2 := by parley_side
-      _ = m ^ 2 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+      _ = m ^ 2 := by simp (disch := omega) only [hD1]
   have hD2_kind : 0 < (Int.gcd t w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := t) (by parley_side) (b := w) (by parley_side))
   set n : ℤ := (Int.gcd t w : ℤ) with hD2
   have hD2_pos := hD2_kind
   -- 47. calculation
   have s47 : t = n ^ 2 := by
     calc t = (Int.gcd t w : ℤ) ^ 2 := by parley_side
-      _ = n ^ 2 := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+      _ = n ^ 2 := by simp (disch := omega) only [hD2]
   -- 48. substitute
   have s48 : w ^ 2 = m ^ 2 * n ^ 2 := by
     have c1 : s = m ^ 2 := by parley_subst s46

@@ -54,10 +54,10 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       -- 1.6. substitute 2^(k + 1)·c = 2^k·(2·c) (line 1.5) into A
       have s1_6 : (5 : ℤ) ∣ 2 ^ k.toNat * (2 * c) := by parley_subst_at s1_5 hA
       -- 1.7. instantiate c := 2·c in IH, from 1.6
-      have s1_7 : (5 : ℤ) ∣ 2 * c := by first | exact (hIH (2 * c) (by parley_side)) | exact ((hIH (2 * c) (by parley_side))).symm | simpa using (hIH (2 * c) (by parley_side)) | exact_mod_cast (hIH (2 * c) (by parley_side)) | (have h := (hIH (2 * c) (by parley_side)); parley_side)
+      have s1_7 : (5 : ℤ) ∣ 2 * c := by exact (hIH (2 * c) (by parley_side))
       -- 1.8. thm:five-divides-half b := c, from 1.7
       exact (Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf.five_divides_half (b := c) s1_7)
   -- 2. instantiate k := n, c := a in line 1, from H3
-  first | exact (s1 n (by parley_side) a (by parley_side)) | exact ((s1 n (by parley_side) a (by parley_side))).symm | simpa using (s1 n (by parley_side) a (by parley_side)) | exact_mod_cast (s1 n (by parley_side) a (by parley_side)) | (have h := (s1 n (by parley_side) a (by parley_side)); parley_side)
+  exact (s1 n (by parley_side) a (by parley_side))
 
 end Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesPowerOfTwoMultiple

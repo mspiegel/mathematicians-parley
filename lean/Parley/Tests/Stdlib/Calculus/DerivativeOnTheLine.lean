@@ -1,7 +1,5 @@
 module
 
-public import NormTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import SubstTactics
@@ -15,13 +13,10 @@ public import Mathlib.Analysis.Calculus.FDeriv.Defs
 public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
@@ -50,9 +45,9 @@ theorem derivative_on_the_line (f : ℝ → ℝ) (hH2 : ∀ x ∈ (Set.univ : Se
   -- 6. proof
   intro x
   -- 6.1. instantiate x := x in line 5
-  have s6_1 : (deriv F) x = (deriv f) x + (deriv g) x := by first | linear_combination (norm := parley_norm) (s5 x) | (have h := (s5 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s5 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s5 x) | exact_mod_cast ((s5 x)).symm | (have h := (s5 x); rify; linear_combination (norm := parley_norm) h) | (have h := (s5 x); qify; linear_combination (norm := parley_norm) h) | (have h := (s5 x); parley_int_power h) | (have h := (s5 x); parley_set_side)
+  have s6_1 : (deriv F) x = (deriv f) x + (deriv g) x := by exact (s5 x)
   -- 6.2. substitute
-  have c1 : (deriv g) x = 3 := by first | linear_combination (norm := parley_norm) (s4 x) | (have h := (s4 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s4 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s4 x) | exact_mod_cast ((s4 x)).symm | (have h := (s4 x); rify; linear_combination (norm := parley_norm) h) | (have h := (s4 x); qify; linear_combination (norm := parley_norm) h) | (have h := (s4 x); parley_int_power h) | (have h := (s4 x); parley_set_side)
+  have c1 : (deriv g) x = 3 := by exact (s4 x)
   have row1 : (deriv F) x = (deriv f) x + 3 := by parley_subst_at c1 s6_1
   exact row1
 

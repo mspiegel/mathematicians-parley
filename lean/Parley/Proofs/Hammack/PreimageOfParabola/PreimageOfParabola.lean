@@ -1,9 +1,7 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import Tactics
@@ -15,14 +13,11 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
@@ -49,7 +44,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
     have s1_2a : 12 ≤ f u := (((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mp s1_1).1.2
     have s1_2b : f u ≤ 19 := (((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mp s1_1).2
     -- 1.3. instantiate x := u in H2, from 1.1
-    have s1_3 : f u = u ^ 2 + 3 := by first | linear_combination (norm := parley_norm) (hH2 u) | (have h := (hH2 u); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 u); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 u) | exact_mod_cast ((hH2 u)).symm | (have h := (hH2 u); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 u); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 u); parley_int_power h) | (have h := (hH2 u); parley_set_side)
+    have s1_3 : f u = u ^ 2 + 3 := by exact (hH2 u)
     -- 1.4. calculation
     have s1_4 : 12 ≤ u ^ 2 + 3 := by
       calc (12 : ℝ) ≤ f u := by parley_set_side
@@ -117,7 +112,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       -- 3.2.5. algebra, from 3.2.1
       have s3_2_5 : (-u) ^ 2 + 3 = u ^ 2 + 3 := by parley_ring
       -- 3.2.6. instantiate x := u in H2, from 3.2.1
-      have s3_2_6 : f u = u ^ 2 + 3 := by first | linear_combination (norm := parley_norm) (hH2 u) | (have h := (hH2 u); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 u); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 u) | exact_mod_cast ((hH2 u)).symm | (have h := (hH2 u); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 u); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 u); parley_int_power h) | (have h := (hH2 u); parley_set_side)
+      have s3_2_6 : f u = u ^ 2 + 3 := by exact (hH2 u)
       -- 3.2.7. calculation
       have s3_2_7 : 12 ≤ f u := by
         calc (12 : ℝ) ≤ (-u) ^ 2 + 3 := by parley_set_side
@@ -141,7 +136,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s3_2_13a : 12 ≤ u ^ 2 + 3 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn.square_window_in (t := u) s3_2_12a s3_2_12b).1
       have s3_2_13b : u ^ 2 + 3 ≤ 19 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn.square_window_in (t := u) s3_2_12a s3_2_12b).2
       -- 3.2.14. instantiate x := u in H2, from 3.2.12
-      have s3_2_14 : f u = u ^ 2 + 3 := by first | linear_combination (norm := parley_norm) (hH2 u) | (have h := (hH2 u); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 u); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 u) | exact_mod_cast ((hH2 u)).symm | (have h := (hH2 u); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 u); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 u); parley_int_power h) | (have h := (hH2 u); parley_set_side)
+      have s3_2_14 : f u = u ^ 2 + 3 := by exact (hH2 u)
       -- 3.2.15. calculation
       have s3_2_15 : 12 ≤ f u := by
         calc (12 : ℝ) ≤ u ^ 2 + 3 := by parley_set_side

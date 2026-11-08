@@ -5,7 +5,6 @@ public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.Positivity.Basic
 
@@ -31,7 +30,7 @@ theorem a_label_given_again_inside_a_block :
     -- 1.1.3. transitivity, from 1.1.1, 1.1.2
     parley_order
   -- 1.2. instantiate y := x in line 1.1, from J
-  have s1_2 : x + 1 > 0 := by first | linarith [(s1_1 x (by parley_side))] | (have h := (s1_1 x (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1_1 x (by parley_side)) | (have h := (s1_1 x (by parley_side)); parley_side)
+  have s1_2 : x + 1 > 0 := by exact (s1_1 x (by parley_side))
   -- 1.3. inequalities
   have s1_3 : x ≥ 0 := by parley_order
   -- 1.4. join 1.3, 1.2

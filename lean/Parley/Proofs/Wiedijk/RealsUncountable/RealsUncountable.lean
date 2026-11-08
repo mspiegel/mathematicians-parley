@@ -31,11 +31,11 @@ theorem reals_uncountable :
   -- 3. obtain x: thm:sequence-misses-real
   obtain ⟨x, s3⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.SequenceMissesReal.sequence_misses_real (f := f))
   -- 4. instantiate y := x in line 2
-  have s4 : ∃ n : ℤ, 0 < n ∧ x = f n := by first | exact (s2 x) | exact ((s2 x)).symm | simpa using (s2 x) | exact_mod_cast (s2 x) | (have h := (s2 x); parley_set_side)
+  have s4 : ∃ n : ℤ, 0 < n ∧ x = f n := by exact (s2 x)
   -- 5. obtain m from line 4
   obtain ⟨m, s5a, s5b⟩ := s4
   -- 6. instantiate n := m in line 3
-  have s6 : x ≠ f m := by first | exact (s3 m (by parley_set_side)) | exact ((s3 m (by parley_set_side))).symm | simpa using (s3 m (by parley_set_side)) | exact_mod_cast (s3 m (by parley_set_side)) | (have h := (s3 m (by parley_set_side)); parley_set_side)
+  have s6 : x ≠ f m := by exact Ne.symm (s3 m (by parley_set_side))
   exact s6 s5b
 
 end Parley.Proofs.Wiedijk.RealsUncountable.RealsUncountable

@@ -3,20 +3,17 @@ module
 public import AlgebraTactics
 public import Functions
 public import OrderTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/power-at-least-one.proof by parley build lean. -/
@@ -50,6 +47,6 @@ theorem power_at_least_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 1 ≤ a) :
       -- 2.6. transitivity, from H3, 2.5, 2.3
       parley_order
   -- 3. instantiate m := n in line 2
-  first | (have h := (s2 n (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s2 n (by parley_side))] | (have h := (s2 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)
+  exact (s2 n (by parley_side))
 
 end Parley.Proofs.Setmm.PowerAtLeastOne.PowerAtLeastOne

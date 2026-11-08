@@ -16,7 +16,6 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -26,7 +25,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Proofs.Hammack.BinetFormula.PowerRecurrence
@@ -48,14 +46,14 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
   have hD3_kind : True := by parley_side
   -- 2. calculation
   have s2 : φ ^ 2 = φ + 1 := by
-    calc φ ^ 2 = ((1 + Real.sqrt (5 : ℝ)) / 2) ^ 2 := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+    calc φ ^ 2 = ((1 + Real.sqrt (5 : ℝ)) / 2) ^ 2 := by simp (disch := omega) only [hD2]
       _ = (1 + Real.sqrt (5 : ℝ)) / 2 + 1 := by parley_real
-      _ = φ + 1 := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+      _ = φ + 1 := by simp (disch := omega) only [hD2]
   -- 3. calculation
   have s3 : ψ ^ 2 = ψ + 1 := by
-    calc ψ ^ 2 = ((1 - Real.sqrt (5 : ℝ)) / 2) ^ 2 := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
+    calc ψ ^ 2 = ((1 - Real.sqrt (5 : ℝ)) / 2) ^ 2 := by simp (disch := omega) only [hD3]
       _ = (1 - Real.sqrt (5 : ℝ)) / 2 + 1 := by parley_real
-      _ = ψ + 1 := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
+      _ = ψ + 1 := by simp (disch := omega) only [hD3]
   -- 4. induction on j starting at 0
   have s4 : ∀ j : ℤ, 0 ≤ j → (F j : ℝ) = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) ∧ (G j : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by
     intro j h_j
@@ -74,8 +72,8 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have s4_4 : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by
         calc (G 0 : ℝ) = 1 := by parley_side
           _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_real
-          _ = (φ ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
-          _ = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
+          _ = (φ ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD2]
+          _ = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD3]
       -- 4.5. join 4.3, 4.4
       have s4_5a : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by parley_side
       have s4_5b : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_side
@@ -105,7 +103,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have s4_12b : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_side
       exact ⟨s4_12a, s4_12b⟩
   -- 5. instantiate j := n in line 4
-  have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by first | exact (s4 n (by parley_side)) | exact ((s4 n (by parley_side))).symm | simpa using (s4 n (by parley_side)) | exact_mod_cast (s4 n (by parley_side)) | (have h := (s4 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s4 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s4 n (by parley_side)); parley_side)
+  have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by exact (s4 n (by parley_side))
   -- 6. calculation
   calc (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | parley_side | parley_line_toNat s5
     _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD2

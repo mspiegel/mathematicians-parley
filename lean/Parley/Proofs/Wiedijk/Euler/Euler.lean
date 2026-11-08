@@ -27,7 +27,6 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
@@ -94,7 +93,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 6.5. def:set-builder u := (r·a) mod n, from D1, 6.2, 6.4
     have s6_5 : r * a % n ∈ S := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr (by parley_set_side); parley_set_side)
     -- 6.6. D2, from K1
-    have s6_6 : f r = r * a % n := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+    have s6_6 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 6.7. substitute f(r) = (r·a) mod n (line 6.6) into line 6.5
     parley_subst_at s6_6 s6_5
   -- 7. proof
@@ -121,9 +120,9 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
       try push_cast at *
       first | linear_combination (norm := parley_norm) (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2 | exact_mod_cast ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2).symm | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2; rify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2; qify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2; parley_int_power h) | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2; parley_set_side)
     -- 7.3. D2, from K2
-    have s7_3 : f s = s * a % n := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+    have s7_3 : f s = s * a % n := by simp (disch := omega) only [hD2]
     -- 7.4. D2, from K3
-    have s7_4 : f t = t * a % n := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+    have s7_4 : f t = t * a % n := by simp (disch := omega) only [hD2]
     -- 7.5. calculation
     have s7_5 : s * a % n = t * a % n := by
       calc s * a % n = f s := by parley_set_side
@@ -156,7 +155,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 11.2. mun:mod-congruent
     have s11_2 : r * a ≡ r * a % n [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_congruent (x := r * a) (n := n) (by parley_set_side))
     -- 11.3. D2, from K5
-    have s11_3 : f r = r * a % n := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+    have s11_3 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 11.4. substitute f(r) = (r·a) mod n (line 11.3) into line 11.2
     parley_subst_at s11_3 s11_2
   -- 12. thm:product-congruent X := S, from 4, 5, 11

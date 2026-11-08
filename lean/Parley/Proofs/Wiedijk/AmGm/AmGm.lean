@@ -28,7 +28,6 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -92,9 +91,9 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
     have s6_4 : ¬ P ≤ M ^ n.toNat := by parley_side
     exact s6_4 s1
   -- 7. calculation
-  calc (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ^ (1 / (n : ℝ)) = P ^ (1 / (n : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
-    _ = r := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
+  calc (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ^ (1 / (n : ℝ)) = P ^ (1 / (n : ℝ)) := by simp (disch := omega) only [hD1]
+    _ = r := by simp (disch := omega) only [hD3]
     _ ≤ M := by parley_side
-    _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+    _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) := by simp (disch := omega) only [hD2]
 
 end Parley.Proofs.Wiedijk.AmGm.AmGm

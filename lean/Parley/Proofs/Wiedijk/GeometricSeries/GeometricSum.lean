@@ -74,6 +74,6 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
         _ = (1 - a ^ (k + 1).toNat * a) / (1 - a) := by parley_ring
         _ = (1 - a ^ (k + 1 + 1).toNat) / (1 - a) := by parley_subst s1_4
   -- 2. instantiate k := n in line 1
-  first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum

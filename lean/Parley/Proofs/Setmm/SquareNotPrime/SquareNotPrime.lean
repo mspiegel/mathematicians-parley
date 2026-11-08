@@ -62,7 +62,7 @@ theorem square_not_prime (A : ℤ) :
   -- 8. def:prime p := A², from S, 1
   have s8 : ∀ d : ℤ, 0 < d → d ∣ A ^ 2 → d = 1 ∨ d = A ^ 2 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := A ^ 2) (by parley_side))).mp hS).2
   -- 9. instantiate d := |A| in line 8, from 5
-  have s9 : abs A ∣ A ^ 2 → abs A = 1 ∨ abs A = A ^ 2 := by first | exact (s8 (abs A) (by parley_side)) | exact ((s8 (abs A) (by parley_side))).symm | simpa using (s8 (abs A) (by parley_side)) | exact_mod_cast (s8 (abs A) (by parley_side)) | (have h := (s8 (abs A) (by parley_side)); parley_side)
+  have s9 : abs A ∣ A ^ 2 → abs A = 1 ∨ abs A = A ^ 2 := by exact (s8 (abs A) (by parley_side))
   -- 10. mun:modus-ponens, from 7, 9
   have s10 : abs A = 1 ∨ abs A = A ^ 2 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := abs A ∣ A ^ 2) (Q := abs A = 1 ∨ abs A = A ^ 2) s9 s7)
   -- 11. cases, from 10

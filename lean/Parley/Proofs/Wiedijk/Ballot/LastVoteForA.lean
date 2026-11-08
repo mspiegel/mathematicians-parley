@@ -22,7 +22,6 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -107,7 +106,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 6.10.3. mun:in-subset X := {1, …, (m − 1) + n}, Y := {1, …, m + n}, u := i, from K2, 4
       have s6_10_3 : i ∈ Finset.Icc (1 : ℤ) (m + n) := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
       -- 6.10.4. instantiate i := i in line 6.3, from 6.10.3
-      have s6_10_4 : (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by first | linarith [(s6_3 i (by parley_set_side))] | (have h := (s6_3 i (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s6_3 i (by parley_set_side)) | (have h := (s6_3 i (by parley_set_side)); parley_set_side)
+      have s6_10_4 : (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by exact (s6_3 i (by parley_set_side))
       -- 6.10.5. thm:prefix-unchanged T := c ∖ {m + n}, p := m + n, from 6.10.2
       have s6_10_5a : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (c \ ({m + n} : Set ℤ) ∪ ({m + n} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (c \ ({m + n} : Set ℤ)) := by exact (Parley.Proofs.Wiedijk.Ballot.PrefixUnchanged.prefix_unchanged (T := c \ ({m + n} : Set ℤ)) (i := i) (p := m + n) s6_10_2).1
       have s6_10_5b : (Set.Icc (1 : ℤ) i : Set ℤ) \ (c \ ({m + n} : Set ℤ) ∪ ({m + n} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) \ (c \ ({m + n} : Set ℤ)) := by exact (Parley.Proofs.Wiedijk.Ballot.PrefixUnchanged.prefix_unchanged (T := c \ ({m + n} : Set ℤ)) (i := i) (p := m + n) s6_10_2).2
@@ -174,7 +173,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 8.13.4. substitute (m + n) − 1 = (m − 1) + n (line 5) into K4
       have s8_13_4 : i ∈ Finset.Icc (1 : ℤ) (m - 1 + n) := by parley_subst_at s5 hK4
       -- 8.13.5. instantiate j := i in line 8.13.1, from 8.13.4
-      have s8_13_5 : (((Set.Icc (1 : ℤ) i : Set ℤ) \ T).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ T).ncard : ℤ) := by first | linarith [(s8_13_1 i (by parley_set_side))] | (have h := (s8_13_1 i (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s8_13_1 i (by parley_set_side)) | (have h := (s8_13_1 i (by parley_set_side)); parley_set_side)
+      have s8_13_5 : (((Set.Icc (1 : ℤ) i : Set ℤ) \ T).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ T).ncard : ℤ) := by exact (s8_13_1 i (by parley_set_side))
       -- 8.13.6. thm:prefix-unchanged p := m + n, from 8.13.3
       have s8_13_6a : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := by exact (Parley.Proofs.Wiedijk.Ballot.PrefixUnchanged.prefix_unchanged (T := T) (i := i) (p := m + n) s8_13_3).1
       have s8_13_6b : (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by exact (Parley.Proofs.Wiedijk.Ballot.PrefixUnchanged.prefix_unchanged (T := T) (i := i) (p := m + n) s8_13_3).2

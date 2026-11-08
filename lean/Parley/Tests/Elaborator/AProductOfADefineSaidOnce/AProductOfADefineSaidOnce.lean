@@ -17,7 +17,6 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Set
@@ -37,7 +36,7 @@ theorem a_product_of_a_define_said_once (p : ℤ) (hH1 : 0 < p) :
   have s1 : (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ)))
   -- 2. D1
   have r15_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
-  have s2 : e 1 = p := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s2 : e 1 = p := by simp (disch := omega) only [hD1]
   -- 3. calculation
   have s3 : p = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
     calc p = e 1 := by parley_set_side

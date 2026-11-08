@@ -12,12 +12,10 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/halves-series.proof by parley build lean. -/
@@ -47,6 +45,6 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
         _ = 2 ^ k.toNat * 2 := by parley_ring
         _ = 2 ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)).symm
   -- 2. instantiate k := n in line 1
-  first | (have h := (s1 n (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove

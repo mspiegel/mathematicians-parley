@@ -274,6 +274,7 @@
 {"key":"IsOpen (sorry : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Basic","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
 {"key":"Nat.Prime a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Prime","Mathlib.Data.Nat.Prime.Defs"]}
 {"key":"Nat.totient (sorry : ℕ)","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Data.Nat.Totient","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"Ne.symm (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Ne.symm a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Odd (sorry : ℤ)","kind":"term","modules":["Mathlib.Algebra.Ring.Parity","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Parity","Mathlib.Algebra.Ring.Int.Defs"]}
 {"key":"Polynomial.aeval (sorry : ℂ) a","kind":"term","modules":["Mathlib.Algebra.Algebra.Defs","Mathlib.Algebra.Algebra.Hom","Mathlib.Algebra.Polynomial.AlgebraMap","Mathlib.Algebra.Polynomial.Basic","Mathlib.Algebra.Ring.Defs","Mathlib.Basic.Complex.Basic","Mathlib.Basic.FunLike.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}

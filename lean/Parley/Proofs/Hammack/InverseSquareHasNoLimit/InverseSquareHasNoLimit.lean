@@ -58,7 +58,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1 | exact (((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1 | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1; parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1; parley_set_side)
   -- 3. instantiate ε := 1 in line 2
   have r32_1 : (0 : ℤ) < 1 := by parley_arith
-  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by first | exact (s2 (1 : ℝ) (by parley_set_side)) | exact ((s2 (1 : ℝ) (by parley_set_side))).symm | simpa using (s2 (1 : ℝ) (by parley_set_side)) | exact_mod_cast (s2 (1 : ℝ) (by parley_set_side)) | (have h := (s2 (1 : ℝ) (by parley_set_side)); parley_rat_of_real h) | (have h := (s2 (1 : ℝ) (by parley_set_side)); parley_set_side)
+  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
@@ -148,10 +148,10 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     parley_subst_at s10_21 s10_14
   -- 11. instantiate j := m in line 10
   have r154_1 : m ≥ m := by parley_order
-  have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by first | linarith [(s10 m (by parley_set_side) (by parley_set_side))] | (have h := (s10 m (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 m (by parley_set_side) (by parley_set_side)) | (have h := (s10 m (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by exact (s10 m (by parley_set_side) (by parley_set_side))
   -- 12. instantiate j := m + 1 in line 10
   have r158_1 : m + 1 ≥ m := by parley_order
-  have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by first | linarith [(s10 (m + 1) (by parley_set_side) (by parley_set_side))] | (have h := (s10 (m + 1) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 (m + 1) (by parley_set_side) (by parley_set_side)) | (have h := (s10 (m + 1) (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by exact_mod_cast (s10 (m + 1) (by parley_set_side) (by parley_set_side))
   -- 13. mun:abs-difference-lt x := m², c := L, δ := 1, from 11
   have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s11
   -- 14. mun:abs-difference-lt x := (m + 1)², c := L, δ := 1, from 12

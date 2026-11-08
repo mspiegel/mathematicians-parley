@@ -12,7 +12,6 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.SetNotationForOrder
@@ -36,7 +35,7 @@ theorem first_terms (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
     try push_cast at hK2
     try have hK2_bounds := Finset.mem_Icc.mp hK2
     -- 3.1. instantiate k := k in H3, from 1
-    first | linarith [(hH3 k (by parley_set_side))] | (have h := (hH3 k (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (hH3 k (by parley_set_side)) | (have h := (hH3 k (by parley_set_side)); parley_set_side)
+    exact (hH3 k (by parley_set_side))
   -- 4. join 2, 3
   have s4 : ∀ k : ℤ, k ∈ Finset.Icc 1 m → a k ≥ 0 := by intro k h_k; parley_set_side
   exact ⟨trivial, s4⟩

@@ -4,19 +4,14 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from proofs/setmm/choose-two-pairs.proof by parley build lean. -/
@@ -51,6 +46,6 @@ theorem choose_one (n : ℤ) (hH1 : 0 ≤ n) :
       calc (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 := by parley_side
         _ = k + 1 := by parley_subst hIH
   -- 2. instantiate k := n in line 1
-  first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne

@@ -1,9 +1,7 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -15,13 +13,10 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
 
@@ -44,14 +39,14 @@ theorem compose_rational_and_line (f : ℝ → ℝ) (g : ℝ → ℝ) (hH3 : ∀
   have r27_1 : x ^ 2 + 1 ≠ 0 := by parley_set_side
   have s1_4 : (g ∘ f) x = 3 / (x ^ 2 + 1) + 2 := by
     calc (g ∘ f) x = g (f x) := by exact (Parley.Items.Stdlib.Functions.mun_composition_value (Y := (Set.univ : Set ℝ)) (X := (Set.univ : Set ℝ)) (f := f) (g := g) (x := x) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_set_side))
-      _ = 3 * f x + 2 := by first | linear_combination (norm := parley_norm) (hH4 (f x)) | (have h := (hH4 (f x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH4 (f x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH4 (f x)) | exact_mod_cast ((hH4 (f x))).symm | (have h := (hH4 (f x)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH4 (f x)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH4 (f x)); parley_int_power h) | (have h := (hH4 (f x)); parley_set_side)
+      _ = 3 * f x + 2 := by exact (hH4 (f x))
       _ = 3 * (1 / (x ^ 2 + 1)) + 2 := by parley_subst hH3
       _ = 3 / (x ^ 2 + 1) + 2 := by parley_ring
   -- 1.5. mun:function-value f := g
   -- 1.6. calculation
   have s1_6 : (f ∘ g) x = 1 / ((3 * x + 2) ^ 2 + 1) := by
     calc (f ∘ g) x = f (g x) := by exact (Parley.Items.Stdlib.Functions.mun_composition_value (Y := (Set.univ : Set ℝ)) (X := (Set.univ : Set ℝ)) (f := g) (g := f) (x := x) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_set_side))
-      _ = 1 / (g x ^ 2 + 1) := by first | linear_combination (norm := parley_norm) (hH3 (g x)) | (have h := (hH3 (g x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH3 (g x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH3 (g x)) | exact_mod_cast ((hH3 (g x))).symm | (have h := (hH3 (g x)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH3 (g x)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH3 (g x)); parley_int_power h) | (have h := (hH3 (g x)); parley_set_side)
+      _ = 1 / (g x ^ 2 + 1) := by exact (hH3 (g x))
       _ = 1 / ((3 * x + 2) ^ 2 + 1) := by parley_subst hH4
   -- 1.7. join 1.4, 1.6
   have s1_7a : (g ∘ f) x = 3 / (x ^ 2 + 1) + 2 := by parley_set_side

@@ -24,7 +24,6 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -67,7 +66,7 @@ theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
     (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := n) (by parley_side)))
   have s2_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1) := by rw [← (Classical.choose_spec r29_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r29_1).1; (try rw [← (Classical.choose_spec r29_1).2] at s2_2; norm_cast at s2_2); (first | exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_side) (x := (Classical.choose r29_1)) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_side) (x := (Classical.choose r29_1)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_side) (x := (Classical.choose r29_1)) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_side) (x := (Classical.choose r29_1)) (by parley_side) (by parley_side)) | exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_side) (x := (Classical.choose r29_1)) (by parley_side) (by parley_side))⟩ | (have h := (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_side) (x := (Classical.choose r29_1)) (by parley_side) (by parley_side)); parley_side))
   -- 2.4. D1, from K1
-  have s2_4 : (f k : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+  have s2_4 : (f k : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by simp (disch := omega) only [hD1]
   -- 2.5. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.3
   have s2_5 : f k ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_subst_at s2_4 s2_3
   -- 2.6. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.5

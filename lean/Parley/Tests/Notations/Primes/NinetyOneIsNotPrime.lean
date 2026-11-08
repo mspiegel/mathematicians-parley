@@ -31,7 +31,7 @@ theorem ninety_one_is_not_prime :
   -- 4.1. def:prime p := 91, from S
   have s4_1 : ∀ d : ℤ, 0 < d → d ∣ (91 : ℤ) → d = 1 ∨ d = 91 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (91 : ℤ)) (by parley_side))).mp hS).2
   -- 4.2. instantiate d := 7 in line 4.1
-  have s4_2 : (7 : ℤ) ∣ (91 : ℤ) → (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by first | exact (s4_1 (7 : ℤ) (by parley_side)) | exact ((s4_1 (7 : ℤ) (by parley_side))).symm | simpa using (s4_1 (7 : ℤ) (by parley_side)) | exact_mod_cast (s4_1 (7 : ℤ) (by parley_side)) | (have h := (s4_1 (7 : ℤ) (by parley_side)); parley_side)
+  have s4_2 : (7 : ℤ) ∣ (91 : ℤ) → (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by exact (s4_1 (7 : ℤ) (by parley_side))
   -- 4.3. mun:modus-ponens, from 1, 4.2
   have s4_3 : (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (7 : ℤ) ∣ (91 : ℤ)) (Q := (7 : ℤ) = 1 ∨ (7 : ℤ) = 91) s4_2 s1)
   -- 4.4. mun:disjunctive-syllogism, from 3, 4.3

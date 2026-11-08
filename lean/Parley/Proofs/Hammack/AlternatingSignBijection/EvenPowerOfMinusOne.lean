@@ -53,6 +53,6 @@ theorem even_power_of_minus_one (k : ℤ) (hH1 : 0 ≤ k) :
         _ = 1 * (-1) ^ 2 := by parley_subst hIH
         _ = 1 := by norm_num
   -- 2. instantiate j := k in line 1
-  first | linear_combination (norm := parley_norm) (s1 k (by parley_side)) | (have h := (s1 k (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 k (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 k (by parley_side)) | exact_mod_cast ((s1 k (by parley_side))).symm | (have h := (s1 k (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 k (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 k (by parley_side)); parley_int_power h) | (have h := (s1 k (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 k (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 k (by parley_side)); parley_side)
+  exact (s1 k (by parley_side))
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne

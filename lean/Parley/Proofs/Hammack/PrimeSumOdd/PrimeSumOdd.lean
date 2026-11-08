@@ -55,7 +55,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
       -- 6.2. def:divides d := 2, n := q, from 6.1
       have s6_2 : (2 : ℤ) ∣ q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨k, s6_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨k, s6_1⟩; parley_side)
       -- 6.3. instantiate d := 2 in line 4
-      have s6_3 : (2 : ℤ) ∣ q → (2 : ℤ) = 1 ∨ 2 = q := by first | exact (s4 (2 : ℤ) (by parley_side)) | exact ((s4 (2 : ℤ) (by parley_side))).symm | simpa using (s4 (2 : ℤ) (by parley_side)) | exact_mod_cast (s4 (2 : ℤ) (by parley_side)) | (have h := (s4 (2 : ℤ) (by parley_side)); parley_side)
+      have s6_3 : (2 : ℤ) ∣ q → (2 : ℤ) = 1 ∨ 2 = q := by exact (s4 (2 : ℤ) (by parley_side))
       -- 6.4. mun:modus-ponens P := 2 divides q, from 6.2, 6.3
       have s6_4 : (2 : ℤ) = 1 ∨ 2 = q := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ q) (Q := (2 : ℤ) = 1 ∨ 2 = q) s6_3 s6_2)
       -- 6.5. cases, from 6.4

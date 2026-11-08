@@ -3,28 +3,19 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/mersenne-prime-exponent.proof by parley build lean. -/
@@ -58,6 +49,6 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
         _ = 2 ^ a.toNat * (2 ^ k.toNat * 2) := by parley_ring
         _ = 2 ^ a.toNat * 2 ^ (k + 1).toNat := by parley_subst s1_4
   -- 2. instantiate k := b in line 1
-  first | linear_combination (norm := parley_norm) (s1 b (by parley_side)) | (have h := (s1 b (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 b (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 b (by parley_side)) | exact_mod_cast ((s1 b (by parley_side))).symm | (have h := (s1 b (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 b (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 b (by parley_side)); parley_int_power h) | (have h := (s1 b (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 b (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 b (by parley_side)); parley_side)
+  exact (s1 b (by parley_side))
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd

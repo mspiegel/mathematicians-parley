@@ -43,7 +43,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k
     have row1 : b ∣ b ^ 2 := by parley_subst_at c1 s4
     exact row1
   -- 6. instantiate k := b² in H2, from 2
-  have s6 : ¬ b ∣ b ^ 2 := by first | exact (hH2 (b ^ 2) (by parley_side)) | exact ((hH2 (b ^ 2) (by parley_side))).symm | simpa using (hH2 (b ^ 2) (by parley_side)) | exact_mod_cast (hH2 (b ^ 2) (by parley_side)) | (have h := (hH2 (b ^ 2) (by parley_side)); parley_side)
+  have s6 : ¬ b ∣ b ^ 2 := by exact (hH2 (b ^ 2) (by parley_side))
   -- 7. restate 5
   have s7 : b ∣ b ^ 2 := by parley_side
   exact s6 s7

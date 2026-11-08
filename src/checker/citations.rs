@@ -11,7 +11,9 @@ use super::library::{
     introduced, listed_seed, parts_in_scope, typed_in_scope, typed_seed, Known,
     SaidFrom, Search,
 };
-use super::record::{Cited, Exhibit, FirstAt, ObtainedPart, Supplied, SuppliedBy};
+use super::record::{
+    Cited, Exhibit, FirstAt, Instantiated, ObtainedPart, Supplied, SuppliedBy,
+};
 use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
@@ -5074,35 +5076,86 @@ pub fn check_instance_claimed(
     known: &Known,
 ) {
     for step in &thm.steps {
-        if !step.just.head.is(Method::Instantiate) {
-            continue;
+        if let Some(read) = instance_reading(step, library, known) {
+            for said in read.faults {
+                report.say(&thm.path, step.just.line, said);
+            }
         }
-        let Some(target) = step.just.target.clone() else {
-            continue;
-        };
-        // A line or claim that does not read is another check's to report.
-        let (Some(line), Some(claim)) = (
-            known.scope(step).get(&target).cloned(),
-            known.whole(step, &step.claim),
-        ) else {
-            continue;
-        };
+    }
+}
+
+/// How each instantiation's instance reaches its claim
+/// (`record::Instantiated`), a step's, a calculation row's or a requires
+/// line's, by the line of its justification; none for one whose instance
+/// does not.
+pub fn instantiations(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Instantiated> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let rows = chain_reasons(&step.just, &thm.path)
+            .into_iter()
+            .chain(step.requires.iter().cloned())
+            .filter_map(|req| {
+                let by = req.by.as_ref().ok()?;
+                Some(reason_as_step(step, &req, by))
+            });
+        for at in std::iter::once(step.clone()).chain(rows) {
+            let Some(read) = instance_reading(&at, library, known) else {
+                continue;
+            };
+            if let (true, Some(found)) = (read.faults.is_empty(), read.found) {
+                out.insert(at.just.line, found);
+            }
+        }
+    }
+    out
+}
+
+/// An `instantiate` step read against the line it names: what is wrong, and
+/// the instance that reaches the claim.
+struct InstanceReading {
+    faults: Vec<String>,
+    found: Option<Instantiated>,
+}
+
+/// `check_instance_claimed` of one step; None for a step that is no
+/// instantiation, or whose line or claim another check reports.
+fn instance_reading(
+    step: &Step,
+    library: &Library,
+    known: &Known,
+) -> Option<InstanceReading> {
+    let mut reading = InstanceReading {
+        faults: Vec::new(),
+        found: None,
+    };
+    if !step.just.head.is(Method::Instantiate) {
+        return None;
+    }
+    let target = step.just.target.clone()?;
+    // A line or claim that does not read is another check's to report.
+    let line = known.scope(step).get(&target).cloned()?;
+    let claim = known.whole(step, &step.claim)?;
+    {
         let named = known.parts(step, library);
         let seed = &named.seed;
         let defined = known.citing_step(step);
-        let parts: Vec<Node> = known
-            .says(&line, &defined)
-            .into_iter()
-            .map(|s| s.cited)
-            .collect();
-        let fits: Vec<Fit> = parts.iter().map(|said| fit_of(said, seed)).collect();
+        let says = known.says(&line, &defined);
+        let own = known.sentence_count(&line);
+        let fits: Vec<Fit> =
+            says.iter().map(|said| fit_of(&said.cited, seed)).collect();
         // The part instantiated is one the values fit: a part they leave
         // values over gives no instance, however its own letters fall.
-        let instances: Vec<Node> = parts
+        let instances: Vec<(&super::library::Said, Node)> = says
             .iter()
             .zip(&fits)
             .filter(|(_, fit)| **fit == Fit::Fits)
-            .filter_map(|(said, _)| instance_at(said, seed, library))
+            .filter_map(|(said, _)| {
+                Some((said, instance_at(&said.cited, seed, library)?))
+            })
             .collect();
         if !fits.contains(&Fit::Fits) {
             let why = if fits.contains(&Fit::Skips) {
@@ -5112,23 +5165,36 @@ pub fn check_instance_claimed(
             } else {
                 "claims nothing of every such name"
             };
-            report.say(
-                &thm.path,
-                step.just.line,
-                format!("step {} instantiates {target}, which {why}", step.number),
-            );
-            continue;
+            reading.faults.push(format!(
+                "step {} instantiates {target}, which {why}",
+                step.number
+            ));
+            return Some(reading);
         }
         if instances.is_empty() {
-            continue;
+            return None;
         }
         // The instance reaching the claim, and each condition met on the way
         // among what the step names; one it does not supply is said.
-        let reached: Vec<Vec<Node>> = instances
-            .iter()
-            .filter_map(|i| concludes_claim(i, &claim, known))
-            .collect();
-        if let Some(conditions) = reached.iter().min_by_key(|c| c.len()) {
+        let reached: Vec<(&super::library::Said, Vec<Node>, crate::matching::Meeting)> =
+            instances
+                .iter()
+                .filter_map(|(said, i)| {
+                    let (conditions, met) = concludes_claim(i, &claim, known)?;
+                    Some((*said, conditions, met))
+                })
+                .collect();
+        if let Some((said, conditions, meeting)) =
+            reached.iter().min_by_key(|(_, c, _)| c.len())
+        {
+            reading.found =
+                super::citations::placed(&target, said, &says, own).map(|at| {
+                    Instantiated {
+                        at,
+                        conditions: conditions.len(),
+                        meeting: meeting.clone(),
+                    }
+                });
             // A condition of several parts is met where each part is. An
             // equation whose two sides are then the same needs no line
             // (`SYNTAX.md`, an identity element goes without saying), as
@@ -5140,31 +5206,24 @@ pub fn check_instance_claimed(
                 })
             });
             if let Some(unmet) = unmet {
-                report.say(
-                    &thm.path,
-                    step.just.line,
-                    format!(
-                        "instantiating at that term wants {}, which step {} does not supply",
-                        known.print(unmet),
-                        step.number
-                    ),
-                );
+                reading.faults.push(format!(
+                    "instantiating at that term wants {}, which step {} does not supply",
+                    known.print(unmet),
+                    step.number
+                ));
             }
-            continue;
+            return Some(reading);
         }
         // Said as the page writes the claim, not as it is compared.
         let written = known
             .whole_as_written(&step.claim)
             .map_or_else(|| step.claim_text(), |w| known.print(&w));
-        report.say(
-            &thm.path,
-            step.just.line,
-            format!(
-                "{target} at those terms says {}, and the step claims {written}",
-                known.print(&instances[0]),
-            ),
-        );
+        reading.faults.push(format!(
+            "{target} at those terms says {}, and the step claims {written}",
+            known.print(&instances[0].1),
+        ));
     }
+    Some(reading)
 }
 
 /// What `said` says at the values `seed` gives the letters it binds, where
@@ -5237,12 +5296,16 @@ fn instance_at(said: &Node, seed: &Binding, library: &Library) -> Option<Node> {
 /// The conditions an instance asks on its way to the claim: none where it
 /// is the claim, and each implication's condition taken off until what is
 /// left is; None where it never is.
-fn concludes_claim(instance: &Node, claim: &Node, known: &Known) -> Option<Vec<Node>> {
+fn concludes_claim(
+    instance: &Node,
+    claim: &Node,
+    known: &Known,
+) -> Option<(Vec<Node>, crate::matching::Meeting)> {
     let mut at = instance.clone();
     let mut asked = Vec::new();
     loop {
-        if known.alike(&at, claim) {
-            return Some(asked);
+        if let Some(met) = known.alike_how(&at, claim) {
+            return Some((asked, met));
         }
         match (at.notation(), at.children.as_slice()) {
             (IMPLICATION | CONDITIONAL, [condition, then]) => {

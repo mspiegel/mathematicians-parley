@@ -129,7 +129,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := p) (by parley_set_side)))
       have s5_5_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (p - 1) := by rw [← (Classical.choose_spec r351_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r351_1).1; (try rw [← (Classical.choose_spec r351_1).2] at s5_5_2; norm_cast at s5_5_2); (first | exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) (by parley_set_side) (x := (Classical.choose r351_1)) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) (by parley_set_side) (x := (Classical.choose r351_1)) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) (by parley_set_side) (x := (Classical.choose r351_1)) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) (by parley_set_side) (x := (Classical.choose r351_1)) (by parley_set_side) (by parley_set_side)) | exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) (by parley_set_side) (x := (Classical.choose r351_1)) (by parley_set_side) (by parley_set_side))⟩ | (have h := (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) (by parley_set_side) (x := (Classical.choose r351_1)) (by parley_set_side) (by parley_set_side)); parley_set_side))
       -- 5.5.4. D1, from K2
-      have s5_5_4 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+      have s5_5_4 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1]
       -- 5.5.5. substitute f(a) = (a^(p − 2)) mod p (line 5.5.4) into line 5.5.3
       parley_subst_at s5_5_4 s5_5_3
     -- 5.6. proof
@@ -169,7 +169,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         refine ⟨(Classical.choose whole1 : ℤ), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring), ?_⟩
         (exact (Parley.Items.Stdlib.Divisibility.mun_mod_congruent (x := (Classical.choose whole1 : ℤ)) (n := p) (by parley_set_side)))
       -- 5.7.7. D1, from K4
-      have s5_7_7 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+      have s5_7_7 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1]
       -- 5.7.8. substitute f(a) = (a^(p − 2)) mod p (line 5.7.7) into line 5.7.6
       have r399_1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by
         have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by obtain ⟨m, hm⟩ := s5_7_5; exact ⟨m, by first | exact_mod_cast hm | (have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h)⟩
@@ -356,17 +356,17 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       try push_cast at hK9
       try have hK9_bounds := Finset.mem_Icc.mp hK9
       -- 5.15.1. instantiate a := f(a) in line 5.5, from 5.13
-      have s5_15_1 : f (f a) ∈ Finset.Icc (0 : ℤ) (p - 1) := by first | exact (s5_5 (f a) (by parley_set_side)) | exact ((s5_5 (f a) (by parley_set_side))).symm | simpa using (s5_5 (f a) (by parley_set_side)) | exact_mod_cast (s5_5 (f a) (by parley_set_side)) | (have h := (s5_5 (f a) (by parley_set_side)); parley_set_side)
+      have s5_15_1 : f (f a) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (s5_5 (f a) (by parley_set_side))
       -- 5.15.2. mun:range-integer, from 5.15.1
       -- 5.15.3. algebra, from 5.6, 5.15.2
       have s5_15_3 : f (f a) * f a = f a * f (f a) := by parley_ring
       -- 5.15.4. calculation
       have s5_15_4 : f (f a) * f a ≡ a * f a [ZMOD p] := by
         calc f (f a) * f a = f a * f (f a) := by parley_set_side
-          _ ≡ 1 [ZMOD p] := by first | exact (s5_7 (f a) (by parley_set_side)) | exact ((s5_7 (f a) (by parley_set_side))).symm | simpa using (s5_7 (f a) (by parley_set_side)) | exact_mod_cast (s5_7 (f a) (by parley_set_side)) | (have h := (s5_7 (f a) (by parley_set_side)); parley_set_side)
+          _ ≡ 1 [ZMOD p] := by exact (s5_7 (f a) (by parley_set_side))
           _ ≡ a * f a [ZMOD p] := by first | exact (s5_7 a (by parley_set_side)) | exact ((s5_7 a (by parley_set_side))).symm | parley_set_side
       -- 5.15.5. instantiate a := f(a) in line 5.4, from 5.13
-      have s5_15_5 : (Int.gcd (f a) p : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (s5_4 (f a) (by parley_set_side)) | (have h := (s5_4 (f a) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s5_4 (f a) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s5_4 (f a) (by parley_set_side)) | exact_mod_cast ((s5_4 (f a) (by parley_set_side))).symm | (have h := (s5_4 (f a) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s5_4 (f a) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s5_4 (f a) (by parley_set_side)); parley_int_power h) | (have h := (s5_4 (f a) (by parley_set_side)); parley_set_side)
+      have s5_15_5 : (Int.gcd (f a) p : ℤ) = 1 := by exact (s5_4 (f a) (by parley_set_side))
       -- 5.15.6. thm:congruent-cancel c := f(a), from 5.6, 5.15.2, 5.15.4, 5.15.5
       have s5_15_6 : f (f a) ≡ a [ZMOD p] := by exact (Parley.Items.Stdlib.Divisibility.thm_congruent_cancel (x := f (f a)) (y := a) (c := f a) (n := p) (by parley_set_side) s5_15_4 s5_15_5)
       -- 5.15.7. mun:in-subset, from K9, 5.12

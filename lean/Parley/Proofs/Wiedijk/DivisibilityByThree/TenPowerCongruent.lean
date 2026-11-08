@@ -1,10 +1,8 @@
 module
 
 public import Functions
-public import NormTactics
 public import PowerTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -12,9 +10,6 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -22,7 +17,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 
@@ -54,6 +48,6 @@ theorem ten_power_congruent (k : ℤ) (hH1 : 0 ≤ k) :
         _ ≡ 10 [ZMOD (3 : ℤ)] := by norm_num
         _ ≡ 1 [ZMOD (3 : ℤ)] := by norm_num
   -- 2. instantiate m := k in line 1
-  first | exact (s1 k (by parley_side)) | exact ((s1 k (by parley_side))).symm | simpa using (s1 k (by parley_side)) | exact_mod_cast (s1 k (by parley_side)) | (have h := (s1 k (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 k (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 k (by parley_side)); parley_side)
+  exact (s1 k (by parley_side))
 
 end Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent

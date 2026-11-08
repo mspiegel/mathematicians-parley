@@ -4,9 +4,7 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -19,16 +17,12 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 
@@ -52,7 +46,7 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
       have s1_2 : 1 < r + 1 := by parley_order
       -- 1.3. calculation
       have s1_3 : S 0 = (LeanBridges.Counting.choose (1 : ℤ) (r + 1) : ℤ) := by
-        calc S 0 = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose j r : ℤ) : ℤ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+        calc S 0 = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose j r : ℤ) : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (LeanBridges.Counting.choose (0 : ℤ) r : ℤ) := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (LeanBridges.Counting.choose j r : ℤ))) (a := (0 : ℤ)))
           _ = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := r)) s1_1
           _ = (LeanBridges.Counting.choose (1 : ℤ) (r + 1) : ℤ) := ((Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by parley_side) (k := r + 1)) s1_2).symm
@@ -61,9 +55,9 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
       -- 1.4. calculation
       have r38_1 : m ≥ 0 := by parley_side
       have s1_4 : S (m + 1) = S m + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by
-        calc S (m + 1) = (∑ j ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose j r : ℤ) : ℤ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+        calc S (m + 1) = (∑ j ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose j r : ℤ) : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose j r : ℤ) : ℤ)) + (LeanBridges.Counting.choose (m + 1) r : ℤ) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (LeanBridges.Counting.choose j r : ℤ))) (a := (0 : ℤ)) (n := m) r38_1)
-          _ = S m + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+          _ = S m + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by simp (disch := omega) only [hD1]
       -- 1.5. thm:pascal n := m + 1, k := r + 1
       have s1_5 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) (r + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + 1) (by parley_side) (k := r + 1))
       -- 1.6. substitute
@@ -76,7 +70,7 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
         _ = (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by parley_subst hIH
         _ = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by parley_side
   -- 2. calculation
-  calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose k r : ℤ) : ℤ)) = S n := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
-    _ = (LeanBridges.Counting.choose (n + 1) (r + 1) : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
+  calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose k r : ℤ) : ℤ)) = S n := by simp (disch := omega) only [hD1]
+    _ = (LeanBridges.Counting.choose (n + 1) (r + 1) : ℤ) := by exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.SumOfBinomialsDownAColumn.SumOfBinomialsDownAColumn

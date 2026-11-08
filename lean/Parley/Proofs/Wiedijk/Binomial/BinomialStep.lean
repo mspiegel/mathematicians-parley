@@ -72,7 +72,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 8.1. D1, from J
-    have s8_1 : t k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+    have s8_1 : t k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat := by simp (disch := omega) only [hD1]
     -- 8.2. algebra
     have s8_2 : m - k + 1 = m + 1 - k := by parley_ring
     -- 8.3. calculation
@@ -118,7 +118,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 17.1. D2, from J
-    first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+    simp (disch := omega) only [hD2]
   -- 18. calculation
   have s18 : x * (∑ k ∈ Finset.Icc (0 : ℤ) m, (t k : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), (p k : ℝ)) := by
     calc x * (∑ k ∈ Finset.Icc (0 : ℤ) m, (t k : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) := by first | parley_side | parley_line_toNat s16
@@ -129,7 +129,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 19.1. D1, from J
-    have s19_1 : t k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+    have s19_1 : t k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat := by simp (disch := omega) only [hD1]
     -- 19.2. mun:exponent-step a := y, m := k
     have s19_2 : y ^ (k + 1).toNat = y ^ k.toNat * y := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := y) (m := k) (by parley_side))
     -- 19.3. calculation
@@ -173,7 +173,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 25.1. D3, from J
-    first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
+    simp (disch := omega) only [hD3]
   -- 26. calculation
   have s26 : y * (∑ k ∈ Finset.Icc (0 : ℤ) m, (t k : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), (q k : ℝ)) := by
     calc y * (∑ k ∈ Finset.Icc (0 : ℤ) m, (t k : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, (y * t k : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_scaled (t := t) (a := (0 : ℤ)) (b := m) (c := y))
@@ -188,9 +188,9 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 27.1. D2, from J
-    have s27_1 : p k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+    have s27_1 : p k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat := by simp (disch := omega) only [hD2]
     -- 27.2. D3, from J
-    have s27_2 : q k = (LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
+    have s27_2 : q k = (LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat := by simp (disch := omega) only [hD3]
     -- 27.3. thm:pascal n := m
     have s27_3 : (LeanBridges.Counting.choose m k : ℤ) + (LeanBridges.Counting.choose m (k - 1) : ℤ) = (LeanBridges.Counting.choose (m + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m) (by parley_side) (k := k))
     -- 27.4. calculation
@@ -207,7 +207,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 28.1. D1, from J
-    first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+    simp (disch := omega) only [hD1]
   -- 29. mun:sum-termwise a := 0, b := m, from 28
   have s29 : (∑ k ∈ Finset.Icc (0 : ℤ) m, (t k : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat : ℝ)) := (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := t) (u := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat)) (a := (0 : ℤ)) (b := m) s28)
   -- 30. calculation

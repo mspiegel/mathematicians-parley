@@ -11,7 +11,6 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -46,9 +45,9 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   have r55_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s4 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by first | exact (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)) | exact ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side))).symm | simpa using (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)) | exact_mod_cast (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)) | (have h := (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)); parley_set_side)
   -- 5. instantiate ε := (M − L)/3 in line 3, from 2
-  have s5 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < (M - L) / 3) := by first | exact (s3 ((M - L) / 3) (by parley_set_side)) | exact ((s3 ((M - L) / 3) (by parley_set_side))).symm | simpa using (s3 ((M - L) / 3) (by parley_set_side)) | exact_mod_cast (s3 ((M - L) / 3) (by parley_set_side)) | (have h := (s3 ((M - L) / 3) (by parley_set_side)); parley_set_side)
+  have s5 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < (M - L) / 3) := by exact (s3 ((M - L) / 3) (by parley_set_side))
   -- 6. instantiate ε := (M − L)/3 in line 4, from 2
-  have s6 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < (M - L) / 3) := by first | exact (s4 ((M - L) / 3) (by parley_set_side)) | exact ((s4 ((M - L) / 3) (by parley_set_side))).symm | simpa using (s4 ((M - L) / 3) (by parley_set_side)) | exact_mod_cast (s4 ((M - L) / 3) (by parley_set_side)) | (have h := (s4 ((M - L) / 3) (by parley_set_side)); parley_set_side)
+  have s6 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < (M - L) / 3) := by exact (s4 ((M - L) / 3) (by parley_set_side))
   -- 7. obtain p from line 5
   obtain ⟨p, ⟨s7a, s7b⟩⟩ := s5
   -- 8. obtain q from line 6
@@ -101,9 +100,9 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 29. mun:abs-difference-lt x := x₁, δ := q, from 27
   have s29 : abs (x₁ - c) < q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := q))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := q))).mpr (by parley_set_side); parley_set_side)
   -- 30. instantiate x := x₁ in line 7, from 14, 28
-  have s30 : abs (f x₁ - L) < (M - L) / 3 := by first | linarith [(s7b x₁ (by parley_set_side))] | (have h := (s7b x₁ (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s7b x₁ (by parley_set_side)) | (have h := (s7b x₁ (by parley_set_side)); parley_set_side)
+  have s30 : abs (f x₁ - L) < (M - L) / 3 := by exact (s7b x₁ (by parley_set_side))
   -- 31. instantiate x := x₁ in line 8, from 14, 29
-  have s31 : abs (f x₁ - M) < (M - L) / 3 := by first | linarith [(s8b x₁ (by parley_set_side))] | (have h := (s8b x₁ (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s8b x₁ (by parley_set_side)) | (have h := (s8b x₁ (by parley_set_side)); parley_set_side)
+  have s31 : abs (f x₁ - M) < (M - L) / 3 := by exact (s8b x₁ (by parley_set_side))
   -- 32. mun:abs-difference-lt x := f(x₁), c := L, δ := (M − L)/3, from 30
   have s32 : f x₁ < L + (M - L) / 3 := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x₁) (c := L) (δ := (M - L) / 3))).mp s30).2
   -- 33. mun:abs-difference-lt x := f(x₁), c := M, δ := (M − L)/3, from 31

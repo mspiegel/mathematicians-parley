@@ -91,7 +91,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
     -- 18.3. inequalities
     have s18_3 : 1 + x ^ 2 ≠ 0 := by parley_set_side
     -- 18.4. D4, from K1
-    have s18_4 : v x = 1 + x ^ 2 := by first | (simp (disch := omega) only [hD4]; done) | (simp (disch := omega) only [hD4]; push_cast; norm_num; done) | parley_set_side
+    have s18_4 : v x = 1 + x ^ 2 := by simp (disch := omega) only [hD4]
     -- 18.5. substitute v(x) = 1 + x² (line 18.4) into line 18.3
     parley_subst_at s18_4 s18_3
   -- 19. proof

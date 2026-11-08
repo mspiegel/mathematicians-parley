@@ -50,7 +50,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
     -- 4.3. def:tends-to, from H4
     have s4_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH4
     -- 4.4. instantiate ε := ε/(2·(|C| + 1)) in line 4.3, from 4.1, 4.2
-    have s4_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε / (2 * (abs C + 1))) := by first | exact (s4_3 (ε / (2 * (abs C + 1))) (by parley_side)) | exact ((s4_3 (ε / (2 * (abs C + 1))) (by parley_side))).symm | simpa using (s4_3 (ε / (2 * (abs C + 1))) (by parley_side)) | exact_mod_cast (s4_3 (ε / (2 * (abs C + 1))) (by parley_side)) | (have h := (s4_3 (ε / (2 * (abs C + 1))) (by parley_side)); parley_side)
+    have s4_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε / (2 * (abs C + 1))) := by exact (s4_3 (ε / (2 * (abs C + 1))) (by parley_side))
     -- 4.5. obtain N from line 4.4
     obtain ⟨N, s4_5a, s4_5b⟩ := s4_4
     -- 4.6. proof
@@ -58,7 +58,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
       intro n hK2
       intro hA2
       -- 4.6.1. instantiate n := n in line 4.5, from A2
-      have s4_6_1 : abs (x n - L) < ε / (2 * (abs C + 1)) := by first | linarith [(s4_5b n (by parley_side) (by parley_side))] | (have h := (s4_5b n (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s4_5b n (by parley_side) (by parley_side)) | (have h := (s4_5b n (by parley_side) (by parley_side)); parley_side)
+      have s4_6_1 : abs (x n - L) < ε / (2 * (abs C + 1)) := by exact (s4_5b n (by parley_side) (by parley_side))
       -- 4.6.2. membership, from H1
       -- 4.6.3. thm:scaled-small u := x(n) − L, from A1, 4.6.1, 4.6.2
       have s4_6_3 : abs (C * (x n - L)) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) (by parley_side) s4_6_1)

@@ -39,7 +39,7 @@ theorem divides_or_not_prime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (hH
   have s4a : 0 < (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a) (by parley_side) (b := b) (by parley_side))
   have s4b : (Int.gcd a b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a) (by parley_side) (b := b) (by parley_side))
   -- 5. instantiate d := gcd(a, b) in line 3, from 4
-  have s5 : (Int.gcd a b : ℤ) ∣ b → (Int.gcd a b : ℤ) = 1 ∨ (Int.gcd a b : ℤ) = b := by first | exact (s3b (Int.gcd a b : ℤ) (by parley_side)) | exact ((s3b (Int.gcd a b : ℤ) (by parley_side))).symm | simpa using (s3b (Int.gcd a b : ℤ) (by parley_side)) | exact_mod_cast (s3b (Int.gcd a b : ℤ) (by parley_side)) | (have h := (s3b (Int.gcd a b : ℤ) (by parley_side)); parley_side)
+  have s5 : (Int.gcd a b : ℤ) ∣ b → (Int.gcd a b : ℤ) = 1 ∨ (Int.gcd a b : ℤ) = b := by exact (s3b (Int.gcd a b : ℤ) (by parley_side))
   -- 6. mun:modus-ponens P := gcd(a, b) divides b, from 4, 5
   have s6 : (Int.gcd a b : ℤ) = 1 ∨ (Int.gcd a b : ℤ) = b := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (Int.gcd a b : ℤ) ∣ b) (Q := (Int.gcd a b : ℤ) = 1 ∨ (Int.gcd a b : ℤ) = b) s5 s4b)
   -- 7. def:gcd

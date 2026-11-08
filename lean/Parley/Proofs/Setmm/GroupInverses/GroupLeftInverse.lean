@@ -7,7 +7,6 @@ public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Inv
 public import Mathlib.Tactic.Positivity.Basic
@@ -58,7 +57,7 @@ theorem group_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ 
   -- 9. axi:group-identity a := b, from 2
   have s9 : b * (1 : G) = b := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) s2)
   -- 10. calculation
-  calc a⁻¹ * a = b * a := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  calc a⁻¹ * a = b * a := by simp (disch := omega) only [hD1]
     _ = b * a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b * a) s4).symm
     _ = b * a * (b * c) := by parley_subst s6
     _ = b * (a * (b * c)) := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := b * c) s2 hH2 s5)

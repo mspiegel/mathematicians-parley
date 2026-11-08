@@ -84,9 +84,9 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     -- 9.11. def:tends-to x := b, L := M, from H6
     have s9_11 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := M))).mp hH6
     -- 9.12. instantiate ε := m in line 9.10, from 9.9
-    have s9_12 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < m) := by first | exact (s9_10 m (by parley_side)) | exact ((s9_10 m (by parley_side))).symm | simpa using (s9_10 m (by parley_side)) | exact_mod_cast (s9_10 m (by parley_side)) | (have h := (s9_10 m (by parley_side)); parley_side)
+    have s9_12 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < m) := by exact (s9_10 m (by parley_side))
     -- 9.13. instantiate ε := ε/(2·s) in line 9.11, from 9.3
-    have s9_13 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε / (2 * s)) := by first | exact (s9_11 (ε / (2 * s)) (by parley_side)) | exact ((s9_11 (ε / (2 * s)) (by parley_side))).symm | simpa using (s9_11 (ε / (2 * s)) (by parley_side)) | exact_mod_cast (s9_11 (ε / (2 * s)) (by parley_side)) | (have h := (s9_11 (ε / (2 * s)) (by parley_side)); parley_side)
+    have s9_13 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε / (2 * s)) := by exact (s9_11 (ε / (2 * s)) (by parley_side))
     -- 9.14. obtain P from line 9.12
     obtain ⟨P, s9_14a, s9_14b⟩ := s9_12
     -- 9.15. obtain Q from line 9.13
@@ -108,9 +108,9 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.2. transitivity, from A2, 9.19
       have s9_20_2 : n ≥ Q := by parley_order
       -- 9.20.3. instantiate n := n in line 9.14, from 9.20.1
-      have s9_20_3 : abs (a n - L) < m := by first | linarith [(s9_14b n (by parley_side) (by parley_side))] | (have h := (s9_14b n (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s9_14b n (by parley_side) (by parley_side)) | (have h := (s9_14b n (by parley_side) (by parley_side)); parley_side)
+      have s9_20_3 : abs (a n - L) < m := by exact (s9_14b n (by parley_side) (by parley_side))
       -- 9.20.4. instantiate n := n in line 9.15, from 9.20.2
-      have s9_20_4 : abs (b n - M) < ε / (2 * s) := by first | linarith [(s9_15b n (by parley_side) (by parley_side))] | (have h := (s9_15b n (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s9_15b n (by parley_side) (by parley_side)) | (have h := (s9_15b n (by parley_side) (by parley_side)); parley_side)
+      have s9_20_4 : abs (b n - M) < ε / (2 * s) := by exact (s9_15b n (by parley_side) (by parley_side))
       -- 9.20.5. mun:lt-min z := |a(n) − L|, x := 1, y := ε/(2·t), from D3, 9.20.3
       have s9_20_5 : abs (a n - L) < 1 ∧ abs (a n - L) < ε / (2 * t) := by
         try simp only [hD3] at *

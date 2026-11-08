@@ -6,7 +6,6 @@ public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Set
 
@@ -24,7 +23,7 @@ theorem a_define_inside_a_case (x : ℝ) (hH2 : x = 1 ∨ x = 2) :
     set y : ℝ := x with hD1
     have hD1_kind : True := by parley_side
     -- 1.1. D1
-    have s1_1 : y = x := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+    have s1_1 : y = x := by simp (disch := omega) only [hD1]
     -- 1.2. arithmetic
     have s1_2 : (1 : ℤ) > 0 := by parley_arith
     -- 1.3. transitivity, from 1.1, C1, 1.2

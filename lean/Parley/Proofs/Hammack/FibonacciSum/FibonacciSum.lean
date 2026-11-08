@@ -9,6 +9,7 @@ public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -67,13 +68,13 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
         calc F 1 = G 0 := by parley_side
           _ = 1 := by parley_side
       -- 4.7. instantiate k := 0 in line 3
-      have s4_7 : F 2 = F 0 + F 1 := by first | linear_combination (norm := parley_norm) (s3 (0 : ℤ) (by parley_side)) | (have h := (s3 (0 : ℤ) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s3 (0 : ℤ) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s3 (0 : ℤ) (by parley_side)) | exact_mod_cast ((s3 (0 : ℤ) (by parley_side))).symm | (have h := (s3 (0 : ℤ) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s3 (0 : ℤ) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s3 (0 : ℤ) (by parley_side)); parley_int_power h) | (have h := (s3 (0 : ℤ) (by parley_side)); parley_side)
+      have s4_7 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s3 (0 : ℤ) (by parley_side))
       -- 4.8. calculation
       have s4_8 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num
           _ = 1 := by linear_combination (norm := parley_norm) s4_5 + s4_6 + s4_7
       -- 4.9. instantiate k := 1 in line 3
-      have s4_9 : F (1 + 2) = F 1 + F (1 + 1) := by first | linear_combination (norm := parley_norm) (s3 (1 : ℤ) (by parley_side)) | (have h := (s3 (1 : ℤ) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s3 (1 : ℤ) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s3 (1 : ℤ) (by parley_side)) | exact_mod_cast ((s3 (1 : ℤ) (by parley_side))).symm | (have h := (s3 (1 : ℤ) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s3 (1 : ℤ) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s3 (1 : ℤ) (by parley_side)); parley_int_power h) | (have h := (s3 (1 : ℤ) (by parley_side)); parley_side)
+      have s4_9 : F (1 + 2) = F 1 + F (1 + 1) := by exact (s3 (1 : ℤ) (by parley_side))
       -- 4.10. algebra, from 4.6, 4.8, 4.9
       have s4_10 : F (1 + 2) = 2 := by linear_combination (norm := parley_norm) s4_6 + s4_8 + s4_9
       -- 4.11. algebra, from 4.2, 4.6, 4.10
@@ -85,7 +86,7 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have r87_1 : m ≥ 1 := by parley_side
       have s4_13 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (F j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (F j : ℤ)) + F (m + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := F) (a := (1 : ℤ)) (n := m) r87_1)
       -- 4.14. instantiate k := m + 1 in line 3
-      have s4_14 : F (m + 1 + 2) = F (m + 1) + F (m + 1 + 1) := by first | linear_combination (norm := parley_norm) (s3 (m + 1) (by parley_side)) | (have h := (s3 (m + 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s3 (m + 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s3 (m + 1) (by parley_side)) | exact_mod_cast ((s3 (m + 1) (by parley_side))).symm | (have h := (s3 (m + 1) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s3 (m + 1) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s3 (m + 1) (by parley_side)); parley_int_power h) | (have h := (s3 (m + 1) (by parley_side)); parley_side)
+      have s4_14 : F (m + 1 + 2) = F (m + 1) + F (m + 1 + 1) := by exact (s3 (m + 1) (by parley_side))
       -- 4.15. substitute
       have s4_15 : F (m + 1 + 2) = F (m + 1) + F (m + 2) := by
         have c1 : m + 1 + 1 = m + 2 := by parley_ring

@@ -7,7 +7,6 @@ public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -54,9 +53,9 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
       -- 1.6.2. inequalities
       have s1_6_2 : m ≤ n := by parley_order
       -- 1.6.3. instantiate m := m in IH, from 1.6.2
-      have s1_6_3 : x m ≤ x n := by first | linarith [(hIH m (by parley_side) (by parley_side))] | (have h := (hIH m (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (hIH m (by parley_side) (by parley_side)) | (have h := (hIH m (by parley_side) (by parley_side)); parley_side)
+      have s1_6_3 : x m ≤ x n := by exact (hIH m (by parley_side) (by parley_side))
       -- 1.6.4. instantiate n := n in H2
-      have s1_6_4 : x n ≤ x (n + 1) := by first | linarith [(hH2 n (by parley_side))] | (have h := (hH2 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (hH2 n (by parley_side)) | (have h := (hH2 n (by parley_side)); parley_side)
+      have s1_6_4 : x n ≤ x (n + 1) := by exact (hH2 n (by parley_side))
       -- 1.6.5. transitivity, from 1.6.3, 1.6.4
       parley_order
     · skip

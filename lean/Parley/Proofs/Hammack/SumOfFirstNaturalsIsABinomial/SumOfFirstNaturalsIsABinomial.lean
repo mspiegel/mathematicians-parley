@@ -4,8 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -17,7 +15,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -25,8 +22,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
@@ -59,7 +54,7 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.5. thm:binomial-of-one m := 1
       have s1_5 : (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) = 1 := (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := (1 : ℤ)) (by parley_side))
       -- 1.6. calculation
-      calc S 1 = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (j : ℤ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+      calc S 1 = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (j : ℤ)) := by simp (disch := omega) only [hD1]
         _ = 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => j)) (a := (1 : ℤ)))
         _ = 0 + 1 := by norm_num
         _ = 0 + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by parley_subst s1_5
@@ -69,9 +64,9 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.7. calculation
       have r49_1 : k ≥ 1 := by parley_side
       have s1_7 : S (k + 1) = S k + (k + 1) := by
-        calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (j : ℤ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+        calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (j : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (j : ℤ)) + (k + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := k) r49_1)
-          _ = S k + (k + 1) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+          _ = S k + (k + 1) := by simp (disch := omega) only [hD1]
       -- 1.8. thm:binomial-of-one m := k + 1
       have s1_8 : (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = k + 1 := by exact (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := k + 1) (by parley_side))
       -- 1.9. thm:pascal n := k + 1, k := 2
@@ -84,7 +79,7 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
         _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by parley_subst s1_8
         _ = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by parley_side
   -- 2. calculation
-  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) = S n := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
-    _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
+  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) = S n := by simp (disch := omega) only [hD1]
+    _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.SumOfFirstNaturalsIsABinomial.SumOfFirstNaturalsIsABinomial

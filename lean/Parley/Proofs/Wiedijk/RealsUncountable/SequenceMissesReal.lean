@@ -1,10 +1,7 @@
 module
 
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
@@ -14,17 +11,12 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Floor
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Functions
@@ -59,7 +51,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
     -- 2.5. join 2.1, 2.2, 2.3, 2.4
     have s2_5 : (((True ∧ 0 ≤ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ)) ∧ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) ≤ 9) ∧ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ ((⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_side
     -- 2.6. D7
-    have s2_6 : e n = (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) := by first | (simp (disch := omega) only [hD7]; done) | (simp (disch := omega) only [hD7]; push_cast; norm_num; done) | parley_side
+    have s2_6 : e n = (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) := by simp (disch := omega) only [hD7]
     -- 2.7. substitute e(n) = s(D(f(n), n)) (line 2.6) into line 2.5
     have s2_7 : (((True ∧ 0 ≤ e n) ∧ e n ≤ 9) ∧ e n ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ (e n + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_subst_at s2_6 s2_5
     exact ⟨⟨⟨⟨trivial, ((((s2_7).1).1).1).2⟩, (((s2_7).1).1).2⟩, ((s2_7).1).2⟩, (s2_7).2⟩
@@ -79,7 +71,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
     intro n hK5
     intro hS
     -- 7.1. instantiate n := n in line 6
-    have s7_1 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = e n ∨ ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = (e n + 1) % (10 : ℤ) := by first | exact (s6 n (by parley_side)) | exact ((s6 n (by parley_side))).symm | simpa using (s6 n (by parley_side)) | exact_mod_cast (s6 n (by parley_side)) | (have h := (s6 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s6 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s6 n (by parley_side)); parley_side)
+    have s7_1 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = e n ∨ ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = (e n + 1) % (10 : ℤ) := by exact (s6 n (by parley_side))
     -- 7.2. cases, from 7.1
     have s7_2 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by
       rcases s7_1 with hC1 | hC2

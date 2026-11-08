@@ -72,6 +72,6 @@ theorem powers_of_two_sum (n : ℤ) (hH1 : 0 < n) :
         _ = 2 ^ (k + 1 + 1).toNat - 2 := by parley_subst s1_3
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 ^ k.toNat : ℤ)) = S n := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD1
-    _ = 2 ^ (n + 1).toNat - 2 := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_side)
+    _ = 2 ^ (n + 1).toNat - 2 := by exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.PowersOfTwoSum.PowersOfTwoSum

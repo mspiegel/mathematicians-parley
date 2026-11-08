@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -25,8 +24,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
@@ -55,7 +52,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     -- 2.3. calculation
     have s2_3 : y = s ^ 2 + 3 := by
       calc y = f s := by parley_set_side
-        _ = s ^ 2 + 3 := by first | linear_combination (norm := parley_norm) (hH2 s) | (have h := (hH2 s); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 s); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 s) | exact_mod_cast ((hH2 s)).symm | (have h := (hH2 s); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 s); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 s); parley_int_power h) | (have h := (hH2 s); parley_set_side)
+        _ = s ^ 2 + 3 := by exact (hH2 s)
     -- 2.4. mun:square-nonneg x := s
     have s2_4 : s ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := s))
     -- 2.5. inequalities
@@ -110,7 +107,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     -- 4.8. def:interval a := −3, b := 5, x := √(y − 3), from 4.3, 4.6, 4.7
     have s4_8 : Real.sqrt (y - 3) ∈ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr (by parley_set_side); parley_set_side)
     -- 4.9. instantiate x := √(y − 3) in H2, from 4.3
-    have s4_9 : f (Real.sqrt (y - 3)) = Real.sqrt (y - 3) ^ 2 + 3 := by first | linear_combination (norm := parley_norm) (hH2 (Real.sqrt (y - 3))) | (have h := (hH2 (Real.sqrt (y - 3))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 (Real.sqrt (y - 3))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 (Real.sqrt (y - 3))) | exact_mod_cast ((hH2 (Real.sqrt (y - 3)))).symm | (have h := (hH2 (Real.sqrt (y - 3))); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (Real.sqrt (y - 3))); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (Real.sqrt (y - 3))); parley_int_power h) | (have h := (hH2 (Real.sqrt (y - 3))); parley_set_side)
+    have s4_9 : f (Real.sqrt (y - 3)) = Real.sqrt (y - 3) ^ 2 + 3 := by exact (hH2 (Real.sqrt (y - 3)))
     -- 4.10. mun:value-in-image Y := [−3, 5], s := √(y − 3), from 1, 4.8
     have s4_10 : f (Real.sqrt (y - 3)) ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (s := Real.sqrt (y - 3)) (W := Set.univ) (by parley_whole_side) s4_8 (by parley_whole_side))
     -- 4.11. substitute

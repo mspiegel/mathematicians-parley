@@ -118,13 +118,13 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
     -- 17.4. algebra, from 17.2
     linear_combination (norm := parley_norm) s17_2
   -- 18. D2, from 1
-  have s18 : H a = G a - F a := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s18 : H a = G a - F a := by simp (disch := omega) only [hD2]
   -- 19. D2, from 2
-  have s19 : H b = G b - F b := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s19 : H b = G b - F b := by simp (disch := omega) only [hD2]
   -- 20. D1, from 1
-  have s20 : G a = (∫ t in a..a, (f t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s20 : G a = (∫ t in a..a, (f t : ℝ)) := by simp (disch := omega) only [hD1]
   -- 21. D1, from 2
-  have s21 : G b = (∫ t in a..b, (f t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s21 : G b = (∫ t in a..b, (f t : ℝ)) := by simp (disch := omega) only [hD1]
   -- 22. calculation
   have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have s22 : G b - F b = G a - F a := by

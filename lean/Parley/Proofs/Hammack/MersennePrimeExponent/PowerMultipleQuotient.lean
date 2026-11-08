@@ -3,27 +3,20 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd
 public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound
@@ -84,6 +77,6 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.16. exhibit, from 1.6, 1.15
       exact ⟨2 ^ d.toNat * q + 1, by parley_side, ⟨s1_6, s1_15⟩⟩
   -- 2. instantiate j := m in line 1
-  first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 m (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); parley_side)
+  exact (s1 m (by parley_side))
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient

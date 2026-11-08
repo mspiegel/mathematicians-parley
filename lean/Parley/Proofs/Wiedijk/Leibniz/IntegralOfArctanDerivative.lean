@@ -108,7 +108,7 @@ theorem integral_of_arctan_derivative :
       calc x ^ (2 * 0) = x ^ 0 := by norm_num
         _ = 1 := by parley_ring
     -- 12.3. D1, from 12.1
-    have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+    have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by simp (disch := omega) only [hD1]
     -- 12.4. calculation
     calc (deriv F) x = 1 / (1 + x ^ 2) := by first | exact (s11 x (by parley_set_side)) | exact ((s11 x (by parley_set_side))).symm | parley_set_side
       _ = x ^ (2 * 0) / (1 + x ^ 2) := by parley_subst s12_2
@@ -127,9 +127,9 @@ theorem integral_of_arctan_derivative :
   have s16a : Real.arctan (0 : ℝ) = 0 := by exact Parley.Items.Stdlib.Trigonometry.mun_arctan_values_1
   have s16b : Real.arctan (1 : ℝ) = Real.pi / 4 := by exact Parley.Items.Stdlib.Trigonometry.mun_arctan_values_2
   -- 17. D2, from 15
-  have s17 : F 1 = Real.arctan (1 : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s17 : F 1 = Real.arctan (1 : ℝ) := by simp (disch := omega) only [hD2]
   -- 18. D2, from 14
-  have s18 : F 0 = Real.arctan (0 : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s18 : F 0 = Real.arctan (0 : ℝ) := by simp (disch := omega) only [hD2]
   -- 19. calculation
   have s19 : F 1 = Real.pi / 4 := by
     calc F 1 = Real.arctan (1 : ℝ) := by parley_set_side
@@ -139,7 +139,7 @@ theorem integral_of_arctan_derivative :
     calc F 0 = Real.arctan (0 : ℝ) := by parley_set_side
       _ = 0 := by parley_set_side
   -- 21. D0, from D1
-  have s21 : (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s21 : (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by simp (disch := omega) only [hD1]
   -- 22. calculation
   calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by parley_set_side
     _ = F 1 - F 0 := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := g) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))

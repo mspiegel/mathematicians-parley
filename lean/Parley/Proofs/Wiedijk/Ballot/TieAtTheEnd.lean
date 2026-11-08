@@ -14,7 +14,6 @@ public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -62,7 +61,7 @@ theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
     -- 2.4. calculation
     have s2_4 : m < m := by parley_count_after (by
       calc m = (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) \ c).ncard : ℤ) := by parley_set_side
-        _ < (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) ∩ c).ncard : ℤ) := by first | linarith [(s2_3 (m + m) (by parley_set_side))] | (have h := (s2_3 (m + m) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s2_3 (m + m) (by parley_set_side)) | (have h := (s2_3 (m + m) (by parley_set_side)); parley_set_side)
+        _ < (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) ∩ c).ncard : ℤ) := by exact (s2_3 (m + m) (by parley_set_side))
         _ = m := by parley_set_side)
     -- 2.5. inequalities
     have s2_5 : ¬ m < m := by parley_set_side

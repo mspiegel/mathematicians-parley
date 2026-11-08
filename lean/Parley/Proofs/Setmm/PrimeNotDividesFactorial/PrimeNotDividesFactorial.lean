@@ -101,7 +101,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
     -- 4.4. mun:nat0-nonzero m := N, from C4
     have s4_4 : 0 < N := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := N) (by parley_side) hC4)
     -- 4.5. instantiate k := N in line 2, from 4.4
-    have s4_5 : N < P → ¬ P ∣ (LeanBridges.Counting.factorial N : ℤ) := by first | exact (s2 N (by parley_side)) | exact ((s2 N (by parley_side))).symm | simpa using (s2 N (by parley_side)) | exact_mod_cast (s2 N (by parley_side)) | (have h := (s2 N (by parley_side)); parley_side)
+    have s4_5 : N < P → ¬ P ∣ (LeanBridges.Counting.factorial N : ℤ) := by exact (s2 N (by parley_side))
     -- 4.6. mun:modus-ponens, from H4, 4.5
     exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := N < P) (Q := ¬ P ∣ (LeanBridges.Counting.factorial N : ℤ)) s4_5 hH4)
 

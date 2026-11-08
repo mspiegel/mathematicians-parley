@@ -65,6 +65,6 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       have row1 : (24 : ℤ) ∣ (5 ^ (2 * (m + 1)).toNat - 1 : ℤ) := by parley_subst_at c1 s1_7
       exact row1
   -- 2. instantiate m := n in line 1
-  first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.DivisibleByTwentyFour.DivisibleByTwentyFour

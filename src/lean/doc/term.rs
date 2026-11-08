@@ -963,6 +963,12 @@ impl Term {
         self.has(|k| matches!(k, TermKind::Count { form: f, .. } if *f == form))
     }
 
+    /// Whether the tree casts something to another type somewhere, `(n : ℚ)`
+    /// of an integer n; an ascription of a term to its own type is none.
+    pub fn has_cast(&self) -> bool {
+        self.has(|k| matches!(k, TermKind::Cast { inner, to } if inner.ty.as_ref() != Some(to)))
+    }
+
     /// Whether the tree casts something to `ty` somewhere, `(x : ℝ)`.
     pub fn has_cast_to(&self, ty: &LeanType) -> bool {
         self.has(|k| matches!(k, TermKind::Cast { to, .. } if to == ty))

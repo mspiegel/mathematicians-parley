@@ -49,7 +49,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
     -- 4.3. def:tends-to, from H4
     have s4_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH4
     -- 4.4. instantiate ε := ε/(|c| + 1) in line 4.3, from 4.1, 4.2
-    have s4_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε / (abs c + 1)) := by first | exact (s4_3 (ε / (abs c + 1)) (by parley_side)) | exact ((s4_3 (ε / (abs c + 1)) (by parley_side))).symm | simpa using (s4_3 (ε / (abs c + 1)) (by parley_side)) | exact_mod_cast (s4_3 (ε / (abs c + 1)) (by parley_side)) | (have h := (s4_3 (ε / (abs c + 1)) (by parley_side)); parley_side)
+    have s4_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε / (abs c + 1)) := by exact (s4_3 (ε / (abs c + 1)) (by parley_side))
     -- 4.5. obtain N from line 4.4
     obtain ⟨N, s4_5a, s4_5b⟩ := s4_4
     -- 4.6. proof
@@ -59,7 +59,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
       -- 4.6.1. membership, from H1
       -- 4.6.2. mun:abs-real x := a(n) − L, from 4.6.1
       -- 4.6.3. instantiate n := n in line 4.5, from A2
-      have s4_6_3 : abs (a n - L) < ε / (abs c + 1) := by first | linarith [(s4_5b n (by parley_side) (by parley_side))] | (have h := (s4_5b n (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s4_5b n (by parley_side) (by parley_side)) | (have h := (s4_5b n (by parley_side) (by parley_side)); parley_side)
+      have s4_6_3 : abs (a n - L) < ε / (abs c + 1) := by exact (s4_5b n (by parley_side) (by parley_side))
       -- 4.6.4. mun:abs-nonneg x := a(n) − L, from 4.6.1
       have s4_6_4 : abs (a n - L) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))); parley_side)
       -- 4.6.5. mun:less-scaled x := |a(n) − L|, y := ε/(|c| + 1), c := |c| + 1, from 2, 4.6.2, 4.6.3

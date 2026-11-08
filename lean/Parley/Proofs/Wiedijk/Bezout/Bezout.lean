@@ -72,7 +72,7 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   have s13c : (Int.gcd a b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a) (by parley_set_side) (b := b) (by parley_set_side))
   have s13d : ∀ e : ℤ, 0 < e → e ∣ a ∧ e ∣ b → e ≤ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_4 (a := a) (by parley_set_side) (b := b) (by parley_set_side))
   -- 14. instantiate e := d in line 13, from 6, 10, 12
-  have s14 : d ≤ (Int.gcd a b : ℤ) := by first | linarith [(s13d d (by parley_set_side) (by parley_set_side))] | (have h := (s13d d (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s13d d (by parley_set_side) (by parley_set_side)) | (have h := (s13d d (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s14 : d ≤ (Int.gcd a b : ℤ) := by exact (s13d d (by parley_set_side) (by parley_set_side))
   -- 15. mun:divides-combination e := gcd(a, b), x := x₀, y := y₀, from 13
   have s15 : (Int.gcd a b : ℤ) ∣ a * x₀ + b * y₀ := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd a b : ℤ)) (a := a) (b := b) (x := x₀) (y := y₀) s13b s13c)
   -- 16. substitute d = a·x₀ + b·y₀ (line 7) into line 15

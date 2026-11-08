@@ -7,7 +7,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -30,7 +29,7 @@ theorem convergent_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fu
   have s2 : ∀ m : ℤ, 0 < m → x m ≤ B := by
     intro m hK1
     -- 2.1. instantiate i := m in line 1
-    have s2_1 : abs (x m) ≤ B := by first | linarith [(s1 m (by parley_side))] | (have h := (s1 m (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); parley_side)
+    have s2_1 : abs (x m) ≤ B := by exact (s1 m (by parley_side))
     -- 2.2. mun:abs-bounds x := x(m)
     have s2_2 : x m ≤ abs (x m) := by exact (Parley.Stdlib.Numbers.AbsBounds.abs_bounds (x := x m)).1
     -- 2.3. transitivity, from 2.2, 2.1

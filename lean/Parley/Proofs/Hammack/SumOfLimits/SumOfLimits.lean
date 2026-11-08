@@ -9,7 +9,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -38,9 +37,9 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
     -- 1.3. def:tends-to x := b, L := M, from H6
     have s1_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := M))).mp hH6
     -- 1.4. instantiate ε := ε/2 in line 1.2, from 1.1
-    have s1_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε / 2) := by first | exact (s1_2 (ε / 2) (by parley_side)) | exact ((s1_2 (ε / 2) (by parley_side))).symm | simpa using (s1_2 (ε / 2) (by parley_side)) | exact_mod_cast (s1_2 (ε / 2) (by parley_side)) | (have h := (s1_2 (ε / 2) (by parley_side)); parley_side)
+    have s1_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε / 2) := by exact (s1_2 (ε / 2) (by parley_side))
     -- 1.5. instantiate ε := ε/2 in line 1.3, from 1.1
-    have s1_5 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε / 2) := by first | exact (s1_3 (ε / 2) (by parley_side)) | exact ((s1_3 (ε / 2) (by parley_side))).symm | simpa using (s1_3 (ε / 2) (by parley_side)) | exact_mod_cast (s1_3 (ε / 2) (by parley_side)) | (have h := (s1_3 (ε / 2) (by parley_side)); parley_side)
+    have s1_5 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε / 2) := by exact (s1_3 (ε / 2) (by parley_side))
     -- 1.6. obtain P from line 1.4
     obtain ⟨P, s1_6a, s1_6b⟩ := s1_4
     -- 1.7. obtain Q from line 1.5
@@ -62,9 +61,9 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
       -- 1.12.2. transitivity, from A2, 1.11
       have s1_12_2 : n ≥ Q := by parley_order
       -- 1.12.3. instantiate n := n in line 1.6, from 1.12.1
-      have s1_12_3 : abs (a n - L) < ε / 2 := by first | linarith [(s1_6b n (by parley_side) (by parley_side))] | (have h := (s1_6b n (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1_6b n (by parley_side) (by parley_side)) | (have h := (s1_6b n (by parley_side) (by parley_side)); parley_side)
+      have s1_12_3 : abs (a n - L) < ε / 2 := by exact (s1_6b n (by parley_side) (by parley_side))
       -- 1.12.4. instantiate n := n in line 1.7, from 1.12.2
-      have s1_12_4 : abs (b n - M) < ε / 2 := by first | linarith [(s1_7b n (by parley_side) (by parley_side))] | (have h := (s1_7b n (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1_7b n (by parley_side) (by parley_side)) | (have h := (s1_7b n (by parley_side) (by parley_side)); parley_side)
+      have s1_12_4 : abs (b n - M) < ε / 2 := by exact (s1_7b n (by parley_side) (by parley_side))
       -- 1.12.5. mun:abs-difference-lt x := a(n), c := L, δ := ε/2, from 1.12.3
       have s1_12_5 : L - ε / 2 < a n ∧ a n < L + ε / 2 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := L) (δ := ε / 2))).mp s1_12_3
       -- 1.12.6. mun:abs-difference-lt x := b(n), c := M, δ := ε/2, from 1.12.4

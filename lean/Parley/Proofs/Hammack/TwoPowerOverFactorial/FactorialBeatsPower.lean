@@ -6,24 +6,19 @@ public import FactorialTactics
 public import Functions
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 
@@ -82,7 +77,7 @@ theorem factorial_beats_power (n : ℤ) (hH1 : 0 < n) :
       have s1_16 : 2 ^ (k + 1).toNat ≤ 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) ∧ (k + 1) * 2 ^ (k + 1).toNat ≤ 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by parley_side
       exact ⟨(s1_16).1, (s1_16).2⟩
   -- 2. instantiate k := n in line 1
-  have s2 : 2 ^ n.toNat ≤ 2 * (LeanBridges.Counting.factorial n : ℤ) ∧ n * 2 ^ n.toNat ≤ 4 * (LeanBridges.Counting.factorial n : ℤ) := by first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_side)
+  have s2 : 2 ^ n.toNat ≤ 2 * (LeanBridges.Counting.factorial n : ℤ) ∧ n * 2 ^ n.toNat ≤ 4 * (LeanBridges.Counting.factorial n : ℤ) := by exact (s1 n (by parley_side))
   -- 3. restate 2
   parley_side
 

@@ -10,12 +10,10 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/power-above-one.proof by parley build lean. -/
@@ -51,6 +49,6 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℤ) (hH3 : 0 < n) :
         _ = A ^ k.toNat * A := by parley_ring
         _ = A ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)).symm
   -- 2. instantiate k := n in line 1
-  first | (have h := (s1 n (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Setmm.PowerAboveOne.PowerAboveOne

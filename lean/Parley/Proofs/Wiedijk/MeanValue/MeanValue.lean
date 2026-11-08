@@ -103,13 +103,13 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have r103_3 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have s16 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv F) x = (deriv f) x + (deriv g) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 r103_1 s6 hH6 s13)
   -- 17. D3, from 2
-  have s17 : F a = f a + g a := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+  have s17 : F a = f a + g a := by simp (disch := omega) only [hD3]
   -- 18. D2, from 2
-  have s18 : g a = m * a := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s18 : g a = m * a := by simp (disch := omega) only [hD2]
   -- 19. D3, from 3
-  have s19 : F b = f b + g b := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+  have s19 : F b = f b + g b := by simp (disch := omega) only [hD3]
   -- 20. D2, from 3
-  have s20 : g b = m * b := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s20 : g b = m * b := by simp (disch := omega) only [hD2]
   -- 21. calculation
   have r121_1 : b - a ≠ 0 := by parley_set_side
   have s21 : F a = F b := by

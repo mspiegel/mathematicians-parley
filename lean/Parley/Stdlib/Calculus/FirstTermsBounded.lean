@@ -15,7 +15,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -98,7 +97,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         -- 1.8.4.3. def:range n := K, k := m, from 1.8.4.2
         have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr (by parley_side); parley_side)
         -- 1.8.4.4. instantiate i := m in line 1.4, from 1.8.4.3
-        have s1_8_4_4 : abs (x m) ≤ C := by first | linarith [(s1_4 m (by parley_side))] | (have h := (s1_4 m (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1_4 m (by parley_side)) | (have h := (s1_4 m (by parley_side)); parley_side)
+        have s1_8_4_4 : abs (x m) ≤ C := by exact (s1_4 m (by parley_side))
         -- 1.8.4.5. transitivity, from 1.8.4.4, 1.6
         parley_order
       · skip

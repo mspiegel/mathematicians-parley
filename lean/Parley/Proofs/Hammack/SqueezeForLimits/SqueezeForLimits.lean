@@ -8,7 +8,6 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -41,9 +40,9 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
     have r33_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
     have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (h x - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Calculus.def_limit_at (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_limit_at (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mp (by parley_set_side); parley_set_side)
     -- 1.3. instantiate ε := ε in line 1.1, from A1
-    have s1_3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (g x - L) < ε) := by first | exact (s1_1 ε (by parley_set_side)) | exact ((s1_1 ε (by parley_set_side))).symm | simpa using (s1_1 ε (by parley_set_side)) | exact_mod_cast (s1_1 ε (by parley_set_side)) | (have h := (s1_1 ε (by parley_set_side)); parley_set_side)
+    have s1_3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (g x - L) < ε) := by exact (s1_1 ε (by parley_set_side))
     -- 1.4. instantiate ε := ε in line 1.2, from A1
-    have s1_4 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (h x - L) < ε) := by first | exact (s1_2 ε (by parley_set_side)) | exact ((s1_2 ε (by parley_set_side))).symm | simpa using (s1_2 ε (by parley_set_side)) | exact_mod_cast (s1_2 ε (by parley_set_side)) | (have h := (s1_2 ε (by parley_set_side)); parley_set_side)
+    have s1_4 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (h x - L) < ε) := by exact (s1_2 ε (by parley_set_side))
     -- 1.5. obtain p from H6
     obtain ⟨p, ⟨s1_5a, s1_5b⟩⟩ := hH6
     -- 1.6. obtain q from line 1.3
@@ -83,11 +82,11 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
       -- 1.12.5. join A2, 1.12.1
       have s1_12_5 : x ≠ c ∧ abs (x - c) < r := by parley_set_side
       -- 1.12.6. instantiate x := x in line 1.5, from 1.12.3
-      have s1_12_6 : g x ≤ f x ∧ f x ≤ h x := by first | exact (s1_5b x (by parley_set_side)) | exact ((s1_5b x (by parley_set_side))).symm | simpa using (s1_5b x (by parley_set_side)) | exact_mod_cast (s1_5b x (by parley_set_side)) | (have h := (s1_5b x (by parley_set_side)); parley_set_side)
+      have s1_12_6 : g x ≤ f x ∧ f x ≤ h x := by exact (s1_5b x (by parley_set_side))
       -- 1.12.7. instantiate x := x in line 1.6, from 1.12.4
-      have s1_12_7 : abs (g x - L) < ε := by first | linarith [(s1_6b x (by parley_set_side))] | (have h := (s1_6b x (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s1_6b x (by parley_set_side)) | (have h := (s1_6b x (by parley_set_side)); parley_set_side)
+      have s1_12_7 : abs (g x - L) < ε := by exact (s1_6b x (by parley_set_side))
       -- 1.12.8. instantiate x := x in line 1.7, from 1.12.5
-      have s1_12_8 : abs (h x - L) < ε := by first | linarith [(s1_7b x (by parley_set_side))] | (have h := (s1_7b x (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s1_7b x (by parley_set_side)) | (have h := (s1_7b x (by parley_set_side)); parley_set_side)
+      have s1_12_8 : abs (h x - L) < ε := by exact (s1_7b x (by parley_set_side))
       -- 1.12.9. mun:abs-difference-lt x := g(x), c := L, δ := ε, from 1.12.7
       have s1_12_9 : L - ε < g x := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := g x) (c := L) (δ := ε))).mp s1_12_7).1
       -- 1.12.10. mun:abs-difference-lt x := h(x), c := L, δ := ε, from 1.12.8

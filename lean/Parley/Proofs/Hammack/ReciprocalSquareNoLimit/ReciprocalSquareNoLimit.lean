@@ -58,7 +58,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) r33_1 (c := (1 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r37_1 : (0 : ℤ) < 1 := by parley_arith
-  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < 1) := by first | exact (s2 (1 : ℝ) (by parley_set_side)) | exact ((s2 (1 : ℝ) (by parley_set_side))).symm | simpa using (s2 (1 : ℝ) (by parley_set_side)) | exact_mod_cast (s2 (1 : ℝ) (by parley_set_side)) | (have h := (s2 (1 : ℝ) (by parley_set_side)); parley_rat_of_real h) | (have h := (s2 (1 : ℝ) (by parley_set_side)); parley_set_side)
+  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities

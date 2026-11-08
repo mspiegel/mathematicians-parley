@@ -47,6 +47,6 @@ theorem cubic_plus_multiple_of_three (n : ℤ) (hH1 : 0 ≤ n) :
       have row1 : (3 : ℤ) ∣ (k + 1) ^ 3 + 5 * (k + 1) + 6 := by parley_subst_at c1 s1_4
       exact row1
   -- 2. instantiate k := n in line 1
-  first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.CubicPlusMultipleOfThree.CubicPlusMultipleOfThree

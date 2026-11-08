@@ -124,7 +124,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     have r135_1 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
     have s19_1 : x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (u := x) r135_1 hK1)
     -- 19.2. D1, from 19.1
-    have s19_2 : p x = x ^ m.toNat := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+    have s19_2 : p x = x ^ m.toNat := by simp (disch := omega) only [hD1]
     -- 19.3. calculation
     have r142_1 : m + 1 ≠ 0 := by parley_set_side
     calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
@@ -142,17 +142,17 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   have r158_2 : (1 : ℤ) ≤ 1 := by parley_arith
   have s22 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side); parley_set_side)
   -- 23. D2, from 22
-  have s23 : q 1 = 1 ^ (m + 1).toNat := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s23 : q 1 = 1 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 24. mun:one-power m := m + 1
   have s24 : (1 ^ (m + 1).toNat : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); parley_set_side)
   -- 25. D2, from 21
-  have s25 : q 0 = 0 ^ (m + 1).toNat := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s25 : q 0 = 0 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 26. mun:zero-power n := m + 1, from 1
   have s26 : (0 ^ (m + 1).toNat : ℤ) = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_zero_power (n := m + 1) (by parley_set_side))
   -- 27. D3, from 22
-  have s27 : F 1 = 1 / ((m : ℝ) + 1) * q 1 := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+  have s27 : F 1 = 1 / ((m : ℝ) + 1) * q 1 := by simp (disch := omega) only [hD3]
   -- 28. D3, from 21
-  have s28 : F 0 = 1 / ((m : ℝ) + 1) * q 0 := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+  have s28 : F 0 = 1 / ((m : ℝ) + 1) * q 0 := by simp (disch := omega) only [hD3]
   -- 29. calculation
   have s29 : F 1 = 1 / ((m : ℝ) + 1) * 1 := by
     calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := by parley_set_side

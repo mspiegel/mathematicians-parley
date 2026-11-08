@@ -26,7 +26,6 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -127,9 +126,9 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
       have row1 : B ^ 2 ≤ A * C := by parley_subst_at c1 s5_14
       exact row1
     -- 5.16. calculation
-    calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = B ^ 2 := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+    calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = B ^ 2 := by simp (disch := omega) only [hD2]
       _ ≤ A * C := by parley_side
-      _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * C := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
-      _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
+      _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * C := by simp (disch := omega) only [hD1]
+      _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by simp (disch := omega) only [hD3]
 
 end Parley.Proofs.Wiedijk.CauchySchwarz.CauchySchwarz

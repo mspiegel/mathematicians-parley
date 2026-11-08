@@ -1,15 +1,10 @@
 module
 
-public import NormTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 
 /-! Written from tests/elaborator/an-instance-asking-the-fewest-conditions.proof by parley build lean. -/
 
@@ -20,6 +15,6 @@ namespace Parley.Tests.Elaborator.AnInstanceAskingTheFewestConditions.AnInstance
 theorem an_instance_asking_the_fewest_conditions (hH1 : (∀ x : ℝ, x > 0 → x + 0 = x) ∧ (∀ x : ℝ, x + 0 = x)) (a : ℝ) :
     a + 0 = a := by
   -- 1. instantiate x := a in H1, from H2
-  first | linear_combination (norm := parley_norm) (hH1.2 a) | (have h := (hH1.2 a); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH1.2 a); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH1.2 a) | exact_mod_cast ((hH1.2 a)).symm | (have h := (hH1.2 a); rify; linear_combination (norm := parley_norm) h) | (have h := (hH1.2 a); qify; linear_combination (norm := parley_norm) h) | (have h := (hH1.2 a); parley_int_power h) | (have h := (hH1.2 a); parley_side)
+  exact (hH1.2 a)
 
 end Parley.Tests.Elaborator.AnInstanceAskingTheFewestConditions.AnInstanceAskingTheFewestConditions

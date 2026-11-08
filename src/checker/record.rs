@@ -285,6 +285,15 @@ pub struct CheckedTheorem {
     /// of the "there is" it obtains from, by the step's index
     /// (`citations::obtained_parts`).
     pub obtained_parts: IndexMap<usize, Vec<ObtainedPart>>,
+    /// How each instantiation's instance reaches its claim, a step's, a
+    /// calculation row's or a requires line's, by the line of its
+    /// justification
+    /// (`citations::instantiations`).
+    pub instantiated: IndexMap<usize, Instantiated>,
+    /// How each calculation link citing a define meets the define written
+    /// out, its two sides once the define's name is its value, by the
+    /// link's line (`formulas::define_link_meetings`).
+    pub define_links: IndexMap<usize, crate::matching::Meeting>,
     /// What each of the theorem's `let` lines asserts that the page does not
     /// read as a formula, `f : A → B be one-to-one` as `f : A → B is
     /// one-to-one`, by the hypothesis's index; empty for any other line
@@ -549,6 +558,19 @@ pub struct ObtainedPart {
     /// The part of the "there is"'s body it is, counted alike.
     pub owed: usize,
     /// How the two meet (`Known::alike_how`).
+    pub meeting: crate::matching::Meeting,
+}
+
+/// How an `instantiate` step's instance of the line it names reaches its
+/// claim (`citations::check_instance_claimed`).
+#[derive(Clone, Debug)]
+pub struct Instantiated {
+    /// The sentence of the line, or the part of one, instantiated.
+    pub at: FirstAt,
+    /// How many conditions of the instance, `if A then`, are taken off on
+    /// the way to the claim, each by a line the step names.
+    pub conditions: usize,
+    /// How what is left meets the claim (`Known::alike_how`).
     pub meeting: crate::matching::Meeting,
 }
 

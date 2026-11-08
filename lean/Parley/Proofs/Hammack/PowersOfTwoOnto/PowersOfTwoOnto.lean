@@ -1,7 +1,5 @@
 module
 
-public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -11,13 +9,10 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from proofs/hammack/powers-of-two-onto.proof by parley build lean. -/
@@ -36,7 +31,7 @@ theorem powers_of_two_onto (f : ℤ → ℚ) (hH1 : Set.MapsTo f (Set.univ : Set
     -- 1.2. calculation
     have s1_2 : y = f m := by
       calc y = 2 ^ m := by parley_set_side
-        _ = f m := by first | linear_combination (norm := parley_norm) (hH2 m) | (have h := (hH2 m); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 m); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 m) | exact_mod_cast ((hH2 m)).symm | (have h := (hH2 m); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 m); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 m); parley_int_power h) | (have h := (hH2 m); parley_set_side)
+        _ = f m := by exact (hH2 m).symm
     -- 1.3. exhibit, from 1.2
     exact ⟨m, s1_2⟩
   -- 2. def:onto, from H1, 1

@@ -906,6 +906,27 @@ pub fn turned_statement(term: &Term) -> Term {
     }
 }
 
+/// Whether Lean writes the two alike once each letter a `set` names is read
+/// as its value, applied where it is a function, and bound letters renamed.
+pub fn alike_once_set(a: &Term, b: &Term, values: &Values) -> bool {
+    let valued = |t: &Term| {
+        renamed_bound(&unfolded(&reduced(&with_values(t, values, 8))), &mut 0).untyped()
+    };
+    valued(a) == valued(b)
+}
+
+/// Whether Lean casts a letter a `set` names, or a term with one in it, to
+/// another type somewhere in `term`, `(S 1 : ℚ)`.
+pub fn casts_set_letter(term: &Term, values: &Values) -> bool {
+    term.walk().iter().any(|t| match &t.kind {
+        TermKind::Cast { inner, to } if inner.ty.as_ref() != Some(to) => inner
+            .walk()
+            .iter()
+            .any(|n| matches!(&n.kind, TermKind::Letter(l) if values.contains_key(l))),
+        _ => false,
+    })
+}
+
 /// Whether Lean writes the two alike, an ascription of a term to its own
 /// type and the writer's brackets aside.
 pub fn written_alike(a: &Term, b: &Term) -> bool {

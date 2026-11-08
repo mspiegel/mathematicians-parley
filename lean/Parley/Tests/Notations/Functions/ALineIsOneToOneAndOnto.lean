@@ -12,7 +12,6 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
@@ -35,9 +34,9 @@ theorem a_line_is_one_to_one_and_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x 
     intro hA1
     -- 2.1. calculation
     have s2_1 : 2 * s + 1 = 2 * t + 1 := by
-      calc 2 * s + 1 = f s := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+      calc 2 * s + 1 = f s := by simp (disch := omega) only [hD1]
         _ = f t := by parley_set_side
-        _ = 2 * t + 1 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+        _ = 2 * t + 1 := by simp (disch := omega) only [hD1]
     -- 2.2. algebra, from 2.1
     linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * s2_1
   -- 3. proof

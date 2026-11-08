@@ -6,7 +6,6 @@ public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -38,7 +37,7 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
     -- 3.2. substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.1
     have s3_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := by parley_subst_at s2 s3_1
     -- 3.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 3.2
-    have s3_3 : d ≤ a * (u - q * x₀) + b * (v - q * y₀) := by first | linarith [(hH11 (u - q * x₀) (v - q * y₀) (by parley_side))] | (have h := (hH11 (u - q * x₀) (v - q * y₀) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (hH11 (u - q * x₀) (v - q * y₀) (by parley_side)) | (have h := (hH11 (u - q * x₀) (v - q * y₀) (by parley_side)); parley_side)
+    have s3_3 : d ≤ a * (u - q * x₀) + b * (v - q * y₀) := by exact (hH11 (u - q * x₀) (v - q * y₀) (by parley_side))
     -- 3.4. substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.3
     have s3_4 : d ≤ r := by parley_subst_at s2 s3_3
     -- 3.5. inequalities, from 1

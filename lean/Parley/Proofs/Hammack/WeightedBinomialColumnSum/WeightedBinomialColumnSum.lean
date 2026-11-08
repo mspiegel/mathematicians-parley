@@ -85,6 +85,6 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
       -- 1.13. substitute (m + j + 1) + 1 = m + (j + 1) + 1 (line 1.12) into line 1.11
       parley_subst_at s1_12 s1_11
   -- 2. instantiate j := n in line 1
-  first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
+  exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.WeightedBinomialColumnSum.WeightedBinomialColumnSum

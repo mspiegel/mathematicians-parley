@@ -39,7 +39,7 @@ theorem gcd_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 2.3. join 2.2, D2
     have s2_3 : a ∣ a ∧ a ∣ b := by parley_side
     -- 2.4. instantiate e := a in line 1
-    have s2_4 : a ∣ a ∧ a ∣ b → a ≤ (Int.gcd a b : ℤ) := by first | exact (s1d a (by parley_side)) | exact ((s1d a (by parley_side))).symm | simpa using (s1d a (by parley_side)) | exact_mod_cast (s1d a (by parley_side)) | (have h := (s1d a (by parley_side)); parley_side)
+    have s2_4 : a ∣ a ∧ a ∣ b → a ≤ (Int.gcd a b : ℤ) := by exact (s1d a (by parley_side))
     -- 2.5. mun:modus-ponens P := a divides a and a divides b, Q := a ≤ gcd(a, b), from 2.3, 2.4
     have s2_5 : a ≤ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ a ∣ b) (Q := a ≤ (Int.gcd a b : ℤ)) s2_4 s2_3)
     -- 2.6. mun:divides-le e := gcd(a, b), m := a, from 1

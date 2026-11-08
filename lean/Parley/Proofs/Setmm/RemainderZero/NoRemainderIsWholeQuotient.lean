@@ -19,7 +19,6 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
@@ -62,7 +61,7 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     intro hC2
     -- 3.4. calculation
     have s3_4 : (q : ℝ) = A / B := by
-      calc (q : ℝ) = (⌊A / B⌋ : ℝ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+      calc (q : ℝ) = (⌊A / B⌋ : ℝ) := by simp (disch := omega) only [hD1]
         _ = A / B := by rw [← (by first | exact_mod_cast Classical.choose_spec hC2 | (have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec hC2); push_cast at h; exact h) : ((Classical.choose hC2 : ℤ) : ℝ) = A / B)]; (first | linear_combination (norm := parley_norm) (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))) | exact_mod_cast ((Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2)))).symm | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); parley_int_power h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); parley_side))
     -- 3.5. calculation
     have r48_1 : B ≠ 0 := by parley_side
