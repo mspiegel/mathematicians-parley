@@ -65,7 +65,6 @@ theorem inclusion_exclusion_two {α : Type*} (A : Set α) (B : Set α) (hH3 : A.
   -- 18. substitute (A ∩ B) ∪ (B ∖ A) = B (line 16) into line 17
   have s18 : (B.ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_subst_at s16 s17
   -- 19. algebra, from 5, 6, 7, 11, 18
-  have s19 : ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + (B.ncard : ℤ) - ((A ∩ B).ncard : ℤ) := by parley_count_int; (linear_combination (norm := parley_norm) s11 + (-1) * s18)
-  all_goals exact s19
+  parley_count_int; (linear_combination (norm := parley_norm) s11 + (-1) * s18)
 
 end Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionTwo

@@ -5,7 +5,6 @@ public import ArithTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -74,18 +73,16 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
             first | parley_subst s1_1_w | parley_subst s1_1
         _ = x ^ (2 * n).toNat * x ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)); parley_set_side)
     -- 1.3. mun:square-nonneg
-    have s1_3 : x ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); parley_set_side)
+    have s1_3 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 1.4. inequalities, from 1.3
     have s1_4 : 1 + x ^ 2 > 0 := by parley_order
     -- 1.5. D3, from K1
     have s1_5 : h x = x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
     -- 1.6. calculation
     have r461_1 : 1 + x ^ 2 ≠ 0 := by parley_set_side
-    have s1_6 : h x = f x - g x := by
-      calc h x = x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) := by first | parley_set_side | parley_line_toNat s1_5
-        _ = x ^ (2 * n).toNat - x ^ (2 * n).toNat / (1 + x ^ 2) := by linear_combination (norm := parley_field) ((1) / ((x ^ 2 + 1))) * s1_2
-        _ = f x - g x := by parley_ring
-    all_goals exact s1_6
+    calc h x = x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) := by first | parley_set_side | parley_line_toNat s1_5
+      _ = x ^ (2 * n).toNat - x ^ (2 * n).toNat / (1 + x ^ 2) := by linear_combination (norm := parley_field) ((1) / ((x ^ 2 + 1))) * s1_2
+      _ = f x - g x := by parley_ring
   -- 2. D1
   have s2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), f x = x ^ (2 * n).toNat := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
   -- 3. D2
@@ -95,11 +92,11 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   -- 5. membership, from D1
   have s5 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 6. membership, from D2
-  have r480_1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), x ^ 2 ≥ 0 := by intro x h_x; (first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); parley_set_side))
+  have r480_1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), x ^ 2 ≥ 0 := by intro x h_x; exact ((Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)))
   have r480_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), 1 + x ^ 2 > 0 := by intro x h_x; (parley_order)
   have s6 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 7. membership, from D3
-  have r485_1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), x ^ 2 ≥ 0 := by intro x h_x; (first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); parley_set_side))
+  have r485_1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), x ^ 2 ≥ 0 := by intro x h_x; exact ((Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)))
   have r485_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), 1 + x ^ 2 > 0 := by intro x h_x; (parley_order)
   have s7 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 8. mun:function-into, from 5
@@ -111,7 +108,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   -- 11. thm:continuous-power D := [0, 1], n := 2n, from 2, 4, 8
   have s11 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s4 (n := 2 * n) (by parley_set_side) s2)
   -- 12. thm:integrand-continuous, from 3, 9
-  have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) (by parley_set_side) (g := g) (by parley_set_side) s3)
+  have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) (by parley_set_side) (g := g) (by parley_set_side) (by parley_set_side))
   -- 13. arithmetic
   have s13 : (0 : ℤ) < 1 := by parley_arith
   -- 14. D1
@@ -125,11 +122,9 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   -- 17. D0, from D2
   have s17 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 18. calculation
-  have s18 : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) := by
-    calc (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (h t : ℝ)) := by first | parley_set_side | parley_line_toNat s16
-      _ = (∫ t in 0..1, (f t : ℝ)) - (∫ t in 0..1, (g t : ℝ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_set_side)
-      _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (g t : ℝ)) := by parley_subst s15
-      _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) := by parley_subst s17
-  all_goals exact s18
+  calc (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (h t : ℝ)) := by first | parley_set_side | parley_line_toNat s16
+    _ = (∫ t in 0..1, (f t : ℝ)) - (∫ t in 0..1, (g t : ℝ)) := (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
+    _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (g t : ℝ)) := by parley_subst s15
+    _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) := by parley_subst s17
 
 end Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence

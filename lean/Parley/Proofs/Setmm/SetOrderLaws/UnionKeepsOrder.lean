@@ -25,7 +25,6 @@ theorem union_keeps_order {α : Type*} (A : Set α) (B : Set α) (C : Set α) (h
   -- 3. thm:subset-of-union-right A := C
   have s3 : C ⊆ B ∪ C := by exact (Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight.subset_of_union_right (A := C) (B := B))
   -- 4. mun:union-subset X := A, Y := C, Z := B ∪ C, from 2, 3
-  have s4 : A ∪ C ⊆ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := C) (Z := B ∪ C) s2 s3)
-  all_goals exact s4
+  exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := C) (Z := B ∪ C) s2 s3)
 
 end Parley.Proofs.Setmm.SetOrderLaws.UnionKeepsOrder

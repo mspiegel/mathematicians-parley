@@ -19,7 +19,6 @@ namespace Parley.Tests.Notations.Counting.OneToZeroIsEmpty
 theorem one_to_zero_is_empty :
     (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) = ∅ := by
   -- 1. mun:range-empty
-  have s1 : (Set.Icc (1 : ℤ) (0 : ℤ) : Set ℤ) = ∅ := by exact Parley.Items.Stdlib.Sums.mun_range_empty
-  all_goals exact s1
+  exact Parley.Items.Stdlib.Sums.mun_range_empty
 
 end Parley.Tests.Notations.Counting.OneToZeroIsEmpty

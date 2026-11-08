@@ -23,7 +23,6 @@ namespace Parley.Tests.Stdlib.Numbers.MinusOneOddPower
 theorem minus_one_odd_power (n : ℤ) (hH2 : Odd n) :
     ((-1) ^ n : ℚ) = -1 := by
   -- 1. mun:numbers-minus-one-odd-power, from H2
-  have s1 : ((-1) ^ n : ℚ) = -1 := by exact (Parley.Items.Stdlib.Numbers.mun_minus_one_odd_power (n := n) hH2)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_minus_one_odd_power (n := n) hH2)
 
 end Parley.Tests.Stdlib.Numbers.MinusOneOddPower

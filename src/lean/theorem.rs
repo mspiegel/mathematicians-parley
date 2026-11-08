@@ -17,7 +17,9 @@ use super::items::{Item, Sentence};
 use super::names::{line_name, snake};
 use super::statement::{binders, introduces, Asked, Binder};
 use super::templates::Templates;
-use crate::checker::record::Cited;
+use crate::checker::record::{
+    Cited, Contradicted, Negating, Supplied, SuppliedBy, Supposed,
+};
 use crate::checker::{CheckedCorpus, CheckedTheorem};
 use crate::citing::Way;
 use crate::corpus::{Head, Intro, Justification, Method, Step, Theorem};
@@ -67,6 +69,231 @@ struct ProofLine {
     depth: usize,
     tactic: Tactic,
     origin: Origin,
+}
+
+/// How what a block owes is proved from its last step's lines
+/// (`Proof::proved_from`).
+enum Proved {
+    /// By this term.
+    Term(Printed),
+    /// By the line `line`, once the goal and it are rewritten by Mathlib's
+    /// lemmas `rules`.
+    Simplified {
+        rules: Vec<&'static str>,
+        line: Printed,
+    },
+    /// By the line `line`, its casts and the goal's moved alike, once it is
+    /// rewritten by the `set` equations `through`; taken up to the goal's
+    /// type where `lift`.
+    Cast {
+        through: Vec<String>,
+        lift: bool,
+        line: Printed,
+    },
+}
+
+impl Proved {
+    /// The tactic that closes the goal by it: `exact` of a term.
+    fn closer(&self) -> Tactic {
+        use super::tactics as t;
+        match self {
+            Proved::Term(term) => Tactic::Exact(term.clone()),
+            Proved::Simplified { rules, line } => {
+                t::simpa_only(rules.clone(), line.clone())
+            }
+            // The casts pushed down on both, `push_cast at h ⊢`, and the line
+            // taken as it then reads. `exact_mod_cast` moves them up instead,
+            // and a cast numeral under a division, ↑1 / 3, it leaves as
+            // `NNRat.divNat` on the one side and not the other.
+            Proved::Cast {
+                through,
+                lift,
+                line,
+            } => {
+                let super::doc::TermKind::Letter(name) = &line.kind else {
+                    return t::exact_mod_cast(line.clone());
+                };
+                let at = |goal: bool| {
+                    let mut places =
+                        vec![super::doc::Location::Hypothesis(name.clone())];
+                    if goal {
+                        places.push(super::doc::Location::Goal);
+                    }
+                    TacticArg::At(places)
+                };
+                let mut steps = Vec::new();
+                if !through.is_empty() {
+                    steps.push(t::call(
+                        "rw",
+                        vec![
+                            t::rules(through.iter().map(|e| t::hyp(e)).collect()),
+                            at(false),
+                        ],
+                    ));
+                }
+                match lift {
+                    true => steps.push(t::exact_mod_cast(line.clone())),
+                    false => {
+                        steps.push(t::push_cast(Some(at(true))));
+                        steps.push(Tactic::Exact(line.clone()));
+                    }
+                }
+                match steps.len() {
+                    1 => steps.remove(0),
+                    _ => Tactic::Seq(steps),
+                }
+            }
+        }
+    }
+
+    /// As a term: a tactic's proof standing as `by t`.
+    fn term(self) -> Printed {
+        match self {
+            Proved::Term(t) => t,
+            other => super::tactics::by_term(super::doc::Proof::By(other.closer())),
+        }
+    }
+}
+
+/// The goal left once `intro` has taken `names` binders off it, as Lean
+/// takes them: a "for all"'s letter, then its guard, `∀ j, 0 < j → P` to
+/// `0 < j → P` and then P, and an "if", `A → B` to B. None where the goal
+/// has fewer binders.
+fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
+    use super::doc::{LeanType, Op, Piece, TermKind};
+    let mut goal = goal.clone();
+    let mut left = names;
+    while left > 0 {
+        let bare = match goal.kind {
+            TermKind::Paren(inner) => *inner,
+            _ => goal,
+        };
+        left -= 1;
+        goal = match bare.kind {
+            TermKind::Infix { op, rhs, .. } if op.symbol == "→" => *rhs,
+            TermKind::Quantified {
+                guard: Some(guard),
+                body,
+                ..
+            } => Printed::infix(Op::of("→")?, *guard, *body, LeanType::Prop),
+            TermKind::Quantified { body, .. } => *body,
+            // `∀ X ∈ S, P`, Lean's bounded "for all": its letter and its
+            // membership are taken together.
+            TermKind::Notation { pieces, .. }
+                if left > 0
+                    && matches!(pieces.first(), Some(Piece::Text(t)) if t.starts_with("∀ ") && t.ends_with(" ∈ ")) =>
+            {
+                left -= 1;
+                match pieces.last() {
+                    Some(Piece::Term { term, .. }) => (**term).clone(),
+                    _ => return None,
+                }
+            }
+            _ => return None,
+        };
+    }
+    Some(goal)
+}
+
+/// The bounds a range line gives, `x ∈ Finset.Icc a b` proved by `proof`:
+/// `a ≤ x` and `x ≤ b`, by `Finset.mem_Icc`; none for any other line.
+fn range_bounds(says: &Printed, proof: &Printed) -> Vec<(Printed, Printed)> {
+    use super::doc::{Arg, LeanType, Op, Source, TermKind};
+    let TermKind::Infix { op, lhs, rhs } = &says.kind else {
+        return Vec::new();
+    };
+    let TermKind::App { head, args, .. } = &rhs.kind else {
+        return Vec::new();
+    };
+    let (true, TermKind::Const(c), [Arg::Explicit(a), Arg::Explicit(b)]) =
+        (op.symbol == "∈", &head.kind, args.as_slice())
+    else {
+        return Vec::new();
+    };
+    if c.name != "Finset.Icc" {
+        return Vec::new();
+    }
+    let both = Printed::applied(
+        "Finset.mem_Icc.mp",
+        Source::Mathlib,
+        vec![proof.clone()],
+        LeanType::Prop,
+    );
+    let side = |field: &str| Printed {
+        kind: TermKind::Field {
+            inner: Box::new(super::tactics::bracket(both.clone())),
+            field: field.to_string(),
+        },
+        ty: Some(LeanType::Prop),
+    };
+    let at_most = |l: &Printed, r: &Printed| {
+        Printed::infix(Op::AT_MOST, l.clone(), r.clone(), LeanType::Prop)
+    };
+    vec![(side("1"), at_most(a, lhs)), (side("2"), at_most(lhs, b))]
+}
+
+/// The two sides of an "and", as Lean writes it: `a ∧ b`, bracketed or
+/// not, or several sentences joined by ` ∧ `, the first and the rest.
+fn and_sides(term: &Printed) -> Option<(Printed, Printed)> {
+    use super::doc::{Op, Piece, TermKind};
+    match &term.kind {
+        TermKind::Paren(inner) => and_sides(inner),
+        TermKind::Infix { op, lhs, rhs } if *op == Op::AND => {
+            Some(((**lhs).clone(), (**rhs).clone()))
+        }
+        TermKind::Notation { pieces, prec } => {
+            let joined = pieces
+                .iter()
+                .skip(1)
+                .step_by(2)
+                .all(|p| matches!(p, Piece::Text(t) if t == " ∧ "));
+            let terms: Vec<Printed> = pieces
+                .iter()
+                .step_by(2)
+                .filter_map(|p| match p {
+                    Piece::Term { term, .. } => Some((**term).clone()),
+                    Piece::Text(_) => None,
+                })
+                .collect();
+            if !joined || terms.len() < 2 || terms.len() * 2 - 1 != pieces.len() {
+                return None;
+            }
+            let rest = match terms.len() {
+                2 => terms[1].clone(),
+                _ => Printed {
+                    kind: TermKind::Notation {
+                        pieces: pieces[2..].to_vec(),
+                        prec: *prec,
+                    },
+                    ty: term.ty.clone(),
+                },
+            };
+            Some((terms[0].clone(), rest))
+        }
+        _ => None,
+    }
+}
+
+/// What a block, a part of one or a theorem owes at its end
+/// (`Proof::closing`).
+enum Owing<'a> {
+    /// The record's sentences as the page writes them (`Owed::written`);
+    /// None, or none, for a block that ends on a contradiction.
+    Written(Option<&'a [Node]>),
+    /// The goal as Lean has it, where Lean makes it itself: an induction's
+    /// motive at its start or at the next value.
+    Lean(Vec<Printed>),
+}
+
+/// What ends a block, a part of one or a theorem (`Proof::closing`).
+enum Closing {
+    /// Its last step, by name, says what is owed as Lean writes it: the
+    /// step's proof proves the goal.
+    Last(String),
+    /// A tactic that closes the goal.
+    Tactic(Box<Tactic>),
+    /// Nothing: the last step, shown impossible, closed it.
+    Closed,
 }
 
 /// A proof given as an argument: a line's name or `(by parley_side)`.
@@ -356,11 +583,99 @@ fn applied_to(term: Printed, arg: Printed) -> Printed {
     }
 }
 
-/// `(h).mp (by parley_side)`: an "if and only if" read forwards, its
-/// left side left to `parley_side`.
-fn forwards_of(iff: Printed) -> Printed {
+/// `(h).mp p`: an "if and only if" read forwards, `premise` its left side.
+fn forwards_of(iff: Printed, premise: Printed) -> Printed {
     let mp = fields(super::tactics::bracket(iff), &["mp"]);
-    applied_to(mp, side_term(&[]))
+    applied_to(mp, premise)
+}
+
+/// Whether an item's statement, as the writer prints it, counts a set: its
+/// count stands in the writer's type, ℤ, where Lean takes the item's own,
+/// ℕ or ℕ∞, so no line is known to say it from its printed form.
+fn item_counts(statement: &Printed) -> bool {
+    use super::doc::CountForm::{Extended, Natural};
+    statement.has_count(Natural) || statement.has_count(Extended)
+}
+
+/// What a forward reading of an "if and only if" or an "if" reaches, `B` of
+/// `A ↔ B` and of `A → B`; None for another statement.
+fn consequent(statement: &Printed) -> Option<Printed> {
+    match &statement.kind {
+        super::doc::TermKind::Paren(inner) => consequent(inner),
+        super::doc::TermKind::Infix { op, rhs, .. }
+            if matches!(op.symbol, "↔" | "→") =>
+        {
+            Some((**rhs).clone())
+        }
+        _ => None,
+    }
+}
+
+/// The part of an "and" a projection path takes, `.1.2`, as Lean writes the
+/// "and"; None where the statement has no such part.
+fn along(statement: &Printed, path: &[&str]) -> Option<Printed> {
+    let mut at = statement.clone();
+    for side in path {
+        let (l, r) = and_sides(&at)?;
+        at = match *side {
+            "1" => l,
+            _ => r,
+        };
+    }
+    Some(at)
+}
+
+/// The right side of an "if and only if", `B` of `A ↔ B`; None for another
+/// statement.
+fn right_side(statement: &Printed) -> Option<Printed> {
+    match &statement.kind {
+        super::doc::TermKind::Paren(inner) => right_side(inner),
+        super::doc::TermKind::Infix { op, rhs, .. } if op.symbol == "↔" => {
+            Some((**rhs).clone())
+        }
+        _ => None,
+    }
+}
+
+/// A "there is" given its witness `value`: what its guard then says, where
+/// it has one, and its body at the witness; nothing known of either where
+/// `statement` is no "there is" over a type, or is not known.
+fn exists_at(
+    statement: Option<&Printed>,
+    value: &Printed,
+) -> (Option<Printed>, Option<Printed>) {
+    use super::doc::{Quant, TermKind};
+    let Some(statement) = statement else {
+        return (None, None);
+    };
+    match &statement.kind {
+        TermKind::Paren(inner) => exists_at(Some(inner), value),
+        TermKind::Quantified {
+            quant: Quant::Exists,
+            letter,
+            guard,
+            body,
+            ..
+        } => {
+            let at = |t: &Printed| super::doc::forms::substituted(t, letter, value);
+            (guard.as_deref().map(at), Some(at(body)))
+        }
+        _ => (None, None),
+    }
+}
+
+/// The side of an "if and only if" or an "if" a forward reading starts
+/// from, `A` of `A ↔ B` and of `A → B`; None for another statement.
+fn left_side(statement: &Printed) -> Option<Printed> {
+    match &statement.kind {
+        super::doc::TermKind::Paren(inner) => left_side(inner),
+        super::doc::TermKind::Infix { op, lhs, .. }
+            if matches!(op.symbol, "↔" | "→") =>
+        {
+            Some((**lhs).clone())
+        }
+        _ => None,
+    }
 }
 
 /// A term taken along a projection path, `(t).1.2`.
@@ -1569,26 +1884,13 @@ pub fn theorem(
             "{root} is written as Mathlib's real one in one place and the principal one in ℂ in another"
         ));
     }
-    if conclusion.len() > 1 {
-        let each = side_term(&[]);
-        proof.push_at(
-            1,
-            Tactic::Exact(super::expr::anonymous(vec![each; conclusion.len()])),
-            thm.conclusion_line,
-            Spot::Statement,
-        );
-    } else {
-        let close = match conclusion.as_slice() {
-            [one] => proof.closing(top.last().copied(), &one.says),
-            _ => super::tactics::bridge(BridgeTactic::Side, vec![]),
-        };
-        proof.push_at(
-            1,
-            Tactic::AllGoals(Box::new(close)),
-            thm.conclusion_line,
-            Spot::Statement,
-        );
-    }
+    let owed: Vec<Node> = conclusion.iter().map(|c| c.says.clone()).collect();
+    let closing = match proof.closing(top.last().copied(), Owing::Written(Some(&owed)))
+    {
+        Route::Built(c) => c,
+        Route::Declined(d) => return Route::Declined(d),
+    };
+    proof.close(1, closing, thm.conclusion_line, Spot::Statement);
     let decl = super::doc::file::Declaration {
         heartbeats,
         name: snake(&thm.name),
@@ -3986,36 +4288,506 @@ impl<'a> Proof<'a> {
         Route::Built(())
     }
 
-    /// What closes a block or a theorem once its steps are written: its last
-    /// step by name, `exact s3`, where that step says what is owed as Lean
-    /// writes both, and otherwise `parley_side`, which finds the line. What
-    /// is owed is the claim, or of a "for all" whose letter the block lets,
-    /// what it says at that letter.
-    fn closing(&self, last: Option<usize>, owed: &Node) -> Tactic {
-        let side = super::tactics::bridge(BridgeTactic::Side, vec![]);
-        let owed = match owed.children.as_slice() {
-            [letter, _, body]
-                if owed.notation() == crate::notations::FOR_ALL
-                    && self.writer.letters.contains_key(letter.text.as_str()) =>
-            {
-                body
-            }
-            _ => owed,
+    /// What closes a block, a part of one or a theorem once its steps are
+    /// written, its last step being `last` and what it owes `owed`, the
+    /// goal with the block's lines taken off (`Owed::written`): nothing
+    /// after a step shown impossible, which closed it; the two lines a step
+    /// written `contradicting N` opposes; and otherwise the last step's
+    /// sentences, each as Lean has it beside what is owed.
+    fn closing(&self, last: Option<usize>, owed: Owing) -> Route<Closing> {
+        use super::doc::forms::{self, Meets};
+        let Some(at) = last else {
+            return Route::no("a block with no steps");
         };
-        let Some(number) = last.and_then(|i| self.thm.steps[i].number.number()) else {
-            return side;
-        };
-        let Some([(said, name)]) =
-            self.trees.get(&number.to_string()).map(Vec::as_slice)
-        else {
-            return side;
-        };
-        match (self.writer.formula(said), self.writer.formula(owed)) {
-            (Route::Built(a), Route::Built(b)) if a.untyped() == b.untyped() => {
-                Tactic::Exact(super::tactics::hyp(name))
-            }
-            _ => side,
+        let step = &self.thm.steps[at];
+        if step.impossible {
+            return Route::Built(Closing::Closed);
         }
+        let owes = match owed {
+            Owing::Written(Some(owed)) => {
+                let mut owes = Vec::new();
+                for o in owed {
+                    match self.writer.formula(o) {
+                        Route::Built(p) => owes.push(p),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                owes
+            }
+            Owing::Written(None) => Vec::new(),
+            Owing::Lean(owes) => owes,
+        };
+        // Two lines that oppose close a contradiction, whose goal is False;
+        // a case or a proof block whose assumption cannot hold they close by
+        // `absurd`, whatever it owes.
+        if let Some(c) = self.rec.contradicted.get(&at) {
+            return self
+                .contradiction_closed(step, c, owes.is_empty())
+                .map(|t| Closing::Tactic(Box::new(Tactic::Exact(t))));
+        }
+        if owes.is_empty() {
+            return Route::no(format!(
+                "step {} ends a block that owes nothing it says, and contradicts no line",
+                step.number
+            ));
+        }
+        let said = match self.claim(step) {
+            Route::Built(c) => c,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let names = Self::names_of(step, said.len());
+        let lines: Vec<(Printed, Printed)> = said
+            .iter()
+            .zip(&names)
+            .map(|((_, says), name)| (says.clone(), super::tactics::hyp(name)))
+            .collect();
+        // The last step's sentence that says what is owed as written proves
+        // it by its `have`, the goal's own proof.
+        if let ([(says, _)], [owe], [name]) =
+            (lines.as_slice(), owes.as_slice(), names.as_slice())
+        {
+            if forms::meets(says, owe, &self.set_values()) == Some(Meets::Same) {
+                return Route::Built(Closing::Last(name.clone()));
+            }
+        }
+        let mut left = lines.iter();
+        let mut proved = Vec::new();
+        for owe in &owes {
+            match self.proved_from(owe, &mut left) {
+                Some(p) => proved.push(p),
+                None => {
+                    return Route::no(format!(
+                        "step {} ends its block on {}, and the block owes {}",
+                        step.number,
+                        lines
+                            .iter()
+                            .map(|(s, _)| s.text())
+                            .collect::<Vec<_>>()
+                            .join(". "),
+                        owes.iter().map(|o| o.text()).collect::<Vec<_>>().join(". ")
+                    ))
+                }
+            }
+        }
+        if left.next().is_some() {
+            return Route::no(format!(
+                "step {} ends its block claiming more than the block owes",
+                step.number
+            ));
+        }
+        Route::Built(Closing::Tactic(Box::new(match proved.len() {
+            1 => proved.remove(0).closer(),
+            _ => Tactic::Exact(super::expr::anonymous(
+                proved.into_iter().map(Proved::term).collect(),
+            )),
+        })))
+    }
+
+    /// The term that proves `owe` from the lines `left` gives in order: the
+    /// next line where it says `owe` as Lean reads both, turned round where
+    /// it says it the other way; `trivial` of what Lean's types make true;
+    /// and an "and" each of whose sides is proved so, `⟨a, b⟩`. A line that
+    /// says `owe` once identity elements are dropped is `Simplified`, which
+    /// only a tactic proves. None where none of these holds.
+    fn proved_from<'l>(
+        &self,
+        owe: &Printed,
+        left: &mut std::slice::Iter<'l, (Printed, Printed)>,
+    ) -> Option<Proved> {
+        if owe.is_truth() {
+            return Some(Proved::Term(Printed::constant(
+                "trivial",
+                super::doc::Source::Core,
+                super::doc::LeanType::Prop,
+            )));
+        }
+        let mut ahead = left.clone();
+        if let Some((says, line)) = ahead.next() {
+            let proved = self.proof_meeting(line.clone(), says, owe);
+            if proved.is_some() {
+                *left = ahead;
+                return proved;
+            }
+        }
+        let (l, r) = and_sides(owe)?;
+        let a = self.proved_from(&l, left)?.term();
+        let b = self.proved_from(&r, left)?.term();
+        Some(Proved::Term(super::expr::anonymous(vec![a, b])))
+    }
+
+    /// The letters the proof so far names by `set`, with their values.
+    fn set_values(&self) -> super::doc::forms::Values {
+        self.lines
+            .iter()
+            .filter_map(|l| match &l.tactic {
+                Tactic::Set {
+                    name, value, with, ..
+                } => Some((
+                    name.clone(),
+                    super::doc::forms::Value {
+                        value: value.clone(),
+                        equation: with.clone(),
+                    },
+                )),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// What closes a block on a step written `contradicting N`: the line that
+    /// says the other negated, applied to the other, `h₁ h₂`, where the goal
+    /// is False, and otherwise `absurd h₂ h₁`; the other turned round where
+    /// Lean writes its equation the other way.
+    fn contradiction_closed(
+        &self,
+        step: &Step,
+        c: &Contradicted,
+        to_false: bool,
+    ) -> Route<Printed> {
+        use super::doc::forms::{self, Meets};
+        let own = match self.claim(step) {
+            Route::Built(said) => match said.as_slice() {
+                [(_, says)] => (
+                    super::tactics::hyp(&Self::names_of(step, 1)[0]),
+                    says.clone(),
+                ),
+                _ => {
+                    return Route::no(format!(
+                        "step {} contradicts a line and claims several sentences",
+                        step.number
+                    ))
+                }
+            },
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let other = match self.line_says(&c.line, &c.said) {
+            Route::Built(o) => o,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let ((negation, says_not), (positive, says)) = match c.negated {
+            Negating::Step => (own, other),
+            Negating::Line => (other, own),
+        };
+        let Some(denied) = forms::denied(&says_not) else {
+            return Route::no(format!(
+                "step {} contradicts {}, and Lean writes neither as a negation",
+                step.number, c.line
+            ));
+        };
+        let positive = match forms::meets(&says, &denied, &self.set_values()) {
+            Some(Meets::Same | Meets::Unfolded) => positive,
+            Some(Meets::Turned { negated: false }) => super::tactics::symm(positive),
+            _ => {
+                return Route::no(format!(
+                    "step {} contradicts {}: Lean writes the one as {} and the other denies {}",
+                    step.number,
+                    c.line,
+                    says.text(),
+                    denied.text()
+                ))
+            }
+        };
+        Route::Built(match to_false {
+            true => applied_to(negation, positive),
+            false => Printed::applied(
+                "absurd",
+                super::doc::Source::Core,
+                vec![positive, negation],
+                super::doc::LeanType::Prop,
+            ),
+        })
+    }
+
+    /// The sentence of line `line`, or the part of one joined by "and", that
+    /// says `said`, a fact as the page writes it, as a term that proves it
+    /// and the statement Lean writes for it.
+    fn line_says(&self, line: &str, said: &Node) -> Route<(Printed, Printed)> {
+        use super::doc::forms::{self, Meets};
+        let Some(sentences) = self.trees.get(line) else {
+            return Route::no(format!("line {line}, which no name in Lean holds"));
+        };
+        let wanted = match self.writer.formula(said) {
+            Route::Built(w) => w,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let mut parts = Vec::new();
+        for (node, name) in sentences {
+            conjuncts(node, super::tactics::hyp(name), &mut parts);
+        }
+        // A "for all" of the line, read at the block's letter the step
+        // names, `hH1 y`.
+        let letters: std::collections::BTreeSet<String> =
+            said.names().into_iter().collect();
+        let at_letter: Vec<_> = parts
+            .iter()
+            .filter_map(|p| self.at_recorded_letter(p, &letters))
+            .collect();
+        let wholes = sentences
+            .iter()
+            .map(|(node, name)| (node.clone(), super::tactics::hyp(name)));
+        let parts = parts
+            .into_iter()
+            .chain(at_letter)
+            .map(|p| (p.node, p.proof));
+        let mut stated = Vec::new();
+        for (node, proof) in wholes.chain(parts) {
+            if let Route::Built(says) = self.writer.formula(&node) {
+                stated.extend(range_bounds(&says, &proof));
+                stated.push((proof, says));
+            }
+        }
+        let values = self.set_values();
+        for (proof, says) in stated {
+            if matches!(
+                forms::meets(&says, &wanted, &values),
+                Some(Meets::Same | Meets::Unfolded)
+            ) {
+                return Route::Built((proof, says));
+            }
+        }
+        Route::no(format!(
+            "what line {line} says, {}, which it does not write",
+            wanted.text()
+        ))
+    }
+
+    /// How `proof`, a line that says `says`, proves `wanted` as Lean has it
+    /// (`forms::meets`): as it is, turned round, or by a tactic that moves
+    /// the one to the other; None where the two differ in more.
+    fn proof_meeting(
+        &self,
+        proof: Printed,
+        says: &Printed,
+        wanted: &Printed,
+    ) -> Option<Proved> {
+        use super::doc::forms::{self, Meets};
+        use super::doc::CountForm::{Extended, Natural};
+        let meets = forms::meets(says, wanted, &self.set_values())?;
+        // A count is taken from ℕ to ℕ∞ or ℤ only as `counts_converted`
+        // takes it: a line counting one way meets one counting another only
+        // as written.
+        let counts = |t: &Printed| t.has_count(Natural) || t.has_count(Extended);
+        if (counts(says) || counts(wanted)) && meets != Meets::Same {
+            return None;
+        }
+        Some(match meets {
+            Meets::Same | Meets::Unfolded => Proved::Term(proof),
+            Meets::Turned { negated: false } => {
+                Proved::Term(super::tactics::symm(proof))
+            }
+            Meets::Turned { negated: true } => Proved::Term(Printed::applied(
+                "Ne.symm",
+                super::doc::Source::Core,
+                vec![proof],
+                super::doc::LeanType::Prop,
+            )),
+            Meets::Identities(rules) => Proved::Simplified { rules, line: proof },
+            Meets::Casts { through, lift } => Proved::Cast {
+                through,
+                lift,
+                line: proof,
+            },
+        })
+    }
+
+    /// The proof that closes the claim `node`, which Lean writes as `claim`,
+    /// from `term`, which says `says` where that is known: one tactic where
+    /// the two meet as Lean has them (`proof_meeting`); the alternatives of
+    /// `closers` where they do not.
+    fn closer(
+        &self,
+        node: &Node,
+        claim: Option<&Printed>,
+        term: Printed,
+        says: Option<&Printed>,
+    ) -> super::doc::Proof {
+        // A claim Lean's types make true says nothing a term is met with; one
+        // in another type than the term's is not known to be its; and one
+        // that counts a set stands where a calculation of counts may take
+        // its rows in ℕ∞, which the claim as read does not show.
+        let claim = claim.filter(|c| {
+            !c.is_truth()
+                && !item_counts(c)
+                && says.is_some_and(|s| super::doc::forms::relation_types_agree(s, c))
+        });
+        if let (Some(claim), Some(says)) = (claim, says) {
+            match self.proof_meeting(term.clone(), says, claim) {
+                Some(Proved::Term(t)) => return super::doc::Proof::Term(t),
+                // An item's statement carries the types the writer gives its
+                // letters, and its functions given by their rules, not
+                // what Lean elaborates where it is cited: a rewrite the two
+                // differ by, of casts or of identity elements, is no fact a
+                // tactic is known to take the one to the other by.
+                Some(Proved::Cast { .. } | Proved::Simplified { .. }) | None => {}
+            }
+        }
+        close(&self.writer, node, term)
+    }
+
+    /// The proof of the side a forward reading of `statement`, an item's
+    /// sentence at the citation's values, starts from: the line the checker
+    /// read it from (`Cited::firsts`), met with that side as Lean has it;
+    /// `parley_side` where no line the citation names says it.
+    fn premise(&self, cited: &Cited, statement: &Printed) -> Printed {
+        left_side(statement)
+            .and_then(|wanted| self.first_proof(cited, &wanted))
+            .unwrap_or_else(|| side_term(&[]))
+    }
+
+    /// What proves a fact a definition's right side asks, `wanted` as Lean
+    /// has it where it is known: the line the checker read it from, or,
+    /// where none says it or a witness's facts must be put in scope first
+    /// (`known`), `parley_side`.
+    fn shown_by_line(
+        &self,
+        cited: &Cited,
+        wanted: Option<&Printed>,
+        known: &[Tactic],
+    ) -> Printed {
+        match (known.is_empty(), wanted) {
+            (true, Some(w)) => self
+                .first_proof(cited, w)
+                .unwrap_or_else(|| side_term(known)),
+            _ => side_term(known),
+        }
+    }
+
+    /// The proof of `wanted` from a line the checker read the citation's
+    /// reading from (`Cited::firsts`), met as Lean has it; None where none
+    /// says it.
+    fn first_proof(&self, cited: &Cited, wanted: &Printed) -> Option<Printed> {
+        if item_counts(wanted) {
+            return None;
+        }
+        cited.firsts.iter().find_map(|at| {
+            let (proof, says) = self.line_says(&at.line, &at.written).built()?;
+            if !super::doc::forms::relation_types_agree(&says, wanted) {
+                return None;
+            }
+            self.proof_meeting(proof, &says, wanted).map(Proved::term)
+        })
+    }
+
+    /// The proof of a hypothesis of a cited item from where the checker
+    /// found it supplied (`Cited::supplied`): the line, the sentence or
+    /// the part of one the citation names, or the step's requires line,
+    /// meeting `wanted`, the hypothesis as Lean asks it at the citation's
+    /// values. None where no line supplies it, or the line says it
+    /// otherwise than Lean asks.
+    fn supplied_proof(&self, by: &SuppliedBy, wanted: &Printed) -> Option<Printed> {
+        if item_counts(wanted) {
+            return None;
+        }
+        let (proof, says) = match by {
+            SuppliedBy::Line(at) => self.line_says(&at.line, &at.written).built()?,
+            SuppliedBy::Requires(k) => {
+                let step = &self.thm.steps[self.step_now.get()?];
+                let name = format!("r{}_{}", step.line, k + 1);
+                let [(node, _)] = self.trees.get(&name)?.as_slice() else {
+                    return None;
+                };
+                (
+                    super::tactics::hyp(&name),
+                    self.writer.formula(node).built()?,
+                )
+            }
+            SuppliedBy::Unstated => return self.said_in_scope(wanted),
+        };
+        if !super::doc::forms::relation_types_agree(&says, wanted) {
+            return None;
+        }
+        self.proof_meeting(proof, &says, wanted).map(Proved::term)
+    }
+
+    /// A line in scope that says `wanted` as Lean writes both, by its name:
+    /// a membership said once, which the line letting the letter states,
+    /// `hH1 : 0 < n` of `let n ∈ ℕ`. The latest such line, the innermost
+    /// block's; None where no line says it so.
+    fn said_in_scope(&self, wanted: &Printed) -> Option<Printed> {
+        use super::doc::forms::{self, Meets};
+        let values = self.set_values();
+        // The step being written is named before its proof is, and is no
+        // line it may use.
+        let own = self
+            .step_now
+            .get()
+            .and_then(|i| self.thm.steps[i].number.number())
+            .map(|n| n.to_string());
+        let earlier = self
+            .trees
+            .iter()
+            .rev()
+            .filter(|(label, _)| Some(*label) != own.as_ref())
+            .flat_map(|(_, said)| said);
+        earlier.into_iter().find_map(|(node, name)| {
+            let says = self.writer.formula(node).built()?;
+            matches!(
+                forms::meets(&says, wanted, &values),
+                Some(Meets::Same | Meets::Unfolded)
+            )
+            .then(|| super::tactics::hyp(name))
+        })
+    }
+
+    /// Puts what ends a block, a part or a theorem at `depth`: its last
+    /// step's proof in place of the step's `have`, where the step says what
+    /// is owed as written and its `have` is the last line there; else the
+    /// closing tactic, `exact` of that step's name among them.
+    fn close(&mut self, depth: usize, closing: Closing, page_line: usize, spot: Spot) {
+        match closing {
+            Closing::Closed => {}
+            Closing::Last(name) => {
+                if !self.last_proves_goal(depth, &name) {
+                    self.push_at(
+                        depth,
+                        Tactic::Exact(super::tactics::hyp(&name)),
+                        page_line,
+                        spot,
+                    );
+                }
+            }
+            Closing::Tactic(t) => self.push_at(depth, *t, page_line, spot),
+        }
+    }
+
+    /// Where the last line at `depth` is the `have` naming `name`, its proof
+    /// put in its place as what proves the goal: a term by `exact`, a
+    /// tactic as it is, and the lines of a block one level out. False where
+    /// that line is anything else.
+    fn last_proves_goal(&mut self, depth: usize, name: &str) -> bool {
+        let Some(k) = self.lines.iter().rposition(|l| l.depth <= depth) else {
+            return false;
+        };
+        if self.lines[k].depth != depth {
+            return false;
+        }
+        let Tactic::Have {
+            name: had, proof, ..
+        } = &self.lines[k].tactic
+        else {
+            return false;
+        };
+        if had != name {
+            return false;
+        }
+        let origin = self.lines[k].origin.clone();
+        let proof = (**proof).clone();
+        match proof {
+            super::doc::Proof::Term(t) => self.lines[k].tactic = Tactic::Exact(t),
+            super::doc::Proof::By(t) => self.lines[k].tactic = t,
+            super::doc::Proof::Block(ts) => {
+                for l in &mut self.lines[k + 1..] {
+                    l.depth -= 1;
+                }
+                let inline = ts.into_iter().map(|tactic| ProofLine {
+                    depth,
+                    tactic,
+                    origin: origin.clone(),
+                });
+                self.lines.splice(k..=k, inline);
+            }
+        }
+        true
     }
 
     /// A define's name given its value, `set b : G := a⁻¹ with hD1`: the
@@ -4711,9 +5483,13 @@ impl<'a> Proof<'a> {
                 ]))
             });
         }
+        let refs = &step.just.refs;
         let mut parts = Vec::new();
         let mut known = Vec::new();
         let mut body = node;
+        // The claim as Lean has it, each "there is" given its value in turn:
+        // what each fact about the values says there.
+        let mut lean_body = self.writer.formula(node).built();
         while body.notation() == crate::notations::THERE_IS {
             let [letter, set, inner] = body.children.as_slice() else {
                 break;
@@ -4722,13 +5498,16 @@ impl<'a> Proof<'a> {
                 return Route::no(format!("no value for {}", letter.text));
             };
             // A member of a set: the value as the writer writes a member,
-            // and its membership left to `parley_side`.
+            // and its membership by the line that says it.
             if let Some(members) = self.writer.members_of(set) {
-                match self.writer.element_term(value, &members) {
-                    Route::Built(p) => parts.push(p),
+                let term = match self.writer.element_term(value, &members) {
+                    Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
-                }
-                parts.push(side_term(&known));
+                };
+                let (guard, next) = exists_at(lean_body.as_ref(), &term);
+                parts.push(term);
+                parts.push(self.fact_shown(guard.as_ref(), &known, refs));
+                lean_body = next;
                 body = inner;
                 continue;
             }
@@ -4769,23 +5548,77 @@ impl<'a> Proof<'a> {
                     }
                 }
             };
-            match self.witness(value, ty) {
+            let (guard, next) = match self.witness(value, ty) {
                 Route::Built(w) => {
+                    let at = exists_at(lean_body.as_ref(), &w.term);
                     parts.push(w.term);
                     known.extend(w.known);
+                    at
                 }
                 Route::Declined(d) => return Route::Declined(d),
-            }
+            };
             if guarded {
-                parts.push(side_term(&known));
+                parts.push(self.fact_shown(guard.as_ref(), &known, refs));
             }
+            lean_body = next;
             body = inner;
         }
         if parts.is_empty() {
             return Route::no("an exhibit of no \"there is\"");
         }
-        parts.push(facts_shaped(body, &known));
+        parts.push(self.facts_shown(body, lean_body.as_ref(), &known, refs));
         Route::Built(super::doc::Proof::Term(super::expr::anonymous(parts)))
+    }
+
+    /// What proves a fact an exhibit says of its values, `wanted` as Lean
+    /// has it where it is known: a line the step names, met as Lean has it,
+    /// or a line in scope that says it; `parley_side` where none does, or a
+    /// witness's facts must be put in scope first (`known`).
+    fn fact_shown(
+        &self,
+        wanted: Option<&Printed>,
+        known: &[Tactic],
+        refs: &[String],
+    ) -> Printed {
+        let (true, Some(wanted)) = (known.is_empty(), wanted) else {
+            return side_term(known);
+        };
+        self.cited_parts(refs)
+            .into_iter()
+            .find_map(|c| {
+                let says = self.writer.formula(&c.node).built()?;
+                self.proof_meeting(c.proof, &says, wanted).map(Proved::term)
+            })
+            .or_else(|| self.said_in_scope(wanted))
+            .unwrap_or_else(|| side_term(&[]))
+    }
+
+    /// The facts an exhibit says of its values, `said`, taken apart as Lean
+    /// nests its "and", each proved as `fact_shown` proves it: `wanted` is
+    /// the same as Lean has it, where it is known.
+    fn facts_shown(
+        &self,
+        said: &Node,
+        wanted: Option<&Printed>,
+        known: &[Tactic],
+        refs: &[String],
+    ) -> Printed {
+        match (said.notation(), said.children.as_slice()) {
+            (
+                crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
+                [l, r],
+            ) => {
+                let (wl, wr) = match wanted.and_then(and_sides) {
+                    Some((a, b)) => (Some(a), Some(b)),
+                    None => (None, None),
+                };
+                super::expr::anonymous(vec![
+                    self.facts_shown(l, wl.as_ref(), known, refs),
+                    self.facts_shown(r, wr.as_ref(), known, refs),
+                ])
+            }
+            _ => self.fact_shown(wanted, known, refs),
+        }
     }
 
     /// `instantiate`: the "for all" line at the values given, each guard
@@ -6108,8 +6941,10 @@ impl<'a> Proof<'a> {
         if parts.len() < 2 {
             return None;
         }
-        let wanted = self.writer.formula(claim).built()?.untyped();
+        use super::doc::forms::{self, Meets};
+        let wanted = self.writer.formula(claim).built()?;
         let binders = self.sources.checked.grammar.binders();
+        let values = self.set_values();
         let saying: Vec<usize> = parts
             .iter()
             .enumerate()
@@ -6119,10 +6954,12 @@ impl<'a> Proof<'a> {
                     &cited.binding,
                     &binders,
                 );
-                self.writer
-                    .formula(&at)
-                    .built()
-                    .is_some_and(|p| p.untyped() == wanted)
+                self.writer.formula(&at).built().is_some_and(|p| {
+                    matches!(
+                        forms::meets(&p, &wanted, &values),
+                        Some(Meets::Same | Meets::Unfolded)
+                    )
+                })
             })
             .map(|(i, _)| i)
             .collect();
@@ -6132,10 +6969,6 @@ impl<'a> Proof<'a> {
         }
     }
 
-    /// The name of the cited line that says an item's hypothesis at the
-    /// citation's values, where its Lean text and the hypothesis's are one;
-    /// None where no line does, or the hypothesis does not write. `asked` is
-    /// the hypothesis as the item states it.
     /// Whether a citation gives one of the letters an item's hypothesis
     /// uses, as Lean states it, all of a number system or a range, D := ℝ:
     /// the item asks `∀ x ∈ Set.univ, …` or `i ∈ Set.Icc a b` where the
@@ -6160,20 +6993,19 @@ impl<'a> Proof<'a> {
         })
     }
 
-    fn line_saying(
+    /// Whether each number letter of an item's hypothesis takes its value
+    /// at the letter's own type, with no cast. The item asks its hypothesis
+    /// in its own letters' types: a number given a letter of another type,
+    /// or of the general one, is cast, and the line, written in its own
+    /// types, says something else in Lean, though the two read alike with
+    /// their types left out.
+    fn takes_values_uncast(
         &self,
         hypothesis: &Node,
-        asked: &Printed,
         binding: &crate::matching::Binding,
-        cited_lines: &[super::algebra::Cited],
         binders: &[Binder],
-    ) -> Option<Printed> {
-        // The item asks its hypothesis in its own letters' types: a number
-        // given a letter of another type, or of the general one, is cast,
-        // and the line, written in its own types, says something else in
-        // Lean. Each number letter of the hypothesis must take its value
-        // with no cast.
-        let uncast = hypothesis.names().iter().all(|page| {
+    ) -> bool {
+        hypothesis.names().iter().all(|page| {
             let Some(Binder::Letter { ty, general, .. }) = binders
                 .iter()
                 .find(|b| matches!(b, Binder::Letter { page: p, .. } if p == page))
@@ -6190,39 +7022,7 @@ impl<'a> Proof<'a> {
                         == Some((*n).max(super::templates::Num::Int))
                         && *n != super::templates::Num::Nat
                 })
-        });
-        if !uncast {
-            return None;
-        }
-        let at = crate::matching::substitute_apart_by(
-            hypothesis,
-            binding,
-            &self.sources.checked.grammar.binders(),
-        );
-        let wanted = self.writer.formula(&at).built()?;
-        use super::doc::CountForm::{Extended, Natural};
-        // An item that counts a set in ℕ∞, |X| = 0 of card-zero, given a
-        // set this proof counts as a natural number: the line says
-        // `A.ncard`, the item asks `X.encard`, and the set tactics take
-        // the one to the other.
-        if asked.has_count(Extended) && wanted.has_count(Natural) {
-            return None;
-        }
-        // The other way: a line counting in ℕ∞, |A| ≠ 0 as `¬A.encard = 0`,
-        // given where the item asks an integer, m ≠ 0 at m := |A|.
-        if wanted.has_count(Extended) && !asked.has_count(Extended) {
-            return None;
-        }
-        let wanted = wanted.untyped();
-        cited_lines
-            .iter()
-            .find(|c| {
-                self.writer
-                    .formula(&c.node)
-                    .built()
-                    .is_some_and(|p| p.untyped() == wanted)
-            })
-            .map(|c| c.proof.clone())
+        })
     }
 
     /// The type each of an item's type variables is taken at where a
@@ -6350,7 +7150,7 @@ impl<'a> Proof<'a> {
         sentence: &Sentence,
         binding: &crate::matching::Binding,
         claim: Option<&Node>,
-        cited_lines: &[super::algebra::Cited],
+        supplied: &[Supplied],
     ) -> Route<Instance> {
         let mut given: std::collections::BTreeMap<String, super::expr::Printed> =
             std::collections::BTreeMap::new();
@@ -6797,20 +7597,26 @@ impl<'a> Proof<'a> {
                     )))),
                 // A hypothesis a cited line says, as Lean writes both: the
                 // line by its name.
+                // A hypothesis the checker found a line or a requires line
+                // supplies (`Cited::supplied`): that line by its name, met
+                // with the hypothesis as Lean asks it at the values given.
                 Binder::Fact {
                     line: Some(line),
                     says,
                     ..
-                } => match self.line_saying(
-                    line,
-                    says,
-                    binding,
-                    cited_lines,
-                    &sentence.binders,
-                ) {
-                    Some(name) => args.push(proof_arg(name)),
-                    None => args.push(proof_arg(side_term(&[]))),
-                },
+                } => {
+                    let wanted = super::doc::forms::substituted_all(says, &given);
+                    let proof = supplied
+                        .iter()
+                        .find(|s| {
+                            crate::matching::alike_top(&s.want, line, self.sources.ctx)
+                        })
+                        .filter(|_| {
+                            self.takes_values_uncast(line, binding, &sentence.binders)
+                        })
+                        .and_then(|s| self.supplied_proof(&s.by, &wanted));
+                    args.push(proof_arg(proof.unwrap_or_else(|| side_term(&[]))));
+                }
                 Binder::Fact { .. } => args.push(proof_arg(side_term(&[]))),
             }
         }
@@ -6988,12 +7794,15 @@ impl<'a> Proof<'a> {
         let Some(sentence) = item.sentences.get(concluded.sentence) else {
             return Route::no("a conclusion the item does not have in Lean");
         };
-        let lines = self.cited_parts(&reason.just.refs);
-        let instance =
-            match self.instance_of(sentence, &cited.binding, Some(node), &lines) {
-                Route::Built(i) => i,
-                Route::Declined(d) => return Route::Declined(d),
-            };
+        let instance = match self.instance_of(
+            sentence,
+            &cited.binding,
+            Some(node),
+            &cited.supplied,
+        ) {
+            Route::Built(i) => i,
+            Route::Declined(d) => return Route::Declined(d),
+        };
         // An item read as written says what the claim says: where the two
         // write one term in different forms, the build reports it. The
         // sets whose counts differ only in form are converted.
@@ -7060,18 +7869,46 @@ impl<'a> Proof<'a> {
                 }
             }
         }
+        let statement = instance.statement.clone();
         let inst = instance.term;
         let iff = sentence.says.notation() == BICONDITIONAL;
         let implication = matches!(sentence.says.notation(), CONDITIONAL | IMPLICATION);
+        // What the term the reading gives says, as Lean has it: the sentence,
+        // or the side a forward reading reaches.
+        let mut says = match concluded.way {
+            Way::AsWritten => Some(statement.clone()),
+            Way::Forward => consequent(&statement),
+            Way::Backward => None,
+        };
+        // The claim as Lean writes it, in a calculation's type where it is
+        // a row of one between numbers.
+        let of_numbers = node.children.iter().all(|c| self.writer.is_number(c));
+        let claim_lean = match self.worked_in.get() {
+            Some(at)
+                if of_numbers
+                    && (node.notation() == EQUALITY || node.notation() == ORDER) =>
+            {
+                self.writer.closed_formula(node, at)
+            }
+            _ => self.writer.formula(node),
+        }
+        .built();
         let term = match concluded.way {
             Way::AsWritten => inst,
-            Way::Forward if iff => forwards_of(inst),
-            Way::Forward if implication => applied_to(inst, side_term(&[])),
+            Way::Forward if iff => forwards_of(inst, self.premise(cited, &statement)),
+            Way::Forward if implication => {
+                applied_to(inst, self.premise(cited, &statement))
+            }
             Way::Forward => {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
             }
             Way::Backward => {
-                let witness = match self.witnesses(sentence, cited, &reason.just.refs) {
+                let witness = match self.witnesses(
+                    sentence,
+                    &statement,
+                    cited,
+                    &reason.just.refs,
+                ) {
                     Route::Built(w) => w,
                     Route::Declined(d) => return Route::Declined(d),
                 };
@@ -7143,10 +7980,10 @@ impl<'a> Proof<'a> {
             (true, [_, right]) => right,
             _ => &sentence.says,
         };
-        let term = match same.iter().position(|&i| i == k) {
+        let path = match same.iter().position(|&i| i == k) {
             Some(at) if same.len() > 1 && !whole => {
                 match leaf_path(read, at) {
-                    Some(path) => projected(term, &path),
+                    Some(path) => Some(path),
                     None => return Route::no(
                         "a reading whose \"and\" has fewer parts than its sentences",
                     ),
@@ -7156,15 +7993,17 @@ impl<'a> Proof<'a> {
             // reading gives, "for all d …" of "p > 1 and for all d …": that
             // part, found by its Lean text at the citation's values.
             _ if !whole && same.len() == 1 && concluded.way == Way::Forward && iff => {
-                match self
-                    .part_saying(read, cited, node)
+                self.part_saying(read, cited, node)
                     .and_then(|at| leaf_path(read, at))
-                {
-                    Some(path) => projected(term, &path),
-                    None => term,
-                }
             }
-            _ => term,
+            _ => None,
+        };
+        let term = match &path {
+            Some(path) => {
+                says = says.and_then(|s| along(&s, path));
+                projected(term, path)
+            }
+            None => term,
         };
         // A define the step cites is written out first, as for algebra.
         let defines = self.cited_defines(&reason.just.refs);
@@ -7175,31 +8014,28 @@ impl<'a> Proof<'a> {
         let closed = match self.writer.integer_power_witness(node) {
             _ if !counted.is_empty() => counts_converted(&term, &counted, turned),
             _ if agrees => Proof::By(Tactic::Exact(term)),
-            Some(witness) => ways_proof(vec![
-                Tactic::Exact(witness),
-                Tactic::Exact(t::bracket(super::tactics::by_term(close(
-                    &self.writer,
-                    node,
-                    term,
-                )))),
-            ]),
-            None => close(&self.writer, node, term),
+            Some(witness) => Proof::By(Tactic::Exact(witness)),
+            None => self.closer(node, claim_lean.as_ref(), term, says.as_ref()),
         };
         Route::Built(haves_then(written_out(&defines), closed))
     }
 
     /// The proof of the right side of a definition a step folds: its
-    /// witnesses, where it is a "there is", and its body left to
-    /// `parley_side`.
+    /// witnesses, where it is a "there is", and its body at them, or the
+    /// side whole, by the line the checker read it from (`Cited::firsts`),
+    /// as Lean has it in `statement`, the definition at the citation's
+    /// values; left to `parley_side` where no line says it.
     fn witnesses(
         &self,
         sentence: &Sentence,
+        statement: &Printed,
         cited: &crate::checker::record::Cited,
         refs: &[String],
     ) -> Route<Printed> {
         let [_, right] = sentence.says.children.as_slice() else {
             return Route::no("a definition of other than two sides");
         };
+        let mut lean_body = right_side(statement);
         // A witness that is a letter bound by the line cited, the k of its
         // "there is k", is no value in scope: the line says the right side
         // whole.
@@ -7216,7 +8052,7 @@ impl<'a> Proof<'a> {
             .values()
             .any(|v| v.is_name() && bound_here.contains(v.text.as_str()));
         if bound_by_line {
-            return Route::Built(side_term(&[]));
+            return Route::Built(self.shown_by_line(cited, lean_body.as_ref(), &[]));
         }
         let mut parts = Vec::new();
         // What a line said of a witness the page wrote as a fraction that
@@ -7241,31 +8077,37 @@ impl<'a> Proof<'a> {
                     }
                     _ => self.writer.set_term(value),
                 };
-                match term {
-                    Route::Built(p) => parts.push(p),
+                let term = match term {
+                    Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
-                }
-                parts.push(side_term(&known));
+                };
+                let (guard, next) = exists_at(lean_body.as_ref(), &term);
+                parts.push(term);
+                parts.push(self.shown_by_line(cited, guard.as_ref(), &known));
+                lean_body = next;
                 body = inner;
                 continue;
             };
             let ty = super::expr::letter_type(s);
-            match self.witness(value, ty) {
+            let (guard, next) = match self.witness(value, ty) {
                 Route::Built(w) => {
+                    let at = exists_at(lean_body.as_ref(), &w.term);
                     parts.push(w.term);
                     known.extend(w.known);
+                    at
                 }
                 Route::Declined(d) => return Route::Declined(d),
-            }
+            };
             if system == Some(super::expr::System::Positive) {
-                parts.push(side_term(&known));
+                parts.push(self.shown_by_line(cited, guard.as_ref(), &known));
             }
+            lean_body = next;
             body = inner;
         }
         if parts.is_empty() {
-            return Route::Built(side_term(&[]));
+            return Route::Built(self.shown_by_line(cited, lean_body.as_ref(), &[]));
         }
-        parts.push(side_term(&known));
+        parts.push(self.shown_by_line(cited, lean_body.as_ref(), &known));
         Route::Built(super::expr::anonymous(parts))
     }
 
@@ -7511,11 +8353,14 @@ impl<'a> Proof<'a> {
         for (k, v) in &cited.written {
             binding.entry(*k).or_insert_with(|| v.clone());
         }
-        let lines = self.cited_parts(&step.just.from);
-        let inst = match self.instance_of(sentence, &binding, None, &lines) {
-            Route::Built(i) => i.term,
-            Route::Declined(d) => return Route::Declined(d),
-        };
+        let (inst, premise) =
+            match self.instance_of(sentence, &binding, None, &cited.supplied) {
+                Route::Built(i) => {
+                    let premise = self.premise(cited, &i.statement);
+                    (i.term, premise)
+                }
+                Route::Declined(d) => return Route::Declined(d),
+            };
         // A definition's right side is the "there is"; a theorem's sentence
         // is one.
         let iff = sentence.says.notation() == BICONDITIONAL;
@@ -7529,7 +8374,11 @@ impl<'a> Proof<'a> {
         let says =
             read_at_values(&says, &binding, &self.sources.checked.grammar.binders());
         Route::Built(Obtained {
-            term: if iff { forwards_of(inst) } else { inst },
+            term: if iff {
+                forwards_of(inst, premise)
+            } else {
+                inst
+            },
             says,
             binding,
         })
@@ -7638,8 +8487,10 @@ impl<'a> Proof<'a> {
             pattern.push("_".to_string());
             said = right;
         }
+        // Each letter the item's "there is" binds, as the step names it.
+        let mut renamed = crate::matching::Binding::new();
         for obtained in &step.just.obtained {
-            let [_, set, inner] = said.children.as_slice() else {
+            let [bound, set, inner] = said.children.as_slice() else {
                 return Route::no(
                     "an obtain of more letters than its \"there is\" binds",
                 );
@@ -7650,6 +8501,10 @@ impl<'a> Proof<'a> {
                 );
             }
             pattern.push(super::names::letter(obtained));
+            renamed.insert(
+                crate::formula::symbol::Symbol::of(&bound.text),
+                Node::name(bound.sort.clone(), obtained),
+            );
             // Lean writes "there is s ∈ S" with the membership beside s
             // for every S but a number system its type gives, ℤ, ℚ, ℝ or
             // ℂ; the page's ℕ and ℕ₀ add that the integer s is above 0 or
@@ -7678,15 +8533,57 @@ impl<'a> Proof<'a> {
         }
         // What is said of the letters, taken apart as Lean nests its "and":
         // ((d > 1 ∧ d ∣ p) ∧ d ∣ q) is ⟨⟨a, b⟩, c⟩.
+        // A part Lean states otherwise than the page's sentence, q·N + 0 = A
+        // for q·N = A, is obtained under a name of its own, and the sentence
+        // is stated from it after, so that each line's name says what the
+        // page says.
+        let mut restated = Vec::new();
         if !body.is_empty() {
-            let mut names = body.into_iter();
-            let shaped = shaped_pattern(said, &mut names);
-            if names.next().is_some() {
+            if body.len() > conjunct_count(said) {
                 return Route::no(
                     "an obtain whose sentences are not the parts of its \"there is\"",
                 );
             }
-            pattern.push(shaped);
+            let said = crate::matching::substitute_apart_by(
+                said,
+                &renamed,
+                &self.sources.checked.grammar.binders(),
+            );
+            let parts = shaped_parts(&said, body.len());
+            let values = self.set_values();
+            let mut lean_names = Vec::new();
+            for (name, part) in body.iter().zip(&parts) {
+                let page = claim
+                    .iter()
+                    .zip(&names)
+                    .find(|(_, n)| *n == name)
+                    .map(|((_, p), _)| p.clone());
+                let lean = self.writer.formula(part).built();
+                let differs = match (&page, &lean) {
+                    (Some(says), Some(lean)) => !matches!(
+                        super::doc::forms::meets(lean, says, &values),
+                        Some(
+                            super::doc::forms::Meets::Same
+                                | super::doc::forms::Meets::Unfolded
+                        ) | None
+                    ),
+                    _ => false,
+                };
+                match (differs, page, lean) {
+                    (true, Some(says), Some(lean)) => {
+                        let as_obtained = format!("{name}_obtained");
+                        lean_names.push(as_obtained.clone());
+                        restated.push(Restated {
+                            name: name.clone(),
+                            says,
+                            from: as_obtained,
+                            lean,
+                        });
+                    }
+                    _ => lean_names.push(name.clone()),
+                }
+            }
+            pattern.push(shaped_pattern(&said, &lean_names));
         }
         self.push_at(
             depth,
@@ -7698,6 +8595,27 @@ impl<'a> Proof<'a> {
             step.line,
             Self::step_spot(step),
         );
+        for r in restated {
+            let Some(proved) =
+                self.proof_meeting(super::tactics::hyp(&r.from), &r.lean, &r.says)
+            else {
+                return Route::no(format!(
+                    "an obtain whose part Lean states as {}, and the page as {}",
+                    r.lean.text(),
+                    r.says.text()
+                ));
+            };
+            self.push_at(
+                depth,
+                Tactic::Have {
+                    name: r.name,
+                    says: r.says,
+                    proof: Box::new(super::doc::Proof::Term(proved.term())),
+                },
+                step.line,
+                Self::step_spot(step),
+            );
+        }
         // An item given a line's number, x := the rational of `√2 ∈ ℚ`,
         // gives its facts of that number; a sentence the page says of the
         // line's term, √2 = p/q, is that fact with the goal put in terms of
@@ -7887,20 +8805,14 @@ impl<'a> Proof<'a> {
                 if let Route::Declined(d) = self.steps(&children, depth + 1) {
                     return Route::Declined(d);
                 }
-                // A block may end on a line shown impossible, which closes
-                // it; what is left, if anything, its last line gives.
-                let close = match method {
-                    Method::Proof if claim.len() == 1 => {
-                        self.closing(children.last().copied(), claimed)
-                    }
-                    _ => super::tactics::bridge(BridgeTactic::Side, vec![]),
+                let closing = match self.closing(
+                    children.last().copied(),
+                    Owing::Written(block.ends_written(None)),
+                ) {
+                    Route::Built(c) => c,
+                    Route::Declined(d) => return Route::Declined(d),
                 };
-                self.push_at(
-                    depth + 1,
-                    Tactic::AllGoals(Box::new(close)),
-                    step.line,
-                    spot.clone(),
-                );
+                self.close(depth + 1, closing, step.line, spot.clone());
             }
             Method::Cases => {
                 // The sentence, or the part of one, of the lines named that
@@ -8014,18 +8926,34 @@ impl<'a> Proof<'a> {
                         step.line,
                         spot.clone(),
                     );
+                    // The lines after the case's `by` line open its method's
+                    // block: a supposition, or a proof block's lets.
+                    let inner: Vec<crate::corpus::Opener> =
+                        step.opening(*part).inner.into_iter().cloned().collect();
+                    if let Route::Declined(d) = self.open_lines(step, &inner, depth + 2)
+                    {
+                        return Route::Declined(d);
+                    }
                     if let Route::Declined(d) = self.steps(&children, depth + 2) {
                         return Route::Declined(d);
                     }
-                    self.push_at(
-                        depth + 2,
-                        Tactic::AllGoals(Box::new(super::tactics::bridge(
-                            BridgeTactic::Side,
-                            vec![],
+                    // A case that says it is the claim assumes what is owed,
+                    // and has no steps.
+                    let claimed =
+                        step.openers.iter().any(|o| o.part == *part && o.is_claim);
+                    let closing = match children.is_empty() && claimed {
+                        true => Closing::Tactic(Box::new(Tactic::Exact(
+                            super::tactics::hyp(label),
                         ))),
-                        step.line,
-                        spot.clone(),
-                    );
+                        false => match self.closing(
+                            children.last().copied(),
+                            Owing::Written(block.ends_written(*part)),
+                        ) {
+                            Route::Built(c) => c,
+                            Route::Declined(d) => return Route::Declined(d),
+                        },
+                    };
+                    self.close(depth + 2, closing, step.line, spot.clone());
                 }
             }
             Method::Induction => {
@@ -8062,15 +8990,14 @@ impl<'a> Proof<'a> {
                     if let Route::Declined(d) = self.steps(&children, depth + 2) {
                         return Route::Declined(d);
                     }
-                    self.push_at(
-                        depth + 2,
-                        Tactic::AllGoals(Box::new(super::tactics::bridge(
-                            BridgeTactic::Side,
-                            vec![],
-                        ))),
-                        step.line,
-                        spot.clone(),
-                    );
+                    let closing = match self.closing(
+                        children.last().copied(),
+                        Owing::Written(block.ends_written(*part)),
+                    ) {
+                        Route::Built(c) => c,
+                        Route::Declined(d) => return Route::Declined(d),
+                    };
+                    self.close(depth + 2, closing, step.line, spot.clone());
                 }
             }
             other => {
@@ -8165,7 +9092,11 @@ impl<'a> Proof<'a> {
         for line in lines {
             self.push_at(depth, line, step.line, spot.clone());
         }
+        // Each part starts from the lines in scope as the induction found
+        // them: a line one part opens is no line of the next.
+        let kept_lines = self.trees.clone();
         for part in parts {
+            self.trees = kept_lines.clone();
             let marker = part
                 .and_then(|k| step.parts.get(k))
                 .map(|(m, _)| m.as_str())
@@ -8218,9 +9149,19 @@ impl<'a> Proof<'a> {
                 .filter(|o| !self.introduces_letter(o, &letter.text))
                 .map(|o| (*o).clone())
                 .collect();
+            let opened_from = self.lines.len();
             if let Route::Declined(d) = self.open_lines(step, &own, depth + 1) {
                 return Route::Declined(d);
             }
+            // The binders the part's own lines took off its goal.
+            let introduced: usize = self.lines[opened_from..]
+                .iter()
+                .filter(|l| l.depth == depth + 1)
+                .map(|l| match &l.tactic {
+                    Tactic::Intro(names) => names.len(),
+                    _ => 0,
+                })
+                .sum();
             let children: Vec<usize> = block
                 .children
                 .iter()
@@ -8230,15 +9171,36 @@ impl<'a> Proof<'a> {
             if let Route::Declined(d) = self.steps(&children, depth + 1) {
                 return Route::Declined(d);
             }
-            self.push_at(
-                depth + 1,
-                Tactic::AllGoals(Box::new(super::tactics::bridge(
-                    BridgeTactic::Side,
-                    vec![],
-                ))),
-                step.line,
-                spot.clone(),
-            );
+            // The part's goal is the motive Lean makes at the start or at
+            // k + 1, the cast of the letter a cast of that value, `↑(k + 1)`,
+            // with what the part's own lines took off it by their intros.
+            let motive = match self.writer.formula(body) {
+                Route::Built(m) => m,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            let int = super::doc::LeanType::Num(super::templates::Num::Int);
+            let at = match marker {
+                "base" => Printed::numeral(start.to_string(), int),
+                _ => Printed::infix(
+                    super::doc::Op::PLUS,
+                    Printed::letter(name.clone(), int.clone()),
+                    Printed::numeral("1".to_string(), int.clone()),
+                    int,
+                ),
+            };
+            let goal = super::doc::forms::substituted(&motive, &name, &at);
+            let Some(goal) = goal_after_intros(&goal, introduced) else {
+                return Route::no(format!(
+                    "an induction part whose lines take off its goal what Lean does not, {}",
+                    goal.text()
+                ));
+            };
+            let owing = Owing::Lean(vec![goal]);
+            let closing = match self.closing(children.last().copied(), owing) {
+                Route::Built(c) => c,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            self.close(depth + 1, closing, step.line, spot.clone());
         }
         Route::Built(())
     }
@@ -8292,7 +9254,11 @@ impl<'a> Proof<'a> {
             step.line,
             spot.clone(),
         );
+        // Each part starts from the lines in scope as the induction found
+        // them, as `induction`'s parts do.
+        let kept_lines = self.trees.clone();
         for part in parts {
+            self.trees = kept_lines.clone();
             let marker = part
                 .and_then(|k| step.parts.get(k))
                 .map(|(m, _)| m.as_str())
@@ -8364,12 +9330,14 @@ impl<'a> Proof<'a> {
             if let Route::Declined(d) = written {
                 return Route::Declined(d);
             }
-            self.push_at(
-                depth + 1,
-                Tactic::AllGoals(Box::new(t::bridge(BridgeTactic::Side, vec![]))),
-                step.line,
-                spot.clone(),
-            );
+            let closing = match self.closing(
+                children.last().copied(),
+                Owing::Written(block.ends_written(*part)),
+            ) {
+                Route::Built(c) => c,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            self.close(depth + 1, closing, step.line, spot.clone());
         }
         Route::Built(())
     }
@@ -8649,37 +9617,111 @@ impl<'a> Proof<'a> {
                     };
                     self.trees
                         .insert(o.label.clone(), vec![(node.clone(), label.clone())]);
-                    // The block's claim denied, and the suppose line proved
-                    // from that denial in the words the page chose for it.
-                    self.push_at(
-                        depth,
-                        super::tactics::call(
-                            "by_contra",
-                            vec![TacticArg::Term(super::tactics::hyp(&format!(
-                                "hc_{label}"
-                            )))],
-                        ),
-                        o.line,
-                        spot.clone(),
-                    );
-                    self.push_at(
-                        depth,
-                        Tactic::Have {
-                            name: label.clone(),
-                            says: says.clone(),
-                            proof: Box::new(super::doc::Proof::By(
-                                super::tactics::bridge(
-                                    BridgeTactic::Suppose,
-                                    vec![TacticArg::Term(super::tactics::hyp(
-                                        &format!("hc_{label}"),
-                                    ))],
-                                ),
-                            )),
-                        },
-                        o.line,
-                        spot.clone(),
-                    );
+                    if let Route::Declined(d) =
+                        self.suppose(&label, says, o.line, &spot, depth)
+                    {
+                        return Route::Declined(d);
+                    }
                 }
+            }
+        }
+        Route::Built(())
+    }
+
+    /// A contradiction's `suppose` line, named `label`: the claim denied,
+    /// `by_contra`, where the supposition is the claim negated, and the
+    /// negation's body taken, `intro`, where the claim is the supposition
+    /// negated. The hypothesis is the supposition as the page writes it:
+    /// named as it comes where Lean writes the two alike, ascribed where
+    /// they differ by a `≠` read as `¬ =`, and turned round where the page
+    /// writes its equation the other way.
+    fn suppose(
+        &mut self,
+        label: &str,
+        says: Printed,
+        line: usize,
+        spot: &Spot,
+        depth: usize,
+    ) -> Route<()> {
+        use super::doc::forms::{self, Meets};
+        use super::doc::{LeanType, Piece};
+        let Some(supposition) = self.rec.supposed.get(&line) else {
+            return Route::no("a supposition the checker relates to no claim");
+        };
+        let shown = match self.writer.formula(&supposition.against) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let (open, given) = match supposition.shape {
+            Supposed::ClaimDenied => ("by_contra", Some(forms::negation(&shown))),
+            Supposed::Denial => ("intro", forms::denied(&shown)),
+        };
+        let Some(given) = given else {
+            return Route::no(format!(
+                "a claim that denies its supposition, which Lean writes as no negation, {}",
+                shown.text()
+            ));
+        };
+        let opening =
+            |name: Printed| super::tactics::call(open, vec![TacticArg::Term(name)]);
+        match forms::meets(&given, &says, &self.set_values()) {
+            Some(Meets::Same) => {
+                self.push_at(
+                    depth,
+                    opening(super::tactics::hyp(label)),
+                    line,
+                    spot.clone(),
+                );
+            }
+            Some(Meets::Unfolded) => {
+                let ascribed = Printed::notation(
+                    vec![
+                        Piece::text("("),
+                        Piece::term(super::tactics::hyp(label), 0),
+                        Piece::text(" : "),
+                        Piece::term(says, 0),
+                        Piece::text(")"),
+                    ],
+                    super::expr::MAX,
+                    LeanType::Prop,
+                );
+                self.push_at(depth, opening(ascribed), line, spot.clone());
+            }
+            Some(Meets::Turned { negated }) => {
+                let given_name = format!("h_{label}");
+                let given = super::tactics::hyp(&given_name);
+                let turned = match negated {
+                    false => super::tactics::symm(given),
+                    true => Printed::applied(
+                        "Ne.symm",
+                        super::doc::Source::Core,
+                        vec![given],
+                        LeanType::Prop,
+                    ),
+                };
+                self.push_at(
+                    depth,
+                    opening(super::tactics::hyp(&given_name)),
+                    line,
+                    spot.clone(),
+                );
+                self.push_at(
+                    depth,
+                    Tactic::Have {
+                        name: label.to_string(),
+                        says,
+                        proof: Box::new(super::doc::Proof::Term(turned)),
+                    },
+                    line,
+                    spot.clone(),
+                );
+            }
+            Some(Meets::Identities(_) | Meets::Casts { .. }) | None => {
+                return Route::no(format!(
+                    "the supposition {}, which is not what `{open}` gives, {}",
+                    says.text(),
+                    given.text()
+                ))
             }
         }
         Route::Built(())
@@ -9192,35 +10234,76 @@ fn under_binders(claim: &Node, fact: &Node) -> Node {
     }
 }
 
-/// What an exhibit says of its values, taken apart as Lean nests its "and",
-/// each part left to `parley_side` with what the witnesses give known: a
-/// part alone is a line in scope, where the whole "and" may send `simp`
-/// past its depth.
-fn facts_shaped(said: &Node, known: &[Tactic]) -> Printed {
-    match (said.notation(), said.children.as_slice()) {
+/// An `obtain` pattern for a sentence, one name to each part of its "and"
+/// as it nests, the names taken in order; a part left with no name is `_`.
+fn shaped_pattern(said: &Node, names: &[String]) -> String {
+    let and_sides = |n: &Node| match (n.notation(), n.children.as_slice()) {
         (
             crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
             [l, r],
-        ) => {
-            super::expr::anonymous(vec![facts_shaped(l, known), facts_shaped(r, known)])
+        ) => Some((l.clone(), r.clone())),
+        _ => None,
+    };
+    match (names, and_sides(said)) {
+        ([], _) => "_".to_string(),
+        ([one], _) => one.clone(),
+        // Each side takes as many names as it has parts, the left as many
+        // as it can while the right keeps one: an "and" that is one
+        // sentence of the page stays whole.
+        (_, Some((l, r))) => {
+            let take = conjunct_count(&l).min(names.len() - 1);
+            let take = take.max(names.len().saturating_sub(conjunct_count(&r)));
+            let (left, right) = names.split_at(take.min(names.len()));
+            format!(
+                "⟨{}, {}⟩",
+                shaped_pattern(&l, left),
+                shaped_pattern(&r, right)
+            )
         }
-        _ => side_term(known),
+        (_, None) => names[0].clone(),
     }
 }
 
-/// An `obtain` pattern for a sentence, one name to each part of its "and"
-/// as it nests, the names taken in order; a part left with no name is `_`.
-fn shaped_pattern(said: &Node, names: &mut impl Iterator<Item = String>) -> String {
-    match (said.notation(), said.children.as_slice()) {
+/// The parts of `said` an obtain pattern of `count` names takes, in order,
+/// split as `shaped_pattern` splits it.
+fn shaped_parts(said: &Node, count: usize) -> Vec<Node> {
+    match (count, said.notation(), said.children.as_slice()) {
+        (0, _, _) => Vec::new(),
+        (1, _, _) => vec![said.clone()],
         (
+            _,
             crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
             [l, r],
         ) => {
-            let left = shaped_pattern(l, names);
-            let right = shaped_pattern(r, names);
-            format!("⟨{left}, {right}⟩")
+            let take = conjunct_count(l).min(count - 1);
+            let take = take.max(count.saturating_sub(conjunct_count(r)));
+            let take = take.min(count);
+            let mut out = shaped_parts(l, take);
+            out.extend(shaped_parts(r, count - take));
+            out
         }
-        _ => names.next().unwrap_or_else(|| "_".to_string()),
+        _ => vec![said.clone()],
+    }
+}
+
+/// A sentence an obtain takes under a name of its own, `from`, where Lean
+/// states it as `lean` and the page as `says`, stated after as the page
+/// says it under its own name.
+struct Restated {
+    name: String,
+    says: Printed,
+    from: String,
+    lean: Printed,
+}
+
+/// How many parts an "and" holds, each "and" in it taken apart.
+fn conjunct_count(node: &Node) -> usize {
+    match (node.notation(), node.children.as_slice()) {
+        (
+            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
+            [l, r],
+        ) => conjunct_count(l) + conjunct_count(r),
+        _ => 1,
     }
 }
 

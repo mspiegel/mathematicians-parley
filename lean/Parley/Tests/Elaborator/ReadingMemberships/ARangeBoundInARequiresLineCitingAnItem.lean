@@ -21,7 +21,6 @@ theorem a_range_bound_in_a_requires_line_citing_an_item (n : ℤ) (hH1 : 0 ≤ n
     0 < n - k + 1 := by
   -- 1. mun:nat0-successor k := n − k
   have r52_1 : 0 ≤ n - k := by exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (by parley_side))
-  have s1 : 0 < n - k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side))
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInARequiresLineCitingAnItem

@@ -26,8 +26,6 @@ public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -48,21 +46,19 @@ theorem power_of_three_odd (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.1. arithmetic
       have s1_1 : (3 ^ 0 : ℤ) = 2 * 0 + 1 := by parley_arith
       -- 1.2. def:odd n := 3^0, from 1.1
-      have s1_2 : Odd (3 ^ 0 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), by parley_side⟩; parley_side)
-      all_goals parley_side
+      have s1_2 : Odd (3 ^ 0 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩; parley_side)
+      simpa only [Int.reduceToNat] using s1_2
     | succ j hK hIH =>
       -- 1.3. obtain k: def:odd n := 3^j, from IH
-      obtain ⟨k, s1_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ j.toNat : ℤ)))).mp (by parley_side)
+      obtain ⟨k, s1_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ j.toNat : ℤ)))).mp hIH
       -- 1.4. calculation
       have s1_4 : 3 ^ (j + 1).toNat = 2 * (3 * k + 1) + 1 := by
-        calc (3 ^ (j + 1).toNat : ℤ) = 3 ^ j.toNat * 3 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side)); parley_side)
+        calc (3 ^ (j + 1).toNat : ℤ) = 3 ^ j.toNat * 3 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side))
           _ = (2 * k + 1) * 3 := by parley_subst s1_3
           _ = 2 * (3 * k + 1) + 1 := by parley_ring
       -- 1.5. def:odd n := 3^(j + 1), from 1.4
-      have s1_5 : Odd (3 ^ (j + 1).toNat : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, by parley_side⟩; parley_side)
-      all_goals parley_side
+      first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, s1_4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, s1_4⟩; parley_side)
   -- 2. instantiate j := n in line 1
-  have s2 : Odd (3 ^ n.toNat : ℤ) := by first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals exact s2
+  first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_side)
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd

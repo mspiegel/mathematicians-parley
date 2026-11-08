@@ -15,6 +15,6 @@ namespace Parley.Tests.Elaborator.AnItemAtAMember.AnItemAtAMemberAsAStep
 theorem an_item_at_a_member_as_a_step (B : ℤ → ℝ) :
     True := by
   -- 1. mun:sum-real a := 1, b := m
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.AnItemAtAMember.AnItemAtAMemberAsAStep

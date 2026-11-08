@@ -1,10 +1,8 @@
 module
 
-public import ArithTactics
 public import NormTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -25,15 +23,12 @@ theorem a_define_read_in_a_contradicted_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
   -- 1. substitute e = a + 1 (D1) into H2
   have s1 : e ≠ 0 := by parley_subst_at hD1 hH2
   -- 2. contradiction
-  have s2 : a ≠ -1 := by
-    by_contra hc_hS
-    have hS : a = -1 := by parley_suppose hc_hS
-    -- 2.1. algebra, from D1, S
-    have s2_1 : a + 1 = 0 := by
-      try simp only [hD1] at *
-      try push_cast at *
-      linear_combination (norm := parley_norm) hS
-    all_goals parley_side
-  all_goals exact s2
+  intro hS
+  -- 2.1. algebra, from D1, S
+  have s2_1 : a + 1 = 0 := by
+    try simp only [hD1] at *
+    try push_cast at *
+    linear_combination (norm := parley_norm) hS
+  exact s1 s2_1
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAContradictedLine

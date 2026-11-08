@@ -19,9 +19,7 @@ namespace Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineWorkingOutAClos
 theorem a_chain_line_working_out_a_closed_piece (x : ℝ) :
     x * Real.sqrt (4 : ℝ) = 2 * x := by
   -- 1. calculation
-  have s1 : x * Real.sqrt (4 : ℝ) = 2 * x := by
-    calc x * Real.sqrt (4 : ℝ) = x * 2 := by parley_real
-      _ = 2 * x := by parley_ring
-  all_goals exact s1
+  calc x * Real.sqrt (4 : ℝ) = x * 2 := by parley_real
+    _ = 2 * x := by parley_ring
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineWorkingOutAClosedPiece

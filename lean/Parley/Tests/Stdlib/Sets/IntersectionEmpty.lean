@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Sets.IntersectionEmpty
 theorem intersection_empty {α : Type*} (Y : Set α) :
     Y ∩ ∅ = ∅ := by
   -- 1. mun:sets-intersection-empty
-  have s1 : Y ∩ ∅ = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_intersection_empty (Y := Y))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sets.mun_intersection_empty (Y := Y))
 
 end Parley.Tests.Stdlib.Sets.IntersectionEmpty

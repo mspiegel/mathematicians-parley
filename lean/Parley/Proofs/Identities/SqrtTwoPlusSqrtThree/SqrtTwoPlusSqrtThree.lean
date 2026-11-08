@@ -6,7 +6,6 @@ public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -43,8 +42,7 @@ theorem sqrt_two_plus_sqrt_three :
   have s3 : Irrational (Real.sqrt (6 : ℝ) * 2 + 5) := by first | exact (Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2) | exact ((Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2)).symm | simpa using (Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2) | exact_mod_cast (Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2) | (have h := (Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2); parley_rat_of_real h) | (have h := (Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2); parley_side)
   -- 4. contradiction
   have s4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by
-    by_contra hc_hS
-    have hS : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ) := by parley_suppose hc_hS
+    intro hS
     -- 4.1. thm:rational-product A := √2 + √3, B := √2 + √3, from S
     have s4_1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by (exact ⟨(Classical.choose hS : ℚ) * (Classical.choose hS : ℚ), by push_cast; (try simp only [Classical.choose_spec hS]); first | done | parley_ring⟩)
     -- 4.2. substitute
@@ -58,12 +56,11 @@ theorem sqrt_two_plus_sqrt_three :
       have row1 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := by parley_subst_at c1 s4_2
       exact row1
     -- 4.4. def:irrational x := √6·2 + 5, from 3
-    have s4_4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by first | exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp (by parley_side)).2; parley_rat_of_real h) | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp (by parley_side)).2; parley_side)
+    have s4_4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp s3).2
     -- 4.5. restate 4.4
     have s4_5 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by parley_side
-    all_goals parley_side
+    exact s4_5 s4_3
   -- 5. def:irrational x := √2 + √3, from 4
-  have s5 : Irrational (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr (by parley_side); parley_side)
-  all_goals exact s5
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr (by parley_side); parley_side)
 
 end Parley.Proofs.Identities.SqrtTwoPlusSqrtThree.SqrtTwoPlusSqrtThree

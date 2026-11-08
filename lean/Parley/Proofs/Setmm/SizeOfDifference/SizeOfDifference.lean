@@ -43,11 +43,10 @@ theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finit
   have s6 : ∀ s ∈ A \ B, ¬ s ∈ B := by
     intro s hK
     -- 6.1. def:difference Y := A, Z := B, from K
-    have s6_1a : s ∈ A := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).1; parley_set_side)
-    have s6_1b : ¬ s ∈ B := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp (by parley_set_side)).2; parley_set_side)
+    have s6_1a : s ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).1
+    have s6_1b : ¬ s ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).2
     -- 6.2. restate 6.1
-    have s6_2 : ¬ s ∈ B := by parley_set_side
-    all_goals exact s6_2
+    parley_set_side
   -- 7. mun:disjoint-empty Y := B, Z := A ∖ B, from 6
   have s7 : B ∩ (A \ B) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A \ B) s6)
   -- 8. mun:card-disjoint-union X := B, Y := A ∖ B, m := |B|, n := |A ∖ B|, from 4, 5, 7
@@ -58,7 +57,6 @@ theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finit
     have row1 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by parley_subst_at c1 s8
     exact row1)
   -- 10. algebra, from 4, 5, 9
-  have s10 : ((A \ B).ncard : ℤ) = (A.ncard : ℤ) - (B.ncard : ℤ) := by parley_count_int; (linear_combination (norm := parley_norm) (-1) * s9)
-  all_goals exact s10
+  parley_count_int; (linear_combination (norm := parley_norm) (-1) * s9)
 
 end Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference

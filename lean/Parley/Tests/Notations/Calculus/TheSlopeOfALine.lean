@@ -1,6 +1,5 @@
 module
 
-public import RealTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Field.Defs
@@ -34,7 +33,6 @@ theorem the_slope_of_a_line (g : ℝ → ℝ) (hH1 : Set.MapsTo g (Set.Icc (0 : 
   have r112_1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r112_2 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r112_3 : IsOpen (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := (0 : ℝ)) (b := (1 : ℝ)))
-  have s1 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (deriv g) x = 2 := by first | exact (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (m := (2 : ℝ)) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (m := (2 : ℝ)) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (m := (2 : ℝ)) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (m := (2 : ℝ)) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (m := (2 : ℝ)) (by parley_set_side)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (m := (2 : ℝ)) (by parley_set_side)); parley_set_side)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) r112_1 r112_2 r112_3 (m := (2 : ℝ)) (by parley_set_side))
 
 end Parley.Tests.Notations.Calculus.TheSlopeOfALine

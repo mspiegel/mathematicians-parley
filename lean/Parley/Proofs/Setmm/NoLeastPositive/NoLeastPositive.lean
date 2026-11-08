@@ -1,9 +1,7 @@
 module
 
-public import ArithTactics
 public import OrderTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
@@ -19,18 +17,15 @@ namespace Parley.Proofs.Setmm.NoLeastPositive.NoLeastPositive
 theorem no_least_positive :
     ¬ (∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x)) := by
   -- 1. contradiction
-  have s1 : ¬ (∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x)) := by
-    by_contra hc_hS
-    have hS : ∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x) := by parley_suppose hc_hS
-    -- 1.1. obtain x from S
-    obtain ⟨x, ⟨s1_1a, s1_1b⟩⟩ := hS
-    -- 1.2. inequalities
-    have s1_2 : 0 < x / 2 := by parley_order
-    -- 1.3. inequalities
-    have s1_3 : x / 2 < x := by parley_order
-    -- 1.4. exhibit, from 1.2, 1.3
-    have s1_4 : ∃ y : ℝ, 0 < y ∧ y < x := ⟨x / 2, ⟨by parley_side, by parley_side⟩⟩
-    all_goals parley_side
-  all_goals exact s1
+  intro hS
+  -- 1.1. obtain x from S
+  obtain ⟨x, ⟨s1_1a, s1_1b⟩⟩ := hS
+  -- 1.2. inequalities
+  have s1_2 : 0 < x / 2 := by parley_order
+  -- 1.3. inequalities
+  have s1_3 : x / 2 < x := by parley_order
+  -- 1.4. exhibit, from 1.2, 1.3
+  have s1_4 : ∃ y : ℝ, 0 < y ∧ y < x := ⟨x / 2, ⟨s1_2, s1_3⟩⟩
+  exact s1_1b s1_4
 
 end Parley.Proofs.Setmm.NoLeastPositive.NoLeastPositive

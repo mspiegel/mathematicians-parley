@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
@@ -16,12 +15,10 @@ namespace Parley.Tests.Elaborator.ASuppositionWrittenOtherwise.ASuppositionDenyi
 theorem a_supposition_denying_its_claim_written_otherwise (a : ℝ) (hH2 : a = 1) :
     a = 1 := by
   -- 1. contradiction
-  have s1 : a = 1 := by
-    by_contra hc_hS
-    have hS : 1 ≠ a := by parley_suppose hc_hS
-    -- 1.1. restate S
-    have s1_1 : 1 ≠ a := by parley_side
-    all_goals parley_side
-  all_goals exact s1
+  by_contra h_hS
+  have hS : 1 ≠ a := Ne.symm h_hS
+  -- 1.1. restate S
+  have s1_1 : 1 ≠ a := by parley_side
+  exact s1_1 hH2.symm
 
 end Parley.Tests.Elaborator.ASuppositionWrittenOtherwise.ASuppositionDenyingItsClaimWrittenOtherwise

@@ -28,10 +28,8 @@ theorem power_recurrence (x : ℝ) (hH2 : x ^ 2 = x + 1) (k : ℤ) (hH3 : 0 ≤ 
   -- 2. mun:exponent-step a := x, m := k + 1
   have s2 : x ^ (k + 1 + 1).toNat = x ^ (k + 1).toNat * x := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := k + 1) (by parley_side))
   -- 3. calculation
-  have s3 : x ^ (k + 1 + 1).toNat = x ^ (k + 1).toNat + x ^ k.toNat := by
-    calc x ^ (k + 1 + 1).toNat = x ^ k.toNat * x * x := by linear_combination (norm := parley_norm) (x) * s1 + s2
-      _ = x ^ k.toNat * (x + 1) := by linear_combination (norm := parley_norm) (x ^ k.toNat) * hH2
-      _ = x ^ (k + 1).toNat + x ^ k.toNat := by linear_combination (norm := parley_norm) (-1) * s1
-  all_goals exact s3
+  calc x ^ (k + 1 + 1).toNat = x ^ k.toNat * x * x := by linear_combination (norm := parley_norm) (x) * s1 + s2
+    _ = x ^ k.toNat * (x + 1) := by linear_combination (norm := parley_norm) (x ^ k.toNat) * hH2
+    _ = x ^ (k + 1).toNat + x ^ k.toNat := by linear_combination (norm := parley_norm) (-1) * s1
 
 end Parley.Proofs.Hammack.BinetFormula.PowerRecurrence

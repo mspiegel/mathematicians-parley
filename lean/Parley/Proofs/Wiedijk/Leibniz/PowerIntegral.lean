@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import PowerTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -105,35 +104,33 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 15. thm:derivative-power D := [0, 1], U := (0, 1), n := m, from 2, 4, 10
   have r111_1 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r111_2 : IsOpen (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := (0 : ℝ)) (b := (1 : ℝ)))
-  have s15 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ q x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_power_1 (g := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (by parley_set_side) (by parley_set_side) (n := m) (by parley_set_side) s4)
+  have s15 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ q x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_power_1 (g := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 r111_1 r111_2 (n := m) (by parley_set_side) s4)
   -- 16. thm:derivative-power D := [0, 1], U := (0, 1), n := m, from 2, 4, 10
   have r116_1 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r116_2 : IsOpen (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := (0 : ℝ)) (b := (1 : ℝ)))
-  have s16 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (deriv q) x = ((m : ℝ) + 1) * x ^ m.toNat := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_power_2 (g := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (by parley_set_side) (by parley_set_side) (n := m) (by parley_set_side) s4)
+  have s16 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (deriv q) x = ((m : ℝ) + 1) * x ^ m.toNat := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_power_2 (g := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 r116_1 r116_2 (n := m) (by parley_set_side) s4)
   -- 17. thm:derivative-scaled D := [0, 1], U := (0, 1), c := 1/(m + 1), f := q, from 2, 5, 10, 11, 15
   have r121_1 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r121_2 : m + 1 ≠ 0 := by parley_set_side
-  have s17 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_scaled_1 (F := F) (f := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (by parley_set_side) (c := 1 / ((m : ℝ) + 1)) (by parley_set_side) s15)
+  have s17 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_scaled_1 (F := F) (f := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 r121_1 (c := 1 / ((m : ℝ) + 1)) (by parley_set_side) s15)
   -- 18. thm:derivative-scaled D := [0, 1], U := (0, 1), c := 1/(m + 1), f := q, from 2, 5, 10, 11, 15
   have r126_1 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r126_2 : m + 1 ≠ 0 := by parley_set_side
-  have s18 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_scaled_2 (F := F) (f := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (by parley_set_side) (c := 1 / ((m : ℝ) + 1)) (by parley_set_side) s15)
+  have s18 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_scaled_2 (F := F) (f := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 r126_1 (c := 1 / ((m : ℝ) + 1)) (by parley_set_side) s15)
   -- 19. proof
   have s19 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (deriv F) x = p x := by
     intro x hK1
     -- 19.1. mun:in-subset, from K1
     have r135_1 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
-    have s19_1 : x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (u := x) (by parley_set_side) hK1)
+    have s19_1 : x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (u := x) r135_1 hK1)
     -- 19.2. D1, from 19.1
     have s19_2 : p x = x ^ m.toNat := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
     -- 19.3. calculation
     have r142_1 : m + 1 ≠ 0 := by parley_set_side
-    have s19_3 : (deriv F) x = p x := by
-      calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
-        _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by parley_subst s16
-        _ = x ^ m.toNat := by parley_ring
-        _ = p x := by first | parley_set_side | parley_line_toNat s19_2
-    all_goals exact s19_3
+    calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
+      _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by parley_subst s16
+      _ = x ^ m.toNat := by parley_ring
+      _ = p x := by first | parley_set_side | parley_line_toNat s19_2
   -- 20. arithmetic
   have s20 : (0 : ℤ) < 1 := by parley_arith
   -- 21. def:interval a := 0, b := 1, x := 0
@@ -172,12 +169,10 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
           first | parley_subst s26_w | parley_subst s26
   -- 31. calculation
   have r193_1 : m + 1 ≠ 0 := by parley_set_side
-  have s31 : (∫ t in 0..1, (t ^ m.toNat : ℝ)) = 1 / ((m : ℝ) + 1) := by
-    calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD1
-      _ = F 1 - F 0 := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | exact_mod_cast ((Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))).symm | (have h := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_rat_of_real h) | (have h := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_set_side)
-      _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := by parley_subst s29
-      _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := by parley_subst s30
-      _ = 1 / ((m : ℝ) + 1) := by parley_ring
-  all_goals exact s31
+  calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD1
+    _ = F 1 - F 0 := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
+    _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := by parley_subst s29
+    _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := by parley_subst s30
+    _ = 1 / ((m : ℝ) + 1) := by parley_ring
 
 end Parley.Proofs.Wiedijk.Leibniz.PowerIntegral

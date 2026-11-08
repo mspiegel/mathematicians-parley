@@ -26,7 +26,6 @@ theorem difference_not_zero (A : ℝ) (B : ℝ) (hH3 : abs A < B) :
   -- 3. transitivity, from 2, H3
   have s3 : A < B := by parley_order
   -- 4. inequalities
-  have s4 : B - A ≠ 0 := by parley_side
-  all_goals exact s4
+  parley_side
 
 end Parley.Proofs.Setmm.DifferenceNotZero.DifferenceNotZero

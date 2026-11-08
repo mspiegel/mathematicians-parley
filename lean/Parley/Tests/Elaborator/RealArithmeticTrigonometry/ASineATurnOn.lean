@@ -22,7 +22,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineATurnOn
 theorem a_sine_a_turn_on :
     Real.sin (9 * Real.pi / 4) = Real.sqrt (2 : ℝ) / 2 := by
   -- 1. real arithmetic
-  have s1 : Real.sin (9 * Real.pi / 4) = Real.sqrt (2 : ℝ) / 2 := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineATurnOn

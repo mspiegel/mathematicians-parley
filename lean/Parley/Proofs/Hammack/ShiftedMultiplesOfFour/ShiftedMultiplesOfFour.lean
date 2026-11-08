@@ -33,12 +33,11 @@ theorem shifted_multiples_of_four :
     -- 1.2. algebra, from 1.1
     have s1_2 : t = 4 * (m + 1) + 1 := by linear_combination (norm := parley_norm) s1_1
     -- 1.3. exhibit, from 1.2
-    have s1_3 : ∃ k : ℤ, t = 4 * k + 1 := ⟨m + 1, by parley_set_side⟩
+    have s1_3 : ∃ k : ℤ, t = 4 * k + 1 := ⟨m + 1, s1_2⟩
     -- 1.4. def:set-image u := t, from 1.3
-    have s1_4 : t ∈ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
-    all_goals exact s1_4
+    first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 2. def:subset, from 1
-  have s2 : (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) ⊆ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr (by parley_set_side); parley_set_side)
+  have s2 : (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) ⊆ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr s1; parley_set_side)
   -- 3. proof
   have s3 : ∀ t ∈ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ), t ∈ (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) := by
     intro t hK2
@@ -47,14 +46,12 @@ theorem shifted_multiples_of_four :
     -- 3.2. algebra, from 3.1
     have s3_2 : t = 4 * (m - 1) + 5 := by linear_combination (norm := parley_norm) s3_1
     -- 3.3. exhibit, from 3.2
-    have s3_3 : ∃ k : ℤ, t = 4 * k + 5 := ⟨m - 1, by parley_set_side⟩
+    have s3_3 : ∃ k : ℤ, t = 4 * k + 5 := ⟨m - 1, s3_2⟩
     -- 3.4. def:set-image u := t, from 3.3
-    have s3_4 : t ∈ (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 5)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 5)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
-    all_goals exact s3_4
+    first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 5)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 5)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 4. def:subset, from 3
-  have s4 : (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) ⊆ (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)))).mpr (by parley_set_side); parley_set_side)
+  have s4 : (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) ⊆ (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)))).mpr s3; parley_set_side)
   -- 5. mun:subset-antisymmetric, from 2, 4
-  have s5 : (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) = (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) s2 s4)
-  all_goals exact s5
+  exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ)) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) s2 s4)
 
 end Parley.Proofs.Hammack.ShiftedMultiplesOfFour.ShiftedMultiplesOfFour

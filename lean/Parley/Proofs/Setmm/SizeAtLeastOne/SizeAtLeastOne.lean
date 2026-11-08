@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -30,25 +29,23 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
     ((1 : ℕ) : ℕ∞) ≤ A.encard := by
   -- 1. contradiction
   have s1 : ∃ a ∈ A, True := by
-    by_contra hc_hS
-    have hS : ¬ (∃ a ∈ A, True) := by parley_suppose hc_hS
+    by_contra hS
     -- 1.1. proof
     have s1_1 : ∀ s ∈ A, ¬ s ∈ A := by
       intro s hK
-      by_contra hc_hS2
-      have hS2 : s ∈ A := by parley_suppose hc_hS2
+      intro hS2
       -- 1.1.1. exhibit, from S2
       have s1_1_1 : ∃ a ∈ A, True := ⟨s, by parley_set_side, trivial⟩
       -- 1.1.2. restate S
       have s1_1_2 : ¬ (∃ a ∈ A, True) := by parley_set_side
-      all_goals parley_set_side
+      exact s1_1_2 s1_1_1
     -- 1.2. calculation
     have s1_2 : A = ∅ := by
-      calc A = A ∩ A := by first | exact (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)) | exact ((Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)) | (have h := (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)); parley_set_side)
+      calc A = A ∩ A := (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)).symm
         _ = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := A) s1_1)
     -- 1.3. restate H2
     have s1_3 : ¬ A = ∅ := by parley_set_side
-    all_goals parley_set_side
+    exact s1_3 s1_2
   -- 2. obtain a from line 1
   obtain ⟨a, s2, _⟩ := s1
   -- 3. mun:singleton-subset, from 2
@@ -56,10 +53,9 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
   -- 4. mun:card-subset A := {a}, B := A, from 3
   have s4 : ((({a} : Set α).ncard : ℕ) : ℕ∞) ≤ A.encard := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3); simp only [← Set.Finite.cast_ncard_eq (show ({a} : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
   -- 5. substitute
-  have s5 : ((1 : ℕ) : ℕ∞) ≤ A.encard := by parley_count_after (by
+  parley_count_after (by
     have c1 : (({a} : Set α).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a))
     have row1 : ((1 : ℕ) : ℕ∞) ≤ A.encard := by parley_subst_at c1 s4
     exact row1)
-  all_goals exact s5
 
 end Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne

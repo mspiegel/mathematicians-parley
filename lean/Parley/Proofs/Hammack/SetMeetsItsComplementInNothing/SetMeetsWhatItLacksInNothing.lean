@@ -20,10 +20,8 @@ theorem set_meets_what_it_lacks_in_nothing {α : Type*} (A : Set α) (B : Set α
   have s1 : ∀ s ∈ B \ A, ¬ s ∈ A := by
     intro s hK1
     -- 1.1. def:difference u := s, Y := B, Z := A, from K1
-    have s1_1 : ¬ s ∈ A := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2; parley_set_side)
-    all_goals exact s1_1
+    exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK1).2
   -- 2. mun:disjoint-empty Y := A, Z := B ∖ A, from 1
-  have s2 : A ∩ (B \ A) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s1)
-  all_goals exact s2
+  exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s1)
 
 end Parley.Proofs.Hammack.SetMeetsItsComplementInNothing.SetMeetsWhatItLacksInNothing

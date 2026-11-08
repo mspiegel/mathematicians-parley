@@ -28,7 +28,6 @@ theorem cosine_is_not_injective :
   have s4a : 0 ≠ 2 * Real.pi := by parley_side
   have s4b : Real.cos (0 : ℝ) = Real.cos (2 * Real.pi) := by parley_side
   -- 5. exhibit, from 4
-  have s5 : ∃ x : ℝ, ∃ y : ℝ, x ≠ y ∧ Real.cos x = Real.cos y := ⟨(0 : ℝ), 2 * Real.pi, ⟨by parley_side, by parley_side⟩⟩
-  all_goals exact s5
+  exact ⟨(0 : ℝ), 2 * Real.pi, ⟨s4a, s4b⟩⟩
 
 end Parley.Proofs.Hammack.CosineIsNotInjective.CosineIsNotInjective

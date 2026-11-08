@@ -27,7 +27,7 @@ namespace Parley.Proofs.Hammack.RationalCubeRootOfTwo.OddCube
 theorem odd_cube (n : ℤ) (hH2 : Odd n) :
     Odd (n ^ 3) := by
   -- 1. obtain k: def:odd, from H2
-  obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)
+  obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hH2
   -- 2. substitute n = 2k + 1 (line 1)
   have s2 : n ^ 3 = (2 * k + 1) ^ 3 := by parley_subst s1
   -- 3. algebra
@@ -35,7 +35,6 @@ theorem odd_cube (n : ℤ) (hH2 : Odd n) :
   -- 4. transitivity, from 2, 3
   have s4 : n ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by parley_side
   -- 5. def:odd n := n³, from 4
-  have s5 : Odd (n ^ 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, by parley_side⟩; parley_side)
-  all_goals exact s5
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, s4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, s4⟩; parley_side)
 
 end Parley.Proofs.Hammack.RationalCubeRootOfTwo.OddCube

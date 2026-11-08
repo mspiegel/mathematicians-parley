@@ -57,7 +57,6 @@ theorem zero_derivative_ends (a : ℝ) (b : ℝ) (hH3 : a < b) (H : ℝ → ℝ)
   have s5 : b - a > 0 := by parley_order
   -- 6. algebra, from 4
   have r50_1 : b - a ≠ 0 := by parley_set_side
-  have s6 : H b = H a := by linear_combination (norm := parley_field) (-a + b) * s4
-  all_goals exact s6
+  linear_combination (norm := parley_field) (-a + b) * s4
 
 end Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds

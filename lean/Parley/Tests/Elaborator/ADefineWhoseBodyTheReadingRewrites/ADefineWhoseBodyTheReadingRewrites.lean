@@ -24,6 +24,6 @@ theorem a_define_whose_body_the_reading_rewrites (r : ℝ) (a : ℝ) (hH3 : abs 
   set C : Set ℝ := {x : ℝ | abs x = r} with hD1
   -- 1. def:set-builder u := a, from D1, H3
   have s1 : a ∈ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => abs x = r)) (X := (Set.univ : Set ℝ)) (u := a))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => abs x = r)) (X := (Set.univ : Set ℝ)) (u := a))).mpr (by parley_set_side); parley_set_side)
-  all_goals parley_set_side
+  exact s1
 
 end Parley.Tests.Elaborator.ADefineWhoseBodyTheReadingRewrites.ADefineWhoseBodyTheReadingRewrites

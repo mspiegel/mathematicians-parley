@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Trigonometry.ArctanReal
 theorem arctan_real (y : ℝ) :
     True := by
   -- 1. mun:trigonometry-arctan-real x := y
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Trigonometry.ArctanReal

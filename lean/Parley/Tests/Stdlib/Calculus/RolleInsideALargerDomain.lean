@@ -35,7 +35,6 @@ theorem rolle_inside_a_larger_domain (a : ℝ) (b : ℝ) (hH3 : a < b) (h : ℝ 
   -- 2. mun:subset-self X := ℝ
   have s2 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   -- 3. thm:rolle-on-part D := ℝ, f := h, from H3, H5, H6, H7, 1, 2
-  have s3 : ∃ c ∈ (Set.Ioo a b : Set ℝ), (deriv h) c = 0 := by exact (Parley.Items.Stdlib.Calculus.thm_rolle_on_part (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (a := a) (b := b) hH3 (by parley_whole_side) hH5 (by parley_whole_side) hH7)
-  all_goals exact s3
+  exact (Parley.Items.Stdlib.Calculus.thm_rolle_on_part (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (a := a) (b := b) hH3 (by parley_whole_side) hH5 (by parley_whole_side) hH7)
 
 end Parley.Tests.Stdlib.Calculus.RolleInsideALargerDomain

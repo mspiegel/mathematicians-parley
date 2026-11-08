@@ -44,7 +44,7 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   -- 4. obtain d: axi:well-ordering, from 2, 3
   obtain ⟨d, s4a, s4b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := S) s3 (by parley_set_side))
   -- 5. def:subset, from 3
-  have s5 : ∀ t ∈ S, 0 < t := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side); parley_set_side)
+  have s5 : ∀ t ∈ S, 0 < t := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | exact (((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3; parley_set_side)
   -- 6. instantiate t := d in line 5, from 4
   have s6 : 0 < d := by first | exact (s5 d (by parley_set_side)) | exact ((s5 d (by parley_set_side))).symm | simpa using (s5 d (by parley_set_side)) | exact_mod_cast (s5 d (by parley_set_side)) | (have h := (s5 d (by parley_set_side)); parley_set_side)
   -- 7. obtain x₀, y₀: def:set-builder u := d, from D1, 4
@@ -57,16 +57,15 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 8.1. def:set-builder u := a·x + b·y, from D1, K3
     have s8_1 : a * x + b * y ∈ S := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr (by parley_set_side); parley_set_side)
     -- 8.2. instantiate s := a·x + b·y in line 4, from 8.1
-    have s8_2 : d ≤ a * x + b * y := by first | linarith [(s4b (a * x + b * y) (by parley_set_side))] | (have h := (s4b (a * x + b * y) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (a * x + b * y) (by parley_set_side)) | (have h := (s4b (a * x + b * y) (by parley_set_side)); parley_set_side)
-    all_goals parley_set_side
+    first | linarith [(s4b (a * x + b * y) (by parley_set_side))] | (have h := (s4b (a * x + b * y) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (a * x + b * y) (by parley_set_side)) | (have h := (s4b (a * x + b * y) (by parley_set_side)); parley_set_side)
   -- 9. algebra
   have s9 : a = a * 1 + b * 0 := by parley_ring
   -- 10. thm:least-combination-divides c := a, u := 1, v := 0, from 6, 7, 8, 9
-  have s10 : d ∣ a := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) (by parley_set_side) (b := b) (by parley_set_side) (c := a) (by parley_set_side) (d := d) (by parley_set_side) (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 s8)
+  have s10 : d ∣ a := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) (by parley_set_side) (b := b) (by parley_set_side) (c := a) (by parley_set_side) (d := d) (by parley_set_side) (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 (by parley_set_side))
   -- 11. algebra
   have s11 : b = a * 0 + b * 1 := by parley_ring
   -- 12. thm:least-combination-divides c := b, u := 0, v := 1, from 6, 7, 8, 11
-  have s12 : d ∣ b := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) (by parley_set_side) (b := b) (by parley_set_side) (c := b) (by parley_set_side) (d := d) (by parley_set_side) (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s11 s7 s8)
+  have s12 : d ∣ b := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) (by parley_set_side) (b := b) (by parley_set_side) (c := b) (by parley_set_side) (d := d) (by parley_set_side) (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s11 s7 (by parley_set_side))
   -- 13. def:gcd
   have s13a : 0 < (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a) (by parley_set_side) (b := b) (by parley_set_side))
   have s13b : (Int.gcd a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a) (by parley_set_side) (b := b) (by parley_set_side))
@@ -87,7 +86,6 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     calc a * x₀ + b * y₀ = d := by parley_set_side
       _ = (Int.gcd a b : ℤ) := by parley_set_side
   -- 20. exhibit, from 19
-  have s20 : ∃ x : ℤ, ∃ y : ℤ, a * x + b * y = (Int.gcd a b : ℤ) := ⟨x₀, y₀, by parley_set_side⟩
-  all_goals exact s20
+  exact ⟨x₀, y₀, s19⟩
 
 end Parley.Proofs.Wiedijk.Bezout.Bezout

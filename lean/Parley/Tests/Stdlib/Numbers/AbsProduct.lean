@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Numbers.AbsProduct
 theorem abs_product (x : ℝ) (y : ℝ) :
     abs (x * y) = abs x * abs y := by
   -- 1. mun:numbers-abs-product
-  have s1 : abs (x * y) = abs x * abs y := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := x) (y := y))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := x) (y := y))
 
 end Parley.Tests.Stdlib.Numbers.AbsProduct

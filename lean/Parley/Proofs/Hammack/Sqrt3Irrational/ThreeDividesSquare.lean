@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -31,23 +30,20 @@ namespace Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare
 theorem three_divides_square (n : ℤ) (hH2 : (3 : ℤ) ∣ n ^ 2) :
     (3 : ℤ) ∣ n := by
   -- the theorem. contradiction
-  have sThm : (3 : ℤ) ∣ n := by
-    by_contra hc_hS
-    have hS : ¬ (3 : ℤ) ∣ n := by parley_suppose hc_hS
-    -- 1. thm:three-prime
-    have s1 : Nat.Prime (3 : ℤ).toNat := by exact Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime.three_prime
-    -- 2. calculation
-    have s2 : (Int.gcd n (3 : ℤ) : ℤ) = 1 := by
-      calc (Int.gcd n (3 : ℤ) : ℤ) = (Int.gcd (3 : ℤ) n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := n) (b := (3 : ℤ)))
-        _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (3 : ℤ)) (by parley_side) s1 (a := n) hS)
-    -- 3. substitute
-    have s3 : (3 : ℤ) ∣ n * n := by
-      have c1 : n ^ 2 = n * n := by parley_ring
-      have row1 : (3 : ℤ) ∣ n * n := by parley_subst_at c1 hH2
-      exact row1
-    -- 4. thm:coprime-divides x := n, c := n, n := 3, from 2, 3
-    have s4 : (3 : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := (3 : ℤ)) (by parley_side) s3 s2)
-    all_goals parley_side
-  all_goals parley_side
+  by_contra hS
+  -- 1. thm:three-prime
+  have s1 : Nat.Prime (3 : ℤ).toNat := by exact Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime.three_prime
+  -- 2. calculation
+  have s2 : (Int.gcd n (3 : ℤ) : ℤ) = 1 := by
+    calc (Int.gcd n (3 : ℤ) : ℤ) = (Int.gcd (3 : ℤ) n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := n) (b := (3 : ℤ)))
+      _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (3 : ℤ)) (by parley_side) s1 (a := n) hS)
+  -- 3. substitute
+  have s3 : (3 : ℤ) ∣ n * n := by
+    have c1 : n ^ 2 = n * n := by parley_ring
+    have row1 : (3 : ℤ) ∣ n * n := by parley_subst_at c1 hH2
+    exact row1
+  -- 4. thm:coprime-divides x := n, c := n, n := 3, from 2, 3
+  have s4 : (3 : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := (3 : ℤ)) (by parley_side) s3 s2)
+  exact hS s4
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare

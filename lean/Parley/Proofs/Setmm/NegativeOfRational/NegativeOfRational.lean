@@ -25,6 +25,6 @@ theorem negative_of_rational (A : ℚ) :
     calc -A = -((p : ℚ) / (q : ℚ)) := by parley_subst s1b
       _ = -(p : ℚ) / (q : ℚ) := by parley_ring
   -- 3. def:rational x := −A, from 2
-  all_goals parley_side
+  exact trivial
 
 end Parley.Proofs.Setmm.NegativeOfRational.NegativeOfRational

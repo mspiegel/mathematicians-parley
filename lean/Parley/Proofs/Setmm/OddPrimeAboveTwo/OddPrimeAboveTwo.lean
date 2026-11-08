@@ -4,7 +4,6 @@ public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Prime
@@ -21,11 +20,10 @@ namespace Parley.Proofs.Setmm.OddPrimeAboveTwo.OddPrimeAboveTwo
 theorem odd_prime_above_two (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (hH3 : P ≠ 2) :
     2 < P := by
   -- 1. def:prime p := P, from H2
-  have s1 : P > 1 := by first | linarith [((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side); parley_side)
+  have s1 : P > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
   -- 2. mun:integer-step m := 1, n := P, from 1
-  have s2 : 1 + 1 ≤ P := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) (by parley_side)); parley_side)
+  have s2 : 1 + 1 ≤ P := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) s1)
   -- 3. inequalities, from H3, 2
-  have s3 : 2 < P := by parley_order
-  all_goals exact s3
+  parley_order
 
 end Parley.Proofs.Setmm.OddPrimeAboveTwo.OddPrimeAboveTwo

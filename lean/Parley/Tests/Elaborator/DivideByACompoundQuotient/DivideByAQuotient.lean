@@ -17,7 +17,6 @@ namespace Parley.Tests.Elaborator.DivideByACompoundQuotient.DivideByAQuotient
 theorem divide_by_a_quotient (x : ℝ) (hH2 : x ≠ 0) :
     1 / (1 / x) = x := by
   -- 1. algebra, from H2
-  have s1 : 1 / (1 / x) = x := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.DivideByACompoundQuotient.DivideByAQuotient

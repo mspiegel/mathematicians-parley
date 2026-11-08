@@ -1,11 +1,9 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import NormTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
@@ -28,8 +26,7 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
   obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
   -- 2. contradiction
   have s2 : p ≠ 0 := by
-    by_contra hc_hS
-    have hS : p = 0 := by parley_suppose hc_hS
+    intro hS
     -- 2.1. substitute p = 0 (S) into line 1
     have s2_1 : A = 0 / (q : ℚ) := by
       have hS_w : (p : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hS; push_cast at h; linear_combination (norm := parley_norm) h
@@ -40,11 +37,11 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
         _ = 0 := by parley_ring
     -- 2.3. restate H2
     have s2_3 : A ≠ 0 := by parley_side
-    all_goals parley_side
+    exact s2_3 s2_2
   -- 3. axi:trichotomy x := p
   have s3 : (p < 0 ∨ p = 0) ∨ 0 < p := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p))
   -- 4. cases, from 3
   -- what this block shows, Lean's types give
-  all_goals parley_side
+  exact trivial
 
 end Parley.Proofs.Setmm.RationalClosure.RationalReciprocal

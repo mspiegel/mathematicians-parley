@@ -15,6 +15,6 @@ namespace Parley.Tests.Stdlib.Numbers.NatInt
 theorem nat_int (m : ℤ) (hH1 : 0 < m) :
     True := by
   -- 1. mun:numbers-nat-int
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Numbers.NatInt

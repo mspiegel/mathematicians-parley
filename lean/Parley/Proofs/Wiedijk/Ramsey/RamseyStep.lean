@@ -71,12 +71,12 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s10 : X \ ({v} : Set α) = R ∪ B := by
     try simp only [hD2, hD3] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); parley_set_side)
+    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 11. mun:set-builder-split-disjoint, from D2, D3
   have s11 : R ∩ B = ∅ := by
     try simp only [hD2, hD3] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); parley_set_side)
+    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 12. mun:difference-subset
   have s12 : X \ ({v} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := X) (Y := ({v} : Set α)))
   -- 13. mun:finite-part, from 1, 12
@@ -85,12 +85,12 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s14 : R ⊆ X \ ({v} : Set α) := by
     try simp only [hD2] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); parley_set_side)
+    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 15. mun:set-builder-subset, from D3
   have s15 : B ⊆ X \ ({v} : Set α) := by
     try simp only [hD3] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α))); parley_set_side)
+    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 16. mun:finite-part, from 13, 14
   have s16 : R.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X \ ({v} : Set α)) (Y := R) s13 s14)
   -- 17. mun:finite-part, from 13, 15
@@ -105,7 +105,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s21 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by parley_subst_at s10 s20
   -- 22. mun:card-add-one, from 13
   have r375_1 : ¬ v ∈ X \ ({v} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_not_in_difference (X := X) (a := v))
-  have s22 : ((X \ ({v} : Set α) ∪ ({v} : Set α)).ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := X \ ({v} : Set α)) (a := v) s13 (by parley_set_side))
+  have s22 : ((X \ ({v} : Set α) ∪ ({v} : Set α)).ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := X \ ({v} : Set α)) (a := v) s13 r375_1)
   -- 23. substitute
   have s23 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
     have c1 : X \ ({v} : Set α) ∪ ({v} : Set α) = X := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := X) (a := v) s9)
@@ -134,13 +134,12 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     rcases s29 with hC1 | hC2
     · skip
       -- 30.1. mun:or-left, from C1
-      have s30_1 : (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) ∨ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) hC1)
-      all_goals parley_set_side
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) (by parley_set_side))
     · skip
       -- 30.2. inequalities, from C2, 18, 25
       have s30_2 : (R.ncard : ℤ) < (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by parley_order
       -- 30.3. mun:integer-step, from 18, 25, 30.2
-      have s30_3 : (R.ncard : ℤ) + 1 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (R.ncard : ℤ)) (n := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ)) s30_2)
+      have s30_3 : (R.ncard : ℤ) + 1 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (R.ncard : ℤ)) (n := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ)) (by parley_set_side))
       -- 30.4. inequalities
       have r426_1 : 0 ≤ (R.ncard : ℤ) := by parley_set_side
       have r426_2 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by parley_set_side
@@ -158,71 +157,65 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have r441_3 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) := by parley_set_side
       have s30_6 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ) := by parley_order
       -- 30.7. mun:or-right, from 30.6
-      have s30_7 : (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) ∨ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) s30_6)
-      all_goals parley_set_side
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) (by parley_set_side))
   -- 31. mun:subset-transitive, from H8, 12
   have s31 : X \ ({v} : Set α) ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := X \ ({v} : Set α)) (Y := X) (Z := V) s12 hH8)
   -- 32. cases, from 30
-  have s32 : ∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by
-    rcases s30 with hC3 | hC4
-    · skip
-      -- 32.1. mun:subset-transitive, from 14, 31
-      have s32_1 : R ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := R) (Y := X \ ({v} : Set α)) (Z := V) s14 s31)
-      -- 32.2. instantiate Z := R in H10, from C3, 32.1
-      have s32_2 : ∃ W ∈ 𝒫 R, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by first | exact (hH10 R (by parley_set_side) (by parley_set_side)) | exact ((hH10 R (by parley_set_side) (by parley_set_side))).symm | simpa using (hH10 R (by parley_set_side) (by parley_set_side)) | exact_mod_cast (hH10 R (by parley_set_side) (by parley_set_side)) | (have h := (hH10 R (by parley_set_side) (by parley_set_side)); parley_set_side)
-      -- 32.3. obtain W from line 32.2
-      obtain ⟨W, s32_3a, s32_3b⟩ := s32_2
-      -- 32.4. def:set-builder, from D2
-      have s32_4 : ∀ w ∈ R, ({v, w} : Set α) ∈ E := by
-        intro w h_w
-        try simp only [hD2] at *
+  rcases s30 with hC3 | hC4
+  · skip
+    -- 32.1. mun:subset-transitive, from 14, 31
+    have s32_1 : R ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := R) (Y := X \ ({v} : Set α)) (Z := V) s14 s31)
+    -- 32.2. instantiate Z := R in H10, from C3, 32.1
+    have s32_2 : ∃ W ∈ 𝒫 R, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by first | exact (hH10 R (by parley_set_side) (by parley_set_side)) | exact ((hH10 R (by parley_set_side) (by parley_set_side))).symm | simpa using (hH10 R (by parley_set_side) (by parley_set_side)) | exact_mod_cast (hH10 R (by parley_set_side) (by parley_set_side)) | (have h := (hH10 R (by parley_set_side) (by parley_set_side)); parley_set_side)
+    -- 32.3. obtain W from line 32.2
+    obtain ⟨W, s32_3a, s32_3b⟩ := s32_2
+    -- 32.4. def:set-builder, from D2
+    have s32_4 : ∀ w ∈ R, ({v, w} : Set α) ∈ E := by
+      intro w h_w
+      try simp only [hD2] at *
+      try push_cast at *
+      first | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side); parley_set_side)
+    -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
+    first | exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side)); parley_set_side)
+  · skip
+    -- 32.6. mun:subset-transitive, from 15, 31
+    have s32_6 : B ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := B) (Y := X \ ({v} : Set α)) (Z := V) s15 s31)
+    -- 32.7. instantiate Z := B in H11, from C4, 32.6
+    have s32_7 : ∃ W ∈ 𝒫 B, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by first | exact (hH11 B (by parley_set_side) (by parley_set_side)) | exact ((hH11 B (by parley_set_side) (by parley_set_side))).symm | simpa using (hH11 B (by parley_set_side) (by parley_set_side)) | exact_mod_cast (hH11 B (by parley_set_side) (by parley_set_side)) | (have h := (hH11 B (by parley_set_side) (by parley_set_side)); parley_set_side)
+    -- 32.8. obtain W from line 32.7
+    obtain ⟨W, s32_8a, s32_8b⟩ := s32_7
+    -- 32.9. mun:or-swap, from 32.8
+    have s32_9 : j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) ∨ k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) (by parley_set_side))
+    -- 32.10. proof
+    have s32_10 : ∀ w ∈ B, ({v, w} : Set α) ∈ F := by
+      intro w hK1
+      -- 32.10.1. def:set-builder u := w, from D3, K1
+      have s32_10_1a : w ∈ X \ ({v} : Set α) := by
+        try simp only [hD3] at *
         try push_cast at *
-        first | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side); parley_set_side)
-      -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
-      have s32_5 : ∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by first | exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) s14 s32_4 (W := W) s32_3a s32_3b) | exact ((Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) s14 s32_4 (W := W) s32_3a s32_3b)).symm | simpa using (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) s14 s32_4 (W := W) s32_3a s32_3b) | exact_mod_cast (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) s14 s32_4 (W := W) s32_3a s32_3b) | (have h := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) s14 s32_4 (W := W) s32_3a s32_3b); parley_set_side)
-      all_goals parley_set_side
-    · skip
-      -- 32.6. mun:subset-transitive, from 15, 31
-      have s32_6 : B ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := B) (Y := X \ ({v} : Set α)) (Z := V) s15 s31)
-      -- 32.7. instantiate Z := B in H11, from C4, 32.6
-      have s32_7 : ∃ W ∈ 𝒫 B, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by first | exact (hH11 B (by parley_set_side) (by parley_set_side)) | exact ((hH11 B (by parley_set_side) (by parley_set_side))).symm | simpa using (hH11 B (by parley_set_side) (by parley_set_side)) | exact_mod_cast (hH11 B (by parley_set_side) (by parley_set_side)) | (have h := (hH11 B (by parley_set_side) (by parley_set_side)); parley_set_side)
-      -- 32.8. obtain W from line 32.7
-      obtain ⟨W, s32_8a, s32_8b⟩ := s32_7
-      -- 32.9. mun:or-swap, from 32.8
-      have s32_9 : j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) ∨ k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) s32_8b)
-      -- 32.10. proof
-      have s32_10 : ∀ w ∈ B, ({v, w} : Set α) ∈ F := by
-        intro w hK1
-        -- 32.10.1. def:set-builder u := w, from D3, K1
-        have s32_10_1a : w ∈ X \ ({v} : Set α) := by
-          try simp only [hD3] at *
-          try push_cast at *
-          first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).1; parley_set_side)
-        have s32_10_1b : ¬ ({v, w} : Set α) ∈ E := by
-          try simp only [hD3] at *
-          try push_cast at *
-          first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2; parley_set_side)
-        -- 32.10.2. mun:remove-member u := w, Y := X, a := v, from 32.10.1
-        have s32_10_2a : w ∈ X := by first | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).1; parley_set_side)
-        have s32_10_2b : ¬ w = v := by first | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp (by parley_set_side)).2; parley_set_side)
-        -- 32.10.3. mun:pair-subset a := v, b := w, from 9, 32.10.2
-        have s32_10_3 : ({v, w} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := X) (a := v) (b := w) s9 s32_10_2a)
-        -- 32.10.4. mun:subset-transitive, from H8, 32.10.3
-        have s32_10_4 : ({v, w} : Set α) ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := ({v, w} : Set α)) (Y := X) (Z := V) s32_10_3 hH8)
-        -- 32.10.5. mun:card-pair-distinct u := v, from 32.10.2
-        have s32_10_5 : (({v, w} : Set α).ncard : ℤ) = 2 := by first | linear_combination (norm := parley_norm) ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side) | exact_mod_cast (((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side)).symm | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side); rify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side); qify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side); parley_int_power h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (by parley_set_side); parley_set_side)
-        -- 32.10.6. instantiate Y := {v, w} in H7, from 32.10.4, 32.10.5
-        have s32_10_6 : ({v, w} : Set α) ∈ E ∨ ({v, w} : Set α) ∈ F := by first | exact (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)) | exact ((hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side))).symm | simpa using (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)) | (have h := (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)); parley_set_side)
-        -- 32.10.7. mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6
-        have s32_10_7 : ({v, w} : Set α) ∈ F := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := ({v, w} : Set α) ∈ E) (Q := ({v, w} : Set α) ∈ F) s32_10_6 s32_10_1b)
-        all_goals exact s32_10_7
-      -- 32.11. obtain U: thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
-      obtain ⟨U, s32_11a, s32_11b⟩ := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := F) (F := E) s1 (k := j) (by parley_set_side) (j := k + 1) (by parley_set_side) (v := v) s9 (N := B) s15 s32_10 (W := W) s32_8a s32_9)
-      -- 32.12. mun:or-swap, from 32.11
-      have s32_12 : k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F)) (Q := k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E)) s32_11b)
-      -- 32.13. exhibit, from 32.11, 32.12
-      have s32_13 : ∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := ⟨U, by parley_set_side, by parley_set_side⟩
-      all_goals parley_set_side
-  all_goals exact s32
+        exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).1
+      have s32_10_1b : ¬ ({v, w} : Set α) ∈ E := by
+        try simp only [hD3] at *
+        try push_cast at *
+        first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2; parley_set_side)
+      -- 32.10.2. mun:remove-member u := w, Y := X, a := v, from 32.10.1
+      have s32_10_2a : w ∈ X := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).1
+      have s32_10_2b : ¬ w = v := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).2
+      -- 32.10.3. mun:pair-subset a := v, b := w, from 9, 32.10.2
+      have s32_10_3 : ({v, w} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := X) (a := v) (b := w) s9 s32_10_2a)
+      -- 32.10.4. mun:subset-transitive, from H8, 32.10.3
+      have s32_10_4 : ({v, w} : Set α) ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := ({v, w} : Set α)) (Y := X) (Z := V) s32_10_3 hH8)
+      -- 32.10.5. mun:card-pair-distinct u := v, from 32.10.2
+      have s32_10_5 : (({v, w} : Set α).ncard : ℤ) = 2 := by first | linear_combination (norm := parley_norm) ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b) | exact_mod_cast (((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b)).symm | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); rify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); qify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); parley_int_power h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); parley_set_side)
+      -- 32.10.6. instantiate Y := {v, w} in H7, from 32.10.4, 32.10.5
+      have s32_10_6 : ({v, w} : Set α) ∈ E ∨ ({v, w} : Set α) ∈ F := by first | exact (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)) | exact ((hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side))).symm | simpa using (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)) | (have h := (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side)); parley_set_side)
+      -- 32.10.7. mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6
+      exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := ({v, w} : Set α) ∈ E) (Q := ({v, w} : Set α) ∈ F) s32_10_6 s32_10_1b)
+    -- 32.11. obtain U: thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
+    obtain ⟨U, s32_11a, s32_11b⟩ := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := F) (F := E) s1 (k := j) (by parley_set_side) (j := k + 1) (by parley_set_side) (v := v) s9 (N := B) (by parley_set_side) s32_10 (W := W) (by parley_set_side) (by parley_set_side))
+    -- 32.12. mun:or-swap, from 32.11
+    have s32_12 : k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F)) (Q := k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E)) (by parley_set_side))
+    -- 32.13. exhibit, from 32.11, 32.12
+    exact ⟨U, by parley_set_side, by parley_set_side⟩
 
 end Parley.Proofs.Wiedijk.Ramsey.RamseyStep

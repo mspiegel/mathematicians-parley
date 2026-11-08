@@ -18,7 +18,6 @@ namespace Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairPairedByTheRestOfThe
 theorem a_pair_paired_by_the_rest_of_the_claim {α : Type*} (x : α) (v : α) (w : α) :
     (x ∈ ({v, w} : Set α) ↔ x = w ∨ x = v) := by
   -- 1. def:pair
-  have s1 : x ∈ ({v, w} : Set α) ↔ x = w ∨ x = v := by first | exact (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x))).symm | simpa using (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)) | exact_mod_cast (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)) | (have h := (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)); parley_set_side)
-  all_goals exact s1
+  first | exact (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)) | exact ((Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x))).symm | simpa using (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)) | exact_mod_cast (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)) | (have h := (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.def_pair (u := w) (w := v) (x := x)); parley_set_side)
 
 end Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairPairedByTheRestOfTheClaim

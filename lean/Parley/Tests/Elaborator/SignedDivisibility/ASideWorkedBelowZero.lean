@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.SignedDivisibility.ASideWorkedBelowZero
 theorem a_side_worked_below_zero :
     (4 : ℤ) ∣ (3 - 11 : ℤ) := by
   -- 1. arithmetic
-  have s1 : (4 : ℤ) ∣ (3 - 11 : ℤ) := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Elaborator.SignedDivisibility.ASideWorkedBelowZero

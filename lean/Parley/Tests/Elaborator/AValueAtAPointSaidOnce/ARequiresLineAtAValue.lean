@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.AValueAtAPointSaidOnce.ARequiresLineAtAValue
 theorem a_requires_line_at_a_value (a : ℤ → ℝ) (n : ℤ) (hH2 : 0 < n) (L : ℝ) :
     True := by
   -- 1. mun:abs-real x := a(n) − L
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.AValueAtAPointSaidOnce.ARequiresLineAtAValue

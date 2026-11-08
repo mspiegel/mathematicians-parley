@@ -63,7 +63,6 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
     have row1 : (Int.gcd b c : ℤ) ∣ (1 : ℤ) := by parley_subst_at c1 s10
     exact row1
   -- 12. mun:divides-one d := gcd(b, c), from 1, 11
-  have s12 : (Int.gcd b c : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd b c : ℤ)) (by parley_side) s11)
-  all_goals exact s12
+  exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd b c : ℤ)) (by parley_side) s11)
 
 end Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime

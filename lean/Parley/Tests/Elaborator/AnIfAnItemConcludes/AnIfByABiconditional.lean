@@ -15,7 +15,6 @@ namespace Parley.Tests.Elaborator.AnIfAnItemConcludes.AnIfByABiconditional
 theorem an_if_by_a_biconditional (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a = 0 ↔ b = 0 → c = 0) (hH5 : a = 0) :
     (b = 0 → c = 0) := by
   -- 1. mun:iff-from-left, from H4, H5
-  have s1 : b = 0 → c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := a = 0) (Q := b = 0 → c = 0) hH4 hH5)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := a = 0) (Q := b = 0 → c = 0) hH4 hH5)
 
 end Parley.Tests.Elaborator.AnIfAnItemConcludes.AnIfByABiconditional

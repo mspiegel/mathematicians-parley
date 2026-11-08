@@ -1,11 +1,9 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -46,7 +44,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 4. obtain d: axi:well-ordering, from 2, 3
   obtain ⟨d, s4a, s4b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := S) s3 (by parley_set_side))
   -- 5. def:subset, from 3
-  have s5 : ∀ t ∈ S, 0 < t := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp (by parley_set_side); parley_set_side)
+  have s5 : ∀ t ∈ S, 0 < t := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | exact (((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3; parley_set_side)
   -- 6. instantiate t := d in line 5, from 4
   have s6 : 0 < d := by first | exact (s5 d (by parley_set_side)) | exact ((s5 d (by parley_set_side))).symm | simpa using (s5 d (by parley_set_side)) | exact_mod_cast (s5 d (by parley_set_side)) | (have h := (s5 d (by parley_set_side)); parley_set_side)
   -- 7. obtain x₀, y₀: def:set-builder u := d, from D1, 4
@@ -59,14 +57,13 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     -- 8.1. def:set-builder u := a·x + b·y, from D1, K3
     have s8_1 : a * x + b * y ∈ S := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr (by parley_set_side); parley_set_side)
     -- 8.2. instantiate s := a·x + b·y in line 4, from 8.1
-    have s8_2 : d ≤ a * x + b * y := by first | linarith [(s4b (a * x + b * y) (by parley_set_side))] | (have h := (s4b (a * x + b * y) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (a * x + b * y) (by parley_set_side)) | (have h := (s4b (a * x + b * y) (by parley_set_side)); parley_set_side)
-    all_goals parley_set_side
+    first | linarith [(s4b (a * x + b * y) (by parley_set_side))] | (have h := (s4b (a * x + b * y) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (a * x + b * y) (by parley_set_side)) | (have h := (s4b (a * x + b * y) (by parley_set_side)); parley_set_side)
   -- 9. algebra
   have s9 : a = a * 1 + b * 0 := by parley_ring
   -- 10. thm:least-combination-divides c := a, u := 1, v := 0, from 6, 7, 8, 9
-  have s10 : d ∣ a := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) (by parley_set_side) (c := a) (d := d) (by parley_set_side) (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 s8)
+  have s10 : d ∣ a := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) (by parley_set_side) (c := a) (d := d) (by parley_set_side) (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 (by parley_set_side))
   -- 11. thm:least-combination-divides c := b, u := 0, v := 1, from 1, 6, 7, 8
-  have s11 : d ∣ b := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) (by parley_set_side) (c := b) (d := d) (by parley_set_side) (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s1 s7 s8)
+  have s11 : d ∣ b := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) (by parley_set_side) (c := b) (d := d) (by parley_set_side) (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s1 s7 (by parley_set_side))
   -- 12. mun:gcd-integer
   have s12a : 0 ≤ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_1 (a := a) (b := b))
   have s12b : (Int.gcd a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_2 (a := a) (b := b))
@@ -75,11 +72,10 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   have s13 : b ≠ 0 := by parley_set_side
   -- 14. contradiction
   have s14 : ¬ (a = 0 ∧ b = 0) := by
-    by_contra hc_hS
-    have hS : a = 0 ∧ b = 0 := by parley_suppose hc_hS
+    intro hS
     -- 14.1. restate 13
     have s14_1 : b ≠ 0 := by parley_set_side
-    all_goals parley_set_side
+    exact s14_1 hS.2
   -- 15. mun:gcd-natural, from 14
   have s15 : 0 < (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_natural (a := a) (b := b) s14)
   -- 16. thm:divides-gcd, from 10, 11
@@ -97,7 +93,6 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 22. transitivity, from 7, 21
   have s22 : a * x₀ + b * y₀ = (Int.gcd a b : ℤ) := by parley_set_side
   -- 23. exhibit, from 22
-  have s23 : ∃ x : ℤ, ∃ y : ℤ, a * x + b * y = (Int.gcd a b : ℤ) := ⟨x₀, y₀, by parley_set_side⟩
-  all_goals exact s23
+  exact ⟨x₀, y₀, s22⟩
 
 end Parley.Stdlib.Divisibility.Bezout

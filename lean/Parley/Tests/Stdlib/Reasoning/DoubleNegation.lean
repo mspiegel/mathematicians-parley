@@ -15,7 +15,6 @@ namespace Parley.Tests.Stdlib.Reasoning.DoubleNegation
 theorem double_negation (x : ℝ) (hH2 : ¬ x ≠ 0) :
     x = 0 := by
   -- 1. mun:reasoning-double-negation P := x = 0, from H2
-  have s1 : x = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_double_negation (P := x = 0) hH2)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Reasoning.mun_double_negation (P := x = 0) hH2)
 
 end Parley.Tests.Stdlib.Reasoning.DoubleNegation

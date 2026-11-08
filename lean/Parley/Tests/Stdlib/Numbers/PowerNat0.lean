@@ -22,7 +22,6 @@ namespace Parley.Tests.Stdlib.Numbers.PowerNat0
 theorem power_nat0 (a : ℤ) (hH1 : 0 ≤ a) (m : ℤ) (hH2 : 0 ≤ m) :
     0 ≤ a ^ (m + 1).toNat := by
   -- 1. mun:numbers-power-nat0 m := m + 1
-  have s1 : 0 ≤ a ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat0 (a := a) (by parley_side) (m := m + 1) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_power_nat0 (a := a) (by parley_side) (m := m + 1) (by parley_side))
 
 end Parley.Tests.Stdlib.Numbers.PowerNat0

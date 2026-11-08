@@ -18,7 +18,6 @@ namespace Parley.Tests.Elaborator.AClosedConjunctionJoinedByAnd.TwoRealFactsJoin
 theorem two_real_facts_joined_by_and :
     (Real.sqrt (4 : ℝ) = 2 ∧ Real.pi > 3) := by
   -- 1. real arithmetic
-  have s1 : Real.sqrt (4 : ℝ) = 2 ∧ Real.pi > 3 := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.AClosedConjunctionJoinedByAnd.TwoRealFactsJoinedByAnd

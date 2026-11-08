@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import OrderTactics
@@ -11,7 +10,6 @@ public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -35,13 +33,12 @@ theorem prime_above (n : ℤ) (hH1 : 0 < n) :
   -- 2. inequalities, from 1
   have s2 : (LeanBridges.Counting.factorial n : ℤ) + 1 > 1 := by parley_order
   -- 3. obtain p: thm:prime-factor m := n! + 1, from 2
-  obtain ⟨p, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := (LeanBridges.Counting.factorial n : ℤ) + 1) (by parley_side) (by parley_side))
+  obtain ⟨p, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := (LeanBridges.Counting.factorial n : ℤ) + 1) (by parley_side) s2)
   -- 4. def:prime, from 3
-  have s4 : p > 1 := by first | linarith [((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side); parley_side)
+  have s4 : p > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp s3b).1
   -- 5. contradiction
   have s5 : p > n := by
-    by_contra hc_hS
-    have hS : ¬ p > n := by parley_suppose hc_hS
+    by_contra hS
     -- 5.1. inequalities, from S
     have s5_1 : p ≤ n := by parley_order
     -- 5.2. mun:factorial-divisible m := p, from 5.1
@@ -57,9 +54,8 @@ theorem prime_above (n : ℤ) (hH1 : 0 < n) :
     have s5_5 : p = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := p) (by parley_side) s5_4)
     -- 5.6. inequalities
     have s5_6 : p ≠ 1 := by parley_side
-    all_goals parley_side
+    exact s5_6 s5_5
   -- 6. exhibit, from 3, 5
-  have s6 : ∃ p : ℤ, 0 < p ∧ (Nat.Prime p.toNat ∧ p > n) := ⟨p, by parley_side, ⟨by parley_side, by parley_side⟩⟩
-  all_goals exact s6
+  exact ⟨p, s3a, ⟨s3b, s5⟩⟩
 
 end Parley.Proofs.Wiedijk.InfinitelyManyPrimes.PrimeAbove

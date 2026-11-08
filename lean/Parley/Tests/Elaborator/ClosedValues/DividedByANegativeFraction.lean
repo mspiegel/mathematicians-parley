@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.ClosedValues.DividedByANegativeFraction
 theorem divided_by_a_negative_fraction :
     (8 / -(2 / 3) : ℚ) = -12 := by
   -- 1. arithmetic
-  have s1 : (8 / -(2 / 3) : ℚ) = -12 := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Elaborator.ClosedValues.DividedByANegativeFraction

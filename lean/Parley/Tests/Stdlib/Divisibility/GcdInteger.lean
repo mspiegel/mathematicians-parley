@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Divisibility.GcdInteger
 theorem gcd_integer (a : ℤ) (b : ℤ) :
     (Int.gcd a b : ℤ) ∣ b := by
   -- 1. mun:divisibility-gcd-integer
-  have s1 : (Int.gcd a b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_3 (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_3 (a := a) (b := b))
 
 end Parley.Tests.Stdlib.Divisibility.GcdInteger

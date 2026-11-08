@@ -7,7 +7,6 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -27,32 +26,28 @@ theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
   -- 1. axi:trichotomy x := b − a
   have s1 : (b - a < 0 ∨ b - a = 0) ∨ 0 < b - a := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a))
   -- 2. cases, from 1
-  have s2 : a ^ 2 ≤ b ^ 2 := by
-    rcases s1 with (hC1 | hC2) | hC3
-    · skip
-      -- 2.1. inequalities
-      have s2_1 : b < a := by parley_order
-      -- 2.2. inequalities, from 2.1
-      have s2_2 : ¬ a ≤ b := by parley_side
-      all_goals parley_side
-    · skip
-      -- 2.3. inequalities
-      have s2_3 : a = b := by parley_side
-      -- 2.4. substitute a = b (line 2.3)
-      have s2_4 : a ^ 2 = b ^ 2 := by parley_subst s2_3
-      -- 2.5. inequalities
-      have s2_5 : a ^ 2 ≤ b ^ 2 := by parley_order
-      all_goals parley_side
-    · skip
-      -- 2.6. inequalities
-      have s2_6 : a < b := by parley_order
-      -- 2.7. transitivity, from H3, H4
-      have s2_7 : b ≥ 0 := by parley_order
-      -- 2.8. mun:square-less x := a, y := b, from H3, 2.6, 2.7
-      have s2_8 : a ^ 2 < b ^ 2 := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_square_less (x := a) (y := b) (by parley_side) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a) (y := b) (by parley_side) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a) (y := b) (by parley_side) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a) (y := b) (by parley_side) (by parley_side))).mp (by parley_side); parley_side)
-      -- 2.9. inequalities
-      have s2_9 : a ^ 2 ≤ b ^ 2 := by parley_order
-      all_goals parley_side
-  all_goals exact s2
+  rcases s1 with (hC1 | hC2) | hC3
+  · skip
+    -- 2.1. inequalities
+    have s2_1 : b < a := by parley_order
+    -- 2.2. inequalities, from 2.1
+    have s2_2 : ¬ a ≤ b := by parley_side
+    exact absurd hH4 s2_2
+  · skip
+    -- 2.3. inequalities
+    have s2_3 : a = b := by parley_side
+    -- 2.4. substitute a = b (line 2.3)
+    have s2_4 : a ^ 2 = b ^ 2 := by parley_subst s2_3
+    -- 2.5. inequalities
+    parley_order
+  · skip
+    -- 2.6. inequalities
+    have s2_6 : a < b := by parley_order
+    -- 2.7. transitivity, from H3, H4
+    have s2_7 : b ≥ 0 := by parley_order
+    -- 2.8. mun:square-less x := a, y := b, from H3, 2.6, 2.7
+    have s2_8 : a ^ 2 < b ^ 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a) (y := b) (by parley_side) (by parley_side))).mp s2_6
+    -- 2.9. inequalities
+    parley_order
 
 end Parley.Proofs.Setmm.SquaresKeepOrder.SquaresKeepOrder

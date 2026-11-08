@@ -19,7 +19,6 @@ namespace Parley.Tests.Stdlib.Divisibility.OddMinusEven
 theorem odd_minus_even (a : ℤ) (hH2 : Odd a) (b : ℤ) (hH4 : Even b) :
     Odd (a - b) := by
   -- 1. mun:divisibility-odd-minus-even, from H2, H4
-  have s1 : Odd (a - b) := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_minus_even (a := a) hH2 (b := b) hH4)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_odd_minus_even (a := a) hH2 (b := b) hH4)
 
 end Parley.Tests.Stdlib.Divisibility.OddMinusEven

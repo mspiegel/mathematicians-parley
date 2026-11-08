@@ -37,7 +37,6 @@ theorem prime_power_unique (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (a 
   -- 5. inequalities, from 3
   have s5 : a ≤ a' := by parley_order
   -- 6. antisymmetry, from 4, 5
-  have s6 : a = a' := by parley_side
-  all_goals exact s6
+  parley_side
 
 end Parley.Stdlib.Divisibility.PrimePowerUnique

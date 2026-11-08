@@ -27,7 +27,6 @@ theorem inverse_lands_in_domain {α : Type*} (A : Set α) (B : Set α) (F : α �
   -- 3. substitute C = F(x) (line 1) into line 2
   have s3 : LeanBridges.Functions.inverse F A C = x := by parley_subst_at s1b s2
   -- 4. substitute F⁻¹(C) = x (line 3) into line 1
-  have s4 : LeanBridges.Functions.inverse F A C ∈ A := by parley_subst_at s3 s1a
-  all_goals exact s4
+  parley_subst_at s3 s1a
 
 end Parley.Proofs.Setmm.InverseLandsInDomain.InverseLandsInDomain

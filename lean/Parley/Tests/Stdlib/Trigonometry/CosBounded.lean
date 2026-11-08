@@ -18,6 +18,6 @@ theorem cos_bounded (a : ℝ) :
   -- 1. mun:trigonometry-cos-bounded
   have s1a : -1 ≤ Real.cos a := by exact (Parley.Items.Stdlib.Trigonometry.mun_cos_bounded_1 (a := a))
   have s1b : Real.cos a ≤ 1 := by exact (Parley.Items.Stdlib.Trigonometry.mun_cos_bounded_2 (a := a))
-  exact ⟨by parley_side, by parley_side⟩
+  exact ⟨s1a, s1b⟩
 
 end Parley.Tests.Stdlib.Trigonometry.CosBounded

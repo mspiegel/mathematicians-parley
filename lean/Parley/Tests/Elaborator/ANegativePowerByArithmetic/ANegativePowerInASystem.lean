@@ -21,7 +21,6 @@ namespace Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerInASy
 theorem a_negative_power_in_a_system :
     (∃ m : ℤ, 0 < m ∧ (m : ℚ) = 1 ^ (-1 : ℤ)) := by
   -- 1. arithmetic
-  have s1 : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = 1 ^ (-1 : ℤ) := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerInASystem

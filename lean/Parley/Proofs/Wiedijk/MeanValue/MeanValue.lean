@@ -86,22 +86,22 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have r85_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))
   have r85_2 : IsOpen (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := a) (b := b))
   have r85_3 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have s13 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ g x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_linear_1 (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 (by parley_set_side) (by parley_set_side) (m := m) s5)
+  have s13 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ g x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_linear_1 (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 r85_1 r85_2 (m := m) s5)
   -- 14. thm:derivative-linear D := [a, b], U := (a, b), from 4, 5
   have r91_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))
   have r91_2 : IsOpen (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := a) (b := b))
   have r91_3 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have s14 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv g) x = m := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 (by parley_set_side) (by parley_set_side) (m := m) s5)
+  have s14 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv g) x = m := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 r91_1 r91_2 (m := m) s5)
   -- 15. thm:derivative-sum D := [a, b], U := (a, b), from H6, 4, 6, 13
   have r97_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))
   have r97_2 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have r97_3 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have s15 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_sum_1 (F := F) (f := f) (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 (by parley_set_side) s6 hH6 s13)
+  have s15 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_sum_1 (F := F) (f := f) (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 r97_1 s6 hH6 s13)
   -- 16. thm:derivative-sum D := [a, b], U := (a, b), from H6, 4, 6, 13
   have r103_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))
   have r103_2 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have r103_3 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have s16 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv F) x = (deriv f) x + (deriv g) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 (by parley_set_side) s6 hH6 s13)
+  have s16 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv F) x = (deriv f) x + (deriv g) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s4 r103_1 s6 hH6 s13)
   -- 17. D3, from 2
   have s17 : F a = f a + g a := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
   -- 18. D2, from 2
@@ -138,7 +138,6 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
     try push_cast at *
     linear_combination (norm := parley_field) s24
   -- 26. exhibit, from 22, 25
-  have s26 : ∃ c ∈ (Set.Ioo a b : Set ℝ), (deriv f) c = (f b - f a) / (b - a) := ⟨c, by parley_set_side, by parley_set_side⟩
-  all_goals exact s26
+  exact ⟨c, by parley_set_side, by parley_set_side⟩
 
 end Parley.Proofs.Wiedijk.MeanValue.MeanValue

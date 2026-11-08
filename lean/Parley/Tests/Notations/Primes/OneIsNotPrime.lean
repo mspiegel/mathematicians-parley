@@ -2,10 +2,8 @@ module
 
 public import ArithTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Prime
 public import Parley.Items.Stdlib.Divisibility
@@ -21,12 +19,9 @@ theorem one_is_not_prime :
   -- 1. arithmetic
   have s1 : ¬ (1 : ℤ) > 1 := by parley_arith
   -- 2. contradiction
-  have s2 : ¬ Nat.Prime (1 : ℤ).toNat := by
-    by_contra hc_hS
-    have hS : Nat.Prime (1 : ℤ).toNat := by parley_suppose hc_hS
-    -- 2.1. def:prime p := 1, from S
-    have s2_1 : (1 : ℤ) > 1 := by first | linarith [((Parley.Items.Stdlib.Divisibility.def_prime (p := (1 : ℤ)) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := (1 : ℤ)) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := (1 : ℤ)) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := (1 : ℤ)) (by parley_side))).mp (by parley_side); parley_side)
-    all_goals parley_side
-  all_goals exact s2
+  intro hS
+  -- 2.1. def:prime p := 1, from S
+  have s2_1 : (1 : ℤ) > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (1 : ℤ)) (by parley_side))).mp hS).1
+  exact s1 s2_1
 
 end Parley.Tests.Notations.Primes.OneIsNotPrime

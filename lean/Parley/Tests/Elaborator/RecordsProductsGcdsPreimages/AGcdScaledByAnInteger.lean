@@ -22,7 +22,6 @@ namespace Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AGcdScaledByAnInt
 theorem a_gcd_scaled_by_an_integer (a : ℤ) (b : ℤ) (c : ℤ) :
     (Int.gcd (c * a) (c * b) : ℤ) = abs (c * (Int.gcd a b : ℤ)) := by
   -- 1. mun:gcd-scaled-integer
-  have s1 : (Int.gcd (c * a) (c * b) : ℤ) = abs (c * (Int.gcd a b : ℤ)) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled_integer (c := c) (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled_integer (c := c) (a := a) (b := b))
 
 end Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AGcdScaledByAnInteger

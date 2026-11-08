@@ -16,7 +16,6 @@ namespace Parley.Tests.Notations.Trigonometry.SineOfZero
 theorem sine_of_zero :
     Real.sin (0 : ℝ) = 0 := by
   -- 1. mun:sin-zero
-  have s1 : Real.sin (0 : ℝ) = 0 := by exact Parley.Items.Stdlib.Trigonometry.mun_sin_zero
-  all_goals exact s1
+  exact Parley.Items.Stdlib.Trigonometry.mun_sin_zero
 
 end Parley.Tests.Notations.Trigonometry.SineOfZero

@@ -23,7 +23,6 @@ namespace Parley.Tests.Elaborator.SetsADefineNames.ValuesOfAOneToOneFunction
 theorem values_of_a_one_to_one_function (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH2 : Set.MapsTo a (Set.Icc (1 : ℤ) n : Set ℤ) (Set.univ : Set ℝ) ∧ Set.InjOn a (Set.Icc (1 : ℤ) n : Set ℤ)) (k : ℤ) (hH3 : k ∈ Finset.Icc (1 : ℤ) n) :
     a k ≤ a k := by
   -- 1. inequalities
-  have s1 : a k ≤ a k := by parley_order
-  all_goals exact s1
+  parley_order
 
 end Parley.Tests.Elaborator.SetsADefineNames.ValuesOfAOneToOneFunction

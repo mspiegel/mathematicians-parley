@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Trigonometry.CosComplex
 theorem cos_complex (a : ℂ) :
     True := by
   -- 1. mun:trigonometry-cos-complex
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Trigonometry.CosComplex

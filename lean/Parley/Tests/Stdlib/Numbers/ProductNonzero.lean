@@ -15,7 +15,6 @@ namespace Parley.Tests.Stdlib.Numbers.ProductNonzero
 theorem product_nonzero (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH4 : y ≠ 0) :
     x * y ≠ 0 := by
   -- 1. mun:numbers-product-nonzero, from H3, H4
-  have s1 : x * y ≠ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := x) (y := y) (by parley_side) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := x) (y := y) (by parley_side) (by parley_side))
 
 end Parley.Tests.Stdlib.Numbers.ProductNonzero

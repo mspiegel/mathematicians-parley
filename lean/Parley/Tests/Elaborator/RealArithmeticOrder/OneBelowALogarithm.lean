@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.OneBelowALogarithm
 theorem one_below_a_logarithm :
     1 < Real.log (3 : ℝ) := by
   -- 1. real arithmetic
-  have s1 : 1 < Real.log (3 : ℝ) := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.OneBelowALogarithm

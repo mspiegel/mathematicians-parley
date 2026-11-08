@@ -1,9 +1,7 @@
 module
 
-public import ArithTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -31,8 +29,7 @@ theorem gcd_positive (x : ℤ) (y : ℤ) (hH3 : ¬ (x = 0 ∧ y = 0)) :
   have s2 : (Int.gcd x y : ℤ) ∣ y := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_3 (a := x) (b := y))
   -- 3. contradiction
   have s3 : (Int.gcd x y : ℤ) ≠ 0 := by
-    by_contra hc_hS
-    have hS : (Int.gcd x y : ℤ) = 0 := by parley_suppose hc_hS
+    intro hS
     -- 3.1. substitute gcd(x, y) = 0 (S) into line 1
     have s3_1 : (0 : ℤ) ∣ x := by first | parley_subst_at hS s1 | (have e_nat : Int.gcd x y = 0 := by exact_mod_cast hS; parley_subst_at e_nat s1)
     -- 3.2. mun:zero-divides n := x
@@ -47,9 +44,8 @@ theorem gcd_positive (x : ℤ) (y : ℤ) (hH3 : ¬ (x = 0 ∧ y = 0)) :
     have s3_6 : y = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := (0 : ℤ) ∣ y) (Q := y = 0) s3_5 s3_4)
     -- 3.7. join 3.3, 3.6
     have s3_7 : x = 0 ∧ y = 0 := by parley_side
-    all_goals parley_side
+    exact hH3 s3_7
   -- 4. mun:nat0-nonzero m := gcd(x, y), from 3
-  have s4 : 0 < (Int.gcd x y : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (Int.gcd x y : ℤ)) (by parley_side) s3)
-  all_goals exact s4
+  exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (Int.gcd x y : ℤ)) (by parley_side) s3)
 
 end Parley.Proofs.Hammack.ScaledGcdBound.GcdPositive

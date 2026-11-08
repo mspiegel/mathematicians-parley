@@ -24,7 +24,6 @@ theorem abs_nonneg (x : ℝ) :
   -- 2. inequalities, from 1
   have s2 : 0 ≤ 2 * abs x := by parley_order
   -- 3. inequalities
-  have s3 : abs x ≥ 0 := by parley_order
-  all_goals exact s3
+  parley_order
 
 end Parley.Proofs.Setmm.LimitLemmas.AbsNonneg

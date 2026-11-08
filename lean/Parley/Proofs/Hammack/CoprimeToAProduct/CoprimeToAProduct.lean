@@ -44,7 +44,6 @@ theorem coprime_to_a_product (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c 
   -- 8. substitute a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1 (line 5) into line 7
   have s8 : (Int.gcd (a * b) c : ℤ) ∣ (1 : ℤ) := by parley_subst_at s5 s7
   -- 9. mun:divides-one d := gcd(a·b, c), from 6, 8
-  have s9 : (Int.gcd (a * b) c : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8)
-  all_goals exact s9
+  exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (a * b) c : ℤ)) (by parley_side) s8)
 
 end Parley.Proofs.Hammack.CoprimeToAProduct.CoprimeToAProduct

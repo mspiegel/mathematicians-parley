@@ -22,7 +22,6 @@ theorem zero_does_not_divide_five :
   -- 2. arithmetic
   have s2 : (5 : ℤ) ≠ 0 := by parley_arith
   -- 3. mun:iff-not-from-right, from 1, 2
-  have s3 : ¬ (0 : ℤ) ∣ (5 : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_not_from_right (P := (0 : ℤ) ∣ (5 : ℤ)) (Q := (5 : ℤ) = 0) s1 s2)
-  all_goals exact s3
+  exact (Parley.Items.Stdlib.Reasoning.mun_iff_not_from_right (P := (0 : ℤ) ∣ (5 : ℤ)) (Q := (5 : ℤ) = 0) s1 s2)
 
 end Parley.Tests.Notations.Divisibility.ZeroDoesNotDivideFive

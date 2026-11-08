@@ -20,7 +20,6 @@ namespace Parley.Tests.Stdlib.Numbers.AbsZero
 theorem abs_zero :
     (abs 0 : ℤ) = 0 := by
   -- 1. mun:numbers-abs-zero
-  have s1 : (abs 0 : ℤ) = 0 := by exact Parley.Items.Stdlib.Numbers.mun_abs_zero
-  all_goals exact s1
+  exact Parley.Items.Stdlib.Numbers.mun_abs_zero
 
 end Parley.Tests.Stdlib.Numbers.AbsZero

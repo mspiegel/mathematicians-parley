@@ -20,7 +20,6 @@ namespace Parley.Tests.Notations.Powers.RealPowersAdded
 theorem real_powers_added (x : ℝ) (hH2 : x ≠ 0) (a : ℝ) (b : ℝ) :
     (x : ℂ) ^ ((a : ℂ) + (b : ℂ)) = (x : ℂ) ^ (a : ℂ) * (x : ℂ) ^ (b : ℂ) := by
   -- 1. mun:real-power-sum, from H2
-  have s1 : (x : ℂ) ^ ((a : ℂ) + (b : ℂ)) = (x : ℂ) ^ (a : ℂ) * (x : ℂ) ^ (b : ℂ) := by exact (Parley.Items.Stdlib.Numbers.mun_real_power_sum (x := (x : ℂ)) (by parley_side) (a := (a : ℂ)) (b := (b : ℂ)))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_real_power_sum (x := (x : ℂ)) (by parley_side) (a := (a : ℂ)) (b := (b : ℂ)))
 
 end Parley.Tests.Notations.Powers.RealPowersAdded

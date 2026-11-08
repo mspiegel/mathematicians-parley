@@ -26,9 +26,9 @@ theorem add_element_bijection {α : Type*} (X : Set α) (a : α) (hH2 : ¬ a ∈
     intro T hK2
     intro hK3
     -- 1.1. def:powerset, from K1
-    have s1_1 : S ⊆ X := by first | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := S))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := S))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := S))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := S))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := S))).mp (by parley_set_side); parley_set_side)
+    have s1_1 : S ⊆ X := ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := S))).mp hK1
     -- 1.2. def:powerset S := T, from K2
-    have s1_2 : T ⊆ X := by first | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := T))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := T))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := T))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := T))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := T))).mp (by parley_set_side); parley_set_side)
+    have s1_2 : T ⊆ X := ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := T))).mp hK2
     -- 1.3. mun:not-in-subset Y := S, Z := X, from H2, 1.1
     have s1_3 : ¬ a ∈ S := by exact (Parley.Items.Stdlib.Sets.mun_not_in_subset (Y := S) (Z := X) (a := a) hH2 s1_1)
     -- 1.4. mun:not-in-subset Y := T, Z := X, from H2, 1.2
@@ -38,14 +38,11 @@ theorem add_element_bijection {α : Type*} (X : Set α) (a : α) (hH2 : ¬ a ∈
     -- 1.6. substitute S ∪ {a} = T ∪ {a} (K3) into line 1.5
     have s1_6 : (T ∪ ({a} : Set α)) \ ({a} : Set α) = S \ ({a} : Set α) := by parley_subst_at hK3 s1_5
     -- 1.7. calculation
-    have s1_7 : S = T := by
-      calc S = S \ ({a} : Set α) := by first | exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3) | exact ((Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3); parley_set_side)
-        _ = (T ∪ ({a} : Set α)) \ ({a} : Set α) := by parley_set_side
-        _ = T \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := T) (a := a))
-        _ = T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := T) (a := a) s1_4)
-    all_goals parley_set_side
+    calc S = S \ ({a} : Set α) := (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3).symm
+      _ = (T ∪ ({a} : Set α)) \ ({a} : Set α) := by parley_set_side
+      _ = T \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := T) (a := a))
+      _ = T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := T) (a := a) s1_4)
   -- 2. mun:image-of-injection Y := 𝒫X, from 1
-  have s2 : ∃ g : Set α → Set α, Set.BijOn g (𝒫 X) ((fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 X)) := by exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) s1)
-  all_goals exact s2
+  exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) s1)
 
 end Parley.Proofs.Wiedijk.Subsets.AddElementBijection

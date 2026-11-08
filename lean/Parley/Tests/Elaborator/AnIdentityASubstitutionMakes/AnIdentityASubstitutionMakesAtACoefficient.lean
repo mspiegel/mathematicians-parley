@@ -24,7 +24,6 @@ namespace Parley.Tests.Elaborator.AnIdentityASubstitutionMakes.AnIdentityASubsti
 theorem an_identity_a_substitution_makes_at_a_coefficient (N : ℤ) (hH1 : 0 ≤ N) (k : ℤ) (hH3 : (1 ^ k : ℚ) = 1) :
     (LeanBridges.Counting.choose N k : ℚ) * 1 ^ k = (LeanBridges.Counting.choose N k : ℚ) := by
   -- 1. substitute 1^k = 1 (H3)
-  have s1 : (LeanBridges.Counting.choose N k : ℚ) * 1 ^ k = (LeanBridges.Counting.choose N k : ℚ) := by parley_subst hH3
-  all_goals exact s1
+  parley_subst hH3
 
 end Parley.Tests.Elaborator.AnIdentityASubstitutionMakes.AnIdentityASubstitutionMakesAtACoefficient

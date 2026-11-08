@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Logarithms.ExpLn
 theorem exp_ln (x : ℝ) (hH2 : x > 0) :
     Real.exp (Real.log x) = x := by
   -- 1. mun:logarithms-exp-ln, from H2
-  have s1 : Real.exp (Real.log x) = x := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := x) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := x) hH2)
 
 end Parley.Tests.Stdlib.Logarithms.ExpLn

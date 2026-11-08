@@ -30,22 +30,20 @@ theorem cube_minus_one_even_gives_odd (x : ℤ) (hH2 : Even (x ^ 3 - 1)) :
   -- 1. mun:even-or-odd n := x
   have s1 : Even x ∨ Odd x := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := x))
   -- 2. cases, from 1
-  have s2 : Odd x := by
-    rcases s1 with hC1 | hC2
-    · skip
-      -- 2.1. obtain k: def:even, from C1
-      obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := x))).mp (by parley_side)
-      -- 2.2. calculation
-      have s2_2 : x ^ 3 - 1 = 2 * (4 * k ^ 3 - 1) + 1 := by
-        calc x ^ 3 - 1 = (2 * k) ^ 3 - 1 := by parley_subst s2_1
-          _ = 2 * (4 * k ^ 3 - 1) + 1 := by parley_ring
-      -- 2.3. def:odd n := x³ − 1, from 2.2
-      have s2_3 : Odd (x ^ 3 - 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, by parley_side⟩; parley_side)
-      -- 2.4. mun:not-both n := x³ − 1, from H2
-      have s2_4 : ¬ Odd (x ^ 3 - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) hH2)
-      all_goals parley_side
-    · skip
-      all_goals parley_side
-  all_goals exact s2
+  rcases s1 with hC1 | hC2
+  · skip
+    -- 2.1. obtain k: def:even, from C1
+    obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := x))).mp hC1
+    -- 2.2. calculation
+    have s2_2 : x ^ 3 - 1 = 2 * (4 * k ^ 3 - 1) + 1 := by
+      calc x ^ 3 - 1 = (2 * k) ^ 3 - 1 := by parley_subst s2_1
+        _ = 2 * (4 * k ^ 3 - 1) + 1 := by parley_ring
+    -- 2.3. def:odd n := x³ − 1, from 2.2
+    have s2_3 : Odd (x ^ 3 - 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, s2_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, s2_2⟩; parley_side)
+    -- 2.4. mun:not-both n := x³ − 1, from H2
+    have s2_4 : ¬ Odd (x ^ 3 - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) hH2)
+    exact absurd s2_3 s2_4
+  · skip
+    exact hC2
 
 end Parley.Proofs.Hammack.CubeMinusOneEvenGivesOdd.CubeMinusOneEvenGivesOdd

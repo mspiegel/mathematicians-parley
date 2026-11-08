@@ -12,6 +12,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticLogarithms.PiIsReal
 theorem pi_is_real :
     True := by
   -- 1. real arithmetic
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.RealArithmeticLogarithms.PiIsReal

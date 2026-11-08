@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -16,21 +15,16 @@ namespace Parley.Tests.Elaborator.TextbookExerciseShapesTwo.AContradictionEnding
 theorem a_contradiction_ending_in_cases (x : ℝ) (hH2 : x > 2 ∨ x > 1) :
     x > 0 := by
   -- 1. contradiction
-  have s1 : x > 0 := by
-    by_contra hc_hS
-    have hS : ¬ x > 0 := by parley_suppose hc_hS
-    -- 1.1. cases, from H2
-    have s1_1 : x > 0 := by
-      rcases hH2 with hC1 | hC2
-      · skip
-        -- 1.1.1. inequalities, from C1
-        have s1_1_1 : x > 0 := by parley_order
-        all_goals parley_side
-      · skip
-        -- 1.1.2. inequalities, from C2
-        have s1_1_2 : x > 0 := by parley_order
-        all_goals parley_side
-    all_goals parley_side
-  all_goals exact s1
+  by_contra hS
+  -- 1.1. cases, from H2
+  have s1_1 : x > 0 := by
+    rcases hH2 with hC1 | hC2
+    · skip
+      -- 1.1.1. inequalities, from C1
+      parley_order
+    · skip
+      -- 1.1.2. inequalities, from C2
+      parley_order
+  exact hS s1_1
 
 end Parley.Tests.Elaborator.TextbookExerciseShapesTwo.AContradictionEndingInCases

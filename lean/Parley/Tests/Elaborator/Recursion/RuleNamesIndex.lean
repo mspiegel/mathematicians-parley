@@ -25,7 +25,6 @@ theorem rule_names_index (s : ℤ → ℤ) (hD1 : s 0 = (0 : ℤ) ∧ ∀ k : �
   -- 3. D1, from 2
   have s3 : s (1 + 1) = s 1 + 1 := by have h := (hD1.2 ((1 + 1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
   -- 4. join 1, 3
-  have s4 : s 0 = 0 ∧ s (1 + 1) = s 1 + 1 := by parley_side
-  all_goals exact s4
+  parley_side
 
 end Parley.Tests.Elaborator.Recursion.RuleNamesIndex

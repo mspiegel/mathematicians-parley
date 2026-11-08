@@ -2,7 +2,6 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
@@ -16,7 +15,6 @@ namespace Parley.Tests.Stdlib.Numbers.ProductPositive
 theorem product_positive (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     x * y > 0 := by
   -- 1. mun:numbers-product-positive, from H3, H4
-  have s1 : x * y > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side)); parley_side)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side))
 
 end Parley.Tests.Stdlib.Numbers.ProductPositive

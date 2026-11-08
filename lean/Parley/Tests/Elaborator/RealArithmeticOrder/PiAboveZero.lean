@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.PiAboveZero
 theorem pi_above_zero :
     0 < Real.pi := by
   -- 1. real arithmetic
-  have s1 : 0 < Real.pi := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.PiAboveZero

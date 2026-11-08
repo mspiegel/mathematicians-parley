@@ -19,7 +19,6 @@ namespace Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.ADivisorOfNumera
 theorem a_divisor_of_numerals_below_zero (c : ℤ) (x : ℝ) :
     x * (((c : ℝ) - (c : ℝ)) / (2 - 5)) = ((c : ℝ) - (c : ℝ)) / (2 - 5) * x := by
   -- 1. algebra
-  have s1 : x * (((c : ℝ) - (c : ℝ)) / (2 - 5)) = ((c : ℝ) - (c : ℝ)) / (2 - 5) * x := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.ADivisorOfNumeralsBelowZero

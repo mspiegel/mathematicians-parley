@@ -20,9 +20,7 @@ theorem a_define_applied_in_a_calculation_link (a : ℤ) (hH1 : 0 < a) (q : ℤ 
   -- 1. algebra
   have s1 : a + 1 + 1 = a + 2 := by parley_ring
   -- 2. calculation
-  have s2 : q a + 1 = a + 2 := by
-    calc q a + 1 = a + 1 + 1 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
-      _ = a + 2 := by parley_side
-  all_goals exact s2
+  calc q a + 1 = a + 1 + 1 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+    _ = a + 2 := by parley_side
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineAppliedInACalculationLink

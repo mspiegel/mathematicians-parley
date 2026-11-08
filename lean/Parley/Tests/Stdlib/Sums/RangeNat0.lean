@@ -19,7 +19,6 @@ namespace Parley.Tests.Stdlib.Sums.RangeNat0
 theorem range_nat0 (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 : ℤ) n) :
     0 ≤ k := by
   -- 1. mun:sums-range-nat0, from H2
-  have s1 : 0 ≤ k := by exact (Parley.Items.Stdlib.Sums.mun_range_nat0 (n := n) (k := k) hH2)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sums.mun_range_nat0 (n := n) (k := k) hH2)
 
 end Parley.Tests.Stdlib.Sums.RangeNat0

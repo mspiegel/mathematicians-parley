@@ -7,7 +7,6 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -25,10 +24,9 @@ namespace Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ARootInABound
 theorem a_root_in_a_bound (a : ℝ) (hH2 : a ≥ 0) (hH3 : ¬ a ≥ 2 * Real.sqrt a) :
     a < 2 * Real.sqrt a := by
   -- 1. def:sqrt x := a, from H2
-  have s1a : Real.sqrt a ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) (by parley_side)); parley_side)
-  have s1b : Real.sqrt a ^ 2 = a := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := a) (by parley_side))
+  have s1a : Real.sqrt a ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) hH2)
+  have s1b : Real.sqrt a ^ 2 = a := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := a) hH2)
   -- 2. inequalities, from H3, 1
-  have s2 : a < 2 * Real.sqrt a := by parley_order
-  all_goals exact s2
+  parley_order
 
 end Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ARootInABound

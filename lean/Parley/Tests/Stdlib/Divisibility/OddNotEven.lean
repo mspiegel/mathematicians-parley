@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Divisibility.OddNotEven
 theorem odd_not_even (n : ℤ) (hH2 : Odd n) :
     ¬ Even n := by
   -- 1. mun:divisibility-odd-not-even, from H2
-  have s1 : ¬ Even n := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_not_even (n := n) hH2)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_odd_not_even (n := n) hH2)
 
 end Parley.Tests.Stdlib.Divisibility.OddNotEven

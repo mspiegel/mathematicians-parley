@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.ALetterForAConjunction.AConjunctionConcludedAs
 theorem a_conjunction_concluded_as_a_letter (x : ℝ) (hH2 : x = 0 ↔ 0 ≤ x ∧ x < 1) (hH3 : x = 0) :
     (0 ≤ x ∧ x < 1) := by
   -- 1. mun:iff-from-left P := x = 0, Q := 0 ≤ x and x < 1, from H2, H3
-  have s1 : 0 ≤ x ∧ x < 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := x = 0) (Q := 0 ≤ x ∧ x < 1) hH2 hH3)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := x = 0) (Q := 0 ≤ x ∧ x < 1) hH2 hH3)
 
 end Parley.Tests.Elaborator.ALetterForAConjunction.AConjunctionConcludedAsALetter

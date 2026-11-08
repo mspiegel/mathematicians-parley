@@ -25,9 +25,8 @@ theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH2 : Tru
     have s1_1 : x ∈ (∅ : Set α) := by parley_subst_at hH3 hK1
     -- 1.2. inspection
     have s1_2 : ¬ x ∈ (∅ : Set α) := by parley_set_side
-    all_goals parley_set_side
+    exact absurd s1_1 s1_2
   -- 2. mun:function-into, from 1
-  have s2 : Set.MapsTo F A ∅ := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1)
-  all_goals exact s2
+  exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1)
 
 end Parley.Proofs.Setmm.FunctionIntoEmpty.FunctionIntoEmpty

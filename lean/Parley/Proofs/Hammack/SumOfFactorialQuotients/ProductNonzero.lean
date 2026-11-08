@@ -1,18 +1,12 @@
 module
 
-public import ArithTactics
 public import NormTactics
-public import PowerTactics
-public import RealTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/sum-of-factorial-quotients.proof by parley build lean. -/
@@ -24,14 +18,11 @@ namespace Parley.Proofs.Hammack.SumOfFactorialQuotients.ProductNonzero
 theorem product_nonzero (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH4 : y ≠ 0) :
     x * y ≠ 0 := by
   -- the theorem. contradiction
-  have sThm : x * y ≠ 0 := by
-    by_contra hc_hS
-    have hS : x * y = 0 := by parley_suppose hc_hS
-    -- 1. algebra, from S
-    have s1 : x * y = 0 * y := by linear_combination (norm := parley_norm) hS
-    -- 2. mun:multiply-cancel a := x, b := 0, c := y, from H4, 1
-    have s2 : x = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); parley_side)
-    all_goals parley_side
-  all_goals parley_side
+  intro hS
+  -- 1. algebra, from S
+  have s1 : x * y = 0 * y := by linear_combination (norm := parley_norm) hS
+  -- 2. mun:multiply-cancel a := x, b := 0, c := y, from H4, 1
+  have s2 : x = 0 := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side))
+  exact hH3 s2
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.ProductNonzero

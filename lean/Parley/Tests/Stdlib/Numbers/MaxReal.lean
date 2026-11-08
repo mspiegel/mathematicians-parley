@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Numbers.MaxReal
 theorem max_real (x : ℝ) (y : ℝ) :
     True := by
   -- 1. mun:numbers-max-real
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Numbers.MaxReal

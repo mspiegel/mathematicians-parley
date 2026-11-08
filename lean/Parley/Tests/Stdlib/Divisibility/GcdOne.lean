@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Divisibility.GcdOne
 theorem gcd_one (a : ℤ) :
     (Int.gcd a (1 : ℤ) : ℤ) = 1 := by
   -- 1. mun:divisibility-gcd-one
-  have s1 : (Int.gcd a (1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_one (a := a))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_gcd_one (a := a))
 
 end Parley.Tests.Stdlib.Divisibility.GcdOne

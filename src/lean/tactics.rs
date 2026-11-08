@@ -164,6 +164,19 @@ pub fn simp_only(
     call("simp", args)
 }
 
+/// `simpa only [rules] using t`: `t` and the goal rewritten alike, Mathlib's
+/// lemmas `rules` naming the rewrites.
+pub fn simpa_only(rules: Vec<&'static str>, using: Term) -> Tactic {
+    call(
+        "simpa",
+        vec![
+            TacticArg::Only,
+            TacticArg::Rules(rules.into_iter().map(|r| forwards(lemma(r))).collect()),
+            TacticArg::Using(using),
+        ],
+    )
+}
+
 /// A rule used forwards.
 pub fn forwards(by: Term) -> Rule {
     Rule {

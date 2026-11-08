@@ -3,7 +3,6 @@ module
 public import Tactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Parley.Items.Stdlib.Logarithms
 
@@ -16,7 +15,6 @@ namespace Parley.Tests.Stdlib.Logarithms.ExpPositive
 theorem exp_positive (x : ℝ) :
     Real.exp x > 0 := by
   -- 1. mun:logarithms-exp-positive
-  have s1 : Real.exp x > 0 := by first | linarith [(Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := x))] | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := x)) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := x)); parley_side)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := x))
 
 end Parley.Tests.Stdlib.Logarithms.ExpPositive

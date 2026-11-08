@@ -28,7 +28,6 @@ theorem a_hypothesis_from_the_line_cited (k : ℤ) (hH1 : 0 < k) :
   -- 3. thm:product-nonzero x := k!, y := k, from H1, 2
   have s3 : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by first | exact (Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side)) | exact ((Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side)) | (have h := (Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side)); parley_rat_of_real h) | (have h := (Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side)); parley_side)
   -- 4. join 1, 3
-  have s4 : (LeanBridges.Counting.factorial k : ℤ) ≠ 0 ∧ (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by parley_side
-  all_goals exact s4
+  parley_side
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AHypothesisFromTheLineCited

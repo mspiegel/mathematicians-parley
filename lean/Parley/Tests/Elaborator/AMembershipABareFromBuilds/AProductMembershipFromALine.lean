@@ -25,7 +25,6 @@ theorem a_product_membership_from_a_line (f : ℤ → ℤ) (hH1 : Set.MapsTo f {
   -- 1. membership, from H1
   have s1 : 0 < f a := by parley_set_side
   -- 2. thm:divides-gcd d := c·f(a), a := x, b := y, from H6, H7
-  have s2 : c * f a ∣ (Int.gcd x y : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := c * f a) (a := x) (b := y) hH6 hH7)
-  all_goals exact s2
+  exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := c * f a) (a := x) (b := y) hH6 hH7)
 
 end Parley.Tests.Elaborator.AMembershipABareFromBuilds.AProductMembershipFromALine

@@ -19,7 +19,6 @@ namespace Parley.Tests.Stdlib.Sums.RangeSingle
 theorem range_single (m : ℤ) :
     (Set.Icc m m : Set ℤ) = ({m} : Set ℤ) := by
   -- 1. mun:sums-range-single
-  have s1 : (Set.Icc m m : Set ℤ) = ({m} : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_single (m := m))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sums.mun_range_single (m := m))
 
 end Parley.Tests.Stdlib.Sums.RangeSingle

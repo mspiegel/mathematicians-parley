@@ -22,7 +22,6 @@ namespace Parley.Tests.Stdlib.Numbers.PowerCancel
 theorem power_cancel (a : ℝ) (m : ℤ) (n : ℤ) (hH4 : a > 1) :
     (a ^ m = a ^ n ↔ m = n) := by
   -- 1. mun:numbers-power-cancel, from H4
-  have s1 : a ^ m = a ^ n ↔ m = n := by exact (Parley.Items.Stdlib.Numbers.mun_power_cancel (a := a) (m := m) (n := n) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_power_cancel (a := a) (m := m) (n := n) (by parley_side))
 
 end Parley.Tests.Stdlib.Numbers.PowerCancel

@@ -22,7 +22,6 @@ namespace Parley.Tests.Stdlib.Numbers.PowerOfProduct
 theorem power_of_product (y : ℂ) (z : ℂ) (k : ℤ) (hH3 : 0 ≤ k) :
     (y * z) ^ k.toNat = y ^ k.toNat * z ^ k.toNat := by
   -- 1. mun:numbers-power-of-product a := y, b := z, n := k
-  have s1 : (y * z) ^ k.toNat = y ^ k.toNat * z ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := y) (b := z) (n := k) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := y) (b := z) (n := k) (by parley_side))
 
 end Parley.Tests.Stdlib.Numbers.PowerOfProduct

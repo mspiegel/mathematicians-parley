@@ -40,7 +40,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_1 : A ^ 0 = 1 := by parley_ring
       -- 1.2. inequalities
       have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_order
-      all_goals parley_side
+      push_cast at s1_2 ⊢; exact s1_2
     | succ k hK hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
       have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side))
@@ -52,7 +52,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_5 : 0 ≤ A * X := by
         try simp only [hD1] at *
         try push_cast at *
-        first | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4)] | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4) | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); parley_side)
+        exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4)
       -- 1.6. mun:square-nonneg x := A − 1
       have s1_6 : 0 ≤ (A - 1) ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))
       -- 1.7. thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6
@@ -70,9 +70,8 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k.toNat * A := by parley_order
       -- 1.12. transitivity, from 1.11, 1.3
       have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1).toNat := by parley_order
-      all_goals parley_side
+      push_cast at s1_12 ⊢; exact s1_12
   -- 2. instantiate k := n in line 1
-  have s2 : (A - 1) * (n : ℝ) + 1 ≤ A ^ n.toNat := by first | (have h := (s1 n (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals exact s2
+  first | (have h := (s1 n (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
 
 end Parley.Proofs.Setmm.BernoulliInequality.BernoulliInequality

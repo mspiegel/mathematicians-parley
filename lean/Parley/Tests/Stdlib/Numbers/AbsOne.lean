@@ -20,7 +20,6 @@ namespace Parley.Tests.Stdlib.Numbers.AbsOne
 theorem abs_one :
     (abs 1 : ℤ) = 1 := by
   -- 1. mun:numbers-abs-one
-  have s1 : (abs 1 : ℤ) = 1 := by exact Parley.Items.Stdlib.Numbers.mun_abs_one
-  all_goals exact s1
+  exact Parley.Items.Stdlib.Numbers.mun_abs_one
 
 end Parley.Tests.Stdlib.Numbers.AbsOne

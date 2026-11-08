@@ -12,6 +12,6 @@ namespace Parley.Tests.Elaborator.ClosedValues.WholeInTheRationals
 theorem whole_in_the_rationals :
     True := by
   -- 1. arithmetic
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.ClosedValues.WholeInTheRationals

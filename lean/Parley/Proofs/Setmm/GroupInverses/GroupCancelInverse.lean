@@ -27,10 +27,8 @@ theorem group_cancel_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.uni
   -- 2. axi:group-inverse, from H2
   have s2 : a * a⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2)
   -- 3. calculation
-  have s3 : a * (a⁻¹ * b) = b := by
-    calc a * (a⁻¹ * b) = a * a⁻¹ * b := by first | exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := b) hH2 s1 hH3) | exact ((Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := b) hH2 s1 hH3)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := b) hH2 s1 hH3) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := b) hH2 s1 hH3) | (have h := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := b) hH2 s1 hH3); parley_set_side)
-      _ = (1 : G) * b := by parley_subst s2
-      _ = b := by first | exact (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := b) hH3) | exact ((Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := b) hH3)).symm | simpa using (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := b) hH3) | exact_mod_cast (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := b) hH3) | (have h := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := b) hH3); parley_set_side)
-  all_goals exact s3
+  calc a * (a⁻¹ * b) = a * a⁻¹ * b := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := b) hH2 s1 hH3).symm
+    _ = (1 : G) * b := by parley_subst s2
+    _ = b := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := b) hH3)
 
 end Parley.Proofs.Setmm.GroupInverses.GroupCancelInverse

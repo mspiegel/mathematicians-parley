@@ -15,6 +15,6 @@ namespace Parley.Tests.Stdlib.Numbers.Nat0Real
 theorem nat0_real (m : ℤ) (hH1 : 0 ≤ m) :
     True := by
   -- 1. mun:numbers-nat0-real
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Numbers.Nat0Real

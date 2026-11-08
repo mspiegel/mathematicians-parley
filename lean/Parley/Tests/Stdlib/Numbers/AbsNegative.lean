@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Numbers.AbsNegative
 theorem abs_negative (x : ℝ) :
     abs (-x) = abs x := by
   -- 1. mun:numbers-abs-negative
-  have s1 : abs (-x) = abs x := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := x))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := x))
 
 end Parley.Tests.Stdlib.Numbers.AbsNegative

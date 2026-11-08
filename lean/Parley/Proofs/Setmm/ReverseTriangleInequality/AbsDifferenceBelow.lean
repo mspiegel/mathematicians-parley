@@ -29,7 +29,6 @@ theorem abs_difference_below (A : ℝ) (B : ℝ) :
     have row1 : abs A ≤ abs (A - B) + abs B := by parley_subst_at c1 s1
     exact row1
   -- 3. inequalities
-  have s3 : abs A - abs B ≤ abs (A - B) := by parley_order
-  all_goals exact s3
+  parley_order
 
 end Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow

@@ -1,9 +1,6 @@
 module
 
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -15,14 +12,11 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 
@@ -56,7 +50,7 @@ theorem rounding_error (A : ℝ) :
   have s9 : e ≥ 0 ∨ e < 0 := by
     try simp only [hD1] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A)); parley_side)
+    exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A))
   -- 10. cases, from 9
   have s10 : abs e ≤ 1 / 2 := by
     rcases s9 with hC1 | hC2
@@ -65,21 +59,18 @@ theorem rounding_error (A : ℝ) :
       have s10_1 : abs e = e := by
         try simp only [hD1] at *
         try push_cast at *
-        first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); parley_side)
+        exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC1
       -- 10.2. transitivity, from 10.1, 5
-      have s10_2 : abs e ≤ 1 / 2 := by parley_order
-      all_goals parley_side
+      parley_order
     · skip
       -- 10.3. def:abs x := e, from C2, D1
       have s10_3 : abs e = -e := by
         try simp only [hD1] at *
         try push_cast at *
-        first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) (by parley_side); parley_side)
+        exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC2
       -- 10.4. transitivity, from 10.3, 8
-      have s10_4 : abs e ≤ 1 / 2 := by parley_order
-      all_goals parley_side
+      parley_order
   -- 11. substitute e = ⌊A + 1/2⌋ − A (D1) into line 10
-  have s11 : abs ((⌊A + 1 / 2⌋ : ℝ) - A) ≤ 1 / 2 := by parley_subst_at hD1 s10
-  all_goals exact s11
+  parley_subst_at hD1 s10
 
 end Parley.Proofs.Setmm.RoundingError.RoundingError

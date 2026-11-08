@@ -15,7 +15,6 @@ namespace Parley.Tests.Stdlib.Reasoning.OrRight
 theorem or_right (x : ℝ) (hH2 : x = 1) :
     (x = 0 ∨ x = 1) := by
   -- 1. mun:reasoning-or-right, from H2
-  have s1 : x = 0 ∨ x = 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = 0) (Q := x = 1) hH2)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = 0) (Q := x = 1) hH2)
 
 end Parley.Tests.Stdlib.Reasoning.OrRight

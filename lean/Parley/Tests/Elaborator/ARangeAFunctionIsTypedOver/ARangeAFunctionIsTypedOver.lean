@@ -20,6 +20,6 @@ namespace Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTy
 theorem a_range_a_function_is_typed_over (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (k : ℤ) (hH3 : k ∈ Finset.Icc (1 : ℤ) n) :
     True := by
   -- 1. mun:function-value f := a, from H3
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTypedOver

@@ -27,10 +27,8 @@ theorem floor_integer_add (N : ℤ) (A : ℝ) :
   -- 2. algebra
   have s2 : (N : ℝ) + A = A + (N : ℝ) := by parley_ring
   -- 3. calculation
-  have s3 : ⌊(N : ℝ) + A⌋ = N + ⌊A⌋ := by
-    calc ⌊(N : ℝ) + A⌋ = ⌊A + (N : ℝ)⌋ := by parley_subst s2
-      _ = ⌊A⌋ + N := by exact (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N))
-      _ = N + ⌊A⌋ := by parley_ring
-  all_goals exact s3
+  calc ⌊(N : ℝ) + A⌋ = ⌊A + (N : ℝ)⌋ := by parley_subst s2
+    _ = ⌊A⌋ + N := by exact (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N))
+    _ = N + ⌊A⌋ := by parley_ring
 
 end Parley.Proofs.Setmm.FloorBasics.FloorIntegerAdd

@@ -29,11 +29,9 @@ theorem group_left_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ
   -- 3. thm:group-left-inverse, from H2
   have s3 : a⁻¹ * a = (1 : G) := by exact (Parley.Proofs.Setmm.GroupInverses.GroupLeftInverse.group_left_inverse (G := G) (a := a) hH2)
   -- 4. calculation
-  have s4 : (1 : G) * a = a := by
-    calc (1 : G) * a = a * a⁻¹ * a := by parley_subst s2
-      _ = a * (a⁻¹ * a) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2) | exact ((Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2); parley_set_side)
-      _ = a * (1 : G) := by parley_subst s3
-      _ = a := by first | exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | exact ((Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2); parley_set_side)
-  all_goals exact s4
+  calc (1 : G) * a = a * a⁻¹ * a := by parley_subst s2
+    _ = a * (a⁻¹ * a) := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2)
+    _ = a * (1 : G) := by parley_subst s3
+    _ = a := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)
 
 end Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity

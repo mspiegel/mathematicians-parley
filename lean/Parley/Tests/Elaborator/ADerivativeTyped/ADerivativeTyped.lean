@@ -13,6 +13,6 @@ namespace Parley.Tests.Elaborator.ADerivativeTyped.ADerivativeTyped
 theorem a_derivative_typed (f : ℝ → ℝ) (hH2 : True) :
     True := by
   -- 1. restate H2
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.ADerivativeTyped.ADerivativeTyped

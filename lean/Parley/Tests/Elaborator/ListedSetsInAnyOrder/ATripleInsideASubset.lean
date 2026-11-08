@@ -19,7 +19,6 @@ theorem a_triple_inside_a_subset {α : Type*} (X : Set α) (Y : Set α) (a : α)
   -- 1. mun:triple-subset, from H3, H4, H5
   have s1 : ({a, b, c} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_triple_subset (X := X) (a := a) (b := b) (c := c) hH3 hH4 hH5)
   -- 2. mun:subset-transitive, from H6, 1
-  have s2 : ({c, a, b} : Set α) ⊆ Y := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := ({c, a, b} : Set α)) (Y := X) (Z := Y) (by parley_set_side) hH6)
-  all_goals exact s2
+  exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := ({c, a, b} : Set α)) (Y := X) (Z := Y) (by parley_set_side) hH6)
 
 end Parley.Tests.Elaborator.ListedSetsInAnyOrder.ATripleInsideASubset

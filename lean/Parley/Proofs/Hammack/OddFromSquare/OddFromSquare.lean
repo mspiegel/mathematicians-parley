@@ -31,18 +31,16 @@ theorem odd_from_square (a : ℤ) (hH2 : ¬ (4 : ℤ) ∣ a ^ 2) :
   -- 1. mun:even-or-odd
   have s1 : Even a ∨ Odd a := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))
   -- 2. cases, from 1
-  have s2 : Odd a := by
-    rcases s1 with hC1 | hC2
-    · skip
-      -- 2.1. obtain k: def:even, from C1
-      obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp (by parley_side)
-      -- 2.2. algebra, from 2.1
-      have s2_2 : a ^ 2 = 4 * k ^ 2 := by linear_combination (norm := parley_norm) (a + 2 * k) * s2_1
-      -- 2.3. def:divides d := 4, n := a², from 2.2
-      have s2_3 : (4 : ℤ) ∣ a ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a ^ 2))).mpr ⟨k ^ 2, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a ^ 2))).mpr ⟨k ^ 2, by parley_side⟩; parley_side)
-      all_goals parley_side
-    · skip
-      all_goals parley_side
-  all_goals exact s2
+  rcases s1 with hC1 | hC2
+  · skip
+    -- 2.1. obtain k: def:even, from C1
+    obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp hC1
+    -- 2.2. algebra, from 2.1
+    have s2_2 : a ^ 2 = 4 * k ^ 2 := by linear_combination (norm := parley_norm) (a + 2 * k) * s2_1
+    -- 2.3. def:divides d := 4, n := a², from 2.2
+    have s2_3 : (4 : ℤ) ∣ a ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a ^ 2))).mpr ⟨k ^ 2, s2_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a ^ 2))).mpr ⟨k ^ 2, s2_2⟩; parley_side)
+    exact absurd s2_3 hH2
+  · skip
+    exact hC2
 
 end Parley.Proofs.Hammack.OddFromSquare.OddFromSquare

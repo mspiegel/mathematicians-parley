@@ -20,7 +20,6 @@ namespace Parley.Tests.Stdlib.Reasoning.IffFromLeft
 theorem iff_from_left (x : ℝ) (hH2 : x = 0 ↔ x ^ 2 = 0) (hH3 : x = 0) :
     x ^ 2 = 0 := by
   -- 1. mun:reasoning-iff-from-left, from H2, H3
-  have s1 : x ^ 2 = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := x = 0) (Q := x ^ 2 = 0) hH2 hH3)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := x = 0) (Q := x ^ 2 = 0) hH2 hH3)
 
 end Parley.Tests.Stdlib.Reasoning.IffFromLeft

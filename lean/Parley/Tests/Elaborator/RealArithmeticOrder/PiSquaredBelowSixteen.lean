@@ -21,7 +21,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.PiSquaredBelowSixteen
 theorem pi_squared_below_sixteen :
     Real.pi ^ 2 < 16 := by
   -- 1. real arithmetic
-  have s1 : Real.pi ^ 2 < 16 := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.PiSquaredBelowSixteen

@@ -14,6 +14,6 @@ namespace Parley.Tests.Notations.Powers.AComplexPower
 theorem a_complex_power (z : ℂ) (w : ℂ) :
     True := by
   -- 1. mun:real-power-complex x := z, y := w
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Notations.Powers.AComplexPower

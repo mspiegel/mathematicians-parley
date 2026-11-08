@@ -57,14 +57,12 @@ theorem ptolemy (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (hH5 : a + b + c + d = R
   -- 9. mun:sin-cos-squares a := c
   have s9 : Real.sin c ^ 2 + Real.cos c ^ 2 = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (c : ℂ))); parley_side)
   -- 10. calculation
-  have s10 : Real.sin a * Real.sin b + Real.sin c * Real.sin d = Real.sin (b + c) * Real.sin (a + c) := by
-    calc Real.sin a * Real.sin b + Real.sin c * Real.sin d = Real.sin a * Real.sin b + Real.sin c * Real.sin (a + b + c) := by parley_subst s3
-      _ = Real.sin a * Real.sin b + Real.sin c * (Real.sin (a + b) * Real.cos c + Real.cos (a + b) * Real.sin c) := by parley_subst s4
-      _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + Real.cos (a + b) * Real.sin c) := by parley_subst s5
-      _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + (Real.cos a * Real.cos b - Real.sin a * Real.sin b) * Real.sin c) := by parley_subst s6
-      _ = (Real.sin b * Real.cos c + Real.cos b * Real.sin c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by linear_combination (norm := parley_norm) (-Real.sin a * Real.sin b) * s9
-      _ = Real.sin (b + c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by parley_subst s7
-      _ = Real.sin (b + c) * Real.sin (a + c) := by parley_subst s8
-  all_goals exact s10
+  calc Real.sin a * Real.sin b + Real.sin c * Real.sin d = Real.sin a * Real.sin b + Real.sin c * Real.sin (a + b + c) := by parley_subst s3
+    _ = Real.sin a * Real.sin b + Real.sin c * (Real.sin (a + b) * Real.cos c + Real.cos (a + b) * Real.sin c) := by parley_subst s4
+    _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + Real.cos (a + b) * Real.sin c) := by parley_subst s5
+    _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + (Real.cos a * Real.cos b - Real.sin a * Real.sin b) * Real.sin c) := by parley_subst s6
+    _ = (Real.sin b * Real.cos c + Real.cos b * Real.sin c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by linear_combination (norm := parley_norm) (-Real.sin a * Real.sin b) * s9
+    _ = Real.sin (b + c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by parley_subst s7
+    _ = Real.sin (b + c) * Real.sin (a + c) := by parley_subst s8
 
 end Parley.Proofs.Wiedijk.Ptolemy.Ptolemy

@@ -12,6 +12,6 @@ namespace Parley.Tests.Elaborator.RealArithmetic.ARootThatIsReal
 theorem a_root_that_is_real :
     True := by
   -- 1. real arithmetic
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.RealArithmetic.ARootThatIsReal

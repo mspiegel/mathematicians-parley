@@ -17,22 +17,16 @@ namespace Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEnding
 theorem a_direction_ending_on_a_proof_block {α : Type*} (A : Set α) (B : Set α) :
     (A ⊆ B ↔ (∀ t ∈ A, t ∈ B)) := by
   -- 1. both directions
-  have s1 : A ⊆ B ↔ (∀ t ∈ A, t ∈ B) := by
-    constructor
-    · skip
-      intro hD1
-      -- 1.1. proof
-      have s1_1 : ∀ t ∈ A, t ∈ B := by
-        intro t hK1
-        -- 1.1.1. mun:in-subset X := A, Y := B, u := t, from D1, K1
-        have s1_1_1 : t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK1)
-        all_goals exact s1_1_1
-      all_goals parley_set_side
-    · skip
-      intro hD2
-      -- 1.2. def:subset, from D2
-      have s1_2 : A ⊆ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr (by parley_set_side); parley_set_side)
-      all_goals parley_set_side
-  all_goals exact s1
+  constructor
+  · skip
+    intro hD1
+    -- 1.1. proof
+    intro t hK1
+    -- 1.1.1. mun:in-subset X := A, Y := B, u := t, from D1, K1
+    exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK1)
+  · skip
+    intro hD2
+    -- 1.2. def:subset, from D2
+    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr hD2 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr hD2; parley_set_side)
 
 end Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock

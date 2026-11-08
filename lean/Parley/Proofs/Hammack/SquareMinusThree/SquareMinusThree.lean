@@ -4,7 +4,6 @@ public import ArithTactics
 public import NormTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -35,43 +34,40 @@ set_option maxHeartbeats 400000 in
 theorem square_minus_three (n : ℤ) :
     ¬ (4 : ℤ) ∣ n ^ 2 - 3 := by
   -- the theorem. contradiction
-  have sThm : ¬ (4 : ℤ) ∣ n ^ 2 - 3 := by
-    by_contra hc_hS
-    have hS : (4 : ℤ) ∣ n ^ 2 - 3 := by parley_suppose hc_hS
-    -- 1. obtain m: def:divides d := 4, n := n² − 3, from S
-    obtain ⟨m, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 - 3))).mp (by parley_side)
-    -- 2. mun:even-or-odd
-    have s2 : Even n ∨ Odd n := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
-    -- 3. cases, from 2
-    have s3 : n ^ 2 - 3 ≠ 4 * m := by
-      rcases s2 with hC1 | hC2
-      · skip
-        -- 3.1. obtain k: def:even, from C1
-        obtain ⟨k, s3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp (by parley_side)
-        -- 3.2. substitute n = 2k (line 3.1) into line 1
-        have s3_2 : (2 * k) ^ 2 - 3 = 4 * m := by parley_subst_at s3_1 s1
-        -- 3.3. algebra, from 3.2
-        have s3_3 : 4 * (m - k ^ 2 + 1) = 1 := by linear_combination (norm := parley_norm) (-1) * s3_2
-        -- 3.4. thm:four-times-between j := m − k² + 1, r := 1
-        have r96_1 : (1 : ℤ) > 0 := by parley_arith
-        have r96_2 : (1 : ℤ) < 4 := by parley_arith
-        have s3_4 : 4 * (m - k ^ 2 + 1) ≠ 1 := by first | exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by parley_side) (by parley_side)) | exact ((Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by parley_side) (by parley_side)) | (have h := (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by parley_side) (by parley_side)); parley_side)
-        all_goals parley_side
-      · skip
-        -- 3.5. obtain k: def:odd, from C2
-        obtain ⟨k, s3_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)
-        -- 3.6. substitute n = 2k + 1 (line 3.5) into line 1
-        have s3_6 : (2 * k + 1) ^ 2 - 3 = 4 * m := by parley_subst_at s3_5 s1
-        -- 3.7. algebra, from 3.6
-        have s3_7 : 4 * (k ^ 2 + k - m) = 2 := by linear_combination (norm := parley_norm) s3_6
-        -- 3.8. thm:four-times-between j := k² + k − m, r := 2
-        have r113_1 : (2 : ℤ) > 0 := by parley_arith
-        have r113_2 : (2 : ℤ) < 4 := by parley_arith
-        have s3_8 : 4 * (k ^ 2 + k - m) ≠ 2 := by first | exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by parley_side) (by parley_side)) | exact ((Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by parley_side) (by parley_side)) | (have h := (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by parley_side) (by parley_side)); parley_side)
-        all_goals parley_side
-    -- 4. restate 3
-    have s4 : n ^ 2 - 3 ≠ 4 * m := by parley_side
-    all_goals parley_side
-  all_goals parley_side
+  intro hS
+  -- 1. obtain m: def:divides d := 4, n := n² − 3, from S
+  obtain ⟨m, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 - 3))).mp hS
+  -- 2. mun:even-or-odd
+  have s2 : Even n ∨ Odd n := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
+  -- 3. cases, from 2
+  have s3 : n ^ 2 - 3 ≠ 4 * m := by
+    rcases s2 with hC1 | hC2
+    · skip
+      -- 3.1. obtain k: def:even, from C1
+      obtain ⟨k, s3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp hC1
+      -- 3.2. substitute n = 2k (line 3.1) into line 1
+      have s3_2 : (2 * k) ^ 2 - 3 = 4 * m := by parley_subst_at s3_1 s1
+      -- 3.3. algebra, from 3.2
+      have s3_3 : 4 * (m - k ^ 2 + 1) = 1 := by linear_combination (norm := parley_norm) (-1) * s3_2
+      -- 3.4. thm:four-times-between j := m − k² + 1, r := 1
+      have r96_1 : (1 : ℤ) > 0 := by parley_arith
+      have r96_2 : (1 : ℤ) < 4 := by parley_arith
+      have s3_4 : 4 * (m - k ^ 2 + 1) ≠ 1 := (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by parley_side) r96_2)
+      exact absurd s3_3 s3_4
+    · skip
+      -- 3.5. obtain k: def:odd, from C2
+      obtain ⟨k, s3_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hC2
+      -- 3.6. substitute n = 2k + 1 (line 3.5) into line 1
+      have s3_6 : (2 * k + 1) ^ 2 - 3 = 4 * m := by parley_subst_at s3_5 s1
+      -- 3.7. algebra, from 3.6
+      have s3_7 : 4 * (k ^ 2 + k - m) = 2 := by linear_combination (norm := parley_norm) s3_6
+      -- 3.8. thm:four-times-between j := k² + k − m, r := 2
+      have r113_1 : (2 : ℤ) > 0 := by parley_arith
+      have r113_2 : (2 : ℤ) < 4 := by parley_arith
+      have s3_8 : 4 * (k ^ 2 + k - m) ≠ 2 := (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by parley_side) r113_2)
+      exact absurd s3_7 s3_8
+  -- 4. restate 3
+  have s4 : n ^ 2 - 3 ≠ 4 * m := by parley_side
+  exact s4 s1
 
 end Parley.Proofs.Hammack.SquareMinusThree.SquareMinusThree

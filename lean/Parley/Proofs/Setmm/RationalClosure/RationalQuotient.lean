@@ -17,6 +17,6 @@ theorem rational_quotient (A : ℚ) (B : ℚ) (hH3 : B ≠ 0) :
   -- 1. thm:rational-reciprocal A := B, from H3
   -- 2. thm:rational-product B := 1/B, from 1
   -- 3. substitute
-  all_goals parley_side
+  exact trivial
 
 end Parley.Proofs.Setmm.RationalClosure.RationalQuotient

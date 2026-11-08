@@ -22,7 +22,6 @@ namespace Parley.Tests.Stdlib.Numbers.ExponentSum
 theorem exponent_sum (a : ℝ) (m : ℤ) (hH2 : 0 ≤ m) (n : ℤ) (hH3 : 0 ≤ n) :
     a ^ (m + n).toNat = a ^ m.toNat * a ^ n.toNat := by
   -- 1. mun:numbers-exponent-sum
-  have s1 : a ^ (m + n).toNat = a ^ m.toNat * a ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (by parley_side) (n := n) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (by parley_side) (n := n) (by parley_side))
 
 end Parley.Tests.Stdlib.Numbers.ExponentSum

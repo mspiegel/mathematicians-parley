@@ -29,7 +29,6 @@ theorem size_positive {α : Type*} (A : Set α) (hH2 : A.Finite) (hH3 : ¬ A = �
   -- 2. mun:card-nat0, from H2
   have s2 : 0 ≤ (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH2)
   -- 3. inequalities, from 1
-  have s3 : 0 < (A.ncard : ℤ) := by parley_count_int; (parley_order)
-  all_goals exact s3
+  parley_count_int; (parley_order)
 
 end Parley.Proofs.Setmm.SizePositive.SizePositive

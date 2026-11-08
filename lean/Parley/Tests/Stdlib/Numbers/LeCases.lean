@@ -16,7 +16,6 @@ namespace Parley.Tests.Stdlib.Numbers.LeCases
 theorem le_cases (x : ℝ) (y : ℝ) :
     (x ≤ y ↔ x < y ∨ x = y) := by
   -- 1. mun:numbers-le-cases
-  have s1 : x ≤ y ↔ x < y ∨ x = y := by exact (Parley.Items.Stdlib.Numbers.mun_le_cases (x := x) (y := y))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_le_cases (x := x) (y := y))
 
 end Parley.Tests.Stdlib.Numbers.LeCases

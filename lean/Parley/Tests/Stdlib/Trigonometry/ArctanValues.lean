@@ -21,6 +21,6 @@ theorem arctan_values :
   -- 1. mun:trigonometry-arctan-values
   have s1a : Real.arctan (0 : ℝ) = 0 := by exact Parley.Items.Stdlib.Trigonometry.mun_arctan_values_1
   have s1b : Real.arctan (1 : ℝ) = Real.pi / 4 := by exact Parley.Items.Stdlib.Trigonometry.mun_arctan_values_2
-  exact ⟨by parley_side, by parley_side⟩
+  exact ⟨s1a, s1b⟩
 
 end Parley.Tests.Stdlib.Trigonometry.ArctanValues

@@ -22,22 +22,18 @@ namespace Parley.Stdlib.Geometry.HalfTurn
 theorem half_turn (x : ℝ) (hH2 : x ∈ ({-Real.pi, Real.pi} : Set ℝ)) :
     (∃ j : ℤ, x = (2 * (j : ℝ) + 1) * Real.pi) := by
   -- 1. def:pair u := −π, w := π, from H2
-  have s1 : x = -Real.pi ∨ x = Real.pi := by first | exact ((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp (by parley_set_side); parley_set_side)
+  have s1 : x = -Real.pi ∨ x = Real.pi := ((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp hH2
   -- 2. cases, from 1
-  have s2 : ∃ j : ℤ, x = (2 * (j : ℝ) + 1) * Real.pi := by
-    rcases s1 with hC1 | hC2
-    · skip
-      -- 2.1. algebra, from C1
-      have s2_1 : x = (2 * -1 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC1
-      -- 2.2. exhibit, from 2.1
-      have s2_2 : ∃ j : ℤ, x = (2 * (j : ℝ) + 1) * Real.pi := ⟨(-1 : ℤ), by parley_set_side⟩
-      all_goals parley_set_side
-    · skip
-      -- 2.3. algebra, from C2
-      have s2_3 : x = (2 * 0 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC2
-      -- 2.4. exhibit, from 2.3
-      have s2_4 : ∃ j : ℤ, x = (2 * (j : ℝ) + 1) * Real.pi := ⟨(0 : ℤ), by parley_set_side⟩
-      all_goals parley_set_side
-  all_goals exact s2
+  rcases s1 with hC1 | hC2
+  · skip
+    -- 2.1. algebra, from C1
+    have s2_1 : x = (2 * -1 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC1
+    -- 2.2. exhibit, from 2.1
+    exact ⟨(-1 : ℤ), by push_cast at s2_1 ⊢; exact s2_1⟩
+  · skip
+    -- 2.3. algebra, from C2
+    have s2_3 : x = (2 * 0 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC2
+    -- 2.4. exhibit, from 2.3
+    exact ⟨(0 : ℤ), by push_cast at s2_3 ⊢; exact s2_3⟩
 
 end Parley.Stdlib.Geometry.HalfTurn

@@ -71,67 +71,63 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   have s8 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), F t = f t := by
     intro t hK1
     -- 8.1. mun:remove-member, from K1
-    have s8_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by first | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side); parley_set_side)
+    have s8_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK1
     -- 8.2. D1, from 8.1
-    have s8_2 : F t = f t := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
-    all_goals exact s8_2
+    first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
   -- 9. proof
   have s9 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), G t = g t := by
     intro t hK2
     -- 9.1. mun:remove-member, from K2
-    have s9_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by first | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp (by parley_set_side); parley_set_side)
+    have s9_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK2
     -- 9.2. D2, from 9.1
-    have s9_2 : G t = g t := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
-    all_goals exact s9_2
+    first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 10. proof
   have s10 : ∀ t ∈ (Set.Ioo a b : Set ℝ), True := by
     intro t hK3
     -- 10.1. axi:excluded-middle
-    have s10_1 : t = c ∨ t ≠ c := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)); parley_set_side)
+    have s10_1 : t = c ∨ t ≠ c := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))
     -- 10.2. cases, from 10.1
     -- what this block shows, Lean's types give
-    all_goals parley_set_side
+    exact trivial
   -- 11. mun:function-into, from 10
   have s11 : Set.MapsTo F (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 12. proof
   have s12 : ∀ t ∈ (Set.Ioo a b : Set ℝ), True := by
     intro t hK4
     -- 12.1. axi:excluded-middle
-    have s12_1 : t = c ∨ t ≠ c := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c)); parley_set_side)
+    have s12_1 : t = c ∨ t ≠ c := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))
     -- 12.2. cases, from 12.1
     -- what this block shows, Lean's types give
-    all_goals parley_set_side
+    exact trivial
   -- 13. mun:function-into, from 12
   have s13 : Set.MapsTo G (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := G) (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 14. thm:continuous-extension U := (a, b), L := 0, from H3, H6, H8, 1, 6, 8, 11
   have r432_1 : IsOpen (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := a) (b := b))
-  have s14 : ContinuousOn F (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_extension (f := f) (F := F) (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 (by parley_set_side) hH3 (L := (0 : ℝ)) (by parley_set_side) (by parley_set_side) hH6 (by parley_set_side))
+  have s14 : ContinuousOn F (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_extension (f := f) (F := F) (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 r432_1 hH3 (L := (0 : ℝ)) (by push_cast at s8 ⊢; exact s8) (by parley_set_side) hH6 (by parley_set_side))
   -- 15. thm:continuous-extension U := (a, b), L := 0, f := g, F := G, from H3, H7, H9, 1, 7, 9, 13
   have r436_1 : IsOpen (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := a) (b := b))
-  have s15 : ContinuousOn G (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_extension (f := g) (F := G) (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 (by parley_set_side) hH3 (L := (0 : ℝ)) (by parley_set_side) (by parley_set_side) hH7 (by parley_set_side))
+  have s15 : ContinuousOn G (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_extension (f := g) (F := G) (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 r436_1 hH3 (L := (0 : ℝ)) (by push_cast at s9 ⊢; exact s9) (by parley_set_side) hH7 (by parley_set_side))
   -- 16. mun:open-without-point U := (a, b), from H3, 1
   have r440_1 : IsOpen (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := a) (b := b))
-  have s16 : IsOpen ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) := by exact (Parley.Items.Stdlib.Calculus.mun_open_without_point (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 (by parley_set_side) hH3)
+  have s16 : IsOpen ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) := by exact (Parley.Items.Stdlib.Calculus.mun_open_without_point (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 r440_1 hH3)
   -- 17. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, from H6, 1, 2, 3, 4, 8, 11, 16
-  have s17 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ F y := by first | exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6) | exact ((Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6)).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6) | (have h := (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6); parley_set_side)
+  have s17 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ F y := (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s8 ⊢; exact s8) hH6)
   -- 18. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, from H6, 1, 2, 3, 4, 8, 11, 16
-  have s18 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv F) t = (deriv f) t := by first | exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6) | exact ((Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6)).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6) | (have h := (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH6); parley_set_side)
+  have s18 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv F) t = (deriv f) t := by first | exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s8 ⊢; exact s8) hH6) | exact ((Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s8 ⊢; exact s8) hH6)).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s8 ⊢; exact s8) hH6) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s8 ⊢; exact s8) hH6) | (have h := (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s8 ⊢; exact s8) hH6); parley_set_side)
   -- 19. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := g, F := G, from H7, 1, 2, 3, 4, 9, 13, 16
-  have s19 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ G y := by first | exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7) | exact ((Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7)).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7) | (have h := (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7); parley_set_side)
+  have s19 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ G y := (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s9 ⊢; exact s9) hH7)
   -- 20. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := g, F := G, from H7, 1, 2, 3, 4, 9, 13, 16
-  have s20 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv G) t = (deriv g) t := by first | exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7) | exact ((Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7)).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7) | (have h := (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by parley_set_side) hH7); parley_set_side)
+  have s20 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv G) t = (deriv g) t := by first | exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s9 ⊢; exact s9) hH7) | exact ((Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s9 ⊢; exact s9) hH7)).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s9 ⊢; exact s9) hH7) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s9 ⊢; exact s9) hH7) | (have h := (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 (by push_cast at s9 ⊢; exact s9) hH7); parley_set_side)
   -- 21. proof
   have s21 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv G) t ≠ 0 := by
     intro t hK5
     -- 21.1. restate 20
     have s21_1 : (deriv G) t = (deriv g) t := by parley_set_side
     -- 21.2. substitute G′(t) = g′(t) (line 21.1) into H10
-    have s21_2 : (deriv G) t ≠ 0 := by
-      have at0 := (hH10 t (by parley_set_side))
-      parley_subst_at s21_1 at0
-    all_goals exact s21_2
+    have at0 := (hH10 t (by parley_set_side))
+    parley_subst_at s21_1 at0
   -- 22. mun:remove-member, from H11
-  have s22 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by first | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp (by parley_set_side); parley_set_side)
+  have s22 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp hH11
   -- 23. thm:quotient-two-points u := c, v := x, from H3, 11, 13, 14, 15, 17, 19, 21, 22
   have s23a : G c ≠ G x := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (by parley_set_side) (G := G) (by parley_set_side) s14 s15 s17 s19 s21).1
   have s23b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ (F x - F c) / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (by parley_set_side) (G := G) (by parley_set_side) s14 s15 s17 s19 s21).2
@@ -142,7 +138,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 26. inequalities
   have s26 : G x ≠ 0 := by parley_set_side
   -- 27. obtain ξ from line 23
-  obtain ⟨ξ, s27a, ⟨s27b, _⟩⟩ := s23b
+  obtain ⟨ξ, s27a, s27b⟩ := s23b
   -- 28. restate 27
   have s28 : (F x - F c) / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by parley_set_side
   -- 29. substitute
@@ -177,6 +173,6 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 41. join 39, 40
   have s41a : g x ≠ 0 := by parley_set_side
   have s41b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ := by parley_set_side
-  exact ⟨by parley_set_side, by parley_set_side⟩
+  exact ⟨s41a, s41b⟩
 
 end Parley.Proofs.Wiedijk.Lhopital.QuotientBetween

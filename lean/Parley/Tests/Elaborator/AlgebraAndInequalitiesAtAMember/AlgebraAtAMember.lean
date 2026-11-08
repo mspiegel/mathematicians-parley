@@ -21,7 +21,6 @@ namespace Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMemb
 theorem algebra_at_a_member (n : ℤ) (hH1 : 0 < n) :
     (∀ i : ℤ, i ∈ Finset.Icc 1 n → i + i = 2 * i) := by
   -- 1. algebra
-  have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → i + i = 2 * i := by intro i h_i; parley_ring
-  all_goals exact s1
+  intro i h_i; parley_ring
 
 end Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMember

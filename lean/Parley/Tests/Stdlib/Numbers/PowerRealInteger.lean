@@ -15,6 +15,6 @@ namespace Parley.Tests.Stdlib.Numbers.PowerRealInteger
 theorem power_real_integer (x : ℝ) (hH2 : x ≠ 0) (k : ℤ) :
     True := by
   -- 1. mun:numbers-power-real-integer a := x, m := k − 1, from H2
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Numbers.PowerRealInteger

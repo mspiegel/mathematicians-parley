@@ -14,11 +14,9 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartContradicted
 theorem an_and_part_contradicted (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ b ≠ 2) :
     (b = 2 → a = 0) := by
   -- 1. proof
-  have s1 : b = 2 → a = 0 := by
-    intro hK1
-    -- 1.1. restate K1
-    have s1_1 : b = 2 := by parley_side
-    all_goals parley_side
-  all_goals exact s1
+  intro hK1
+  -- 1.1. restate K1
+  have s1_1 : b = 2 := by parley_side
+  exact absurd s1_1 hH3.2
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartContradicted

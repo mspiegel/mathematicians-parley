@@ -15,7 +15,6 @@ namespace Parley.Tests.Notations.Negatives.MinusThreeBelowZero
 theorem minus_three_below_zero :
     (-3 : ℤ) < 0 := by
   -- 1. arithmetic
-  have s1 : (-3 : ℤ) < 0 := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Notations.Negatives.MinusThreeBelowZero

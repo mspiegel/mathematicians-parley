@@ -20,7 +20,6 @@ namespace Parley.Tests.Notations.Counting.SizeOfEmpty
 theorem size_of_empty {α : Type*} :
     ((∅ : Set α).ncard : ℤ) = 0 := by
   -- 1. mun:card-empty
-  have s1 : ((∅ : Set α).ncard : ℤ) = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
-  all_goals exact s1
+  exact Parley.Items.Stdlib.Counting.mun_card_empty
 
 end Parley.Tests.Notations.Counting.SizeOfEmpty

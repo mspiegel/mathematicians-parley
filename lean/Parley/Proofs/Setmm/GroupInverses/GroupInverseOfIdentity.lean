@@ -26,9 +26,7 @@ theorem group_inverse_of_identity {G : Type*} [Group G] :
   -- 2. axi:group-inverse-closed a := e, from 1
   have s2 : (1 : G)⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1)
   -- 3. calculation
-  have s3 : (1 : G)⁻¹ = (1 : G) := by
-    calc (1 : G)⁻¹ = (1 : G) * (1 : G)⁻¹ := by first | exact (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2) | exact ((Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2)).symm | simpa using (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2) | exact_mod_cast (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2) | (have h := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2); parley_set_side)
-      _ = (1 : G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1); parley_set_side)
-  all_goals exact s3
+  calc (1 : G)⁻¹ = (1 : G) * (1 : G)⁻¹ := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2).symm
+    _ = (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1)
 
 end Parley.Proofs.Setmm.GroupInverses.GroupInverseOfIdentity

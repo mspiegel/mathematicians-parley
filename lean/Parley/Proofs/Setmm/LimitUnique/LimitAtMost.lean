@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -36,9 +35,9 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.1. inequalities
     have s1_1 : r / 2 > 0 := by parley_order
     -- 1.2. def:tends-to, from H4
-    have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp (by parley_side); parley_side)
+    have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp hH4
     -- 1.3. def:tends-to L := B, from H5
-    have s1_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - B) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp (by parley_side); parley_side)
+    have s1_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - B) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp hH5
     -- 1.4. instantiate ε := r/2 in line 1.2, from 1.1
     have s1_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < r / 2) := by first | exact (s1_2 (r / 2) (by parley_side)) | exact ((s1_2 (r / 2) (by parley_side))).symm | simpa using (s1_2 (r / 2) (by parley_side)) | exact_mod_cast (s1_2 (r / 2) (by parley_side)) | (have h := (s1_2 (r / 2) (by parley_side)); parley_side)
     -- 1.5. instantiate ε := r/2 in line 1.3, from 1.1
@@ -57,9 +56,9 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     have s1_11 : abs (x (P + Q) - B) < r / 2 := by first | linarith [(s1_7b (P + Q) (by parley_side) (by parley_side))] | (have h := (s1_7b (P + Q) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1_7b (P + Q) (by parley_side) (by parley_side)) | (have h := (s1_7b (P + Q) (by parley_side) (by parley_side)); parley_side)
     -- 1.12. membership, from H1
     -- 1.13. mun:abs-difference-lt x := x(P + Q), c := A, δ := r/2, from 1.10, 1.12
-    have s1_13 : A - r / 2 < x (P + Q) ∧ x (P + Q) < A + r / 2 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp (by parley_side); parley_side)
+    have s1_13 : A - r / 2 < x (P + Q) ∧ x (P + Q) < A + r / 2 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp s1_10
     -- 1.14. mun:abs-difference-lt x := x(P + Q), c := B, δ := r/2, from 1.11, 1.12
-    have s1_14 : B - r / 2 < x (P + Q) ∧ x (P + Q) < B + r / 2 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp (by parley_side); parley_side)
+    have s1_14 : B - r / 2 < x (P + Q) ∧ x (P + Q) < B + r / 2 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp s1_11
     -- 1.15. inequalities, from 1.12, 1.13
     have s1_15 : A - r / 2 < x (P + Q) := by parley_order
     -- 1.16. inequalities, from 1.12, 1.14
@@ -67,21 +66,17 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.17. transitivity, from 1.15, 1.16
     have s1_17 : A - r / 2 < B + r / 2 := by parley_order
     -- 1.18. inequalities
-    have s1_18 : A < B + r := by parley_order
-    all_goals parley_side
+    parley_order
   -- 2. contradiction
-  have s2 : A ≤ B := by
-    by_contra hc_hS
-    have hS : ¬ A ≤ B := by parley_suppose hc_hS
-    -- 2.1. inequalities, from S
-    have s2_1 : B < A := by parley_order
-    -- 2.2. inequalities
-    have s2_2 : (A - B) / 2 > 0 := by parley_order
-    -- 2.3. instantiate r := (A − B)/2 in line 1, from 2.2
-    have s2_3 : A < B + (A - B) / 2 := by first | linarith [(s1 ((A - B) / 2) (by parley_side))] | (have h := (s1 ((A - B) / 2) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 ((A - B) / 2) (by parley_side)) | (have h := (s1 ((A - B) / 2) (by parley_side)); parley_side)
-    -- 2.4. inequalities
-    have s2_4 : A ≤ B := by parley_order
-    all_goals parley_side
-  all_goals exact s2
+  by_contra hS
+  -- 2.1. inequalities, from S
+  have s2_1 : B < A := by parley_order
+  -- 2.2. inequalities
+  have s2_2 : (A - B) / 2 > 0 := by parley_order
+  -- 2.3. instantiate r := (A − B)/2 in line 1, from 2.2
+  have s2_3 : A < B + (A - B) / 2 := by first | linarith [(s1 ((A - B) / 2) (by parley_side))] | (have h := (s1 ((A - B) / 2) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 ((A - B) / 2) (by parley_side)) | (have h := (s1 ((A - B) / 2) (by parley_side)); parley_side)
+  -- 2.4. inequalities
+  have s2_4 : A ≤ B := by parley_order
+  exact hS s2_4
 
 end Parley.Proofs.Setmm.LimitUnique.LimitAtMost

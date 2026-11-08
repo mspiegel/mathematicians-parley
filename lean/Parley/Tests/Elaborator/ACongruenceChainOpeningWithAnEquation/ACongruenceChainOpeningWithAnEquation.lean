@@ -22,10 +22,8 @@ theorem a_congruence_chain_opening_with_an_equation (a : ℤ) (b : ℤ) (n : ℤ
   -- 1. algebra, from H5
   have s1 : a * (Classical.choose hH5 : ℤ) = (Classical.choose hH5 : ℤ) * a := by parley_ring
   -- 2. calculation
-  have s2 : a * (Classical.choose hH5 : ℤ) ≡ (1 : ℤ) [ZMOD n] := by
-    calc a * (Classical.choose hH5 : ℤ) = (Classical.choose hH5 : ℤ) * a := by parley_side
-      _ ≡ b [ZMOD n] := by parley_side
-      _ ≡ 1 [ZMOD n] := by parley_side
-  all_goals exact s2
+  calc a * (Classical.choose hH5 : ℤ) = (Classical.choose hH5 : ℤ) * a := by parley_side
+    _ ≡ b [ZMOD n] := by parley_side
+    _ ≡ 1 [ZMOD n] := by parley_side
 
 end Parley.Tests.Elaborator.ACongruenceChainOpeningWithAnEquation.ACongruenceChainOpeningWithAnEquation

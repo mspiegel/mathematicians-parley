@@ -37,34 +37,30 @@ namespace Parley.Proofs.Wiedijk.Ballot.TieCount
 theorem tie_count (m : ℤ) (hH1 : 0 ≤ m) :
     ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by
   -- 1. axi:excluded-middle P := m = 0
-  have s1 : m = 0 ∨ m ≠ 0 := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0)); parley_set_side)
+  have s1 : m = 0 ∨ m ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0))
   -- 2. cases, from 1
-  have s2 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by
-    rcases s1 with hC1 | hC2
-    · skip
-      -- 2.1. thm:good-finite n := m
-      have s2_1 : {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.Finite := by exact (Parley.Proofs.Wiedijk.Ballot.GoodFinite.good_finite (m := m) (by parley_set_side) (n := m) (by parley_set_side))
-      -- 2.2. mun:card-nat0 X := G(m, m), from 2.1
-      have s2_2 : 0 ≤ ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) s2_1)
-      -- 2.3. calculation
-      have s2_3 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by parley_count_after (by
-        calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = 0 := by parley_count_int; (linear_combination (norm := parley_norm) (2 * ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ)) * hC1)
-          _ = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by parley_ring)
-      all_goals parley_set_side
-    · skip
-      -- 2.4. mun:nat0-nonzero, from C2
-      have s2_4 : 0 < m := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := m) (by parley_set_side) hC2)
-      -- 2.5. thm:tie-at-the-end, from 2.4
-      have s2_5 : {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} = ∅ := by exact (Parley.Proofs.Wiedijk.Ballot.TieAtTheEnd.tie_at_the_end (m := m) (by parley_set_side))
-      -- 2.6. calculation
-      have s2_6 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) = 0 := by parley_count_after (by
-        calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) = ((∅ : Set (Set ℤ)).ncard : ℤ) := by parley_subst s2_5
-          _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty)
-      -- 2.7. calculation
-      have s2_7 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by parley_count_after (by
-        calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = 0 := by parley_count_int; (linear_combination (norm := parley_norm) (2 * m) * s2_6)
-          _ = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by parley_ring)
-      all_goals parley_set_side
-  all_goals exact s2
+  rcases s1 with hC1 | hC2
+  · skip
+    -- 2.1. thm:good-finite n := m
+    have s2_1 : {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.Finite := by exact (Parley.Proofs.Wiedijk.Ballot.GoodFinite.good_finite (m := m) (by parley_set_side) (n := m) (by parley_set_side))
+    -- 2.2. mun:card-nat0 X := G(m, m), from 2.1
+    have s2_2 : 0 ≤ ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (by parley_set_side))
+    -- 2.3. calculation
+    parley_count_after (by
+      calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = 0 := by parley_count_int; (linear_combination (norm := parley_norm) (2 * ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ)) * hC1)
+        _ = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by parley_ring)
+  · skip
+    -- 2.4. mun:nat0-nonzero, from C2
+    have s2_4 : 0 < m := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := m) (by parley_set_side) hC2)
+    -- 2.5. thm:tie-at-the-end, from 2.4
+    have s2_5 : {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} = ∅ := by exact (Parley.Proofs.Wiedijk.Ballot.TieAtTheEnd.tie_at_the_end (m := m) (by parley_set_side))
+    -- 2.6. calculation
+    have s2_6 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) = 0 := by parley_count_after (by
+      calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) = ((∅ : Set (Set ℤ)).ncard : ℤ) := by parley_subst s2_5
+        _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty)
+    -- 2.7. calculation
+    parley_count_after (by
+      calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = 0 := by parley_count_int; (linear_combination (norm := parley_norm) (2 * m) * s2_6)
+        _ = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by parley_ring)
 
 end Parley.Proofs.Wiedijk.Ballot.TieCount

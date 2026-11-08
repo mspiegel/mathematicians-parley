@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Divisibility.ModReal
 theorem mod_real (a : ℝ) (b : ℝ) (hH3 : b > 0) :
     True := by
   -- 1. mun:divisibility-mod-real, from H3
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Divisibility.ModReal

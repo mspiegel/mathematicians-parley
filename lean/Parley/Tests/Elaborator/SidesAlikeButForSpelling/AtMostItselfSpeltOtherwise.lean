@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.SidesAlikeButForSpelling.AtMostItselfSpeltOthe
 theorem at_most_itself_spelt_otherwise (A : ℝ) (B : ℝ) :
     B + (A - B) ≤ A := by
   -- 1. inequalities
-  have s1 : B + (A - B) ≤ A := by parley_order
-  all_goals exact s1
+  parley_order
 
 end Parley.Tests.Elaborator.SidesAlikeButForSpelling.AtMostItselfSpeltOtherwise

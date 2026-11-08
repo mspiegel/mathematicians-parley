@@ -20,11 +20,10 @@ namespace Parley.Tests.Elaborator.AnOddFactorOfAnEvenProduct.AnOddFactorOfAnEven
 theorem an_odd_factor_of_an_even_product (a : ℤ) (b : ℤ) (hH3 : Odd a) (hH4 : Even (a * b)) :
     Even b := by
   -- 1. mun:even-product-factor, from H4
-  have s1 : Even a ∨ Even b := by first | exact ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp (by parley_side); parley_side)
+  have s1 : Even a ∨ Even b := ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp hH4
   -- 2. mun:odd-not-even, from H3
   have s2 : ¬ Even a := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_not_even (n := a) hH3)
   -- 3. mun:disjunctive-syllogism-left, from 1, 2
-  have s3 : Even b := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even a) (Q := Even b) s1 s2)
-  all_goals exact s3
+  exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even a) (Q := Even b) s1 s2)
 
 end Parley.Tests.Elaborator.AnOddFactorOfAnEvenProduct.AnOddFactorOfAnEvenProduct

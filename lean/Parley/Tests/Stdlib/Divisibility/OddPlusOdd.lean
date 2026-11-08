@@ -19,7 +19,6 @@ namespace Parley.Tests.Stdlib.Divisibility.OddPlusOdd
 theorem odd_plus_odd (a : ℤ) (hH2 : Odd a) (b : ℤ) (hH4 : Odd b) :
     Even (a + b) := by
   -- 1. mun:divisibility-odd-plus-odd, from H2, H4
-  have s1 : Even (a + b) := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_plus_odd (a := a) hH2 (b := b) hH4)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_odd_plus_odd (a := a) hH2 (b := b) hH4)
 
 end Parley.Tests.Stdlib.Divisibility.OddPlusOdd

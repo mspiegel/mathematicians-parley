@@ -23,7 +23,6 @@ namespace Parley.Tests.Elaborator.AnIntersectionCounted.AnIntersectionCounted
 theorem an_intersection_counted {α : Type*} (A : Set α) (B : Set α) (D : Set α) (m : ℤ) (hH4 : 0 ≤ m) (n : ℤ) (hH5 : 0 ≤ n) (hH6 : (A ∩ B).encard = ((m.toNat : ℕ) : ℕ∞)) (hH7 : D.encard = ((n.toNat : ℕ) : ℕ∞)) (hH8 : (A ∩ B) ∩ D = ∅) :
     ((A ∩ B ∪ D).ncard : ℤ) = m + n := by
   -- 1. mun:card-disjoint-union X := A ∩ B, Y := D, from H6, H7, H8
-  have s1 : ((A ∩ B ∪ D).ncard : ℤ) = m + n := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A ∩ B) (Y := D) (m := m) (by parley_set_side) (n := n) (by parley_set_side) (by parley_set_side) (by parley_set_side) hH8)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A ∩ B) (Y := D) (m := m) (by parley_set_side) (n := n) (by parley_set_side) (by parley_set_side) (by parley_set_side) hH8)
 
 end Parley.Tests.Elaborator.AnIntersectionCounted.AnIntersectionCounted

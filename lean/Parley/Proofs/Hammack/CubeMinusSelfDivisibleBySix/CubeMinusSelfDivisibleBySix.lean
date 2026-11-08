@@ -5,6 +5,7 @@ public import ArithTactics
 public import Functions
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -36,20 +37,17 @@ theorem cube_minus_self_divisible_by_six (n : ℤ) (hH1 : 0 ≤ n) :
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (6 : ℤ) ∣ (0 ^ 3 : ℤ) := by parley_arith
-      all_goals parley_side
+      simpa only [sub_zero] using s1_1
     | succ k hK hIH =>
       -- 1.2. thm:six-divides-three-consecutive
       have s1_2 : (6 : ℤ) ∣ 3 * k * (k + 1) := by exact (Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConsecutive.six_divides_three_consecutive (k := k) (by parley_side))
       -- 1.3. mun:divides-sum d := 6, a := k³ − k, b := 3·k·(k + 1), from IH, 1.2
       have s1_3 : (6 : ℤ) ∣ k ^ 3 - k + 3 * k * (k + 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (6 : ℤ)) (a := k ^ 3 - k) (b := 3 * k * (k + 1)) hIH s1_2)
       -- 1.4. substitute
-      have s1_4 : (6 : ℤ) ∣ (k + 1) ^ 3 - (k + 1) := by
-        have c1 : k ^ 3 - k + 3 * k * (k + 1) = (k + 1) ^ 3 - (k + 1) := by parley_ring
-        have row1 : (6 : ℤ) ∣ (k + 1) ^ 3 - (k + 1) := by parley_subst_at c1 s1_3
-        exact row1
-      all_goals parley_side
+      have c1 : k ^ 3 - k + 3 * k * (k + 1) = (k + 1) ^ 3 - (k + 1) := by parley_ring
+      have row1 : (6 : ℤ) ∣ (k + 1) ^ 3 - (k + 1) := by parley_subst_at c1 s1_3
+      exact row1
   -- 2. instantiate k := n in line 1
-  have s2 : (6 : ℤ) ∣ n ^ 3 - n := by first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals exact s2
+  first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
 
 end Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.CubeMinusSelfDivisibleBySix

@@ -19,7 +19,6 @@ namespace Parley.Tests.Stdlib.Counting.BinomialAll
 theorem binomial_all (m : ℤ) (hH1 : 0 ≤ m) :
     (LeanBridges.Counting.choose m m : ℤ) = 1 := by
   -- 1. mun:counting-binomial-all n := m
-  have s1 : (LeanBridges.Counting.choose m m : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := m) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := m) (by parley_side))
 
 end Parley.Tests.Stdlib.Counting.BinomialAll

@@ -15,7 +15,6 @@ namespace Parley.Tests.Notations.Primes.NineteenIsPrime
 theorem nineteen_is_prime :
     Nat.Prime (19 : ℤ).toNat := by
   -- 1. inspection
-  have s1 : Nat.Prime (19 : ℤ).toNat := by parley_side
-  all_goals exact s1
+  parley_side
 
 end Parley.Tests.Notations.Primes.NineteenIsPrime

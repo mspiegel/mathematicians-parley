@@ -32,7 +32,6 @@ namespace Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ADefineWithASqu
 theorem a_define_with_a_square_written_out (n : ℤ) (hH1 : 0 ≤ n) :
     (∫ t in 0..1, (t ^ n.toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ n.toNat / (1 + t ^ 2) : ℝ)) := by
   -- 1. D1
-  have s1 : (∫ t in 0..1, (t ^ n.toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ n.toNat / (1 + t ^ 2) : ℝ)) := by parley_side
-  all_goals exact s1
+  parley_side
 
 end Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ADefineWithASquareWrittenOut

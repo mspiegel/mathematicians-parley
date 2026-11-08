@@ -1,13 +1,10 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -25,23 +22,20 @@ namespace Parley.Proofs.Setmm.PrimeDividesPredecessor.PrimeDividesPredecessor
 theorem prime_divides_predecessor (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (A : ℤ) (hH4 : P ∣ A - 1) :
     ¬ P ∣ A := by
   -- 1. def:prime p := P, from H2
-  have s1 : P > 1 := by first | linarith [((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side); parley_side)
+  have s1 : P > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
   -- 2. contradiction
-  have s2 : ¬ P ∣ A := by
-    by_contra hc_hS
-    have hS : P ∣ A := by parley_suppose hc_hS
-    -- 2.1. mun:divides-difference d := P, a := A, b := A − 1, from H4, S
-    have s2_1 : P ∣ A - (A - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4)
-    -- 2.2. substitute
-    have s2_2 : P ∣ (1 : ℤ) := by
-      have c1 : A - (A - 1) = 1 := by parley_ring
-      have row1 : P ∣ (1 : ℤ) := by parley_subst_at c1 s2_1
-      exact row1
-    -- 2.3. mun:divides-one d := P, from 2.2
-    have s2_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2)
-    -- 2.4. inequalities
-    have s2_4 : P ≠ 1 := by parley_side
-    all_goals parley_side
-  all_goals exact s2
+  intro hS
+  -- 2.1. mun:divides-difference d := P, a := A, b := A − 1, from H4, S
+  have s2_1 : P ∣ A - (A - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4)
+  -- 2.2. substitute
+  have s2_2 : P ∣ (1 : ℤ) := by
+    have c1 : A - (A - 1) = 1 := by parley_ring
+    have row1 : P ∣ (1 : ℤ) := by parley_subst_at c1 s2_1
+    exact row1
+  -- 2.3. mun:divides-one d := P, from 2.2
+  have s2_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2)
+  -- 2.4. inequalities
+  have s2_4 : P ≠ 1 := by parley_side
+  exact s2_4 s2_3
 
 end Parley.Proofs.Setmm.PrimeDividesPredecessor.PrimeDividesPredecessor

@@ -19,7 +19,6 @@ theorem a_second_sentence_in_a_requires_line (a : ℝ) (b : ℝ) (hH3a : a = 1) 
     a / b * b = a := by
   -- 1. algebra
   have r64_1 : b ≠ 0 := by parley_side
-  have s1 : a / b * b = a := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceInARequiresLine

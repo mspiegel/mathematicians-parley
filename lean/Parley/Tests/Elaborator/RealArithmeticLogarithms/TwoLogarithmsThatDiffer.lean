@@ -15,7 +15,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticLogarithms.TwoLogarithmsThatDiff
 theorem two_logarithms_that_differ :
     Real.log (2 : ℝ) ≠ Real.log (3 : ℝ) := by
   -- 1. real arithmetic
-  have s1 : Real.log (2 : ℝ) ≠ Real.log (3 : ℝ) := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticLogarithms.TwoLogarithmsThatDiffer

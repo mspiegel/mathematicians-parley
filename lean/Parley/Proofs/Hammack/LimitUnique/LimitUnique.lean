@@ -24,7 +24,6 @@ theorem limit_unique (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filt
   -- 2. thm:limit-order L := M, M := L, from H5, H6
   have s2 : L ≤ M := by exact (Parley.Proofs.Hammack.LimitUnique.LimitOrder.limit_order (f := f) (c := c) (L := M) (M := L) hH6 hH5)
   -- 3. antisymmetry, from 1, 2
-  have s3 : L = M := by parley_set_side
-  all_goals exact s3
+  parley_set_side
 
 end Parley.Proofs.Hammack.LimitUnique.LimitUnique

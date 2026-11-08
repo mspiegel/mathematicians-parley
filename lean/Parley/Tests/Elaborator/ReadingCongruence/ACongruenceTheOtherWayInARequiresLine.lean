@@ -24,7 +24,6 @@ theorem a_congruence_the_other_way_in_a_requires_line (n : ℤ) (hH1 : 0 < n) (x
     x = y := by
   -- 1. mun:congruent-in-range, from H2, H3
   have r41_1 : x ≡ y [ZMOD n] := by parley_side
-  have s1 : x = y := by exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 r41_1)
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayInARequiresLine

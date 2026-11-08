@@ -24,21 +24,20 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
   have s1 : ∀ s ∈ W ∩ X, s ∈ A := by
     intro s hK1
     -- 1.1. def:intersection u := s, Y := W, Z := X, from K1
-    have s1_1a : s ∈ W := by first | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1; parley_set_side)
-    have s1_1b : s ∈ X := by first | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2; parley_set_side)
+    have s1_1a : s ∈ W := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp hK1).1
+    have s1_1b : s ∈ X := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp hK1).2
     -- 1.2. mun:in-subset X := W, Y := A, u := s, from H4, 1.1
-    have s1_2 : s ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := W) (Y := A) (u := s) hH4 s1_1a)
-    all_goals exact s1_2
+    exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := W) (Y := A) (u := s) hH4 s1_1a)
   -- 2. def:subset, from 1
-  have s2 : W ∩ X ⊆ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := W ∩ X) (Y := A))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := W ∩ X) (Y := A))).mpr (by parley_set_side); parley_set_side)
+  have s2 : W ∩ X ⊆ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := W ∩ X) (Y := A))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := W ∩ X) (Y := A))).mpr s1; parley_set_side)
   -- 3. proof
   have s3 : ∀ y ∈ f '' (A ∩ (W ∩ X)), y ∈ f '' (A ∩ W) ∩ f '' (A ∩ X) := by
     intro y hK2
     -- 3.1. obtain s: def:image u := y, Y := W ∩ X, from K2, 2
-    obtain ⟨s, s3_1a, s3_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := W ∩ X) (f := f) (u := y) (W := Set.univ) s2 (by parley_set_side))).mp (by parley_set_side)
+    obtain ⟨s, s3_1a, s3_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := W ∩ X) (f := f) (u := y) (W := Set.univ) s2 (by parley_set_side))).mp hK2
     -- 3.2. def:intersection u := s, Y := W, Z := X, from 3.1
-    have s3_2a : s ∈ W := by first | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).1; parley_set_side)
-    have s3_2b : s ∈ X := by first | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp (by parley_set_side)).2; parley_set_side)
+    have s3_2a : s ∈ W := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).1
+    have s3_2b : s ∈ X := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).2
     -- 3.3. mun:value-in-image Y := W, from H4, 3.2
     have s3_3 : f s ∈ f '' (A ∩ W) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := W) (f := f) (s := s) (W := Set.univ) hH4 s3_2a (by parley_set_side))
     -- 3.4. mun:value-in-image Y := X, from H5, 3.2
@@ -48,10 +47,8 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     -- 3.6. substitute y = f(s) (line 3.1) into line 3.4
     have s3_6 : y ∈ f '' (A ∩ X) := by parley_subst_at s3_1b s3_4
     -- 3.7. def:intersection u := y, Y := f[W], Z := f[X], from 3.5, 3.6
-    have s3_7 : y ∈ f '' (A ∩ W) ∩ f '' (A ∩ X) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side); parley_set_side)
-    all_goals exact s3_7
+    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side); parley_set_side)
   -- 4. def:subset, from 3
-  have s4 : f '' (A ∩ (W ∩ X)) ⊆ f '' (A ∩ W) ∩ f '' (A ∩ X) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr (by parley_set_side); parley_set_side)
-  all_goals exact s4
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr s3; parley_set_side)
 
 end Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin

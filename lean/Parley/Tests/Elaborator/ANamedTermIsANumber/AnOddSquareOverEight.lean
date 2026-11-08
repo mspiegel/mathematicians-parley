@@ -26,6 +26,6 @@ theorem an_odd_square_over_eight (N : ℤ) :
     try simp only [hD1] at *
     try push_cast at *
     parley_ring
-  all_goals parley_side
+  rw [hD1] at s1; push_cast at s1 ⊢; exact s1
 
 end Parley.Tests.Elaborator.ANamedTermIsANumber.AnOddSquareOverEight

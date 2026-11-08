@@ -18,6 +18,6 @@ theorem two_sentences_by_arithmetic :
   -- 1. arithmetic
   have s1a : (2 + 2 : ℤ) = 4 := by parley_arith
   have s1b : (3 * 3 : ℤ) = 9 := by parley_arith
-  exact ⟨by parley_side, by parley_side⟩
+  exact ⟨s1a, s1b⟩
 
 end Parley.Tests.Elaborator.LargeArithmetic.TwoSentencesByArithmetic

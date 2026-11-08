@@ -1,21 +1,16 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/difference-of-magnitudes.proof by parley build lean. -/
@@ -49,28 +44,22 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     have row1 : abs (B - A) = abs (A - B) := by parley_subst_at c1 s5
     exact row1
   -- 7. mun:nonneg-or-neg x := |A| − |B|
-  have s7 : abs A - abs B ≥ 0 ∨ abs A - abs B < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)); parley_side)
+  have s7 : abs A - abs B ≥ 0 ∨ abs A - abs B < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B))
   -- 8. cases, from 7
-  have s8 : abs (abs A - abs B) ≤ abs (A - B) := by
-    rcases s7 with hC1 | hC2
-    · skip
-      -- 8.1. inequalities
-      have s8_1 : abs A - abs B ≤ abs (A - B) := by parley_order
-      -- 8.2. calculation
-      have s8_2 : abs (abs A - abs B) ≤ abs (A - B) := by
-        calc abs (abs A - abs B) = abs A - abs B := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); parley_side)
-          _ ≤ abs (A - B) := by parley_side
-      all_goals parley_side
-    · skip
-      -- 8.3. substitute |B − A| = |A − B| (line 6) into line 4
-      have s8_3 : abs B ≤ abs (A - B) + abs A := by parley_subst_at s6 s4
-      -- 8.4. inequalities
-      have s8_4 : -(abs A - abs B) ≤ abs (A - B) := by parley_order
-      -- 8.5. calculation
-      have s8_5 : abs (abs A - abs B) ≤ abs (A - B) := by
-        calc abs (abs A - abs B) = -(abs A - abs B) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); parley_side)
-          _ ≤ abs (A - B) := by parley_side
-      all_goals parley_side
-  all_goals exact s8
+  rcases s7 with hC1 | hC2
+  · skip
+    -- 8.1. inequalities
+    have s8_1 : abs A - abs B ≤ abs (A - B) := by parley_order
+    -- 8.2. calculation
+    calc abs (abs A - abs B) = abs A - abs B := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) hC1
+      _ ≤ abs (A - B) := by parley_side
+  · skip
+    -- 8.3. substitute |B − A| = |A − B| (line 6) into line 4
+    have s8_3 : abs B ≤ abs (A - B) + abs A := by parley_subst_at s6 s4
+    -- 8.4. inequalities
+    have s8_4 : -(abs A - abs B) ≤ abs (A - B) := by parley_order
+    -- 8.5. calculation
+    calc abs (abs A - abs B) = -(abs A - abs B) := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) hC2
+      _ ≤ abs (A - B) := by parley_side
 
 end Parley.Proofs.Setmm.DifferenceOfMagnitudes.DifferenceOfMagnitudes

@@ -44,7 +44,6 @@ theorem scaled_binomial_step (m : ℤ) (hH1 : 0 ≤ m) (i : ℤ) (hH2 : 0 ≤ i)
   -- 7. algebra, from 1
   have s7 : m + i + 1 = m + j := by linear_combination (norm := parley_norm) (-1) * s1
   -- 8. substitute (m + i) + 1 = m + j (line 7) into line 6
-  have s8 : j * (LeanBridges.Counting.choose (m + j) j : ℤ) = (m + j) * (LeanBridges.Counting.choose (m + i) i : ℤ) := by parley_subst_at s7 s6
-  all_goals exact s8
+  parley_subst_at s7 s6
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep

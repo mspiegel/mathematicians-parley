@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Numbers.Nat0AsInt
 theorem nat0_as_int (n : ℝ) :
     ((∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = n) ↔ (∃ m : ℤ, (m : ℝ) = n) ∧ 0 ≤ n) := by
   -- 1. mun:numbers-nat0-as-int
-  have s1 : (∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = n) ↔ (∃ m : ℤ, (m : ℝ) = n) ∧ 0 ≤ n := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := n))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := n))
 
 end Parley.Tests.Stdlib.Numbers.Nat0AsInt

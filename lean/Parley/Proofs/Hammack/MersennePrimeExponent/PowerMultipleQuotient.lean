@@ -46,8 +46,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) ≥ 1 := by parley_arith
       -- 1.2. exhibit, from 1.1
-      have s1_2 : ∃ q : ℤ, 0 < q ∧ (2 ^ (d * 1).toNat - 1 = (2 ^ d.toNat - 1) * q ∧ q ≥ 1) := ⟨(1 : ℤ), by parley_side, ⟨by parley_side, by parley_side⟩⟩
-      all_goals parley_side
+      exact ⟨(1 : ℤ), by parley_side, ⟨by parley_side, s1_1⟩⟩
     | succ j hK hIH =>
       -- 1.3. obtain q from IH
       obtain ⟨q, s1_3a, ⟨s1_3b, s1_3c⟩⟩ := hIH
@@ -71,7 +70,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       have s1_9 : (2 ^ d.toNat : ℤ) ≥ 1 := by parley_order
       -- 1.10. mun:multiply-le x := 1, y := 2^d, c := q, from 1.9
       have r134_1 : q > 0 := by parley_order
-      have s1_10 : q * 1 ≤ q * 2 ^ d.toNat := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side)); parley_side)
+      have s1_10 : q * 1 ≤ q * 2 ^ d.toNat := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side))
       -- 1.11. algebra
       have s1_11 : q * 2 ^ d.toNat = 2 ^ d.toNat * q := by parley_ring
       -- 1.12. inequalities
@@ -83,10 +82,8 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.15. inequalities
       have s1_15 : 2 ^ d.toNat * q + 1 ≥ j + 1 := by parley_order
       -- 1.16. exhibit, from 1.6, 1.15
-      have s1_16 : ∃ q : ℤ, 0 < q ∧ (2 ^ (d * (j + 1)).toNat - 1 = (2 ^ d.toNat - 1) * q ∧ q ≥ j + 1) := ⟨2 ^ d.toNat * q + 1, by parley_side, ⟨by parley_side, by parley_side⟩⟩
-      all_goals parley_side
+      exact ⟨2 ^ d.toNat * q + 1, by parley_side, ⟨s1_6, s1_15⟩⟩
   -- 2. instantiate j := m in line 1
-  have s2 : ∃ q : ℤ, 0 < q ∧ (2 ^ (d * m).toNat - 1 = (2 ^ d.toNat - 1) * q ∧ q ≥ m) := by first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 m (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); parley_side)
-  all_goals exact s2
+  first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s1 m (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); parley_side)
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient

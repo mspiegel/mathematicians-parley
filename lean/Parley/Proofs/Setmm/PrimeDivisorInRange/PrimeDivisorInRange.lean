@@ -8,7 +8,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Ineq
@@ -26,7 +25,7 @@ namespace Parley.Proofs.Setmm.PrimeDivisorInRange.PrimeDivisorInRange
 theorem prime_divisor_in_range (N : ℤ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Finset.Icc (2 : ℤ) N) :
     (∃ p : ℤ, 0 < p ∧ ((Nat.Prime p.toNat ∧ p ≤ N) ∧ p ∣ I)) := by
   -- 1. mun:range-bounds a := 2, b := N, k := I, from H2
-  have s1 : 2 ≤ I := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2); parley_side)
+  have s1 : 2 ≤ I := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2)
   -- 2. mun:range-bounds a := 2, b := N, k := I, from H2
   have s2 : I ≤ N := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2)
   -- 3. inequalities, from 1
@@ -36,13 +35,12 @@ theorem prime_divisor_in_range (N : ℤ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   -- 5. inequalities, from 1
   have s5 : I > 1 := by parley_order
   -- 6. obtain p: thm:prime-factor m := I, from 4, 5
-  obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) (by parley_side) (by parley_side))
+  obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) (by parley_side) s5)
   -- 7. mun:divides-le e := p, m := I, from 4, 6
   have s7 : p ≤ I := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) s6c)
   -- 8. transitivity, from 7, 2
   have s8 : p ≤ N := by parley_order
   -- 9. exhibit, from 6, 8
-  have s9 : ∃ p : ℤ, 0 < p ∧ ((Nat.Prime p.toNat ∧ p ≤ N) ∧ p ∣ I) := ⟨p, by parley_side, ⟨⟨by parley_side, by parley_side⟩, by parley_side⟩⟩
-  all_goals exact s9
+  exact ⟨p, s6a, ⟨⟨s6b, s8⟩, s6c⟩⟩
 
 end Parley.Proofs.Setmm.PrimeDivisorInRange.PrimeDivisorInRange

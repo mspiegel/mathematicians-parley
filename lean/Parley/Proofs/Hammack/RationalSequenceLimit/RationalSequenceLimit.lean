@@ -11,7 +11,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -36,7 +35,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
     intro ε
     intro hA1
     -- 1.1. obtain N: thm:archimedean x := ε, from A1
-    obtain ⟨N, s1_1a, s1_1b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε) (by parley_side))
+    obtain ⟨N, s1_1a, s1_1b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε) hA1)
     -- 1.2. proof
     have s1_2 : ∀ n : ℤ, 0 < n → n ≥ N → abs (a n - 2 / 3) < ε := by
       intro n hK2
@@ -64,7 +63,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have r68_2 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_10 : a n - 2 / 3 = 5 * (1 / (9 * (n : ℝ) - 3)) := by linear_combination (norm := parley_field) ((3) / ((3))) * (hH2 n (by parley_side))
       -- 1.2.11. mun:reciprocal-positive x := 9n − 3, from 1.2.8
-      have s1_2_11 : 1 / (9 * (n : ℚ) - 3) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by parley_side)); parley_side)
+      have s1_2_11 : 1 / (9 * (n : ℚ) - 3) > 0 := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by parley_side))
       -- 1.2.12. inequalities
       have r76_1 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_12 : 5 * (1 / (9 * (n : ℚ) - 3)) > 0 := by parley_order
@@ -80,7 +79,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.17. mun:reciprocal-order x := 5n, y := 9n − 3, from 1.2.6
       have r103_1 : 5 * n > 0 := by parley_side
       have r103_2 : 9 * n - 3 > 0 := by parley_side
-      have s1_2_17 : 1 / (9 * (n : ℚ) - 3) ≤ 1 / (5 * (n : ℚ)) := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 5 * (n : ℚ)) (by parley_side) (y := 9 * (n : ℚ) - 3) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 5 * (n : ℚ)) (by parley_side) (y := 9 * (n : ℚ) - 3) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 5 * (n : ℚ)) (by parley_side) (y := 9 * (n : ℚ) - 3) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 5 * (n : ℚ)) (by parley_side) (y := 9 * (n : ℚ) - 3) (by parley_side))).mp (by parley_side); parley_side)
+      have s1_2_17 : 1 / (9 * (n : ℚ) - 3) ≤ 1 / (5 * (n : ℚ)) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 5 * (n : ℚ)) (by parley_side) (y := 9 * (n : ℚ) - 3) (by parley_side))).mp (by parley_side)
       -- 1.2.18. inequalities
       have r108_1 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_18 : 5 * (1 / (9 * (n : ℚ) - 3)) ≤ 5 * (1 / (5 * (n : ℚ))) := by parley_order
@@ -89,7 +88,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.20. mun:reciprocal-order x := N, y := n, from A2
       have r117_1 : N > 0 := by parley_order
       have r117_2 : n > 0 := by parley_side
-      have s1_2_20 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side); parley_side)
+      have s1_2_20 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
       -- 1.2.21. transitivity, from 1.2.10, 1.2.18, 1.2.19, 1.2.20, 1.1
       have r122_1 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_21 : a n - 2 / 3 < ε := by parley_order
@@ -98,13 +97,10 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.23. join 1.2.16, 1.2.22
       have s1_2_23 : 2 / 3 - ε < a n ∧ a n < 2 / 3 + ε := by parley_side
       -- 1.2.24. mun:abs-difference-lt x := a(n), c := 2/3, δ := ε, from 1.2.23
-      have s1_2_24 : abs (a n - 2 / 3) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (2 / 3 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (2 / 3 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
-      all_goals parley_side
+      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (2 / 3 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (2 / 3 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
     -- 1.3. exhibit, from 1.2
-    have s1_3 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - 2 / 3) < ε) := ⟨N, by parley_side, by parley_side⟩
-    all_goals parley_side
+    exact ⟨N, s1_1a, s1_2⟩
   -- 2. def:tends-to L := 2/3, from 1
-  have s2 : Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds (2 / 3)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (2 / 3 : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (2 / 3 : ℝ)))).mpr (by parley_side); parley_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (2 / 3 : ℝ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (2 / 3 : ℝ)))).mpr s1; parley_side)
 
 end Parley.Proofs.Hammack.RationalSequenceLimit.RationalSequenceLimit

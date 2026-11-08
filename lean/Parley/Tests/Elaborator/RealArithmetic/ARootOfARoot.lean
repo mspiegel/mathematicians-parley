@@ -17,7 +17,6 @@ namespace Parley.Tests.Elaborator.RealArithmetic.ARootOfARoot
 theorem a_root_of_a_root :
     Real.sqrt (Real.sqrt (4 : ℝ)) = Real.sqrt (2 : ℝ) := by
   -- 1. real arithmetic
-  have s1 : Real.sqrt (Real.sqrt (4 : ℝ)) = Real.sqrt (2 : ℝ) := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmetic.ARootOfARoot

@@ -1,9 +1,7 @@
 module
 
-public import ArithTactics
 public import NormTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -25,21 +23,19 @@ theorem two_does_not_divide_odd (A : ℤ) :
   set B : ℤ := 2 * A + 1 with hD1
   -- the theorem. contradiction
   have sThm : ¬ (2 : ℤ) ∣ B := by
-    by_contra hc_hS
-    have hS : (2 : ℤ) ∣ B := by parley_suppose hc_hS
+    intro hS
     -- 1. obtain k: def:divides d := 2, n := B, from S
-    obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := B))).mp (by parley_side)
+    obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := B))).mp hS
     -- 2. algebra, from D1, 1
     have s2 : 2 * (k - A) = 1 := by
       try simp only [hD1] at *
       try push_cast at *
       linear_combination (norm := parley_norm) (-1) * s1
     -- 3. def:divides d := 2, n := 1, from 2
-    have s3 : (2 : ℤ) ∣ (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, by parley_side⟩; parley_side)
+    have s3 : (2 : ℤ) ∣ (1 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, s2.symm⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, s2.symm⟩; parley_side)
     -- 4. mun:divides-one d := 2, from 3
     have s4 : (2 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (2 : ℤ)) (by parley_side) s3)
     exact absurd s4 (by norm_num)
-    all_goals parley_side
-  all_goals parley_side
+  exact sThm
 
 end Parley.Proofs.Setmm.TwoDoesNotDivideOdd.TwoDoesNotDivideOdd

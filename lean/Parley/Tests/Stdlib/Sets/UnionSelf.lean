@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Sets.UnionSelf
 theorem union_self {α : Type*} (Y : Set α) :
     Y ∪ Y = Y := by
   -- 1. mun:sets-union-self
-  have s1 : Y ∪ Y = Y := by exact (Parley.Items.Stdlib.Sets.mun_union_self (Y := Y))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sets.mun_union_self (Y := Y))
 
 end Parley.Tests.Stdlib.Sets.UnionSelf

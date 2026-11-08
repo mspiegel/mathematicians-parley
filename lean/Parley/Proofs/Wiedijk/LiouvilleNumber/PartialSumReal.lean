@@ -37,6 +37,6 @@ theorem partial_sum_real (m : ℤ) (hH1 : 0 < m) :
   -- 2. thm:terms-real
   -- 3. mun:sum-real a := 1, b := m, from 2
   -- 4. substitute Σ(k = 1 to m) 1/2^(k!) = s(m) (line 1) into line 3
-  all_goals parley_side
+  exact trivial
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumReal

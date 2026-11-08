@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Numbers.Nat0
 theorem nat0 (n : ℝ) (hH2 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = n) :
     ((∃ m : ℤ, 0 < m ∧ (m : ℝ) = n) ∨ n = 0) := by
   -- 1. def:numbers-nat0, from H2
-  have s1 : (∃ m : ℤ, 0 < m ∧ (m : ℝ) = n) ∨ n = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := n))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := n))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := n))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := n))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := n))).mp (by parley_side); parley_side)
-  all_goals exact s1
+  exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := n))).mp hH2
 
 end Parley.Tests.Stdlib.Numbers.Nat0

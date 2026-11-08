@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -22,7 +21,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 public import Parley.Tests.Notations.Counting.FactorialOfFour
@@ -44,7 +42,7 @@ theorem choose_four_two :
   have r89_1 : (0 : ℤ) ≤ 2 := by parley_arith
   have r89_2 : (2 : ℤ) ≤ 4 := by parley_arith
   have r89_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr (by parley_side); parley_side)
-  have s3 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (4 - 2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side); parley_side)
+  have s3 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (4 - 2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side)
   -- 4. arithmetic
   have s4 : (4 - 2 : ℤ) = 2 := by parley_arith
   -- 5. substitute 4 − 2 = 2 (line 4) into line 3
@@ -60,10 +58,8 @@ theorem choose_four_two :
     have s2_w : (LeanBridges.Counting.factorial (2 : ℤ) : ℚ) = 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2; push_cast at h; linear_combination (norm := parley_norm) h
     first | parley_subst_at s2_w s6 | parley_subst_at s2 s6 | (have e_nat : LeanBridges.Counting.factorial (2 : ℤ) = 2 := by exact_mod_cast s2; parley_subst_at e_nat s6)
   -- 8. calculation
-  have s8 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℤ) = 6 := by
-    try qify
-    calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by parley_side
-      _ = 6 := by norm_num
-  all_goals exact s8
+  try qify
+  calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by parley_side
+    _ = 6 := by norm_num
 
 end Parley.Tests.Notations.Counting.ChooseFourTwo

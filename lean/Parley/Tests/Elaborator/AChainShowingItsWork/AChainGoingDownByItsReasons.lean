@@ -18,9 +18,7 @@ theorem a_chain_going_down_by_its_reasons (a : ℝ) (hH2 : a ≥ 3) :
   -- 1. inequalities
   have s1 : 2 * a ≥ 6 := by parley_order
   -- 2. calculation
-  have s2 : a + a ≥ 6 := by
-    calc a + a = 2 * a := by parley_ring
-      _ ≥ 6 := by parley_side
-  all_goals exact s2
+  calc a + a = 2 * a := by parley_ring
+    _ ≥ 6 := by parley_side
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainGoingDownByItsReasons

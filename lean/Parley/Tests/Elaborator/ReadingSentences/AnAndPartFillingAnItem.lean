@@ -15,7 +15,6 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartFillingAnItem
 theorem an_and_part_filling_an_item (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ b = 2) :
     (b = 0 ∨ b = 2) := by
   -- 1. mun:or-right P := b = 0, Q := b = 2, from H3
-  have s1 : b = 0 ∨ b = 2 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) hH3.2)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) hH3.2)
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartFillingAnItem

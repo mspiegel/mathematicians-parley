@@ -18,7 +18,6 @@ theorem an_and_part_obtained_from (a : ℝ) (b : ℤ) (hH3 : a = 1 ∧ (∃ k : 
   -- 1. obtain k from H3
   obtain ⟨k, s1⟩ := hH3.2
   -- 2. exhibit, from 1
-  have s2 : ∃ j : ℤ, b = 2 * j := ⟨k, by parley_side⟩
-  all_goals exact s2
+  exact ⟨k, s1⟩
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartObtainedFrom

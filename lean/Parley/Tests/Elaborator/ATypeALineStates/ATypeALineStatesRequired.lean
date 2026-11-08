@@ -18,7 +18,6 @@ theorem a_type_a_line_states_required {α : Type*} (A : Set α) (B : Set α) (F 
     F t ∈ B := by
   -- 1. mun:function-value f := F, from H5
   have r24_1 : Set.MapsTo F A B := by parley_set_side
-  have s1 : F t ∈ B := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := B) (f := F) (x := t) hH5 (by parley_set_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := B) (f := F) (x := t) hH5 (by parley_set_side))
 
 end Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesRequired

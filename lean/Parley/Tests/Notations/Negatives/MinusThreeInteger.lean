@@ -12,6 +12,6 @@ namespace Parley.Tests.Notations.Negatives.MinusThreeInteger
 theorem minus_three_integer :
     True := by
   -- 1. arithmetic
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Notations.Negatives.MinusThreeInteger

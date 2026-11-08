@@ -20,7 +20,6 @@ namespace Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerOfANe
 theorem a_negative_power_of_a_negative :
     ((-2) ^ (-3 : ℤ) : ℚ) = -(1 / 8) := by
   -- 1. arithmetic
-  have s1 : ((-2) ^ (-3 : ℤ) : ℚ) = -(1 / 8) := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerOfANegative

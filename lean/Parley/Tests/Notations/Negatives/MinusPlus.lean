@@ -16,7 +16,6 @@ namespace Parley.Tests.Notations.Negatives.MinusPlus
 theorem minus_plus :
     (-3 + 5 : ℤ) = 2 := by
   -- 1. arithmetic
-  have s1 : (-3 + 5 : ℤ) = 2 := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Notations.Negatives.MinusPlus

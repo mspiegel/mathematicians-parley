@@ -20,12 +20,10 @@ theorem intersection_subset_left {α : Type*} (A : Set α) (B : Set α) :
   have s1 : ∀ u ∈ A ∩ B, u ∈ A := by
     intro u hK1
     -- 1.1. def:intersection, from K1
-    have s1_1 : u ∈ A ∧ u ∈ B := by first | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_set_side); parley_set_side)
+    have s1_1 : u ∈ A ∧ u ∈ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp hK1
     -- 1.2. restate 1.1
-    have s1_2 : u ∈ A := by parley_set_side
-    all_goals exact s1_2
+    parley_set_side
   -- 2. def:subset, from 1
-  have s2 : A ∩ B ⊆ A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B) (Y := A))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B) (Y := A))).mpr (by parley_set_side); parley_set_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B) (Y := A))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B) (Y := A))).mpr s1; parley_set_side)
 
 end Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetLeft

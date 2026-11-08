@@ -43,7 +43,7 @@ use crate::sorts::{
 use crate::source::Source;
 use crate::text::check_encoding;
 
-pub use library::{statements_in_scope, Known};
+pub use library::{statements_in_scope, Known, SaidFrom};
 pub use record::{CheckedTheorem, LibraryReading};
 pub use structure::{cited_in_order, out_of_reach, unresolved};
 
@@ -403,6 +403,8 @@ pub fn checked_where(
             record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
             record.asserted = library::let_assertions(&c.known[i]);
             record.opener_asserted = library::opener_assertions(&c.known[i]);
+            record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);
+            record.contradicted = formulas::contradictions(thm, c.env, &c.known[i]);
             record.places_shown = thm
                 .steps
                 .iter()
@@ -446,16 +448,29 @@ pub fn checked_where(
             // is among the record's problems (`check_block_ends`), and the
             // build builds no theorem with one.
             for block in &mut record.blocks {
-                let owed = formulas::block_owes(&thm.steps[block.owner], &c.known[i]);
+                let owner = &thm.steps[block.owner];
+                let owed = formulas::block_owes(owner, &c.known[i]);
+                let written = formulas::block_owes_read(
+                    owner,
+                    &c.known[i],
+                    formulas::Reading::Written,
+                )
+                .unwrap_or_default();
+                let ends = |ends: formulas::Ends| match ends {
+                    formulas::Ends::Claim(ends) => ends,
+                    formulas::Ends::Contradiction => Vec::new(),
+                };
+                let mut written: IndexMap<Option<usize>, Vec<Node>> = written
+                    .into_iter()
+                    .map(|o| (o.part, ends(o.ends)))
+                    .collect();
                 block.owes = owed
                     .unwrap_or_default()
                     .into_iter()
                     .map(|o| record::Owed {
                         part: o.part,
-                        ends: match o.ends {
-                            formulas::Ends::Claim(ends) => ends,
-                            formulas::Ends::Contradiction => Vec::new(),
-                        },
+                        written: written.shift_remove(&o.part).unwrap_or_default(),
+                        ends: ends(o.ends),
                         claim: o.claim,
                     })
                     .collect();

@@ -22,7 +22,6 @@ theorem a_sine_not_zero_on_a_requires_line (a : ℝ) :
     a * Real.sin (Real.pi / 3) / Real.sin (Real.pi / 3) = a := by
   -- 1. algebra
   have r91_1 : Real.sin (Real.pi / 3) ≠ 0 := by parley_real
-  have s1 : a * Real.sin (Real.pi / 3) / Real.sin (Real.pi / 3) = a := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineNotZeroOnARequiresLine

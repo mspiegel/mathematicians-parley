@@ -20,6 +20,6 @@ theorem bounded_by_its_size (x : ℝ) :
   -- 1. thm:abs-sum
   have s1a : x ≤ abs x := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := x)).1
   have s1b : -x ≤ abs x := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := x)).2
-  exact ⟨by parley_side, by parley_side⟩
+  exact ⟨s1a, s1b⟩
 
 end Parley.Tests.Docs.Grammar.BoundedByItsSize

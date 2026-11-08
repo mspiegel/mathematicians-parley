@@ -17,7 +17,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.LogarithmsByTheirRatio
 theorem logarithms_by_their_ratio :
     Real.log (3 : ℝ) < 2 * Real.log (2 : ℝ) := by
   -- 1. real arithmetic
-  have s1 : Real.log (3 : ℝ) < 2 * Real.log (2 : ℝ) := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.LogarithmsByTheirRatio

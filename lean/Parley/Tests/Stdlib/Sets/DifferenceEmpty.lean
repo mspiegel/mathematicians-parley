@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Sets.DifferenceEmpty
 theorem difference_empty {α : Type*} (Y : Set α) :
     Y \ ∅ = Y := by
   -- 1. mun:sets-difference-empty
-  have s1 : Y \ ∅ = Y := by exact (Parley.Items.Stdlib.Sets.mun_difference_empty (Y := Y))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sets.mun_difference_empty (Y := Y))
 
 end Parley.Tests.Stdlib.Sets.DifferenceEmpty

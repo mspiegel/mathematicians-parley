@@ -27,11 +27,9 @@ theorem counted_to_one (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ ∀ k : ℤ,
   -- 3. substitute F(0) = 0 (line 1)
   have s3 : F 0 + 1 = 0 + 1 := by parley_subst s1
   -- 4. calculation
-  have s4 : F 1 = 1 := by
-    calc F 1 = F (0 + 1) := by norm_num
-      _ = F 0 + 1 := by parley_side
-      _ = 0 + 1 := by parley_side
-      _ = 1 := by norm_num
-  all_goals exact s4
+  calc F 1 = F (0 + 1) := by norm_num
+    _ = F 0 + 1 := by parley_side
+    _ = 0 + 1 := by parley_side
+    _ = 1 := by norm_num
 
 end Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne

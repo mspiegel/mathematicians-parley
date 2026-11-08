@@ -18,7 +18,6 @@ namespace Parley.Tests.Docs.Grammar.AGcdDivides
 theorem a_gcd_divides :
     (Int.gcd (4 : ℤ) (6 : ℤ) : ℤ) ∣ (4 : ℤ) := by
   -- 1. def:gcd a := 4, b := 6
-  have s1 : (Int.gcd (4 : ℤ) (6 : ℤ) : ℤ) ∣ (4 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := (4 : ℤ)) (by parley_side) (b := (6 : ℤ)) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := (4 : ℤ)) (by parley_side) (b := (6 : ℤ)) (by parley_side))
 
 end Parley.Tests.Docs.Grammar.AGcdDivides

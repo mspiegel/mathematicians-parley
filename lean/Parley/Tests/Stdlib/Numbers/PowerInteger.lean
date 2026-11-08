@@ -15,6 +15,6 @@ namespace Parley.Tests.Stdlib.Numbers.PowerInteger
 theorem power_integer (a : ℤ) (m : ℤ) (hH2 : 0 ≤ m) :
     True := by
   -- 1. mun:numbers-power-integer m := m + 1
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Numbers.PowerInteger

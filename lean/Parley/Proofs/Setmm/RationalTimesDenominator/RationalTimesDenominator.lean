@@ -28,7 +28,6 @@ theorem rational_times_denominator (A : ℚ) :
   -- 3. membership, from 2
   have s3 : ∃ m : ℤ, (m : ℚ) = A * (q : ℚ) := ⟨p, by first | (push_cast; linarith [s2]) | (rw [s2]; push_cast; ring) | (rw [← s2]; push_cast; ring) | exact s2 | exact s2.symm⟩
   -- 4. exhibit, from 3
-  have s4 : ∃ x : ℤ, 0 < x ∧ (∃ m : ℤ, (m : ℚ) = A * (x : ℚ)) := ⟨q, by parley_side, by parley_side⟩
-  all_goals exact s4
+  exact ⟨q, s1a, s3⟩
 
 end Parley.Proofs.Setmm.RationalTimesDenominator.RationalTimesDenominator

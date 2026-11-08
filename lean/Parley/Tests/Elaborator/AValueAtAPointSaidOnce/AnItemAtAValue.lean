@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.AValueAtAPointSaidOnce.AnItemAtAValue
 theorem an_item_at_a_value (a : ℤ → ℝ) (n : ℤ) (hH2 : 0 < n) :
     True := by
   -- 1. mun:abs-real x := a(n), from H1
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.AValueAtAPointSaidOnce.AnItemAtAValue

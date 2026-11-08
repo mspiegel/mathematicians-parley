@@ -27,6 +27,6 @@ theorem rows_from_one_sentence_of_a_line (p : ℝ) (q : ℝ) (hH3 : 0 < q ∧ q 
   -- 3. join 1, 2
   have s3a : 2 * q < 2 := by parley_side
   have s3b : p / q * q = p := by parley_side
-  exact ⟨by parley_side, by parley_side⟩
+  exact ⟨s3a, s3b⟩
 
 end Parley.Tests.Elaborator.InequalityRows.RowsFromOneSentenceOfALine

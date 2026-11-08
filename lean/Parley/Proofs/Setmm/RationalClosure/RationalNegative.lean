@@ -25,8 +25,8 @@ theorem rational_negative (A : ℚ) :
   -- 2. algebra, from 1
   have s2 : -A = -(p : ℚ) / (q : ℚ) := by linear_combination (norm := parley_field) (-1) * s1b
   -- 3. exhibit, from 2
-  have s3 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ -A = (a : ℚ) / (b : ℚ) := ⟨-p, q, by parley_side, by parley_side⟩
+  have s3 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ -A = (a : ℚ) / (b : ℚ) := ⟨-p, q, s1a, by push_cast at s2 ⊢; exact s2⟩
   -- 4. def:rational x := −A, from 3
-  all_goals parley_side
+  exact trivial
 
 end Parley.Proofs.Setmm.RationalClosure.RationalNegative

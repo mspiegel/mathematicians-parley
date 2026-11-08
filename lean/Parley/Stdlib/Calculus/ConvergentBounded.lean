@@ -34,10 +34,8 @@ theorem convergent_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fu
     -- 2.2. mun:abs-bounds x := x(m)
     have s2_2 : x m ≤ abs (x m) := by exact (Parley.Stdlib.Numbers.AbsBounds.abs_bounds (x := x m)).1
     -- 2.3. transitivity, from 2.2, 2.1
-    have s2_3 : x m ≤ B := by parley_order
-    all_goals exact s2_3
+    parley_order
   -- 3. exhibit, from 2
-  have s3 : ∃ B : ℝ, ∀ m : ℤ, 0 < m → x m ≤ B := ⟨B, by parley_side⟩
-  all_goals exact s3
+  exact ⟨B, s2⟩
 
 end Parley.Stdlib.Calculus.ConvergentBounded

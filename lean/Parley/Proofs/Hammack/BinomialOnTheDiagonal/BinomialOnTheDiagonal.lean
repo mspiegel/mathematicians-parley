@@ -36,13 +36,12 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
     induction j, h_j using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. mun:binomial-zero-index n := 0
-      have s1_1 : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
-      all_goals parley_side
+      exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
     | succ j hK hIH =>
       -- 1.2. inequalities
       have s1_2 : j < j + 1 := by parley_order
       -- 1.3. def:C n := j, k := j + 1, from 1.2
-      have s1_3 : (LeanBridges.Counting.choose j (j + 1) : ℤ) = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) (by parley_side); parley_side)
+      have s1_3 : (LeanBridges.Counting.choose j (j + 1) : ℤ) = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) s1_2
       -- 1.4. thm:pascal n := j, k := j + 1
       have s1_4 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j (j + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) (by parley_side) (k := j + 1))
       -- 1.5. substitute
@@ -51,14 +50,11 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
         have row1 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by parley_subst_at c1 s1_4
         exact row1
       -- 1.6. calculation
-      have s1_6 : (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) = 1 := by
-        calc (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) = (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) := by parley_side
-          _ = 0 + (LeanBridges.Counting.choose j j : ℤ) := by parley_subst s1_3
-          _ = 0 + 1 := by parley_subst hIH
-          _ = 1 := by norm_num
-      all_goals parley_side
+      calc (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) = (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) := by parley_side
+        _ = 0 + (LeanBridges.Counting.choose j j : ℤ) := by parley_subst s1_3
+        _ = 0 + 1 := by parley_subst hIH
+        _ = 1 := by norm_num
   -- 2. instantiate j := m in line 1
-  have s2 : (LeanBridges.Counting.choose m m : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 m (by parley_side)) | exact_mod_cast ((s1 m (by parley_side))).symm | (have h := (s1 m (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); parley_int_power h) | (have h := (s1 m (by parley_side)); parley_side)
-  all_goals exact s2
+  first | linear_combination (norm := parley_norm) (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 m (by parley_side)) | exact_mod_cast ((s1 m (by parley_side))).symm | (have h := (s1 m (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 m (by parley_side)); parley_int_power h) | (have h := (s1 m (by parley_side)); parley_side)
 
 end Parley.Proofs.Hammack.BinomialOnTheDiagonal.BinomialOnTheDiagonal

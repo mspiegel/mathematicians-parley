@@ -14,9 +14,7 @@ namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInACalculatio
 theorem an_equation_turned_in_a_calculation_link (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : b = a) (hH5 : b = c) :
     a = c := by
   -- 1. calculation
-  have s1 : a = c := by
-    calc a = b := by parley_side
-      _ = c := by parley_side
-  all_goals exact s1
+  calc a = b := by parley_side
+    _ = c := by parley_side
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInACalculationLink

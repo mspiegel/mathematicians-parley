@@ -18,11 +18,10 @@ namespace Parley.Stdlib.Sets.SubsetAntisymmetric
 theorem subset_antisymmetric {α : Type*} (X : Set α) (Y : Set α) (hH3 : X ⊆ Y) (hH4 : Y ⊆ X) :
     X = Y := by
   -- 1. def:subset, from H3
-  have s1 : ∀ t ∈ X, t ∈ Y := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := Y))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := Y))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := Y))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := Y))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := Y))).mp (by parley_set_side); parley_set_side)
+  have s1 : ∀ t ∈ X, t ∈ Y := ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := Y))).mp hH3
   -- 2. def:subset X := Y, Y := X, from H4
-  have s2 : ∀ t ∈ Y, t ∈ X := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := X))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := X))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := X))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := X))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := X))).mp (by parley_set_side); parley_set_side)
+  have s2 : ∀ t ∈ Y, t ∈ X := ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := X))).mp hH4
   -- 3. axi:extensionality, from 1, 2
-  have s3 : X = Y := by exact (Parley.Items.Stdlib.Sets.axi_extensionality (X := X) (Y := Y) s1 s2)
-  all_goals exact s3
+  exact (Parley.Items.Stdlib.Sets.axi_extensionality (X := X) (Y := Y) s1 s2)
 
 end Parley.Stdlib.Sets.SubsetAntisymmetric

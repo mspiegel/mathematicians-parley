@@ -5,10 +5,8 @@ public import ArithTactics
 public import Functions
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -25,7 +23,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -33,9 +30,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Proofs.Wiedijk.PerfectNumbers
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -60,18 +54,18 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       try push_cast at hK1
       try have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
-      have s1_1 : 1 ≤ j := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1); parley_side)
+      have s1_1 : 1 ≤ j := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.2. mun:range-bounds a := 1, b := 0, k := j, from K1
-      have s1_2 : j ≤ 0 := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1); parley_side)
+      have s1_2 : j ≤ 0 := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.3. inequalities, from 1.1
       have s1_3 : ¬ j ≤ 0 := by parley_side
-      all_goals parley_side
+      exact absurd s1_2 s1_3
     | succ N hK2 hIH =>
       intro j hK3
       try push_cast at hK3
       try have hK3_bounds := Finset.mem_Icc.mp hK3
       -- 1.4. mun:range-bounds a := 1, b := N + 1, k := j, from K3
-      have s1_4 : 1 ≤ j := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3); parley_side)
+      have s1_4 : 1 ≤ j := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.5. mun:range-bounds a := 1, b := N + 1, k := j, from K3
       have s1_5 : j ≤ N + 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.6. mun:even-or-odd n := j
@@ -81,7 +75,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
         rcases s1_6 with hC1 | hC2
         · skip
           -- 1.7.1. obtain i: def:even n := j, from C1
-          obtain ⟨i, s1_7_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := j))).mp (by parley_side)
+          obtain ⟨i, s1_7_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := j))).mp hC1
           -- 1.7.2. substitute j = 2i (line 1.7.1) into line 1.4
           have s1_7_2 : 1 ≤ 2 * i := by parley_subst_at s1_7_1 s1_4
           -- 1.7.3. mun:factor-positive a := 2, b := i
@@ -108,21 +102,18 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.12. obtain k, m from line 1.7.11
           obtain ⟨k, s1_7_12a, m, s1_7_12b, ⟨s1_7_12c, s1_7_12d⟩⟩ := s1_7_11
           -- 1.7.13. mun:exponent-step a := 2, m := k
-          have s1_7_13 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)); parley_side)
+          have s1_7_13 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
           -- 1.7.14. algebra, from 1.7.1, 1.7.12, 1.7.13
           have s1_7_14 : j = 2 ^ (k + 1).toNat * m := by linear_combination (norm := parley_norm) s1_7_1 + (2) * s1_7_12d + (-m) * s1_7_13
           -- 1.7.15. exhibit, from 1.7.12, 1.7.14
-          have s1_7_15 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m)) := ⟨k + 1, by parley_side, m, by parley_side, ⟨by parley_side, by parley_side⟩⟩
-          all_goals parley_side
+          exact ⟨k + 1, by parley_side, m, s1_7_12b, ⟨s1_7_12c, s1_7_14⟩⟩
         · skip
           -- 1.7.16. algebra
           have s1_7_16 : j = 2 ^ 0 * j := by parley_ring
           -- 1.7.17. exhibit, from C2, 1.7.16
-          have s1_7_17 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m)) := ⟨(0 : ℤ), by parley_side, j, by parley_side, ⟨by parley_side, by parley_side⟩⟩
-          all_goals parley_side
+          exact ⟨(0 : ℤ), by parley_side, j, by parley_side, ⟨hC2, by simpa only [Int.reduceToNat] using s1_7_16⟩⟩
       -- 1.8. D1, from 1.7
-      have s1_8 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m)) := by parley_side
-      all_goals parley_side
+      parley_side
   -- 2. instantiate N := n in line 1
   have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; first | exact (s1 n (by parley_side) j (by parley_side)) | exact ((s1 n (by parley_side) j (by parley_side))).symm | simpa using (s1 n (by parley_side) j (by parley_side)) | exact_mod_cast (s1 n (by parley_side) j (by parley_side)) | (have h := (s1 n (by parley_side) j (by parley_side)); parley_side)
   -- 3. def:range-between k := n, a := 1, b := n
@@ -132,7 +123,6 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
   -- 4. instantiate j := n in line 2, from 3
   have s4 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ n = 2 ^ k.toNat * m)) := by first | exact (s2 n (by parley_side)) | exact ((s2 n (by parley_side))).symm | simpa using (s2 n (by parley_side)) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)
   -- 5. D1, from 4
-  have s5 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ n = 2 ^ k.toNat * m)) := by parley_side
-  all_goals exact s5
+  parley_side
 
 end Parley.Proofs.Wiedijk.PerfectNumbers.OddPart

@@ -34,7 +34,6 @@ theorem choose_two_of_a_double (n : ℤ) (hH1 : 0 ≤ n) :
   -- 2. thm:binomial-of-two m := n
   have s2 : 2 * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = n * (n - 1) := by exact (Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo.binomial_of_two (m := n) (by parley_side))
   -- 3. algebra, from 1, 2
-  have s3 : (LeanBridges.Counting.choose (2 * n) (2 : ℤ) : ℤ) = 2 * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n ^ 2 := by qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1 + (-1) * s2
-  all_goals exact s3
+  qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1 + (-1) * s2
 
 end Parley.Proofs.Hammack.ChooseTwoOfADouble.ChooseTwoOfADouble

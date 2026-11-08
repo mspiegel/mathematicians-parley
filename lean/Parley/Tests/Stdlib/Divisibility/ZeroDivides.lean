@@ -16,7 +16,6 @@ namespace Parley.Tests.Stdlib.Divisibility.ZeroDivides
 theorem zero_divides (n : ℤ) :
     ((0 : ℤ) ∣ n ↔ n = 0) := by
   -- 1. mun:divisibility-zero-divides
-  have s1 : (0 : ℤ) ∣ n ↔ n = 0 := by exact (Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := n))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := n))
 
 end Parley.Tests.Stdlib.Divisibility.ZeroDivides

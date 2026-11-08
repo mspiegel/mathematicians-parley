@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Logarithms.ExpReal
 theorem exp_real (x : ℝ) :
     True := by
   -- 1. mun:logarithms-exp-real
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Logarithms.ExpReal

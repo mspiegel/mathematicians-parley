@@ -46,39 +46,35 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
   -- 9. thm:divides-gcd d := c·gcd(a, b), a := c·a, b := c·b, from 7, 8
   have s9 : c * (Int.gcd a b : ℤ) ∣ (Int.gcd (c * a) (c * b) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := c * (Int.gcd a b : ℤ)) (a := c * a) (b := c * b) s7 s8)
   -- 10. mun:nonneg-or-neg x := c
-  have s10 : c ≥ 0 ∨ c < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c)); parley_side)
+  have s10 : c ≥ 0 ∨ c < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c))
   -- 11. cases, from 10
-  have s11 : c * (Int.gcd a b : ℤ) ≤ (Int.gcd (c * a) (c * b) : ℤ) := by
-    rcases s10 with hC1 | hC2
-    · skip
-      -- 11.1. inequalities, from C1, H5
-      have s11_1 : 0 < c := by parley_order
-      -- 11.2. mun:pos-int-nat m := c, from 11.1
-      have s11_2 : 0 < c := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c) s11_1)
-      -- 11.3. mun:nat-closure a := c, b := gcd(a, b), from 1, 11.2
-      have s11_3 : 0 < c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_2 (a := c) (by parley_side) (b := (Int.gcd a b : ℤ)) (by parley_side))
-      -- 11.4. mun:divides-le e := c·gcd(a, b), m := gcd(c·a, c·b), from 5, 9, 11.3
-      have s11_4 : c * (Int.gcd a b : ℤ) ≤ (Int.gcd (c * a) (c * b) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := c * (Int.gcd a b : ℤ)) (by parley_side) (m := (Int.gcd (c * a) (c * b) : ℤ)) (by parley_side) s9)
-      all_goals parley_side
-    · skip
-      -- 11.5. inequalities
-      have s11_5 : 0 < -c := by parley_order
-      -- 11.6. inequalities, from 1
-      have s11_6 : 0 < (Int.gcd a b : ℤ) := by parley_order
-      -- 11.7. mun:product-positive x := −c, y := gcd(a, b), from 11.5, 11.6
-      have s11_7 : 0 < -c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := -c) (y := (Int.gcd a b : ℤ)) (by parley_side) (by parley_side))
-      -- 11.8. substitute
-      have s11_8 : 0 < -(c * (Int.gcd a b : ℤ)) := by
-        have c1 : -c * (Int.gcd a b : ℤ) = -(c * (Int.gcd a b : ℤ)) := by parley_ring
-        have row1 : 0 < -(c * (Int.gcd a b : ℤ)) := by parley_subst_at c1 s11_7
-        exact row1
-      -- 11.9. inequalities
-      have s11_9 : c * (Int.gcd a b : ℤ) < 0 := by parley_order
-      -- 11.10. inequalities, from 5, 11.9
-      have s11_10 : c * (Int.gcd a b : ℤ) < (Int.gcd (c * a) (c * b) : ℤ) := by parley_order
-      -- 11.11. inequalities
-      have s11_11 : c * (Int.gcd a b : ℤ) ≤ (Int.gcd (c * a) (c * b) : ℤ) := by parley_order
-      all_goals parley_side
-  all_goals exact s11
+  rcases s10 with hC1 | hC2
+  · skip
+    -- 11.1. inequalities, from C1, H5
+    have s11_1 : 0 < c := by parley_order
+    -- 11.2. mun:pos-int-nat m := c, from 11.1
+    have s11_2 : 0 < c := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c) s11_1)
+    -- 11.3. mun:nat-closure a := c, b := gcd(a, b), from 1, 11.2
+    have s11_3 : 0 < c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_2 (a := c) (by parley_side) (b := (Int.gcd a b : ℤ)) (by parley_side))
+    -- 11.4. mun:divides-le e := c·gcd(a, b), m := gcd(c·a, c·b), from 5, 9, 11.3
+    exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := c * (Int.gcd a b : ℤ)) (by parley_side) (m := (Int.gcd (c * a) (c * b) : ℤ)) (by parley_side) s9)
+  · skip
+    -- 11.5. inequalities
+    have s11_5 : 0 < -c := by parley_order
+    -- 11.6. inequalities, from 1
+    have s11_6 : 0 < (Int.gcd a b : ℤ) := by parley_order
+    -- 11.7. mun:product-positive x := −c, y := gcd(a, b), from 11.5, 11.6
+    have s11_7 : 0 < -c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := -c) (y := (Int.gcd a b : ℤ)) (by parley_side) (by parley_side))
+    -- 11.8. substitute
+    have s11_8 : 0 < -(c * (Int.gcd a b : ℤ)) := by
+      have c1 : -c * (Int.gcd a b : ℤ) = -(c * (Int.gcd a b : ℤ)) := by parley_ring
+      have row1 : 0 < -(c * (Int.gcd a b : ℤ)) := by parley_subst_at c1 s11_7
+      exact row1
+    -- 11.9. inequalities
+    have s11_9 : c * (Int.gcd a b : ℤ) < 0 := by parley_order
+    -- 11.10. inequalities, from 5, 11.9
+    have s11_10 : c * (Int.gcd a b : ℤ) < (Int.gcd (c * a) (c * b) : ℤ) := by parley_order
+    -- 11.11. inequalities
+    parley_order
 
 end Parley.Proofs.Hammack.ScaledGcdBound.ScaledGcdBound

@@ -19,9 +19,7 @@ namespace Parley.Tests.Elaborator.ACalculationAsksNoMembership.ACalculationAsksN
 theorem a_calculation_asks_no_membership (k : ℤ) (hH1 : 0 < k) (y : ℝ) (hH3 : y ≤ 2 * (LeanBridges.Counting.factorial k : ℝ)) (hH4 : 2 * (LeanBridges.Counting.factorial k : ℤ) < 2 * (LeanBridges.Counting.factorial k : ℤ) * 2) :
     y < 2 * (LeanBridges.Counting.factorial k : ℝ) * 2 := by
   -- 1. calculation
-  have s1 : y < 2 * (LeanBridges.Counting.factorial k : ℝ) * 2 := by
-    calc y ≤ 2 * (LeanBridges.Counting.factorial k : ℝ) := by parley_side
-      _ < 2 * (LeanBridges.Counting.factorial k : ℝ) * 2 := by parley_side
-  all_goals exact s1
+  calc y ≤ 2 * (LeanBridges.Counting.factorial k : ℝ) := by parley_side
+    _ < 2 * (LeanBridges.Counting.factorial k : ℝ) * 2 := by parley_side
 
 end Parley.Tests.Elaborator.ACalculationAsksNoMembership.ACalculationAsksNoMembership

@@ -11,7 +11,7 @@ use super::library::{
     introduced, listed_seed, parts_in_scope, typed_in_scope, typed_seed, Known,
     SaidFrom, Search,
 };
-use super::record::{Cited, FirstAt};
+use super::record::{Cited, FirstAt, Supplied, SuppliedBy};
 use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
@@ -252,12 +252,23 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
     let stated = taken.first_facts(&groups, &parts.facts, library);
     let firsts = firsts_at(step, &step.just.refs, &item, &stated, known, library);
+    let supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    let supplied = supplied_at(
+        step,
+        &step.just.refs,
+        &item,
+        supplying,
+        true,
+        known,
+        library,
+    );
     Some(Cited {
         item,
         group: taken.group,
         obtained: taken.obtained,
         concluded: across_groups(taken, before),
         firsts,
+        supplied,
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
@@ -377,12 +388,16 @@ pub fn cited_requires(
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
     let stated = taken.first_facts(&groups, &parts.facts, library);
     let firsts = firsts_at(step, req.lines(), &item, &stated, known, library);
+    let supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    let supplied =
+        supplied_at(step, req.lines(), &item, supplying, false, known, library);
     Some(Cited {
         item,
         group: taken.group,
         obtained: taken.obtained,
         concluded: across_groups(&taken, before),
         firsts,
+        supplied,
         binding: taken.binding,
         bound: taken.bound,
         written: parts.seed,
@@ -401,70 +416,139 @@ fn firsts_at(
     known: &Known,
     library: &Library,
 ) -> Vec<FirstAt> {
-    let scope = known.scope(step);
-    let defined = known.citing_item(refs, Some(item));
-    let mut out = Vec::new();
+    let mut out: Vec<FirstAt> = Vec::new();
     for first in firsts {
-        let found = refs.iter().find_map(|r| {
-            let written = scope.get(r)?;
-            // Counted as the build counts them: the line's sentences, then
-            // each "for all" of it read at a block's letter.
-            let says = known.says(written, &defined);
-            let sentences = says
-                .iter()
-                .filter(|s| matches!(s.from, SaidFrom::Sentence(_)));
-            let at = says
-                .iter()
-                .filter(|s| matches!(s.from, SaidFrom::AtLetter { part: None, .. }));
-            let said: Vec<Option<Node>> =
-                sentences.chain(at).map(|s| Some(s.cited.clone())).collect();
-            line_states(first, r, &said, library)
-        });
-        if let Some(at) = found.filter(|at| !out.contains(at)) {
-            out.push(at);
+        if let Some(at) = fact_at(step, refs, item, first, known, library) {
+            if !out.iter().any(|o| o.same_place(&at)) {
+                out.push(at);
+            }
         }
     }
     out
 }
 
-/// Where `fact` stands in the line `line`, whose sentences read as `parts`
-/// (`firsts_at`).
+/// Where `fact` stands among the lines `refs` names at `step`, each read as
+/// the citation of `item` reads them (`firsts_at`); None where no line
+/// names says it.
+fn fact_at(
+    step: &Step,
+    refs: &[String],
+    item: &str,
+    fact: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<FirstAt> {
+    let scope = known.scope(step);
+    let defined = known.citing_item(refs, Some(item));
+    refs.iter().find_map(|r| {
+        let stated = scope.get(r)?;
+        // Counted as the build counts them: the line's sentences, then
+        // each "for all" of it read at a block's letter.
+        let says = known.says(stated, &defined);
+        let sentences = says
+            .iter()
+            .filter(|s| matches!(s.from, SaidFrom::Sentence(_)));
+        let at = says
+            .iter()
+            .filter(|s| matches!(s.from, SaidFrom::AtLetter { part: None, .. }));
+        let said: Vec<&super::library::Said> = sentences.chain(at).collect();
+        line_states(fact, r, &said, library)
+    })
+}
+
+/// Where `fact` stands in the line `line`, whose sentences read as `said`
+/// (`firsts_at`), with what the page writes there.
 fn line_states(
     fact: &Node,
     line: &str,
-    parts: &[Option<Node>],
+    said: &[&super::library::Said],
     library: &Library,
 ) -> Option<FirstAt> {
     let ctx = &library.ctx;
     let none = IndexMap::new();
     // Each read in the standard order the fact is in.
     let states = |n: &Node| alike(&standard(n, ctx), fact, ctx, &none, &none);
-    for (i, part) in parts.iter().enumerate() {
-        let Some(sentence) = part else {
-            continue;
-        };
-        if states(sentence) {
-            return Some(FirstAt {
-                line: line.to_string(),
-                sentence: Some(i),
-                part: None,
-            });
+    let at = |sentence, part, written| FirstAt {
+        line: line.to_string(),
+        sentence,
+        part,
+        written,
+    };
+    for (i, s) in said.iter().enumerate() {
+        if states(&s.cited) {
+            return Some(at(Some(i), None, s.written.clone()));
         }
         // Counted as written.
-        if let Some(j) = conjuncts(sentence, library).iter().position(states) {
-            return Some(FirstAt {
-                line: line.to_string(),
-                sentence: Some(i),
-                part: Some(j),
-            });
+        if let Some(j) = conjuncts(&s.cited, library).iter().position(states) {
+            let written = conjuncts(&s.written, library)
+                .get(j)
+                .cloned()
+                .unwrap_or_else(|| s.written.clone());
+            return Some(at(Some(i), Some(j), written));
         }
     }
-    let whole = conjoined(library.env.g, parts.iter().flatten().cloned().collect())?;
-    states(&whole).then(|| FirstAt {
-        line: line.to_string(),
-        sentence: None,
-        part: None,
-    })
+    let whole = conjoined(
+        library.env.g,
+        said.iter().map(|s| s.cited.clone()).collect(),
+    )?;
+    let written = conjoined(
+        library.env.g,
+        said.iter().map(|s| s.written.clone()).collect(),
+    )?;
+    states(&whole).then(|| at(None, None, written))
+}
+
+/// What supplies each hypothesis of the group `taken` takes, in the group's
+/// order (`Cited::supplied`): the fact the search took for it, placed among
+/// the lines `refs` names, or among the step's requires lines where
+/// `requires` reads them.
+#[allow(clippy::too_many_arguments)]
+fn supplied_at(
+    step: &Step,
+    refs: &[String],
+    item: &str,
+    supplying: Vec<(Node, Option<Node>)>,
+    requires: bool,
+    known: &Known,
+    library: &Library,
+) -> Vec<Supplied> {
+    let ctx = &library.ctx;
+    let none = IndexMap::new();
+    let defined = known.citing_step(step);
+    let required: Vec<Vec<Node>> = match requires {
+        true => step
+            .requires
+            .iter()
+            .map(|r| {
+                r.fact
+                    .sentences()
+                    .iter()
+                    .filter_map(|s| known.read_citing(s, &defined))
+                    .collect()
+            })
+            .collect(),
+        false => Vec::new(),
+    };
+    supplying
+        .into_iter()
+        .map(|(want, fact)| {
+            let by = match fact {
+                None => SuppliedBy::Unstated,
+                Some(fact) => match fact_at(step, refs, item, &fact, known, library) {
+                    Some(at) => SuppliedBy::Line(at),
+                    None => required
+                        .iter()
+                        .position(|said| {
+                            said.iter().any(|s| {
+                                alike(&standard(s, ctx), &fact, ctx, &none, &none)
+                            })
+                        })
+                        .map_or(SuppliedBy::Unstated, SuppliedBy::Requires),
+                },
+            };
+            Supplied { want, by }
+        })
+        .collect()
 }
 
 /// What `taken` concludes, each sentence counted across the item's groups,

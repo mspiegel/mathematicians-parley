@@ -34,10 +34,8 @@ theorem divides_square_difference (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ∣ b) 
   -- 3. mun:divides-difference d := a, a := b², b := b² − c, from H5, 2
   have s3 : a ∣ b ^ 2 - (b ^ 2 - c) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := a) (a := b ^ 2) (b := b ^ 2 - c) s2 hH5)
   -- 4. substitute
-  have s4 : a ∣ c := by
-    have c1 : b ^ 2 - (b ^ 2 - c) = c := by parley_ring
-    have row1 : a ∣ c := by parley_subst_at c1 s3
-    exact row1
-  all_goals exact s4
+  have c1 : b ^ 2 - (b ^ 2 - c) = c := by parley_ring
+  have row1 : a ∣ c := by parley_subst_at c1 s3
+  exact row1
 
 end Parley.Proofs.Hammack.DividesSquareDifference.DividesSquareDifference

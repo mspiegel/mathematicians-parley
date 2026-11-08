@@ -16,7 +16,6 @@ namespace Parley.Tests.Stdlib.Numbers.LeMaxRight
 theorem le_max_right (x : ℝ) (y : ℝ) :
     y ≤ max x y := by
   -- 1. mun:le-max
-  have s1 : y ≤ max x y := by exact (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := x) (y := y))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := x) (y := y))
 
 end Parley.Tests.Stdlib.Numbers.LeMaxRight

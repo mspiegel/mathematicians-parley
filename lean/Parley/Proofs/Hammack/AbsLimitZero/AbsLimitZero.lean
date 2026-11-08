@@ -1,10 +1,8 @@
 module
 
-public import NormTactics
-public import PowerTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
@@ -13,14 +11,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
@@ -39,7 +34,7 @@ theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (
     intro ε
     intro hA1
     -- 1.1. def:tends-to L := 0, from H2
-    have s1_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (abs (a n) - 0) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp (by parley_side); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp (by parley_side); parley_side)
+    have s1_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (abs (a n) - 0) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp hH2
     -- 1.2. instantiate ε := ε in line 1.1, from A1
     have s1_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (abs (a n)) < ε) := by first | exact (s1_1 ε (by parley_side)) | exact ((s1_1 ε (by parley_side))).symm | simpa using (s1_1 ε (by parley_side)) | exact_mod_cast (s1_1 ε (by parley_side)) | (have h := (s1_1 ε (by parley_side)); parley_side)
     -- 1.3. obtain N from line 1.2
@@ -55,15 +50,12 @@ theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (
       have s1_4_3 : abs (a n) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))); parley_side)
       -- 1.4.4. mun:abs-real x := a(n), from 1.4.2
       -- 1.4.5. def:abs x := |a(n)|, from 1.4.3, 1.4.4
-      have s1_4_5 : abs (abs (a n)) = abs (a n) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) (by parley_side); parley_side)
+      have s1_4_5 : abs (abs (a n)) = abs (a n) := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) s1_4_3
       -- 1.4.6. substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1
-      have s1_4_6 : abs (a n) < ε := by parley_subst_at s1_4_5 s1_4_1
-      all_goals parley_side
+      parley_subst_at s1_4_5 s1_4_1
     -- 1.5. exhibit, from 1.4
-    have s1_5 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n) < ε) := ⟨N, by parley_side, by parley_side⟩
-    all_goals parley_side
+    exact ⟨N, s1_3a, s1_4⟩
   -- 2. def:tends-to L := 0, from 1
-  have s2 : Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds 0) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by parley_side); parley_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s1); parley_side)
 
 end Parley.Proofs.Hammack.AbsLimitZero.AbsLimitZero

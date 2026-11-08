@@ -23,9 +23,8 @@ theorem a_define_put_into_a_line {α : Type*} (A : Set α) (B : Set α) :
   have s1 : C ⊆ A := by
     try simp only [hD1] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B)) | exact ((Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B)) | (have h := (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B)); parley_set_side)
+    exact (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B))
   -- 2. substitute C = A ∩ B (D1) into line 1
-  have s2 : A ∩ B ⊆ A := by parley_subst_at hD1 s1
-  all_goals exact s2
+  parley_subst_at hD1 s1
 
 end Parley.Tests.Elaborator.ADefinePutIntoALine.ADefinePutIntoALine

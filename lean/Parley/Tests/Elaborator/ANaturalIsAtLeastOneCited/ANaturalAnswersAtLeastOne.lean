@@ -15,7 +15,6 @@ namespace Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.ANaturalAnswersAtLea
 theorem a_natural_answers_at_least_one (j : ℤ) (hH1 : 0 < j) :
     0 < j := by
   -- 1. thm:at-least-one-right x := j, from H1
-  have s1 : 0 < j := by exact (Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.AtLeastOneRight.at_least_one_right (x := j) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.AtLeastOneRight.at_least_one_right (x := j) (by parley_side))
 
 end Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.ANaturalAnswersAtLeastOne

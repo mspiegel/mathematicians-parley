@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Divisibility.GcdCommutes
 theorem gcd_commutes (a : ℤ) (b : ℤ) :
     (Int.gcd a b : ℤ) = (Int.gcd b a : ℤ) := by
   -- 1. mun:divisibility-gcd-commutes
-  have s1 : (Int.gcd a b : ℤ) = (Int.gcd b a : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := a) (b := b))
 
 end Parley.Tests.Stdlib.Divisibility.GcdCommutes

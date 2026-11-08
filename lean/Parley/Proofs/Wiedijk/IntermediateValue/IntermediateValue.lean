@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import OrderTactics
 public import SetTactics
 public import SubstTactics
@@ -61,14 +60,13 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
     have s6_1 : s ∈ (Set.Icc a b : Set ℝ) := by
       try simp only [hD1] at *
       try push_cast at *
-      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1; parley_set_side)
+      exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK1).1
     -- 6.2. def:interval, from 6.1
-    have s6_2 : s ≤ b := by first | linarith [(((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp (by parley_set_side)).2] | (have h := (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp (by parley_set_side)).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp (by parley_set_side)).2; parley_set_side)
-    all_goals exact s6_2
+    exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp s6_1).2
   -- 7. def:upper-bound, from 6
   have s7 : ∀ s ∈ S, s ≤ b := by parley_set_side
   -- 8. obtain c: axi:completeness, from 2, 5, 7
-  obtain ⟨c, ⟨s8, _⟩⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s5 (by parley_set_side) (by parley_set_side))
+  obtain ⟨c, s8⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s5 (by parley_set_side) (by parley_set_side))
   -- 9. def:least-upper-bound, from 8
   have s9a : ∀ s ∈ S, s ≤ c := by parley_set_side
   have s9b : ∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u := by parley_set_side
@@ -84,15 +82,14 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have s14 : (f c < 0 ∨ f c = 0) ∨ 0 < f c := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c))
   -- 15. def:continuous-on, from H5
   have r89_1 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
-  have s15 : ∀ c' ∈ (Set.Icc a b : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c') < δ → abs (f x - f c') < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
+  have s15 : ∀ c' ∈ (Set.Icc a b : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c') < δ → abs (f x - f c') < ε)) := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) r89_1)).mp hH5
   -- 16. cases, from 14
   have s16 : f c = 0 := by
     rcases s14 with (hC1 | hC2) | hC3
     · skip
       -- 16.1. contradiction
       have s16_1 : c ≠ b := by
-        by_contra hc_hS1
-        have hS1 : c = b := by parley_suppose hc_hS1
+        intro hS1
         -- 16.1.1. substitute c = b (S1) into C1
         have s16_1_1 : f b < 0 := by parley_subst_at hS1 hC1
         -- 16.1.2. def:interval x := b
@@ -103,7 +100,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         have s16_1_3 : 0 ≤ f b := by parley_order
         -- 16.1.4. inequalities, from 16.1.3
         have s16_1_4 : ¬ f b < 0 := by parley_set_side
-        all_goals parley_set_side
+        exact s16_1_4 s16_1_1
       -- 16.2. inequalities, from 12, 16.1
       have s16_2 : c < b := by parley_order
       -- 16.3. inequalities
@@ -124,11 +121,11 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       have s16_9a : x₁ ≤ b := by
         try simp only [hD2] at *
         try push_cast at *
-        first | linarith [(Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := b) (y := c + δ / 2))] | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := b) (y := c + δ / 2)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := b) (y := c + δ / 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := b) (y := c + δ / 2)); parley_set_side)
+        exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := b) (y := c + δ / 2))
       have s16_9b : x₁ ≤ c + δ / 2 := by
         try simp only [hD2] at *
         try push_cast at *
-        first | linarith [(Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := b) (y := c + δ / 2))] | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := b) (y := c + δ / 2)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := b) (y := c + δ / 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := b) (y := c + δ / 2)); parley_set_side)
+        exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := b) (y := c + δ / 2))
       -- 16.10. inequalities
       have s16_10 : x₁ - c ≤ δ / 2 := by parley_order
       -- 16.11. inequalities
@@ -163,9 +160,9 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       have s16_25 : x₁ ≤ c := by first | linarith [(s10 x₁ (by parley_set_side))] | (have h := (s10 x₁ (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 x₁ (by parley_set_side)) | (have h := (s10 x₁ (by parley_set_side)); parley_set_side)
       -- 16.26. inequalities, from 16.8
       have s16_26 : ¬ x₁ ≤ c := by parley_set_side
-      all_goals parley_set_side
+      exact absurd s16_25 s16_26
     · skip
-      all_goals parley_set_side
+      exact hC2
     · skip
       -- 16.27. instantiate c′ := c, ε := f(c) in line 15, from C3, H4, 13
       have s16_27 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c) < δ → abs (f x - f c) < f c) := by first | exact (s15 c (by parley_set_side) (f c) (by parley_set_side)) | exact ((s15 c (by parley_set_side) (f c) (by parley_set_side))).symm | simpa using (s15 c (by parley_set_side) (f c) (by parley_set_side)) | exact_mod_cast (s15 c (by parley_set_side) (f c) (by parley_set_side)) | (have h := (s15 c (by parley_set_side) (f c) (by parley_set_side)); parley_set_side)
@@ -174,18 +171,17 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.29. proof
       have s16_29 : ∀ s ∈ S, s ≤ c - δ := by
         intro s hK2
-        by_contra hc_hS2
-        have hS2 : ¬ s ≤ c - δ := by parley_suppose hc_hS2
+        by_contra hS2
         -- 16.29.1. def:set-builder, from D1, K2
         have s16_29_1 : s ∈ (Set.Icc a b : Set ℝ) := by
           try simp only [hD1] at *
           try push_cast at *
-          first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)).1; parley_set_side)
+          exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).1
         -- 16.29.2. def:set-builder, from D1, K2
         have s16_29_2 : f s < 0 := by
           try simp only [hD1] at *
           try push_cast at *
-          first | linarith [((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side)] | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp (by parley_set_side); parley_set_side)
+          first | linarith [((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2] | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2; push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2 | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2; parley_set_side)
         -- 16.29.3. inequalities, from S2
         have s16_29_3 : c - δ < s := by parley_order
         -- 16.29.4. inequalities, from 10, 16.28
@@ -202,7 +198,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         have s16_29_9 : 0 ≤ f s := by parley_order
         -- 16.29.10. inequalities, from 16.29.9
         have s16_29_10 : ¬ f s < 0 := by parley_set_side
-        all_goals parley_set_side
+        exact s16_29_10 s16_29_2
       -- 16.30. def:upper-bound, from 16.29
       have s16_30 : ∀ s ∈ S, s ≤ c - δ := by parley_set_side
       -- 16.31. instantiate u := c − δ in line 9, from 16.30
@@ -211,9 +207,8 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       have s16_32 : c - δ < c := by parley_order
       -- 16.33. inequalities, from 16.32
       have s16_33 : ¬ c ≤ c - δ := by parley_set_side
-      all_goals parley_set_side
+      exact absurd s16_31 s16_33
   -- 17. exhibit, from 13, 16
-  have s17 : ∃ c ∈ (Set.Icc a b : Set ℝ), f c = 0 := ⟨c, by parley_set_side, by parley_set_side⟩
-  all_goals exact s17
+  exact ⟨c, by parley_set_side, by parley_set_side⟩
 
 end Parley.Proofs.Wiedijk.IntermediateValue.IntermediateValue

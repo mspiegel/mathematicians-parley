@@ -25,13 +25,12 @@ namespace Parley.Proofs.Hammack.CongruentSameGcd.CongruentSameGcd
 theorem congruent_same_gcd (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a ≡ b [ZMOD n]) :
     (Int.gcd a n : ℤ) = (Int.gcd b n : ℤ) := by
   -- 1. def:congruent-mod, from H4
-  have s1 : n ∣ a - b := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side); parley_side)
+  have s1 : n ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
   -- 2. obtain k: def:divides d := n, n := a − b, from 1
-  obtain ⟨k, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := a - b))).mp (by parley_side)
+  obtain ⟨k, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := a - b))).mp s1
   -- 3. algebra, from 2
   have s3 : a = k * n + b := by linear_combination (norm := parley_norm) s2
   -- 4. thm:gcd-with-remainder b := n, q := k, r := b, from 3
-  have s4 : (Int.gcd a n : ℤ) = (Int.gcd b n : ℤ) := by exact (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3)
-  all_goals exact s4
+  exact (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3)
 
 end Parley.Proofs.Hammack.CongruentSameGcd.CongruentSameGcd

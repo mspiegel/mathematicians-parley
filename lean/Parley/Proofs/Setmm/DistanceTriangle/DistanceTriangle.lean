@@ -23,10 +23,8 @@ theorem distance_triangle (A : ℝ) (B : ℝ) (C : ℝ) :
   -- 1. thm:triangle-inequality a := A − C, b := C − B
   have s1 : abs (A - C + (C - B)) ≤ abs (A - C) + abs (C - B) := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - C) (b := C - B))
   -- 2. substitute
-  have s2 : abs (A - B) ≤ abs (A - C) + abs (C - B) := by
-    have c1 : A - C + (C - B) = A - B := by parley_ring
-    have row1 : abs (A - B) ≤ abs (A - C) + abs (C - B) := by parley_subst_at c1 s1
-    exact row1
-  all_goals exact s2
+  have c1 : A - C + (C - B) = A - B := by parley_ring
+  have row1 : abs (A - B) ≤ abs (A - C) + abs (C - B) := by parley_subst_at c1 s1
+  exact row1
 
 end Parley.Proofs.Setmm.DistanceTriangle.DistanceTriangle

@@ -50,13 +50,11 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     -- 6.3. substitute |Y| = 2 (K2) into line 6.2
     have s6_3 : (2 : ℤ) ≤ 1 := by first | parley_subst_at hK2 s6_2 | (have e_nat : Y.ncard = 2 := by exact_mod_cast hK2; parley_subst_at e_nat s6_2)
     exact absurd s6_3 (by norm_num)
-    all_goals parley_set_side
   -- 7. inequalities
   have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (parley_order)
   -- 8. D1, from 6, 7
   have s8 : 1 ≤ (({v} : Set α).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G) := by parley_set_side
   -- 9. exhibit, from 4, 8
-  have s9 : ∃ W ∈ 𝒫 X, 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ G) := ⟨({v} : Set α), by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
-  all_goals exact s9
+  exact ⟨({v} : Set α), by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
 
 end Parley.Proofs.Wiedijk.Ramsey.OnePointPart

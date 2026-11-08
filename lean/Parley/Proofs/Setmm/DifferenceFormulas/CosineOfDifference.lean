@@ -25,12 +25,10 @@ theorem cosine_of_difference (A : ℂ) (B : ℂ) :
   -- 3. algebra
   have s3 : A - B = A + -B := by parley_ring
   -- 4. calculation
-  have s4 : Complex.cos (A - B) = Complex.cos A * Complex.cos B + Complex.sin A * Complex.sin B := by
-    calc Complex.cos (A - B) = Complex.cos (A + -B) := by parley_subst s3
-      _ = Complex.cos A * Complex.cos (-B) - Complex.sin A * Complex.sin (-B) := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -B))
-      _ = Complex.cos A * Complex.cos B - Complex.sin A * Complex.sin (-B) := by parley_subst s1
-      _ = Complex.cos A * Complex.cos B - Complex.sin A * -Complex.sin B := by parley_subst s2
-      _ = Complex.cos A * Complex.cos B + Complex.sin A * Complex.sin B := by parley_ring
-  all_goals exact s4
+  calc Complex.cos (A - B) = Complex.cos (A + -B) := by parley_subst s3
+    _ = Complex.cos A * Complex.cos (-B) - Complex.sin A * Complex.sin (-B) := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -B))
+    _ = Complex.cos A * Complex.cos B - Complex.sin A * Complex.sin (-B) := by parley_subst s1
+    _ = Complex.cos A * Complex.cos B - Complex.sin A * -Complex.sin B := by parley_subst s2
+    _ = Complex.cos A * Complex.cos B + Complex.sin A * Complex.sin B := by parley_ring
 
 end Parley.Proofs.Setmm.DifferenceFormulas.CosineOfDifference

@@ -31,10 +31,8 @@ theorem one_sequence (c : ℤ → ℤ) (hD1 : c 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0
   -- 5. arithmetic
   have s5 : (2 * 1 : ℤ) = 2 := by parley_arith
   -- 6. calculation
-  have s6 : c (0 + 1) = 2 := by
-    calc c (0 + 1) = 2 * c 0 := by parley_side
-      _ = 2 * 1 := by parley_side
-      _ = 2 := by parley_side
-  all_goals exact s6
+  calc c (0 + 1) = 2 * c 0 := by parley_side
+    _ = 2 * 1 := by parley_side
+    _ = 2 := by parley_side
 
 end Parley.Tests.Elaborator.Recursion.OneSequence

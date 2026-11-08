@@ -30,9 +30,9 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
     intro ε
     intro hA1
     -- 1.1. def:tends-to x := a, from H6
-    have s1_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp (by parley_side); parley_side)
+    have s1_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH6
     -- 1.2. def:tends-to x := c, from H7
-    have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (c n - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := c) (L := L))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Calculus.def_tends_to (x := c) (L := L))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_tends_to (x := c) (L := L))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_tends_to (x := c) (L := L))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := c) (L := L))).mp (by parley_side); parley_side)
+    have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (c n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := c) (L := L))).mp hH7
     -- 1.3. instantiate ε := ε in line 1.1, from A1
     have s1_3 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε) := by first | exact (s1_1 ε (by parley_side)) | exact ((s1_1 ε (by parley_side))).symm | simpa using (s1_1 ε (by parley_side)) | exact_mod_cast (s1_1 ε (by parley_side)) | (have h := (s1_1 ε (by parley_side)); parley_side)
     -- 1.4. instantiate ε := ε in line 1.2, from A1
@@ -74,9 +74,9 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.6. instantiate n := n in line 1.7, from 1.15.3
       have s1_15_6 : a n ≤ b n ∧ b n ≤ c n := by first | exact (s1_7 n (by parley_side) (by parley_side)) | exact ((s1_7 n (by parley_side) (by parley_side))).symm | simpa using (s1_7 n (by parley_side) (by parley_side)) | exact_mod_cast (s1_7 n (by parley_side) (by parley_side)) | (have h := (s1_7 n (by parley_side) (by parley_side)); parley_side)
       -- 1.15.7. mun:abs-difference-lt x := a(n), c := L, δ := ε, from 1.15.4
-      have s1_15_7 : L - ε < a n := by first | linarith [(((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := L) (δ := ε))).mp (by parley_side)).1] | (have h := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := L) (δ := ε))).mp (by parley_side)).1; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := L) (δ := ε))).mp (by parley_side)).1 | (have h := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := L) (δ := ε))).mp (by parley_side)).1; parley_side)
+      have s1_15_7 : L - ε < a n := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := L) (δ := ε))).mp s1_15_4).1
       -- 1.15.8. mun:abs-difference-lt x := c(n), c := L, δ := ε, from 1.15.5
-      have s1_15_8 : c n < L + ε := by first | linarith [(((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := c n) (c := L) (δ := ε))).mp (by parley_side)).2] | (have h := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := c n) (c := L) (δ := ε))).mp (by parley_side)).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := c n) (c := L) (δ := ε))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := c n) (c := L) (δ := ε))).mp (by parley_side)).2; parley_side)
+      have s1_15_8 : c n < L + ε := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := c n) (c := L) (δ := ε))).mp s1_15_5).2
       -- 1.15.9. transitivity, from 1.15.7, 1.15.6
       have s1_15_9 : L - ε < b n := by parley_order
       -- 1.15.10. transitivity, from 1.15.6, 1.15.8
@@ -84,13 +84,10 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.11. join 1.15.9, 1.15.10
       have s1_15_11 : L - ε < b n ∧ b n < L + ε := by parley_side
       -- 1.15.12. mun:abs-difference-lt x := b(n), c := L, δ := ε, from 1.15.11
-      have s1_15_12 : abs (b n - L) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side); parley_side)
-      all_goals parley_side
+      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side); parley_side)
     -- 1.16. exhibit, from 1.15
-    have s1_16 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - L) < ε) := ⟨P + Q + R, by parley_side, by parley_side⟩
-    all_goals parley_side
+    exact ⟨P + Q + R, by parley_side, s1_15⟩
   -- 2. def:tends-to x := b, from 1
-  have s2 : Filter.Tendsto (fun n : ℤ => (b n : ℝ)) Filter.atTop (nhds L) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr (by parley_side); parley_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr s1; parley_side)
 
 end Parley.Proofs.Hammack.SqueezeForSequences.SqueezeForSequences

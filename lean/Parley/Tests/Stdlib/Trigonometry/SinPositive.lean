@@ -20,7 +20,6 @@ namespace Parley.Tests.Stdlib.Trigonometry.SinPositive
 theorem sin_positive (a : ℝ) (hH1 : a ∈ (Set.Ioo (0 : ℝ) Real.pi : Set ℝ)) :
     0 < Real.sin a := by
   -- 1. mun:trigonometry-sin-positive, from H1
-  have s1 : 0 < Real.sin a := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_positive (a := a) hH1)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Trigonometry.mun_sin_positive (a := a) hH1)
 
 end Parley.Tests.Stdlib.Trigonometry.SinPositive

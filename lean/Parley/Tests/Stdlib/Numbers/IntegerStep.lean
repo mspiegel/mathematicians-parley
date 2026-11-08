@@ -16,7 +16,6 @@ namespace Parley.Tests.Stdlib.Numbers.IntegerStep
 theorem integer_step (m : ℤ) (n : ℤ) (hH3 : m < n) :
     m + 1 ≤ n := by
   -- 1. mun:numbers-integer-step, from H3
-  have s1 : m + 1 ≤ n := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n) hH3)
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n) hH3)
 
 end Parley.Tests.Stdlib.Numbers.IntegerStep

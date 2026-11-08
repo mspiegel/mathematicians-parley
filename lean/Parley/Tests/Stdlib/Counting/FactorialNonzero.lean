@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Counting.FactorialNonzero
 theorem factorial_nonzero (n : ℤ) (hH1 : 0 ≤ n) :
     (LeanBridges.Counting.factorial n : ℤ) ≠ 0 := by
   -- 1. mun:counting-factorial-nonzero
-  have s1 : (LeanBridges.Counting.factorial n : ℤ) ≠ 0 := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n) (by parley_side))
 
 end Parley.Tests.Stdlib.Counting.FactorialNonzero

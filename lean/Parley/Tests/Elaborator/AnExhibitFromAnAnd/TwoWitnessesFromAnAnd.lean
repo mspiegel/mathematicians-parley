@@ -17,9 +17,8 @@ namespace Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesFromAnAnd
 theorem two_witnesses_from_an_and {α : Type*} (V : Set α) (b : α) (hH2 : b ∈ V) (a : α) (hH3 : a ∈ V \ ({b} : Set α)) :
     (∃ x ∈ V, ∃ y ∈ V, ¬ x = y) := by
   -- 1. mun:remove-member u := a, Y := V, a := b, from H3
-  have s1 : a ∈ V ∧ ¬ a = b := by first | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp (by parley_set_side); parley_set_side)
+  have s1 : a ∈ V ∧ ¬ a = b := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp hH3
   -- 2. exhibit, from H2, 1
-  have s2 : ∃ x ∈ V, ∃ y ∈ V, ¬ x = y := ⟨b, by parley_set_side, a, by parley_set_side, by parley_set_side⟩
-  all_goals exact s2
+  exact ⟨b, by parley_set_side, a, by parley_set_side, by parley_set_side⟩
 
 end Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesFromAnAnd

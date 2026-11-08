@@ -26,7 +26,6 @@ theorem product_of_sines (A : ℂ) (B : ℂ) :
   -- 2. thm:cos-add a := A, b := B
   have s2 : Complex.cos (A + B) = Complex.cos A * Complex.cos B - Complex.sin A * Complex.sin B := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := B))
   -- 3. algebra, from 1, 2
-  have s3 : Complex.sin A * Complex.sin B = (Complex.cos (A - B) - Complex.cos (A + B)) / 2 := by linear_combination (norm := parley_norm) ((-1) / ((2))) * s1 + ((1) / ((2))) * s2
-  all_goals exact s3
+  linear_combination (norm := parley_norm) ((-1) / ((2))) * s1 + ((1) / ((2))) * s2
 
 end Parley.Proofs.Setmm.DifferenceFormulas.ProductOfSines

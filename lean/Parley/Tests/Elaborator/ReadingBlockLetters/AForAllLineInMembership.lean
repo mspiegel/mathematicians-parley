@@ -13,6 +13,6 @@ theorem a_for_all_line_in_membership (hH1 : True) :
     True := by
   -- 1. proof
   -- what this block shows, Lean's types give
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineInMembership

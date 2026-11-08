@@ -28,7 +28,7 @@ namespace Parley.Proofs.Hammack.CongruentSquareProduct.CongruentSquareProduct
 theorem congruent_square_product (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a ≡ b [ZMOD n]) :
     a ^ 2 ≡ a * b [ZMOD n] := by
   -- 1. def:congruent-mod, from H4
-  have s1 : n ∣ a - b := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side); parley_side)
+  have s1 : n ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
   -- 2. mun:divides-multiple e := n, a := a − b, x := a, from 1
   have s2 : n ∣ (a - b) * a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := a) s1)
   -- 3. substitute
@@ -37,7 +37,6 @@ theorem congruent_square_product (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH
     have row1 : n ∣ a ^ 2 - a * b := by parley_subst_at c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3
-  have s4 : a ^ 2 ≡ a * b [ZMOD n] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 2) (b := a * b))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 2) (b := a * b))).mpr (by parley_side); parley_side)
-  all_goals exact s4
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 2) (b := a * b))).mpr s3 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 2) (b := a * b))).mpr s3; parley_side)
 
 end Parley.Proofs.Hammack.CongruentSquareProduct.CongruentSquareProduct

@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Sets.UnionCommutes
 theorem union_commutes {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∪ Z = Z ∪ Y := by
   -- 1. mun:sets-union-commutes
-  have s1 : Y ∪ Z = Z ∪ Y := by exact (Parley.Items.Stdlib.Sets.mun_union_commutes (Y := Y) (Z := Z))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sets.mun_union_commutes (Y := Y) (Z := Z))
 
 end Parley.Tests.Stdlib.Sets.UnionCommutes

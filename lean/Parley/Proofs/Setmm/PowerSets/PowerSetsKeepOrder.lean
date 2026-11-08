@@ -18,22 +18,18 @@ namespace Parley.Proofs.Setmm.PowerSets.PowerSetsKeepOrder
 theorem power_sets_keep_order {α : Type*} (A : Set α) (B : Set α) :
     (A ⊆ B ↔ 𝒫 A ⊆ 𝒫 B) := by
   -- the theorem. both directions
-  have sThm : A ⊆ B ↔ 𝒫 A ⊆ 𝒫 B := by
-    constructor
-    · skip
-      intro hD1
-      -- 1. mun:powerset-monotone X := B, Y := A, from D1
-      have s1 : 𝒫 A ⊆ 𝒫 B := by exact (Parley.Items.Stdlib.Sets.mun_powerset_monotone (X := B) (Y := A) hD1)
-      all_goals parley_set_side
-    · skip
-      intro hD2
-      -- 2. thm:set-is-a-part-of-itself
-      have s2 : A ∈ 𝒫 A := by exact (Parley.Proofs.Setmm.PowerSets.SetIsAPartOfItself.set_is_a_part_of_itself (A := A))
-      -- 3. mun:in-subset X := 𝒫A, Y := 𝒫B, u := A, from D2, 2
-      have s3 : A ∈ 𝒫 B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := 𝒫 A) (Y := 𝒫 B) (u := A) hD2 s2)
-      -- 4. def:powerset S := A, A := B, from 3
-      have s4 : A ⊆ B := by first | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := A))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := A))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := A))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := A))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := A))).mp (by parley_set_side); parley_set_side)
-      all_goals parley_set_side
-  all_goals parley_set_side
+  constructor
+  · skip
+    intro hD1
+    -- 1. mun:powerset-monotone X := B, Y := A, from D1
+    exact (Parley.Items.Stdlib.Sets.mun_powerset_monotone (X := B) (Y := A) hD1)
+  · skip
+    intro hD2
+    -- 2. thm:set-is-a-part-of-itself
+    have s2 : A ∈ 𝒫 A := by exact (Parley.Proofs.Setmm.PowerSets.SetIsAPartOfItself.set_is_a_part_of_itself (A := A))
+    -- 3. mun:in-subset X := 𝒫A, Y := 𝒫B, u := A, from D2, 2
+    have s3 : A ∈ 𝒫 B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := 𝒫 A) (Y := 𝒫 B) (u := A) hD2 s2)
+    -- 4. def:powerset S := A, A := B, from 3
+    exact ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := A))).mp s3
 
 end Parley.Proofs.Setmm.PowerSets.PowerSetsKeepOrder

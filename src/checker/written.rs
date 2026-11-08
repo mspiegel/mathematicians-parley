@@ -64,11 +64,21 @@ pub fn written_out(
         .iter()
         .map(|line| line.iter().map(out).collect())
         .collect();
-    for c in written.cited.iter_mut().flatten() {
+    for c in written
+        .cited
+        .iter_mut()
+        .flatten()
+        .chain(written.cited_requires.values_mut())
+    {
         c.binding = binding(&c.binding);
-    }
-    for c in written.cited_requires.values_mut() {
-        c.binding = binding(&c.binding);
+        for f in &mut c.firsts {
+            f.written = out(&f.written);
+        }
+        for s in &mut c.supplied {
+            if let super::record::SuppliedBy::Line(at) = &mut s.by {
+                at.written = out(&at.written);
+            }
+        }
     }
     for all in written.exhibited.values_mut() {
         for b in all.iter_mut().flatten() {
@@ -89,6 +99,15 @@ pub fn written_out(
         for line in &mut said.over_ranges {
             *line = out(line);
         }
+    }
+    for owed in written.blocks.iter_mut().flat_map(|b| &mut b.owes) {
+        owed.written = owed.written.iter().map(out).collect();
+    }
+    for s in written.supposed.values_mut() {
+        s.against = out(&s.against);
+    }
+    for c in written.contradicted.values_mut() {
+        c.said = out(&c.said);
     }
     for held in written.held_by_lines.values_mut().flatten() {
         use super::record::LinesHold;

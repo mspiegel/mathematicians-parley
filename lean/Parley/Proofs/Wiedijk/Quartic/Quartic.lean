@@ -1,11 +1,9 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import NormTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -35,11 +33,10 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
     (x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔ (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) := by
   -- 1. contradiction
   have s1 : S ≠ 0 := by
-    by_contra hc_hS1
-    have hS1 : S = 0 := by parley_suppose hc_hS1
+    intro hS1
     -- 1.1. algebra, from H25, S1
     have s1_1 : M = 0 := by linear_combination (norm := parley_norm) (-1) * hH25 + (4 * S) * hS1
-    all_goals parley_side
+    exact hH23 s1_1
   -- 2. algebra, from H17, H19, H20
   have s2 : T ^ 3 + U ^ 3 / T ^ 3 = V := by linear_combination (norm := parley_field) (((1 / 4 : ℂ)) / ((T ^ 3))) * hH17 + ((2 * T ^ 3 - V + W) / ((T ^ 3) * (2))) * hH19
   -- 3. algebra, from H20, 2
@@ -82,148 +79,124 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
       _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * v := by parley_subst s8
       _ = u * v := by parley_subst s7
   -- 10. both directions
-  have s10 : x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔ (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by
-    constructor
+  constructor
+  · skip
+    intro hA1
+    -- 10.1. calculation
+    have s10_1 : u * v = 0 := by
+      calc u * v = x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d := by parley_side
+        _ = 0 := by parley_side
+    -- 10.2. mun:zero-product x := u, y := v, from 10.1
+    have s10_2 : u = 0 ∨ v = 0 := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp s10_1
+    -- 10.3. cases, from 10.2
+    rcases s10_2 with hC1 | hC4
     · skip
-      intro hA1
-      -- 10.1. calculation
-      have s10_1 : u * v = 0 := by
-        calc u * v = x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d := by parley_side
-          _ = 0 := by parley_side
-      -- 10.2. mun:zero-product x := u, y := v, from 10.1
-      have s10_2 : u = 0 ∨ v = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp (by parley_side); parley_side)
-      -- 10.3. cases, from 10.2
-      have s10_3 : (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by
-        rcases s10_2 with hC1 | hC4
+      -- 10.3.1. mun:zero-product x := y + S − I, y := y + S + I, from C1, D2
+      have s10_3_1 : y + S - I = 0 ∨ y + S + I = 0 := by
+        try simp only [hD2] at *
+        try push_cast at *
+        exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y + S - I) (y := y + S + I))).mp hC1
+      -- 10.3.2. cases, from 10.3.1
+      have s10_3_2 : x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I := by
+        rcases s10_3_1 with hC2 | hC3
         · skip
-          -- 10.3.1. mun:zero-product x := y + S − I, y := y + S + I, from C1, D2
-          have s10_3_1 : y + S - I = 0 ∨ y + S + I = 0 := by
-            try simp only [hD2] at *
+          -- 10.3.2.1. algebra, from C2, D1
+          have s10_3_2_1 : x = -(a / 4) - S + I := by
+            try simp only [hD1] at *
             try push_cast at *
-            first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y + S - I) (y := y + S + I))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y + S - I) (y := y + S + I))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y + S - I) (y := y + S + I))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y + S - I) (y := y + S + I))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y + S - I) (y := y + S + I))).mp (by parley_side); parley_side)
-          -- 10.3.2. cases, from 10.3.1
-          have s10_3_2 : x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I := by
-            rcases s10_3_1 with hC2 | hC3
-            · skip
-              -- 10.3.2.1. algebra, from C2, D1
-              have s10_3_2_1 : x = -(a / 4) - S + I := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC2
-              -- 10.3.2.2. mun:or-left, from 10.3.2.1
-              have s10_3_2_2 : x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_1)
-              all_goals parley_side
-            · skip
-              -- 10.3.2.3. algebra, from C3, D1
-              have s10_3_2_3 : x = -(a / 4) - S - I := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC3
-              -- 10.3.2.4. mun:or-right, from 10.3.2.3
-              have s10_3_2_4 : x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_3)
-              all_goals parley_side
-          -- 10.3.3. mun:or-left, from 10.3.2
-          have s10_3_3 : (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) (Q := x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) s10_3_2)
-          all_goals parley_side
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC2
+          -- 10.3.2.2. mun:or-left, from 10.3.2.1
+          exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_1)
         · skip
-          -- 10.3.4. mun:zero-product x := y − S − J, y := y − S + J, from C4, D3
-          have s10_3_4 : y - S - J = 0 ∨ y - S + J = 0 := by
-            try simp only [hD3] at *
+          -- 10.3.2.3. algebra, from C3, D1
+          have s10_3_2_3 : x = -(a / 4) - S - I := by
+            try simp only [hD1] at *
             try push_cast at *
-            first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y - S - J) (y := y - S + J))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y - S - J) (y := y - S + J))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y - S - J) (y := y - S + J))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y - S - J) (y := y - S + J))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y - S - J) (y := y - S + J))).mp (by parley_side); parley_side)
-          -- 10.3.5. cases, from 10.3.4
-          have s10_3_5 : x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by
-            rcases s10_3_4 with hC5 | hC6
-            · skip
-              -- 10.3.5.1. algebra, from C5, D1
-              have s10_3_5_1 : x = -(a / 4) + S + J := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC5
-              -- 10.3.5.2. mun:or-left, from 10.3.5.1
-              have s10_3_5_2 : x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_1)
-              all_goals parley_side
-            · skip
-              -- 10.3.5.3. algebra, from C6, D1
-              have s10_3_5_3 : x = -(a / 4) + S - J := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC6
-              -- 10.3.5.4. mun:or-right, from 10.3.5.3
-              have s10_3_5_4 : x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_3)
-              all_goals parley_side
-          -- 10.3.6. mun:or-right, from 10.3.5
-          have s10_3_6 : (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) (Q := x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) s10_3_5)
-          all_goals parley_side
-      all_goals parley_side
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC3
+          -- 10.3.2.4. mun:or-right, from 10.3.2.3
+          exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_3)
+      -- 10.3.3. mun:or-left, from 10.3.2
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) (Q := x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) s10_3_2)
     · skip
-      intro hA2
-      -- 10.4. cases, from A2
-      have s10_4 : u * v = 0 := by
-        rcases (show (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ (x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) by have := hA2; tauto) with hC7 | hC10
+      -- 10.3.4. mun:zero-product x := y − S − J, y := y − S + J, from C4, D3
+      have s10_3_4 : y - S - J = 0 ∨ y - S + J = 0 := by
+        try simp only [hD3] at *
+        try push_cast at *
+        exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y - S - J) (y := y - S + J))).mp hC4
+      -- 10.3.5. cases, from 10.3.4
+      have s10_3_5 : x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by
+        rcases s10_3_4 with hC5 | hC6
         · skip
-          -- 10.4.1. cases, from C7
-          have s10_4_1 : u * v = 0 := by
-            rcases hC7 with hC8 | hC9
-            · skip
-              -- 10.4.1.1. algebra, from C8, D1
-              have s10_4_1_1 : y + S - I = 0 := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC8
-              -- 10.4.1.2. algebra, from D2, 10.4.1.1
-              have s10_4_1_2 : u * v = 0 := by
-                try simp only [hD2] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) (I * v + S * v + v * y) * s10_4_1_1
-              all_goals parley_side
-            · skip
-              -- 10.4.1.3. algebra, from C9, D1
-              have s10_4_1_3 : y + S + I = 0 := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC9
-              -- 10.4.1.4. algebra, from D2, 10.4.1.3
-              have s10_4_1_4 : u * v = 0 := by
-                try simp only [hD2] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) (-I * v + S * v + v * y) * s10_4_1_3
-              all_goals parley_side
-          all_goals parley_side
+          -- 10.3.5.1. algebra, from C5, D1
+          have s10_3_5_1 : x = -(a / 4) + S + J := by
+            try simp only [hD1] at *
+            try push_cast at *
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC5
+          -- 10.3.5.2. mun:or-left, from 10.3.5.1
+          exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_1)
         · skip
-          -- 10.4.2. cases, from C10
-          have s10_4_2 : u * v = 0 := by
-            rcases hC10 with hC11 | hC12
-            · skip
-              -- 10.4.2.1. algebra, from C11, D1
-              have s10_4_2_1 : y - S - J = 0 := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC11
-              -- 10.4.2.2. algebra, from D3, 10.4.2.1
-              have s10_4_2_2 : u * v = 0 := by
-                try simp only [hD3] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) (J * u - S * u + u * y) * s10_4_2_1
-              all_goals parley_side
-            · skip
-              -- 10.4.2.3. algebra, from C12, D1
-              have s10_4_2_3 : y - S + J = 0 := by
-                try simp only [hD1] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC12
-              -- 10.4.2.4. algebra, from D3, 10.4.2.3
-              have s10_4_2_4 : u * v = 0 := by
-                try simp only [hD3] at *
-                try push_cast at *
-                linear_combination (norm := parley_norm) (-J * u - S * u + u * y) * s10_4_2_3
-              all_goals parley_side
-          all_goals parley_side
-      -- 10.5. calculation
-      have s10_5 : x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = 0 := by
-        calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by parley_side
-          _ = 0 := by parley_side
-      all_goals parley_side
-  all_goals exact s10
+          -- 10.3.5.3. algebra, from C6, D1
+          have s10_3_5_3 : x = -(a / 4) + S - J := by
+            try simp only [hD1] at *
+            try push_cast at *
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC6
+          -- 10.3.5.4. mun:or-right, from 10.3.5.3
+          exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_3)
+      -- 10.3.6. mun:or-right, from 10.3.5
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) (Q := x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) s10_3_5)
+  · skip
+    intro hA2
+    -- 10.4. cases, from A2
+    have s10_4 : u * v = 0 := by
+      rcases (show (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ (x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) by have := hA2; tauto) with hC7 | hC10
+      · skip
+        -- 10.4.1. cases, from C7
+        rcases hC7 with hC8 | hC9
+        · skip
+          -- 10.4.1.1. algebra, from C8, D1
+          have s10_4_1_1 : y + S - I = 0 := by
+            try simp only [hD1] at *
+            try push_cast at *
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC8
+          -- 10.4.1.2. algebra, from D2, 10.4.1.1
+          try simp only [hD2] at *
+          try push_cast at *
+          linear_combination (norm := parley_norm) (I * v + S * v + v * y) * s10_4_1_1
+        · skip
+          -- 10.4.1.3. algebra, from C9, D1
+          have s10_4_1_3 : y + S + I = 0 := by
+            try simp only [hD1] at *
+            try push_cast at *
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC9
+          -- 10.4.1.4. algebra, from D2, 10.4.1.3
+          try simp only [hD2] at *
+          try push_cast at *
+          linear_combination (norm := parley_norm) (-I * v + S * v + v * y) * s10_4_1_3
+      · skip
+        -- 10.4.2. cases, from C10
+        rcases hC10 with hC11 | hC12
+        · skip
+          -- 10.4.2.1. algebra, from C11, D1
+          have s10_4_2_1 : y - S - J = 0 := by
+            try simp only [hD1] at *
+            try push_cast at *
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC11
+          -- 10.4.2.2. algebra, from D3, 10.4.2.1
+          try simp only [hD3] at *
+          try push_cast at *
+          linear_combination (norm := parley_norm) (J * u - S * u + u * y) * s10_4_2_1
+        · skip
+          -- 10.4.2.3. algebra, from C12, D1
+          have s10_4_2_3 : y - S + J = 0 := by
+            try simp only [hD1] at *
+            try push_cast at *
+            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC12
+          -- 10.4.2.4. algebra, from D3, 10.4.2.3
+          try simp only [hD3] at *
+          try push_cast at *
+          linear_combination (norm := parley_norm) (-J * u - S * u + u * y) * s10_4_2_3
+    -- 10.5. calculation
+    calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by parley_side
+      _ = 0 := by parley_side
 
 end Parley.Proofs.Wiedijk.Quartic.Quartic

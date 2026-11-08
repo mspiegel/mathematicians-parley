@@ -16,7 +16,6 @@ namespace Parley.Tests.Notations.Trigonometry.CosineOfZero
 theorem cosine_of_zero :
     Real.cos (0 : ℝ) = 1 := by
   -- 1. mun:cos-zero
-  have s1 : Real.cos (0 : ℝ) = 1 := by exact Parley.Items.Stdlib.Trigonometry.mun_cos_zero
-  all_goals exact s1
+  exact Parley.Items.Stdlib.Trigonometry.mun_cos_zero
 
 end Parley.Tests.Notations.Trigonometry.CosineOfZero

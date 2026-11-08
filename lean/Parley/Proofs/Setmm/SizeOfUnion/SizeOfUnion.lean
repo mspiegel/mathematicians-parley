@@ -44,11 +44,10 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   have s7 : ∀ s ∈ B \ A, ¬ s ∈ A := by
     intro s hK
     -- 7.1. def:difference Y := B, Z := A, from K
-    have s7_1a : s ∈ B := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).1; parley_set_side)
-    have s7_1b : ¬ s ∈ A := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).2; parley_set_side)
+    have s7_1a : s ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).1
+    have s7_1b : ¬ s ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).2
     -- 7.2. restate 7.1
-    have s7_2 : ¬ s ∈ A := by parley_set_side
-    all_goals exact s7_2
+    parley_set_side
   -- 8. mun:disjoint-empty Y := A, Z := B ∖ A, from 7
   have s8 : A ∩ (B \ A) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7)
   -- 9. mun:card-disjoint-union X := A, Y := B ∖ A, m := |A|, n := |B ∖ A|, from 3, 5, 8
@@ -60,9 +59,8 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   -- 12. inequalities
   have s12 : (A.ncard : ℤ) + ((B \ A).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_count_int; (parley_order)
   -- 13. calculation
-  have s13 : ((A ∪ B).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_count_after (by
+  parley_count_after (by
     calc ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_set_side
       _ ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_set_side)
-  all_goals exact s13
 
 end Parley.Proofs.Setmm.SizeOfUnion.SizeOfUnion

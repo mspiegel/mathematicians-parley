@@ -20,7 +20,6 @@ namespace Parley.Tests.Stdlib.Numbers.OnePower
 theorem one_power (m : ℤ) :
     (1 ^ m : ℚ) = 1 := by
   -- 1. mun:numbers-one-power
-  have s1 : (1 ^ m : ℚ) = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := m))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := m))
 
 end Parley.Tests.Stdlib.Numbers.OnePower

@@ -53,8 +53,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
     -- 3.1. inequalities, from K2
     have s3_1 : 0 < 2 * k - 1 := by parley_order
     -- 3.2. mun:pos-int-nat m := 2k − 1, from 3.1
-    have s3_2 : 0 < 2 * k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1)
-    all_goals exact s3_2
+    exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1)
   set q : ℤ → ℤ := fun k => F (2 * k - 1) with hD2
   -- 4. thm:fibonacci-recurrence
   have s4 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side))
@@ -83,14 +82,12 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         calc F (1 + 1) = F 2 := by norm_num
           _ = 1 := by linear_combination (norm := parley_norm) s5_4 + s5_5 + s5_6
       -- 5.8. calculation
-      have s5_8 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = F (2 * 1) := by
-        calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); parley_side)
-          _ = F (2 * 1 - 1) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
-          _ = F 1 := by norm_num
-          _ = 1 := by parley_side
-          _ = F (1 + 1) := by parley_side
-          _ = F (2 * 1) := by norm_num
-      all_goals parley_side
+      calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ))); parley_side)
+        _ = F (2 * 1 - 1) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+        _ = F 1 := by norm_num
+        _ = 1 := by parley_side
+        _ = F (1 + 1) := by parley_side
+        _ = F (2 * 1) := by norm_num
     | succ m hK4 hIH2 =>
       -- 5.9. proof
       -- what this block shows, Lean's types give
@@ -110,14 +107,11 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         exact row1
       -- 5.14. calculation
       have r125_1 : m ≥ 1 := by parley_side
-      have s5_14 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (2 * (m + 1)) := by
-        calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) (by parley_side)); parley_side)
-          _ = F (2 * m) + q (m + 1) := by parley_subst hIH2
-          _ = F (2 * m) + F (2 * m + 1) := by parley_subst s5_11
-          _ = F (2 * (m + 1)) := by parley_side
-      all_goals parley_side
+      calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1); parley_side)
+        _ = F (2 * m) + q (m + 1) := by parley_subst hIH2
+        _ = F (2 * m) + F (2 * m + 1) := by parley_subst s5_11
+        _ = F (2 * (m + 1)) := by parley_side
   -- 6. instantiate m := n in line 5, from D2
-  have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (F (2 * k - 1) : ℤ)) = F (2 * n) := by first | linear_combination (norm := parley_norm) (s5 n (by parley_side)) | (have h := (s5 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s5 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s5 n (by parley_side)) | exact_mod_cast ((s5 n (by parley_side))).symm | (have h := (s5 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s5 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s5 n (by parley_side)); parley_int_power h) | (have h := (s5 n (by parley_side)); parley_side)
-  all_goals exact s6
+  first | linear_combination (norm := parley_norm) (s5 n (by parley_side)) | (have h := (s5 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s5 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s5 n (by parley_side)) | exact_mod_cast ((s5 n (by parley_side))).symm | (have h := (s5 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s5 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s5 n (by parley_side)); parley_int_power h) | (have h := (s5 n (by parley_side)); parley_side)
 
 end Parley.Proofs.Hammack.FibonacciOddSum.FibonacciOddSum

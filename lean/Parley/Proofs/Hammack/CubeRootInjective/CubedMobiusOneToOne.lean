@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import PowerTactics
-public import RealTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -41,9 +40,9 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
     intro t hK2
     intro hA1
     -- 1.1. mun:remove-member u := s, Y := ℝ, a := 1, from K1
-    have s1_1 : s ≠ 1 := by first | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp (by parley_set_side)).2; parley_rat_of_real h) | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp (by parley_set_side)).2; parley_set_side)
+    have s1_1 : s ≠ 1 := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp hK1).2
     -- 1.2. mun:remove-member u := t, Y := ℝ, a := 1, from K2
-    have s1_2 : t ≠ 1 := by first | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp (by parley_set_side)).2; parley_rat_of_real h) | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp (by parley_set_side)).2; parley_set_side)
+    have s1_2 : t ≠ 1 := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp hK2).2
     -- 1.3. algebra, from 1.1
     have s1_3 : s - 1 ≠ 0 := by intro h; exact s1_1 (by linear_combination (norm := parley_norm) h)
     -- 1.4. algebra, from 1.2
@@ -54,12 +53,10 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
         _ = f t := by parley_set_side
         _ = ((t + 1) / (t - 1)) ^ 3 := by first | linear_combination (norm := parley_norm) (hH2 t (by parley_set_side)) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 t (by parley_set_side)) | exact_mod_cast ((hH2 t (by parley_set_side))).symm | (have h := (hH2 t (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); parley_int_power h) | (have h := (hH2 t (by parley_set_side)); parley_set_side)
     -- 1.6. thm:cube-injective a := (s + 1)/(s − 1), b := (t + 1)/(t − 1), from 1.5
-    have s1_6 : (s + 1) / (s - 1) = (t + 1) / (t - 1) := by exact (Parley.Proofs.Hammack.CubeRootInjective.CubeInjective.cube_injective (a := (s + 1) / (s - 1)) (b := (t + 1) / (t - 1)) s1_5)
+    have s1_6 : (s + 1) / (s - 1) = (t + 1) / (t - 1) := by exact (Parley.Proofs.Hammack.CubeRootInjective.CubeInjective.cube_injective (a := (s + 1) / (s - 1)) (b := (t + 1) / (t - 1)) (by parley_set_side))
     -- 1.7. algebra, from 1.3, 1.4, 1.6
-    have s1_7 : s = t := by linear_combination (norm := parley_field) (-(1 / 2 : ℝ) * s * t + (1 / 2 : ℝ) * s + (1 / 2 : ℝ) * t - (1 / 2 : ℝ)) * s1_6
-    all_goals parley_set_side
+    linear_combination (norm := parley_field) (-(1 / 2 : ℝ) * s * t + (1 / 2 : ℝ) * s + (1 / 2 : ℝ) * t - (1 / 2 : ℝ)) * s1_6
   -- 2. def:one-to-one, from H1, 1
-  have s2 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) ∧ Set.InjOn f ((Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
 
 end Parley.Proofs.Hammack.CubeRootInjective.CubedMobiusOneToOne

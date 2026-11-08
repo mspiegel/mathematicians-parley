@@ -22,7 +22,6 @@ namespace Parley.Tests.Notations.Powers.AHalfPower
 theorem a_half_power (x : ℝ) :
     (x : ℂ) ^ (1 / 2 : ℂ) = (x : ℂ) ^ (1 / 2 : ℂ) := by
   -- 1. mun:half-power
-  have s1 : (x : ℂ) ^ (1 / 2 : ℂ) = (x : ℂ) ^ (1 / 2 : ℂ) := by exact (Parley.Items.Stdlib.Numbers.mun_half_power (x := (x : ℂ)))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_half_power (x := (x : ℂ)))
 
 end Parley.Tests.Notations.Powers.AHalfPower

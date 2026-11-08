@@ -48,16 +48,12 @@ theorem derivative_on_the_line (f : ℝ → ℝ) (hH2 : ∀ x ∈ (Set.univ : Se
   -- 5. thm:derivative-sum D := ℝ, U := ℝ, from H2, H6, 1, 3
   have s5 : ∀ x : ℝ, (deriv F) x = (deriv f) x + (deriv g) x := by first | exact (Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
   -- 6. proof
-  have s6 : ∀ x : ℝ, (deriv F) x = (deriv f) x + 3 := by
-    intro x
-    -- 6.1. instantiate x := x in line 5
-    have s6_1 : (deriv F) x = (deriv f) x + (deriv g) x := by first | linear_combination (norm := parley_norm) (s5 x) | (have h := (s5 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s5 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s5 x) | exact_mod_cast ((s5 x)).symm | (have h := (s5 x); rify; linear_combination (norm := parley_norm) h) | (have h := (s5 x); qify; linear_combination (norm := parley_norm) h) | (have h := (s5 x); parley_int_power h) | (have h := (s5 x); parley_set_side)
-    -- 6.2. substitute
-    have s6_2 : (deriv F) x = (deriv f) x + 3 := by
-      have c1 : (deriv g) x = 3 := by first | linear_combination (norm := parley_norm) (s4 x) | (have h := (s4 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s4 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s4 x) | exact_mod_cast ((s4 x)).symm | (have h := (s4 x); rify; linear_combination (norm := parley_norm) h) | (have h := (s4 x); qify; linear_combination (norm := parley_norm) h) | (have h := (s4 x); parley_int_power h) | (have h := (s4 x); parley_set_side)
-      have row1 : (deriv F) x = (deriv f) x + 3 := by parley_subst_at c1 s6_1
-      exact row1
-    all_goals exact s6_2
-  all_goals exact s6
+  intro x
+  -- 6.1. instantiate x := x in line 5
+  have s6_1 : (deriv F) x = (deriv f) x + (deriv g) x := by first | linear_combination (norm := parley_norm) (s5 x) | (have h := (s5 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s5 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s5 x) | exact_mod_cast ((s5 x)).symm | (have h := (s5 x); rify; linear_combination (norm := parley_norm) h) | (have h := (s5 x); qify; linear_combination (norm := parley_norm) h) | (have h := (s5 x); parley_int_power h) | (have h := (s5 x); parley_set_side)
+  -- 6.2. substitute
+  have c1 : (deriv g) x = 3 := by first | linear_combination (norm := parley_norm) (s4 x) | (have h := (s4 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s4 x); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s4 x) | exact_mod_cast ((s4 x)).symm | (have h := (s4 x); rify; linear_combination (norm := parley_norm) h) | (have h := (s4 x); qify; linear_combination (norm := parley_norm) h) | (have h := (s4 x); parley_int_power h) | (have h := (s4 x); parley_set_side)
+  have row1 : (deriv F) x = (deriv f) x + 3 := by parley_subst_at c1 s6_1
+  exact row1
 
 end Parley.Tests.Stdlib.Calculus.DerivativeOnTheLine

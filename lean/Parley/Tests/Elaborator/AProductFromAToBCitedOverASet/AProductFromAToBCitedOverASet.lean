@@ -25,6 +25,6 @@ theorem a_product_from_a_to_b_cited_over_a_set (n : ℤ) :
   -- 2. mun:range-in-integers
   have s2 : (Set.Icc (2 : ℤ) n : Set ℤ) ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (2 : ℤ)) (b := n))
   -- 3. mun:product-integer, from 1, 2
-  all_goals parley_set_side
+  exact trivial
 
 end Parley.Tests.Elaborator.AProductFromAToBCitedOverASet.AProductFromAToBCitedOverASet

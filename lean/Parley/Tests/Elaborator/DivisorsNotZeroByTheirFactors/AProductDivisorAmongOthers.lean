@@ -23,7 +23,6 @@ theorem a_product_divisor_among_others (m : ℤ) (hH2 : m > 0) :
   -- 2. algebra
   have r30_1 : m ≠ 0 := by parley_side
   have r30_2 : m + 1 ≠ 0 := by parley_side
-  have s2 : 1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / ((m : ℚ) + 1) := by parley_ring
-  all_goals exact s2
+  parley_ring
 
 end Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.AProductDivisorAmongOthers

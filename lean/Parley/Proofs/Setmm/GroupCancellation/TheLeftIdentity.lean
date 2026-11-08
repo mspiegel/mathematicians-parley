@@ -37,9 +37,7 @@ theorem the_left_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ :
     have row1 : (1 : G) * a = a * (1 : G) := by parley_subst_at c1 s3
     exact row1
   -- 5. calculation
-  have s5 : (1 : G) * a = a := by
-    calc (1 : G) * a = a * (1 : G) := by parley_set_side
-      _ = a := by first | exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | exact ((Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2); parley_set_side)
-  all_goals exact s5
+  calc (1 : G) * a = a * (1 : G) := by parley_set_side
+    _ = a := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)
 
 end Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity

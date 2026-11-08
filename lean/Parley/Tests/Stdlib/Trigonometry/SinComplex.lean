@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Trigonometry.SinComplex
 theorem sin_complex (a : ℂ) :
     True := by
   -- 1. mun:trigonometry-sin-complex
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Trigonometry.SinComplex

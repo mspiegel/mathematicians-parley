@@ -33,7 +33,6 @@ theorem the_identity_is_its_own_inverse {G : Type*} [Group G] :
     calc (1 : G) * (1 : G)⁻¹ = (1 : G) := by parley_set_side
       _ = (1 : G) * (1 : G) := by parley_set_side
   -- 6. thm:group-cancel a := e⁻¹, b := e, g := e, from 1, 2, 5
-  have s6 : (1 : G)⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5)
-  all_goals exact s6
+  exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) s2 s1 s1 s5)
 
 end Parley.Tests.Notations.Groups.TheIdentityIsItsOwnInverse

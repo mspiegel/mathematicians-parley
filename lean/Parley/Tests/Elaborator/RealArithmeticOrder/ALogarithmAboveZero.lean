@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.ALogarithmAboveZero
 theorem a_logarithm_above_zero :
     0 < Real.log (2 : ℝ) := by
   -- 1. real arithmetic
-  have s1 : 0 < Real.log (2 : ℝ) := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.ALogarithmAboveZero

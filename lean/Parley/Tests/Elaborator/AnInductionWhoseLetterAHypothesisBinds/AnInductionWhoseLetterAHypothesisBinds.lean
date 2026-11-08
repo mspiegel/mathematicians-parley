@@ -19,18 +19,14 @@ namespace Parley.Tests.Elaborator.AnInductionWhoseLetterAHypothesisBinds.AnInduc
 theorem an_induction_whose_letter_a_hypothesis_binds (hH1 : ∀ m : ℤ, 0 ≤ m → m ≥ 0) :
     (∀ m : ℤ, 0 ≤ m → m + 0 = m) := by
   -- 1. induction on m starting at 0
-  have s1 : ∀ m : ℤ, 0 ≤ m → m + 0 = m := by
-    intro m h_m
-    replace h_m : 0 ≤ m := by omega
-    induction m, h_m using LeanBridges.Functions.le_induction with
-    | base =>
-      -- 1.1. arithmetic
-      have s1_1 : (0 + 0 : ℤ) = 0 := by parley_arith
-      all_goals parley_side
-    | succ m hK hIH =>
-      -- 1.2. algebra
-      have s1_2 : m + 1 + 0 = m + 1 := by parley_ring
-      all_goals parley_side
-  all_goals exact s1
+  intro m h_m
+  replace h_m : 0 ≤ m := by omega
+  induction m, h_m using LeanBridges.Functions.le_induction with
+  | base =>
+    -- 1.1. arithmetic
+    parley_arith
+  | succ m hK hIH =>
+    -- 1.2. algebra
+    parley_ring
 
 end Parley.Tests.Elaborator.AnInductionWhoseLetterAHypothesisBinds.AnInductionWhoseLetterAHypothesisBinds

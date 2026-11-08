@@ -19,7 +19,6 @@ theorem set_is_a_part_of_itself {α : Type*} (A : Set α) :
   -- 1. mun:subset-self
   have s1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
   -- 2. def:powerset S := A, from 1
-  have s2 : A ∈ 𝒫 A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := A))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := A))).mpr (by parley_set_side); parley_set_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := A))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := A))).mpr s1; parley_set_side)
 
 end Parley.Proofs.Setmm.PowerSets.SetIsAPartOfItself

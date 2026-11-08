@@ -403,6 +403,609 @@ fn over_finset(pieces: &[Piece]) -> bool {
 /// The term with brackets no precedence asks for taken off, and a type
 /// given a term that has it already, `(2 : ℤ)` of an integer 2, which is
 /// that term at its own type and no cast.
+/// How a statement Lean has, what a tactic gives a hypothesis or a line
+/// proves, stands to the statement a line writes for it, where the two
+/// differ at most in a way one term moves between.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Meets {
+    /// Written alike.
+    Same,
+    /// Alike once each is read as Lean reads it: `a ≠ b` as `¬ a = b`,
+    /// `x ∉ A` as `¬ x ∈ A`, `a ≥ b` as `b ≤ a` and `a > b` as `b < a`, and
+    /// each letter a `set` names as its value. Lean takes the two as one
+    /// statement, and the one stands for the other as it is.
+    Unfolded,
+    /// The one's equation or congruence turned round, or its negation's:
+    /// `.symm` of it, or `Ne.symm` where `negated`.
+    Turned { negated: bool },
+    /// Alike once the identity elements are dropped, `x + 0` as `x`, by the
+    /// rewrites named: `simpa only [..] using` it.
+    Identities(Vec<&'static str>),
+    /// Alike once casts are pushed down onto the parts they cast, as
+    /// `push_cast` takes them, the letters whose `set` equations `through`
+    /// names put as their values first, which `push_cast` does not look
+    /// through. `lift` where the two state their relation in different
+    /// types, a line in ℤ for a statement in ℚ, which `exact_mod_cast`
+    /// takes up.
+    Casts { through: Vec<String>, lift: bool },
+}
+
+/// The type a statement's relation is stated in, `ℚ` of `(a : ℚ) ≤ b`, its
+/// negation's included; None for a statement of another shape, or one whose
+/// sides carry no type.
+fn relation_type(term: &Term) -> Option<LeanType> {
+    match &term.kind {
+        TermKind::Paren(inner) | TermKind::Not(inner) => relation_type(inner),
+        TermKind::Infix { op, lhs, rhs }
+            if matches!(op.symbol, "=" | "≠" | "<" | ">" | "≤" | "≥" | "∣") =>
+        {
+            lhs.ty.clone().or_else(|| rhs.ty.clone())
+        }
+        // A membership or a subset is stated of the type of its member or
+        // of its sets.
+        TermKind::Infix { op, lhs, .. }
+            if matches!(op.symbol, "∈" | "∉" | "⊆" | "⊂") =>
+        {
+            lhs.ty.clone()
+        }
+        _ => None,
+    }
+}
+
+/// Whether the two state their relation in one type as far as their trees
+/// say: both in the same type, or neither giving one. A statement whose
+/// type is known on one side alone, as an item's printed with its letters'
+/// types left to Lean, is not known to be in the other's.
+pub fn relation_types_agree(a: &Term, b: &Term) -> bool {
+    match (relation_type(a), relation_type(b)) {
+        (Some(x), Some(y)) => x == y,
+        (None, None) => true,
+        _ => false,
+    }
+}
+
+/// How `given` stands to `line` (`Meets`), each letter of `values` read as
+/// its value; None where they differ in more.
+pub fn meets(given: &Term, line: &Term, values: &Values) -> Option<Meets> {
+    let (given_written, line_written) = (given, line);
+    let lift = match (relation_type(given), relation_type(line)) {
+        (Some(a), Some(b)) => a != b,
+        _ => false,
+    };
+    if lift {
+        // A fact of numerals alone in another type, (1 : ℚ)/4 > 0 for one in
+        // ℝ, is worked out where it is asked: `norm_cast` does not take
+        // every such fact across, ℚ's order to ℝ's among them.
+        let lettered = |t: &Term| {
+            t.walk()
+                .iter()
+                .any(|n| matches!(n.kind, TermKind::Letter(_)))
+        };
+        if !lettered(given_written) && !lettered(line_written) {
+            return None;
+        }
+        return casts_alike(given_written, line_written, values, true);
+    }
+    let (given, line) = (given.untyped(), line.untyped());
+    if given == line
+        || ascriptions_dropped(given_written) == ascriptions_dropped(line_written)
+    {
+        return Some(Meets::Same);
+    }
+    let read = |t: &Term| {
+        let unfolded = unfolded(&reduced(&with_values(t, values, 8)));
+        renamed_bound(&unfolded, &mut 0).untyped()
+    };
+    let (given, line) = (read(given_written), read(line_written));
+    if given == line {
+        return Some(Meets::Unfolded);
+    }
+    match (&given.kind, &line.kind) {
+        (TermKind::Not(a), TermKind::Not(b)) if turned_pair(a, b) => {
+            return Some(Meets::Turned { negated: true })
+        }
+        _ if turned_pair(&given, &line) => {
+            return Some(Meets::Turned { negated: false })
+        }
+        _ => {}
+    }
+    let mut used = std::collections::BTreeSet::new();
+    let (dropped_given, dropped_line) = (
+        identities_dropped(&given, &mut used),
+        identities_dropped(&line, &mut used),
+    );
+    if dropped_given == dropped_line {
+        return Some(Meets::Identities(used.into_iter().collect()));
+    }
+    casts_alike(given_written, line_written, values, false)
+}
+
+/// `Meets::Casts` where the two are alike once their casts are pushed
+/// down, as written or with the letters of `values` put as their values;
+/// None where they are not.
+fn casts_alike(
+    given: &Term,
+    line: &Term,
+    values: &Values,
+    lift: bool,
+) -> Option<Meets> {
+    let none = |_: &str, _: Num| None;
+    let cast = |t: &Term| {
+        let pushed = pushed(&unfolded(&reduced(t)), &none);
+        renamed_bound(&pushed, &mut 0).untyped()
+    };
+    if cast(given) == cast(line) {
+        return Some(Meets::Casts {
+            through: Vec::new(),
+            lift,
+        });
+    }
+    let valued = |t: &Term| cast(&with_values(t, values, 8));
+    if valued(given) != valued(line) {
+        return None;
+    }
+    let named: std::collections::BTreeSet<&str> = [given, line]
+        .iter()
+        .flat_map(|t| t.walk())
+        .filter_map(|t| match &t.kind {
+            TermKind::Letter(l) => Some(l.as_str()),
+            _ => None,
+        })
+        .collect();
+    let through = values
+        .iter()
+        .filter(|(name, _)| named.contains(name.as_str()))
+        .map(|(_, v)| v.equation.clone())
+        .collect();
+    Some(Meets::Casts { through, lift })
+}
+
+/// The term with each function written by its rule applied, `(fun k => b) t`,
+/// as its body at `t`, and each application of an application taken as
+/// one, `(f a) b` as `f a b`: as Lean reduces both.
+fn reduced(term: &Term) -> Term {
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = reduced(c);
+    }
+    let TermKind::App {
+        head,
+        args,
+        explicit,
+    } = &out.kind
+    else {
+        return out;
+    };
+    let mut head = (**head).clone();
+    while let TermKind::Paren(inner) = head.kind {
+        head = *inner;
+    }
+    match head.kind {
+        TermKind::App {
+            head: inner,
+            args: first,
+            ..
+        } => {
+            let mut all = first;
+            all.extend(args.iter().cloned());
+            reduced(&Term {
+                kind: TermKind::App {
+                    head: inner,
+                    args: all,
+                    explicit: *explicit,
+                },
+                ty: out.ty.clone(),
+            })
+        }
+        TermKind::Quantified {
+            quant: super::term::Quant::Fun,
+            letter,
+            body,
+            ..
+        } => {
+            let Some(Arg::Explicit(value)) = args.first() else {
+                return out;
+            };
+            let applied = substituted(&body, &letter, value);
+            match args.len() {
+                1 => applied,
+                _ => reduced(&Term {
+                    kind: TermKind::App {
+                        head: Box::new(applied),
+                        args: args[1..].to_vec(),
+                        explicit: *explicit,
+                    },
+                    ty: out.ty.clone(),
+                }),
+            }
+        }
+        _ => out,
+    }
+}
+
+/// The term with each letter a binder binds renamed in the order the
+/// binders stand, `∑ j ∈ s, f j` and `∑ k ∈ s, f k` alike: a quantifier's
+/// letter, and the letter a notation binds after its mark, `∑`, `∏`, `∫`,
+/// `∀`, `∃` or a set-builder's `{`.
+fn renamed_bound(term: &Term, next: &mut usize) -> Term {
+    let fresh = |next: &mut usize| {
+        *next += 1;
+        format!("·{next}")
+    };
+    match &term.kind {
+        TermKind::Quantified {
+            quant,
+            letter,
+            letter_ty,
+            guard,
+            body,
+        } => {
+            let new = fresh(next);
+            let as_new = Term {
+                kind: TermKind::Letter(new.clone()),
+                ty: None,
+            };
+            let guard = guard.as_ref().map(|g| {
+                Box::new(renamed_bound(&substituted(g, letter, &as_new), next))
+            });
+            let body =
+                Box::new(renamed_bound(&substituted(body, letter, &as_new), next));
+            Term {
+                kind: TermKind::Quantified {
+                    quant: *quant,
+                    letter: new,
+                    letter_ty: letter_ty.clone(),
+                    guard,
+                    body,
+                },
+                ty: term.ty.clone(),
+            }
+        }
+        TermKind::Notation { pieces, prec } => {
+            let bound = match pieces.first() {
+                Some(Piece::Text(t)) => notation_binder(t),
+                _ => None,
+            };
+            let Some(letter) = bound else {
+                let mut out = term.clone();
+                for c in out.children_mut() {
+                    *c = renamed_bound(c, next);
+                }
+                return out;
+            };
+            let new = fresh(next);
+            let as_new = Term {
+                kind: TermKind::Letter(new.clone()),
+                ty: None,
+            };
+            // The letter is bound in what follows the text that opens the
+            // body, `, ` of a sum or `|` of a set-builder: the range before
+            // it, `Finset.Icc 1 (k + 1)`, is outside its scope.
+            let mut in_scope = false;
+            let mut out = Vec::new();
+            for (i, p) in pieces.iter().enumerate() {
+                out.push(match p {
+                    Piece::Text(t) => {
+                        in_scope = in_scope || t.contains(',') || t.contains('|');
+                        match i {
+                            0 => Piece::Text(t.replacen(&letter, &new, 1)),
+                            _ => Piece::Text(t.clone()),
+                        }
+                    }
+                    Piece::Term { term, need } => {
+                        let term = match in_scope {
+                            true => substituted(term, &letter, &as_new),
+                            false => (**term).clone(),
+                        };
+                        Piece::Term {
+                            term: Box::new(renamed_bound(&term, next)),
+                            need: *need,
+                        }
+                    }
+                });
+            }
+            let pieces = out;
+            Term {
+                kind: TermKind::Notation {
+                    pieces,
+                    prec: *prec,
+                },
+                ty: term.ty.clone(),
+            }
+        }
+        _ => {
+            let mut out = term.clone();
+            for c in out.children_mut() {
+                *c = renamed_bound(c, next);
+            }
+            out
+        }
+    }
+}
+
+/// The letter a notation binds where its text opens with a binder's mark
+/// and the letter, `∑ j ∈ `, `∫ t in `, `{n : ℤ | `; None for another.
+fn notation_binder(text: &str) -> Option<String> {
+    let text = text.trim_start();
+    let rest = match text.strip_prefix('{') {
+        Some(rest) => rest,
+        None => {
+            let (mark, rest) = text.split_once(' ')?;
+            if !matches!(mark, "∑" | "∏" | "∑ᶠ" | "∏ᶠ" | "∫" | "∀" | "∃" | "∃!")
+            {
+                return None;
+            }
+            rest
+        }
+    };
+    let letter: String = rest
+        .chars()
+        .take_while(|c| c.is_alphanumeric() || *c == '_' || *c == '\'')
+        .collect();
+    let after = rest[letter.len()..].trim_start();
+    let binds =
+        after.starts_with('∈') || after.starts_with(':') || after.starts_with("in ");
+    (!letter.is_empty() && binds).then_some(letter)
+}
+
+/// The term untyped, with no bracket the writer kept and no ascription of
+/// a term to its own type, `(2 : ℝ)` of a real 2: what Lean reads alike.
+fn ascriptions_dropped(term: &Term) -> Term {
+    match &term.kind {
+        TermKind::Paren(inner) => return ascriptions_dropped(inner),
+        TermKind::Cast { inner, to } if inner.ty.as_ref() == Some(to) => {
+            return ascriptions_dropped(inner)
+        }
+        _ => {}
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = ascriptions_dropped(c);
+    }
+    out.untyped()
+}
+
+/// A letter a proof names by `set`: its value, and the name of the
+/// equation `set … with` gives.
+#[derive(Clone, Debug)]
+pub struct Value {
+    pub value: Term,
+    pub equation: String,
+}
+
+/// The letters a proof names by `set`, by their Lean names.
+pub type Values = indexmap::IndexMap<String, Value>;
+
+/// The term with each letter of `values` put as its value, to `depth`
+/// levels of values naming other letters.
+fn with_values(term: &Term, values: &Values, depth: usize) -> Term {
+    if let TermKind::Letter(name) = &term.kind {
+        if let (Some(v), true) = (values.get(name), depth > 0) {
+            return with_values(&v.value, values, depth - 1);
+        }
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = with_values(c, values, depth);
+    }
+    out
+}
+
+/// The term with each identity element dropped where Lean's rewrite of that
+/// name drops it, `x + 0`, `0 + x`, `x - 0`, `x * 1`, `1 * x`, `x ^ 1`, and
+/// each numeral taken to ℕ as the numeral, the rewrites used put in `used`.
+fn identities_dropped(
+    term: &Term,
+    used: &mut std::collections::BTreeSet<&'static str>,
+) -> Term {
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = identities_dropped(c, used);
+    }
+    let numeral =
+        |t: &Term, n: &str| matches!(&bare(t).kind, TermKind::Numeral(x) if x == n);
+    // Numerals taken to ℕ, `(2 * 0).toNat`, are what they work out to in ℕ,
+    // as simp's arithmetic on numerals works them out.
+    if let TermKind::ToNat(inner) = &out.kind {
+        let closed = !inner
+            .walk()
+            .iter()
+            .any(|t| matches!(t.kind, TermKind::Letter(_) | TermKind::Const(_)));
+        if closed {
+            // `simp only` works the arithmetic out only by the procedures
+            // named: each operation's, in ℤ under the `toNat` and in ℕ where
+            // the other side writes it so.
+            used.insert("Int.reduceToNat");
+            for t in inner.walk() {
+                if let TermKind::Infix { op, .. } = &t.kind {
+                    let named: &[&'static str] = match op.symbol {
+                        "+" => &["Int.reduceAdd", "Nat.reduceAdd"],
+                        "-" => &["Int.reduceSub", "Nat.reduceSub"],
+                        "*" => &["Int.reduceMul", "Nat.reduceMul"],
+                        "^" => &["Int.reducePow", "Nat.reducePow"],
+                        _ => &[],
+                    };
+                    used.extend(named.iter().copied());
+                }
+            }
+            return (**inner).clone();
+        }
+    }
+    if let TermKind::Infix { op, lhs, rhs } = &out.kind {
+        let kept = match op.symbol {
+            "+" if numeral(rhs, "0") => Some((lhs, "add_zero")),
+            "+" if numeral(lhs, "0") => Some((rhs, "zero_add")),
+            "-" if numeral(rhs, "0") => Some((lhs, "sub_zero")),
+            "*" if numeral(rhs, "1") => Some((lhs, "mul_one")),
+            "*" if numeral(lhs, "1") => Some((rhs, "one_mul")),
+            "^" if numeral(rhs, "1") => Some((lhs, "pow_one")),
+            _ => None,
+        };
+        if let Some((kept, rule)) = kept {
+            used.insert(rule);
+            return (**kept).clone();
+        }
+    }
+    if let TermKind::Paren(inner) = &out.kind {
+        return (**inner).clone();
+    }
+    out
+}
+
+/// The term with `value` put for the letter `letter` wherever it is free,
+/// as Lean puts an induction's value into its motive: a cast of the letter
+/// stays a cast of the value, `↑(k + 1)`.
+pub fn substituted(term: &Term, letter: &str, value: &Term) -> Term {
+    match &term.kind {
+        TermKind::Letter(l) if l == letter => return value.clone(),
+        TermKind::Quantified { letter: bound, .. } if bound == letter => {
+            return term.clone()
+        }
+        _ => {}
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = substituted(c, letter, value);
+    }
+    out
+}
+
+/// The term with each letter of `values` put as its value at once, as Lean
+/// puts a citation's arguments into the cited statement: a value is not
+/// itself put into again.
+pub fn substituted_all(
+    term: &Term,
+    values: &std::collections::BTreeMap<String, Term>,
+) -> Term {
+    match &term.kind {
+        TermKind::Letter(l) => {
+            if let Some(v) = values.get(l) {
+                return v.clone();
+            }
+        }
+        TermKind::Quantified { letter, .. } if values.contains_key(letter) => {
+            let mut inner = values.clone();
+            inner.remove(letter);
+            let mut out = term.clone();
+            for c in out.children_mut() {
+                *c = substituted_all(c, &inner);
+            }
+            return out;
+        }
+        _ => {}
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = substituted_all(c, values);
+    }
+    out
+}
+
+/// `¬ p`.
+pub fn negation(term: &Term) -> Term {
+    Term {
+        kind: TermKind::Not(Box::new(term.clone())),
+        ty: Some(LeanType::Prop),
+    }
+}
+
+/// What a negation denies: `p` of `¬ p`, `a = b` of `a ≠ b`, `x ∈ A` of
+/// `x ∉ A`; None for a statement that is no negation.
+pub fn denied(term: &Term) -> Option<Term> {
+    match &unfolded(term).kind {
+        TermKind::Not(inner) => Some((**inner).clone()),
+        _ => None,
+    }
+}
+
+/// The term with no bracket the writer kept, each `a ≠ b` written
+/// `¬ a = b`, each `x ∉ A` written `¬ x ∈ A`, and each `a ≥ b` and `a > b`
+/// written `b ≤ a` and `b < a`, as Lean's notations unfold.
+fn unfolded(term: &Term) -> Term {
+    use super::term::Op;
+    match &term.kind {
+        TermKind::Paren(inner) => return unfolded(inner),
+        // `(t : T)` of a t already in T says only what t is.
+        TermKind::Cast { inner, to } if inner.ty.as_ref() == Some(to) => {
+            return unfolded(inner)
+        }
+        _ => {}
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = unfolded(c);
+    }
+    if let TermKind::Infix { op, lhs, rhs } = &out.kind {
+        let flipped = match op.symbol {
+            "≥" => Some(Op::AT_MOST),
+            ">" => Op::of("<"),
+            _ => None,
+        };
+        if let Some(op) = flipped {
+            return Term {
+                kind: TermKind::Infix {
+                    op,
+                    lhs: rhs.clone(),
+                    rhs: lhs.clone(),
+                },
+                ty: out.ty.clone(),
+            };
+        }
+    }
+    let positive = match &out.kind {
+        TermKind::Infix { op, .. } if op.symbol == "≠" => Op::EQUALS,
+        TermKind::Infix { op, .. } if op.symbol == "∉" => match Op::of("∈") {
+            Some(member) => member,
+            None => return out,
+        },
+        _ => return out,
+    };
+    let TermKind::Infix { lhs, rhs, .. } = out.kind else {
+        return out;
+    };
+    negation(&Term {
+        kind: TermKind::Infix {
+            op: positive,
+            lhs,
+            rhs,
+        },
+        ty: Some(LeanType::Prop),
+    })
+}
+
+/// Whether `b` is the equation or the congruence `a` with its sides
+/// swapped, and not the same one.
+fn turned_pair(a: &Term, b: &Term) -> bool {
+    use super::term::Op;
+    match (&a.kind, &b.kind) {
+        (
+            TermKind::ModEq {
+                a: al,
+                b: ar,
+                n: an,
+            },
+            TermKind::ModEq {
+                a: bl,
+                b: br,
+                n: bn,
+            },
+        ) => an == bn && al == br && ar == bl && al != bl,
+        (
+            TermKind::Infix {
+                op: x,
+                lhs: al,
+                rhs: ar,
+            },
+            TermKind::Infix {
+                op: y,
+                lhs: bl,
+                rhs: br,
+            },
+        ) => *x == Op::EQUALS && x == y && al == br && ar == bl && al != bl,
+        _ => false,
+    }
+}
+
 fn bare(term: &Term) -> &Term {
     match &term.kind {
         TermKind::Paren(inner) => bare(inner),
@@ -550,6 +1153,24 @@ fn children(term: &Term) -> Vec<&Term> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// `(2 : ℤ) ∣ N` and `2 ∣ N`: an ascription to the numeral's own type
+    /// says nothing, and the two are written alike.
+    #[test]
+    fn an_ascription_to_its_own_type_meets_the_bare_term() {
+        let int = LeanType::Num(Num::Int);
+        let two = Term::of(TermKind::Numeral("2".to_string()), int.clone());
+        let n = Term::letter("N", int.clone());
+        let divides = super::super::term::Op::of("∣").expect("divides");
+        let ascribed = Term::infix(
+            divides,
+            Term::cast(two.clone(), int.clone()),
+            n.clone(),
+            LeanType::Prop,
+        );
+        let bare = Term::infix(divides, two, n, LeanType::Prop);
+        assert_eq!(meets(&bare, &ascribed, &Values::new()), Some(Meets::Same));
+    }
 
     fn count(form: CountForm) -> Term {
         let set = Term::letter("d", LeanType::Set(Box::new(LeanType::Num(Num::Int))));

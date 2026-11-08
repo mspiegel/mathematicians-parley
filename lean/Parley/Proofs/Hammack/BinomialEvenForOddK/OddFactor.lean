@@ -23,15 +23,14 @@ namespace Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor
 theorem odd_factor (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Even (A * B)) :
     Even B := by
   -- 1. obtain b: def:odd, from H3
-  obtain ⟨b, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A))).mp (by parley_side)
+  obtain ⟨b, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A))).mp hH3
   -- 2. obtain a: def:even n := A·B, from H4
-  obtain ⟨a, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := A * B))).mp (by parley_side)
+  obtain ⟨a, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := A * B))).mp hH4
   -- 3. substitute A = 2b + 1 (line 1) into line 2
   have s3 : (2 * b + 1) * B = 2 * a := by parley_subst_at s1 s2
   -- 4. algebra, from 3
   have s4 : B = 2 * (a - b * B) := by linear_combination (norm := parley_norm) s3
   -- 5. def:even n := B, from 4
-  have s5 : Even B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, by parley_side⟩; parley_side)
-  all_goals exact s5
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, s4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, s4⟩; parley_side)
 
 end Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor

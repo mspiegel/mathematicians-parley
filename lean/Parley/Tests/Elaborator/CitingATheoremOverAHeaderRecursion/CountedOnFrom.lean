@@ -27,10 +27,8 @@ theorem counted_on_from (M : ℤ) (hH1 : 0 ≤ M) (F : ℤ → ℤ) (hD1 : F 0 =
   -- 3. substitute F(0) = M (line 1)
   have s3 : F 0 + 1 = M + 1 := by parley_subst s1
   -- 4. calculation
-  have s4 : F 1 = M + 1 := by
-    calc F 1 = F (0 + 1) := by norm_num
-      _ = F 0 + 1 := by parley_side
-      _ = M + 1 := by parley_side
-  all_goals exact s4
+  calc F 1 = F (0 + 1) := by norm_num
+    _ = F 0 + 1 := by parley_side
+    _ = M + 1 := by parley_side
 
 end Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedOnFrom

@@ -16,12 +16,9 @@ namespace Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineInATransitivity
 theorem a_for_all_line_in_a_transitivity (b : ℝ) (hH2 : ∀ x : ℝ, x < x + 1) :
     (∀ y : ℝ, y + 1 < b → y < b) := by
   -- 1. proof
-  have s1 : ∀ y : ℝ, y + 1 < b → y < b := by
-    intro y
-    intro hA1
-    -- 1.1. transitivity, from H2, A1
-    have s1_1 : y < b := by have := (hH2 y); parley_order
-    all_goals parley_side
-  all_goals exact s1
+  intro y
+  intro hA1
+  -- 1.1. transitivity, from H2, A1
+  have := (hH2 y); parley_order
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineInATransitivity

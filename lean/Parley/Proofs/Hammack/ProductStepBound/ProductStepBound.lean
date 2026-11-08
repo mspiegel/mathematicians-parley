@@ -6,7 +6,6 @@ public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -34,13 +33,12 @@ theorem product_step_bound (t : ℝ) (p : ℝ) (hH3 : 0 < t) (hH4 : t ≤ 1 / 4)
   -- 6. inequalities
   have s6 : t ≥ 0 := by parley_order
   -- 7. mun:product-nonneg x := t, y := 1/4 − t, from 5, 6
-  have s7 : t * (1 / 4 - t) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := t) (y := 1 / 4 - t) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := t) (y := 1 / 4 - t) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := t) (y := 1 / 4 - t) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := t) (y := 1 / 4 - t) (by parley_side) (by parley_side)); parley_side)
+  have s7 : t * (1 / 4 - t) ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := t) (y := 1 / 4 - t) (by parley_side) (by parley_side))
   -- 8. inequalities
   have s8 : 1 / 4 + t / 2 + t * (1 / 4 - t) ≥ 1 / 4 + t / 2 := by parley_order
   -- 9. algebra
   have s9 : p * (1 - t) = (1 - t) * p := by parley_ring
   -- 10. transitivity, from 9, 3, 4, 8
-  have s10 : p * (1 - t) ≥ 1 / 4 + t / 2 := by parley_order
-  all_goals exact s10
+  parley_order
 
 end Parley.Proofs.Hammack.ProductStepBound.ProductStepBound

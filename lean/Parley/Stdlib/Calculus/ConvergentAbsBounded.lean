@@ -38,7 +38,7 @@ set_option maxHeartbeats 600000 in
 theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) :
     (∃ B : ℝ, ∀ m : ℤ, 0 < m → abs (x m) ≤ B) := by
   -- 1. def:tends-to, from H3
-  have s1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp (by parley_side); parley_side)
+  have s1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH3
   -- 2. instantiate ε := 1 in line 1
   have r583_1 : (0 : ℤ) < 1 := by parley_arith
   have s2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < 1) := by first | exact (s1 (1 : ℝ) (by parley_side)) | exact ((s1 (1 : ℝ) (by parley_side))).symm | simpa using (s1 (1 : ℝ) (by parley_side)) | exact_mod_cast (s1 (1 : ℝ) (by parley_side)) | (have h := (s1 (1 : ℝ) (by parley_side)); parley_rat_of_real h) | (have h := (s1 (1 : ℝ) (by parley_side)); parley_side)
@@ -57,12 +57,12 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
   have s8 : C ≤ B := by
     try simp only [hD1] at *
     try push_cast at *
-    first | linarith [(Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs L + 1))] | (have h := (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs L + 1)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs L + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs L + 1)); parley_side)
+    exact (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs L + 1))
   -- 9. mun:le-max x := C, y := |L| + 1, from D1
   have s9 : abs L + 1 ≤ B := by
     try simp only [hD1] at *
     try push_cast at *
-    first | linarith [(Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs L + 1))] | (have h := (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs L + 1)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs L + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs L + 1)); parley_side)
+    exact (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs L + 1))
   -- 10. proof
   have s10 : ∀ m : ℤ, 0 < m → abs (x m) ≤ B := by
     intro m hK1
@@ -70,42 +70,37 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
     -- 10.2. axi:excluded-middle P := m ≤ N
     have s10_2 : m ≤ N ∨ ¬ m ≤ N := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m ≤ N))
     -- 10.3. cases, from 10.2
-    have s10_3 : abs (x m) ≤ B := by
-      rcases s10_2 with hC1 | hC2
-      · skip
-        -- 10.3.1. def:range n := N, k := m, from C1
-        have s10_3_1 : m ∈ Finset.Icc (1 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := N))).mpr (by parley_side); parley_side)
-        -- 10.3.2. instantiate i := m in line 6, from 10.3.1
-        have s10_3_2 : abs (x m) ≤ C := by first | linarith [(s6 m (by parley_side))] | (have h := (s6 m (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s6 m (by parley_side)) | (have h := (s6 m (by parley_side)); parley_side)
-        -- 10.3.3. transitivity, from 10.3.2, 8
-        have s10_3_3 : abs (x m) ≤ B := by parley_order
-        all_goals parley_side
-      · skip
-        -- 10.3.4. inequalities, from C2
-        have s10_3_4 : N < m := by parley_order
-        -- 10.3.5. inequalities
-        have s10_3_5 : m ≥ N := by parley_order
-        -- 10.3.6. instantiate n := m in line 3, from 10.3.5
-        have s10_3_6 : abs (x m - L) < 1 := by first | linarith [(s3b m (by parley_side) (by parley_side))] | (have h := (s3b m (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s3b m (by parley_side) (by parley_side)) | (have h := (s3b m (by parley_side) (by parley_side)); parley_side)
-        -- 10.3.7. thm:triangle-inequality a := x(m) − L, b := L
-        have s10_3_7 : abs (x m - L + L) ≤ abs (x m - L) + abs L := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L))
-        -- 10.3.8. substitute
-        have s10_3_8 : abs (x m) ≤ abs (x m - L) + abs L := by
-          have c1 : x m - L + L = x m := by parley_ring
-          have row1 : abs (x m) ≤ abs (x m - L) + abs L := by parley_subst_at c1 s10_3_7
-          exact row1
-        -- 10.3.9. inequalities
-        have s10_3_9 : abs (x m - L) + abs L < abs L + 1 := by parley_order
-        -- 10.3.10. transitivity, from 10.3.8, 10.3.9
-        have s10_3_10 : abs (x m) < abs L + 1 := by parley_order
-        -- 10.3.11. transitivity, from 10.3.10, 9
-        have s10_3_11 : abs (x m) < B := by parley_order
-        -- 10.3.12. inequalities
-        have s10_3_12 : abs (x m) ≤ B := by parley_order
-        all_goals parley_side
-    all_goals exact s10_3
+    rcases s10_2 with hC1 | hC2
+    · skip
+      -- 10.3.1. def:range n := N, k := m, from C1
+      have s10_3_1 : m ∈ Finset.Icc (1 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := N))).mpr (by parley_side); parley_side)
+      -- 10.3.2. instantiate i := m in line 6, from 10.3.1
+      have s10_3_2 : abs (x m) ≤ C := by first | linarith [(s6 m (by parley_side))] | (have h := (s6 m (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s6 m (by parley_side)) | (have h := (s6 m (by parley_side)); parley_side)
+      -- 10.3.3. transitivity, from 10.3.2, 8
+      parley_order
+    · skip
+      -- 10.3.4. inequalities, from C2
+      have s10_3_4 : N < m := by parley_order
+      -- 10.3.5. inequalities
+      have s10_3_5 : m ≥ N := by parley_order
+      -- 10.3.6. instantiate n := m in line 3, from 10.3.5
+      have s10_3_6 : abs (x m - L) < 1 := by first | linarith [(s3b m (by parley_side) (by parley_side))] | (have h := (s3b m (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s3b m (by parley_side) (by parley_side)) | (have h := (s3b m (by parley_side) (by parley_side)); parley_side)
+      -- 10.3.7. thm:triangle-inequality a := x(m) − L, b := L
+      have s10_3_7 : abs (x m - L + L) ≤ abs (x m - L) + abs L := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L))
+      -- 10.3.8. substitute
+      have s10_3_8 : abs (x m) ≤ abs (x m - L) + abs L := by
+        have c1 : x m - L + L = x m := by parley_ring
+        have row1 : abs (x m) ≤ abs (x m - L) + abs L := by parley_subst_at c1 s10_3_7
+        exact row1
+      -- 10.3.9. inequalities
+      have s10_3_9 : abs (x m - L) + abs L < abs L + 1 := by parley_order
+      -- 10.3.10. transitivity, from 10.3.8, 10.3.9
+      have s10_3_10 : abs (x m) < abs L + 1 := by parley_order
+      -- 10.3.11. transitivity, from 10.3.10, 9
+      have s10_3_11 : abs (x m) < B := by parley_order
+      -- 10.3.12. inequalities
+      parley_order
   -- 11. exhibit, from 10
-  have s11 : ∃ B : ℝ, ∀ m : ℤ, 0 < m → abs (x m) ≤ B := ⟨B, by parley_side⟩
-  all_goals exact s11
+  exact ⟨B, s10⟩
 
 end Parley.Stdlib.Calculus.ConvergentAbsBounded

@@ -1,12 +1,10 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Module.Defs
@@ -46,15 +44,14 @@ theorem cauchy_quotient (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (U : Se
   have s2 : ∀ x ∈ (Set.Ioo p q : Set ℝ), E ∈ nhds x ∧ DifferentiableAt ℝ G x := by exact (Parley.Items.Stdlib.Calculus.mun_differentiable_on_part (f := G) (D := E) (U := U) (S := (Set.Ioo p q : Set ℝ)) hH1 hH2 hH7 hH13)
   -- 3. contradiction
   have s3 : G p ≠ G q := by
-    by_contra hc_hS
-    have hS : G p = G q := by parley_suppose hc_hS
+    intro hS
     -- 3.1. obtain ξ: thm:rolle-on-part D := E, a := p, b := q, f := G, from H1, H5, H6, H11, S, 2
     obtain ⟨ξ, s3_1a, s3_1b⟩ := (Parley.Items.Stdlib.Calculus.thm_rolle_on_part (f := G) (D := E) hH1 (a := p) (b := q) hH5 hH6 hH11 s2 hS)
     -- 3.2. mun:in-subset, from H7, 3.1
     have s3_2 : ξ ∈ U := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo p q : Set ℝ)) (Y := U) (u := ξ) hH7 s3_1a)
     -- 3.3. instantiate t := ξ in H14, from 3.2
     have s3_3 : (deriv G) ξ ≠ 0 := by first | exact (hH14 ξ (by parley_set_side)) | exact ((hH14 ξ (by parley_set_side))).symm | simpa using (hH14 ξ (by parley_set_side)) | exact_mod_cast (hH14 ξ (by parley_set_side)) | (have h := (hH14 ξ (by parley_set_side)); parley_set_side)
-    all_goals parley_set_side
+    exact s3_3 s3_1b
   -- 4. obtain ξ: thm:cauchy-mean-value D := E, a := p, b := q, f := F, g := G, from H1, H5, H6, H10, H11, 1, 2
   obtain ⟨ξ, s4a, s4b⟩ := (Parley.Items.Stdlib.Calculus.thm_cauchy_mean_value (f := F) (g := G) (D := E) hH1 (a := p) (b := q) hH5 hH6 hH10 hH11 s1 s2)
   -- 5. mun:in-subset, from H7, 4
@@ -82,6 +79,6 @@ theorem cauchy_quotient (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (U : Se
   -- 13. join 3, 12
   have s13a : G p ≠ G q := by parley_set_side
   have s13b : ∃ ξ ∈ (Set.Ioo p q : Set ℝ), (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ := by parley_set_side
-  exact ⟨by parley_set_side, by parley_set_side⟩
+  exact ⟨s13a, s13b⟩
 
 end Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient

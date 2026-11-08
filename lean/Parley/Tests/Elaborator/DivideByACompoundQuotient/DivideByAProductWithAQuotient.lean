@@ -19,7 +19,6 @@ namespace Parley.Tests.Elaborator.DivideByACompoundQuotient.DivideByAProductWith
 theorem divide_by_a_product_with_a_quotient (j : ℤ) (hH1 : 0 < j) :
     1 / (2 * (1 / (j : ℚ))) = (j : ℚ) / 2 := by
   -- 1. algebra
-  have s1 : 1 / (2 * (1 / (j : ℚ))) = (j : ℚ) / 2 := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.DivideByACompoundQuotient.DivideByAProductWithAQuotient

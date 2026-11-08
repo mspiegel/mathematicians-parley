@@ -1,6 +1,5 @@
 module
 
-public import ArithTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
@@ -50,12 +49,11 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
     -- 4.2. instantiate n := k in H4
     have s4_2 : x k ≤ B := by first | linarith [(hH4 k (by parley_set_side))] | (have h := (hH4 k (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (hH4 k (by parley_set_side)) | (have h := (hH4 k (by parley_set_side)); parley_set_side)
     -- 4.3. transitivity, from 4.1, 4.2
-    have s4_3 : s ≤ B := by parley_order
-    all_goals exact s4_3
+    parley_order
   -- 5. def:upper-bound, from 4
   have s5 : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ B := by parley_set_side
   -- 6. obtain c: axi:completeness, from 2, 3, 5
-  obtain ⟨c, ⟨s6, _⟩⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n})) s2 (by parley_set_side) (by parley_set_side))
+  obtain ⟨c, s6⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n})) s2 (by parley_set_side) (by parley_set_side))
   -- 7. def:least-upper-bound, from 6
   have s7a : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ c := by parley_set_side
   have s7b : ∀ u : ℝ, (∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ u) → c ≤ u := by parley_set_side
@@ -71,26 +69,24 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
     have s10_1 : c - ε < c := by parley_order
     -- 10.2. contradiction
     have s10_2 : ∃ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), c - ε < s := by
-      by_contra hc_hS
-      have hS : ¬ (∃ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), c - ε < s) := by parley_suppose hc_hS
+      by_contra hS
       -- 10.2.1. proof
       have s10_2_1 : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ c - ε := by
         intro s hK2
-        by_contra hc_hS2
-        have hS2 : ¬ s ≤ c - ε := by parley_suppose hc_hS2
+        by_contra hS2
         -- 10.2.1.1. mun:in-subset, from K2, 2
         -- 10.2.1.2. inequalities, from S2, 10.2.1.1
         have s10_2_1_2 : c - ε < s := by parley_order
         -- 10.2.1.3. exhibit, from K2, 10.2.1.2
         have s10_2_1_3 : ∃ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), c - ε < s := ⟨s, by parley_set_side, by parley_set_side⟩
-        all_goals parley_set_side
+        exact hS s10_2_1_3
       -- 10.2.2. def:upper-bound, from 10.2.1
       have s10_2_2 : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ c - ε := by parley_set_side
       -- 10.2.3. instantiate u := c − ε in line 7, from 10.2.2
       have s10_2_3 : c ≤ c - ε := by first | linarith [(s7b (c - ε) (by parley_set_side))] | (have h := (s7b (c - ε) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s7b (c - ε) (by parley_set_side)) | (have h := (s7b (c - ε) (by parley_set_side)); parley_set_side)
       -- 10.2.4. inequalities, from 10.1
       have s10_2_4 : ¬ c ≤ c - ε := by parley_set_side
-      all_goals parley_set_side
+      exact s10_2_4 s10_2_3
     -- 10.3. obtain s from line 10.2
     obtain ⟨s, s10_3a, s10_3b⟩ := s10_2
     -- 10.4. obtain N: def:image u := s, from H1, 1, 10.3
@@ -118,15 +114,12 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.7.7. join 10.7.5, 10.7.6
       have s10_7_7 : c - ε < x n ∧ x n < c + ε := by parley_set_side
       -- 10.7.8. mun:abs-difference-lt x := x(n), δ := ε, from 10.7.7
-      have s10_7_8 : abs (x n - c) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side); parley_set_side)
-      all_goals parley_set_side
+      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side); parley_set_side)
     -- 10.8. exhibit, from 10.7
-    have s10_8 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - c) < ε) := ⟨N, by parley_set_side, by parley_set_side⟩
-    all_goals parley_set_side
+    exact ⟨N, s10_4a, s10_7⟩
   -- 11. def:tends-to L := c, from 10
-  have s11 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds c) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr (by parley_set_side); parley_set_side)
+  have s11 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds c) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s10 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr s10; parley_set_side)
   -- 12. exhibit, from 11
-  have s12 : ∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L) := ⟨c, by parley_set_side⟩
-  all_goals exact s12
+  exact ⟨c, s11⟩
 
 end Parley.Stdlib.Calculus.MonotoneLimit

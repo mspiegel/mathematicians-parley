@@ -19,12 +19,18 @@
 {"key":"Finset.mem_Icc.mp","kind":"const","modules":[]}
 {"key":"Int.gcd","kind":"const","modules":["Mathlib.Tactic.NormNum.GCD","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"Int.lcm","kind":"const","modules":["Mathlib.Tactic.NormNum.GCD","Mathlib.Tactic.Positivity.Basic"]}
+{"key":"Int.reduceAdd","kind":"const","modules":[]}
+{"key":"Int.reduceMul","kind":"const","modules":[]}
+{"key":"Int.reduceToNat","kind":"const","modules":[]}
 {"key":"Int.toNat_of_nonneg","kind":"const","modules":[]}
 {"key":"Irrational","kind":"const","modules":["Mathlib.NumberTheory.Real.Irrational"]}
 {"key":"IsAlgebraic","kind":"const","modules":["Mathlib.RingTheory.Algebraic.Defs"]}
 {"key":"IsOpen","kind":"const","modules":["Mathlib.Topology.Defs.Basic"]}
 {"key":"Nat.Prime","kind":"const","modules":["Mathlib.Tactic.NormNum.Prime","Mathlib.Data.Nat.Prime.Defs"]}
+{"key":"Nat.reduceAdd","kind":"const","modules":[]}
+{"key":"Nat.reduceMul","kind":"const","modules":[]}
 {"key":"Nat.totient","kind":"const","modules":["Mathlib.Data.Nat.Totient"]}
+{"key":"Ne.symm","kind":"const","modules":[]}
 {"key":"Odd","kind":"const","modules":["Mathlib.Algebra.Ring.Parity","Mathlib.Tactic.NormNum.Parity"]}
 {"key":"Polynomial.aeval","kind":"const","modules":["Mathlib.Algebra.Polynomial.AlgebraMap"]}
 {"key":"Polynomial.bernoulli","kind":"const","modules":["Mathlib.NumberTheory.BernoulliPolynomials"]}
@@ -59,6 +65,7 @@
 {"key":"abs","kind":"const","modules":["Mathlib.Tactic.NormNum.Abs","Mathlib.Tactic.Positivity.Basic","Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
 {"key":"absurd","kind":"const","modules":[]}
 {"key":"add_sub_cancel_right","kind":"const","modules":["Mathlib.Algebra.Group.Defs"]}
+{"key":"add_zero","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"congrArg","kind":"const","modules":[]}
 {"key":"deriv","kind":"const","modules":["Mathlib.Analysis.Calculus.Deriv.Basic"]}
 {"key":"finprod_mem_coe_finset","kind":"const","modules":["Mathlib.Algebra.BigOperators.Finprod"]}
@@ -68,11 +75,16 @@
 {"key":"le_of_lt","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"max","kind":"const","modules":[]}
 {"key":"min","kind":"const","modules":[]}
+{"key":"mul_one","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"nhds","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
 {"key":"nhdsWithin","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"one_mul","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
+{"key":"pow_one","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"rfl","kind":"const","modules":[]}
 {"key":"sub_add_cancel","kind":"const","modules":["Mathlib.Algebra.Group.Defs"]}
+{"key":"sub_zero","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
 {"key":"trivial","kind":"const","modules":[]}
+{"key":"zero_add","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"zpow_natCast","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
 {"key":"ℝ","kind":"const","modules":[]}
 {"key":"ℤ","kind":"const","modules":[]}
@@ -103,6 +115,7 @@
 {"key":"((sorry : ℤ) : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"((sorry : ℤ) : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"(a * ·) '' a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
+{"key":"(a : (sorry : Prop))","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"(a : G)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"(a : K)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"(a : Set (Set α))","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
@@ -262,6 +275,7 @@
 {"key":"IsOpen (sorry : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Basic","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
 {"key":"Nat.Prime a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Prime","Mathlib.Data.Nat.Prime.Defs"]}
 {"key":"Nat.totient (sorry : ℕ)","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Data.Nat.Totient","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"Ne.symm a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Odd (sorry : ℤ)","kind":"term","modules":["Mathlib.Algebra.Ring.Parity","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Parity","Mathlib.Algebra.Ring.Int.Defs"]}
 {"key":"Polynomial.aeval (sorry : ℂ) a","kind":"term","modules":["Mathlib.Algebra.Algebra.Defs","Mathlib.Algebra.Algebra.Hom","Mathlib.Algebra.Polynomial.AlgebraMap","Mathlib.Algebra.Polynomial.Basic","Mathlib.Algebra.Ring.Defs","Mathlib.Basic.Complex.Basic","Mathlib.Basic.FunLike.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"Polynomial.bernoulli (sorry : ℕ)","kind":"term","modules":["Mathlib.NumberTheory.BernoulliPolynomials","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
@@ -336,6 +350,7 @@
 {"key":"abs (sorry : ℤ)","kind":"term","modules":["Mathlib.Order.Lattice","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Abs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic","Mathlib.Algebra.Group.Int.Defs","Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
 {"key":"abs a","kind":"term","modules":["Mathlib.Tactic.NormNum.Abs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic","Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
 {"key":"absurd a (by skip)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"absurd a a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"a⁻¹","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Inv","Mathlib.Algebra.Order.Field.Basic"]}
 {"key":"congrArg (sorry : ℚ → ℂ) a","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℚ → ℝ) a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
@@ -897,15 +912,18 @@
 {"key":"⋃ X ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Order.SetNotation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⌊(sorry : ℝ)⌋","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Rat.Floor","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Order.Floor.Defs","Mathlib.Algebra.Order.Floor.Ring","Mathlib.Algebra.Order.Archimedean.Real.Basic"]}
 {"key":"⌊a⌋","kind":"term","modules":["Mathlib.Data.Rat.Floor","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Order.Floor.Defs","Mathlib.Algebra.Order.Floor.Ring"]}
+{"key":"⟨(sorry : Prop), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : Prop), a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨(sorry : Prop), by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : Prop), a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℂ → ℂ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℂ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℕ), by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℚ), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℚ), a⟩","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℚ), by skip⟩","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℝ), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℝ), (sorry : ℝ), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℝ), a⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℝ), by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℝ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℝ), by skip⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
@@ -914,24 +932,33 @@
 {"key":"⟨(sorry : ℤ), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), (sorry : ℤ), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), (sorry : ℤ), (sorry : ℤ), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), (sorry : ℤ), a, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), (sorry : ℤ), a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), (sorry : ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), (sorry : ℤ), by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), a, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), a, (sorry : ℤ → ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), a, (sorry : ℤ), a, (sorry : ℤ), a, a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), a, (sorry : ℤ), a, a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), a, a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip, (sorry : ℤ → ℤ), by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨(sorry : ℤ), by skip, (sorry : ℤ → ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), by skip, (sorry : ℤ), a, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip, (sorry : ℤ), by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨(sorry : ℤ), by skip, (sorry : ℤ), by skip, (sorry : ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨(sorry : ℤ), by skip, (sorry : ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨(sorry : ℤ), by skip, a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, (sorry : Prop), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨a, a, a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨a, a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, by skip, a, by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, by skip, a, by skip, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, by skip, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨by skip, by skip, by skip, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨by skip, by skip, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨by skip, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨by skip, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"𝒫 (sorry : Set ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"𝒫 a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
@@ -941,6 +968,7 @@
 {"key":"done","kind":"tactic","modules":[]}
 {"key":"exact_mod_cast a","kind":"tactic","modules":[]}
 {"key":"ext a","kind":"tactic","modules":[]}
+{"key":"intro a","kind":"tactic","modules":[]}
 {"key":"linarith","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
 {"key":"linarith [a]","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
 {"key":"linear_combination (norm := skip) a","kind":"tactic","modules":["Mathlib.Tactic.LinearCombination"]}
@@ -981,6 +1009,7 @@
 {"key":"simp only [a]","kind":"tactic","modules":[]}
 {"key":"simp only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp only [← a] at h","kind":"tactic","modules":[]}
+{"key":"simpa only [a] using a","kind":"tactic","modules":[]}
 {"key":"simpa using a","kind":"tactic","modules":[]}
 {"key":"skip","kind":"tactic","modules":[]}
 {"key":"specialize a","kind":"tactic","modules":[]}

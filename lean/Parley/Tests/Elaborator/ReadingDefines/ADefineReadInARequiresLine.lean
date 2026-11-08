@@ -25,7 +25,6 @@ theorem a_define_read_in_a_requires_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
   have s1 : e ≠ 0 := by parley_subst_at hD1 hH2
   -- 2. algebra
   have r56_1 : a + 1 ≠ 0 := by parley_side
-  have s2 : (a + 1) / (a + 1) = 1 := by parley_ring
-  all_goals exact s2
+  parley_ring
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInARequiresLine

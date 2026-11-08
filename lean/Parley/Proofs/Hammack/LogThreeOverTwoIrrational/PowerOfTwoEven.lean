@@ -52,7 +52,6 @@ theorem power_of_two_even (n : ℤ) (hH1 : 0 < n) :
     have whole1 : ((2 : ℚ) : ℚ) ^ (n - 1).toNat = (2 ^ (n - 1) : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]
     exact ⟨(((2 : ℤ) ^ (n - 1).toNat) : ℤ), by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring)⟩
   -- 6. def:even n := 2^n, from 4, 5
-  have s6 : Even (2 ^ n.toNat : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (2 ^ n.toNat : ℤ)))).mpr ⟨Classical.choose s5, by have := Classical.choose_spec s5; parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (2 ^ n.toNat : ℤ)))).mpr ⟨Classical.choose s5, by have := Classical.choose_spec s5; parley_side⟩; parley_side)
-  all_goals exact s6
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (2 ^ n.toNat : ℤ)))).mpr ⟨Classical.choose s5, by have := Classical.choose_spec s5; parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (2 ^ n.toNat : ℤ)))).mpr ⟨Classical.choose s5, by have := Classical.choose_spec s5; parley_side⟩; parley_side)
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven

@@ -15,7 +15,6 @@ namespace Parley.Tests.Elaborator.SignedDivisibility.ANegativeNumber
 theorem a_negative_number :
     (2 : ℤ) ∣ (-8 : ℤ) := by
   -- 1. arithmetic
-  have s1 : (2 : ℤ) ∣ (-8 : ℤ) := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Elaborator.SignedDivisibility.ANegativeNumber

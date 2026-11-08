@@ -32,7 +32,6 @@ theorem values_of_an_obtained_function (n : ℤ) (hH1 : 0 < n) (m : ℤ) (hH2 : 
   -- 3. inequalities
   have s3 : g 1 ≤ g 1 := by parley_order
   -- 4. exhibit, from 1, 3
-  have s4 : ∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) n : Set ℤ) (Set.Icc (1 : ℤ) m : Set ℤ) ∧ f 1 ≤ f 1 := ⟨g, by parley_set_side, by parley_set_side⟩
-  all_goals exact s4
+  exact ⟨g, by parley_set_side, by parley_set_side⟩
 
 end Parley.Tests.Elaborator.SetsADefineNames.ValuesOfAnObtainedFunction

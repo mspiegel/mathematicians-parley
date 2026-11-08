@@ -24,13 +24,12 @@ theorem empty_set_unique {α : Type*} (A : Set α) (hH2 : ¬ (∃ a ∈ A, True)
     have s1_1 : ∃ a ∈ A, True := ⟨x, by parley_set_side, trivial⟩
     -- 1.2. restate H2
     have s1_2 : ¬ (∃ a ∈ A, True) := by parley_set_side
-    all_goals parley_set_side
+    exact absurd s1_1 s1_2
   -- 2. mun:empty-subset X := A
   have s2 : ∅ ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_empty_subset (X := A))
   -- 3. def:subset X := ∅, Y := A, from 2
-  have s3 : ∀ x ∈ (∅ : Set α), x ∈ A := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp (by parley_set_side); parley_set_side)
+  have s3 : ∀ x ∈ (∅ : Set α), x ∈ A := ((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp s2
   -- 4. axi:extensionality X := A, Y := ∅, from 1, 3
-  have s4 : A = ∅ := by exact (Parley.Items.Stdlib.Sets.axi_extensionality (X := A) (Y := ∅) (by parley_set_side) (by parley_set_side))
-  all_goals exact s4
+  exact (Parley.Items.Stdlib.Sets.axi_extensionality (X := A) (Y := ∅) s1 s3)
 
 end Parley.Proofs.Halmos.EmptySetUnique.EmptySetUnique

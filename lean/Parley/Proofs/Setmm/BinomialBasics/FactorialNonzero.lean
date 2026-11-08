@@ -20,7 +20,6 @@ theorem factorial_nonzero (N : ℤ) (hH1 : 0 ≤ N) :
   -- 1. mun:factorial-nat n := N
   have s1 : 0 < (LeanBridges.Counting.factorial N : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N) (by parley_side))
   -- 2. inequalities, from 1
-  have s2 : (LeanBridges.Counting.factorial N : ℤ) ≠ 0 := by parley_side
-  all_goals exact s2
+  parley_side
 
 end Parley.Proofs.Setmm.BinomialBasics.FactorialNonzero

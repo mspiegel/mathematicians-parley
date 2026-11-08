@@ -28,12 +28,10 @@ theorem image_of_part {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
     have s1_2 : s ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := X) (Y := A) (u := s) hH4 s1_1a)
     -- 1.3. mun:value-in-image Y := A, from 1.2
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
-    have s1_3 : F s ∈ F '' (A ∩ A) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) (by parley_set_side) s1_2 (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) (by parley_set_side) s1_2 (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) (by parley_set_side) s1_2 (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) (by parley_set_side) s1_2 (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) (by parley_set_side) s1_2 (by parley_set_side)); parley_set_side)
+    have s1_3 : F s ∈ F '' (A ∩ A) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) r25_1 s1_2 (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) r25_1 s1_2 (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) r25_1 s1_2 (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) r25_1 s1_2 (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) r25_1 s1_2 (by parley_set_side)); parley_set_side)
     -- 1.4. substitute u = F(s) (line 1.1) into line 1.3
-    have s1_4 : u ∈ F '' (A ∩ A) := by parley_subst_at s1_1b s1_3
-    all_goals exact s1_4
+    parley_subst_at s1_1b s1_3
   -- 2. def:subset, from 1
-  have s2 : F '' (A ∩ X) ⊆ F '' (A ∩ A) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr (by parley_set_side); parley_set_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr s1; parley_set_side)
 
 end Parley.Proofs.Setmm.ImageOfPart.ImageOfPart

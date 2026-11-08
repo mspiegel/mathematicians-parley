@@ -19,7 +19,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.ASineBelowOne
 theorem a_sine_below_one :
     Real.sin (Real.pi / 4) < 1 := by
   -- 1. real arithmetic
-  have s1 : Real.sin (Real.pi / 4) < 1 := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.ASineBelowOne

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Divisibility
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -18,9 +17,6 @@ public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.FloorBasics.FloorAddInteger
@@ -45,13 +41,11 @@ theorem remainder_shifts (X : ℝ) (M : ℝ) (hH3 : M > 0) (K : ℤ) :
     have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by parley_subst_at c1 s2
     exact row1
   -- 4. calculation
-  have s4 : LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = LeanBridges.Divisibility.mod X M := by
-    calc LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = X + M * (K : ℝ) - M * (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side))
-      _ = X + M * (K : ℝ) - M * ((⌊X / M⌋ : ℝ) + (K : ℝ)) := by
-          have s3_w : (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) = (⌊X / M⌋ : ℝ) + (K : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst s3_w | parley_subst s3
-      _ = X - M * (⌊X / M⌋ : ℝ) := by parley_ring
-      _ = LeanBridges.Divisibility.mod X M := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); parley_side)
-  all_goals exact s4
+  calc LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = X + M * (K : ℝ) - M * (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) hH3)
+    _ = X + M * (K : ℝ) - M * ((⌊X / M⌋ : ℝ) + (K : ℝ)) := by
+        have s3_w : (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) = (⌊X / M⌋ : ℝ) + (K : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3; push_cast at h; linear_combination (norm := parley_norm) h
+        first | parley_subst s3_w | parley_subst s3
+    _ = X - M * (⌊X / M⌋ : ℝ) := by parley_ring
+    _ = LeanBridges.Divisibility.mod X M := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) hH3).symm
 
 end Parley.Proofs.Setmm.RemainderFacts.RemainderShifts

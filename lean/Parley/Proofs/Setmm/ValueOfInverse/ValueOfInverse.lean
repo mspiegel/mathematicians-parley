@@ -27,9 +27,7 @@ theorem value_of_inverse {α : Type*} (A : Set α) (B : Set α) (F : α → α) 
   -- 3. substitute C = F(x) (line 1) into line 2
   have s3 : LeanBridges.Functions.inverse F A C = x := by parley_subst_at s1b s2
   -- 4. calculation
-  have s4 : F (LeanBridges.Functions.inverse F A C) = C := by
-    calc F (LeanBridges.Functions.inverse F A C) = F x := by parley_subst s3
-      _ = C := by parley_set_side
-  all_goals exact s4
+  calc F (LeanBridges.Functions.inverse F A C) = F x := by parley_subst s3
+    _ = C := by parley_set_side
 
 end Parley.Proofs.Setmm.ValueOfInverse.ValueOfInverse

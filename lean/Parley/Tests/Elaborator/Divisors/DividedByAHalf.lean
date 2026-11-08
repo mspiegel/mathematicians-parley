@@ -18,7 +18,6 @@ theorem divided_by_a_half (x : ℝ) (hH2 : x ≠ 0) :
     3 / (x / 2) = 6 / x := by
   -- 1. algebra
   have r42_1 : x ≠ 0 := by parley_side
-  have s1 : 3 / (x / 2) = 6 / x := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.Divisors.DividedByAHalf

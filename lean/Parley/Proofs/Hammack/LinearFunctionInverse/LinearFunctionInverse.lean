@@ -32,6 +32,6 @@ theorem linear_function_inverse (x : ℝ) :
   -- 4. join 2, 3
   have s4a : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := by parley_side
   have s4b : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := by parley_side
-  all_goals parley_side
+  exact ⟨s4a, s4b⟩
 
 end Parley.Proofs.Hammack.LinearFunctionInverse.LinearFunctionInverse

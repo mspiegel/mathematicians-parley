@@ -56,6 +56,10 @@ pub struct Owed {
     /// contradiction`, whose last step contradicts a line. The claim itself
     /// for a part with no `by` line.
     pub ends: Vec<Node>,
+    /// The same, read as the page writes it, with its defines kept and in
+    /// the order written: the goal a backend has when the part ends, the
+    /// claim it states with the block's lines taken off.
+    pub written: Vec<Node>,
 }
 
 impl Block {
@@ -63,6 +67,16 @@ impl Block {
     /// block inside it.
     pub fn last(&self) -> Option<usize> {
         self.children.last().copied()
+    }
+
+    /// What part `part` ends on as the page writes it (`Owed::written`);
+    /// None where the block records nothing owed, as a contradiction block
+    /// does.
+    pub fn ends_written(&self, part: Option<usize>) -> Option<&[Node]> {
+        self.owes
+            .iter()
+            .find(|o| o.part == part)
+            .map(|o| o.written.as_slice())
     }
 }
 
@@ -275,6 +289,13 @@ pub struct CheckedTheorem {
     /// The same of each `let` opening a block, `let X ⊆ A`, by the line it
     /// is on (`library::opener_assertions`).
     pub opener_asserted: IndexMap<usize, Vec<Node>>,
+    /// How each contradiction's supposition stands to what it shows, by the
+    /// line its `suppose` is on (`formulas::suppositions`).
+    pub supposed: IndexMap<usize, Supposition>,
+    /// The two lines each step written `contradicting N` that ends a block
+    /// or a case closes it on, by the step's index
+    /// (`formulas::contradictions`).
+    pub contradicted: IndexMap<usize, Contradicted>,
     /// Each term a step puts where a notation asks a number system, a of
     /// a ≡ b (mod n) in ℤ, with how the step shows it is in that system
     /// (`formulas::check_place_systems`), by the step's index: so that a
@@ -416,25 +437,109 @@ pub struct Cited {
     /// definition is unfolded from. A fact no line the citation names says,
     /// a membership said once among them, has none.
     pub firsts: Vec<FirstAt>,
+    /// What supplies each hypothesis of the group the citation takes, in
+    /// the group's order: the fact the search took for it (`supplier`),
+    /// and where that fact stands.
+    pub supplied: Vec<Supplied>,
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
     pub written: Binding,
 }
 
+/// A contradiction's supposition as the checker relates it to what the
+/// block or part is to show.
+#[derive(Clone, Debug)]
+pub struct Supposition {
+    pub shape: Supposed,
+    /// What the supposition is set against: the block's claim, or what the
+    /// part owes, with the block's `let` and `assume` lines taken off it.
+    pub against: Node,
+}
+
+/// How a contradiction's supposition stands to what the block or part is
+/// to show, the two shapes `METHODS.md` gives `contradiction`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Supposed {
+    /// The supposition is the claim negated: the claim is shown by
+    /// reductio.
+    ClaimDenied,
+    /// The claim is the supposition negated: a negation is shown directly.
+    Denial,
+}
+
+/// The two lines a step written `contradicting N` closes its block or case
+/// on.
+#[derive(Clone, Debug)]
+pub struct Contradicted {
+    /// Line N, by the reference that names it.
+    pub line: String,
+    /// What of line N the step's claim opposes: a sentence of it, the
+    /// sentences together, or another thing it says (`Known::says`).
+    pub from: super::library::SaidFrom,
+    /// That thing as the page writes it (`Said::written`).
+    pub said: Node,
+    /// Which of the two says the other negated.
+    pub negated: Negating,
+}
+
+/// Of a step and the line it contradicts, the one that says the other
+/// negated.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Negating {
+    /// The step's claim is the line negated: `a ≠ 0` against `a = 0`.
+    Step,
+    /// The line is the step's claim negated.
+    Line,
+}
+
 /// A line a citation names that states a fact its reading is taken from.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub struct FirstAt {
     /// The line, by the reference that names it.
     pub line: String,
     /// The sentence of the line that states the fact, or a part of which
-    /// does, counted from 0; None where the fact is the line's sentences
+    /// does, counted from 0 among the things the line says
+    /// (`Known::says`); None where the fact is the line's sentences
     /// together.
     pub sentence: Option<usize>,
     /// Where the fact is one part of the sentence's conjunction, which part,
     /// counted from 0 left to right with every conjunction taken apart
     /// (`citing::conjuncts`).
     pub part: Option<usize>,
+    /// The fact as the page writes it, with its defines kept: what a
+    /// backend that names the line's sentences its own way finds it by.
+    pub written: Node,
+}
+
+impl FirstAt {
+    /// Whether the two name one place: the line, sentence and part.
+    pub fn same_place(&self, other: &FirstAt) -> bool {
+        self.line == other.line
+            && self.sentence == other.sentence
+            && self.part == other.part
+    }
+}
+
+/// What supplies one hypothesis of a cited item (`Cited::supplied`).
+#[derive(Clone, Debug)]
+pub struct Supplied {
+    /// The hypothesis as the item's group asks it, in the item's letters.
+    pub want: Node,
+    pub by: SuppliedBy,
+}
+
+/// Where the fact a hypothesis is supplied by stands.
+#[derive(Clone, Debug)]
+pub enum SuppliedBy {
+    /// A line the citation names, a sentence of it, or a part of one.
+    Line(FirstAt),
+    /// One of the step's own `requires` lines, by its place among them,
+    /// counted from 0.
+    Requires(usize),
+    /// No line the step names: a membership said once, or a fact the
+    /// citation's values make true.
+    Unstated,
 }
 
 /// Whether `step` owns a block: it opens one with a line above its steps,

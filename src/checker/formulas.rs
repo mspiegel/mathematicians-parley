@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 
 use super::library::{Known, SaidFrom, Stated};
-use super::record::CheckedTheorem;
+use super::record::{CheckedTheorem, Contradicted, Negating, Supposed, Supposition};
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::{
@@ -1189,6 +1189,194 @@ fn wrappers(env: Env) -> FxIndexSet<NotationId> {
         .collect()
 }
 
+/// A contradiction's supposition and what it is to show, as read: the
+/// block's claim, or what a part proved by contradiction owes. Either is
+/// None where it does not read, which is reported where it is read.
+struct SupposedReading {
+    /// The line the `suppose` is on.
+    line: usize,
+    supposed: Option<Node>,
+    claimed: Option<Node>,
+    /// The claim as the page writes it (`Reading::Written`), where it is
+    /// read so.
+    written: Option<Node>,
+}
+
+impl SupposedReading {
+    fn reads(&self) -> bool {
+        self.supposed.is_some() && self.claimed.is_some()
+    }
+
+    /// Which of the two `METHODS.md` shapes the supposition has; None where
+    /// it has neither, or either side does not read.
+    fn kind(
+        &self,
+        wrappers: &FxIndexSet<NotationId>,
+        known: &Known,
+    ) -> Option<Supposed> {
+        let (supposed, claimed) = (self.supposed.as_ref(), self.claimed.as_ref());
+        if negates(supposed, claimed, wrappers, known) {
+            Some(Supposed::ClaimDenied)
+        } else if negates(claimed, supposed, wrappers, known) {
+            Some(Supposed::Denial)
+        } else {
+            None
+        }
+    }
+}
+
+/// The supposition a contradiction step opens its block with, and the
+/// step's claim; None where the block supposes nothing.
+fn own_supposition(
+    thm: &Theorem,
+    step: &Step,
+    known: &Known,
+) -> Option<SupposedReading> {
+    let own = step.opening(None).own;
+    let opener = own.iter().find(|o| o.kind == Intro::Suppose)?;
+    Some(SupposedReading {
+        line: opener.line,
+        supposed: known.whole(step, &opener.body(&thm.path)),
+        claimed: known.whole(step, &step.claim),
+        written: known.whole_as_written(&step.claim),
+    })
+}
+
+/// The supposition part `part` of `owner`'s block opens with, and what the
+/// part owes, one sentence each (`block_owes`), and as written where
+/// `written` gives what the parts owe so read; None where the part
+/// supposes nothing.
+fn part_supposition(
+    thm: &Theorem,
+    owner: &Step,
+    part: Option<usize>,
+    owed: &[Owed],
+    written: &[Owed],
+    outside: &crate::matching::Definitions,
+    known: &Known,
+) -> Option<SupposedReading> {
+    let opening = owner.opening(part);
+    let opener = opening.inner.first().filter(|o| o.kind == Intro::Suppose)?;
+    let body = opener.body(&thm.path);
+    let supposed = match body.sentences().as_slice() {
+        [one] => known.read_citing(one, outside),
+        _ => None,
+    };
+    let one_owed = |owed: &[Owed]| {
+        owed.iter()
+            .find(|o| o.part == part)
+            .and_then(|o| match o.claim.as_slice() {
+                [one] => Some(one.clone()),
+                _ => None,
+            })
+    };
+    Some(SupposedReading {
+        line: opener.line,
+        supposed,
+        claimed: one_owed(owed),
+        written: one_owed(written),
+    })
+}
+
+/// How each contradiction's supposition stands to what it shows, by the
+/// line its `suppose` is on (`record::Supposed`). A supposition of neither
+/// shape is a problem `check_contradiction` reports, and has none.
+pub fn suppositions(
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+) -> IndexMap<usize, Supposition> {
+    let wrappers = wrappers(env);
+    let outside = known.citing(&[]);
+    let mut readings = Vec::new();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Contradiction) {
+            readings.extend(own_supposition(thm, step, known));
+        }
+        let by_parts = step
+            .by_lines
+            .iter()
+            .filter(|b| b.method == Method::Contradiction);
+        let mut by_parts = by_parts.peekable();
+        if by_parts.peek().is_none() {
+            continue;
+        }
+        let Ok(owed) = block_owes(step, known) else {
+            continue;
+        };
+        let written =
+            block_owes_read(step, known, Reading::Written).unwrap_or_default();
+        for by in by_parts {
+            readings.extend(part_supposition(
+                thm, step, by.part, &owed, &written, &outside, known,
+            ));
+        }
+    }
+    readings
+        .iter()
+        .filter_map(|r| {
+            let shape = r.kind(&wrappers, known)?;
+            let against = r.written.clone()?;
+            Some((r.line, Supposition { shape, against }))
+        })
+        .collect()
+}
+
+/// The two lines each step written `contradicting N` that closes a block
+/// closes it on, by the step's index (`record::Contradicted`): what of line
+/// N it opposes, and which of the two says the other negated, as
+/// `check_contradicting` finds them.
+pub fn contradictions(
+    thm: &Theorem,
+    env: Env,
+    known: &Known,
+) -> IndexMap<usize, Contradicted> {
+    let wrappers = wrappers(env);
+    let mut out = IndexMap::new();
+    for (at, step) in thm.steps.iter().enumerate() {
+        let Some(other) = &step.just.contradicting else {
+            continue;
+        };
+        if !ends_block(thm, at) {
+            continue;
+        }
+        let scope = known.scope(step);
+        let Some(said) = scope.get(other) else {
+            continue;
+        };
+        let claimed = known.whole(step, &step.claim);
+        let found = known
+            .says(said, &known.citing_step(step))
+            .into_iter()
+            .find_map(|s| {
+                let there = Some(s.cited.clone());
+                let negated =
+                    if negates(claimed.as_ref(), there.as_ref(), &wrappers, known) {
+                        Negating::Step
+                    } else if negates(
+                        there.as_ref(),
+                        claimed.as_ref(),
+                        &wrappers,
+                        known,
+                    ) {
+                        Negating::Line
+                    } else {
+                        return None;
+                    };
+                Some(Contradicted {
+                    line: other.clone(),
+                    from: s.from,
+                    said: s.written,
+                    negated,
+                })
+            });
+        if let Some(c) = found {
+            out.insert(at, c);
+        }
+    }
+    out
+}
+
 /// A contradiction block relates its supposition to its claim, and closes
 /// with a formula and that formula's negation.
 ///
@@ -1213,19 +1401,12 @@ pub fn check_contradiction(
         if !step.just.head.is(Method::Contradiction) {
             continue;
         }
-        let own = step.opening(None).own;
-        let Some(opener) = own.iter().find(|o| o.kind == Intro::Suppose) else {
+        let Some(reading) = own_supposition(thm, step, known) else {
             continue; // already reported as a missing suppose
         };
-        let supposed = known.whole(step, &opener.body(&thm.path));
-        let claimed = known.whole(step, &step.claim);
         // What could not be read is reported where it is read; the block's
         // last step is checked all the same.
-        let readable = supposed.is_some() && claimed.is_some();
-        if readable
-            && !(negates(supposed.as_ref(), claimed.as_ref(), &wrappers, known)
-                || negates(claimed.as_ref(), supposed.as_ref(), &wrappers, known))
-        {
+        if reading.reads() && reading.kind(&wrappers, known).is_none() {
             report.say(
                 &thm.path,
                 step.line,
@@ -1286,31 +1467,16 @@ fn check_part_contradictions(
         .filter(|b| b.method == Method::Contradiction)
     {
         let called = owner.part_called(by.part);
-        let opening = owner.opening(by.part);
         // A part with no supposition is `check_part_by`'s to report.
-        let Some(opener) = opening.inner.first().filter(|o| o.kind == Intro::Suppose)
+        let Some(reading) =
+            part_supposition(thm, owner, by.part, &owed, &[], &outside, known)
         else {
             continue;
         };
-        let body = opener.body(&thm.path);
-        let supposed = match body.sentences().as_slice() {
-            [one] => known.read_citing(one, &outside),
-            _ => None,
-        };
-        let claimed = owed.iter().find(|o| o.part == by.part).and_then(|o| {
-            match o.claim.as_slice() {
-                [one] => Some(one.clone()),
-                _ => None,
-            }
-        });
-        if supposed.is_some()
-            && claimed.is_some()
-            && !(negates(supposed.as_ref(), claimed.as_ref(), wrappers, known)
-                || negates(claimed.as_ref(), supposed.as_ref(), wrappers, known))
-        {
+        if reading.reads() && reading.kind(wrappers, known).is_none() {
             report.say(
                 &thm.path,
-                opener.line,
+                reading.line,
                 format!(
                     "{called} supposes something that is neither what it owes negated nor the thing it owes negates, so neither expansion of `contradiction` applies"
                 ),
@@ -1680,12 +1846,35 @@ pub(super) fn last_of_part<'a>(
 /// is read with no define written out. A `proof` block whose claim has no
 /// layer for an opener is the page's defect.
 pub(super) fn block_owes(owner: &Step, known: &Known) -> Checked<Vec<Owed>> {
+    block_owes_read(owner, known, Reading::Compared)
+}
+
+/// How `block_owes_read` reads a block's claim.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum Reading {
+    /// As the checks compare it: with the outside defines written out, in
+    /// the standard order (`Known::read_citing`).
+    Compared,
+    /// As the page writes it (`Known::read_as_written`): what a backend's
+    /// goal is, the claim it states with the block's lines taken off.
+    Written,
+}
+
+/// `block_owes`, the claim read as `reading` says.
+pub(super) fn block_owes_read(
+    owner: &Step,
+    known: &Known,
+    reading: Reading,
+) -> Checked<Vec<Owed>> {
     let outside = known.citing(&[]);
     let Some(claim) = owner
         .claim
         .sentences()
         .iter()
-        .map(|s| known.read_citing(s, &outside))
+        .map(|s| match reading {
+            Reading::Compared => known.read_citing(s, &outside),
+            Reading::Written => known.read_as_written(s),
+        })
         .collect::<Option<Vec<Node>>>()
     else {
         return Ok(Vec::new());

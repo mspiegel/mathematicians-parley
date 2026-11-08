@@ -22,7 +22,6 @@ namespace Parley.Tests.Stdlib.Numbers.AbsSquare
 theorem abs_square (x : ℝ) :
     abs x ^ 2 = x ^ 2 := by
   -- 1. mun:numbers-abs-square
-  have s1 : abs x ^ 2 = x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_abs_square (x := x))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Numbers.mun_abs_square (x := x))
 
 end Parley.Tests.Stdlib.Numbers.AbsSquare

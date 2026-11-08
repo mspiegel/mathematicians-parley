@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.AFunctionOnALongerRange.AFunctionOnALongerRang
 theorem a_function_on_a_longer_range (n : ℤ) (hH1 : 0 < n) (t : ℤ → ℝ) (m : ℤ) (hH3 : 0 < m) (hH4 : True) :
     True := by
   -- 1. mun:product-real a := 1, b := m, from H4
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.AFunctionOnALongerRange.AFunctionOnALongerRange

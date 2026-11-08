@@ -7,7 +7,6 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -26,19 +25,19 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   -- 1. inequalities
   have s1 : -x ≥ 0 := by parley_order
   -- 2. mun:square-nonneg
-  have s2 : x ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); parley_side)
+  have s2 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 3. mun:product-nonneg x := x², y := −x, from 1, 2
-  have s3 : x ^ 2 * -x ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 2) (y := -x) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 2) (y := -x) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 2) (y := -x) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 2) (y := -x) (by parley_side) (by parley_side)); parley_side)
+  have s3 : x ^ 2 * -x ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 2) (y := -x) (by parley_side) (by parley_side))
   -- 4. inequalities
   have s4 : x ^ 3 ≤ 0 := by parley_order
   -- 5. mun:square-nonneg x := x²
-  have s5 : (x ^ 2) ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2)); parley_side)
+  have s5 : (x ^ 2) ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2))
   -- 6. algebra
   have s6 : x ^ 4 = (x ^ 2) ^ 2 := by parley_ring
   -- 7. transitivity, from 6, 5
   have s7 : x ^ 4 ≥ 0 := by parley_order
   -- 8. mun:product-nonneg x := x⁴, y := −x, from 1, 7
-  have s8 : x ^ 4 * -x ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) (by parley_side) (by parley_side)); parley_side)
+  have s8 : x ^ 4 * -x ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) (by parley_side) (by parley_side))
   -- 9. inequalities
   have s9 : x ^ 5 ≤ 0 := by parley_order
   -- 10. join 2, 4, 7, 9
@@ -46,6 +45,6 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   have s10b : x ^ 3 ≤ 0 := by parley_side
   have s10c : x ^ 4 ≥ 0 := by parley_side
   have s10d : x ^ 5 ≤ 0 := by parley_side
-  exact ⟨by parley_side, by parley_side, by parley_side, by parley_side⟩
+  exact ⟨s10a, s10b, s10c, s10d⟩
 
 end Parley.Proofs.Hammack.PolynomialSign.NegativePowers

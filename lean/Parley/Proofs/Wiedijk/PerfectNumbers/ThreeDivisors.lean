@@ -1,8 +1,6 @@
 module
 
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -17,14 +15,10 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Insert
 public import Mathlib.NumberTheory.ArithmeticFunction.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Sets
@@ -56,9 +50,7 @@ theorem three_divisors (m : ℤ) (hH1 : 0 < m) (e : ℤ) (hH2 : 0 < e) (hH3 : e 
   have r302_1 : 1 ≠ e := by parley_set_side
   have r302_2 : 1 ≠ m := by parley_set_side
   have r302_3 : e ≠ m := by parley_set_side
-  have s8 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + e + m := by
-    calc (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ (∑ᶠ d ∈ ({(1 : ℤ), e, m} : Set ℤ), (d : ℤ)) := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_sigma_part (Y := ({(1 : ℤ), e, m} : Set ℤ)) (n := m) (by parley_set_side) s6)] | (have h := (Parley.Items.Stdlib.Divisibility.mun_sigma_part (Y := ({(1 : ℤ), e, m} : Set ℤ)) (n := m) (by parley_set_side) s6); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_sigma_part (Y := ({(1 : ℤ), e, m} : Set ℤ)) (n := m) (by parley_set_side) s6) | (have h := (Parley.Items.Stdlib.Divisibility.mun_sigma_part (Y := ({(1 : ℤ), e, m} : Set ℤ)) (n := m) (by parley_set_side) s6); parley_set_side)
-      _ = 1 + e + m := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_set_side)
-  all_goals exact s8
+  calc (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ (∑ᶠ d ∈ ({(1 : ℤ), e, m} : Set ℤ), (d : ℤ)) := (Parley.Items.Stdlib.Divisibility.mun_sigma_part (Y := ({(1 : ℤ), e, m} : Set ℤ)) (n := m) (by parley_set_side) s6)
+    _ = 1 + e + m := (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) (by parley_set_side) (by parley_set_side) (by parley_set_side))
 
 end Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors

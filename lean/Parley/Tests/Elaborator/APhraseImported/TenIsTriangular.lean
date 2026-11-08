@@ -22,9 +22,8 @@ theorem ten_is_triangular :
   -- 1. arithmetic
   have s1 : (10 : ℚ) = 4 * (4 + 1) / 2 := by parley_arith
   -- 2. exhibit, from 1
-  have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by parley_side, by parley_side⟩
+  have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by parley_side, by push_cast at s1 ⊢; exact s1⟩
   -- 3. def:triangular-number n := 10, from 2
-  have s3 : (0 : ℤ) < 10 ∧ (∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2) := by parley_side
-  all_goals exact s3
+  parley_side
 
 end Parley.Tests.Elaborator.APhraseImported.TenIsTriangular

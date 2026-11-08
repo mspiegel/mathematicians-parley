@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Counting.FactorialBase
 theorem factorial_base :
     (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by
   -- 1. def:factorial
-  have s1 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
-  all_goals exact s1
+  exact Parley.Items.Stdlib.Counting.def_factorial_2
 
 end Parley.Tests.Stdlib.Counting.FactorialBase

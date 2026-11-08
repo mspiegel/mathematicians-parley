@@ -23,7 +23,6 @@ namespace Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayFillin
 theorem a_congruence_the_other_way_filling_an_item (n : ℤ) (hH1 : 0 < n) (x : ℤ) (hH2 : x ∈ Finset.Icc (0 : ℤ) (n - 1)) (y : ℤ) (hH3 : y ∈ Finset.Icc (0 : ℤ) (n - 1)) (hH4 : y ≡ x [ZMOD n]) :
     x = y := by
   -- 1. mun:congruent-in-range, from H2, H3, H4
-  have s1 : x = y := by exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 hH4.symm)
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayFillingAnItem

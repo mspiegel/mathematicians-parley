@@ -626,6 +626,39 @@ impl Taken {
     }
 }
 
+impl Taken {
+    /// Each hypothesis of the group taken, with the fact that states it
+    /// under the binding the search found (`supplier`), in the group's
+    /// order; None where no fact does, as a hypothesis the citation's values
+    /// make true. Looked up only when asked, as `first_facts` is.
+    pub fn supplying_facts(
+        &self,
+        groups: &[Group],
+        facts: &[Node],
+        library: &Library,
+    ) -> Vec<(Node, Option<Node>)> {
+        let Some(group) = groups.get(self.group) else {
+            return Vec::new();
+        };
+        let mut trees = group.gives.clone();
+        trees.extend(group.wants.iter().map(|(_, t)| t.clone()));
+        let variables = group.letters(&trees);
+        let mut sites = Sites::new();
+        for t in &trees {
+            binding_sites(t, &library.ctx, &[], &mut sites);
+        }
+        group
+            .wants
+            .iter()
+            .map(|(_, want)| {
+                let fact =
+                    supplier(want, facts, &self.binding, &variables, library, &sites);
+                (want.clone(), fact.cloned())
+            })
+            .collect()
+    }
+}
+
 /// The fact that states each of `firsts` under the binding the search
 /// found, where one does (`supplier`).
 fn first_facts(

@@ -12,6 +12,7 @@ public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -49,7 +50,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
     (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = F (n + 1) := by
   set S : ℤ → ℤ := fun m => ∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ) with hD2
   -- 1. thm:fibonacci-natural
-  have s1 : ∀ i : ℤ, 0 ≤ i → 0 ≤ F i ∧ 0 ≤ G i := by first | exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)) | exact ((Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))).symm | simpa using (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)) | exact_mod_cast (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)) | (have h := (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side)); parley_side)
+  have s1 : ∀ i : ℤ, 0 ≤ i → 0 ≤ F i ∧ 0 ≤ G i := (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
   -- 2. induction on j starting at 0
   have s2 : ∀ j : ℤ, 0 ≤ j → S j = G j ∧ S (j + 1) = G (j + 1) := by
     intro j h_j
@@ -81,7 +82,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       -- 2.10. calculation
       have s2_10 : (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = 0 := by
         calc (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) := by parley_subst s2_8
-          _ = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_side)
+          _ = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) s2_9
       -- 2.11. calculation
       have s2_11 : (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) = 1 := by
         calc (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)); parley_side)
@@ -103,7 +104,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       -- 2.15. join 2.3, 2.14
       have s2_15a : S 0 = G 0 := by parley_side
       have s2_15b : S 1 = G 1 := by parley_side
-      all_goals parley_side
+      exact ⟨s2_15a, by simpa only [zero_add] using s2_15b⟩
     | succ j hK hIH =>
       -- 2.16. calculation
       have s2_16 : S (j + 1) = G (j + 1) := by parley_side
@@ -134,7 +135,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       -- 2.23. join 2.16, 2.22
       have s2_23a : S (j + 1) = G (j + 1) := by parley_side
       have s2_23b : S (j + 1 + 1) = G (j + 1 + 1) := by parley_side
-      all_goals parley_side
+      exact ⟨s2_23a, s2_23b⟩
   -- 3. instantiate j := n in line 2
   have s3 : S n = G n ∧ S (n + 1) = G (n + 1) := by first | exact (s2 n (by parley_side)) | exact ((s2 n (by parley_side))).symm | simpa using (s2 n (by parley_side)) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)
   -- 4. calculation
@@ -142,10 +143,8 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
   -- 5. D1
   have s5 : F (n + 1) = G n := by have h := (hD1.2.2 ((n + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
   -- 6. calculation
-  have s6 : (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = F (n + 1) := by
-    calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = S n := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
-      _ = G n := by parley_side
-      _ = F (n + 1) := by parley_side
-  all_goals exact s6
+  calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = S n := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+    _ = G n := by parley_side
+    _ = F (n + 1) := by parley_side
 
 end Parley.Proofs.Hammack.BinomialDiagonalSumIsFibonacci.BinomialDiagonalSumIsFibonacci

@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Numbers.IntReal
 theorem int_real (m : ℤ) :
     True := by
   -- 1. mun:numbers-int-real
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Numbers.IntReal

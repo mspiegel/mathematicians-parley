@@ -6,7 +6,6 @@ public import Counting
 public import FactorialTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,7 +22,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -41,44 +39,38 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side); parley_side)
   -- 2. cases, from 1
-  have s2 : (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = N := by
-    rcases s1 with hC1 | hC2
-    · skip
-      -- 2.1. mun:nat-minus-one n := N, from C1
-      have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) (by parley_side))
-      -- 2.2. inequalities, from C1
-      have s2_2a : (0 : ℤ) ≤ 1 := by parley_order
-      have s2_2b : 1 ≤ N := by parley_order
-      -- 2.3. def:range-between k := 1, a := 0, b := N, from 2.2
-      have s2_3 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
-      -- 2.4. def:factorial
-      have s2_4 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
-      -- 2.5. thm:factorial-by-predecessor, from C1
-      have s2_5 : (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by exact (Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor.factorial_by_predecessor (N := N) (by parley_side))
-      -- 2.6. mun:factorial-nat n := N − 1, from 2.1
-      have s2_6 : 0 < (LeanBridges.Counting.factorial (N - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - 1) (by parley_side))
-      -- 2.7. calculation
-      have s2_7 : (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = N := by
-        try qify
-        calc (LeanBridges.Counting.choose N (1 : ℤ) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * (LeanBridges.Counting.factorial (1 : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_side)
-          _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
-              have s2_4_w : (LeanBridges.Counting.factorial (1 : ℤ) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
-              first | parley_subst s2_4_w | parley_subst s2_4
-          _ = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
-              have s2_5_w : (LeanBridges.Counting.factorial N : ℚ) = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
-              first | parley_subst s2_5_w | parley_subst s2_5
-          _ = (N : ℚ) := by parley_ring
-      all_goals parley_side
-    · skip
-      -- 2.8. arithmetic
-      have s2_8 : (0 : ℤ) < 1 := by parley_arith
-      -- 2.9. substitute N = 0 (C2) into line 2.8
-      have s2_9 : N < 1 := by parley_subst_at hC2 s2_8
-      -- 2.10. calculation
-      have s2_10 : (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = N := by
-        calc (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_side)
-          _ = N := by parley_side
-      all_goals parley_side
-  all_goals exact s2
+  rcases s1 with hC1 | hC2
+  · skip
+    -- 2.1. mun:nat-minus-one n := N, from C1
+    have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) (by parley_side))
+    -- 2.2. inequalities, from C1
+    have s2_2a : (0 : ℤ) ≤ 1 := by parley_order
+    have s2_2b : 1 ≤ N := by parley_order
+    -- 2.3. def:range-between k := 1, a := 0, b := N, from 2.2
+    have s2_3 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr (by parley_side); parley_side)
+    -- 2.4. def:factorial
+    have s2_4 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
+    -- 2.5. thm:factorial-by-predecessor, from C1
+    have s2_5 : (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by exact (Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor.factorial_by_predecessor (N := N) (by parley_side))
+    -- 2.6. mun:factorial-nat n := N − 1, from 2.1
+    have s2_6 : 0 < (LeanBridges.Counting.factorial (N - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - 1) (by parley_side))
+    -- 2.7. calculation
+    try qify
+    calc (LeanBridges.Counting.choose N (1 : ℤ) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * (LeanBridges.Counting.factorial (1 : ℤ) : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) s2_3
+      _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
+          have s2_4_w : (LeanBridges.Counting.factorial (1 : ℤ) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
+          first | parley_subst s2_4_w | parley_subst s2_4
+      _ = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
+          have s2_5_w : (LeanBridges.Counting.factorial N : ℚ) = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
+          first | parley_subst s2_5_w | parley_subst s2_5
+      _ = (N : ℚ) := by parley_ring
+  · skip
+    -- 2.8. arithmetic
+    have s2_8 : (0 : ℤ) < 1 := by parley_arith
+    -- 2.9. substitute N = 0 (C2) into line 2.8
+    have s2_9 : N < 1 := by parley_subst_at hC2 s2_8
+    -- 2.10. calculation
+    calc (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) s2_9
+      _ = N := by parley_side
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseOne

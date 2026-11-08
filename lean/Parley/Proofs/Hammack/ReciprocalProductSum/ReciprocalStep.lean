@@ -22,9 +22,7 @@ theorem reciprocal_step (m : ℤ) (hH1 : 0 < m) :
   -- 1. algebra
   have s1 : 1 / (m : ℚ) - 1 / ((m : ℚ) + 1) = 1 / ((m : ℚ) * ((m : ℚ) + 1)) := by parley_ring
   -- 2. calculation
-  have s2 : 1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / ((m : ℚ) + 1) := by
-    calc 1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / (m : ℚ) + (1 / (m : ℚ) - 1 / ((m : ℚ) + 1)) := by parley_subst s1
-      _ = 1 - 1 / ((m : ℚ) + 1) := by parley_ring
-  all_goals exact s2
+  calc 1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / (m : ℚ) + (1 / (m : ℚ) - 1 / ((m : ℚ) + 1)) := by parley_subst s1
+    _ = 1 - 1 / ((m : ℚ) + 1) := by parley_ring
 
 end Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep

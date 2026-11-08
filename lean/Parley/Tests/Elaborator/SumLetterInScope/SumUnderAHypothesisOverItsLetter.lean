@@ -28,6 +28,6 @@ theorem sum_under_a_hypothesis_over_its_letter (n : ℤ) (hH1 : 0 < n) (x : ℝ)
   -- 1. proof
   -- what this block shows, Lean's types give
   -- 2. membership, from 1
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Elaborator.SumLetterInScope.SumUnderAHypothesisOverItsLetter

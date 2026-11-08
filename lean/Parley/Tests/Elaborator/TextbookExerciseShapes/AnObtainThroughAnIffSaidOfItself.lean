@@ -2,7 +2,6 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -21,11 +20,10 @@ theorem an_obtain_through_an_iff_said_of_itself (a : ℤ) :
   -- 1. mun:mod-natural b := 3
   have s1 : 0 ≤ a % (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by parley_side))
   -- 2. mun:mod-less b := 3
-  have s2 : a % (3 : ℤ) < 3 := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side)); parley_side)
+  have s2 : a % (3 : ℤ) < 3 := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side))
   -- 3. obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1, 2
   obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := (3 : ℤ)) (by parley_side) (r := a % (3 : ℤ)) (by parley_side) s2)).mp (by parley_side)
   -- 4. exhibit, from 3
-  have s4 : ∃ q : ℤ, q * 3 + a % (3 : ℤ) = a := ⟨q, by parley_side⟩
-  all_goals exact s4
+  exact ⟨q, s3⟩
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AnObtainThroughAnIffSaidOfItself

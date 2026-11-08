@@ -31,10 +31,8 @@ theorem coprime_divides (x : ℤ) (c : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : n ∣
   -- 4. mun:divides-combination e := n, a := x·c, b := n, x := u, y := x·v, from H4, 3
   have s4 : n ∣ x * c * u + n * (x * v) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := n) (a := x * c) (b := n) (x := u) (y := x * v) hH4 s3)
   -- 5. substitute
-  have s5 : n ∣ x := by
-    have c1 : x * c * u + n * (x * v) = x := by linear_combination (norm := parley_norm) (x) * s2
-    have row1 : n ∣ x := by parley_subst_at c1 s4
-    exact row1
-  all_goals exact s5
+  have c1 : x * c * u + n * (x * v) = x := by linear_combination (norm := parley_norm) (x) * s2
+  have row1 : n ∣ x := by parley_subst_at c1 s4
+  exact row1
 
 end Parley.Stdlib.Divisibility.CoprimeDivides

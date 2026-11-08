@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Divisibility.EvenProductFactor
 theorem even_product_factor (a : ℤ) (b : ℤ) :
     (Even (a * b) ↔ Even a ∨ Even b) := by
   -- 1. mun:divisibility-even-product-factor
-  have s1 : Even (a * b) ↔ Even a ∨ Even b := by exact (Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))
 
 end Parley.Tests.Stdlib.Divisibility.EvenProductFactor

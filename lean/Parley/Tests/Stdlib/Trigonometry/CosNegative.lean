@@ -16,7 +16,6 @@ namespace Parley.Tests.Stdlib.Trigonometry.CosNegative
 theorem cos_negative (a : ℂ) :
     Complex.cos (-a) = Complex.cos a := by
   -- 1. mun:trigonometry-cos-negative
-  have s1 : Complex.cos (-a) = Complex.cos a := by exact (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := a))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := a))
 
 end Parley.Tests.Stdlib.Trigonometry.CosNegative

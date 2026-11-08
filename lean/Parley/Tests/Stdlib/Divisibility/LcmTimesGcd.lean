@@ -22,7 +22,6 @@ namespace Parley.Tests.Stdlib.Divisibility.LcmTimesGcd
 theorem lcm_times_gcd (a : ℤ) (b : ℤ) :
     (Int.lcm a b : ℤ) * (Int.gcd a b : ℤ) = abs (a * b) := by
   -- 1. mun:divisibility-lcm-times-gcd
-  have s1 : (Int.lcm a b : ℤ) * (Int.gcd a b : ℤ) = abs (a * b) := by exact (Parley.Items.Stdlib.Divisibility.mun_lcm_times_gcd (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_lcm_times_gcd (a := a) (b := b))
 
 end Parley.Tests.Stdlib.Divisibility.LcmTimesGcd

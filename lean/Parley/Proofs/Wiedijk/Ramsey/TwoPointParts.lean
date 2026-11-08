@@ -43,37 +43,33 @@ theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y
   -- 4. axi:excluded-middle P := v ∈ Y
   have s4 : v ∈ Y ∨ ¬ v ∈ Y := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := v ∈ Y))
   -- 5. cases, from 4
-  have s5 : Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α)) := by
-    rcases s4 with hC1 | hC2
-    · skip
-      -- 5.1. calculation
-      have s5_1 : (Y.ncard : ℤ) = 1 + 1 := by parley_count_after (by
-        calc (Y.ncard : ℤ) = 2 := by parley_set_side
-          _ = 1 + 1 := by norm_num)
-      -- 5.2. mun:card-remove X := Y, a := v, k := 1, from C1, 5.1
-      have s5_2 : ((Y \ ({v} : Set α)).ncard : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side))) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); parley_set_side)
-      -- 5.3. obtain w: mun:card-nonempty X := Y ∖ {v}, k := 0, from 5.2
-      obtain ⟨w, s5_3, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := Y \ ({v} : Set α)) (k := (0 : ℤ)) (by parley_set_side) (by parley_set_side))
-      -- 5.4. mun:remove-member u := w, a := v, from 5.3
-      have s5_4a : w ∈ Y := by first | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).1; parley_set_side)
-      have s5_4b : ¬ w = v := by first | exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp (by parley_set_side)).2; parley_set_side)
-      -- 5.5. mun:in-subset, from 3, 5.3
-      have s5_5 : w ∈ W := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y \ ({v} : Set α)) (Y := W) (u := w) s3 s5_3)
-      -- 5.6. mun:card-two a := v, b := w, from C1, H4, 5.4
-      have s5_6 : Y = ({v, w} : Set α) := by exact (Parley.Items.Stdlib.Counting.mun_card_two (Y := Y) (a := v) (b := w) (by parley_set_side) hC1 s5_4a (by parley_set_side))
-      -- 5.7. exhibit, from 5.5, 5.6
-      have s5_7 : ∃ w ∈ W, Y = ({v, w} : Set α) := ⟨w, by parley_set_side, by parley_set_side⟩
-      -- 5.8. mun:or-right, from 5.7
-      have s5_8 : Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α)) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Y ⊆ W) (Q := ∃ w ∈ W, Y = ({v, w} : Set α)) s5_7)
-      all_goals parley_set_side
-    · skip
-      -- 5.9. mun:subset-into-difference, from C2, H3
-      have s5_9 : Y ⊆ (W ∪ ({v} : Set α)) \ ({v} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := W ∪ ({v} : Set α)) (Y := Y) (a := v) hH3 hC2)
-      -- 5.10. substitute (W ∪ {v}) ∖ {v} = W (line 1) into line 5.9
-      have s5_10 : Y ⊆ W := by parley_subst_at s1 s5_9
-      -- 5.11. mun:or-left, from 5.10
-      have s5_11 : Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α)) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Y ⊆ W) (Q := ∃ w ∈ W, Y = ({v, w} : Set α)) s5_10)
-      all_goals parley_set_side
-  all_goals exact s5
+  rcases s4 with hC1 | hC2
+  · skip
+    -- 5.1. calculation
+    have s5_1 : (Y.ncard : ℤ) = 1 + 1 := by parley_count_after (by
+      calc (Y.ncard : ℤ) = 2 := by parley_set_side
+        _ = 1 + 1 := by norm_num)
+    -- 5.2. mun:card-remove X := Y, a := v, k := 1, from C1, 5.1
+    have s5_2 : ((Y \ ({v} : Set α)).ncard : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side))) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side)); parley_set_side)
+    -- 5.3. obtain w: mun:card-nonempty X := Y ∖ {v}, k := 0, from 5.2
+    obtain ⟨w, s5_3, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := Y \ ({v} : Set α)) (k := (0 : ℤ)) (by parley_set_side) (by parley_set_side))
+    -- 5.4. mun:remove-member u := w, a := v, from 5.3
+    have s5_4a : w ∈ Y := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).1
+    have s5_4b : ¬ w = v := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).2
+    -- 5.5. mun:in-subset, from 3, 5.3
+    have s5_5 : w ∈ W := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y \ ({v} : Set α)) (Y := W) (u := w) s3 s5_3)
+    -- 5.6. mun:card-two a := v, b := w, from C1, H4, 5.4
+    have s5_6 : Y = ({v, w} : Set α) := by exact (Parley.Items.Stdlib.Counting.mun_card_two (Y := Y) (a := v) (b := w) (by parley_set_side) hC1 s5_4a (Ne.symm s5_4b))
+    -- 5.7. exhibit, from 5.5, 5.6
+    have s5_7 : ∃ w ∈ W, Y = ({v, w} : Set α) := ⟨w, by parley_set_side, by parley_set_side⟩
+    -- 5.8. mun:or-right, from 5.7
+    exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Y ⊆ W) (Q := ∃ w ∈ W, Y = ({v, w} : Set α)) s5_7)
+  · skip
+    -- 5.9. mun:subset-into-difference, from C2, H3
+    have s5_9 : Y ⊆ (W ∪ ({v} : Set α)) \ ({v} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := W ∪ ({v} : Set α)) (Y := Y) (a := v) hH3 hC2)
+    -- 5.10. substitute (W ∪ {v}) ∖ {v} = W (line 1) into line 5.9
+    have s5_10 : Y ⊆ W := by parley_subst_at s1 s5_9
+    -- 5.11. mun:or-left, from 5.10
+    exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Y ⊆ W) (Q := ∃ w ∈ W, Y = ({v, w} : Set α)) s5_10)
 
 end Parley.Proofs.Wiedijk.Ramsey.TwoPointParts

@@ -1,13 +1,11 @@
 module
 
 public import AlgebraTactics
-public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -69,13 +67,12 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
     exact row1
   -- 13. contradiction
   have s13 : ¬ p ∣ k := by
-    by_contra hc_hS
-    have hS : p ∣ k := by parley_suppose hc_hS
+    intro hS
     -- 13.1. mun:divides-le e := p, m := k, from S, 1
     have s13_1 : p ≤ k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := k) (by parley_side) hS)
     -- 13.2. inequalities, from H5
     have s13_2 : ¬ p ≤ k := by parley_side
-    all_goals parley_side
+    exact s13_2 s13_1
   -- 14. mun:prime-coprime a := k, from H3, 13
   have s14 : (Int.gcd p k : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := p) (by parley_side) hH3 (a := k) s13)
   -- 15. substitute
@@ -84,7 +81,6 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
     have row1 : (Int.gcd k p : ℤ) = 1 := by parley_subst_at c1 s14
     exact row1
   -- 16. thm:coprime-divides x := C(p, k), c := k, n := p, from 12, 15
-  have s16 : p ∣ (LeanBridges.Counting.choose p k : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose p k : ℤ)) (c := k) (n := p) (by parley_side) s12 s15)
-  all_goals exact s16
+  exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose p k : ℤ)) (c := k) (n := p) (by parley_side) s12 s15)
 
 end Parley.Proofs.Hammack.PrimeDividesBinomial.PrimeDividesBinomial

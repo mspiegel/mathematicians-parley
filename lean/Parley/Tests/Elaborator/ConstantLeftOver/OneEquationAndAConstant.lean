@@ -17,7 +17,6 @@ theorem one_equation_and_a_constant (s : ℝ) (hH2 : s = 1) :
   -- 1. inequalities
   have s1 : s ≥ 1 := by parley_order
   -- 2. inequalities, from 1
-  have s2 : s ≥ 0 := by parley_order
-  all_goals exact s2
+  parley_order
 
 end Parley.Tests.Elaborator.ConstantLeftOver.OneEquationAndAConstant

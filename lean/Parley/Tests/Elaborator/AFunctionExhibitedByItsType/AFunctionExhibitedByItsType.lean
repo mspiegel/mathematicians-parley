@@ -34,7 +34,6 @@ theorem a_function_exhibited_by_its_type (n : ℤ) (hH1 : 0 < n) :
   -- 3. mun:function-into, from 2
   have s3 : Set.MapsTo g (Set.Icc (1 : ℤ) n : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (1 : ℤ) n : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
   -- 4. exhibit, from 1, 3
-  have s4 : ∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) n : Set ℤ) {n : ℤ | 0 < n} ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 n → f i = 1) := ⟨g, by parley_set_side, by parley_set_side⟩
-  all_goals exact s4
+  exact ⟨g, by parley_set_side, by parley_set_side⟩
 
 end Parley.Tests.Elaborator.AFunctionExhibitedByItsType.AFunctionExhibitedByItsType

@@ -24,7 +24,6 @@ namespace Parley.Tests.Stdlib.Divisibility.ModValue
 theorem mod_value (a : ℝ) (b : ℝ) (hH3 : b > 0) :
     LeanBridges.Divisibility.mod a b = a - b * (⌊a / b⌋ : ℝ) := by
   -- 1. mun:divisibility-mod-value, from H3
-  have s1 : LeanBridges.Divisibility.mod a b = a - b * (⌊a / b⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := a) (b := b) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := a) (b := b) hH3)
 
 end Parley.Tests.Stdlib.Divisibility.ModValue

@@ -16,7 +16,6 @@ namespace Parley.Tests.Stdlib.Trigonometry.SinNegative
 theorem sin_negative (a : ℂ) :
     Complex.sin (-a) = -Complex.sin a := by
   -- 1. mun:trigonometry-sin-negative
-  have s1 : Complex.sin (-a) = -Complex.sin a := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := a))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := a))
 
 end Parley.Tests.Stdlib.Trigonometry.SinNegative

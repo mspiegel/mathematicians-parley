@@ -72,7 +72,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   have s7 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by
     intro x hK1
     -- 7.1. mun:integral-real, from D1, H3, H5, K1
-    all_goals parley_set_side
+    exact trivial
   -- 8. mun:function-into, from 7
   have s8 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := G) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 9. membership, from D2
@@ -98,12 +98,12 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   have r137_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by parley_set_side
   have r137_2 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have r137_3 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have s15 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ H x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_difference_1 (F := H) (f := G) (g := F) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s3 (by parley_set_side) s6 s12 hH8)
+  have s15 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ H x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_difference_1 (F := H) (f := G) (g := F) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s3 r137_1 s6 s12 hH8)
   -- 16. thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from H8, 3, 6, 12
   have r143_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by parley_set_side
   have r143_2 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have r143_3 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have s16 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = (deriv G) x - (deriv F) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_difference_2 (F := H) (f := G) (g := F) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s3 (by parley_set_side) s6 s12 hH8)
+  have s16 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = (deriv G) x - (deriv F) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_difference_2 (F := H) (f := G) (g := F) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s3 r143_1 s6 s12 hH8)
   -- 17. proof
   have s17 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = 0 := by
     intro x hK1
@@ -116,8 +116,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
     -- 17.3. mun:in-subset, from K1, 4
     have s17_3 : x ∈ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Icc a b : Set ℝ)) (u := x) s4 hK1)
     -- 17.4. algebra, from 17.2
-    have s17_4 : (deriv H) x = 0 := by linear_combination (norm := parley_norm) s17_2
-    all_goals exact s17_4
+    linear_combination (norm := parley_norm) s17_2
   -- 18. D2, from 1
   have s18 : H a = G a - F a := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 19. D2, from 2
@@ -139,9 +138,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 24. substitute G(a) = 0 (line 23) into line 22
   have s24 : G b - F b = 0 - F a := by parley_subst_at s23 s22
   -- 25. calculation
-  have s25 : (∫ t in a..b, (f t : ℝ)) = F b - F a := by
-    calc (∫ t in a..b, (f t : ℝ)) = G b := by parley_set_side
-      _ = F b - F a := by linear_combination (norm := parley_norm) s24
-  all_goals exact s25
+  calc (∫ t in a..b, (f t : ℝ)) = G b := by parley_set_side
+    _ = F b - F a := by linear_combination (norm := parley_norm) s24
 
 end Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus

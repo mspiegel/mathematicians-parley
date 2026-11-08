@@ -18,7 +18,6 @@ theorem a_divisor_negating_a_quotient (x : ℝ) (hH2 : -(x / 2) ≠ 0) :
     x / -(x / 2) = -2 := by
   -- 1. algebra
   have r9_1 : -(x / 2) ≠ 0 := by parley_side
-  have s1 : x / -(x / 2) = -2 := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.ADivisorNegatingAQuotient.ADivisorNegatingAQuotient

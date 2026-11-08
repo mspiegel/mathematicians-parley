@@ -15,6 +15,6 @@ theorem rational_difference (A : ℚ) (B : ℚ) :
     True := by
   -- 1. thm:rational-sum B := −B
   -- 2. substitute
-  all_goals parley_side
+  exact trivial
 
 end Parley.Proofs.Setmm.RationalClosure.RationalDifference

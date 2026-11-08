@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Logarithms.LnProduct
 theorem ln_product (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     Real.log (x * y) = Real.log x + Real.log y := by
   -- 1. mun:logarithms-ln-product, from H3, H4
-  have s1 : Real.log (x * y) = Real.log x + Real.log y := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) (by parley_side) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) hH3 hH4)
 
 end Parley.Tests.Stdlib.Logarithms.LnProduct

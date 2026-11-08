@@ -23,7 +23,6 @@ theorem continuous_on_a_part (f : ℝ → ℝ) (hH2 : ContinuousOn f (Set.univ :
   -- 1. mun:subset-self X := ℝ
   have s1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   -- 2. mun:continuous-on-part D := ℝ, from H2, H3, 1
-  have s2 : ContinuousOn f S := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := f) (D := (Set.univ : Set ℝ)) (S := S) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))
-  all_goals exact s2
+  exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := f) (D := (Set.univ : Set ℝ)) (S := S) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))
 
 end Parley.Tests.Stdlib.Calculus.ContinuousOnAPart

@@ -36,9 +36,7 @@ theorem cosine_of_a_sum_at_zero :
   -- 5. substitute sin(0) = 0 (line 3) into line 4
   have s5 : Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by parley_subst_at s3 s4
   -- 6. calculation
-  have s6 : Real.cos (0 + 0 : ℝ) = 1 := by
-    calc Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by parley_side
-      _ = 1 := by norm_num
-  all_goals exact s6
+  calc Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by parley_side
+    _ = 1 := by norm_num
 
 end Parley.Tests.Notations.Trigonometry.CosineOfASumAtZero

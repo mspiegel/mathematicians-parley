@@ -24,7 +24,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticTrigonometry.TheSquaresOfASineAn
 theorem the_squares_of_a_sine_and_a_cosine :
     Real.sin (Real.pi / 6) ^ 2 + Real.cos (Real.pi / 6) ^ 2 = 1 := by
   -- 1. real arithmetic
-  have s1 : Real.sin (Real.pi / 6) ^ 2 + Real.cos (Real.pi / 6) ^ 2 = 1 := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.TheSquaresOfASineAndACosine

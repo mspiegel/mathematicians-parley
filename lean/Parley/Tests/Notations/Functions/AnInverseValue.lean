@@ -37,7 +37,6 @@ theorem an_inverse_value (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.univ : Set �
     calc f 3 = 2 * 3 + 1 := by parley_set_side
       _ = 7 := by norm_num
   -- 4. substitute f(3) = 7 (line 3) into line 1
-  have s4 : (LeanBridges.Functions.inverse f (Set.univ : Set ℝ)) 7 = 3 := by parley_subst_at s3 s1
-  all_goals exact s4
+  parley_subst_at s3 s1
 
 end Parley.Tests.Notations.Functions.AnInverseValue

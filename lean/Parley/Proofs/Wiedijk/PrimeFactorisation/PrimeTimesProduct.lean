@@ -23,7 +23,6 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -63,8 +62,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
     have s3_1 : i ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := j) (k := i) hK1)
     -- 3.2. D2, from 3.1
     have r49_1 : i ∈ Finset.Icc (1 : ℤ) (j + 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_extended (a := (1 : ℤ)) (b := j) (k := i) hK1)
-    have s3_2 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
-    all_goals exact s3_2
+    first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 4. proof
   have s4 : ∀ i : ℤ, i ∈ Finset.Icc 1 (j + 1) → Nat.Prime (h i).toNat := by
     intro i hK2
@@ -73,27 +71,23 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
     -- 4.1. axi:excluded-middle P := i ≤ j
     have s4_1 : i ≤ j ∨ ¬ i ≤ j := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := i ≤ j))
     -- 4.2. cases, from 4.1
-    have s4_2 : Nat.Prime (h i).toNat := by
-      rcases s4_1 with hC1 | hC2
-      · skip
-        -- 4.2.1. D2, from C1, K2
-        have s4_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
-        -- 4.2.2. def:range-between k := i, a := 1, b := j, from C1
-        have r69_1 : 1 ≤ i := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2); parley_set_side)
-        have s4_2_2 : i ∈ Finset.Icc (1 : ℤ) j := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side); parley_set_side)
-        -- 4.2.3. instantiate i := i in line 2, from 4.2.2
-        have s4_2_3 : Nat.Prime (g i).toNat := by first | exact (s2d i (by parley_set_side)) | exact ((s2d i (by parley_set_side))).symm | simpa using (s2d i (by parley_set_side)) | exact_mod_cast (s2d i (by parley_set_side)) | (have h := (s2d i (by parley_set_side)); parley_set_side)
-        -- 4.2.4. substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
-        have r76_1 : 0 < g i := by first | exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
-        have s4_2_4 : Nat.Prime (h i).toNat := by parley_subst_at s4_2_1 s4_2_3
-        all_goals parley_set_side
-      · skip
-        -- 4.2.5. D2, from C2, K2
-        have s4_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
-        -- 4.2.6. substitute h(i) = p (line 4.2.5) into H2
-        have s4_2_6 : Nat.Prime (h i).toNat := by parley_subst_at s4_2_5 hH2
-        all_goals parley_set_side
-    all_goals exact s4_2
+    rcases s4_1 with hC1 | hC2
+    · skip
+      -- 4.2.1. D2, from C1, K2
+      have s4_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      -- 4.2.2. def:range-between k := i, a := 1, b := j, from C1
+      have r69_1 : 1 ≤ i := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2)
+      have s4_2_2 : i ∈ Finset.Icc (1 : ℤ) j := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side); parley_set_side)
+      -- 4.2.3. instantiate i := i in line 2, from 4.2.2
+      have s4_2_3 : Nat.Prime (g i).toNat := by first | exact (s2d i (by parley_set_side)) | exact ((s2d i (by parley_set_side))).symm | simpa using (s2d i (by parley_set_side)) | exact_mod_cast (s2d i (by parley_set_side)) | (have h := (s2d i (by parley_set_side)); parley_set_side)
+      -- 4.2.4. substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
+      have r76_1 : 0 < g i := by first | exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
+      parley_subst_at s4_2_1 s4_2_3
+    · skip
+      -- 4.2.5. D2, from C2, K2
+      have s4_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      -- 4.2.6. substitute h(i) = p (line 4.2.5) into H2
+      parley_subst_at s4_2_5 hH2
   -- 5. proof
   have s5 : ∀ i : ℤ, i ∈ Finset.Icc 1 (j + 1) → 0 < h i := by
     intro i hK3
@@ -102,31 +96,27 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
     -- 5.1. axi:excluded-middle P := i ≤ j
     have s5_1 : i ≤ j ∨ ¬ i ≤ j := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := i ≤ j))
     -- 5.2. cases, from 5.1
-    have s5_2 : 0 < h i := by
-      rcases s5_1 with hC3 | hC4
-      · skip
-        -- 5.2.1. D2, from C3, K3
-        have s5_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
-        -- 5.2.2. def:range-between k := i, a := 1, b := j, from C3
-        have r105_1 : 1 ≤ i := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3); parley_set_side)
-        have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side); parley_set_side)
-        -- 5.2.3. mun:function-value f := g, from 5.2.2
-        have s5_2_3 : 0 < g i := by first | exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
-        -- 5.2.4. substitute h(i) = g(i) (line 5.2.1) into line 5.2.3
-        have s5_2_4 : 0 < h i := by parley_subst_at s5_2_1 s5_2_3
-        all_goals parley_set_side
-      · skip
-        -- 5.2.5. D2, from C4, K3
-        have s5_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
-        -- 5.2.6. substitute h(i) = p (line 5.2.5) into H1
-        have s5_2_6 : 0 < h i := by parley_subst_at s5_2_5 hH1
-        all_goals parley_set_side
-    all_goals exact s5_2
+    rcases s5_1 with hC3 | hC4
+    · skip
+      -- 5.2.1. D2, from C3, K3
+      have s5_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      -- 5.2.2. def:range-between k := i, a := 1, b := j, from C3
+      have r105_1 : 1 ≤ i := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3)
+      have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side); parley_set_side)
+      -- 5.2.3. mun:function-value f := g, from 5.2.2
+      have s5_2_3 : 0 < g i := by first | exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
+      -- 5.2.4. substitute h(i) = g(i) (line 5.2.1) into line 5.2.3
+      parley_subst_at s5_2_1 s5_2_3
+    · skip
+      -- 5.2.5. D2, from C4, K3
+      have s5_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      -- 5.2.6. substitute h(i) = p (line 5.2.5) into H1
+      parley_subst_at s5_2_5 hH1
   -- 6. mun:function-into, from 5
   have s6 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (1 : ℤ) (j + 1) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
   -- 7. mun:product-termwise a := 1, b := j, t := h, u := g, from 3
   have r128_1 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by parley_set_side
-  have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by push_cast at s3 ⊢; exact s3) (by parley_set_side) (by parley_set_side)); parley_set_side)
   -- 8. inequalities
   have s8 : ¬ j + 1 ≤ j := by parley_set_side
   -- 9. def:range-between k := j + 1, a := 1, b := j + 1
@@ -144,11 +134,10 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       _ = r * h (j + 1) := by parley_subst s10
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) := by parley_set_side
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := by parley_subst s7
-      _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) (by parley_set_side)); parley_set_side)
+      _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1); parley_set_side)
   -- 13. exhibit, from 4, 6, 12
   have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, by parley_set_side, h, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
   -- 14. D1, from 13
-  have s14 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by parley_set_side
-  all_goals exact s14
+  parley_set_side
 
 end Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct

@@ -22,9 +22,8 @@ theorem six_is_triangular :
   -- 1. arithmetic
   have s1 : (6 : ℚ) = 3 * (3 + 1) / 2 := by parley_arith
   -- 2. exhibit, from 1
-  have s2 : ∃ k : ℤ, 0 < k ∧ 6 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(3 : ℤ), by parley_side, by parley_side⟩
+  have s2 : ∃ k : ℤ, 0 < k ∧ 6 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(3 : ℤ), by parley_side, by push_cast at s1 ⊢; exact s1⟩
   -- 3. D1 n := 6, from 2
-  have s3 : (0 : ℤ) < 6 ∧ (∃ k : ℤ, 0 < k ∧ 6 = (k : ℚ) * ((k : ℚ) + 1) / 2) := by parley_side
-  all_goals exact s3
+  parley_side
 
 end Parley.Tests.Elaborator.APhraseDefined.SixIsTriangular

@@ -1,8 +1,6 @@
 module
 
-public import ArithTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Field.Basic
@@ -27,15 +25,11 @@ theorem floor_of_minus_half_not_zero :
   -- 1. thm:floor-of-minus-half
   have s1 : ⌊(-(1 / 2) : ℝ)⌋ = -1 := by exact Parley.Tests.Notations.Primes.FloorOfMinusHalf.floor_of_minus_half
   -- 2. contradiction
-  have s2 : ⌊(-(1 / 2) : ℝ)⌋ ≠ 0 := by
-    by_contra hc_hS
-    have hS : ⌊(-(1 / 2) : ℝ)⌋ = 0 := by parley_suppose hc_hS
-    -- 2.1. calculation
-    have s2_1 : (-1 : ℤ) = 0 := by
-      calc (-1 : ℤ) = ⌊(-(1 / 2) : ℝ)⌋ := by parley_side
-        _ = 0 := by parley_side
-    exact absurd s2_1 (by norm_num)
-    all_goals parley_side
-  all_goals exact s2
+  intro hS
+  -- 2.1. calculation
+  have s2_1 : (-1 : ℤ) = 0 := by
+    calc (-1 : ℤ) = ⌊(-(1 / 2) : ℝ)⌋ := by parley_side
+      _ = 0 := by parley_side
+  exact absurd s2_1 (by norm_num)
 
 end Parley.Tests.Notations.Primes.FloorOfMinusHalfNotZero

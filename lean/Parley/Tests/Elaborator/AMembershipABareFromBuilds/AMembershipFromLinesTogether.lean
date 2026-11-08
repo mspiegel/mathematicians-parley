@@ -26,7 +26,6 @@ theorem a_membership_from_lines_together (k : ℤ) (hH2 : 0 ≤ k) (y : ℝ) (hH
   -- 2. def:factorial n := k, from H2
   have s2 : (LeanBridges.Counting.factorial (k + 1) : ℤ) = (LeanBridges.Counting.factorial k : ℤ) * (k + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k) (by parley_side))
   -- 3. transitivity, from H4, H5
-  have s3 : y ≤ 3 := by parley_order
-  all_goals exact s3
+  parley_order
 
 end Parley.Tests.Elaborator.AMembershipABareFromBuilds.AMembershipFromLinesTogether

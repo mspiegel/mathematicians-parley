@@ -22,7 +22,6 @@ theorem a_requires_line_by_real_arithmetic (a : ℝ) :
     a * (Real.sqrt (2 : ℝ) - 1) / (Real.sqrt (2 : ℝ) - 1) = a := by
   -- 1. algebra
   have r25_1 : Real.sqrt (2 : ℝ) - 1 ≠ 0 := by parley_real
-  have s1 : a * (Real.sqrt (2 : ℝ) - 1) / (Real.sqrt (2 : ℝ) - 1) = a := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.RealArithmeticInPlace.ARequiresLineByRealArithmetic

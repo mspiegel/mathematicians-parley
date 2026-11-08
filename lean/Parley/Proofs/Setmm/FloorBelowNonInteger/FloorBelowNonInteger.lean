@@ -1,9 +1,7 @@
 module
 
-public import ArithTactics
 public import OrderTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
 public import Mathlib.Algebra.Order.Floor.Ring
@@ -30,13 +28,11 @@ theorem floor_below_non_integer (A : ℝ) (hH2 : ¬ (∃ m : ℤ, (m : ℝ) = A)
   -- 2. mun:floor-integer x := A
   -- 3. contradiction
   have s3 : (⌊A⌋ : ℝ) ≠ A := by
-    by_contra hc_hS
-    have hS : (⌊A⌋ : ℝ) = A := by parley_suppose hc_hS
+    intro hS
     -- 3.1. substitute ⌊A⌋ = A (S) into line 2
     have s3_1 : ∃ m : ℤ, (m : ℝ) = A := ⟨⌊A⌋, by first | (push_cast; linarith [hS]) | (rw [hS]; push_cast; ring) | (rw [← hS]; push_cast; ring) | exact hS | exact hS.symm⟩
-    all_goals parley_side
+    exact hH2 s3_1
   -- 4. inequalities, from 1, 3
-  have s4 : (⌊A⌋ : ℝ) < A := by parley_order
-  all_goals exact s4
+  parley_order
 
 end Parley.Proofs.Setmm.FloorBelowNonInteger.FloorBelowNonInteger

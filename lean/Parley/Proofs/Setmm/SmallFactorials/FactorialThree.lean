@@ -3,19 +3,14 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Proofs.Setmm.SmallFactorials.FactorialTwo
 
@@ -28,7 +23,7 @@ namespace Parley.Proofs.Setmm.SmallFactorials.FactorialThree
 theorem factorial_three :
     (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 6 := by
   -- 1. def:factorial n := 2
-  have s1 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) * (2 + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side)); parley_side)
+  have s1 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) * (2 + 1) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side))
   -- 2. substitute
   have s2 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = 2 * (2 + 1) := by
     have c1 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 2 := by exact Parley.Proofs.Setmm.SmallFactorials.FactorialTwo.factorial_two
@@ -40,9 +35,7 @@ theorem factorial_three :
     have row1 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by parley_subst_at c1 s2
     exact row1
   -- 4. calculation
-  have s4 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 6 := by
-    calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by parley_side
-      _ = 6 := by norm_num
-  all_goals exact s4
+  calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by parley_side
+    _ = 6 := by norm_num
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialThree

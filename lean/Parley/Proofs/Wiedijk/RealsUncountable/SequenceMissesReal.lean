@@ -1,11 +1,9 @@
 module
 
-public import ArithTactics
 public import NormTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -63,8 +61,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
     -- 2.6. D7
     have s2_6 : e n = (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) := by first | (simp (disch := omega) only [hD7]; done) | (simp (disch := omega) only [hD7]; push_cast; norm_num; done) | parley_side
     -- 2.7. substitute e(n) = s(D(f(n), n)) (line 2.6) into line 2.5
-    have s2_7 : (((True ∧ 0 ≤ e n) ∧ e n ≤ 9) ∧ e n ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ (e n + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_subst_at s2_6 s2_5
-    all_goals exact s2_7
+    parley_subst_at s2_6 s2_5
   -- 3. proof
   -- what this block shows, Lean's types give
   -- 4. mun:function-into, from 3
@@ -72,15 +69,13 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
   have s5 : ∀ n : ℤ, 0 < n → 0 ≤ e n ∧ e n ≤ 9 := by
     intro n hK4
     -- 5.1. inequalities, from 2
-    have s5_1 : 0 ≤ e n ∧ e n ≤ 9 := by have := (s2 n (by parley_side)); parley_side
-    all_goals exact s5_1
+    have := (s2 n (by parley_side)); parley_side
   -- 6. obtain x: thm:decimal-number d := e, from 5
   obtain ⟨x, s6⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.DecimalNumber.decimal_number (d := e) s5)
   -- 7. proof
   have s7 : ∀ n : ℤ, 0 < n → f n ≠ x := by
     intro n hK5
-    by_contra hc_hS
-    have hS : f n = x := by parley_suppose hc_hS
+    intro hS
     -- 7.1. instantiate n := n in line 6
     have s7_1 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = e n ∨ ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = (e n + 1) % (10 : ℤ) := by first | exact (s6 n (by parley_side)) | exact ((s6 n (by parley_side))).symm | simpa using (s6 n (by parley_side)) | exact_mod_cast (s6 n (by parley_side)) | (have h := (s6 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s6 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s6 n (by parley_side)); parley_side)
     -- 7.2. cases, from 7.1
@@ -88,21 +83,16 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
       rcases s7_1 with hC1 | hC2
       · skip
         -- 7.2.1. substitute D(x, n) = e(n) (C1) into line 2
-        have s7_2_1 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by
-          have at0 := (s2 n (by parley_side)).1.2
-          parley_subst_at hC1 at0
-        all_goals parley_side
+        have at0 := (s2 n (by parley_side)).1.2
+        parley_subst_at hC1 at0
       · skip
         -- 7.2.2. substitute D(x, n) = s(e(n)) (C2) into line 2
-        have s7_2_2 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by
-          have at0 := (s2 n (by parley_side)).2
-          parley_subst_at hC2 at0
-        all_goals parley_side
+        have at0 := (s2 n (by parley_side)).2
+        parley_subst_at hC2 at0
     -- 7.3. substitute f(n) = x (S)
     have s7_3 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_subst hS
-    all_goals parley_side
+    exact s7_2 s7_3
   -- 8. exhibit, from 7
-  have s8 : ∃ x : ℝ, ∀ n : ℤ, 0 < n → f n ≠ x := ⟨x, by parley_side⟩
-  all_goals exact s8
+  exact ⟨x, s7⟩
 
 end Parley.Proofs.Wiedijk.RealsUncountable.SequenceMissesReal

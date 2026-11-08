@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.AMapWrittenShort.AMembershipBeforeNoArrow
 theorem a_membership_before_no_arrow (x : ℝ) (hH2 : ∃ m : ℤ, 0 < m ∧ (m : ℝ) = x) :
     (∃ m : ℤ, 0 < m ∧ (m : ℝ) = x) := by
   -- 1. restate H2
-  have s1 : ∃ m : ℤ, 0 < m ∧ (m : ℝ) = x := by parley_side
-  all_goals exact s1
+  parley_side
 
 end Parley.Tests.Elaborator.AMapWrittenShort.AMembershipBeforeNoArrow

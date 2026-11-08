@@ -18,7 +18,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -86,7 +85,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
   have s18 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), v x ≠ 0 := by
     intro x hK1
     -- 18.1. mun:square-nonneg
-    have s18_1 : x ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); parley_set_side)
+    have s18_1 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 18.2. inequalities, from 18.1
     have s18_2 : 1 + x ^ 2 > 0 := by parley_order
     -- 18.3. inequalities
@@ -94,16 +93,13 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
     -- 18.4. D4, from K1
     have s18_4 : v x = 1 + x ^ 2 := by first | (simp (disch := omega) only [hD4]; done) | (simp (disch := omega) only [hD4]; push_cast; norm_num; done) | parley_set_side
     -- 18.5. substitute v(x) = 1 + x² (line 18.4) into line 18.3
-    have s18_5 : v x ≠ 0 := by parley_subst_at s18_4 s18_3
-    all_goals exact s18_5
+    parley_subst_at s18_4 s18_3
   -- 19. proof
   have s19 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = u x / v x := by
     intro x hK2
     -- 19.1. instantiate x := x in H3, from D1, D4, K2
-    have s19_1 : g x = u x / v x := by first | linear_combination (norm := parley_norm) (hH3 x (by parley_set_side)) | (have h := (hH3 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH3 x (by parley_set_side)) | exact_mod_cast ((hH3 x (by parley_set_side))).symm | (have h := (hH3 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); parley_int_power h) | (have h := (hH3 x (by parley_set_side)); parley_set_side)
-    all_goals exact s19_1
+    first | linear_combination (norm := parley_norm) (hH3 x (by parley_set_side)) | (have h := (hH3 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH3 x (by parley_set_side)) | exact_mod_cast ((hH3 x (by parley_set_side))).symm | (have h := (hH3 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); parley_int_power h) | (have h := (hH3 x (by parley_set_side)); parley_set_side)
   -- 20. thm:continuous-quotient D := [0, 1], F := g, f := u, g := v, from 1, 7, 13, 14, 17, 18, 19
-  have s20 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_quotient (F := g) (f := u) (g := v) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 s18 s19 s14 s17)
-  all_goals exact s20
+  exact (Parley.Items.Stdlib.Calculus.thm_continuous_quotient (F := g) (f := u) (g := v) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 s18 s19 s14 s17)
 
 end Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous

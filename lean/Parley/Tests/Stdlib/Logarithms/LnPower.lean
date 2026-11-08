@@ -23,7 +23,6 @@ namespace Parley.Tests.Stdlib.Logarithms.LnPower
 theorem ln_power (x : ℝ) (n : ℤ) (hH3 : x > 0) :
     Real.log (x ^ n) = (n : ℝ) * Real.log x := by
   -- 1. mun:logarithms-ln-power, from H3
-  have s1 : Real.log (x ^ n) = (n : ℝ) * Real.log x := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := x) (n := n) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := x) (n := n) hH3)
 
 end Parley.Tests.Stdlib.Logarithms.LnPower

@@ -28,54 +28,46 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
   -- 2. mun:even-or-odd n := y
   have s2 : Even y ∨ Odd y := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := y))
   -- 3. cases, from 1
-  have s3 : Even x ∧ Even y ∨ Odd x ∧ Odd y := by
-    rcases s1 with hC1 | hC4
+  rcases s1 with hC1 | hC4
+  · skip
+    -- 3.1. obtain a: def:even n := x, from C1
+    obtain ⟨a, s3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := x))).mp hC1
+    -- 3.2. cases, from 2
+    rcases s2 with hC2 | hC3
     · skip
-      -- 3.1. obtain a: def:even n := x, from C1
-      obtain ⟨a, s3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := x))).mp (by parley_side)
-      -- 3.2. cases, from 2
-      have s3_2 : Even x ∧ Even y ∨ Odd x ∧ Odd y := by
-        rcases s2 with hC2 | hC3
-        · skip
-          -- 3.2.1. join C1, C2
-          have s3_2_1 : Even x ∧ Even y := by parley_side
-          -- 3.2.2. mun:or-left P := x is even and y is even, Q := x is odd and y is odd, from 3.2.1
-          have s3_2_2 : Even x ∧ Even y ∨ Odd x ∧ Odd y := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) (by parley_side))
-          all_goals parley_side
-        · skip
-          -- 3.2.3. obtain b: def:odd n := y, from C3
-          obtain ⟨b, s3_2_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := y))).mp (by parley_side)
-          -- 3.2.4. algebra, from 3.1, 3.2.3
-          have s3_2_4 : x + y = 2 * (a + b) + 1 := by linear_combination (norm := parley_norm) s3_1 + s3_2_3
-          -- 3.2.5. def:odd n := x + y, from 3.2.4
-          have s3_2_5 : Odd (x + y) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩; parley_side)
-          -- 3.2.6. mun:not-both n := x + y, from H3
-          have s3_2_6 : ¬ Odd (x + y) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3)
-          all_goals parley_side
-      all_goals parley_side
+      -- 3.2.1. join C1, C2
+      have s3_2_1 : Even x ∧ Even y := by parley_side
+      -- 3.2.2. mun:or-left P := x is even and y is even, Q := x is odd and y is odd, from 3.2.1
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) s3_2_1)
     · skip
-      -- 3.3. obtain a: def:odd n := x, from C4
-      obtain ⟨a, s3_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x))).mp (by parley_side)
-      -- 3.4. cases, from 2
-      have s3_4 : Even x ∧ Even y ∨ Odd x ∧ Odd y := by
-        rcases s2 with hC5 | hC6
-        · skip
-          -- 3.4.1. obtain b: def:even n := y, from C5
-          obtain ⟨b, s3_4_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := y))).mp (by parley_side)
-          -- 3.4.2. algebra, from 3.3, 3.4.1
-          have s3_4_2 : x + y = 2 * (a + b) + 1 := by linear_combination (norm := parley_norm) s3_3 + s3_4_1
-          -- 3.4.3. def:odd n := x + y, from 3.4.2
-          have s3_4_3 : Odd (x + y) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩; parley_side)
-          -- 3.4.4. mun:not-both n := x + y, from H3
-          have s3_4_4 : ¬ Odd (x + y) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3)
-          all_goals parley_side
-        · skip
-          -- 3.4.5. join C4, C6
-          have s3_4_5 : Odd x ∧ Odd y := by parley_side
-          -- 3.4.6. mun:or-right P := x is even and y is even, Q := x is odd and y is odd, from 3.4.5
-          have s3_4_6 : Even x ∧ Even y ∨ Odd x ∧ Odd y := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) (by parley_side))
-          all_goals parley_side
-      all_goals parley_side
-  all_goals exact s3
+      -- 3.2.3. obtain b: def:odd n := y, from C3
+      obtain ⟨b, s3_2_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := y))).mp hC3
+      -- 3.2.4. algebra, from 3.1, 3.2.3
+      have s3_2_4 : x + y = 2 * (a + b) + 1 := by linear_combination (norm := parley_norm) s3_1 + s3_2_3
+      -- 3.2.5. def:odd n := x + y, from 3.2.4
+      have s3_2_5 : Odd (x + y) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, s3_2_4⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, s3_2_4⟩; parley_side)
+      -- 3.2.6. mun:not-both n := x + y, from H3
+      have s3_2_6 : ¬ Odd (x + y) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3)
+      exact absurd s3_2_5 s3_2_6
+  · skip
+    -- 3.3. obtain a: def:odd n := x, from C4
+    obtain ⟨a, s3_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x))).mp hC4
+    -- 3.4. cases, from 2
+    rcases s2 with hC5 | hC6
+    · skip
+      -- 3.4.1. obtain b: def:even n := y, from C5
+      obtain ⟨b, s3_4_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := y))).mp hC5
+      -- 3.4.2. algebra, from 3.3, 3.4.1
+      have s3_4_2 : x + y = 2 * (a + b) + 1 := by linear_combination (norm := parley_norm) s3_3 + s3_4_1
+      -- 3.4.3. def:odd n := x + y, from 3.4.2
+      have s3_4_3 : Odd (x + y) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, s3_4_2⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, s3_4_2⟩; parley_side)
+      -- 3.4.4. mun:not-both n := x + y, from H3
+      have s3_4_4 : ¬ Odd (x + y) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3)
+      exact absurd s3_4_3 s3_4_4
+    · skip
+      -- 3.4.5. join C4, C6
+      have s3_4_5 : Odd x ∧ Odd y := by parley_side
+      -- 3.4.6. mun:or-right P := x is even and y is even, Q := x is odd and y is odd, from 3.4.5
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) s3_4_5)
 
 end Parley.Proofs.Hammack.SumEvenSameParity.SumEvenSameParity

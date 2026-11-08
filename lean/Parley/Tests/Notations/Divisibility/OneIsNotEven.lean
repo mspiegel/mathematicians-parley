@@ -16,7 +16,6 @@ namespace Parley.Tests.Notations.Divisibility.OneIsNotEven
 theorem one_is_not_even :
     ¬ Even (1 : ℤ) := by
   -- 1. arithmetic
-  have s1 : ¬ Even (1 : ℤ) := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Notations.Divisibility.OneIsNotEven

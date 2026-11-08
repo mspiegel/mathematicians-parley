@@ -20,7 +20,6 @@ namespace Parley.Tests.Stdlib.Counting.FactorialStep
 theorem factorial_step (n : ℤ) (hH1 : 0 ≤ n) :
     (LeanBridges.Counting.factorial (n + 1) : ℤ) = (LeanBridges.Counting.factorial n : ℤ) * (n + 1) := by
   -- 1. def:factorial
-  have s1 : (LeanBridges.Counting.factorial (n + 1) : ℤ) = (LeanBridges.Counting.factorial n : ℤ) * (n + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n) (by parley_side))
 
 end Parley.Tests.Stdlib.Counting.FactorialStep

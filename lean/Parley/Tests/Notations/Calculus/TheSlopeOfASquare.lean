@@ -38,9 +38,8 @@ theorem the_slope_of_a_square (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = x ^ 2)
   have r140_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have r140_2 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r140_3 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
-  have r140_4 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Z := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have r140_4 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Z := (Set.univ : Set ℝ)) r140_2 (by parley_whole_side))
   have r140_5 : IsOpen (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := (0 : ℝ)) (b := (1 : ℝ)))
-  have s1 : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), (deriv g) x = 2 * x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_square_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_set_side) (by parley_whole_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Calculus.thm_derivative_square_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r140_5 (by parley_whole_side))
 
 end Parley.Tests.Notations.Calculus.TheSlopeOfASquare

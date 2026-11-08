@@ -18,7 +18,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticLogarithms.ETimesTheLogarithmOfO
 theorem e_times_the_logarithm_of_one :
     Real.exp 1 * Real.log (1 : ℝ) = 0 := by
   -- 1. real arithmetic
-  have s1 : Real.exp 1 * Real.log (1 : ℝ) = 0 := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticLogarithms.ETimesTheLogarithmOfOne

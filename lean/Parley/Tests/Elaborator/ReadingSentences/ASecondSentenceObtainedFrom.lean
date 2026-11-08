@@ -18,7 +18,6 @@ theorem a_second_sentence_obtained_from (a : ℝ) (b : ℤ) (hH3a : a = 1) (hH3b
   -- 1. obtain k from H3
   obtain ⟨k, s1⟩ := hH3b
   -- 2. exhibit, from 1
-  have s2 : ∃ j : ℤ, b = 2 * j := ⟨k, by parley_side⟩
-  all_goals exact s2
+  exact ⟨k, s1⟩
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceObtainedFrom

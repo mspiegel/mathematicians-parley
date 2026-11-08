@@ -17,7 +17,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticTrigonometry.ACosineOfPi
 theorem a_cosine_of_pi :
     Real.cos Real.pi = -1 := by
   -- 1. real arithmetic
-  have s1 : Real.cos Real.pi = -1 := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.ACosineOfPi

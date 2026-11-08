@@ -21,6 +21,6 @@ theorem the_cosine_and_sine_of_a_right_angle :
   -- 1. real arithmetic
   have s1a : Real.cos (Real.pi / 2) = 0 := by parley_real
   have s1b : Real.sin (Real.pi / 2) = 1 := by parley_real
-  exact ⟨by parley_side, by parley_side⟩
+  exact ⟨s1a, s1b⟩
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.TheCosineAndSineOfARightAngle

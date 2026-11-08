@@ -22,7 +22,6 @@ namespace Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AnItemAsksARangeLines
 theorem an_item_asks_a_range_lines_bound (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (1 : ℤ) n) :
     (Set.Icc (1 : ℤ) k : Set ℤ) ⊆ (Set.Icc (1 : ℤ) n : Set ℤ) := by
   -- 1. mun:range-within a := 1, from H2
-  have s1 : (Set.Icc (1 : ℤ) k : Set ℤ) ⊆ (Set.Icc (1 : ℤ) n : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_within (a := (1 : ℤ)) (k := k) (n := n) (by parley_set_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sums.mun_range_within (a := (1 : ℤ)) (k := k) (n := n) (by parley_set_side))
 
 end Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AnItemAsksARangeLinesBound

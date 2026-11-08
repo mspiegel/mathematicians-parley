@@ -34,7 +34,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 4. obtain q: mun:mod-remainder m := b, r := a mod b, from 2, 3
   obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := b) (by parley_side) (r := a % b) (by parley_side) s3)).mp (by parley_side)
   -- 5. axi:excluded-middle P := a mod b = 0
-  have s5 : a % b = 0 ∨ a % b ≠ 0 := by first | exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0)) | exact ((Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0))).symm | simpa using (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0)) | (have h := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0)); parley_side)
+  have s5 : a % b = 0 ∨ a % b ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0))
   -- 6. cases, from 5
   have s6a_all : 0 < (Int.gcd a b : ℤ) ∧ (Int.gcd a b : ℤ) ∣ a ∧ (Int.gcd a b : ℤ) ∣ b := by
     rcases s5 with hC1 | hC2
@@ -50,7 +50,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       -- 6.3. algebra, from C1, 4
       have s6_3 : a = b * q := by linear_combination (norm := parley_norm) hC1 + (-1) * s4
       -- 6.4. def:divides d := b, n := a, from 6.3
-      have s6_4 : b ∣ a := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, by parley_side⟩; parley_side)
+      have s6_4 : b ∣ a := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, s6_3⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, s6_3⟩; parley_side)
       -- 6.5. join H2, 6.2, 6.4
       have s6_5a : 0 < b := by parley_side
       have s6_5b : b ∣ a := by parley_side
@@ -59,7 +59,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_6a : 0 < (Int.gcd a b : ℤ) := by parley_subst_at s6_1 s6_5a
       have s6_6b : (Int.gcd a b : ℤ) ∣ a := by parley_subst_at s6_1 s6_5b
       have s6_6c : (Int.gcd a b : ℤ) ∣ b := by first | parley_put_at s6_1 s6_5b | parley_put_at s6_1 s6_5c | parley_subst_at s6_1 s6_5b | parley_subst_at s6_1 s6_5c
-      all_goals parley_side
+      exact ⟨s6_6a, s6_6b, s6_6c⟩
     · skip
       -- 6.7. mun:nat0-nonzero m := a mod b, from C2, 2
       have s6_7 : 0 < a % b := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := a % b) (by parley_side) hC2)
@@ -85,8 +85,8 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_13a : 0 < (Int.gcd a b : ℤ) := by parley_side
       have s6_13b : (Int.gcd a b : ℤ) ∣ a := by parley_side
       have s6_13c : (Int.gcd a b : ℤ) ∣ b := by parley_side
-      all_goals parley_side
+      exact ⟨s6_13a, s6_13b, s6_13c⟩
   obtain ⟨s6a, s6b, s6c⟩ := s6a_all
-  exact ⟨by parley_side, by parley_side, by parley_side⟩
+  exact ⟨s6a, s6b, s6c⟩
 
 end Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural

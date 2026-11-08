@@ -38,10 +38,8 @@ theorem powers_of_two_onto (f : ℤ → ℚ) (hH1 : Set.MapsTo f (Set.univ : Set
       calc y = 2 ^ m := by parley_set_side
         _ = f m := by first | linear_combination (norm := parley_norm) (hH2 m) | (have h := (hH2 m); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 m); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 m) | exact_mod_cast ((hH2 m)).symm | (have h := (hH2 m); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 m); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 m); parley_int_power h) | (have h := (hH2 m); parley_set_side)
     -- 1.3. exhibit, from 1.2
-    have s1_3 : ∃ x : ℤ, y = f x := ⟨m, by parley_set_side⟩
-    all_goals exact s1_3
+    exact ⟨m, s1_2⟩
   -- 2. def:onto, from H1, 1
-  have s2 : Set.MapsTo f (Set.univ : Set ℤ) ((fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) ∧ Set.SurjOn f (Set.univ : Set ℤ) ((fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
-  all_goals exact s2
+  first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
 
 end Parley.Proofs.Hammack.PowersOfTwoOnto.PowersOfTwoOnto

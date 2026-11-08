@@ -89,9 +89,9 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
     have row1 : s ∣ (Int.gcd s w : ℤ) ^ 2 := by parley_subst_at c1 s15
     exact row1
   -- 17. mun:divides-square d := gcd(s, w), n := s, from 1
-  have s17 : (Int.gcd s w : ℤ) ^ 2 ∣ s ^ 2 := by first | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := s))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := s))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := s))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := s))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := s))).mp (by parley_side); parley_side)
+  have s17 : (Int.gcd s w : ℤ) ^ 2 ∣ s ^ 2 := ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := s))).mp s1b
   -- 18. mun:divides-square d := gcd(s, w), n := w, from 1
-  have s18 : (Int.gcd s w : ℤ) ^ 2 ∣ w ^ 2 := by first | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := w))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := w))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := w))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := w))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := w))).mp (by parley_side); parley_side)
+  have s18 : (Int.gcd s w : ℤ) ^ 2 ∣ w ^ 2 := ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := w))).mp s1c
   -- 19. substitute w² = s·t (H5) into line 18
   have s19 : (Int.gcd s w : ℤ) ^ 2 ∣ s * t := by parley_subst_at hH5 s18
   -- 20. substitute
@@ -115,7 +115,6 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   have r339_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := by parley_side
   have s24 : (Int.gcd s w : ℤ) ^ 2 ≤ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd s w : ℤ) ^ 2) (by parley_side) (m := s) (by parley_side) s22)
   -- 25. antisymmetry, from 23, 24
-  have s25 : s = (Int.gcd s w : ℤ) ^ 2 := by parley_side
-  all_goals exact s25
+  parley_side
 
 end Parley.Stdlib.Divisibility.CoprimeSquarePart

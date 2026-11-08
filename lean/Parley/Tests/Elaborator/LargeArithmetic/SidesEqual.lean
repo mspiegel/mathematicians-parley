@@ -22,7 +22,6 @@ namespace Parley.Tests.Elaborator.LargeArithmetic.SidesEqual
 theorem sides_equal :
     (3 * 4 + 2 ^ 3 : ℤ) ≤ 20 := by
   -- 1. arithmetic
-  have s1 : (3 * 4 + 2 ^ 3 : ℤ) ≤ 20 := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Elaborator.LargeArithmetic.SidesEqual

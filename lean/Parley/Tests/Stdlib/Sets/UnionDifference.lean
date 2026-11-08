@@ -17,7 +17,6 @@ namespace Parley.Tests.Stdlib.Sets.UnionDifference
 theorem union_difference {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∪ Z \ Y = Y ∪ Z := by
   -- 1. mun:sets-union-difference
-  have s1 : Y ∪ Z \ Y = Y ∪ Z := by exact (Parley.Items.Stdlib.Sets.mun_union_difference (Y := Y) (Z := Z))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Sets.mun_union_difference (Y := Y) (Z := Z))
 
 end Parley.Tests.Stdlib.Sets.UnionDifference

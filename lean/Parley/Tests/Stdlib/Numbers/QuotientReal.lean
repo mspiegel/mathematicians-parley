@@ -14,6 +14,6 @@ namespace Parley.Tests.Stdlib.Numbers.QuotientReal
 theorem quotient_real (x : ℝ) (y : ℝ) (hH3 : y ≠ 0) :
     True := by
   -- 1. mun:numbers-quotient-real, from H3
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Stdlib.Numbers.QuotientReal

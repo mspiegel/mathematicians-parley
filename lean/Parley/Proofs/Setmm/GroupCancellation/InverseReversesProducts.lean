@@ -44,18 +44,17 @@ theorem inverse_reverses_products {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Se
   -- 8. calculation
   have s8 : b * (b⁻¹ * a⁻¹) = a⁻¹ := by
     calc b * (b⁻¹ * a⁻¹) = (1 : G) * a⁻¹ := by parley_set_side
-      _ = a⁻¹ := by first | exact (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2) | exact ((Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2)).symm | simpa using (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2) | exact_mod_cast (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2) | (have h := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2); parley_set_side)
+      _ = a⁻¹ := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2)
   -- 9. axi:group-associative c := b⁻¹·a⁻¹, from H2, H3, 4
   have s9 : a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4)
   -- 10. substitute b·(b⁻¹·a⁻¹) = a⁻¹ (line 8) into line 9
   have s10 : a * b * (b⁻¹ * a⁻¹) = a * a⁻¹ := by parley_subst_at s8 s9
   -- 11. calculation
   have s11 : a * b * (a * b)⁻¹ = a * b * (b⁻¹ * a⁻¹) := by
-    calc a * b * (a * b)⁻¹ = (1 : G) := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1); parley_set_side)
-      _ = a * a⁻¹ := by first | exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2) | exact ((Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2)).symm | simpa using (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2) | exact_mod_cast (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2) | (have h := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2); parley_set_side)
+    calc a * b * (a * b)⁻¹ = (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1)
+      _ = a * a⁻¹ := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2).symm
       _ = a * b * (b⁻¹ * a⁻¹) := by parley_set_side
   -- 12. thm:left-cancellation a := (a·b)⁻¹, b := b⁻¹·a⁻¹, g := a·b, from 1, 4, 5, 11
-  have s12 : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by first | exact ((Parley.Proofs.Setmm.GroupCancellation.LeftCancellation.left_cancellation (G := G) (a := (a * b)⁻¹) s5 (b := b⁻¹ * a⁻¹) s4 (g := a * b) s1)).mp (by parley_set_side) | exact (((Parley.Proofs.Setmm.GroupCancellation.LeftCancellation.left_cancellation (G := G) (a := (a * b)⁻¹) s5 (b := b⁻¹ * a⁻¹) s4 (g := a * b) s1)).mp (by parley_set_side)).symm | simpa using ((Parley.Proofs.Setmm.GroupCancellation.LeftCancellation.left_cancellation (G := G) (a := (a * b)⁻¹) s5 (b := b⁻¹ * a⁻¹) s4 (g := a * b) s1)).mp (by parley_set_side) | exact_mod_cast ((Parley.Proofs.Setmm.GroupCancellation.LeftCancellation.left_cancellation (G := G) (a := (a * b)⁻¹) s5 (b := b⁻¹ * a⁻¹) s4 (g := a * b) s1)).mp (by parley_set_side) | (have h := ((Parley.Proofs.Setmm.GroupCancellation.LeftCancellation.left_cancellation (G := G) (a := (a * b)⁻¹) s5 (b := b⁻¹ * a⁻¹) s4 (g := a * b) s1)).mp (by parley_set_side); parley_set_side)
-  all_goals exact s12
+  exact ((Parley.Proofs.Setmm.GroupCancellation.LeftCancellation.left_cancellation (G := G) (a := (a * b)⁻¹) s5 (b := b⁻¹ * a⁻¹) s4 (g := a * b) s1)).mp s11
 
 end Parley.Proofs.Setmm.GroupCancellation.InverseReversesProducts

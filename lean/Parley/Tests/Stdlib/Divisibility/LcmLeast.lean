@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Divisibility.LcmLeast
 theorem lcm_least (a : ℤ) (b : ℤ) :
     (∀ k : ℤ, a ∣ k ∧ b ∣ k → (Int.lcm a b : ℤ) ∣ k) := by
   -- 1. def:lcm
-  have s1 : ∀ k : ℤ, a ∣ k ∧ b ∣ k → (Int.lcm a b : ℤ) ∣ k := by exact (Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.def_lcm_4 (a := a) (b := b))
 
 end Parley.Tests.Stdlib.Divisibility.LcmLeast

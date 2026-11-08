@@ -47,12 +47,12 @@ theorem inclusion_exclusion_three {α : Type*} (A : Set α) (B : Set α) (C : Se
   have s8 : ((A ∩ C ∪ B ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ C) ∩ (B ∩ C)).ncard : ℤ) := by exact (Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionTwo.inclusion_exclusion_two (A := A ∩ C) (B := B ∩ C) s5 s7)
   -- 9. substitute
   have s9 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ C) ∩ (B ∩ C)).ncard : ℤ) := by
-    have c1 : A ∩ C ∪ B ∩ C = (A ∪ B) ∩ C := by first | exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes_right (X := A) (Y := B) (Z := C)) | exact ((Parley.Items.Stdlib.Sets.mun_intersection_distributes_right (X := A) (Y := B) (Z := C))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_intersection_distributes_right (X := A) (Y := B) (Z := C)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_intersection_distributes_right (X := A) (Y := B) (Z := C)) | (have h := (Parley.Items.Stdlib.Sets.mun_intersection_distributes_right (X := A) (Y := B) (Z := C)); parley_set_side)
+    have c1 : A ∩ C ∪ B ∩ C = (A ∪ B) ∩ C := (Parley.Items.Stdlib.Sets.mun_intersection_distributes_right (X := A) (Y := B) (Z := C)).symm
     have row1 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ C) ∩ (B ∩ C)).ncard : ℤ) := by parley_subst_at c1 s8
     exact row1
   -- 10. substitute
   have s10 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ B) ∩ C).ncard : ℤ) := by
-    have c1 : (A ∩ C) ∩ (B ∩ C) = (A ∩ B) ∩ C := by first | exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes_over_intersection (X := A) (Y := B) (Z := C)) | exact ((Parley.Items.Stdlib.Sets.mun_intersection_distributes_over_intersection (X := A) (Y := B) (Z := C))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_intersection_distributes_over_intersection (X := A) (Y := B) (Z := C)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_intersection_distributes_over_intersection (X := A) (Y := B) (Z := C)) | (have h := (Parley.Items.Stdlib.Sets.mun_intersection_distributes_over_intersection (X := A) (Y := B) (Z := C)); parley_set_side)
+    have c1 : (A ∩ C) ∩ (B ∩ C) = (A ∩ B) ∩ C := (Parley.Items.Stdlib.Sets.mun_intersection_distributes_over_intersection (X := A) (Y := B) (Z := C)).symm
     have row1 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ B) ∩ C).ncard : ℤ) := by parley_subst_at c1 s9
     exact row1
   -- 11. mun:intersection-subset Y := A, Z := B
@@ -71,7 +71,6 @@ theorem inclusion_exclusion_three {α : Type*} (A : Set α) (B : Set α) (C : Se
   have r141_5 : 0 ≤ ((A ∩ C).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A ∩ C) s5)
   have r141_6 : 0 ≤ ((B ∩ C).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B ∩ C) s7)
   have r141_7 : 0 ≤ (((A ∩ B) ∩ C).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := (A ∩ B) ∩ C) s14)
-  have s15 : (((A ∪ B) ∪ C).ncard : ℤ) = (A.ncard : ℤ) + (B.ncard : ℤ) + (C.ncard : ℤ) - ((A ∩ B).ncard : ℤ) - ((A ∩ C).ncard : ℤ) - ((B ∩ C).ncard : ℤ) + (((A ∩ B) ∩ C).ncard : ℤ) := by linear_combination (norm := parley_norm) s2 + s3 + (-1) * s10
-  all_goals exact s15
+  linear_combination (norm := parley_norm) s2 + s3 + (-1) * s10
 
 end Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionThree

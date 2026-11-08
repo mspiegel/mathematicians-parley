@@ -1,8 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -14,15 +12,12 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/notations/sums.proof by parley build lean. -/
@@ -35,13 +30,13 @@ set_option maxHeartbeats 400000 in
 theorem one_to_three_summed :
     (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 6 := by
   -- 1. mun:sum-single a := 1
-  have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ))); parley_side)
+  have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) = 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ)))
   -- 2. mun:sum-extended a := 1, n := 1
   have r26_1 : (1 : ℤ) ≥ 1 := by parley_arith
-  have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) + (1 + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by parley_side)); parley_side)
+  have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) + (1 + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) r26_1)
   -- 3. mun:sum-extended a := 1, n := 2
   have r30_1 : (2 : ℤ) ≥ 1 := by parley_arith
-  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) + (2 + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by parley_side)); parley_side)
+  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) + (2 + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) r30_1)
   -- 4. arithmetic
   have s4 : (1 + 1 : ℤ) = 2 := by parley_arith
   -- 5. substitute 1 + 1 = 2 (line 4) into line 2
@@ -59,9 +54,7 @@ theorem one_to_three_summed :
   -- 10. substitute Σ(k = 1 to 2) k = 3 (line 7) into line 9
   have s10 : (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 3 + 3 := by parley_subst_at s7 s9
   -- 11. calculation
-  have s11 : (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 6 := by
-    calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 3 + 3 := by parley_side
-      _ = 6 := by norm_num
-  all_goals exact s11
+  calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 3 + 3 := by parley_side
+    _ = 6 := by norm_num
 
 end Parley.Tests.Notations.Sums.OneToThreeSummed

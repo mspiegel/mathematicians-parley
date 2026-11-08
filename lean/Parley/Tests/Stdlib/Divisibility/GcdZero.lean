@@ -19,7 +19,6 @@ namespace Parley.Tests.Stdlib.Divisibility.GcdZero
 theorem gcd_zero (n : ℤ) (hH1 : 0 ≤ n) :
     (Int.gcd n (0 : ℤ) : ℤ) = n := by
   -- 1. mun:divisibility-gcd-zero
-  have s1 : (Int.gcd n (0 : ℤ) : ℤ) = n := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := n) (by parley_side))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := n) (by parley_side))
 
 end Parley.Tests.Stdlib.Divisibility.GcdZero

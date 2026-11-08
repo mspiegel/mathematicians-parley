@@ -4,7 +4,6 @@ public import ArithTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Tactic.Init
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -26,37 +25,32 @@ namespace Parley.Proofs.Setmm.SizeIsNatural.SizeIsNatural
 theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
     (0 < (A.ncard : ℤ) ↔ ¬ A = ∅) := by
   -- the theorem. both directions
-  have sThm : 0 < (A.ncard : ℤ) ↔ ¬ A = ∅ := by
-    constructor
-    · skip
-      intro hC1
-      by_contra hc_hS1
-      have hS1 : A = ∅ := by parley_suppose hc_hS1
-      -- 1. calculation
-      have s1 : (A.ncard : ℤ) = 0 := by parley_count_after (by
-        calc (A.ncard : ℤ) = ((∅ : Set α).ncard : ℤ) := by parley_subst hS1
-          _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty)
-      -- 2. arithmetic
-      have s2 : ¬ (0 : ℤ) < 0 := by parley_arith
-      -- 3. substitute |A| = 0 (line 1) into line 2
-      have s3 : ¬ 0 < (A.ncard : ℤ) := by parley_count_int; (first | parley_subst_at s1 s2 | (have e_nat : A.ncard = 0 := by exact_mod_cast s1; parley_subst_at e_nat s2))
-      all_goals parley_set_side
-    · skip
-      intro hC2
-      -- 4. mun:card-nat0, from H2
-      have s4 : 0 ≤ (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH2)
-      -- 5. contradiction
-      have s5 : (A.ncard : ℤ) ≠ 0 := by
-        by_contra hc_hS2
-        have hS2 : (A.ncard : ℤ) = 0 := by parley_suppose hc_hS2
-        -- 5.1. mun:card-zero X := A, from S2
-        have s5_1 : A = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := A) (by parley_set_side))
-        -- 5.2. restate C2
-        have s5_2 : ¬ A = ∅ := by parley_set_side
-        all_goals parley_set_side
-      -- 6. mun:nat0-nonzero m := |A|, from 4, 5
-      have s6 : 0 < (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (A.ncard : ℤ)) (by parley_set_side) s5)
-      all_goals parley_set_side
-  all_goals parley_set_side
+  constructor
+  · skip
+    intro hC1
+    intro hS1
+    -- 1. calculation
+    have s1 : (A.ncard : ℤ) = 0 := by parley_count_after (by
+      calc (A.ncard : ℤ) = ((∅ : Set α).ncard : ℤ) := by parley_subst hS1
+        _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty)
+    -- 2. arithmetic
+    have s2 : ¬ (0 : ℤ) < 0 := by parley_arith
+    -- 3. substitute |A| = 0 (line 1) into line 2
+    have s3 : ¬ 0 < (A.ncard : ℤ) := by parley_count_int; (first | parley_subst_at s1 s2 | (have e_nat : A.ncard = 0 := by exact_mod_cast s1; parley_subst_at e_nat s2))
+    exact s3 hC1
+  · skip
+    intro hC2
+    -- 4. mun:card-nat0, from H2
+    have s4 : 0 ≤ (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH2)
+    -- 5. contradiction
+    have s5 : (A.ncard : ℤ) ≠ 0 := by
+      intro hS2
+      -- 5.1. mun:card-zero X := A, from S2
+      have s5_1 : A = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := A) (by parley_set_side))
+      -- 5.2. restate C2
+      have s5_2 : ¬ A = ∅ := by parley_set_side
+      exact s5_2 s5_1
+    -- 6. mun:nat0-nonzero m := |A|, from 4, 5
+    exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (A.ncard : ℤ)) (by parley_set_side) (by parley_set_side))
 
 end Parley.Proofs.Setmm.SizeIsNatural.SizeIsNatural

@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Divisibility.GcdNegative
 theorem gcd_negative (a : ℤ) (b : ℤ) :
     (Int.gcd (-a) b : ℤ) = (Int.gcd a b : ℤ) := by
   -- 1. mun:divisibility-gcd-negative
-  have s1 : (Int.gcd (-a) b : ℤ) = (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_negative (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.mun_gcd_negative (a := a) (b := b))
 
 end Parley.Tests.Stdlib.Divisibility.GcdNegative

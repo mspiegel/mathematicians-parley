@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.RowsReadEitherWay.ARowMultipliedByANegativeNum
 theorem a_row_multiplied_by_a_negative_number_read_from_its_other_side (x : ℝ) (hH2 : 4 * x - 5 ≤ 0) :
     0 ≤ -(8 * x) + 10 := by
   -- 1. inequalities
-  have s1 : 0 ≤ -(8 * x) + 10 := by parley_order
-  all_goals exact s1
+  parley_order
 
 end Parley.Tests.Elaborator.RowsReadEitherWay.ARowMultipliedByANegativeNumberReadFromItsOtherSide

@@ -18,7 +18,6 @@ namespace Parley.Tests.Stdlib.Divisibility.LcmAMultiple
 theorem lcm_a_multiple (a : ℤ) (b : ℤ) :
     a ∣ (Int.lcm a b : ℤ) := by
   -- 1. def:lcm
-  have s1 : a ∣ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))
-  all_goals exact s1
+  exact (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))
 
 end Parley.Tests.Stdlib.Divisibility.LcmAMultiple

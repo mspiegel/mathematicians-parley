@@ -21,7 +21,6 @@ namespace Parley.Tests.Elaborator.DividedEquationsCombined.TwoDividedEquationsSu
 theorem two_divided_equations_subtracted (A : ℝ) (B : ℝ) (p : ℤ) (q : ℤ) (hH4 : 0 < q) (r : ℤ) (s : ℤ) (hH6 : 0 < s) (hH7 : A + B = (p : ℝ) / (q : ℝ)) (hH8 : B = (r : ℝ) / (s : ℝ)) :
     A = (p : ℝ) / (q : ℝ) - (r : ℝ) / (s : ℝ) := by
   -- 1. algebra, from H7, H8
-  have s1 : A = (p : ℝ) / (q : ℝ) - (r : ℝ) / (s : ℝ) := by linear_combination (norm := parley_field) hH7 + (-1) * hH8
-  all_goals exact s1
+  linear_combination (norm := parley_field) hH7 + (-1) * hH8
 
 end Parley.Tests.Elaborator.DividedEquationsCombined.TwoDividedEquationsSubtracted

@@ -18,6 +18,6 @@ theorem sin_bounded (a : ℝ) :
   -- 1. mun:trigonometry-sin-bounded
   have s1a : -1 ≤ Real.sin a := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_bounded_1 (a := a))
   have s1b : Real.sin a ≤ 1 := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_bounded_2 (a := a))
-  exact ⟨by parley_side, by parley_side⟩
+  exact ⟨s1a, s1b⟩
 
 end Parley.Tests.Stdlib.Trigonometry.SinBounded

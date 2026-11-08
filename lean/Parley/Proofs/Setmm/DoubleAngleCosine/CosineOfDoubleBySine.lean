@@ -30,10 +30,8 @@ theorem cosine_of_double_by_sine (A : ℂ) :
   -- 2. algebra
   have s2 : 2 * A = A + A := by parley_ring
   -- 3. calculation
-  have s3 : Complex.cos (2 * A) = 1 - 2 * Complex.sin A ^ 2 := by
-    calc Complex.cos (2 * A) = Complex.cos (A + A) := by parley_subst s2
-      _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin A := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := A))
-      _ = 1 - 2 * Complex.sin A ^ 2 := by linear_combination (norm := parley_norm) s1
-  all_goals exact s3
+  calc Complex.cos (2 * A) = Complex.cos (A + A) := by parley_subst s2
+    _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin A := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := A))
+    _ = 1 - 2 * Complex.sin A ^ 2 := by linear_combination (norm := parley_norm) s1
 
 end Parley.Proofs.Setmm.DoubleAngleCosine.CosineOfDoubleBySine

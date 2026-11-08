@@ -14,6 +14,6 @@ namespace Parley.Tests.Notations.Powers.AFractionForAnExponent
 theorem a_fraction_for_an_exponent (x : ℝ) (hH2 : x ≥ 0) :
     True := by
   -- 1. mun:real-power-real y := 1/3, from H2
-  all_goals parley_side
+  exact trivial
 
 end Parley.Tests.Notations.Powers.AFractionForAnExponent

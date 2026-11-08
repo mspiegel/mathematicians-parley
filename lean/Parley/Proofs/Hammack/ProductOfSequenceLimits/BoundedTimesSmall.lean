@@ -31,7 +31,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   -- 3. inequalities
   have s3 : K - abs C ≥ 0 := by parley_order
   -- 4. mun:product-nonneg x := K − |C|, y := |u|, from 1, 3
-  have s4 : (K - abs C) * abs u ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side)); parley_side)
+  have s4 : (K - abs C) * abs u ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side))
   -- 5. substitute
   have s5 : K * abs u - abs C * abs u ≥ 0 := by
     have c1 : (K - abs C) * abs u = K * abs u - abs C * abs u := by parley_ring
@@ -40,10 +40,8 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   -- 6. inequalities
   have s6 : abs C * abs u ≤ K * abs u := by parley_order
   -- 7. calculation
-  have s7 : abs (C * u) < K * d := by
-    calc abs (C * u) = abs C * abs u := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))
-      _ ≤ K * abs u := by parley_side
-      _ < K * d := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp (by parley_side); parley_side)
-  all_goals exact s7
+  calc abs (C * u) = abs C * abs u := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))
+    _ ≤ K * abs u := by parley_side
+    _ < K * d := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp hH7
 
 end Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall

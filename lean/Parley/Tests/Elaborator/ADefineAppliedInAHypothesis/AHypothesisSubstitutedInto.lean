@@ -31,7 +31,6 @@ theorem a_hypothesis_substituted_into (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0
   have s2 : m - 1 + n = m + (n - 1) := by parley_ring
   -- 3. substitute (m − 1) + n = m + (n − 1) (line 2) into H3
   have r21_1 : 0 ≤ m - 1 := by parley_set_side
-  have s3 : ({d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1}.ncard : ℤ) * (m + (n - 1)) = 0 := by parley_subst_at s2 hH3
-  all_goals exact s3
+  parley_subst_at s2 hH3
 
 end Parley.Tests.Elaborator.ADefineAppliedInAHypothesis.AHypothesisSubstitutedInto

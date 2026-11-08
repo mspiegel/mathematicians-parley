@@ -49,7 +49,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   have s1 : X = L ∪ U := by
     try simp only [hD1, hD2] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X)) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X)) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X)); parley_set_side)
+    exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun x : ℤ => x < f x)) (X := X))
   -- 2. mun:set-builder-split-disjoint, from D1, D2
   have s2 : L ∩ U = ∅ := by
     try simp only [hD1, hD2] at *
@@ -78,11 +78,11 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s8_1a : x ∈ X := by
       try simp only [hD1] at *
       try push_cast at *
-      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).1; parley_set_side)
+      exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).1
     have s8_1b : x < f x := by
       try simp only [hD1] at *
       try push_cast at *
-      first | linarith [(((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).2] | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp (by parley_set_side)).2; parley_set_side)
+      first | linarith [(((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2] | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2; parley_set_side)
     -- 8.2. instantiate x := x in H5, from 8.1
     have s8_2 : f (f x) = x := by first | linear_combination (norm := parley_norm) (hH5 x (by parley_set_side)) | (have h := (hH5 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH5 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH5 x (by parley_set_side)) | exact_mod_cast ((hH5 x (by parley_set_side))).symm | (have h := (hH5 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH5 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH5 x (by parley_set_side)); parley_int_power h) | (have h := (hH5 x (by parley_set_side)); parley_set_side)
     -- 8.3. mun:in-subset, from H1, 8.1
@@ -97,8 +97,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 8.8. inequalities, from 8.4, 8.5, 8.7
     have s8_8 : ¬ f x < f (f x) := by parley_set_side
     -- 8.9. def:set-builder u := f(x), from D2, H4, 8.1, 8.8
-    have s8_9 : f x ∈ U := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side); parley_set_side)
-    all_goals exact s8_9
+    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side); parley_set_side)
   set g : ℤ → ℤ := fun x => f x with hD3
   -- 9. mun:function-into, from D3, 8
   have s9 : Set.MapsTo g L U := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := L) (Y := U) (by parley_set_side) (by parley_set_side))
@@ -121,11 +120,9 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
         _ = g t := by parley_set_side
         _ = f t := by parley_set_side
     -- 10.6. calculation
-    have s10_6 : s = t := by
-      calc s = f (f s) := by first | linear_combination (norm := parley_norm) (hH5 s (by parley_set_side)) | (have h := (hH5 s (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH5 s (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH5 s (by parley_set_side)) | exact_mod_cast ((hH5 s (by parley_set_side))).symm | (have h := (hH5 s (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH5 s (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH5 s (by parley_set_side)); parley_int_power h) | (have h := (hH5 s (by parley_set_side)); parley_set_side)
-        _ = f (f t) := by parley_subst s10_5
-        _ = t := by first | linear_combination (norm := parley_norm) (hH5 t (by parley_set_side)) | (have h := (hH5 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH5 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH5 t (by parley_set_side)) | exact_mod_cast ((hH5 t (by parley_set_side))).symm | (have h := (hH5 t (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH5 t (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH5 t (by parley_set_side)); parley_int_power h) | (have h := (hH5 t (by parley_set_side)); parley_set_side)
-    all_goals parley_set_side
+    calc s = f (f s) := by first | linear_combination (norm := parley_norm) (hH5 s (by parley_set_side)) | (have h := (hH5 s (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH5 s (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH5 s (by parley_set_side)) | exact_mod_cast ((hH5 s (by parley_set_side))).symm | (have h := (hH5 s (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH5 s (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH5 s (by parley_set_side)); parley_int_power h) | (have h := (hH5 s (by parley_set_side)); parley_set_side)
+      _ = f (f t) := by parley_subst s10_5
+      _ = t := by first | linear_combination (norm := parley_norm) (hH5 t (by parley_set_side)) | (have h := (hH5 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH5 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH5 t (by parley_set_side)) | exact_mod_cast ((hH5 t (by parley_set_side))).symm | (have h := (hH5 t (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH5 t (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH5 t (by parley_set_side)); parley_int_power h) | (have h := (hH5 t (by parley_set_side)); parley_set_side)
   -- 11. def:one-to-one, from 9, 10
   have s11 : Set.MapsTo g L U ∧ Set.InjOn g L := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
   -- 12. proof
@@ -135,11 +132,11 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s12_1a : u ∈ X := by
       try simp only [hD2] at *
       try push_cast at *
-      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).1; parley_set_side)
+      exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).1
     have s12_1b : ¬ u < f u := by
       try simp only [hD2] at *
       try push_cast at *
-      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp (by parley_set_side)).2; parley_set_side)
+      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2; parley_set_side)
     -- 12.2. instantiate x := u in H5, from 12.1
     have s12_2 : f (f u) = u := by first | linear_combination (norm := parley_norm) (hH5 u (by parley_set_side)) | (have h := (hH5 u (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH5 u (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH5 u (by parley_set_side)) | exact_mod_cast ((hH5 u (by parley_set_side))).symm | (have h := (hH5 u (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH5 u (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH5 u (by parley_set_side)); parley_int_power h) | (have h := (hH5 u (by parley_set_side)); parley_set_side)
     -- 12.3. instantiate x := u in H6, from 12.1
@@ -159,8 +156,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
       calc u = f (f u) := by parley_set_side
         _ = g (f u) := by parley_set_side
     -- 12.9. exhibit, from 12.6, 12.8
-    have s12_9 : ∃ x ∈ L, u = g x := ⟨f u, by parley_set_side, by parley_set_side⟩
-    all_goals exact s12_9
+    exact ⟨f u, by parley_set_side, by parley_set_side⟩
   -- 13. def:onto, from 9, 12
   have s13 : Set.MapsTo g L U ∧ Set.SurjOn g L U := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
   -- 14. def:one-to-one-onto, from 11, 13
@@ -176,17 +172,16 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 17.1. mun:in-subset, from K6, 3
     have s17_1 : x ∈ X := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := L) (Y := X) (u := x) s3 hK6)
     -- 17.2. instantiate x := x in H7, from 17.1
-    have s17_2 : x * f x ≡ (1 : ℤ) [ZMOD n] := by first | exact (hH7 x (by parley_set_side)) | exact ((hH7 x (by parley_set_side))).symm | simpa using (hH7 x (by parley_set_side)) | exact_mod_cast (hH7 x (by parley_set_side)) | (have h := (hH7 x (by parley_set_side)); parley_set_side)
-    all_goals exact s17_2
+    first | exact (hH7 x (by parley_set_side)) | exact ((hH7 x (by parley_set_side))).symm | simpa using (hH7 x (by parley_set_side)) | exact_mod_cast (hH7 x (by parley_set_side)) | (have h := (hH7 x (by parley_set_side)); parley_set_side)
   -- 18. proof
   have s18 : ∀ x ∈ L, True := by
     intro x hK7
     -- 18.1. mun:in-subset, from K7, 6
     -- 18.2. mun:in-subset, from D3, K7, 7, 9
     -- 18.3. membership, from 18.1, 18.2
-    all_goals parley_set_side
+    exact trivial
   -- 19. thm:product-congruent-termwise, from 5, 17, 18
-  have s19 : (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ (∏ᶠ x ∈ L, (1 : ℤ)) [ZMOD n] := by first | exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * f x)) (u := (fun x : ℤ => (1 : ℤ))) (X := L) s5 (n := n) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * f x)) (u := (fun x : ℤ => (1 : ℤ))) (X := L) s5 (n := n) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * f x)) (u := (fun x : ℤ => (1 : ℤ))) (X := L) s5 (n := n) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * f x)) (u := (fun x : ℤ => (1 : ℤ))) (X := L) s5 (n := n) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * f x)) (u := (fun x : ℤ => (1 : ℤ))) (X := L) s5 (n := n) (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s19 : (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ (∏ᶠ x ∈ L, (1 : ℤ)) [ZMOD n] := (Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * f x)) (u := (fun x : ℤ => (1 : ℤ))) (X := L) s5 (n := n) (by parley_set_side) s17)
   -- 20. substitute
   have s20 : (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by
     have c1 : (∏ᶠ x ∈ L, (1 : ℤ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_of_ones (X := L) s5)
@@ -195,11 +190,10 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   -- 21. calculation
   have r258_1 : ∀ x ∈ L, True := by parley_set_side
   have s21 : (∏ᶠ x ∈ X, (x : ℤ)) = (∏ᶠ x ∈ L, (x * f x : ℤ)) := by
-    calc (∏ᶠ x ∈ X, (x : ℤ)) = (∏ᶠ x ∈ L, (x : ℤ)) * (∏ᶠ x ∈ U, (x : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2); parley_set_side)
+    calc (∏ᶠ x ∈ X, (x : ℤ)) = (∏ᶠ x ∈ L, (x : ℤ)) * (∏ᶠ x ∈ U, (x : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 (by parley_set_side)); parley_set_side)
       _ = (∏ᶠ x ∈ L, (x : ℤ)) * (∏ᶠ x ∈ L, (f x : ℤ)) := by parley_subst s15
       _ = (∏ᶠ x ∈ L, (x * f x : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5); parley_set_side)
   -- 22. substitute ∏(x ∈ X) x = ∏(x ∈ L) x·f(x) (line 21) into line 20
-  have s22 : (∏ᶠ x ∈ X, (x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by parley_subst_at s21 s20
-  all_goals exact s22
+  parley_subst_at s21 s20
 
 end Parley.Proofs.Wiedijk.Wilson.PairedProduct

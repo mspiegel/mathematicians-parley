@@ -16,7 +16,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.PiAboveThree
 theorem pi_above_three :
     3 < Real.pi := by
   -- 1. real arithmetic
-  have s1 : 3 < Real.pi := by parley_real
-  all_goals exact s1
+  parley_real
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.PiAboveThree

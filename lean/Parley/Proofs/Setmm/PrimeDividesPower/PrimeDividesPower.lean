@@ -39,9 +39,9 @@ set_option maxHeartbeats 400000 in
 theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q : ℤ) (hH3 : 0 < Q) (hH4 : Nat.Prime Q.toNat) (N : ℤ) (hH5 : 0 ≤ N) (hH6 : P ∣ Q ^ N.toNat) :
     P = Q := by
   -- 1. def:prime p := P, from H2
-  have s1 : P > 1 := by first | linarith [((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp (by parley_side); parley_side)
+  have s1 : P > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
   -- 2. def:prime p := Q, from H4
-  have s2 : ∀ d : ℤ, 0 < d → d ∣ Q → d = 1 ∨ d = Q := by first | exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp (by parley_side)).2; parley_side)
+  have s2 : ∀ d : ℤ, 0 < d → d ∣ Q → d = 1 ∨ d = Q := (((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp hH4).2
   -- 3. induction on m starting at 0
   have s3 : ∀ m : ℤ, 0 ≤ m → P ∣ Q ^ m.toNat → P = Q := by
     intro m h_m
@@ -57,7 +57,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       have s3_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s3_2)
       -- 3.4. inequalities
       have s3_4 : P ≠ 1 := by parley_side
-      all_goals parley_side
+      exact absurd s3_3 s3_4
     | succ m hK hIH =>
       intro hC2
       -- 3.5. mun:exponent-step a := Q
@@ -65,34 +65,28 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       -- 3.6. substitute Q^(m + 1) = Q^m·Q (line 3.5) into C2
       have s3_6 : P ∣ Q ^ m.toNat * Q := by parley_subst_at s3_5 hC2
       -- 3.7. thm:prime-divides-product m := Q^m, n := Q, from H2, 3.6
-      have s3_7 : P ∣ Q ^ m.toNat ∨ P ∣ Q := by first | exact ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp (by parley_side); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp (by parley_side); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp (by parley_side); parley_side)
+      have s3_7 : P ∣ Q ^ m.toNat ∨ P ∣ Q := ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp s3_6
       -- 3.8. cases, from 3.7
-      have s3_8 : P = Q := by
-        rcases s3_7 with hC3 | hC4
+      rcases s3_7 with hC3 | hC4
+      · skip
+        -- 3.8.1. mun:modus-ponens, from C3, IH
+        exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q ^ m.toNat) (Q := P = Q) hIH hC3)
+      · skip
+        -- 3.8.2. instantiate d := P in line 2
+        have s3_8_2 : P ∣ Q → P = 1 ∨ P = Q := by first | exact (s2 P (by parley_side)) | exact ((s2 P (by parley_side))).symm | simpa using (s2 P (by parley_side)) | exact_mod_cast (s2 P (by parley_side)) | (have h := (s2 P (by parley_side)); parley_side)
+        -- 3.8.3. mun:modus-ponens, from C4, 3.8.2
+        have s3_8_3 : P = 1 ∨ P = Q := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q) (Q := P = 1 ∨ P = Q) s3_8_2 hC4)
+        -- 3.8.4. cases, from 3.8.3
+        rcases s3_8_3 with hC5 | hC6
         · skip
-          -- 3.8.1. mun:modus-ponens, from C3, IH
-          have s3_8_1 : P = Q := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q ^ m.toNat) (Q := P = Q) hIH hC3)
-          all_goals parley_side
+          -- 3.8.4.1. inequalities
+          have s3_8_4_1 : P ≠ 1 := by parley_side
+          exact absurd hC5 s3_8_4_1
         · skip
-          -- 3.8.2. instantiate d := P in line 2
-          have s3_8_2 : P ∣ Q → P = 1 ∨ P = Q := by first | exact (s2 P (by parley_side)) | exact ((s2 P (by parley_side))).symm | simpa using (s2 P (by parley_side)) | exact_mod_cast (s2 P (by parley_side)) | (have h := (s2 P (by parley_side)); parley_side)
-          -- 3.8.3. mun:modus-ponens, from C4, 3.8.2
-          have s3_8_3 : P = 1 ∨ P = Q := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q) (Q := P = 1 ∨ P = Q) s3_8_2 hC4)
-          -- 3.8.4. cases, from 3.8.3
-          have s3_8_4 : P = Q := by
-            rcases s3_8_3 with hC5 | hC6
-            · skip
-              -- 3.8.4.1. inequalities
-              have s3_8_4_1 : P ≠ 1 := by parley_side
-              all_goals parley_side
-            · skip
-              all_goals parley_side
-          all_goals parley_side
-      all_goals parley_side
+          exact hC6
   -- 4. instantiate m := N in line 3
   have s4 : P ∣ Q ^ N.toNat → P = Q := by first | exact (s3 N (by parley_side)) | exact ((s3 N (by parley_side))).symm | simpa using (s3 N (by parley_side)) | exact_mod_cast (s3 N (by parley_side)) | (have h := (s3 N (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s3 N (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s3 N (by parley_side)); parley_side)
   -- 5. mun:modus-ponens, from H6, 4
-  have s5 : P = Q := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q ^ N.toNat) (Q := P = Q) s4 hH6)
-  all_goals exact s5
+  exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := P ∣ Q ^ N.toNat) (Q := P = Q) s4 hH6)
 
 end Parley.Proofs.Setmm.PrimeDividesPower.PrimeDividesPower

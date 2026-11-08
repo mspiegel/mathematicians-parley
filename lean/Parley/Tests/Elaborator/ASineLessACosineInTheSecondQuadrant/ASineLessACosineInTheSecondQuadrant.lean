@@ -23,7 +23,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -87,7 +86,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 20. inequalities, from 5, 19
   have s20 : 0 ≤ Real.sin x - Real.cos x := by parley_order
   -- 21. mun:product-nonneg x := sin(x), y := sin(x − π/2), from 5, 10
-  have s21 : Real.sin x * Real.sin (x - Real.pi / 2) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) (by parley_set_side) (by parley_set_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s21 : Real.sin x * Real.sin (x - Real.pi / 2) ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) (by parley_set_side) (by parley_set_side))
   -- 22. mun:sin-cos-squares a := x
   have s22 : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))); parley_set_side)
   -- 23. algebra, from 17, 22
@@ -98,7 +97,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   have s25 : 1 ^ 2 ≤ (Real.sin x - Real.cos x) ^ 2 := by parley_order
   -- 26. mun:square-le x := 1, y := sin(x) − cos(x), from 20, 25
   have r104_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have s26 : 1 ≤ Real.sin x - Real.cos x := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
-  all_goals parley_set_side
+  have s26 : 1 ≤ Real.sin x - Real.cos x := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) (by parley_set_side))).mpr s25 | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) (by parley_set_side))).mpr s25; parley_set_side)
+  exact s26
 
 end Parley.Tests.Elaborator.ASineLessACosineInTheSecondQuadrant.ASineLessACosineInTheSecondQuadrant

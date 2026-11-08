@@ -20,7 +20,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineSaidOnce
 theorem a_sine_said_once (a : ℝ) :
     a * Real.sin (Real.pi / 6) = Real.sin (Real.pi / 6) * a := by
   -- 1. algebra
-  have s1 : a * Real.sin (Real.pi / 6) = Real.sin (Real.pi / 6) * a := by parley_ring
-  all_goals exact s1
+  parley_ring
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineSaidOnce

@@ -79,7 +79,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.5. join 4.3, 4.4
       have s4_5a : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by parley_side
       have s4_5b : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_side
-      all_goals parley_side
+      exact ⟨by simpa only [Int.reduceToNat] using s4_5a, by simpa only [Int.reduceToNat, pow_one, zero_add] using s4_5b⟩
     | succ j hK hIH =>
       -- 4.6. D1
       have s4_6 : F (j + 1) = G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
@@ -90,9 +90,9 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
         have s4_6_w : (F (j + 1) : ℝ) = (G j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h; linear_combination (norm := parley_norm) h
         parley_subst_at hIH.2 s4_6_w
       -- 4.9. thm:power-recurrence x := φ, k := j, from 2
-      have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) s2 (k := j) (by parley_side))
+      have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) (by parley_side) (k := j) (by parley_side))
       -- 4.10. thm:power-recurrence x := ψ, k := j, from 3
-      have s4_10 : ψ ^ (j + 1 + 1).toNat = ψ ^ (j + 1).toNat + ψ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := ψ) s3 (k := j) (by parley_side))
+      have s4_10 : ψ ^ (j + 1 + 1).toNat = ψ ^ (j + 1).toNat + ψ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := ψ) (by parley_side) (k := j) (by parley_side))
       -- 4.11. calculation
       have r101_1 : Real.sqrt (5 : ℝ) ≠ 0 := by parley_side
       have s4_11 : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by
@@ -103,14 +103,12 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.12. join 4.8, 4.11
       have s4_12a : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_side
       have s4_12b : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_side
-      all_goals parley_side
+      exact ⟨s4_12a, s4_12b⟩
   -- 5. instantiate j := n in line 4
   have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by first | exact (s4 n (by parley_side)) | exact ((s4 n (by parley_side))).symm | simpa using (s4 n (by parley_side)) | exact_mod_cast (s4 n (by parley_side)) | (have h := (s4 n (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (s4 n (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (s4 n (by parley_side)); parley_side)
   -- 6. calculation
-  have s6 : (F n : ℝ) = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by
-    calc (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | parley_side | parley_line_toNat s5
-      _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD2
-      _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD3
-  all_goals exact s6
+  calc (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | parley_side | parley_line_toNat s5
+    _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD2
+    _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD3
 
 end Parley.Proofs.Hammack.BinetFormula.BinetFormula

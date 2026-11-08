@@ -22,6 +22,6 @@ theorem a_named_term_is_a_number (N : ℤ) :
     try simp only [hD1] at *
     try push_cast at *
     parley_ring
-  all_goals parley_side
+  exact s1
 
 end Parley.Tests.Elaborator.ANamedTermIsANumber.ANamedTermIsANumber

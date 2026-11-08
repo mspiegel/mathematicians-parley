@@ -16,7 +16,6 @@ namespace Parley.Tests.Notations.Divisibility.ZeroIsEven
 theorem zero_is_even :
     Even (0 : ℤ) := by
   -- 1. arithmetic
-  have s1 : Even (0 : ℤ) := by parley_arith
-  all_goals exact s1
+  parley_arith
 
 end Parley.Tests.Notations.Divisibility.ZeroIsEven
