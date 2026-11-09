@@ -68,7 +68,7 @@ theorem geometric_sum_base_two (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. mun:exponent-step a := 2, m := k + 1
       have s1_3 : (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (by parley_side))
       -- 1.4. calculation
-      calc S (k + 1) = S k + 2 ^ (k + 1).toNat := by parley_side
+      calc S (k + 1) = S k + 2 ^ (k + 1).toNat := by first | parley_side | parley_line_toNat s1_2
         _ = 2 ^ (k + 1).toNat - 1 + 2 ^ (k + 1).toNat := by parley_subst hIH
         _ = 2 ^ (k + 1).toNat * 2 - 1 := by parley_ring
         _ = 2 ^ (k + 1 + 1).toNat - 1 := by parley_subst s1_3

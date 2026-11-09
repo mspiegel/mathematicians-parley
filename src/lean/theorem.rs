@@ -7510,34 +7510,10 @@ impl<'a> Proof<'a> {
                             super::tactics::bracket(at.proof),
                         )));
                     }
-                    // A row citing a line of one fact the writer states with an
-                    // exponent's `toNat`, no "for all" of it read at the row's
-                    // letter, where the checker found the row in it
-                    // (`link_places`): shown from it in scope, `parley_side`.
-                    let for_all = self
-                        .trees
-                        .get(cite)
-                        .into_iter()
-                        .flatten()
-                        .any(|s| s.node.notation() == crate::notations::FOR_ALL);
-                    let one = self.named.get(cite).is_some_and(|n| n.len() == 1);
-                    let placed = self.rec.link_places.contains_key(&line.line);
-                    let by_line = match (
-                        to_nat,
-                        define,
-                        in_named.is_none(),
-                        for_all,
-                        one && placed,
-                    ) {
-                        (true, None, true, false, true) => Some(super::doc::Proof::By(
-                            super::tactics::bridge(BridgeTactic::Side, vec![]),
-                        )),
-                        _ => None,
-                    };
                     ways.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
                     ways.extend(in_named);
                     ways.extend(parts);
-                    match by_define.or(by_line) {
+                    match by_define {
                         Some(proof) => proof,
                         None => ways_proof(ways),
                     }

@@ -108,7 +108,7 @@ theorem leibniz :
               have s3_2_4_w : (abs ((-1) ^ (n + 1).toNat) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3_2_4; push_cast at h; linear_combination (norm := parley_norm) h
               first | parley_subst s3_2_4_w | parley_subst s3_2_4
           _ = 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_subst s3_2_6
-          _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_side
+          _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by first | parley_side | parley_line_toNat s3_2_7
       -- 3.2.9. inequalities, from A2, K2
       have s3_2_9 : N ≤ 2 * (n + 1) + 1 := by parley_order
       -- 3.2.10. mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.9

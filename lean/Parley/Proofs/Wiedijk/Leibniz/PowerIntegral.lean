@@ -130,7 +130,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
       _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by parley_subst s16
       _ = x ^ m.toNat := by parley_ring
-      _ = p x := by parley_set_side
+      _ = p x := by first | parley_set_side | parley_line_toNat s19_2
   -- 20. arithmetic
   have s20 : (0 : ℤ) < 1 := by parley_arith
   -- 21. def:interval a := 0, b := 1, x := 0

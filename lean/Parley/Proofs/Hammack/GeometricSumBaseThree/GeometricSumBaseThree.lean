@@ -67,7 +67,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. mun:exponent-step a := 3, m := k + 1
       have s1_3 : (3 ^ (k + 1 + 1).toNat : ℤ) = 3 ^ (k + 1).toNat * 3 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k + 1) (by parley_side))
       -- 1.4. calculation
-      calc (S (k + 1) : ℚ) = (S k : ℚ) + 3 ^ (k + 1).toNat := by parley_side
+      calc (S (k + 1) : ℚ) = (S k : ℚ) + 3 ^ (k + 1).toNat := by first | parley_side | parley_line_toNat s1_2
         _ = (3 ^ (k + 1).toNat - 3) / 2 + 3 ^ (k + 1).toNat := by parley_subst hIH
         _ = (3 ^ (k + 1).toNat * 3 - 3) / 2 := by parley_ring
         _ = (3 ^ (k + 1 + 1).toNat - 3) / 2 := by
