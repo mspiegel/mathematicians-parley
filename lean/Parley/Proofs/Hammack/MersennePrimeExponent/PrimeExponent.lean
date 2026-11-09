@@ -151,7 +151,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         -- 4.18.7. calculation
         have s4_18_7 : 2 ^ d.toNat - 1 = (2 ^ d.toNat - 1) * q := by
           calc (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by parley_side
-            _ = (2 ^ d.toNat - 1) * q := by first | parley_side | parley_line_toNat s4_9
+            _ = (2 ^ d.toNat - 1) * q := by parley_side
         -- 4.18.8. inequalities, from 4.14
         have s4_18_8 : (0 : ℤ) < 2 ^ d.toNat - 1 := by parley_order
         -- 4.18.9. inequalities

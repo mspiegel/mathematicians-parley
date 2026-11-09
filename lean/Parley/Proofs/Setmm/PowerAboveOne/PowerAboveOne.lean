@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import OrderTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -45,7 +44,7 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℤ) (hH3 : 0 < n) :
       -- 1.6. transitivity, from H2, 1.5
       have s1_6 : 1 < A * A ^ k.toNat := by parley_order
       -- 1.7. calculation
-      calc (1 : ℝ) < A * A ^ k.toNat := by first | parley_side | parley_line_toNat s1_6
+      calc (1 : ℝ) < A * A ^ k.toNat := by parley_side
         _ = A ^ k.toNat * A := by parley_ring
         _ = A ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side)).symm
   -- 2. instantiate k := n in line 1

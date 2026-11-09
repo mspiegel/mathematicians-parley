@@ -6470,6 +6470,45 @@ pub fn define_link_meetings(thm: &Theorem, known: &Known) -> IndexMap<usize, Mee
     out
 }
 
+/// Where in the line each calculation link cites the link stands, by the
+/// link's line (`CheckedTheorem::link_places`): the sentence or part of one
+/// that says it, as `check_chain_links` finds it, placed as a citation's
+/// facts are (`FirstAt`). None for a link citing a define, arithmetic, or a
+/// line it finds nothing in to place.
+pub fn link_places(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, crate::checker::record::FirstAt> {
+    let defines = define_labels(thm, known.env.scopes);
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let defined = known.citing_step(step);
+        let scope = known.scope(step);
+        for link in chain_links(&step.just, &thm.path) {
+            let cite = &link.line.cite;
+            if defines.contains(cite.as_str()) || cite == "arithmetic" {
+                continue;
+            }
+            let (Some(stated), Some(claim)) = (scope.get(cite), link.claim(known))
+            else {
+                continue;
+            };
+            let said = known.as_cited(&claim, &defined);
+            let says = known.says(stated, &defined);
+            let own = known.sentence_count(stated);
+            let placed = says
+                .iter()
+                .filter(|s| alike_top(&said, &s.cited, &library.ctx))
+                .find_map(|s| super::citations::placed(cite, s, &says, own));
+            if let Some(at) = placed {
+                out.insert(link.line.line, at);
+            }
+        }
+    }
+    out
+}
+
 /// Each link of a calculation cites a line that says it.
 ///
 /// `SYNTAX.md`: a link `rel t  L` cites one line whose claim is exactly the

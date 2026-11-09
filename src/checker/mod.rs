@@ -406,6 +406,7 @@ pub fn checked_where(
             record.instantiated =
                 citations::instantiations(thm, c.library, &c.known[i]);
             record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
+            record.link_places = formulas::link_places(thm, c.library, &c.known[i]);
             record.asserted = library::let_assertions(&c.known[i]);
             record.opener_asserted = library::opener_assertions(&c.known[i]);
             record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);

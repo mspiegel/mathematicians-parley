@@ -294,6 +294,9 @@ pub struct CheckedTheorem {
     /// out, its two sides once the define's name is its value, by the
     /// link's line (`formulas::define_link_meetings`).
     pub define_links: IndexMap<usize, crate::matching::Meeting>,
+    /// Where in the line each calculation link cites the link stands, by
+    /// the link's line (`formulas::link_places`).
+    pub link_places: IndexMap<usize, FirstAt>,
     /// What each of the theorem's `let` lines asserts that the page does not
     /// read as a formula, `f : A → B be one-to-one` as `f : A → B is
     /// one-to-one`, by the hypothesis's index; empty for any other line

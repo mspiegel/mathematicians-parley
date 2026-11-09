@@ -115,6 +115,9 @@ pub fn written_out(
     for s in written.supposed.values_mut() {
         s.against = out(&s.against);
     }
+    for at in written.link_places.values_mut() {
+        at.written = out(&at.written);
+    }
     for i in written.instantiated.values_mut() {
         i.at.written = out(&i.at.written);
     }

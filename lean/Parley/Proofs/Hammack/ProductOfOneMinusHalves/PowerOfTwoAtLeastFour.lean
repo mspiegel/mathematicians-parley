@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import OrderTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -44,7 +43,7 @@ theorem power_of_two_at_least_four (m : ℤ) (hH1 : 0 < m) :
       -- 1.5. calculation
       calc (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (by parley_side))
         _ = 2 ^ (k + 1).toNat + 2 ^ (k + 1).toNat := by parley_ring
-        _ ≥ 4 := by first | parley_side | parley_line_toNat s1_4
+        _ ≥ 4 := by parley_side
   -- 2. instantiate k := m in line 1
   exact (s1 m (by parley_side))
 

@@ -116,12 +116,12 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 3.20. calculation
     have s3_20 : L k ≤ L (k + 1) := by
       calc L k = (N k : ℚ) / 10 ^ k.toNat := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD5
-        _ ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by first | parley_set_side | parley_line_toNat s3_18
+        _ ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by parley_set_side
         _ = L (k + 1) := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD5
     -- 3.21. calculation
     have s3_21 : U (k + 1) ≤ U k := by
       calc U (k + 1) = ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat := by first | (simp (disch := omega) only [hD6]; done) | (simp (disch := omega) only [hD6]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD6
-        _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by first | parley_set_side | parley_line_toNat s3_19
+        _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by parley_set_side
         _ = U k := by first | (simp (disch := omega) only [hD6]; done) | (simp (disch := omega) only [hD6]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD6
     -- 3.22. join 3.20, 3.21
     have s3_22 : L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := by parley_set_side
@@ -355,7 +355,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have r642_1 : 0 ≤ d n := by parley_set_side
       have r642_2 : d n < 10 := by have := (hH2 n (by parley_set_side)); parley_order
       have s16_24_5 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n := by
-        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) := by first | parley_set_side | parley_line_toNat s16_20
+        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) := by parley_set_side
           _ = d n := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := ⌊10 ^ n.toNat * c⌋) (m := (10 : ℤ)) (by parley_set_side) (r := d n) (by parley_set_side) r642_2)).mpr s16_24_4
       -- 16.24.6. mun:or-left, from 16.24.5
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n) (Q := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) s16_24_5)
@@ -375,7 +375,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have s16_24_11 : (d n + 1) % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by parley_set_side
       -- 16.24.12. calculation
       have s16_24_12 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by
-        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by first | parley_set_side | parley_line_toNat s16_24_10
+        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by parley_set_side
           _ = (d n + 1) % (10 : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := d n + 1) (m := (10 : ℤ)) (by parley_set_side) (q := N (n - 1)))
           _ = (d n + 1) % (10 : ℤ) := by parley_set_side
       -- 16.24.13. mun:or-right, from 16.24.12
