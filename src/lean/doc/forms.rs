@@ -433,7 +433,7 @@ pub enum Meets {
 /// The type a statement's relation is stated in, `ℚ` of `(a : ℚ) ≤ b`, its
 /// negation's included; None for a statement of another shape, or one whose
 /// sides carry no type.
-fn relation_type(term: &Term) -> Option<LeanType> {
+pub fn relation_type(term: &Term) -> Option<LeanType> {
     match &term.kind {
         TermKind::Paren(inner) | TermKind::Not(inner) => relation_type(inner),
         TermKind::Infix { op, lhs, rhs }

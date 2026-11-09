@@ -197,7 +197,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have s32_10_1b : ¬ ({v, w} : Set α) ∈ E := by
         try simp only [hD3] at *
         try push_cast at *
-        first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2; parley_set_side)
+        exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2
       -- 32.10.2. mun:remove-member u := w, Y := X, a := v, from 32.10.1
       have s32_10_2a : w ∈ X := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).1
       have s32_10_2b : ¬ w = v := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).2

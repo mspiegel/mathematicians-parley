@@ -1,5 +1,9 @@
 1	lean/Parley/Proofs/Hammack/AbsLimitZero/AbsLimitZero.lean	1.4.3	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingBijection.lean	3.2.12	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingBijection.lean	3.2.6	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingInverse.lean	2.4	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingInverse.lean	2.5	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingInverse.lean	3.6	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingInverse.lean	3.7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingValueEven.lean	2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingValueOdd.lean	2	a calculation row no reasoned rule settles yet
@@ -31,19 +35,12 @@
 1	lean/Parley/Proofs/Hammack/CoprimeToAProduct/CoprimeToAProduct.lean	4	a substitution whose equation's type in the row no rule settles yet
 3	lean/Parley/Proofs/Hammack/DivisibleByNine/DivisibleByNine.lean	1.4	a calculation row no reasoned rule settles yet
 3	lean/Parley/Proofs/Hammack/DivisibleByTwentyFour/DivisibleByTwentyFour.lean	1.4	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/DivisorsOfKDivideKSquared/DivisorsOfKDivideKSquared.lean	1.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/DivisorsOfKDivideKSquared/DivisorsOfKDivideKSquared.lean	1.5	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	12	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	15	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	19	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	7	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Hammack/FibonacciEvenIffThreeDivides/FibonacciEvenIffThreeDivides.lean	5.13	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/FibonacciEvenSum/FibonacciEvenSum.lean	4.10	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/FibonacciEvenSum/FibonacciEvenSum.lean	4.18	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/FibonacciOddSum/FibonacciOddSum.lean	5.14	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/FibonacciOddSum/FibonacciOddSum.lean	5.8	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/FibonacciSumOfSquares/FibonacciSumOfSquares.lean	4.11	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/FibonacciSumOfSquares/FibonacciSumOfSquares.lean	4.2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/FiveConsecutiveDivisible/FiveConsecutiveNatural.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/FiveDividesPowerOfTwoMultiple/FiveDividesPowerOfTwoMultiple.lean	1.2	a substitution whose equation's type in the row no rule settles yet
 3	lean/Parley/Proofs/Hammack/FivePowerMinusOne/FivePowerMinusOne.lean	1.4	a calculation row no reasoned rule settles yet
@@ -56,17 +53,18 @@
 4	lean/Parley/Proofs/Hammack/GeometricSumBaseTwo/GeometricSumBaseTwo.lean	1.1	a calculation row no reasoned rule settles yet
 5	lean/Parley/Proofs/Hammack/GeometricSumBaseTwo/GeometricSumBaseTwo.lean	1.2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/GeometricSumBaseTwo/GeometricSumBaseTwo.lean	2	a calculation row no reasoned rule settles yet
-3	lean/Parley/Proofs/Hammack/HarmonicLowerBound/HarmonicDoubling.lean	14	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/HarmonicLowerBound/HarmonicDoubling.lean	15	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/HarmonicLowerBound/HarmonicLowerBound.lean	2.1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/HarmonicLowerBound/HarmonicLowerBound.lean	2.2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/IdentityPlusTwoLimit/IdentityPlusTwoLimit.lean	1.1.2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/ImageOfAffineMap/ImageOfAffineMap.lean	2.5	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/ImageOfPreimageOfImage/ImageOfPreimageOfImage.lean	3.2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/InverseSquareHasNoLimit/InverseSquareHasNoLimit.lean	2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/InverseSquaresBounded/InverseSquaresBounded.lean	2.1	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/InverseSquaresBounded/InverseSquaresBounded.lean	2.2	an item citation whose Lean types no reasoned rule settles yet
 2	lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.13	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.15	a substitution whose equation's type in the row no rule settles yet
+1	lean/Parley/Proofs/Hammack/IrrationalBetweenRationalsByHalfRootTwo/IrrationalBetweenRationals.lean	3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/LcmEqualsFirst/LcmEqualsFirst.lean	5.6.1	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Hammack/LimitUnique/LimitOrder.lean	3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/LimitUnique/LimitOrder.lean	4	an item citation whose Lean types no reasoned rule settles yet
@@ -80,7 +78,6 @@
 1	lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/PowerOfTwoEven.lean	5	an item citation whose Lean types no reasoned rule settles yet
 2	lean/Parley/Proofs/Hammack/MersennePrimeExponent/PrimeExponent.lean	4.9	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/MobiusInverse/MobiusInverse.lean	4.5	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/MultiplesOfAProduct/MultiplesOfAProduct.lean	1.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/MultiplesOfAProduct/MultiplesOfAProduct.lean	1.5	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/MultiplesOfAProduct/MultiplesOfAProduct.lean	1.8	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/MultiplesOfSix/MultiplesOfSix.lean	1.4	a definition read where Lean states it otherwise than the claim
@@ -97,9 +94,21 @@
 1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/PowersOfNineInPowersOfThree.lean	3.7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/PowersOfNineInPowersOfThree.lean	4.3	a definition read where Lean states it otherwise than the claim
 3	lean/Parley/Proofs/Hammack/OneMinusHalfPowerLimit/OneMinusHalfPowerLimit.lean	2.2.2	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Proofs/Hammack/OneToOnePreimageOfImage/OneToOnePreimageOfImage.lean	2.1.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/OntoImageOfPreimage/OntoImageOfPreimage.lean	2.3.2	a definition read where Lean states it otherwise than the claim
 4	lean/Parley/Proofs/Hammack/PowersOfTwoSum/PowersOfTwoSum.lean	1.1	a calculation row no reasoned rule settles yet
 5	lean/Parley/Proofs/Hammack/PowersOfTwoSum/PowersOfTwoSum.lean	1.2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/PowersOfTwoSum/PowersOfTwoSum.lean	2	a calculation row no reasoned rule settles yet
+1	lean/Parley/Proofs/Hammack/PreimageOfImageOfPreimage/PreimageOfImageOfPreimage.lean	3.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfImageOfPreimage/PreimageOfImageOfPreimage.lean	3.3	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfImageOfPreimage/PreimageOfImageOfPreimage.lean	5.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfIntersection/PreimageOfIntersection.lean	1.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfIntersection/PreimageOfIntersection.lean	3.2	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfIntersection/PreimageOfIntersection.lean	3.3	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfParabola/PreimageOfParabola.lean	1.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfUnion/PreimageOfUnion.lean	1.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfUnion/PreimageOfUnion.lean	3.2.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Hammack/PreimageOfUnion/PreimageOfUnion.lean	3.2.4	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/PrimeByTrialDivision/PrimeByTrialDivision.lean	1.11.7	an item citation whose Lean types no reasoned rule settles yet
 3	lean/Parley/Proofs/Hammack/ProductOfOneMinusHalves/ProductOfOneMinusHalves.lean	2.1	a calculation row no reasoned rule settles yet
 4	lean/Parley/Proofs/Hammack/ProductOfOneMinusHalves/ProductOfOneMinusHalves.lean	2.10	a calculation row no reasoned rule settles yet
@@ -110,6 +119,7 @@
 1	lean/Parley/Proofs/Hammack/ProductOfSequenceLimits/ProductOfSequenceLimits.lean	9.7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/PronicSum/PronicSum.lean	1.1	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/QuadraticLimit/QuadraticLimit.lean	1	a step no reasoned rule settles yet
+1	lean/Parley/Proofs/Hammack/RationalAsIrrationalProduct/RationalAsIrrationalProduct.lean	3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/RationalMultiplesOfNine/RationalMultiplesOfNine.lean	1.4	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/RationalMultiplesOfNine/RationalMultiplesOfNine.lean	3.4	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/RationalSquaresSumNotThree/RationalSquaresSumNotThree.lean	11	a definition read where Lean states it otherwise than the claim
@@ -117,7 +127,7 @@
 1	lean/Parley/Proofs/Hammack/RationalSquaresSumNotThree/RationalSquaresSumNotThree.lean	8	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Hammack/RationalSquaresSumNotThree/RationalSquaresSumNotThree.lean	9	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/ReciprocalProductSum/ReciprocalProductSum.lean	2.1	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Hammack/ReciprocalProductSum/ReciprocalProductSum.lean	2.2	a calculation row no reasoned rule settles yet
+2	lean/Parley/Proofs/Hammack/ReciprocalProductSum/ReciprocalProductSum.lean	2.2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/ReciprocalSquareNoLimit/ReciprocalSquareNoLimit.lean	21	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/ScaledGcdBound/GcdPositive.lean	3.1	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Hammack/ScaledGcdBound/GcdPositive.lean	3.4	a substitution whose equation's type in the row no rule settles yet
@@ -251,7 +261,9 @@
 1	lean/Parley/Proofs/Setmm/RemainderReal/RemainderIsReal.lean	1	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/RemainderRules/MultipleHasNoRemainder.lean	2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/RemainderRules/RemainderOfProduct.lean	1	a step no reasoned rule settles yet
+1	lean/Parley/Proofs/Setmm/RemainderRules/RemainderOfProduct.lean	4	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/RemainderRules/RemainderOfSum.lean	1	a step no reasoned rule settles yet
+1	lean/Parley/Proofs/Setmm/RemainderRules/RemainderOfSum.lean	4	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	1	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.3	a step no reasoned rule settles yet
 2	lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.4	a calculation row no reasoned rule settles yet
@@ -279,6 +291,7 @@
 1	lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	2.2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	2.9	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	4	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	22	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	24	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	25	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	3	an item citation whose Lean types no reasoned rule settles yet
@@ -286,7 +299,7 @@
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	5	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	6	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/GoodFinite.lean	2.1	a definition read where Lean states it otherwise than the claim
-2	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.10.3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.12	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.13	a definition read where Lean states it otherwise than the claim
@@ -303,7 +316,7 @@
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	9	an item citation whose Lean types no reasoned rule settles yet
-2	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.1	a definition read where Lean states it otherwise than the claim
+1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.10	a definition read where Lean states it otherwise than the claim
 2	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.4	a definition read where Lean states it otherwise than the claim
@@ -334,7 +347,6 @@
 2	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	8.3	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Cantor/Cantor.lean	2.1.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Cantor/Cantor.lean	2.3	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Wiedijk/CauchySchwarz/CauchySchwarz.lean	5.4	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Combinations/AddElementBijection.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Combinations/AddElementDisjoint.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Combinations/ChooseFromNone.lean	3.10	an item citation whose Lean types no reasoned rule settles yet
@@ -363,9 +375,7 @@
 1	lean/Parley/Proofs/Wiedijk/ErdosSzekeres/ExtendRun.lean	4.5.3	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Wiedijk/ErdosSzekeres/ExtendRun.lean	5.3.1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/ErdosSzekeres/ExtendRun.lean	5.3.6	a substitution whose equation's type in the row no rule settles yet
-1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	10	an item citation whose Lean types no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	11.1	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	12	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	13	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	14	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	16	a substitution whose equation's type in the row no rule settles yet
@@ -378,7 +388,6 @@
 1	lean/Parley/Proofs/Wiedijk/FundamentalCalculus/FundamentalCalculus.lean	5	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/FundamentalCalculus/FundamentalCalculus.lean	6	a step no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/GeometricSeries/GeometricSum.lean	1.1	a calculation row no reasoned rule settles yet
-3	lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicBlock.lean	14	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicBlock.lean	15	a calculation row no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean	2.2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.24	a definition read where Lean states it otherwise than the claim
@@ -387,6 +396,7 @@
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.8	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	3	an item citation whose Lean types no reasoned rule settles yet
+3	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralBounds.lean	15	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralBounds.lean	2	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralBounds.lean	3	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralOfArctanDerivative.lean	12.4	a calculation row no reasoned rule settles yet
@@ -394,12 +404,14 @@
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralOfArctanDerivative.lean	3	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralOfArctanDerivative.lean	4	an item citation whose Lean types no reasoned rule settles yet
 4	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralRecurrence.lean	1.2	a calculation row no reasoned rule settles yet
+3	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralRecurrence.lean	15	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralRecurrence.lean	2	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralRecurrence.lean	3	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegrandContinuous.lean	2	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegrandContinuous.lean	3	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegrandContinuous.lean	4	a step no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/Leibniz/Leibniz.lean	3.2.4	a calculation row no reasoned rule settles yet
+3	lean/Parley/Proofs/Wiedijk/Leibniz/Leibniz.lean	3.2.5	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/Leibniz.lean	3.2.8	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/Leibniz.lean	4	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Leibniz/PowerIntegral.lean	19.3	a calculation row no reasoned rule settles yet
@@ -414,6 +426,7 @@
 1	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.4	a calculation row no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.5	an item citation whose Lean types no reasoned rule settles yet
+3	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.6	an item citation whose Lean types no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.8	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	6	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	7	a step no reasoned rule settles yet
@@ -426,6 +439,8 @@
 2	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.8	a calculation row no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/ScaledSumInteger.lean	10	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/ScaledSumInteger.lean	4	a step no reasoned rule settles yet
+3	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/ScaledSumInteger.lean	7	a calculation row no reasoned rule settles yet
+3	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.13	an item citation whose Lean types no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.14	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.19	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.5	an item citation whose Lean types no reasoned rule settles yet
@@ -463,7 +478,6 @@
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.1	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.5	a step no reasoned rule settles yet
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ptolemy/Ptolemy.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ptolemy/Ptolemy.lean	3	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ptolemy/Ptolemy.lean	4	an item citation whose Lean types no reasoned rule settles yet
@@ -478,7 +492,6 @@
 1	lean/Parley/Proofs/Wiedijk/Ramsey/GrowByOne.lean	4.5	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ramsey/OnePointPart.lean	6.2	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ramsey/OnePointPart.lean	6.3	a substitution whose equation's type in the row no rule settles yet
-1	lean/Parley/Proofs/Wiedijk/Ramsey/RamseyStep.lean	32.10.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ramsey/RamseyStep.lean	32.10.5	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ramsey/RamseyStep.lean	32.4	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Ramsey/RamseyStep.lean	32.5	an item citation whose Lean types no reasoned rule settles yet
@@ -500,11 +513,11 @@
 1	lean/Parley/Proofs/Wiedijk/Subsets/PowersetSplit.lean	6	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Subsets/PowersetSplitDisjoint.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/SumFormula/SumFormula.lean	1.1	a calculation row no reasoned rule settles yet
+1	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	1.1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	1.2	a substitution whose equation's type in the row no rule settles yet
 9	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/TriangularReciprocals/TriangularReciprocals.lean	5.1	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/TriangularReciprocals/TriangularReciprocals.lean	7	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	12.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	12.6	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	15	an item citation whose Lean types no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	16	an item citation whose Lean types no reasoned rule settles yet
@@ -512,7 +525,6 @@
 2	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	21	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	4	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	8.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	8.9	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.13.1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.15.4	a calculation row no reasoned rule settles yet
@@ -570,10 +582,7 @@
 1	lean/Parley/Tests/Elaborator/ADefineFillingACitedFunction/ADefineFillingACitedFunction.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/ADefineWhoseBodyTheReadingRewrites/ADefineWhoseBodyTheReadingRewrites.lean	1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	1	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	2.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	2.4	a step no reasoned rule settles yet
-1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.1	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.12	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.8	a step no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.9	a step no reasoned rule settles yet
@@ -592,10 +601,7 @@
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.6	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Tests/Elaborator/ALastTermWithoutItsZero/ALastTermWithoutItsZero.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	1	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	2.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	2.4	a step no reasoned rule settles yet
-1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.1	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.12	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.8	a step no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.9	a step no reasoned rule settles yet
@@ -669,6 +675,7 @@
 1	lean/Parley/Tests/Notations/Functions/AnInverseValue.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Notations/Powers/ARealPowerOfARealPower.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Notations/Powers/EToARealPower.lean	1	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Tests/Notations/Powers/TheCubeOfACubeRoot.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Notations/Sets/APartOfASet.lean	4	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Notations/Sets/APartOfASet.lean	5	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Tests/Notations/Sets/ARepeatCountsOnce.lean	1	an item citation whose Lean types no reasoned rule settles yet
@@ -684,6 +691,7 @@
 1	lean/Parley/Tests/Stdlib/Calculus/DerivativeOnTheLine.lean	3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Stdlib/Calculus/DerivativeOnTheLine.lean	4	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Stdlib/Calculus/DerivativeOnTheLine.lean	5	an item citation whose Lean types no reasoned rule settles yet
+1	lean/Parley/Tests/Stdlib/Calculus/TheDerivativeOfAPower.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Stdlib/Counting/SizeOfARange.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Stdlib/Numbers/AbsNonneg.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Stdlib/Numbers/AbsPositive.lean	1	an item citation whose Lean types no reasoned rule settles yet

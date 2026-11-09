@@ -139,7 +139,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   -- 9. def:one-to-one, from 7, 8
   have s9 : Set.MapsTo f S S ∧ Set.InjOn f S := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := S) (Y := S) (f := f) (by parley_set_side))).mpr (by parley_set_side)
   -- 10. thm:product-reorder, from 4, 5, 9
-  have s10 : (∏ᶠ r ∈ S, (f r : ℤ)) = (∏ᶠ r ∈ S, (r : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9) | (have h := (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9) | exact_mod_cast ((Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9)).symm | (have h := (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9); parley_set_side)
+  have s10 : (∏ᶠ r ∈ S, (f r : ℤ)) = (∏ᶠ r ∈ S, (r : ℤ)) := by exact_mod_cast (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9)
   -- 11. proof
   have s11 : ∀ r ∈ S, r * a ≡ f r [ZMOD n] := by
     intro r hK5
@@ -160,7 +160,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     parley_subst_at s11_3 s11_2
   -- 12. thm:product-congruent X := S, from 4, 5, 11
   have r160_1 : Set.MapsTo f S S := by parley_set_side
-  have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by first | exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) (by parley_set_side) (by simpa using s11) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) (by parley_set_side) (by simpa using s11) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) (by parley_set_side) (by simpa using s11) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) (by parley_set_side) (by simpa using s11) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) (by parley_set_side) (by simpa using s11) (by parley_set_side)); parley_set_side)
+  have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) (by parley_set_side) (by simpa using s11) (by parley_set_side))
   -- 13. def:φ, from D1
   have s13 : (Nat.totient n.toNat : ℤ) = (S.ncard : ℤ) := by
     try simp only [hD1] at *

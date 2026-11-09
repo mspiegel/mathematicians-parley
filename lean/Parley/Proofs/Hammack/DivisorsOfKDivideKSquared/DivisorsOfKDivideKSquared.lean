@@ -34,7 +34,7 @@ theorem divisors_of_k_divide_k_squared (k : ℤ) :
   have s1 : ∀ t ∈ {n : ℤ | n ∣ k}, t ∈ {n : ℤ | n ∣ k ^ 2} := by
     intro t hK1
     -- 1.1. def:set-builder, from K1
-    have s1_1 : t ∣ k := by first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2; parley_set_side)
+    have s1_1 : t ∣ k := by exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2
     -- 1.2. obtain c: def:divides d := t, n := k, from 1.1
     obtain ⟨c, s1_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k))).mp s1_1
     -- 1.3. algebra, from 1.1, 1.2

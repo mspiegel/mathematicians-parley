@@ -62,7 +62,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s2_1 : x > 0 := by
       try simp only [hD1] at *
       try push_cast at *
-      first | linarith [(((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2] | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2; parley_set_side)
+      exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2
     -- 2.2. inequalities
     have s2_2 : x ≥ 0 := by parley_order
     -- 2.3. def:sqrt, from 2.1, 2.2
@@ -83,7 +83,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s4_1 : c > 0 := by
       try simp only [hD1] at *
       try push_cast at *
-      first | linarith [(((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2] | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2; parley_set_side)
+      exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2
     -- 4.2. inequalities
     have s4_2 : c ≥ 0 := by parley_order
     -- 4.3. def:sqrt x := c, from 4.1, 4.2
@@ -125,7 +125,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_8_1 : x > 0 := by
         try simp only [hD1] at *
         try push_cast at *
-        first | linarith [(((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2] | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2; parley_set_side)
+        exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2
       -- 4.8.2. inequalities
       have s4_8_2 : x ≥ 0 := by parley_order
       -- 4.8.3. def:sqrt, from 4.8.1, 4.8.2

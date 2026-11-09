@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import OrderTactics
+public import PowerTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -24,6 +25,7 @@ public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -123,7 +125,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       -- 3.2.5. def:odd n := 1 − 2·y, from 3.2.4
       have s3_2_5 : Odd (1 - 2 * y) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 1 - 2 * y))).mpr ⟨-y, s3_2_4⟩
       -- 3.2.6. thm:alternating-value-odd m := 1 − 2·y, from H2, 3.2.3, 3.2.5
-      have s3_2_6 : (f (1 - 2 * y) : ℚ) = (1 - (1 - 2 * (y : ℚ))) / 2 := by simpa using (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5)
+      have s3_2_6 : (f (1 - 2 * y) : ℚ) = (1 - (1 - 2 * (y : ℚ))) / 2 := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5) | exact_mod_cast ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5)).symm | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5); parley_int_power h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) (by parley_set_side) s3_2_5); parley_set_side)
       -- 3.2.7. algebra, from 3.2.6
       have s3_2_7 : y = f (1 - 2 * y) := by qify at *; linear_combination (norm := parley_norm) ((-2) / ((2))) * s3_2_6
       -- 3.2.8. exhibit, from 3.2.3, 3.2.7
@@ -136,7 +138,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       -- 3.2.11. def:even n := 2·y
       have s3_2_11 : Even (2 * y) := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * y))).mpr ⟨y, by parley_set_side⟩
       -- 3.2.12. thm:alternating-value-even m := 2·y, from H2, 3.2.10, 3.2.11
-      have s3_2_12 : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by simpa using (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11)
+      have s3_2_12 : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11) | exact_mod_cast ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11)).symm | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11); parley_int_power h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) (by parley_set_side) s3_2_11); parley_set_side)
       -- 3.2.13. algebra, from 3.2.12
       have s3_2_13 : y = f (2 * y) := by qify at *; linear_combination (norm := parley_norm) ((-2) / ((2))) * s3_2_12
       -- 3.2.14. exhibit, from 3.2.10, 3.2.13

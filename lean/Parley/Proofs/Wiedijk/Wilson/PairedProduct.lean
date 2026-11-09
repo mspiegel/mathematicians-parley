@@ -15,7 +15,6 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -81,7 +80,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s8_1b : x < f x := by
       try simp only [hD1] at *
       try push_cast at *
-      first | linarith [(((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2] | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2; push_cast at h; linarith) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2; parley_set_side)
+      exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := x))).mp hK1).2
     -- 8.2. instantiate x := x in H5, from 8.1
     have s8_2 : f (f x) = x := by linear_combination (norm := parley_norm) (hH5 x (by parley_set_side))
     -- 8.3. mun:in-subset, from H1, 8.1
@@ -135,7 +134,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s12_1b : ¬ u < f u := by
       try simp only [hD2] at *
       try push_cast at *
-      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2; parley_set_side)
+      exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := u))).mp hK5).2
     -- 12.2. instantiate x := u in H5, from 12.1
     have s12_2 : f (f u) = u := by linear_combination (norm := parley_norm) (hH5 u (by parley_set_side))
     -- 12.3. instantiate x := u in H6, from 12.1

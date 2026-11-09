@@ -15,6 +15,7 @@
 //! `fail_if_success` where it says it does not, so `lake build` fails when
 //! an entry is wrong or a Mathlib upgrade changes one.
 
+use super::doc::Term;
 use super::templates::Num;
 
 /// An operation the writer writes, as the cast table knows it.
@@ -42,6 +43,12 @@ pub enum CastOp {
     Floor,
     Sum,
     Prod,
+    /// An equation, `a = b`.
+    Eq,
+    /// An order, `a < b`.
+    Lt,
+    /// An order, `a ≤ b`.
+    Le,
 }
 
 /// What `push_cast` and `norm_cast` do with a cast from one number type to
@@ -54,15 +61,27 @@ pub struct CastFacts {
     pub norm_cast: bool,
 }
 
-/// One operation's facts, and the equation each is checked by: `lhs` the
-/// operation in `{S}` cast to `{T}`, `rhs` it on the casts, over the letters
-/// `binders` declares, each with the two types put for `{S}` and `{T}`.
+/// One operation's facts, and the statement each is checked by: `lhs` the
+/// operation in `{S}` cast to `{T}`, `rhs` it on the casts, joined by `=`,
+/// or by `↔` for a relation, whose cast sides say what it says uncast; over
+/// the letters `binders` declares, each with the two types put for `{S}` and
+/// `{T}`.
 struct OpTable {
     op: CastOp,
     binders: &'static str,
     lhs: &'static str,
     rhs: &'static str,
     facts: &'static [CastFacts],
+}
+
+impl OpTable {
+    /// What joins the two sides of its check.
+    fn joined_by(&self) -> &'static str {
+        match self.op {
+            CastOp::Eq | CastOp::Lt | CastOp::Le => "↔",
+            _ => "=",
+        }
+    }
 }
 
 const fn moves_both(from: Num, to: Num) -> CastFacts {
@@ -121,6 +140,18 @@ const FROM_RINGS: &[CastFacts] = &[
 /// The widenings from a field.
 const FROM_FIELDS: &[CastFacts] =
     &[moves_both(Q, R), moves_both(Q, C), moves_both(R, C)];
+
+/// The widenings between ordered types, for an order: `push_cast` leaves a
+/// cast on each side of it, and `norm_cast` takes the order to the uncast
+/// one (`Nat.cast_lt`, `Int.cast_le`, …).
+const ORDERED: &[CastFacts] = &[
+    moves_by_norm_cast(N, Z),
+    moves_by_norm_cast(N, Q),
+    moves_by_norm_cast(N, R),
+    moves_by_norm_cast(Z, Q),
+    moves_by_norm_cast(Z, R),
+    moves_by_norm_cast(Q, R),
+];
 
 const TABLES: &[OpTable] = &[
     OpTable {
@@ -243,6 +274,38 @@ const TABLES: &[OpTable] = &[
         facts: WIDENINGS,
     },
     OpTable {
+        op: CastOp::Eq,
+        binders: "(a b : {S})",
+        lhs: "((a : {S}) : {T}) = ((b : {S}) : {T})",
+        rhs: "a = b",
+        facts: &[
+            moves_by_norm_cast(N, Z),
+            moves_by_norm_cast(N, Q),
+            moves_by_norm_cast(N, R),
+            moves_by_norm_cast(N, C),
+            moves_by_norm_cast(Z, Q),
+            moves_by_norm_cast(Z, R),
+            moves_by_norm_cast(Z, C),
+            moves_by_norm_cast(Q, R),
+            moves_by_norm_cast(Q, C),
+            moves_by_norm_cast(R, C),
+        ],
+    },
+    OpTable {
+        op: CastOp::Lt,
+        binders: "(a b : {S})",
+        lhs: "((a : {S}) : {T}) < ((b : {S}) : {T})",
+        rhs: "a < b",
+        facts: ORDERED,
+    },
+    OpTable {
+        op: CastOp::Le,
+        binders: "(a b : {S})",
+        lhs: "((a : {S}) : {T}) ≤ ((b : {S}) : {T})",
+        rhs: "a ≤ b",
+        facts: ORDERED,
+    },
+    OpTable {
         op: CastOp::Prod,
         binders: "(s : Finset ℕ) (f : ℕ → {S})",
         lhs: "((∏ i ∈ s, f i : {S}) : {T})",
@@ -275,7 +338,12 @@ pub fn lean_test(module: &str) -> String {
         for f in table.facts {
             let (s, t) = (f.from.lean(), f.to.lean());
             let put = |text: &str| text.replace("{S}", s).replace("{T}", t);
-            let equation = format!("{} = {}", put(table.lhs), put(table.rhs));
+            let equation = format!(
+                "{} {} {}",
+                put(table.lhs),
+                table.joined_by(),
+                put(table.rhs)
+            );
             let binders = put(table.binders);
             // A fact that the tactic moves the cast is the equation proved
             // by it; one that it does not, the tactic failing on it, with
@@ -301,4 +369,124 @@ pub fn lean_test(module: &str) -> String {
     }
     out.push_str(&format!("end {module}\n"));
     out
+}
+
+/// Whether `norm_cast` moves every cast in `term`, a statement as the writer
+/// writes it, to where it stands nowhere but on letters and numerals: each
+/// operation between a cast and the top is one the table says `norm_cast`
+/// moves a cast of that pair of types through. `exact_mod_cast` closes a
+/// goal from a term whose statement differs from it only in casts where
+/// this holds of both, as `norm_cast` brings both to the same form. A cast
+/// of a term to its own type is no cast.
+pub fn norm_cast_moves_all(term: &Term) -> bool {
+    moves_all(term, &[])
+}
+
+/// `norm_cast_moves_all` of `term`, which stands under the operations
+/// `over`, outermost first; an operation the table does not know stops a
+/// cast below it.
+fn moves_all(term: &Term, over: &[Option<CastOp>]) -> bool {
+    use super::doc::{Arg, LeanType, Piece, TermKind};
+    let num = |t: &Term| match &t.ty {
+        Some(LeanType::Num(n)) => Some(*n),
+        _ => None,
+    };
+    let under = |op: Option<CastOp>| {
+        let mut more = over.to_vec();
+        more.push(op);
+        more
+    };
+    match &term.kind {
+        TermKind::Cast { inner, to } => {
+            let (Some(from), LeanType::Num(to)) = (num(inner), to) else {
+                return inner.ty.as_ref() == Some(to) && moves_all(inner, over);
+            };
+            if from == *to {
+                return moves_all(inner, over);
+            }
+            let through = over.iter().all(|op| {
+                op.is_some_and(|op| facts(op, from, *to).is_some_and(|f| f.norm_cast))
+            });
+            through && moves_all(inner, &[])
+        }
+        TermKind::Paren(inner) => moves_all(inner, over),
+        // The logic around statements passes a cast through to them.
+        TermKind::Not(inner) => moves_all(inner, over),
+        TermKind::Quantified { guard, body, .. } => {
+            guard.as_ref().is_none_or(|g| moves_all(g, over)) && moves_all(body, over)
+        }
+        TermKind::Infix { op, lhs, rhs } => {
+            let at = match op.symbol {
+                "∧" | "∨" | "→" | "↔" => {
+                    return moves_all(lhs, over) && moves_all(rhs, over)
+                }
+                "+" => Some(CastOp::Add),
+                "-" => Some(CastOp::Sub),
+                "*" => Some(CastOp::Mul),
+                "/" => Some(CastOp::Div),
+                "^" => match num(rhs) {
+                    Some(Num::Nat) => Some(CastOp::NatPow),
+                    Some(Num::Int) => Some(CastOp::IntPow),
+                    Some(Num::Real | Num::Complex) => Some(CastOp::RealPow),
+                    _ if matches!(
+                        rhs.kind,
+                        TermKind::ToNat(_) | TermKind::Numeral(_)
+                    ) =>
+                    {
+                        Some(CastOp::NatPow)
+                    }
+                    _ => None,
+                },
+                "=" | "≠" => Some(CastOp::Eq),
+                "<" | ">" => Some(CastOp::Lt),
+                "≤" | "≥" => Some(CastOp::Le),
+                _ => None,
+            };
+            moves_all(lhs, &under(at)) && moves_all(rhs, &under(at))
+        }
+        TermKind::Neg(inner) => moves_all(inner, &under(Some(CastOp::Neg))),
+        TermKind::Enclosed { open, inner, .. } => {
+            let at = match *open {
+                "|" => Some(CastOp::Abs),
+                "‖" => Some(CastOp::Norm),
+                "⌊" => Some(CastOp::Floor),
+                _ => None,
+            };
+            moves_all(inner, &under(at))
+        }
+        TermKind::App { head, args, .. } => {
+            let at = match &head.kind {
+                TermKind::Const(c) => match c.name.as_str() {
+                    "abs" => Some(CastOp::Abs),
+                    "Real.sqrt" => Some(CastOp::Sqrt),
+                    "Real.exp" | "Complex.exp" => Some(CastOp::Exp),
+                    "Real.log" | "Complex.log" => Some(CastOp::Log),
+                    "Real.sin" | "Complex.sin" => Some(CastOp::Sin),
+                    "Real.cos" | "Complex.cos" => Some(CastOp::Cos),
+                    _ => None,
+                },
+                _ => None,
+            };
+            let below = under(at);
+            moves_all(head, &below)
+                && args.iter().all(|a| match a {
+                    Arg::Explicit(t) | Arg::Named { value: t, .. } => {
+                        moves_all(t, &below)
+                    }
+                })
+        }
+        TermKind::Notation { pieces, .. } => {
+            let at = match pieces.first() {
+                Some(Piece::Text(t)) if t.starts_with('∑') => Some(CastOp::Sum),
+                Some(Piece::Text(t)) if t.starts_with('∏') => Some(CastOp::Prod),
+                _ => None,
+            };
+            let below = under(at);
+            pieces.iter().all(|p| match p {
+                Piece::Term { term, .. } => moves_all(term, &below),
+                Piece::Text(_) => true,
+            })
+        }
+        _ => term.children().iter().all(|c| moves_all(c, &under(None))),
+    }
 }

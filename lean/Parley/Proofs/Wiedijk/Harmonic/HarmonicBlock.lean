@@ -3,11 +3,9 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,7 +21,6 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -31,10 +28,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 
@@ -88,7 +82,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   have s13 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by parley_order
   -- 14. mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
   have r88_1 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by parley_side
-  have s14 : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))); parley_side)
+  have s14 : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ)))
   -- 15. calculation
   have s15 : ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = 1 / 2 := by
     calc ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = (2 ^ j.toNat * 2 - (2 ^ j.toNat + 1) + 1) * (1 / (2 ^ j.toNat * 2)) := by

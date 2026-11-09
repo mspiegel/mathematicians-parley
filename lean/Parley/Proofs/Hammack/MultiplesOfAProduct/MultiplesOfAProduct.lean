@@ -29,7 +29,7 @@ theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
   have s1 : ∀ t ∈ {x : ℤ | m * n ∣ x}, t ∈ {x : ℤ | m ∣ x} ∩ {x : ℤ | n ∣ x} := by
     intro t hK1
     -- 1.1. def:set-builder, from K1
-    have s1_1 : m * n ∣ t := by first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m * n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m * n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m * n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m * n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m * n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2; parley_set_side)
+    have s1_1 : m * n ∣ t := by exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m * n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2
     -- 1.2. obtain c: def:divides d := m·n, n := t, from 1.1
     obtain ⟨c, s1_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := m * n) (n := t))).mp s1_1
     -- 1.3. algebra, from 1.2

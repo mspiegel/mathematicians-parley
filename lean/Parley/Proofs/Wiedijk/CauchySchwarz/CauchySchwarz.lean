@@ -3,8 +3,6 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -31,8 +29,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -85,7 +81,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have r72_1 : 1 ≤ n := by parley_order
     have s5_4 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = 0 := by
       calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) := (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => a k * b k)) (u := (fun k : ℤ => (0 : ℝ))) (a := (1 : ℤ)) (b := n) s5_3)
-        _ = ((n : ℝ) - 1 + 1) * 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))); parley_side)
+        _ = ((n : ℝ) - 1 + 1) * 0 := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ)))
         _ = 0 := by parley_ring
     -- 5.5. algebra, from 5.4
     have s5_5 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = 0 := by linear_combination (norm := parley_norm) ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ))) * s5_4

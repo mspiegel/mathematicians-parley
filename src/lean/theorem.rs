@@ -232,18 +232,6 @@ fn to_nat_texts(term: &Printed) -> Vec<String> {
         .collect()
 }
 
-/// Whether a statement as Lean writes it takes a sum or a product, `∑ k ∈ …`.
-fn has_big_operator(term: &Printed) -> bool {
-    use super::doc::{Piece, TermKind};
-    term.walk().iter().any(|t| match &t.kind {
-        TermKind::Notation { pieces, .. } => matches!(
-            pieces.first(),
-            Some(Piece::Text(text)) if text.starts_with('∑') || text.starts_with('∏')
-        ),
-        _ => false,
-    })
-}
-
 /// The fields a statement as Lean writes it is worked in, ℚ, ℝ or ℂ, of
 /// its number types (`number_types`): an exponent's ℕ or an index's ℤ
 /// beside them says nothing of the field.
@@ -5129,35 +5117,31 @@ impl<'a> Proof<'a> {
         let claim = claim.filter(|c| !c.is_truth() && !item_counts(c));
         if let (Some(claim), Some(says)) = (claim, says) {
             let agree = super::doc::forms::relation_types_agree(says, claim);
-            // An item taken in a wider field than the claim's, ℚ for a claim
-            // of integers: no simplifying takes the one to the other.
-            // A sum or a product is simplified term by term under its binder,
-            // the item's otherwise than the goal's, 1/↑k^2 against (↑x^2)⁻¹.
-            let within = fields_of(says).is_subset(&fields_of(claim))
-                && !has_big_operator(says)
-                && !has_big_operator(claim);
-            let same_text = says.untyped().text() == claim.untyped().text();
+            // Where the two are alike but for the types of their terms, or
+            // apart only in casts, and `norm_cast` moves every cast in both
+            // to the letters and numerals (`casts::norm_cast_moves_all`), it
+            // brings the two to one form, and `exact_mod_cast` closes the one
+            // by the other. It relates them only through the casts they hold:
+            // two stated in different types, an item in ℝ for a claim in ℚ,
+            // with no cast from the one to the other, have no form in common.
+            let one_type = !matches!(
+                (
+                    super::doc::forms::relation_type(says),
+                    super::doc::forms::relation_type(claim)
+                ),
+                (Some(a), Some(b)) if a != b
+            );
+            let by_norm_cast = one_type
+                && super::casts::norm_cast_moves_all(says)
+                && super::casts::norm_cast_moves_all(claim);
             match self.proof_meeting(term.clone(), says, claim) {
                 Some(Proved::Term(t)) if agree => return super::doc::Proof::Term(t),
-                // An item's statement carries the types the writer gives its
-                // letters, not what Lean elaborates where it is cited: where
-                // the two are written alike but for those types, or apart only
-                // in casts, in no wider field than the claim's, both are
-                // simplified alike, `simpa using`.
-                Some(Proved::Term(_)) if within && same_text => {
-                    return super::doc::Proof::By(super::tactics::call(
-                        "simpa",
-                        vec![TacticArg::Using(term)],
-                    ))
+                Some(Proved::Term(_) | Proved::Cast { .. }) if by_norm_cast => {
+                    return super::doc::Proof::By(super::tactics::exact_mod_cast(term))
                 }
-                Some(Proved::Cast { .. }) if within => {
-                    return super::doc::Proof::By(super::tactics::call(
-                        "simpa",
-                        vec![TacticArg::Using(term)],
-                    ))
-                }
-                // Identity elements dropped are no fact a tactic is known to
-                // take the one to the other by at the types Lean elaborates.
+                // Identity elements dropped, or a cast `norm_cast` does not
+                // move, are no fact a tactic is known to take the one to the
+                // other by.
                 Some(
                     Proved::Term(_) | Proved::Cast { .. } | Proved::Simplified { .. },
                 )
