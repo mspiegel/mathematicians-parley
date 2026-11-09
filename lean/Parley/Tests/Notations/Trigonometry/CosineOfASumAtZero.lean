@@ -3,7 +3,6 @@ module
 public import ComplexTactics
 public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Basic.Complex.Basic
@@ -32,9 +31,9 @@ theorem cosine_of_a_sum_at_zero :
   -- 3. mun:sin-zero
   have s3 : Real.sin (0 : ℝ) = 0 := by exact Parley.Items.Stdlib.Trigonometry.mun_sin_zero
   -- 4. substitute cos(0) = 1 (line 2) into line 1
-  have s4 : Real.cos (0 + 0 : ℝ) = 1 * 1 - Real.sin (0 : ℝ) * Real.sin (0 : ℝ) := by parley_subst_at s2 s1
+  have s4 : Real.cos (0 + 0 : ℝ) = 1 * 1 - Real.sin (0 : ℝ) * Real.sin (0 : ℝ) := by (have h := Eq.subst (motive := (fun t : ℝ => Real.cos (0 + 0 : ℝ) = t * t - Real.sin (0 : ℝ) * Real.sin (0 : ℝ))) s2 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. substitute sin(0) = 0 (line 3) into line 4
-  have s5 : Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by parley_subst_at s3 s4
+  have s5 : Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by (have h := Eq.subst (motive := (fun t : ℝ => Real.cos (0 + 0 : ℝ) = 1 * 1 - t * t)) s3 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. calculation
   calc Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by exact s5
     _ = 1 := by norm_num

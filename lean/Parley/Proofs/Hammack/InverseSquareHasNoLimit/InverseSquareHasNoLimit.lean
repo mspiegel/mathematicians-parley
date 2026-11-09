@@ -143,7 +143,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.21. transitivity, from 10.20, 10.19
     have s10_21 : f t = (j : ℝ) ^ 2 := by parley_set_side
     -- 10.22. substitute f(t) = j² (line 10.21) into line 10.14
-    parley_subst_at s10_21 s10_14
+    (have h := Eq.subst (motive := (fun u : ℝ => abs (u - L) < 1)) s10_21 s10_14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. instantiate j := m in line 10
   have r154_1 : m ≥ m := by parley_order
   have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by exact (s10 m (by parley_set_side) (by parley_set_side))

@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -58,7 +57,7 @@ theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (
       -- 1.4.5. def:abs x := |a(n)|, from 1.4.3, 1.4.4
       have s1_4_5 : abs (abs (a n)) = abs (a n) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) s1_4_3
       -- 1.4.6. substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1
-      parley_subst_at s1_4_5 s1_4_1
+      (have h := Eq.subst (motive := (fun t : ℝ => t < ε)) s1_4_5 s1_4_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 1.5. exhibit, from 1.4
     exact ⟨N, s1_3a, s1_4⟩
   -- 2. def:tends-to L := 0, from 1

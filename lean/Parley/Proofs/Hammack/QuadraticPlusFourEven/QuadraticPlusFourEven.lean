@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -36,7 +35,7 @@ theorem quadratic_plus_four_even (n : ℤ) :
     obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp hC1
     -- 2.2. calculation
     have s2_2 : n ^ 2 + 3 * n + 4 = 2 * (2 * k ^ 2 + 3 * k + 2) := by
-      calc n ^ 2 + 3 * n + 4 = (2 * k) ^ 2 + 3 * (2 * k) + 4 := by parley_subst s2_1
+      calc n ^ 2 + 3 * n + 4 = (2 * k) ^ 2 + 3 * (2 * k) + 4 := by (have h := congrArg (fun t : ℤ => t ^ 2 + 3 * t + 4) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 * (2 * k ^ 2 + 3 * k + 2) := by parley_ring
     -- 2.3. def:even n := n² + 3n + 4, from 2.2
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 3 * k + 2, s2_2⟩
@@ -45,7 +44,7 @@ theorem quadratic_plus_four_even (n : ℤ) :
     obtain ⟨k, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hC2
     -- 2.5. calculation
     have s2_5 : n ^ 2 + 3 * n + 4 = 2 * (2 * k ^ 2 + 5 * k + 4) := by
-      calc n ^ 2 + 3 * n + 4 = (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 4 := by parley_subst s2_4
+      calc n ^ 2 + 3 * n + 4 = (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 4 := by (have h := congrArg (fun t : ℤ => t ^ 2 + 3 * t + 4) s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 * (2 * k ^ 2 + 5 * k + 4) := by parley_ring
     -- 2.6. def:even n := n² + 3n + 4, from 2.5
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 5 * k + 4, s2_5⟩

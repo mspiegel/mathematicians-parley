@@ -5,7 +5,6 @@ public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
@@ -82,12 +81,12 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have r76_1 : 0 < g i := by
         have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)))
         exact hI
-      parley_subst_at s4_2_1 s4_2_3
+      (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) (s4_2_1).symm s4_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 4.2.5. D2, from C2, K2
       have s4_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
       -- 4.2.6. substitute h(i) = p (line 4.2.5) into H2
-      parley_subst_at s4_2_5 hH2
+      (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) (s4_2_5).symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. proof
   have s5 : ∀ i : ℤ, i ∈ Finset.Icc 1 (j + 1) → 0 < h i := by
     intro i hK3
@@ -108,12 +107,12 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
         have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)))
         exact hI
       -- 5.2.4. substitute h(i) = g(i) (line 5.2.1) into line 5.2.3
-      parley_subst_at s5_2_1 s5_2_3
+      (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) (s5_2_1).symm s5_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 5.2.5. D2, from C4, K3
       have s5_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
       -- 5.2.6. substitute h(i) = p (line 5.2.5) into H1
-      parley_subst_at s5_2_5 hH1
+      (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) (s5_2_5).symm hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. mun:function-into, from 5
   have s6 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (1 : ℤ) (j + 1) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
   -- 7. mun:product-termwise a := 1, b := j, t := h, u := g, from 3
@@ -128,14 +127,14 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 10. D2, from 8, 9
   have s10 : h (j + 1) = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 11. substitute r = ∏(i ∈ {1, …, j}) g(i) (line 2)
-  have s11 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) = r * h (j + 1) := by parley_subst s2c
+  have s11 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) = r * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) (s2c).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. calculation
   have r146_1 : j ≥ 1 := by parley_set_side
   have s12 : p * r = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by
     calc p * r = r * p := by parley_ring
-      _ = r * h (j + 1) := by parley_subst s10
+      _ = r * h (j + 1) := by (have h := congrArg (fun t : ℤ => r * t) (s10).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) := by exact s11.symm
-      _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := by parley_subst s7
+      _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) (s7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1).symm
   -- 13. exhibit, from 4, 6, 12
   have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, by parley_set_side, h, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩

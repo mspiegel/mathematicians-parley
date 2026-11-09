@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -44,7 +43,7 @@ theorem prime_divides_product (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) 
         calc (Int.gcd M P : ℤ) = (Int.gcd P M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := M) (b := P))
           _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := P) (by parley_side) hH2 (a := M) hC2)
       -- 2.2.3. substitute M·N = N·M (line 1) into D1
-      have s2_2_3 : P ∣ N * M := by parley_subst_at s1 hD1
+      have s2_2_3 : P ∣ N * M := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s1 hD1; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.2.4. thm:coprime-divides x := N, c := M, n := P, from 2.2.2, 2.2.3
       have s2_2_4 : P ∣ N := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) (by parley_side) s2_2_3 s2_2_2)
       -- 2.2.5. mun:or-right P := P divides M, Q := P divides N, from 2.2.4
@@ -60,6 +59,6 @@ theorem prime_divides_product (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) 
       -- 2.3.2. mun:divides-multiple e := P, a := N, x := M, from C4
       have s2_3_2 : P ∣ N * M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := P) (a := N) (x := M) hC4)
       -- 2.3.3. substitute N·M = M·N (line 1) into line 2.3.2
-      parley_subst_at s1 s2_3_2
+      (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) (s1).symm s2_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.PrimeDividesProduct.PrimeDividesProduct

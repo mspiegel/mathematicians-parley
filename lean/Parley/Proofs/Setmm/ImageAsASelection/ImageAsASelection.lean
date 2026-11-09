@@ -45,7 +45,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
   have s3 : ∀ u ∈ {y ∈ B | ∃ x ∈ X, F x = y}, u ∈ F '' (A ∩ X) := by
     intro u hK2
     -- 3.1. def:set-builder, from K2
-    have s3_1 : ∃ x ∈ X, F x = u := by first | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2 | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2).symm | simpa using ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2 | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2 | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2; parley_set_side)
+    have s3_1 : ∃ x ∈ X, F x = u := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mp hK2).2
     -- 3.2. obtain x from line 3.1
     obtain ⟨x, s3_2a, s3_2b⟩ := s3_1
     -- 3.3. mun:value-in-image, from H4, 3.2

@@ -31,7 +31,7 @@ theorem log_of_a_reciprocal (x : ℝ) (b : ℝ) (hH3 : x > 0) (hH4 : b > 0) (hH5
   -- 3. mun:ln-nonzero x := b, from H4, H5
   have s3 : Real.log b ≠ 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) hH4 hH5)
   -- 4. calculation
-  calc Real.log (1 / x) / Real.log b = (0 - Real.log x) / Real.log b := by parley_subst s2
+  calc Real.log (1 / x) / Real.log b = (0 - Real.log x) / Real.log b := by (have h := congrArg (fun t : ℝ => t / Real.log b) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = -(Real.log x / Real.log b) := by parley_ring
 
 end Parley.Proofs.Identities.LogBaseLaws.LogOfAReciprocal

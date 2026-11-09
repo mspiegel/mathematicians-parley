@@ -28,6 +28,10 @@ and not inferred inside one.
   with the item, the group of its conclusions taken, and what each of its
   letters stands for. Both backends apply the item from this and do not match
   it again.
+  Each concluded sentence also records, where the item's reading is an
+  "and", which part of it met the claim's sentence (`Concluded::part`),
+  counted from 0 left to right with every conjunction taken apart. Lean
+  takes that part of the reading by its projection.
 - `Cited::supplied`: for each hypothesis of the group a citation takes, in
   the group's order, where the fact stands (`SuppliedBy`). It is one of: a
   line the citation names, a sentence or part of one, or what one implies
@@ -77,6 +81,18 @@ and not inferred inside one.
   the line the link stands (`FirstAt`), by the link's line. A link read off
   a chain, `a = c` of `a = b = c`, stands at the chain's sentence, with the
   pair as `written`.
+- `substituted`: for each `substitute` step and calculation row that
+  writes no rows, how its substitution makes the claim (`Substituted`), by
+  its line. It holds the equation as the page writes it, and where the line
+  it is taken from says it (`FirstAt`), or nothing for a written equation
+  from a define or arithmetic. It holds what the equation is put into: a
+  fact of the line the step names (`FirstAt`), or a side of the claim
+  `t = t′`. And it holds where it is put: which way round, and each place
+  by its path in the trees as the page writes them. Lean writes what the
+  equation is put into with those places as one letter, and closes the
+  step by `Eq.subst` along it. A substitution found only in the standard
+  order, or that drops an identity element, is not recorded, and the step
+  keeps its ways.
 - `define_links`: for each calculation row citing a define, and each step
   whose reason is defines it names, how the two sides of its equation meet
   once the defines are written out, or that they do not meet and arithmetic

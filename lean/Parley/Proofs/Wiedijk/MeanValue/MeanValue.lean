@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Field.Defs
@@ -109,12 +108,12 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have r121_1 : b - a ≠ 0 := by parley_set_side
   have s21 : F a = F b := by
     calc F a = f a + g a := by exact s17
-      _ = f a + m * a := by parley_subst s18
+      _ = f a + m * a := by (have h := congrArg (fun t : ℝ => f a + t) s18; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = f b + m * b := by
           try simp only [hD1] at *
           try push_cast at *
           parley_ring
-      _ = f b + g b := by parley_subst s20
+      _ = f b + g b := by (have h := congrArg (fun t : ℝ => f b + t) (s20).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = F b := by exact s19
   -- 22. obtain c: thm:rolle f := F, from H3, 12, 15, 21
   have r132_1 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
@@ -123,7 +122,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have s23 : (deriv g) c = m := by exact (s14 c (by parley_set_side))
   -- 24. calculation
   have s24 : (deriv f) c + m = 0 := by
-    calc (deriv f) c + m = (deriv f) c + (deriv g) c := by parley_subst s23
+    calc (deriv f) c + m = (deriv f) c + (deriv g) c := by (have h := congrArg (fun t : ℝ => (deriv f) c + t) (s23).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (deriv F) c := by exact ((s16 c (by parley_set_side))).symm
       _ = 0 := by parley_set_side
   -- 25. algebra, from D1, 24

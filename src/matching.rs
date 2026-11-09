@@ -1941,6 +1941,78 @@ pub fn put_at_some(
             .is_some_and(|k| substituted_in(start, &k, left, right, ctx))
 }
 
+/// Where a substitution puts its equation: of `aim` as `start` with one
+/// side of `left = right` put for the other, which way round, and the
+/// places in `start` it is put at, each by its path of children from the
+/// top. Each part is compared as the same tree, as the page writes it: no
+/// standard order, no identity element dropped, no bound letter renamed,
+/// so that putting the one side for the other at the places makes `aim`
+/// exactly. One side is put for the other at every place: the equation's
+/// left side for its right where `turned`. None where no one way makes
+/// `aim` so.
+pub fn substitution_places(
+    start: &Node,
+    aim: &Node,
+    left: &Node,
+    right: &Node,
+) -> Option<SubstitutionPlaces> {
+    [(left, right, false), (right, left, true)]
+        .into_iter()
+        .find_map(|(was, now, turned)| {
+            let mut places = Vec::new();
+            let made = places_put(start, aim, was, now, &mut Vec::new(), &mut places);
+            (made && !places.is_empty())
+                .then_some(SubstitutionPlaces { turned, places })
+        })
+}
+
+/// What `substitution_places` finds.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SubstitutionPlaces {
+    /// Whether the equation's left side is put for its right; its right
+    /// side is put for its left where not.
+    pub turned: bool,
+    /// Each place put at, by its path of children from the top of what the
+    /// equation is put into.
+    pub places: Vec<Vec<usize>>,
+}
+
+/// Whether `aim` is `start` with `now` put for `was` at some places, each
+/// place put at pushed onto `places` by its path from the top, `at` being
+/// the path to `start`.
+fn places_put(
+    start: &Node,
+    aim: &Node,
+    was: &Node,
+    now: &Node,
+    at: &mut Vec<usize>,
+    places: &mut Vec<Vec<usize>>,
+) -> bool {
+    if start.same_shape(aim) {
+        return true;
+    }
+    if start.same_shape(was) && aim.same_shape(now) {
+        places.push(at.clone());
+        return true;
+    }
+    let shaped = start.notation() == aim.notation()
+        && start.text == aim.text
+        && !start.children.is_empty()
+        && start.children.len() == aim.children.len();
+    shaped
+        && start
+            .children
+            .iter()
+            .zip(&aim.children)
+            .enumerate()
+            .all(|(k, (s, a))| {
+                at.push(k);
+                let put = places_put(s, a, was, now, at, places);
+                at.pop();
+                put
+            })
+}
+
 /// P applied to something, where P is one of the pattern's variables.
 fn property(
     pattern: &Node,

@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import RealTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -36,7 +35,7 @@ theorem log_two_of_a_power_of_two (n : ℤ) (hH1 : 0 < n) :
     exact hI
   -- 2. calculation
   have r17_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
-  calc Real.log (2 ^ n.toNat : ℝ) / Real.log (2 : ℝ) = (n : ℝ) * Real.log (2 : ℝ) / Real.log (2 : ℝ) := by parley_subst s1
+  calc Real.log (2 ^ n.toNat : ℝ) / Real.log (2 : ℝ) = (n : ℝ) * Real.log (2 : ℝ) / Real.log (2 : ℝ) := by (have h := congrArg (fun t : ℝ => t / Real.log (2 : ℝ)) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (n : ℝ) := by parley_ring
 
 end Parley.Proofs.Identities.LogBaseLaws.LogTwoOfAPowerOfTwo

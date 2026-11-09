@@ -93,7 +93,7 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   -- 18. mun:divides-square d := gcd(s, w), n := w, from 1
   have s18 : (Int.gcd s w : ℤ) ^ 2 ∣ w ^ 2 := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_square (d := (Int.gcd s w : ℤ)) (n := w))).mp s1c
   -- 19. substitute w² = s·t (H5) into line 18
-  have s19 : (Int.gcd s w : ℤ) ^ 2 ∣ s * t := by parley_subst_at hH5 s18
+  have s19 : (Int.gcd s w : ℤ) ^ 2 ∣ s * t := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s w : ℤ) ^ 2 ∣ u)) hH5 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 20. substitute
   have s20 : (Int.gcd s w : ℤ) ^ 2 ∣ s * s := by
     have c1 : s ^ 2 = s * s := by parley_ring

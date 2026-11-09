@@ -31,7 +31,7 @@ theorem square_roots_equal (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : 0 ≤ b) :
   · skip
     intro hD1
     -- 2.1. substitute √a = √b (D1) into line 1
-    have s2_1 : Real.sqrt b ^ 2 = a := by parley_subst_at hD1 s1
+    have s2_1 : Real.sqrt b ^ 2 = a := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 = a)) hD1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.2. calculation
     have r25_1 : b ≥ 0 := by parley_side
     calc a = Real.sqrt b ^ 2 := by exact s2_1.symm

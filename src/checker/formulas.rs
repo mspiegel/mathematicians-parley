@@ -6492,26 +6492,24 @@ pub fn link_places(
     let defines = define_labels(thm, known.env.scopes);
     let mut out = IndexMap::new();
     for step in &thm.steps {
-        let defined = known.citing_step(step);
         let scope = known.scope(step);
         for link in chain_links(&step.just, &thm.path) {
             let cite = &link.line.cite;
             if defines.contains(cite.as_str()) || cite == "arithmetic" {
                 continue;
             }
-            let (Some(stated), Some(claim)) = (scope.get(cite), link.claim(known))
-            else {
+            let Some(stated) = scope.get(cite) else {
                 continue;
             };
-            let said = known.as_cited(&claim, &defined);
-            let says = known.says(stated, &defined);
+            let Some(reading) = link_reading(&link, step, known, library) else {
+                continue;
+            };
             let own = known.sentence_count(stated);
             // A link read off a chain, a = c of a = b = c, stands in the
             // sentence the chain is, and is the pair it reads.
-            let placed = says
-                .iter()
-                .filter(|s| alike_top(&said, &s.cited, &library.ctx))
-                .find_map(|s| match s.from {
+            let placed = reading.at.and_then(|k| {
+                let s = &reading.says[k];
+                match s.from {
                     SaidFrom::Pair(sentence) => Some(crate::checker::record::FirstAt {
                         line: cite.to_string(),
                         sentence: Some(sentence),
@@ -6519,14 +6517,45 @@ pub fn link_places(
                         written: s.written.clone(),
                         implied: None,
                     }),
-                    _ => super::citations::placed(cite, s, &says, own),
-                });
+                    _ => super::citations::placed(cite, s, &reading.says, own),
+                }
+            });
             if let Some(at) = placed {
                 out.insert(link.line.line, at);
             }
         }
     }
     out
+}
+
+/// A calculation link read against the line it cites: what the line says
+/// (`Known::says`), the link as a citation of the step compares it, and
+/// which of the line's facts it is, the first alike (`alike_top`); None
+/// where the line is not in scope or the link does not read.
+struct LinkReading {
+    says: Vec<super::library::Said>,
+    said: Node,
+    at: Option<usize>,
+}
+
+/// `LinkReading` of one link of `step`: what `check_chain_links` asks of
+/// it, and where `link_places` finds it.
+fn link_reading(
+    link: &Link,
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) -> Option<LinkReading> {
+    let scope = known.scope(step);
+    let stated = scope.get(&link.line.cite)?;
+    let claim = link.claim(known)?;
+    let defined = known.citing_step(step);
+    let said = known.as_cited(&claim, &defined);
+    let says = known.says(stated, &defined);
+    let at = says
+        .iter()
+        .position(|s| alike_top(&said, &s.cited, &library.ctx));
+    Some(LinkReading { says, said, at })
 }
 
 /// Each link of a calculation cites a line that says it.
@@ -6547,7 +6576,6 @@ pub fn check_chain_links(
 ) {
     let defines = define_labels(thm, scopes);
     for step in &thm.steps {
-        let defined = known.citing_step(step);
         for link in chain_links(&step.just, &thm.path) {
             let cite = &link.line.cite;
             // A link citing a define is what the define makes its name: with
@@ -6569,12 +6597,12 @@ pub fn check_chain_links(
                 continue;
             }
             // A link that does not read is the elaborator's to report.
-            let Some(claim) = link.claim(known) else {
+            let Some(reading) = link_reading(&link, step, known, library) else {
                 continue;
             };
-            let said = known.as_cited(&claim, &defined);
-            let lines = known.lines_say(step, &[cite.as_str()]);
-            if !lines.iter().any(|x| alike_top(&said, x, &library.ctx)) {
+            let said = reading.said;
+            let lines: Vec<Node> = reading.says.into_iter().map(|s| s.cited).collect();
+            if reading.at.is_none() {
                 report.say(
                     &thm.path,
                     link.line.line,

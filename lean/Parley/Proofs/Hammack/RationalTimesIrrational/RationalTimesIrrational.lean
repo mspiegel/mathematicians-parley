@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -32,8 +31,8 @@ theorem rational_times_irrational (a : ℝ) (b : ℝ) (hH3 : ∃ m : ℚ, (m : �
     obtain ⟨r, s, s1_2a, s1_2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := b))).mp hS
     -- 1.3. calculation
     have s1_3 : a * b = (p : ℝ) * (r : ℝ) / ((q : ℝ) * (s : ℝ)) := by
-      calc a * b = (p : ℝ) / (q : ℝ) * b := by parley_subst s1_1b
-        _ = (p : ℝ) / (q : ℝ) * ((r : ℝ) / (s : ℝ)) := by parley_subst s1_2b
+      calc a * b = (p : ℝ) / (q : ℝ) * b := by (have h := congrArg (fun t : ℝ => t * b) s1_1b; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (p : ℝ) / (q : ℝ) * ((r : ℝ) / (s : ℝ)) := by (have h := congrArg (fun t : ℝ => (p : ℝ) / (q : ℝ) * t) s1_2b; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (p : ℝ) * (r : ℝ) / ((q : ℝ) * (s : ℝ)) := by parley_ring
     -- 1.4. def:rational x := a·b, from 1.3
     have s1_4 : ∃ m : ℚ, (m : ℝ) = a * b := ((Parley.Items.Stdlib.Numbers.def_rational (x := a * b))).mpr ⟨p * r, q * s, by parley_side, by first | exact_mod_cast s1_3 | (have h := s1_3; push_cast at h ⊢; exact h) | simpa using s1_3⟩

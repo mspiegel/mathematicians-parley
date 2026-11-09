@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -23,6 +22,6 @@ theorem a_for_all_line_a_substitute_is_put_into (b : ℝ) (hH2 : ∀ x : ℝ, x 
   intro y
   intro hA1
   -- 1.1. substitute y = b (A1) into H2
-  parley_subst_at hA1 hH2
+  (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 ≥ 0)) hA1 (hH2 y); push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineASubstituteIsPutInto

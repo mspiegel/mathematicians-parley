@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -65,14 +64,14 @@ theorem square_of_sum_equals_sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. calculation
       have s1_3 : (C (k + 1) : ℚ) = (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2) ^ 2 := by
         calc (C (k + 1) : ℚ) = (C k : ℚ) + ((k : ℚ) + 1) ^ 3 := by parley_side
-          _ = ((k : ℚ) * ((k : ℚ) + 1) / 2) ^ 2 + ((k : ℚ) + 1) ^ 3 := by parley_subst hIH
+          _ = ((k : ℚ) * ((k : ℚ) + 1) / 2) ^ 2 + ((k : ℚ) + 1) ^ 3 := by (have h := congrArg (fun t : ℚ => t + ((k : ℚ) + 1) ^ 3) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2) ^ 2 := by parley_ring
       first | exact_mod_cast s1_3 | (have h := s1_3; push_cast at h ⊢; exact h) | simpa using s1_3
   -- 2. thm:sum-formula
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by exact (Parley.Proofs.Wiedijk.SumFormula.SumFormula.sum_formula (n := n) (by parley_side))
   -- 3. calculation
   try qify
-  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) ^ 2 = ((n : ℚ) * ((n : ℚ) + 1) / 2) ^ 2 := by parley_subst s2
+  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) ^ 2 = ((n : ℚ) * ((n : ℚ) + 1) / 2) ^ 2 := by (have h := congrArg (fun t : ℚ => t ^ 2) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (C n : ℚ) := by exact ((s1 n (by parley_side))).symm
     _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) ^ 3 : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
 

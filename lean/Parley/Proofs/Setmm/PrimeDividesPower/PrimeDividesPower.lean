@@ -45,7 +45,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       -- 3.1. algebra
       have s3_1 : Q ^ 0 = 1 := by parley_ring
       -- 3.2. substitute Q^0 = 1 (line 3.1) into C1
-      have s3_2 : P ∣ (1 : ℤ) := by parley_subst_at s3_1 hC1
+      have s3_2 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s3_1 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.3. mun:divides-one d := P, from 3.2
       have s3_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s3_2)
       -- 3.4. inequalities

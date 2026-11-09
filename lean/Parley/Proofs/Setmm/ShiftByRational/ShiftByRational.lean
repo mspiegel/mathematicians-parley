@@ -1,8 +1,6 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -35,9 +33,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     -- 2.2. calculation
     have s2_2 : A = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by
       calc A = (p : ℂ) / (q : ℂ) - (B : ℂ) := by linear_combination (norm := parley_field) s2_1b
-        _ = (p : ℂ) / (q : ℂ) - (r : ℂ) / (s : ℂ) := by
-            have s1b_w : (B : ℂ) = (r : ℂ) / (s : ℂ) := by have h := congrArg (fun x : ℚ => (x : ℂ)) s1b; push_cast at h; linear_combination (norm := parley_norm) h
-            first | parley_subst s1b_w | parley_subst s1b
+        _ = (p : ℂ) / (q : ℂ) - (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) - t) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
     -- 2.3. def:rational x := A, from 2.2
     exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr ⟨p * s - r * q, q * s, by parley_side, by first | exact_mod_cast s2_2 | (have h := s2_2; push_cast at h ⊢; exact h) | simpa using s2_2⟩
@@ -48,10 +44,8 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     -- 2.5. membership, from D2
     -- 2.6. calculation
     have s2_6 : A + (B : ℂ) = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by
-      calc A + (B : ℂ) = (p : ℂ) / (q : ℂ) + (B : ℂ) := by parley_subst s2_4b
-        _ = (p : ℂ) / (q : ℂ) + (r : ℂ) / (s : ℂ) := by
-            have s1b_w : (B : ℂ) = (r : ℂ) / (s : ℂ) := by have h := congrArg (fun x : ℚ => (x : ℂ)) s1b; push_cast at h; linear_combination (norm := parley_norm) h
-            first | parley_subst s1b_w | parley_subst s1b
+      calc A + (B : ℂ) = (p : ℂ) / (q : ℂ) + (B : ℂ) := by (have h := congrArg (fun t : ℂ => t + (B : ℂ)) s2_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (p : ℂ) / (q : ℂ) + (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) + t) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
     -- 2.7. def:rational x := A + B, from 2.6
     have s2_7 : ∃ m : ℚ, (m : ℂ) = A + (B : ℂ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, by parley_side, by first | exact_mod_cast s2_6 | (have h := s2_6; push_cast at h ⊢; exact h) | simpa using s2_6⟩

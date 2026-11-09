@@ -1,13 +1,10 @@
 module
 
 public import Functions
-public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -35,9 +32,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
     -- 1.2. antisymmetry, from A1, 1.1
     have s1_2 : m = 1 := by parley_side
     -- 1.3. substitute m = 1 (line 1.2)
-    have s1_3 : x m = x 1 := by
-      have s1_2_w : (m : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_2; push_cast at h; linear_combination (norm := parley_norm) h
-      first | parley_subst s1_2_w | parley_subst s1_2
+    have s1_3 : x m = x 1 := by (have h := congrArg (fun t : ℤ => x t) s1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 1.4. inequalities
     parley_order
   | succ n hK hIH =>
@@ -60,9 +55,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
       parley_order
     · skip
       -- 1.6.6. substitute m = n + 1 (C2)
-      have s1_6_6 : x m = x (n + 1) := by
-        have hC2_w : (m : ℝ) = (n : ℝ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) hC2; push_cast at h; linear_combination (norm := parley_norm) h
-        first | parley_subst hC2_w | parley_subst hC2
+      have s1_6_6 : x m = x (n + 1) := by (have h := congrArg (fun t : ℤ => x t) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.6.7. inequalities
       parley_order
 

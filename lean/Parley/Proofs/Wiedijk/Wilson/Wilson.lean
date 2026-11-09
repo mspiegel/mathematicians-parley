@@ -264,9 +264,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_13_2 : f a ≠ 0 := by
         intro hS1
         -- 5.13.2.1. substitute f(a) = 0 (S1) into line 5.7
-        have s5_13_2_1 : a * 0 ≡ (1 : ℤ) [ZMOD p] := by
-          have at0 := (s5_7 a (by parley_set_side))
-          parley_subst_at hS1 at0
+        have s5_13_2_1 : a * 0 ≡ (1 : ℤ) [ZMOD p] := by (have h := Eq.subst (motive := (fun t : ℤ => a * t ≡ (1 : ℤ) [ZMOD p])) hS1 (s5_7 a (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 5.13.2.2. substitute
         have s5_13_2_2 : (0 : ℤ) ≡ (1 : ℤ) [ZMOD p] := by
           have c1 : a * 0 = 0 := by parley_ring
@@ -293,9 +291,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_13_4 : f a ≠ p - 1 := by
         intro hS3
         -- 5.13.4.1. substitute f(a) = p − 1 (S3) into line 5.7
-        have s5_13_4_1 : a * (p - 1) ≡ (1 : ℤ) [ZMOD p] := by
-          have at0 := (s5_7 a (by parley_set_side))
-          parley_subst_at hS3 at0
+        have s5_13_4_1 : a * (p - 1) ≡ (1 : ℤ) [ZMOD p] := by (have h := Eq.subst (motive := (fun t : ℤ => a * t ≡ (1 : ℤ) [ZMOD p])) hS3 (s5_7 a (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 5.13.4.2. def:congruent-mod, from 5.13.4.1
         have s5_13_4_2 : p ∣ a * (p - 1) - 1 := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := p) (a := a * (p - 1)) (b := (1 : ℤ)))).mp s5_13_4_1
         -- 5.13.4.3. mun:divides-multiple e := p, a := p, x := a
@@ -336,9 +332,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       try have hK8_bounds := Finset.mem_Icc.mp hK8
       intro hS4
       -- 5.14.1. substitute f(a) = a (S4) into line 5.7
-      have s5_14_1 : a * a ≡ (1 : ℤ) [ZMOD p] := by
-        have at0 := (s5_7 a (by parley_set_side))
-        parley_subst_at hS4 at0
+      have s5_14_1 : a * a ≡ (1 : ℤ) [ZMOD p] := by (have h := Eq.subst (motive := (fun t : ℤ => a * t ≡ (1 : ℤ) [ZMOD p])) hS4 (s5_7 a (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 5.14.2. def:congruent-mod, from 5.14.1
       have s5_14_2 : p ∣ a * a - 1 := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := p) (a := a * a) (b := (1 : ℤ)))).mp s5_14_1
       -- 5.14.3. substitute
@@ -408,7 +402,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.26. substitute 1 + 1 = 2 (arithmetic) into line 5.24
     have s5_26 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) := by parley_subst_at (show (1 + 1 : ℤ) = 2 by parley_set_side) s5_24
     -- 5.27. substitute ∏(k = 1 to p − 2) k = ∏(k = 2 to p − 2) k (line 5.26)
-    have s5_27 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by parley_subst s5_26
+    have s5_27 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by (have h := congrArg (fun t : ℤ => t * (p - 1)) s5_26; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 5.28. thm:congruent-times b := 1, c := p − 1, from 5.19, 5.25
     have s5_28 : (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) * (p - 1) ≡ p - 1 [ZMOD p] := by simpa only [one_mul] using (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := ∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) (b := (1 : ℤ)) (c := p - 1) (n := p) (by parley_set_side) s5_19)
     -- 5.29. calculation
@@ -422,6 +416,6 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     have s5_30 : (LeanBridges.Counting.factorial (2 - 1 : ℤ) : ℤ) ≡ (-1 : ℤ) [ZMOD (2 : ℤ)] := by parley_arith
     -- 5.31. substitute 2 = p (C2) into line 5.30
     have r680_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) (by parley_set_side))
-    parley_subst_at hC2 s5_30
+    (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (t - 1) : ℤ) ≡ (-1 : ℤ) [ZMOD t])) hC2 s5_30; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Wilson.Wilson

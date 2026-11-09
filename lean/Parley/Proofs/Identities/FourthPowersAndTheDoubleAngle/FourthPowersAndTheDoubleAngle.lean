@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Complex.Order
@@ -33,11 +32,11 @@ theorem fourth_powers_and_the_double_angle (x : ℝ) :
   have s2 : 2 * x = x + x := by parley_ring
   -- 3. calculation
   calc Real.cos x ^ 4 - Real.sin x ^ 4 = (Real.cos x ^ 2 - Real.sin x ^ 2) * (Real.sin x ^ 2 + Real.cos x ^ 2) := by parley_ring
-    _ = (Real.cos x ^ 2 - Real.sin x ^ 2) * 1 := by parley_subst s1
+    _ = (Real.cos x ^ 2 - Real.sin x ^ 2) * 1 := by (have h := congrArg (fun t : ℝ => (Real.cos x ^ 2 - Real.sin x ^ 2) * t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = Real.cos x * Real.cos x - Real.sin x * Real.sin x := by parley_ring
     _ = Real.cos (x + x) := by
         have hI : Real.cos (x + x) = Real.cos x * Real.cos x - Real.sin x * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ)) (b := (x : ℂ))))
         exact hI.symm
-    _ = Real.cos (2 * x) := by parley_subst s2
+    _ = Real.cos (2 * x) := by (have h := congrArg (fun t : ℝ => Real.cos t) (s2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Identities.FourthPowersAndTheDoubleAngle.FourthPowersAndTheDoubleAngle

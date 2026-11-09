@@ -88,7 +88,7 @@ theorem leibniz :
       -- 3.2.4. calculation
       have s3_2_4 : (abs ((-1) ^ (n + 1).toNat) : ℤ) = 1 := by
         calc (abs ((-1) ^ (n + 1).toNat) : ℤ) = abs (-1) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_abs_power (x := (-1 : ℤ)) (n := n + 1) (by parley_side))
-          _ = 1 ^ (n + 1).toNat := by parley_subst s3_2_3
+          _ = 1 ^ (n + 1).toNat := by (have h := congrArg (fun t : ℤ => t ^ (n + 1).toNat) s3_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 := by
               have hI : (1 ^ (n + 1).toNat : ℤ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)))
               exact hI
@@ -103,7 +103,7 @@ theorem leibniz :
       have s3_2_7 : 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_ring
       -- 3.2.8. calculation
       have s3_2_8 : abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
-        calc abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = abs (-((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))) := by parley_subst s3_2_2
+        calc abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = abs (-((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))) := by (have h := congrArg (fun t : ℝ => abs t) s3_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = abs ((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))))
           _ = abs ((-1) ^ (n + 1).toNat) * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := ((-1) ^ (n + 1).toNat : ℝ)) (y := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))
           _ = 1 * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
@@ -44,7 +43,7 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     -- 3.2. algebra, from 1, 3.1
     have s3_2 : A = (r : ℝ) / (s : ℝ) - B := by linear_combination (norm := parley_field) s3_1b
     -- 3.3. substitute B = p/q (line 2) into line 3.2
-    have s3_3 : A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by parley_subst_at s2b s3_2
+    have s3_3 : A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by (have h := Eq.subst (motive := (fun t : ℝ => A = (r : ℝ) / (s : ℝ) - t)) s2b s3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.4. calculation
     have s3_4 : A = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by
       calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by exact s3_3

@@ -50,7 +50,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by
           have hI : Real.log (Real.sqrt (x * y) ^ 2) = 2 * Real.log (Real.sqrt (x * y)) := by parley_instance ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4))
           exact hI.symm
-      _ = Real.log (x * y) := by parley_subst s5
+      _ = Real.log (x * y) := by (have h := congrArg (fun t : ℝ => Real.log t) s5; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = Real.log x + Real.log y := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) hH3 hH4)
   -- 7. algebra, from 6
   linear_combination (norm := parley_norm) ((1) / ((2))) * s6

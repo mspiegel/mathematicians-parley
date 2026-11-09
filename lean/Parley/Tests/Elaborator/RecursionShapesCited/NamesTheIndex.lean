@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.Notation
@@ -25,7 +24,7 @@ theorem names_the_index (T : ℤ → ℤ) (hD1 : T 0 = (0 : ℤ) ∧ (∀ k : �
   -- 2. D1
   have s2 : T (0 + 1) = T 0 + (0 + 1) := by have h := (hD1.2 ((0 + 1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
   -- 3. substitute T(0) = 0 (line 1)
-  have s3 : T 0 + (0 + 1) = 0 + (0 + 1) := by parley_subst s1
+  have s3 : T 0 + (0 + 1) = 0 + (0 + 1) := by (have h := congrArg (fun t : ℤ => t + (0 + 1)) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. calculation
   calc T 1 = T (0 + 1) := by norm_num
     _ = T 0 + (0 + 1) := by exact s2

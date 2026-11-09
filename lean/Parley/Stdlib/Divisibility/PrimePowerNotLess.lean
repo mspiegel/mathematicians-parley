@@ -99,7 +99,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.14. thm:divides-gcd d := p, a := m, b := p, from 3.10, 3.13
   have s3_14 : p ∣ (Int.gcd m p : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := p) (a := m) (b := p) s3_13 s3_10)
   -- 3.15. substitute gcd(m, p) = 1 (H7) into line 3.14
-  have s3_15 : p ∣ (1 : ℤ) := by first | parley_subst_at hH7 s3_14 | (have e_nat : Int.gcd m p = 1 := by exact_mod_cast hH7; parley_subst_at e_nat s3_14)
+  have s3_15 : p ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) hH7 s3_14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 3.16. substitute
   have s3_16 : (1 : ℤ) > 1 := by
     have c1 : p = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := p) (by parley_side) s3_15)

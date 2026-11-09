@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -24,8 +23,8 @@ theorem divides_product (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (hH5 : a ∣ b) 
   obtain ⟨m, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := c) (n := d))).mp hH6
   -- 3. calculation
   have s3 : b * d = a * c * (k * m) := by
-    calc b * d = a * k * d := by parley_subst s1
-      _ = a * k * (c * m) := by parley_subst s2
+    calc b * d = a * k * d := by (have h := congrArg (fun t : ℤ => t * d) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = a * k * (c * m) := by (have h := congrArg (fun t : ℤ => a * k * t) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = a * c * (k * m) := by parley_ring
   -- 4. def:divides d := a·c, n := b·d, from 3
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a * c) (n := b * d))).mpr ⟨k * m, s3⟩

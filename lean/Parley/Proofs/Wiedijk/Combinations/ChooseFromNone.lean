@@ -75,7 +75,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       calc (F.ncard : ℤ) = (({∅} : Set (Set α)).ncard : ℤ) := by parley_subst s3_7
         _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)))
         _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_set_side)).symm
-        _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by parley_subst hC1
+        _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (0 : ℤ) t : ℤ)) (hC1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 3.9. proof
       have s3_9 : ∀ R ∈ 𝒫 X, (R.ncard : ℤ) ≠ j := by

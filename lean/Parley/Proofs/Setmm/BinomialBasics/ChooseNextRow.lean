@@ -3,9 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -15,7 +13,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -41,19 +38,15 @@ theorem choose_next_row (N : ℤ) (hH1 : 0 ≤ N) :
   have s3 : N + 1 - N = 1 := by parley_ring
   -- 4. calculation
   have s4 : (LeanBridges.Counting.factorial (N + 1 - N) : ℤ) = 1 := by
-    calc (LeanBridges.Counting.factorial (N + 1 - N) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_subst s3
+    calc (LeanBridges.Counting.factorial (N + 1 - N) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
   -- 5. def:factorial n := N
   have s5 : (LeanBridges.Counting.factorial (N + 1) : ℤ) = (LeanBridges.Counting.factorial N : ℤ) * (N + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N) (by parley_side))
   -- 6. calculation
   try qify
   calc (LeanBridges.Counting.choose (N + 1) N : ℚ) = (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((LeanBridges.Counting.factorial (N + 1 - N) : ℚ) * (LeanBridges.Counting.factorial N : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N + 1) (by parley_side) (k := N)) s2
-    _ = (LeanBridges.Counting.factorial (N + 1) : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by
-        have s4_w : (LeanBridges.Counting.factorial (N + 1 - N) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s4; push_cast at h; linear_combination (norm := parley_norm) h
-        first | parley_subst s4_w | parley_subst s4
-    _ = (LeanBridges.Counting.factorial N : ℚ) * ((N : ℚ) + 1) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by
-        have s5_w : (LeanBridges.Counting.factorial (N + 1) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) * ((N : ℚ) + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s5; push_cast at h; linear_combination (norm := parley_norm) h
-        first | parley_subst s5_w | parley_subst s5
+    _ = (LeanBridges.Counting.factorial (N + 1) : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((t : ℚ) * (LeanBridges.Counting.factorial N : ℚ))) s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = (LeanBridges.Counting.factorial N : ℚ) * ((N : ℚ) + 1) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by (have h := congrArg (fun t : ℤ => (t : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ))) s5; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (N : ℚ) + 1 := by parley_ring
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseNextRow

@@ -65,7 +65,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     -- 2.7. thm:even-times A := n, B := C(n − 1, k − 1), from H3
     have s2_7 : Even (n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ)) := by exact (Parley.Proofs.Hammack.BinomialEvenForOddK.EvenTimes.even_times (A := n) (B := (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ)) hH3)
     -- 2.8. substitute k·C(n, k) = n·C(n − 1, k − 1) (line 2.5) into line 2.7
-    have s2_8 : Even (k * (LeanBridges.Counting.choose n k : ℤ)) := by parley_subst_at s2_5 s2_7
+    have s2_8 : Even (k * (LeanBridges.Counting.choose n k : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => Even t)) (s2_5).symm s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.9. thm:odd-factor A := k, B := C(n, k), from H4, 2.8
     exact (Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor.odd_factor (A := k) (B := (LeanBridges.Counting.choose n k : ℤ)) hH4 s2_8)
   · skip

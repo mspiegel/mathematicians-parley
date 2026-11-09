@@ -152,12 +152,12 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.10. calculation
           calc A ^ j.toNat * x = A ^ j.toNat * A * (1 + (r - 1) * ((j : ℝ) + 1)) := by linear_combination (norm := parley_norm) (-(A ^ j.toNat)) * s1_19_8
             _ ≤ A ^ j.toNat * A * r ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 + (r - 1) * ((j : ℝ) + 1)) (y := r ^ (j + 1).toNat) (c := A ^ j.toNat * A) (by parley_side) (by parley_side))
-            _ = A ^ (j + 1).toNat * r ^ (j + 1).toNat := by parley_subst s1_19_9
+            _ = A ^ (j + 1).toNat * r ^ (j + 1).toNat := by (have h := congrArg (fun t : ℝ => t * r ^ (j + 1).toNat) (s1_19_9).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
             _ = (A * r) ^ (j + 1).toNat := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)).symm
-            _ = B ^ (j + 1).toNat := by parley_subst s1_19_7
+            _ = B ^ (j + 1).toNat := by (have h := congrArg (fun t : ℝ => t ^ (j + 1).toNat) s1_19_7; push_cast at h ⊢; all_goals exact_mod_cast h)
         · skip
           -- 1.19.11. substitute 0 = A (C4)
-          have s1_19_11 : A ^ j.toNat * x = 0 ^ j.toNat * x := by parley_subst hC4
+          have s1_19_11 : A ^ j.toNat * x = 0 ^ j.toNat * x := by (have h := congrArg (fun t : ℝ => t ^ j.toNat * x) (hC4).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 1.19.12. mun:zero-power n := j
           have s1_19_12 : (0 ^ j.toNat : ℤ) = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_zero_power (n := j) (by parley_side))
           -- 1.19.13. algebra, from 1.19.11, 1.19.12

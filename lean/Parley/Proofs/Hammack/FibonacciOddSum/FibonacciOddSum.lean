@@ -106,8 +106,8 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
       -- 5.14. calculation
       have r125_1 : m ≥ 1 := by parley_side
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1)
-        _ = F (2 * m) + q (m + 1) := by parley_subst hIH2
-        _ = F (2 * m) + F (2 * m + 1) := by parley_subst s5_11
+        _ = F (2 * m) + q (m + 1) := by (have h := congrArg (fun t : ℤ => t + q (m + 1)) hIH2; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = F (2 * m) + F (2 * m + 1) := by (have h := congrArg (fun t : ℤ => F (2 * m) + t) s5_11; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = F (2 * (m + 1)) := by exact s5_13.symm
   -- 6. instantiate m := n in line 5, from D2
   exact (s5 n (by parley_side))

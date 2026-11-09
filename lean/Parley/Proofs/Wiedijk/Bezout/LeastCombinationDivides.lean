@@ -35,11 +35,11 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
     have r39_1 : 0 < r := by parley_order
     have s3_1 : 0 < r := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) r39_1)
     -- 3.2. substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.1
-    have s3_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := by parley_subst_at s2 s3_1
+    have s3_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s2 s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 3.2
     have s3_3 : d ≤ a * (u - q * x₀) + b * (v - q * y₀) := by exact (hH11 (u - q * x₀) (v - q * y₀) (by parley_side))
     -- 3.4. substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.3
-    have s3_4 : d ≤ r := by parley_subst_at s2 s3_3
+    have s3_4 : d ≤ r := by (have h := Eq.subst (motive := (fun t : ℤ => d ≤ t)) (s2).symm s3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.5. inequalities, from 1
     have s3_5 : ¬ d ≤ r := by parley_side
     exact s3_5 s3_4

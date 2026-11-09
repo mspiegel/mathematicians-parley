@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
@@ -26,8 +25,8 @@ theorem rational_product (A : ℚ) (B : ℚ) :
   obtain ⟨r, s, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp (by parley_side)
   -- 3. calculation
   have s3 : A * B = (p : ℚ) * (r : ℚ) / ((q : ℚ) * (s : ℚ)) := by
-    calc A * B = (p : ℚ) / (q : ℚ) * B := by parley_subst s1b
-      _ = (p : ℚ) / (q : ℚ) * ((r : ℚ) / (s : ℚ)) := by parley_subst s2b
+    calc A * B = (p : ℚ) / (q : ℚ) * B := by (have h := congrArg (fun t : ℚ => t * B) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (p : ℚ) / (q : ℚ) * ((r : ℚ) / (s : ℚ)) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) * t) s2b; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (p : ℚ) * (r : ℚ) / ((q : ℚ) * (s : ℚ)) := by parley_ring
   -- 4. exhibit, from 3
   have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A * B = (a : ℚ) / (b : ℚ) := ⟨p * r, q * s, by parley_side, by first | exact_mod_cast s3 | (have h := s3; push_cast at h ⊢; exact h) | simpa using s3⟩

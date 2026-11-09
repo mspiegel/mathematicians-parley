@@ -66,7 +66,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.2. mun:card-at-least-one, from 1.3.1
       have s1_3_2 : (R.ncard : ℤ) ≥ 1 := by first | linarith [(Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1)] | (have h := (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1) | (have h := (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1); parley_set_side)
       -- 1.3.3. substitute |R| = j (line 1.1) into line 1.3.2
-      have s1_3_3 : j ≥ 1 := by parley_count_int; (parley_subst_at s1_1b s1_3_2)
+      have s1_3_3 : j ≥ 1 := by parley_count_int; ((have h := Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1_1b s1_3_2; push_cast at h ⊢; all_goals exact_mod_cast h))
       -- 1.3.4. inequalities, from 1.3.3
       have s1_3_4 : 0 ≤ j - 1 := by parley_order
       -- 1.3.5. mun:nat0-as-int n := j − 1, from 1.3.4

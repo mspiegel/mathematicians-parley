@@ -82,15 +82,15 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       have s2_9 : (0 : ℤ) < 1 := by parley_arith
       -- 2.10. calculation
       have s2_10 : (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = 0 := by
-        calc (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) := by parley_subst s2_8
+        calc (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (1 : ℤ) : ℤ)) s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) s2_9
       -- 2.11. calculation
       have s2_11 : (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) = 1 := by
         calc (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by
               have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 + 1 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) = (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) + (LeanBridges.Counting.choose (1 - (0 + 1) : ℤ) (0 + 1 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)))
               simpa only [zero_add] using hI
-          _ = (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by parley_subst s2_6
-          _ = 1 + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by parley_subst s2_7
+          _ = (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ)) s2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = 1 + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 := by parley_subst s2_10
       -- 2.12. D1
       have s2_12 : G (0 + 1) = F 0 + G 0 := by have h := (hD1.2.2 ((0 + 1 : ℤ) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
@@ -101,8 +101,8 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
         calc S 1 = (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
           _ = 1 := by exact s2_11
           _ = 0 + 1 := by norm_num
-          _ = 0 + G 0 := by parley_subst s2_2
-          _ = F 0 + G 0 := by parley_subst s2_13
+          _ = 0 + G 0 := by (have h := congrArg (fun t : ℤ => 0 + t) (s2_2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = F 0 + G 0 := by (have h := congrArg (fun t : ℤ => t + G 0) (s2_13).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = G 1 := by parley_side
       -- 2.15. join 2.3, 2.14
       have s2_15a : S 0 = G 0 := by parley_side
@@ -130,10 +130,10 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       have r151_2 : 0 ≤ G j := by parley_side
       have s2_22 : S (j + 1 + 1) = G (j + 1 + 1) := by
         calc S (j + 1 + 1) = S (j + 1) + S j := by exact s2_17
-          _ = G (j + 1) + S j := by parley_subst hIH.2
-          _ = G (j + 1) + G j := by parley_subst hIH.1
+          _ = G (j + 1) + S j := by (have h := congrArg (fun t : ℤ => t + S j) hIH.2; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = G (j + 1) + G j := by (have h := congrArg (fun t : ℤ => G (j + 1) + t) hIH.1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = G j + G (j + 1) := by parley_ring
-          _ = F (j + 1) + G (j + 1) := by parley_subst s2_21
+          _ = F (j + 1) + G (j + 1) := by (have h := congrArg (fun t : ℤ => t + G (j + 1)) (s2_21).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = G (j + 1 + 1) := by exact s2_20.symm
       -- 2.23. join 2.16, 2.22
       have s2_23a : S (j + 1) = G (j + 1) := by parley_side

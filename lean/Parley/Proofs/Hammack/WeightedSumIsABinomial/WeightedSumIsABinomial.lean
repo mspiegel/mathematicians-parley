@@ -96,9 +96,9 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       calc T (j + 1) = (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j + 1 - i + 1) : ℤ)) := by simp (disch := omega) only [hD1]
         _ = (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) + i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun i : ℤ => i * (j + 1 - i + 1))) (u := (fun i : ℤ => i * (j - i + 1) + i)) (a := (1 : ℤ)) (b := j + 1) s1_2)
         _ = (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_add (t := (fun i : ℤ => i * (j - i + 1))) (u := (fun i : ℤ => i)) (a := (1 : ℤ)) (b := j + 1))
-        _ = T j + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) := by parley_subst s1_14
-        _ = T j + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by parley_subst s1_12
-        _ = (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by parley_subst hIH
+        _ = T j + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) := by (have h := congrArg (fun t : ℤ => t + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ))) s1_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = T j + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => T j + t) s1_12; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := by exact s1_11
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (k * (n - k + 1) : ℤ)) = T n := by simp (disch := omega) only [hD1]

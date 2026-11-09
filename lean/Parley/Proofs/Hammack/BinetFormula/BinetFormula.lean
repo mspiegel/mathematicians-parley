@@ -95,8 +95,8 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have r101_1 : Real.sqrt (5 : ℝ) ≠ 0 := by parley_side
       have s4_11 : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by
         calc (G (j + 1) : ℝ) = (F j : ℝ) + (G j : ℝ) := by parley_side
-          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (G j : ℝ) := by parley_subst hIH.1
-          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_subst hIH.2
+          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (G j : ℝ) := by (have h := congrArg (fun t : ℝ => t + (G j : ℝ)) hIH.1; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by (have h := congrArg (fun t : ℝ => (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + t) hIH.2; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by linear_combination (norm := parley_field) ((-1) / ((Real.sqrt (5 : ℝ)))) * s4_9 + ((1) / ((Real.sqrt (5 : ℝ)))) * s4_10
       -- 4.12. join 4.8, 4.11
       have s4_12a : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_side

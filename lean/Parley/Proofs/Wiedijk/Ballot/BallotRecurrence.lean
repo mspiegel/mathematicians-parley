@@ -127,7 +127,7 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   -- 26. thm:pascal n := m + (n − 1), k := m, from 2
   have s26 : (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) + (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) = (LeanBridges.Counting.choose (m + (n - 1) + 1) m : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + (n - 1)) (by parley_set_side) (k := m))
   -- 27. substitute (m + (n − 1)) + 1 = m + n (line 23) into line 26
-  have s27 : (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) + (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) = (LeanBridges.Counting.choose (m + n) m : ℤ) := by parley_subst_at s23 s26
+  have s27 : (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) + (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) = (LeanBridges.Counting.choose (m + n) m : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) + (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) = (LeanBridges.Counting.choose t m : ℤ))) s23 s26; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 28. mun:binomial-nat0 n := m + (n − 1), k := m − 1, from 2
   have s28 : 0 ≤ (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := m + (n - 1)) (by parley_set_side) (k := m - 1))
   -- 29. mun:binomial-nat0 n := m + (n − 1), k := m, from 2

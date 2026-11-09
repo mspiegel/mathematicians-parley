@@ -49,7 +49,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 2. inequalities, from H1
   have s2 : 1 ≤ k := by parley_order
   -- 3. substitute k = 2m + 1 (line 1) into line 2
-  have s3 : 1 ≤ 2 * m + 1 := by parley_subst_at s1 s2
+  have s3 : 1 ≤ 2 * m + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. inequalities
   have s4 : 0 ≤ m := by parley_order
   -- 5. mun:nat0-as-int n := m, from 4
@@ -78,7 +78,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
       _ = 3 ^ (m + m) * 3 := by
           have hI : (3 ^ (m + m + 1) : ℚ) = 3 ^ (m + m) * 3 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℚ)) (m := m + m) (by parley_side)))
           exact hI
-      _ = 3 ^ m * 3 ^ m * 3 := by parley_subst s9
+      _ = 3 ^ m * 3 ^ m * 3 := by (have h := congrArg (fun t : ℚ => t * 3) s9; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. def:sqrt x := 3
   have r57_1 : (3 : ℤ) ≥ 0 := by parley_arith
   have s11a : Real.sqrt (3 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by parley_side))

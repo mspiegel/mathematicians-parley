@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
@@ -49,6 +48,6 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
       _ ≤ (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := (2 : ℤ)) (y := n + 1 + j + 1) (c := (LeanBridges.Counting.factorial (n + 1 + j) : ℤ)) (by parley_side) (by parley_side))
       _ = (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) := by exact s4.symm
       _ = (LeanBridges.Counting.factorial (n + 1 + j + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n + 1 + j) (by parley_side)).symm
-      _ = (LeanBridges.Counting.factorial (n + 1 + (j + 1)) : ℤ) := by parley_subst s2
+      _ = (LeanBridges.Counting.factorial (n + 1 + (j + 1)) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap

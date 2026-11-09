@@ -83,7 +83,7 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
       -- 1.12. algebra
       have s1_12 : m + j + 1 + 1 = m + (j + 1) + 1 := by parley_ring
       -- 1.13. substitute (m + j + 1) + 1 = m + (j + 1) + 1 (line 1.12) into line 1.11
-      parley_subst_at s1_12 s1_11
+      (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (j + 1) * (LeanBridges.Counting.choose t (m + 1) : ℤ) - (LeanBridges.Counting.choose t (m + 2) : ℤ))) s1_12 s1_11; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate j := n in line 1
   exact (s1 n (by parley_side))
 

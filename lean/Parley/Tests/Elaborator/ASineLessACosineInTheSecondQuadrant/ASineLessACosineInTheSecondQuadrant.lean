@@ -9,7 +9,6 @@ public import OrderTactics
 public import PowerTactics
 public import RealTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -70,14 +69,14 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 12. algebra
   have s12 : x - Real.pi / 2 + Real.pi / 2 = x := by parley_ring
   -- 13. substitute (x − π/2) + π/2 = x (line 12)
-  have s13 : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos x := by parley_subst s12
+  have s13 : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos x := by (have h := congrArg (fun t : ℝ => Real.cos t) s12; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 14. real arithmetic
   have s14a : Real.cos (Real.pi / 2) = 0 := by parley_real
   have s14b : Real.sin (Real.pi / 2) = 1 := by parley_real
   -- 15. substitute cos(π/2) = 0 (line 14)
-  have s15 : Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) = Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by parley_subst s14a
+  have s15 : Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) = Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by (have h := congrArg (fun t : ℝ => Real.cos (x - Real.pi / 2) * t - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2)) s14a; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 16. substitute sin(π/2) = 1 (line 14)
-  have s16 : Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) = Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * 1 := by parley_subst s14b
+  have s16 : Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) = Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * 1 := by (have h := congrArg (fun t : ℝ => Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * t) s14b; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 17. algebra, from 11, 13, 15, 16
   have s17 : Real.cos x = -Real.sin (x - Real.pi / 2) := by linear_combination (norm := parley_norm) s11 + (-1) * s13 + s15 + s16
   -- 18. algebra, from 17

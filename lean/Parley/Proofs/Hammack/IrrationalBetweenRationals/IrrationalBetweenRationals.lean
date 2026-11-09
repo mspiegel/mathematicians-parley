@@ -95,9 +95,9 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.3. obtain c, d: def:rational x := s
     obtain ⟨c, d, s17_3a, s17_3b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := s))).mp (by parley_side)
     -- 17.4. substitute s = c/d (line 17.3)
-    have s17_4 : s - r = (c : ℚ) / (d : ℚ) - r := by parley_subst s17_3b
+    have s17_4 : s - r = (c : ℚ) / (d : ℚ) - r := by (have h := congrArg (fun t : ℚ => t - r) s17_3b; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.5. substitute r = p/q (line 17.2)
-    have s17_5 : (c : ℚ) / (d : ℚ) - r = (c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ) := by parley_subst s17_2b
+    have s17_5 : (c : ℚ) / (d : ℚ) - r = (c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ) := by (have h := congrArg (fun t : ℚ => (c : ℚ) / (d : ℚ) - t) s17_2b; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.6. transitivity, from 17.4, 17.5
     have s17_6 : s - r = (c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ) := by parley_side
     -- 17.7. mun:product-positive x := q, y := d, from 17.2, 17.3
@@ -105,7 +105,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.8. mun:product-positive x := s − r, y := q·d, from 9, 17.7
     have s17_8 : (s - r) * ((q : ℚ) * (d : ℚ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side))
     -- 17.9. substitute s − r = c/d − p/q (line 17.6) into line 17.8
-    have s17_9 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) > 0 := by parley_subst_at s17_6 s17_8
+    have s17_9 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) > 0 := by (have h := Eq.subst (motive := (fun t : ℚ => t * ((q : ℚ) * (d : ℚ)) > 0)) s17_6 s17_8; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.10. algebra
     have s17_10 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) = (c : ℚ) * (q : ℚ) - (p : ℚ) * (d : ℚ) := by parley_ring
     -- 17.11. transitivity, from 17.9, 17.10
@@ -120,12 +120,12 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
       parley_ring
     -- 17.13. substitute
     have s17_13 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
-      have c1 : u = (a : ℝ) / (b : ℝ) := by parley_subst s17_1b
+      have c1 : u = (a : ℝ) / (b : ℝ) := by (have h := congrArg (fun t : ℝ => t) s17_1b; push_cast at h ⊢; all_goals exact_mod_cast h)
       have row1 : (a : ℝ) / (b : ℝ) - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by parley_subst_at c1 s17_12
-      have c2 : r = (p : ℚ) / (q : ℚ) := by parley_subst s17_2b
+      have c2 : r = (p : ℚ) / (q : ℚ) := by (have h := congrArg (fun t : ℚ => t) s17_2b; push_cast at h ⊢; all_goals exact_mod_cast h)
       have c2_w : (r : ℝ) = (p : ℝ) / (q : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c2; push_cast at h; linear_combination (norm := parley_norm) h
       have row2 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((s : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_put_at c2_w row1 | parley_put_at c2 row1 | parley_subst_at c2_w row1 | parley_subst_at c2 row1
-      have c3 : s = (c : ℚ) / (d : ℚ) := by parley_subst s17_3b
+      have c3 : s = (c : ℚ) / (d : ℚ) := by (have h := congrArg (fun t : ℚ => t) s17_3b; push_cast at h ⊢; all_goals exact_mod_cast h)
       have c3_w : (s : ℝ) = (c : ℝ) / (d : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c3; push_cast at h; linear_combination (norm := parley_norm) h
       have row3 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_put_at c3_w row2 | parley_put_at c3 row2 | parley_subst_at c3_w row2 | parley_subst_at c3 row2
       exact row3

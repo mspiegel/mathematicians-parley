@@ -111,7 +111,7 @@ theorem integral_of_arctan_derivative :
     have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by simp (disch := omega) only [hD1]
     -- 12.4. calculation
     calc (deriv F) x = 1 / (1 + x ^ 2) := by first | exact (s11 x (by parley_set_side)) | exact ((s11 x (by parley_set_side))).symm | parley_set_side
-      _ = x ^ (2 * 0) / (1 + x ^ 2) := by parley_subst s12_2
+      _ = x ^ (2 * 0) / (1 + x ^ 2) := by (have h := congrArg (fun t : ℝ => t / (1 + x ^ 2)) (s12_2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = g x := by exact s12_3
   -- 13. arithmetic
   have s13 : (0 : ℤ) < 1 := by parley_arith
@@ -143,7 +143,7 @@ theorem integral_of_arctan_derivative :
   -- 22. calculation
   calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by exact s21
     _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := g) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
-    _ = Real.pi / 4 - F 0 := by parley_subst s19
+    _ = Real.pi / 4 - F 0 := by (have h := congrArg (fun t : ℝ => t - F 0) s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = Real.pi / 4 := by parley_subst s20
 
 end Parley.Proofs.Wiedijk.Leibniz.IntegralOfArctanDerivative

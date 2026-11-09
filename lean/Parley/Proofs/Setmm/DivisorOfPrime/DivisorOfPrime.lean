@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
@@ -47,11 +46,11 @@ theorem divisor_of_prime (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (M : 
       -- 3.3.1. mun:divides-self n := P
       have s3_3_1 : P ∣ P := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := P))
       -- 3.3.2. substitute M = P (C3) into line 3.3.1
-      parley_subst_at hC3 s3_3_1
+      (have h := Eq.subst (motive := (fun t : ℤ => t ∣ P)) (hC3).symm s3_3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 3.3.3. def:divides d := 1, n := P
       have s3_3_3 : (1 : ℤ) ∣ P := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (1 : ℤ)) (n := P))).mpr ⟨P, by parley_side⟩
       -- 3.3.4. substitute M = 1 (C4) into line 3.3.3
-      parley_subst_at hC4 s3_3_3
+      (have h := Eq.subst (motive := (fun t : ℤ => t ∣ P)) (hC4).symm s3_3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.DivisorOfPrime.DivisorOfPrime

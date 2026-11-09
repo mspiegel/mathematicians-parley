@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import OrderTactics
 public import SetTactics
 public import SubstTactics
@@ -13,15 +12,16 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.Ring.Unbundled.Rat
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -96,9 +96,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 21. calculation
   have r103_1 : 1 / (N : ℚ) ≥ 0 := by parley_set_side
   have s21 : abs (1 + 1 / (N : ℝ) - 1) < p := by
-    calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by
-          have s20_w : 1 + 1 / (N : ℝ) - 1 = 1 / (N : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s20; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst s20_w | parley_subst s20
+    calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by (have h := congrArg (fun t : ℚ => abs t) s20; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (by parley_set_side)
       _ < p := by exact s19
   -- 22. join 16, 21
@@ -123,7 +121,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 29. mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 23
   have s29 : L - 1 < f (1 + 1 / (N : ℝ)) ∧ f (1 + 1 / (N : ℝ)) < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (1 + 1 / (N : ℝ))) (c := L) (δ := (1 : ℝ)))).mp s23
   -- 30. substitute f(1 + 1/N) = N² (line 28) into line 29
-  have s30 : (N : ℝ) ^ 2 < L + 1 := by parley_subst_at s28 s29
+  have s30 : (N : ℝ) ^ 2 < L + 1 := by (have h := Eq.subst (motive := (fun t : ℝ => t < L + 1)) s28 s29.2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 31. mun:multiply-le x := 1, y := N, c := N, from 9
   have s31 : N * 1 ≤ N * N := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := N) (c := N) (by parley_set_side) (by parley_set_side))
   -- 32. inequalities

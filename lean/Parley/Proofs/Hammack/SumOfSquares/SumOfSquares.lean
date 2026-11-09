@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -63,7 +62,7 @@ theorem sum_of_squares (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. calculation
       have s1_3 : (S (k + 1) : ℚ) = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) * (2 * ((k : ℚ) + 1) + 1) / 6 := by
         calc (S (k + 1) : ℚ) = (S k : ℚ) + ((k : ℚ) + 1) ^ 2 := by parley_side
-          _ = (k : ℚ) * ((k : ℚ) + 1) * (2 * (k : ℚ) + 1) / 6 + ((k : ℚ) + 1) ^ 2 := by parley_subst hIH
+          _ = (k : ℚ) * ((k : ℚ) + 1) * (2 * (k : ℚ) + 1) / 6 + ((k : ℚ) + 1) ^ 2 := by (have h := congrArg (fun t : ℚ => t + ((k : ℚ) + 1) ^ 2) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) * (2 * ((k : ℚ) + 1) + 1) / 6 := by parley_ring
       first | exact_mod_cast s1_3 | (have h := s1_3; push_cast at h ⊢; exact h) | simpa using s1_3
   -- 2. calculation

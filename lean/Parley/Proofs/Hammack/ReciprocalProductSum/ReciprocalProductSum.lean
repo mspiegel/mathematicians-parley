@@ -2,7 +2,6 @@ module
 
 public import Functions
 public import InstanceTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.Field.Basic
@@ -54,7 +53,7 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by
               have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ)) (n := k) r43_1))
               exact hI
-          _ = 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by parley_subst hIH
+          _ = 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by (have h := congrArg (fun t : ℚ => t + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1))) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 - 1 / ((k : ℚ) + 1 + 1) := by
               have hI : 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by parley_instance ((Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep.reciprocal_step (m := k + 1) (by parley_side)))
               exact hI

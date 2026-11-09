@@ -175,7 +175,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 8.13.3. inequalities, from 8.13.2
       have s8_13_3 : i < m + n := by parley_order
       -- 8.13.4. substitute (m + n) − 1 = (m − 1) + n (line 5) into K4
-      have s8_13_4 : i ∈ Finset.Icc (1 : ℤ) (m - 1 + n) := by parley_subst_at s5 hK4
+      have s8_13_4 : i ∈ Finset.Icc (1 : ℤ) (m - 1 + n) := by (have h := Eq.subst (motive := (fun t : ℤ => i ∈ Finset.Icc (1 : ℤ) t)) s5 hK4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 8.13.5. instantiate j := i in line 8.13.1, from 8.13.4
       have s8_13_5 : (((Set.Icc (1 : ℤ) i : Set ℤ) \ T).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ T).ncard : ℤ) := by exact (s8_13_1 i (by parley_set_side))
       -- 8.13.6. thm:prefix-unchanged p := m + n, from 8.13.3

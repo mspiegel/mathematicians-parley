@@ -68,7 +68,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
       have s1_3 : (3 ^ (k + 1 + 1).toNat : ℤ) = 3 ^ (k + 1).toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k + 1) (by parley_side))
       -- 1.4. calculation
       calc (S (k + 1) : ℚ) = (S k : ℚ) + 3 ^ (k + 1).toNat := by first | parley_side | parley_line_toNat s1_2
-        _ = (3 ^ (k + 1).toNat - 3) / 2 + 3 ^ (k + 1).toNat := by parley_subst hIH
+        _ = (3 ^ (k + 1).toNat - 3) / 2 + 3 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℚ => t + 3 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (3 ^ (k + 1).toNat * 3 - 3) / 2 := by parley_ring
         _ = (3 ^ (k + 1 + 1).toNat - 3) / 2 := by
             have s1_3_w : (3 ^ (k + 1 + 1).toNat : ℚ) = 3 ^ (k + 1).toNat * 3 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_3; push_cast at h; linear_combination (norm := parley_norm) h

@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
@@ -27,7 +26,7 @@ theorem floor_integer_add (N : ℤ) (A : ℝ) :
   -- 2. algebra
   have s2 : (N : ℝ) + A = A + (N : ℝ) := by parley_ring
   -- 3. calculation
-  calc ⌊(N : ℝ) + A⌋ = ⌊A + (N : ℝ)⌋ := by parley_subst s2
+  calc ⌊(N : ℝ) + A⌋ = ⌊A + (N : ℝ)⌋ := by (have h := congrArg (fun t : ℝ => (⌊t⌋ : ℝ)) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = ⌊A⌋ + N := by exact (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N))
     _ = N + ⌊A⌋ := by parley_ring
 

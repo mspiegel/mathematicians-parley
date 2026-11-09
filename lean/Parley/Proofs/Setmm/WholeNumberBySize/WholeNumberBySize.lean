@@ -44,12 +44,12 @@ theorem whole_number_by_size (A : ℝ) :
       -- 4.1. def:abs x := A, from C1
       have s4_1 : abs A = A := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) hC1
       -- 4.2. substitute |A| = A (line 4.1) into D2
-      parley_subst_at s4_1 hD2
+      (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℤ, (m : ℝ) = t)) s4_1 hD2; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 4.3. def:abs x := A, from C2
       have s4_3 : abs A = -A := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) hC2
       -- 4.4. substitute |A| = −A (line 4.3) into D2
-      have s4_4 : ∃ m : ℤ, (m : ℝ) = -A := by parley_subst_at s4_3 hD2
+      have s4_4 : ∃ m : ℤ, (m : ℝ) = -A := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℤ, (m : ℝ) = t)) s4_3 hD2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.5. membership, from 4.4
       have s4_5 : ∃ m : ℤ, (m : ℝ) = 0 - -A := by
         have whole1 : ∃ m : ℤ, (m : ℝ) = -A := by obtain ⟨m, hm⟩ := s4_4; exact ⟨m, by exact_mod_cast hm⟩

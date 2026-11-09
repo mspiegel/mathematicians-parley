@@ -92,7 +92,7 @@ theorem log_three_over_two_irrational :
     have s2_8 : (3 ^ q.toNat : ℚ) = 2 ^ p := by
       try rify
       calc (3 ^ q.toNat : ℝ) = Real.exp (Real.log (3 ^ q.toNat : ℝ)) := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (3 ^ q.toNat : ℝ)) (by parley_side)).symm
-        _ = Real.exp (Real.log (2 ^ p : ℝ)) := by parley_subst s2_5
+        _ = Real.exp (Real.log (2 ^ p : ℝ)) := by (have h := congrArg (fun t : ℝ => Real.exp t) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 ^ p := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (2 ^ p : ℝ)) (by parley_side))
     -- 2.9. thm:power-of-three-odd n := q
     have s2_9 : Odd (3 ^ q.toNat : ℤ) := by exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd.power_of_three_odd (n := q) (by parley_side))

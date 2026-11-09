@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -22,6 +21,6 @@ theorem a_for_all_line_giving_a_substitute_its_equation (hH1 : ∀ x : ℝ, x ^ 
   -- 1. proof
   intro y
   -- 1.1. substitute y² = y·y (H1)
-  parley_subst hH1
+  (have h := congrArg (fun t : ℝ => t + 1) (hH1 y); push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineGivingASubstituteItsEquation

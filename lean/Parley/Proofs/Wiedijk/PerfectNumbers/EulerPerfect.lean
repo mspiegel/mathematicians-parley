@@ -79,7 +79,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
       calc n = 2 ^ 0 * m := by exact s2_1
         _ = m := by parley_ring
     -- 2.3. substitute n = m (line 2.2) into line 1
-    have s2_3 : Odd n := by parley_subst_at s2_2 s1c
+    have s2_3 : Odd n := by (have h := Eq.subst (motive := (fun t : ℤ => Odd t)) (s2_2).symm s1c; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.4. mun:not-both, from H2
     have s2_4 : ¬ Odd n := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := n) hH2)
     exact s2_4 s2_3
@@ -213,7 +213,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   -- 24. substitute c = 1 (line 23) into line 20
   have s24 : m = 2 ^ p.toNat - 1 := by parley_subst_at s23 s20
   -- 25. substitute c = 1 (line 23) into line 22
-  have s25 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + 1 := by parley_subst_at s23 s22
+  have s25 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + t)) s23 s22; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 26. proof
   have s26 : ∀ d : ℤ, 0 < d → d ∣ m → d = 1 ∨ d = m := by
     intro d hK1

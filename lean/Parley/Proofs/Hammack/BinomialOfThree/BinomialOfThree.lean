@@ -37,7 +37,7 @@ theorem binomial_of_three (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.2. def:C n := 0, k := 3, from 1.1
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (3 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (3 : ℤ))) s1_1
       -- 1.3. calculation
-      calc 6 * (LeanBridges.Counting.choose (0 : ℤ) (3 : ℤ) : ℤ) = 6 * 0 := by parley_subst s1_2
+      calc 6 * (LeanBridges.Counting.choose (0 : ℤ) (3 : ℤ) : ℤ) = 6 * 0 := by (have h := congrArg (fun t : ℤ => 6 * t) s1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 0 * (0 - 1) * (0 - 2) := by norm_num
     | succ j hK hIH =>
       -- 1.4. thm:pascal n := j, k := 3

@@ -36,7 +36,7 @@ theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
     -- 2. arithmetic
     have s2 : ¬ (0 : ℤ) < 0 := by parley_arith
     -- 3. substitute |A| = 0 (line 1) into line 2
-    have s3 : ¬ 0 < (A.ncard : ℤ) := by parley_count_int; (first | parley_subst_at s1 s2 | (have e_nat : A.ncard = 0 := by exact_mod_cast s1; parley_subst_at e_nat s2))
+    have s3 : ¬ 0 < (A.ncard : ℤ) := by parley_count_int; ((have h := Eq.subst (motive := (fun t : ℤ => ¬ 0 < t)) (s1).symm s2; push_cast at h ⊢; all_goals exact_mod_cast h))
     exact s3 hC1
   · skip
     intro hC2

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
@@ -27,7 +26,7 @@ theorem odd_factor (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Even (A * B)) :
   -- 2. obtain a: def:even n := A·B, from H4
   obtain ⟨a, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := A * B))).mp hH4
   -- 3. substitute A = 2b + 1 (line 1) into line 2
-  have s3 : (2 * b + 1) * B = 2 * a := by parley_subst_at s1 s2
+  have s3 : (2 * b + 1) * B = 2 * a := by (have h := Eq.subst (motive := (fun t : ℤ => t * B = 2 * a)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. algebra, from 3
   have s4 : B = 2 * (a - b * B) := by linear_combination (norm := parley_norm) s3
   -- 5. def:even n := B, from 4

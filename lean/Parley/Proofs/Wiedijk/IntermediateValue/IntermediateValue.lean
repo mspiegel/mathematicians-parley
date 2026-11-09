@@ -3,7 +3,6 @@ module
 public import InstanceTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Tactic.Init
@@ -93,7 +92,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       have s16_1 : c ≠ b := by
         intro hS1
         -- 16.1.1. substitute c = b (S1) into C1
-        have s16_1_1 : f b < 0 := by parley_subst_at hS1 hC1
+        have s16_1_1 : f b < 0 := by (have h := Eq.subst (motive := (fun t : ℝ => f t < 0)) hS1 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 16.1.2. def:interval x := b
         have r108_1 : a ≤ b := by parley_set_side
         have r108_2 : b ≤ b := by parley_order

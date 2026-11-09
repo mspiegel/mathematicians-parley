@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Divisibility
 public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -47,7 +46,7 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   · skip
     intro hC1
     -- 3.1. substitute A mod B = A − B·q (line 2) into C1
-    have s3_1 : A - B * (q : ℝ) = 0 := by parley_subst_at s2 hC1
+    have s3_1 : A - B * (q : ℝ) = 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t = 0)) s2 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.2. algebra, from 3.1
     have r33_1 : B ≠ 0 := by parley_side
     have s3_2 : A / B = (q : ℝ) := by linear_combination (norm := parley_field) ((1) / ((B))) * s3_1

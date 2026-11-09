@@ -1,7 +1,6 @@
 module
 
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
@@ -34,7 +33,7 @@ theorem lowest_terms (x : ℚ) :
     -- 2.2. thm:divides-gcd a := p, b := q, from 2.1
     have s2_2 : d ∣ (Int.gcd p q : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := d) (a := p) (b := q) s2_1b s2_1c)
     -- 2.3. substitute gcd(p, q) = 1 (line 1) into line 2.2
-    have s2_3 : d ∣ (1 : ℤ) := by first | parley_subst_at s1c s2_2 | (have e_nat : Int.gcd p q = 1 := by exact_mod_cast s1c; parley_subst_at e_nat s2_2)
+    have s2_3 : d ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => d ∣ t)) s1c s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.4. mun:divides-one, from 2.3
     have r83_1 : 0 < d := by parley_order
     have r83_2 : 0 < d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := d) r83_1)

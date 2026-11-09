@@ -36,7 +36,7 @@ theorem sign_of_odd (n : ℤ) (hH1 : 0 < n) (hH2 : Odd n) :
   -- 2. inequalities, from H1
   have s2 : n ≥ 1 := by parley_order
   -- 3. substitute n = 2·k + 1 (line 1) into line 2
-  have s3 : 2 * k + 1 ≥ 1 := by parley_subst_at s1 s2
+  have s3 : 2 * k + 1 ≥ 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. inequalities
   have s4 : k ≥ 0 := by parley_order
   -- 5. mun:nat0-as-int n := k, from 4

@@ -113,6 +113,27 @@ rule is one representation fact, then moves the casts of the two alike
 (`exact_mod_cast`). A fact found missing is tagged into the set, never added
 at a step.
 
+**A substitution.** Where the checker recorded how a `substitute` step or
+calculation row makes its claim (`CheckedTheorem::substituted`), the writer
+puts the equation in exactly there. It writes what the equation is put into
+with each recorded place as one fresh letter, the motive, its letter of the
+type the equation's line is stated in. Put into a line, `Eq.subst` along the
+motive takes the line to the claim; put into a side of the claim `t = t′`,
+`congrArg` of the motive is the claim, turned where the side is its right.
+The equation's line is turned with `.symm` where the record puts its left
+side for its right, read from the line as the page writes it, with its
+defines kept (`FirstAt::written`). The result is stated by a `have`, so that
+a numeral exponent defaults to ℕ, and closed by `push_cast at h ⊢` and
+`exact_mod_cast h`. A substitution keeps the earlier ways, registered as
+"substitute: equation put in", where the record has none or the motive does
+not state it as written:
+- a place that is an exponent, written by what the page says of its term;
+- a fact the line implies and does not write;
+- a line, or a motive, of a term written as the whole number it is;
+- a line stated in another type than the equation;
+- an equation of rationals put into a wider field;
+- an equation with a side written with `toNat`.
+
 **Casts.** Where two statements are alike but for casts, the closer comes
 from the cast table (`src/lean/casts.rs`). For each operation the writer
 writes and each widening between ℕ, ℤ, ℚ, ℝ and ℂ, the table says whether
@@ -321,7 +342,7 @@ them, as Mathlib's own proofs do.
 | arithmetic, real arithmetic | `parley_arith` |
 | inequalities, transitivity, antisymmetry, rows | linear arithmetic, `parley_side` |
 | membership, restate, join, inspection | `parley_side`; an integer the cited lines give, as a witness |
-| substitute | `parley_subst`, the equation either way round; rows one at a time |
+| substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); else `parley_subst`, the equation either way round; rows one at a time |
 | calculation | `calc`, each link by its reason |
 | proof | `intro` |
 | contradiction | `by_contra hS` where the supposition is the claim negated, `intro hS` where the claim is the supposition negated, the supposition ascribed or turned where Lean writes it otherwise |

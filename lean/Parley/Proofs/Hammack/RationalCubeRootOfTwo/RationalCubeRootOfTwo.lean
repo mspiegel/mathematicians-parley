@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -41,7 +40,7 @@ theorem rational_cube_root_of_two :
   -- 2. obtain p, q: thm:lowest-terms
   obtain ⟨p, q, ⟨⟨s2a, s2b⟩, s2c⟩⟩ := (Parley.Proofs.Wiedijk.Sqrt2Irrational.LowestTerms.lowest_terms (x := x))
   -- 3. substitute x = p/q (line 2) into line 1
-  have s3 : ((p : ℚ) / (q : ℚ)) ^ 3 = 2 := by parley_subst_at s2b s1
+  have s3 : ((p : ℚ) / (q : ℚ)) ^ 3 = 2 := by (have h := Eq.subst (motive := (fun t : ℚ => t ^ 3 = 2)) s2b s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. algebra, from 3
   have r75_1 : q ≠ 0 := by parley_side
   have s4 : p ^ 3 = 2 * q ^ 3 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s3
@@ -52,7 +51,7 @@ theorem rational_cube_root_of_two :
   -- 7. obtain r: def:even n := p, from 6
   obtain ⟨r, s7⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := p))).mp s6
   -- 8. substitute p = 2r (line 7) into line 4
-  have s8 : (2 * r) ^ 3 = 2 * q ^ 3 := by parley_subst_at s7 s4
+  have s8 : (2 * r) ^ 3 = 2 * q ^ 3 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 3 = 2 * q ^ 3)) s7 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 9. algebra, from 8
   have s9 : q ^ 3 = 2 * (2 * r ^ 3) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s8
   -- 10. def:even n := q³, from 9

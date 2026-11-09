@@ -125,7 +125,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       have s9_20_6 : a n - L + L = a n := by parley_ring
       -- 9.20.7. calculation
       have s9_20_7 : abs (a n) ≤ abs (a n - L) + abs L := by
-        calc abs (a n) = abs (a n - L + L) := by parley_subst s9_20_6
+        calc abs (a n) = abs (a n - L + L) := by (have h := congrArg (fun u : ℝ => abs u) (s9_20_6).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ ≤ abs (a n - L) + abs L := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n - L) (b := L))
       -- 9.20.8. inequalities
       have s9_20_8 : abs (a n - L) + abs L < abs L + 1 := by parley_order
@@ -148,7 +148,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.14. inequalities, from 9.20.11, 9.20.12
       have s9_20_14 : abs (a n * (b n - M)) + abs (M * (a n - L)) < ε / 2 + ε / 2 := by parley_order
       -- 9.20.15. calculation
-      calc abs (a n * b n - L * M) = abs (a n * (b n - M) + M * (a n - L)) := by parley_subst s9_20_13
+      calc abs (a n * b n - L * M) = abs (a n * (b n - M) + M * (a n - L)) := by (have h := congrArg (fun u : ℝ => abs u) s9_20_13; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ ≤ abs (a n * (b n - M)) + abs (M * (a n - L)) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L)))
         _ < ε / 2 + ε / 2 := by exact s9_20_14
         _ = ε := by parley_ring

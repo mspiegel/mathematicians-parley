@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -31,7 +30,7 @@ theorem gcd_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   · skip
     intro hD1
     -- 2.1. substitute a = gcd(a, b) (D1) into line 1
-    parley_subst_at hD1 s1c
+    (have h := Eq.subst (motive := (fun t : ℤ => t ∣ b)) (hD1).symm s1c; push_cast at h ⊢; all_goals exact_mod_cast h)
   · skip
     intro hD2
     -- 2.2. mun:divides-self n := a

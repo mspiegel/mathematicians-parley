@@ -4,7 +4,6 @@ public import ArithTactics
 public import Functions
 public import InstanceTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -60,7 +59,7 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / (1 + 1) := by
               have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / (1 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ)) (n := (1 : ℤ)) r135_1))
               exact hI
-          _ = 1 / 1 + 1 / (1 + 1) := by parley_subst s2_1
+          _ = 1 / 1 + 1 / (1 + 1) := by (have h := congrArg (fun t : ℚ => t + 1 / (1 + 1)) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ ≥ 1 + 1 / 2 := by norm_num
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_2
     | succ m hK hIH =>

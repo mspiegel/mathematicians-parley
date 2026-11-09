@@ -91,7 +91,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       -- 5.3.3.2. def:singleton x := p, a := j, from C5
       have s5_3_3_2 : p = j := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC5
       -- 5.3.3.3. substitute p = j (line 5.3.3.2) into K4
-      have s5_3_3_3 : j < q := by parley_subst_at s5_3_3_2 hK4
+      have s5_3_3_3 : j < q := by (have h := Eq.subst (motive := (fun t : ℤ => t < q)) s5_3_3_2 hK4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 5.3.3.4. transitivity, from 5.3.3.3, 5.3.2, H8
       have s5_3_3_4 : j < j := by parley_order
       -- 5.3.3.5. inequalities
@@ -110,9 +110,9 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
         -- 5.3.5.2. def:singleton x := p, a := j, from C8
         have s5_3_5_2 : p = j := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC8
         -- 5.3.5.3. substitute p = j (line 5.3.5.2) into K4
-        have s5_3_5_3 : j < q := by parley_subst_at s5_3_5_2 hK4
+        have s5_3_5_3 : j < q := by (have h := Eq.subst (motive := (fun t : ℤ => t < q)) s5_3_5_2 hK4; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 5.3.5.4. substitute q = j (line 5.3.4) into line 5.3.5.3
-        have s5_3_5_4 : j < j := by parley_subst_at s5_3_4 s5_3_5_3
+        have s5_3_5_4 : j < j := by (have h := Eq.subst (motive := (fun t : ℤ => j < t)) s5_3_4 s5_3_5_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 5.3.5.5. inequalities
         have s5_3_5_5 : ¬ j < j := by parley_set_side
         exact absurd s5_3_5_4 s5_3_5_5

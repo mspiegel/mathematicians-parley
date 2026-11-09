@@ -38,6 +38,16 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "a place written as the equation's side is written is that place whole, where a formula comparison would also match a part of it with an identity element dropped",
     ),
     (
+        "src/matching.rs",
+        "if start.same_shape(aim) {",
+        "where a substitution puts its equation is recorded for a backend that rewrites exactly there, so the record holds only a putting that makes the claim as the page writes it, with no identity element dropped and no order changed",
+    ),
+    (
+        "src/matching.rs",
+        "if start.same_shape(was) && aim.same_shape(now) {",
+        "a recorded place is one the equation's side is written at, as written, and the side put there makes the claim's term as written, for the same reason",
+    ),
+    (
         "src/citing/conclude.rs",
         "if start.same_shape(was) {",
         "a place written as the equation's side is written drops no identity element, which is a question of how it is written",

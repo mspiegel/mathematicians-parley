@@ -25,7 +25,7 @@ theorem coprime_divides (x : ℤ) (c : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : n ∣
   -- 1. obtain u, v: thm:bezout a := c, b := n
   obtain ⟨u, v, s1⟩ := (Parley.Items.Stdlib.Divisibility.thm_bezout (a := c) (b := n) (by parley_side))
   -- 2. substitute gcd(c, n) = 1 (H5) into line 1
-  have s2 : c * u + n * v = 1 := by first | parley_subst_at hH5 s1 | (have e_nat : Int.gcd c n = 1 := by exact_mod_cast hH5; parley_subst_at e_nat s1)
+  have s2 : c * u + n * v = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => c * u + n * v = t)) hH5 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 3. mun:divides-self
   have s3 : n ∣ n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := n))
   -- 4. mun:divides-combination e := n, a := x·c, b := n, x := u, y := x·v, from H4, 3

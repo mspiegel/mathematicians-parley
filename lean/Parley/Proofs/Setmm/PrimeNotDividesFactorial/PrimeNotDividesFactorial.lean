@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -44,7 +43,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
       -- 2.1.1. def:factorial
       have s2_1_1 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
       -- 2.1.2. substitute 1! = 1 (line 2.1.1) into S1
-      have s2_1_2 : P ∣ (1 : ℤ) := by first | parley_subst_at s2_1_1 hS1 | (have e_nat : LeanBridges.Counting.factorial (1 : ℤ) = 1 := by exact_mod_cast s2_1_1; parley_subst_at e_nat hS1)
+      have s2_1_2 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s2_1_1 hS1; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.1.3. mun:divides-one d := P, from 2.1.2
       have s2_1_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_1_2)
       -- 2.1.4. inequalities
@@ -57,7 +56,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
       -- 2.2.1. def:factorial n := k
       have s2_2_1 : (LeanBridges.Counting.factorial (k + 1) : ℤ) = (LeanBridges.Counting.factorial k : ℤ) * (k + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k) (by parley_side))
       -- 2.2.2. substitute (k + 1)! = k!·(k + 1) (line 2.2.1) into S2
-      have s2_2_2 : P ∣ (LeanBridges.Counting.factorial k : ℤ) * (k + 1) := by parley_subst_at s2_2_1 hS2
+      have s2_2_2 : P ∣ (LeanBridges.Counting.factorial k : ℤ) * (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s2_2_1 hS2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.2.3. thm:prime-divides-product m := k!, n := k + 1, from H2
       have s2_2_3 : P ∣ (LeanBridges.Counting.factorial k : ℤ) * (k + 1) ↔ P ∣ (LeanBridges.Counting.factorial k : ℤ) ∨ P ∣ k + 1 := by exact (Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := (LeanBridges.Counting.factorial k : ℤ)) (n := k + 1))
       -- 2.2.4. mun:iff-from-left, from 2.2.2, 2.2.3
@@ -87,11 +86,11 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
     -- 4.1. arithmetic
     have s4_1 : (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 := by parley_arith
     -- 4.2. substitute N = 0 (C3) into line 4.1
-    have s4_2 : (LeanBridges.Counting.factorial N : ℤ) = 1 := by parley_subst_at hC3 s4_1
+    have s4_2 : (LeanBridges.Counting.factorial N : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1)) (hC3).symm s4_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.3. contradiction
     intro hS3
     -- 4.3.1. substitute N! = 1 (line 4.2) into S3
-    have s4_3_1 : P ∣ (1 : ℤ) := by first | parley_subst_at s4_2 hS3 | (have e_nat : LeanBridges.Counting.factorial N = 1 := by exact_mod_cast s4_2; parley_subst_at e_nat hS3)
+    have s4_3_1 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s4_2 hS3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.3.2. mun:divides-one d := P, from 4.3.1
     have s4_3_2 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s4_3_1)
     -- 4.3.3. inequalities

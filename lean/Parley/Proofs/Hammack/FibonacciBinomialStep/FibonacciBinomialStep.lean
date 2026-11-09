@@ -57,7 +57,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   have s5 : 0 < m + 1 + 1 := by parley_order
   -- 6. calculation
   have s6 : (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = 0 := by
-    calc (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (m + 1 + 1) : ℤ) := by parley_subst s4
+    calc (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (m + 1 + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (m + 1 + 1) : ℤ)) s4; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := m + 1 + 1)) s5
   -- 7. substitute C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = 0 (line 6) into line 3
   have s7 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) := by first | parley_subst_at s6 s3 | (have e_nat : LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) = 0 := by exact_mod_cast s6; parley_subst_at e_nat s3)
@@ -71,7 +71,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
     -- 8.2. algebra
     have s8_2 : m + 1 - k + 1 = m + 1 + 1 - k := by parley_ring
     -- 8.3. calculation
-    calc (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) = (LeanBridges.Counting.choose (m + 1 - k + 1) k : ℤ) := by parley_subst s8_2
+    calc (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) = (LeanBridges.Counting.choose (m + 1 - k + 1) k : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) (s8_2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + 1 - k) (by parley_side) (k := k)).symm
   -- 9. proof
   -- what this block shows, Lean's types give
@@ -101,7 +101,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
     -- 17.1. algebra
     have s17_1 : m + 1 - k = m - (k - 1) := by parley_ring
     -- 17.2. substitute (m + 1) − k = m − (k − 1) (line 17.1)
-    parley_subst s17_1
+    (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k - 1) : ℤ)) s17_1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 18. proof
   -- what this block shows, Lean's types give
   -- 19. calculation
@@ -113,6 +113,6 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   calc (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) := by exact s7
     _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (a := (0 : ℤ)) (b := m + 1) s8)
     _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) k : ℤ) : ℤ)) + (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_add (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) k : ℤ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (a := (0 : ℤ)) (b := m + 1))
-    _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) k : ℤ) : ℤ)) + (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ)) := by parley_subst s19
+    _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) k : ℤ) : ℤ)) + (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ)) := by (have h := congrArg (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) k : ℤ) : ℤ)) + t) s19; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Hammack.FibonacciBinomialStep.FibonacciBinomialStep

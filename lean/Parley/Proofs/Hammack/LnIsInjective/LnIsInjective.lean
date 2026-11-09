@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -19,7 +18,7 @@ theorem ln_is_injective (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) (hH5 : R
     x = y := by
   -- 1. calculation
   calc x = Real.exp (Real.log x) := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := x) hH3).symm
-    _ = Real.exp (Real.log y) := by parley_subst hH5
+    _ = Real.exp (Real.log y) := by (have h := congrArg (fun t : ℝ => Real.exp t) hH5; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = y := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := y) hH4)
 
 end Parley.Proofs.Hammack.LnIsInjective.LnIsInjective

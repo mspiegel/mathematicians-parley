@@ -70,7 +70,7 @@ theorem binomial (x : ℝ) (y : ℝ) (n : ℤ) (hH3 : 0 ≤ n) :
     | succ m hK hIH =>
       -- 1.3. calculation
       calc (x + y) ^ (m + 1).toNat = (x + y) ^ m.toNat * (x + y) := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m) (by parley_side))
-        _ = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat : ℝ)) * (x + y) := by parley_subst hIH
+        _ = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat : ℝ)) * (x + y) := by (have h := congrArg (fun t : ℝ => t * (x + y)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1) k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) := by exact (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m) (by parley_side))
   -- 2. instantiate m := n in line 1
   exact (s1 n (by parley_side))

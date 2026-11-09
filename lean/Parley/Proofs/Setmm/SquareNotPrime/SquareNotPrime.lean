@@ -2,7 +2,6 @@ module
 
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -47,7 +46,7 @@ theorem square_not_prime (A : ℤ) :
   have s4 : abs A ≠ 0 := by
     intro hS2
     -- 4.1. substitute |A| = 0 (S2) into line 3
-    have s4_1 : 0 ^ 2 = A ^ 2 := by parley_subst_at hS2 s3
+    have s4_1 : 0 ^ 2 = A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) hS2 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.2. inequalities
     have s4_2 : 0 ^ 2 ≥ A ^ 2 := by parley_order
     -- 4.3. inequalities, from 4.2
@@ -76,7 +75,7 @@ theorem square_not_prime (A : ℤ) :
       -- 11.2. mun:multiply-cancel a := |A|, b := 1, c := |A|, from 4, 11.1
       exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := abs A) (b := (1 : ℤ)) (c := abs A) (by parley_side) (by parley_side))
   -- 12. substitute |A| = 1 (line 11) into line 3
-  have s12 : 1 ^ 2 = A ^ 2 := by parley_subst_at s11 s3
+  have s12 : 1 ^ 2 = A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) s11 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 13. inequalities
   have s13 : 1 ^ 2 ≥ A ^ 2 := by parley_order
   -- 14. inequalities, from 13

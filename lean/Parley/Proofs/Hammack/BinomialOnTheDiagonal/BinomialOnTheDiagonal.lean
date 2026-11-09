@@ -46,8 +46,8 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
         exact row1
       -- 1.6. calculation
       calc (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) = (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) := by exact s1_5.symm
-        _ = 0 + (LeanBridges.Counting.choose j j : ℤ) := by parley_subst s1_3
-        _ = 0 + 1 := by parley_subst hIH
+        _ = 0 + (LeanBridges.Counting.choose j j : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose j j : ℤ)) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 0 + 1 := by (have h := congrArg (fun t : ℤ => 0 + t) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 := by norm_num
   -- 2. instantiate j := m in line 1
   exact (s1 m (by parley_side))

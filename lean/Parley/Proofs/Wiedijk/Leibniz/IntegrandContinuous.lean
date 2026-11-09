@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -89,7 +88,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
     -- 18.4. D4, from K1
     have s18_4 : v x = 1 + x ^ 2 := by simp (disch := omega) only [hD4]
     -- 18.5. substitute v(x) = 1 + x² (line 18.4) into line 18.3
-    parley_subst_at s18_4 s18_3
+    (have h := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) (s18_4).symm s18_3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 19. proof
   have s19 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = u x / v x := by
     intro x hK2

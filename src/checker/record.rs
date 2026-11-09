@@ -301,6 +301,12 @@ pub struct CheckedTheorem {
     /// a = c of a = b = c, is placed at the chain's sentence with the pair it
     /// reads as `written`.
     pub link_places: IndexMap<usize, FirstAt>,
+    /// How each `substitute` step and calculation row writing no rows makes
+    /// its claim, by the line of its justification; none where the
+    /// equation is put at places only a standard order of the trees finds,
+    /// or an identity element is dropped on the way
+    /// (`citations::substitutions`).
+    pub substituted: IndexMap<usize, Substituted>,
     /// What each of the theorem's `let` lines asserts that the page does not
     /// read as a formula, `f : A → B be one-to-one` as `f : A → B is
     /// one-to-one`, by the hypothesis's index; empty for any other line
@@ -602,6 +608,37 @@ pub struct Instantiated {
     pub conditions: usize,
     /// How what is left meets the claim (`Known::alike_how`).
     pub meeting: crate::matching::Meeting,
+}
+
+/// Where a substitution puts its equation, and what at (`Substituted`).
+#[derive(Clone, Debug)]
+pub enum SubstitutedInto {
+    /// A fact of the line the step names, where it stands there.
+    Line(FirstAt),
+    /// A side of the claim `t = t′`, by its place, 0 or 1: the side the
+    /// equation is put into makes the other.
+    ClaimSide(usize),
+}
+
+/// How a `substitute` step or calculation row makes its claim: the
+/// equation it puts in, which way round, and the places of what it is put
+/// into that it is put at (`citations::substitutions`).
+#[derive(Clone, Debug)]
+pub struct Substituted {
+    /// The equation, as the page writes it: the step's own, or the one the
+    /// line it is taken from says.
+    pub equation: Node,
+    /// Where the equation stands in the line it is taken from; None where
+    /// the step writes it from a define or from arithmetic, or the line
+    /// says it as a whole.
+    pub from: Option<FirstAt>,
+    /// What the equation is put into (`SubstitutedInto`).
+    pub into: SubstitutedInto,
+    /// What it is put into, as the page writes it.
+    pub start: Node,
+    /// Where it is put (`matching::substitution_places`): which way round,
+    /// and each place by its path of children from the top of `start`.
+    pub put: crate::matching::SubstitutionPlaces,
 }
 
 /// One letter of a cited item the citation gives a value, with the number

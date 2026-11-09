@@ -31,7 +31,7 @@ theorem gcd_add_multiple (K : ℤ) (M : ℤ) (hH2 : 0 < M) (N : ℤ) :
     have row1 : (N + K * M) % M = N % M := by parley_subst_at c1 s2
     exact row1
   -- 4. substitute (N + K·M) mod M = N mod M (line 3) into line 1
-  have s4 : (Int.gcd (N % M) M : ℤ) = (Int.gcd (N + K * M) M : ℤ) := by parley_subst_at s3 s1
+  have s4 : (Int.gcd (N % M) M : ℤ) = (Int.gcd (N + K * M) M : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd t M : ℤ) = (Int.gcd (N + K * M) M : ℤ))) s3 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. calculation
   calc (Int.gcd M N : ℤ) = (Int.gcd N M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := M)).symm
     _ = (Int.gcd (N % M) M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) (by parley_side)).symm

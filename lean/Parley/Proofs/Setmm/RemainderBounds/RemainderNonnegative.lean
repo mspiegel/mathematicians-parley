@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Divisibility
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -50,6 +49,6 @@ theorem remainder_nonnegative (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 5. inequalities
   have s5 : 0 ≤ A - B * (q : ℝ) := by parley_order
   -- 6. substitute A mod B = A − B·q (line 2) into line 5
-  parley_subst_at s2 s5
+  (have h := Eq.subst (motive := (fun t : ℝ => 0 ≤ t)) (s2).symm s5; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.RemainderBounds.RemainderNonnegative

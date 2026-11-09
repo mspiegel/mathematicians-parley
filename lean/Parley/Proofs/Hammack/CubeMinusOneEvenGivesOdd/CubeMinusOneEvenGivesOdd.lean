@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -36,7 +35,7 @@ theorem cube_minus_one_even_gives_odd (x : ℤ) (hH2 : Even (x ^ 3 - 1)) :
     obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := x))).mp hC1
     -- 2.2. calculation
     have s2_2 : x ^ 3 - 1 = 2 * (4 * k ^ 3 - 1) + 1 := by
-      calc x ^ 3 - 1 = (2 * k) ^ 3 - 1 := by parley_subst s2_1
+      calc x ^ 3 - 1 = (2 * k) ^ 3 - 1 := by (have h := congrArg (fun t : ℤ => t ^ 3 - 1) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 * (4 * k ^ 3 - 1) + 1 := by parley_ring
     -- 2.3. def:odd n := x³ − 1, from 2.2
     have s2_3 : Odd (x ^ 3 - 1) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, s2_2⟩

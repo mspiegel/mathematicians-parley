@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -60,7 +59,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
           _ = S k + (2 * (k + 1) - 1) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
       calc S (k + 1) = S k + (2 * (k + 1) - 1) := by exact s1_2
-        _ = k ^ 2 + (2 * (k + 1) - 1) := by parley_subst hIH
+        _ = k ^ 2 + (2 * (k + 1) - 1) := by (have h := congrArg (fun t : ℤ => t + (2 * (k + 1) - 1)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (k + 1) ^ 2 := by parley_ring
   -- 2. def:nat0 n := N
   have s2 : 0 < N ∨ N = 0 := by
@@ -88,6 +87,6 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by exact s3_5
         _ = 0 ^ 2 := by norm_num
     -- 3.7. substitute N = 0 (C2) into line 3.6
-    parley_subst_at hC2 s3_6
+    (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (2 * k - 1 : ℤ)) = t ^ 2)) (hC2).symm s3_6; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum

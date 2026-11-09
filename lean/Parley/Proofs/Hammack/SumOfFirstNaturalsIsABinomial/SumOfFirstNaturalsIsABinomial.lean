@@ -57,8 +57,8 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       calc S 1 = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (j : ℤ)) := by simp (disch := omega) only [hD1]
         _ = 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => j)) (a := (1 : ℤ)))
         _ = 0 + 1 := by norm_num
-        _ = 0 + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by parley_subst s1_5
-        _ = (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by parley_subst s1_2
+        _ = 0 + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => 0 + t) (s1_5).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ)) (s1_2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by exact s1_4
     | succ k hK hIH =>
       -- 1.7. calculation
@@ -75,8 +75,8 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       have s1_10 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by parley_subst_at (show (2 - 1 : ℤ) = 1 by parley_side) s1_9
       -- 1.11. calculation
       calc S (k + 1) = S k + (k + 1) := by exact s1_7
-        _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (k + 1) := by parley_subst hIH
-        _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by parley_subst s1_8
+        _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (k + 1) := by (have h := congrArg (fun t : ℤ => t + (k + 1)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + t) (s1_8).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by exact s1_10
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) = S n := by simp (disch := omega) only [hD1]

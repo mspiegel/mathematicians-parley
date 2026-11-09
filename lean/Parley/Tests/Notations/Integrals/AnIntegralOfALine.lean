@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
@@ -92,9 +91,9 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
   -- 10. instantiate x := 0 in H4, from 8
   have s10 : F 0 = 0 ^ 2 := by exact (hH4 (0 : ℝ) (by parley_set_side))
   -- 11. substitute F(1) = 1² (line 9) into line 6
-  have s11 : (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - F 0 := by parley_subst_at s9 s6
+  have s11 : (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - F 0 := by (have h := Eq.subst (motive := (fun u : ℝ => (∫ t in 0..1, (f t : ℝ)) = u - F 0)) s9 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. substitute F(0) = 0² (line 10) into line 11
-  have s12 : (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - 0 ^ 2 := by parley_subst_at s10 s11
+  have s12 : (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - 0 ^ 2 := by (have h := Eq.subst (motive := (fun u : ℝ => (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - u)) s10 s11; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 13. calculation
   calc (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - 0 ^ 2 := by exact s12
     _ = 1 := by norm_num

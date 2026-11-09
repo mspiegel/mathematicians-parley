@@ -1,7 +1,6 @@
 module
 
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -37,7 +36,7 @@ theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
     -- 2.3. inequalities
     have s2_3 : a = b := by parley_side
     -- 2.4. substitute a = b (line 2.3)
-    have s2_4 : a ^ 2 = b ^ 2 := by parley_subst s2_3
+    have s2_4 : a ^ 2 = b ^ 2 := by (have h := congrArg (fun t : ℝ => t ^ 2) s2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.5. inequalities
     parley_order
   · skip

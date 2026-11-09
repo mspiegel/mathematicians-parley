@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
@@ -22,7 +21,7 @@ theorem negative_of_rational (A : ℚ) :
   obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
   -- 2. calculation
   have s2 : -A = -(p : ℚ) / (q : ℚ) := by
-    calc -A = -((p : ℚ) / (q : ℚ)) := by parley_subst s1b
+    calc -A = -((p : ℚ) / (q : ℚ)) := by (have h := congrArg (fun t : ℚ => -t) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = -(p : ℚ) / (q : ℚ) := by parley_ring
   -- 3. def:rational x := −A, from 2
   exact trivial

@@ -44,7 +44,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 ≤ n) :
         exact row1
       -- 1.6. calculation
       calc (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 := by exact s1_5.symm
-        _ = k + 1 := by parley_subst hIH
+        _ = k + 1 := by (have h := congrArg (fun t : ℤ => t + 1) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))
 

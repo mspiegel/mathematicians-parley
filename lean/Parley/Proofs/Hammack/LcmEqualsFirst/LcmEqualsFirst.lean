@@ -1,7 +1,6 @@
 module
 
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -37,7 +36,7 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   · skip
     intro hD1
     -- 5.1. substitute a = lcm(a, b) (D1) into line 1
-    parley_subst_at hD1 s1
+    (have h := Eq.subst (motive := (fun t : ℤ => b ∣ t)) (hD1).symm s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   · skip
     intro hD2
     -- 5.2. mun:divides-self n := a
@@ -53,7 +52,7 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     have s5_6 : (Int.lcm a b : ℤ) ≠ 0 := by
       intro hS
       -- 5.6.1. substitute lcm(a, b) = 0 (S) into line 5.5
-      have s5_6_1 : (0 : ℤ) ∣ a := by first | parley_subst_at hS s5_5 | (have e_nat : Int.lcm a b = 0 := by exact_mod_cast hS; parley_subst_at e_nat s5_5)
+      have s5_6_1 : (0 : ℤ) ∣ a := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a)) hS s5_5; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 5.6.2. mun:zero-divides n := a, from 5.6.1
       have s5_6_2 : a = 0 := by exact ((Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := a))).mp s5_6_1
       -- 5.6.3. inequalities, from H1

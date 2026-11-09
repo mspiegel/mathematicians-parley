@@ -122,7 +122,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     -- 19.3. calculation
     have r142_1 : m + 1 ≠ 0 := by parley_set_side
     calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
-      _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by parley_subst s16
+      _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) (s16 x (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = x ^ m.toNat := by parley_ring
       _ = p x := by exact s19_2
   -- 20. arithmetic
@@ -167,8 +167,8 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   have r193_1 : m + 1 ≠ 0 := by parley_set_side
   calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by simp (disch := omega) only [hD1]
     _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
-    _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := by parley_subst s29
-    _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := by parley_subst s30
+    _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := by (have h := congrArg (fun t : ℝ => t - F 0) s29; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * 1 - t) s30; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 1 / ((m : ℝ) + 1) := by parley_ring
 
 end Parley.Proofs.Wiedijk.Leibniz.PowerIntegral

@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.NormNum.Basic
@@ -19,9 +18,9 @@ theorem an_opening_assume_of_several_sentences (a : ℝ) (b : ℝ) :
   -- 1. proof
   intro hK1
   -- 1.1. substitute a = 1 (K1)
-  have s1_1 : a + b = 1 + b := by parley_subst hK1.1
+  have s1_1 : a + b = 1 + b := by (have h := congrArg (fun t : ℝ => t + b) hK1.1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 1.2. substitute b = 2 (K1)
-  have s1_2 : 1 + b = 1 + 2 := by parley_subst hK1.2
+  have s1_2 : 1 + b = 1 + 2 := by (have h := congrArg (fun t : ℝ => 1 + t) hK1.2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 1.3. calculation
   calc a + b = 1 + b := by exact s1_1
     _ = 1 + 2 := by exact s1_2

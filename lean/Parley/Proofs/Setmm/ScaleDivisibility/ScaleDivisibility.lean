@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -22,7 +21,7 @@ theorem scale_divisibility (M : ℤ) (N : ℤ) (K : ℤ) (hH4 : M ∣ N) :
   obtain ⟨c, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := M) (n := N))).mp hH4
   -- 2. calculation
   have s2 : K * N = K * M * c := by
-    calc K * N = K * (M * c) := by parley_subst s1
+    calc K * N = K * (M * c) := by (have h := congrArg (fun t : ℤ => K * t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = K * M * c := by parley_ring
   -- 3. def:divides d := K·M, n := K·N, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := K * M) (n := K * N))).mpr ⟨c, s2⟩

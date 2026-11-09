@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -49,7 +48,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       -- 3.2. calculation
       have s3_2 : 4 * k ^ 2 = 4 * b + 3 := by
         calc 4 * k ^ 2 = (2 * k) ^ 2 := by parley_ring
-          _ = a ^ 2 := by parley_subst s3_1
+          _ = a ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) (s3_1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 4 * b + 3 := by exact s1
       -- 3.3. algebra, from 3.2
       have s3_3 : 1 = 2 * (2 * k ^ 2 - 2 * b - 1) := by linear_combination (norm := parley_norm) (-1) * s3_2
@@ -61,7 +60,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       -- 3.6. calculation
       have s3_6 : 4 * k ^ 2 + 4 * k + 1 = 4 * b + 3 := by
         calc 4 * k ^ 2 + 4 * k + 1 = (2 * k + 1) ^ 2 := by parley_ring
-          _ = a ^ 2 := by parley_subst s3_5
+          _ = a ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) (s3_5).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 4 * b + 3 := by exact s1
       -- 3.7. algebra, from 3.6
       have s3_7 : 1 = 2 * (k ^ 2 + k - b) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s3_6

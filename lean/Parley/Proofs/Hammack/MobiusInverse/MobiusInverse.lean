@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -52,7 +51,7 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
   -- 4.5. mun:inverse-value g := f, y := x, from 1, 4.2
   have s4_5 : (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) (f x) = x := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a)
   -- 4.6. substitute y = f(x) (line 4.2) into line 4.5
-  have s4_6 : (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = x := by parley_subst_at s4_2b s4_5
+  have s4_6 : (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = x := by (have h := Eq.subst (motive := (fun t : ℝ => (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) t = x)) (s4_2b).symm s4_5; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4.7. calculation
   have r46_1 : x - 2 ≠ 0 := by parley_set_side
   have r46_2 : y - 5 ≠ 0 := by parley_set_side

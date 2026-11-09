@@ -4,7 +4,6 @@ public import ComplexTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -85,7 +84,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
     -- 6.2. mun:power-less, from 4, 6.1
     have s6_2 : M ^ n.toNat < r ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) (by parley_side) (by parley_side) (by parley_side))
     -- 6.3. substitute r^n = P (line 5) into line 6.2
-    have s6_3 : M ^ n.toNat < P := by parley_subst_at s5 s6_2
+    have s6_3 : M ^ n.toNat < P := by (have h := Eq.subst (motive := (fun t : ℝ => M ^ n.toNat < t)) s5 s6_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 6.4. inequalities, from 6.3
     have s6_4 : ¬ P ≤ M ^ n.toNat := by parley_side
     exact s6_4 s1

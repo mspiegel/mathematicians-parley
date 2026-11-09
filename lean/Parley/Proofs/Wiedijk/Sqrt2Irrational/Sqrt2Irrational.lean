@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -52,7 +51,7 @@ theorem sqrt2_irrational :
     obtain ⟨p, q, ⟨⟨s2_1a, s2_1b⟩, s2_1c⟩⟩ := (Parley.Proofs.Wiedijk.Sqrt2Irrational.LowestTerms.lowest_terms (x := (Classical.choose hS)))
     have s2_1b : Real.sqrt (2 : ℝ) = (p : ℝ) / (q : ℝ) := by rw [← Classical.choose_spec hS]; exact_mod_cast s2_1b
     -- 2.2. substitute √2 = p/q (line 2.1) into line 1
-    have s2_2 : ((p : ℚ) / (q : ℚ)) ^ 2 = 2 := by parley_subst_at s2_1b s1
+    have s2_2 : ((p : ℚ) / (q : ℚ)) ^ 2 = 2 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 = 2)) s2_1b s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.3. algebra, from 2.2
     have r119_1 : q ≠ 0 := by parley_side
     have s2_3 : p ^ 2 = 2 * q ^ 2 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 2) * s2_2
@@ -65,7 +64,7 @@ theorem sqrt2_irrational :
     -- 2.7. calculation
     have s2_7 : 2 * q ^ 2 = 4 * r ^ 2 := by
       calc 2 * q ^ 2 = p ^ 2 := by exact s2_3.symm
-        _ = (2 * r) ^ 2 := by parley_subst s2_6
+        _ = (2 * r) ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) s2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 4 * r ^ 2 := by parley_ring
     -- 2.8. algebra, from 2.7
     have s2_8 : q ^ 2 = 2 * r ^ 2 := by qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s2_7

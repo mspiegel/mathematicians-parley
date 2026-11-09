@@ -1,7 +1,6 @@
 module
 
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -42,10 +41,10 @@ theorem identity_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       have s1_1_1_2 : f a = a := by exact (hH3 a (by parley_set_side))
       -- 1.1.1.3. calculation
       have s1_1_1_3 : f x - f a = x - a := by
-        calc f x - f a = x - f a := by parley_subst s1_1_1_1
-          _ = x - a := by parley_subst s1_1_1_2
+        calc f x - f a = x - f a := by (have h := congrArg (fun t : ℝ => t - f a) s1_1_1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = x - a := by (have h := congrArg (fun t : ℝ => x - t) s1_1_1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.1.1.4. calculation
-      calc abs (f x - f a) = abs (x - a) := by parley_subst s1_1_1_3
+      calc abs (f x - f a) = abs (x - a) := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ < ε := by parley_set_side
     -- 1.1.2. exhibit, from A1, 1.1.1
     exact ⟨ε, ⟨hA1, s1_1_1⟩⟩

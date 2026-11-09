@@ -72,7 +72,7 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
       calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by exact s1_3
         _ = (1 - a ^ (k + 1).toNat) / (1 - a) + a ^ (k + 1).toNat := by parley_subst hIH
         _ = (1 - a ^ (k + 1).toNat * a) / (1 - a) := by parley_ring
-        _ = (1 - a ^ (k + 1 + 1).toNat) / (1 - a) := by parley_subst s1_4
+        _ = (1 - a ^ (k + 1 + 1).toNat) / (1 - a) := by (have h := congrArg (fun t : ℝ => (1 - t) / (1 - a)) (s1_4).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))
 

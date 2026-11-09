@@ -133,7 +133,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
           -- 1.18.6.1. D3, from K4
           have s1_18_6_1 : e i = p := by simp (disch := omega) only [hD3]
           -- 1.18.6.2. substitute e(i) = p (line 1.18.6.1) into line 1.7
-          parley_subst_at s1_18_6_1 s1_7b
+          (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) (s1_18_6_1).symm s1_7b; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 1.18.7. membership, from D3
         have s1_18_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; parley_set_side
         -- 1.18.8. mun:function-into, from 1.18.7

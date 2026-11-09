@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.Notation
@@ -25,7 +24,7 @@ theorem counted_on_from (M : ℤ) (hH1 : 0 ≤ M) (F : ℤ → ℤ) (hD1 : F 0 =
   -- 2. D1
   have s2 : F (0 + 1) = F 0 + 1 := by have h := (hD1.2 ((0 + 1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
   -- 3. substitute F(0) = M (line 1)
-  have s3 : F 0 + 1 = M + 1 := by parley_subst s1
+  have s3 : F 0 + 1 = M + 1 := by (have h := congrArg (fun t : ℤ => t + 1) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. calculation
   calc F 1 = F (0 + 1) := by norm_num
     _ = F 0 + 1 := by exact s2

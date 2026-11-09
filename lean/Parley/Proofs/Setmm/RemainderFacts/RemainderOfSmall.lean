@@ -2,9 +2,7 @@ module
 
 public import AlgebraTactics
 public import Divisibility
-public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -15,7 +13,6 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -46,9 +43,7 @@ theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH
   have s5 : ⌊A / B⌋ = 0 := ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := A / B) (k := (0 : ℤ)))).mpr (by parley_side)
   -- 6. calculation
   calc LeanBridges.Divisibility.mod A B = A - B * (⌊A / B⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
-    _ = A - B * 0 := by
-        have s5_w : (⌊A / B⌋ : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s5; push_cast at h; linear_combination (norm := parley_norm) h
-        first | parley_subst s5_w | parley_subst s5
+    _ = A - B * 0 := by (have h := congrArg (fun t : ℤ => A - B * (t : ℝ)) s5; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = A := by parley_ring
 
 end Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall

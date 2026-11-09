@@ -2,7 +2,6 @@ module
 
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
@@ -46,9 +45,9 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     -- 6.1. mun:card-subset A := Y, B := {v}, from K1
     have s6_1 : (Y.ncard : ℤ) ≤ (({v} : Set α).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1); simp only [← Set.Finite.cast_ncard_eq (show (Y : Set α).Finite by parley_finite), ← Set.Finite.cast_ncard_eq (show ({v} : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
     -- 6.2. substitute |{v}| = 1 (line 5) into line 6.1
-    have s6_2 : (Y.ncard : ℤ) ≤ 1 := by first | parley_subst_at s5 s6_1 | (have e_nat : ({v} : Set α).ncard = 1 := by exact_mod_cast s5; parley_subst_at e_nat s6_1)
+    have s6_2 : (Y.ncard : ℤ) ≤ 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (Y.ncard : ℤ) ≤ t)) s5 s6_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 6.3. substitute |Y| = 2 (K2) into line 6.2
-    have s6_3 : (2 : ℤ) ≤ 1 := by first | parley_subst_at hK2 s6_2 | (have e_nat : Y.ncard = 2 := by exact_mod_cast hK2; parley_subst_at e_nat s6_2)
+    have s6_3 : (2 : ℤ) ≤ 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≤ 1)) hK2 s6_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact absurd s6_3 (by norm_num)
   -- 7. inequalities
   have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (parley_order)

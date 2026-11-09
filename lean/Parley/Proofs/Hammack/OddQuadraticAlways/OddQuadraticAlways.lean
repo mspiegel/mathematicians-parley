@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -36,7 +35,7 @@ theorem odd_quadratic_always (n : ℤ) :
     obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp hC1
     -- 2.2. calculation
     have s2_2 : 5 * n ^ 2 + 3 * n + 7 = 2 * (10 * k ^ 2 + 3 * k + 3) + 1 := by
-      calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k) ^ 2 + 3 * (2 * k) + 7 := by parley_subst s2_1
+      calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k) ^ 2 + 3 * (2 * k) + 7 := by (have h := congrArg (fun t : ℤ => 5 * t ^ 2 + 3 * t + 7) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 * (10 * k ^ 2 + 3 * k + 3) + 1 := by parley_ring
     -- 2.3. def:odd n := 5n² + 3n + 7, from 2.2
     exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 3 * k + 3, s2_2⟩
@@ -45,7 +44,7 @@ theorem odd_quadratic_always (n : ℤ) :
     obtain ⟨k, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hC2
     -- 2.5. calculation
     have s2_5 : 5 * n ^ 2 + 3 * n + 7 = 2 * (10 * k ^ 2 + 13 * k + 7) + 1 := by
-      calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 7 := by parley_subst s2_4
+      calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 7 := by (have h := congrArg (fun t : ℤ => 5 * t ^ 2 + 3 * t + 7) s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 * (10 * k ^ 2 + 13 * k + 7) + 1 := by parley_ring
     -- 2.6. def:odd n := 5n² + 3n + 7, from 2.5
     exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, s2_5⟩

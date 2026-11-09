@@ -2,7 +2,6 @@ module
 
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
@@ -56,7 +55,7 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
           _ < m := by parley_set_side
           _ = (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by parley_set_side)
       -- 2.2.3. substitute i = m + n (C1) into line 2.2.2
-      parley_subst_at hC1 s2_2_2
+      (have h := Eq.subst (motive := (fun t : ℤ => (((Set.Icc (1 : ℤ) t : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) t : Set ℤ) ∩ c).ncard : ℤ))) (hC1).symm s2_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 2.2.4. mun:range-bounds a := 1, b := m + n, k := i, from K1
       have s2_2_4a : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + n) (k := i) hK1)

@@ -48,7 +48,7 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
   -- 6. thm:divides-gcd d := gcd(gcd(b, c), a), from 4, 5
   have s6 : (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (Int.gcd (Int.gcd b c : ℤ) a : ℤ)) (a := a) (b := b) s4c s5)
   -- 7. substitute gcd(a, b) = 1 (H5) into line 6
-  have s7 : (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ (1 : ℤ) := by first | parley_subst_at hH5 s6 | (have e_nat : Int.gcd a b = 1 := by exact_mod_cast hH5; parley_subst_at e_nat s6)
+  have s7 : (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ t)) hH5 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 8. calculation
   have s8 : (Int.gcd a (Int.gcd b c : ℤ) : ℤ) = 1 := by
     calc (Int.gcd a (Int.gcd b c : ℤ) : ℤ) = (Int.gcd (Int.gcd b c : ℤ) a : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := a) (b := (Int.gcd b c : ℤ)))

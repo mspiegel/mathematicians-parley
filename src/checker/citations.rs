@@ -805,7 +805,7 @@ fn across_groups(taken: &Taken, before: usize) -> Vec<Concluded> {
         .iter()
         .map(|c| Concluded {
             sentence: before + c.sentence,
-            way: c.way,
+            ..*c
         })
         .collect()
 }
@@ -2295,276 +2295,322 @@ pub fn check_substitutes(
         })
         .collect();
     for step in &read {
-        // A justification matching no production has no reading, and
-        // `check_justification_form` says so; what the substitution makes
-        // is asked only of one that reads.
-        if !step.just.head.is(Method::Substitute) || step.just.unproduced.is_some() {
-            continue;
+        if let Some(reading) = substitution_reading(step, thm, library, known) {
+            for fault in reading.faults {
+                report.say(&thm.path, step.just.line, fault);
+            }
         }
-        if step.just.equation.is_none() {
-            check_substitute_line(report, thm, step, library, known);
-            continue;
-        }
-        let equation = step
-            .just
-            .equation
-            .as_ref()
-            .and_then(|e| known.whole_as_written(e));
-        let (Some(equation), Some(claim)) =
-            (equation, known.whole_as_written(&step.claim))
-        else {
-            continue;
-        };
-        let [left, right] = equation.children.as_slice() else {
-            continue;
-        };
-        // The equation is part of the line it is taken from (`SYNTAX.md`,
-        // substitute), as that line writes it or turned, and of a define of
-        // a name the name and what it names. A reference to nothing is
-        // `check_references`'s to report.
-        let defined = |r: &str| thm.defines.iter().any(|d| d.label == r);
-        // An equation worked out where it stands, `(arithmetic)`, is a fact
-        // of numerals `arithmetic` decides (`METHODS.md`, arithmetic).
-        if let (Some(Source::Arithmetic), Some(written)) =
-            (&step.just.source, &step.just.equation)
-        {
-            let worked =
-                super::formulas::arithmetic_worked(written, known, &library.targets);
-            if let super::formulas::Worked::Fails(why) = worked {
-                report.say(
-                    &thm.path,
-                    step.just.line,
-                    format!(
+    }
+}
+
+/// A `substitute` step read against its equation and what it is put into:
+/// what is wrong with it, and how it makes its claim.
+struct SubstitutionReading {
+    faults: Vec<String>,
+    /// How the substitution makes the claim as the page writes it; None
+    /// where it is found only in the standard order, by the claim's other
+    /// form, or not at all.
+    found: Option<crate::checker::record::Substituted>,
+}
+
+/// Something an equation may be put into, and what that must make.
+struct PutInto {
+    /// What the equation is put into, as the page writes it.
+    start: Node,
+    /// Where it stands; None for a fact of the line a backend is not told
+    /// where to find.
+    into: Option<crate::checker::record::SubstitutedInto>,
+}
+
+/// The facts one put may start from, and what it must make: the claim, or
+/// its other form (`rules::OTHER_FORMS`).
+struct PutWay {
+    starts: Vec<PutInto>,
+    aim: Node,
+    /// Whether `aim` is the claim as the page writes it.
+    claimed: bool,
+}
+
+/// `check_substitutes` of one step; None for a step that is no
+/// substitution, or one another check reports.
+fn substitution_reading(
+    step: &Step,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> Option<SubstitutionReading> {
+    use crate::checker::record::{Substituted, SubstitutedInto};
+    // A justification matching no production has no reading, and
+    // `check_justification_form` says so; what the substitution makes is
+    // asked only of one that reads.
+    let just = &step.just;
+    if !just.head.is(Method::Substitute) || just.unproduced.is_some() {
+        return None;
+    }
+    let fault = |message: String| {
+        Some(SubstitutionReading {
+            faults: vec![message],
+            found: None,
+        })
+    };
+    let claim = known.whole_as_written(&step.claim)?;
+    let scope = known.scope(step);
+    let defined = known.citing_step(step);
+    let is_define = |r: &str| thm.defines.iter().any(|d| d.label == r);
+    // The line the equation is taken from, as it says its facts. A define
+    // of a name says its equation, as a link citing it reads it; a define of
+    // a function is the elaborator's. A reference to nothing is
+    // `check_references`'s to report.
+    let source = just.source.as_ref().map(|s| s.named().to_string());
+    let from_line = source
+        .as_deref()
+        .filter(|s| !is_define(s))
+        .and_then(|s| scope.get(s).filter(|st| known.reads(st)).map(|st| (s, st)));
+    let source_says: Vec<super::library::Said> = from_line
+        .map(|(_, st)| known.says(st, &defined))
+        .unwrap_or_default();
+    let place_of = |s: &super::library::Said| {
+        from_line.and_then(|(line, st)| {
+            placed(line, s, &source_says, known.sentence_count(st))
+        })
+    };
+    let source_define = source
+        .as_deref()
+        .filter(|s| is_define(s))
+        .and_then(|s| super::formulas::define_equation(thm, step, s, known));
+    // Each equation the step may put, with where its line says it.
+    let equations: Vec<(Node, Option<FirstAt>)> = match &just.equation {
+        Some(written) => {
+            let equation = known.whole_as_written(written)?;
+            let [left, right] = equation.children.as_slice() else {
+                return None;
+            };
+            // An equation worked out where it stands, `(arithmetic)`, is a
+            // fact of numerals `arithmetic` decides (`METHODS.md`,
+            // arithmetic).
+            if let Some(Source::Arithmetic) = &just.source {
+                let worked = super::formulas::arithmetic_worked(
+                    written,
+                    known,
+                    &library.targets,
+                );
+                if let super::formulas::Worked::Fails(why) = worked {
+                    return fault(format!(
                         "step {} takes {} from arithmetic, which {why}",
                         step.number,
                         known.print(&equation)
-                    ),
-                );
-                continue;
+                    ));
+                }
             }
+            // The equation is part of the line it is taken from (`SYNTAX.md`,
+            // substitute), as that line writes it or turned, and of a define
+            // of a name the name and what it names.
+            let turned = equation.with_children(vec![right.clone(), left.clone()]);
+            let says_it =
+                |p: &Node| known.alike(p, &equation) || known.alike(p, &turned);
+            let at = source_says.iter().find(|s| says_it(&s.written));
+            let said = from_line.is_some() || source_define.is_some();
+            let there = at.is_some() || source_define.as_ref().is_some_and(says_it);
+            if let (true, false, Some(source)) = (said, there, &source) {
+                return fault(format!(
+                    "step {} takes {} from {source}, which does not say it",
+                    step.number,
+                    known.print(&equation)
+                ));
+            }
+            vec![(equation, at.and_then(place_of))]
         }
-        let source = step.just.source.as_ref().map(|s| s.named().to_string());
-        if let Some(source) = source {
-            // A define of a name says its equation, as a link citing it
-            // reads it; a define of a function is the elaborator's.
-            let said: Option<Vec<Node>> = if defined(&source) {
-                super::formulas::define_equation(thm, step, &source, known)
-                    .map(|e| vec![e])
-            } else {
-                let scope = known.scope(step);
-                scope.get(&source).filter(|s| known.reads(s)).map(|s| {
-                    known
-                        .says(s, &known.citing_step(step))
-                        .into_iter()
-                        .map(|s| s.written)
-                        .collect()
-                })
-            };
-            if let Some(parts) = said {
-                let turned = equation.with_children(vec![right.clone(), left.clone()]);
-                let there = parts
+        // `substitute line L` writes no equation (`skeleton::substitute`):
+        // the equation is one the line says. A line saying no equation
+        // gives nothing to put.
+        None => {
+            let source = source.as_ref()?;
+            if from_line.is_none() && !is_define(source) {
+                return None;
+            }
+            let equations: Vec<(Node, Option<FirstAt>)> = match is_define(source) {
+                true => source_define.iter().map(|e| (e.clone(), None)).collect(),
+                false => source_says
                     .iter()
-                    .any(|p| known.alike(p, &equation) || known.alike(p, &turned));
-                if !there {
-                    report.say(
-                        &thm.path,
-                        step.just.line,
-                        format!(
-                            "step {} takes {} from {source}, which does not say it",
-                            step.number,
-                            known.print(&equation)
-                        ),
-                    );
-                    continue;
-                }
+                    .map(|s| (s.written.clone(), place_of(s)))
+                    .collect(),
+            };
+            let equations: Vec<(Node, Option<FirstAt>)> = equations
+                .into_iter()
+                .filter(|(e, _)| {
+                    known.ctx.equations.contains(&e.notation()) && e.children.len() == 2
+                })
+                .collect();
+            if equations.is_empty() {
+                return fault(format!(
+                    "step {} substitutes {source}, which says no equation to put",
+                    step.number
+                ));
             }
+            equations
         }
-        // What the equation is put into, and what that must make: the line
-        // named, or one side of the claim, which is t = t′ either way round.
-        let into = step.just.into.as_ref().map(|p| p.named().to_string());
-        let ways: Vec<(Vec<Node>, Node)> = match into {
-            Some(into) => {
-                // A define states no sentence for the equation to be put
-                // into: the step that wants it written out writes it and
-                // cites the define.
-                if defined(&into) {
-                    report.say(
-                        &thm.path,
-                        step.just.line,
-                        format!(
-                            "step {} puts its equation into {into}, which is a define and no line; a step citing {into} writes the line it gives",
-                            step.number
-                        ),
-                    );
-                    continue;
-                }
-                // A reference to nothing is `check_references`'s to report.
-                let scope = known.scope(step);
-                let Some(stated) = scope.get(&into).filter(|s| known.reads(s)) else {
-                    continue;
-                };
-                // Whatever the line says is what the equation may be put
-                // into (`Known::says`): a part of it, an equation of a chain,
-                // a bound of a range, and a part of a set said as `X ⊆ A` or
-                // as `X ∈ 𝒫A` either way, as a reader puts X = ∅ into
-                // `let X ⊆ A` to make X ⊆ ∅.
-                let defined = known.citing_step(step);
-                let starts: Vec<Node> = known
-                    .says(stated, &defined)
+    };
+    // What the equation is put into, and what that must make: the line
+    // named, or one side of the claim, which is t = t′ either way round.
+    let ways: Vec<PutWay> = match &just.into {
+        Some(place) => {
+            let into = place.named();
+            // A define states no sentence for the equation to be put into:
+            // the step that wants it written out writes it and cites the
+            // define.
+            if is_define(into) {
+                return fault(format!(
+                    "step {} puts its equation into {into}, which is a define and no line; a step citing {into} writes the line it gives",
+                    step.number
+                ));
+            }
+            // A reference to nothing is `check_references`'s to report.
+            let stated = scope.get(into).filter(|s| known.reads(s))?;
+            // Whatever the line says is what the equation may be put into
+            // (`Known::says`): a part of it, an equation of a chain, a bound
+            // of a range, and a part of a set said as `X ⊆ A` or as `X ∈ 𝒫A`
+            // either way, as a reader puts X = ∅ into `let X ⊆ A` to make
+            // X ⊆ ∅.
+            let says = known.says(stated, &defined);
+            let own = known.sentence_count(stated);
+            let starts = || -> Vec<PutInto> {
+                says.iter()
+                    .map(|s| PutInto {
+                        start: s.written.clone(),
+                        into: placed(into, s, &says, own).map(SubstitutedInto::Line),
+                    })
+                    .collect()
+            };
+            // A claim in one of two forms is made by making the other
+            // (`rules::OTHER_FORMS`), as a reader puts line HK = line XY into
+            // Q ∉ line XY to make Q is not on line HK.
+            let other = said_otherwise(&claim, known.env, &known.sorts);
+            std::iter::once((claim.clone(), true))
+                .chain(other.map(|o| (o, false)))
+                .map(|(aim, claimed)| PutWay {
+                    starts: starts(),
+                    aim,
+                    claimed,
+                })
+                .collect()
+        }
+        // With no line to put it into, the claim `t = t′`, where t′ is t
+        // rewritten: it starts from either side and makes the other.
+        None => match claim.children.as_slice() {
+            [t, rewritten] if known.ctx.equations.contains(&claim.notation()) => {
+                [(t, rewritten, 0), (rewritten, t, 1)]
                     .into_iter()
-                    .map(|s| s.written)
-                    .collect();
-                // A claim in one of two forms is made by making the other
-                // (`rules::OTHER_FORMS`), as a reader puts line HK = line XY
-                // into Q ∉ line XY to make Q is not on line HK.
-                let other = said_otherwise(&claim, known.env, &known.sorts);
-                std::iter::once(claim.clone())
-                    .chain(other)
-                    .map(|aim| (starts.clone(), aim))
+                    .map(|(start, aim, side)| PutWay {
+                        starts: vec![PutInto {
+                            start: start.clone(),
+                            into: Some(SubstitutedInto::ClaimSide(side)),
+                        }],
+                        aim: aim.clone(),
+                        claimed: true,
+                    })
                     .collect()
             }
-            None => claim_sides(&claim, known),
-        };
-        let found = ways.iter().find(|(starts, aim)| {
-            starts
-                .iter()
-                .any(|start| known.substituted(start, aim, left, right))
-        });
-        let made = found.is_some();
-        if let Some((starts, aim)) = found {
-            // An identity element the putting makes and the claim leaves out
-            // is dropped from a number, which a line says where the page
-            // does not say it once.
-            let facts = known.parts(step, library).facts.clone();
-            let unsaid = substitution_unsaid(starts, aim, left, right, &facts, library);
-            if let Some(left) = unsaid.first() {
-                report.say(
-                    &thm.path,
-                    step.just.line,
-                    format!(
-                        "step {} drops an identity element from what the substitution makes, and nothing says {} is a number; a requires line says it",
-                        step.number,
-                        known.print(left)
-                    ),
-                );
-            }
-        }
-        if !made {
-            report.say(
-                &thm.path,
-                step.just.line,
-                format!(
-                    "step {} claims {}, which putting one side of {} for the other does not make",
-                    step.number,
-                    known.print(&claim),
-                    known.print(&equation)
-                ),
-            );
-        }
-    }
-}
-
-/// A substitution with no line to put its equation into claims `t = t′`,
-/// where t′ is t rewritten: it starts from either side and makes the other.
-fn claim_sides(claim: &Node, known: &Known) -> Vec<(Vec<Node>, Node)> {
-    match claim.children.as_slice() {
-        [t, rewritten] if known.ctx.equations.contains(&claim.notation()) => vec![
-            (vec![t.clone()], rewritten.clone()),
-            (vec![rewritten.clone()], t.clone()),
-        ],
-        _ => Vec::new(),
-    }
-}
-
-/// `substitute line L` writes no equation (`skeleton::substitute`): the
-/// equation is one the line says, and the claim, `t = t′` as a chain's line
-/// claims it, is one side of that equation put for the other in t. A line
-/// saying no equation gives nothing to put.
-fn check_substitute_line(
-    report: &mut Report,
-    thm: &Theorem,
-    step: &Step,
-    library: &Library,
-    known: &Known,
-) {
-    let Some(source) = step.just.source.as_ref().map(|s| s.named().to_string()) else {
-        return;
+            _ => Vec::new(),
+        },
     };
-    let Some(claim) = known.whole_as_written(&step.claim) else {
-        return;
-    };
-    // A reference to nothing is `check_references`'s to report.
-    let said: Vec<Node> = if thm.defines.iter().any(|d| d.label == source) {
-        super::formulas::define_equation(thm, step, &source, known)
-            .into_iter()
-            .collect()
-    } else {
-        let scope = known.scope(step);
-        let Some(stated) = scope.get(&source).filter(|s| known.reads(s)) else {
-            return;
-        };
-        known
-            .says(stated, &known.citing_step(step))
-            .into_iter()
-            .map(|s| s.written)
-            .collect()
-    };
-    let equations: Vec<&Node> = said
-        .iter()
-        .filter(|e| {
-            known.ctx.equations.contains(&e.notation()) && e.children.len() == 2
-        })
-        .collect();
-    if equations.is_empty() {
-        report.say(
-            &thm.path,
-            step.just.line,
-            format!(
-                "step {} substitutes {source}, which says no equation to put",
-                step.number
-            ),
-        );
-        return;
-    }
-    let ways = claim_sides(&claim, known);
-    let made = equations.iter().find_map(|equation| {
+    // The first equation, way and start whose putting makes the aim, each
+    // read in the standard order (`Known::substituted`).
+    let made = equations.iter().find_map(|(equation, from)| {
         let [left, right] = equation.children.as_slice() else {
             return None;
         };
-        let (starts, aim) = ways.iter().find(|(starts, aim)| {
-            starts
+        ways.iter().find_map(|way| {
+            way.starts
                 .iter()
-                .any(|start| known.substituted(start, aim, left, right))
-        })?;
-        Some((starts, aim, left, right))
+                .find(|s| known.substituted(&s.start, &way.aim, left, right))
+                .map(|start| (equation, from, way, start))
+        })
     });
-    let Some((starts, aim, left, right)) = made else {
-        report.say(
-            &thm.path,
-            step.just.line,
-            format!(
-                "{} is not one side of an equation {source} says put for the other",
-                known.print(&claim)
+    let Some((equation, from, way, start)) = made else {
+        return fault(match &just.equation {
+            Some(_) => format!(
+                "step {} claims {}, which putting one side of {} for the other does not make",
+                step.number,
+                known.print(&claim),
+                known.print(&equations[0].0)
             ),
-        );
-        return;
+            None => format!(
+                "{} is not one side of an equation {} says put for the other",
+                known.print(&claim),
+                source.as_deref().unwrap_or_default()
+            ),
+        });
+    };
+    let [left, right] = equation.children.as_slice() else {
+        return None;
     };
     // An identity element the putting makes and the claim leaves out is
     // dropped from a number, which a line says where the page does not say
     // it once.
     let facts = known.parts(step, library).facts.clone();
-    let unsaid = substitution_unsaid(starts, aim, left, right, &facts, library);
-    if let Some(left) = unsaid.first() {
-        report.say(
-            &thm.path,
-            step.just.line,
+    let starts: Vec<Node> = way.starts.iter().map(|s| s.start.clone()).collect();
+    let unsaid = substitution_unsaid(&starts, &way.aim, left, right, &facts, library);
+    let faults: Vec<String> = unsaid
+        .first()
+        .map(|left| {
             format!(
                 "step {} drops an identity element from what the substitution makes, and nothing says {} is a number; a requires line says it",
                 step.number,
                 known.print(left)
-            ),
-        );
+            )
+        })
+        .into_iter()
+        .collect();
+    // Where it is put, read as the page writes the trees: what a backend
+    // puts the equation in at.
+    let found = match (&start.into, way.claimed) {
+        (Some(into), true) => {
+            crate::matching::substitution_places(&start.start, &way.aim, left, right)
+                .map(|put| Substituted {
+                    equation: equation.clone(),
+                    from: from.clone(),
+                    into: into.clone(),
+                    start: start.start.clone(),
+                    put,
+                })
+        }
+        _ => None,
+    };
+    Some(SubstitutionReading { faults, found })
+}
+
+/// How each `substitute` step, calculation row and requires line makes its
+/// claim (`record::Substituted`), as `check_substitutes` read it, by the line
+/// of its justification; none for one with a fault, or whose substitution
+/// is found only in the standard order or by the claim's other form.
+pub fn substitutions(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, crate::checker::record::Substituted> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        let rows = chain_reasons(&step.just, &thm.path)
+            .into_iter()
+            .filter_map(|req| {
+                let by = req.by.as_ref().ok()?;
+                Some(reason_as_step(step, &req, by))
+            })
+            .chain(
+                step.requires
+                    .iter()
+                    .filter_map(|req| requires_read_as_step(step, req)),
+            );
+        for at in std::iter::once(step.clone()).chain(rows) {
+            let Some(reading) = substitution_reading(&at, thm, library, known) else {
+                continue;
+            };
+            if let (true, Some(found)) = (reading.faults.is_empty(), reading.found) {
+                out.insert(at.just.line, found);
+            }
+        }
     }
+    out
 }
 
 /// An obtain reaches a "there is" of the item it names.

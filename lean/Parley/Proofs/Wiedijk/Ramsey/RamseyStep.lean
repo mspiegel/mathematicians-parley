@@ -110,7 +110,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s23 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
     have c1 : X \ ({v} : Set α) ∪ ({v} : Set α) = X := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := X) (a := v) s9)
     have row1 : (X.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := by parley_subst_at c1 s22
-    have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by parley_subst s21
+    have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by (have h := congrArg (fun t : ℤ => t) s21; push_cast at h ⊢; all_goals exact_mod_cast h)
     have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_subst_at c2 row1
     exact row2)
   -- 24. mun:nat-minus-one n := k + j
@@ -124,7 +124,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 28. calculation
   have s28 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
     calc (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) = (LeanBridges.Counting.choose (k + j - 1 + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k + j - 1) (by parley_set_side) (k := k))
-      _ = (LeanBridges.Counting.choose (k + j) k : ℤ) := by parley_subst s27
+      _ = (LeanBridges.Counting.choose (k + j) k : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) s27; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ ≤ (X.ncard : ℤ) := by parley_set_side
       _ = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_set_side)
   -- 29. axi:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|

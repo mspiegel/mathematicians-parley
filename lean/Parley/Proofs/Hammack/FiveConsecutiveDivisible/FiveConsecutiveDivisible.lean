@@ -124,6 +124,6 @@ theorem five_consecutive_divisible (n : ℤ) :
         try push_cast at *
         parley_ring
       -- 2.7.14. substitute P·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.7.13) into line 2.7.12
-      parley_subst_at s2_7_13 s2_7_12
+      (have h := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) s2_7_13 s2_7_12; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveDivisible

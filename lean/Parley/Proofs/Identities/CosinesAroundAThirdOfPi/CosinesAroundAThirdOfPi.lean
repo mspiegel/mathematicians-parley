@@ -6,7 +6,6 @@ public import InstanceTactics
 public import NormTactics
 public import PowerTactics
 public import RealTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -46,11 +45,11 @@ theorem cosines_around_a_third_of_pi (x : ℝ) :
     have hI : Real.sin (-x) = -Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := (x : ℂ))))
     exact hI
   -- 6. calculation
-  calc Real.cos (Real.pi / 3 + x) + Real.cos (Real.pi / 3 - x) = Real.cos (Real.pi / 3 + x) + Real.cos (Real.pi / 3 + -x) := by parley_subst s3
-    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + Real.cos (Real.pi / 3 + -x) := by parley_subst s1
-    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos (-x) - Real.sin (Real.pi / 3) * Real.sin (-x)) := by parley_subst s2
-    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin (-x)) := by parley_subst s4
-    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * -Real.sin x) := by parley_subst s5
+  calc Real.cos (Real.pi / 3 + x) + Real.cos (Real.pi / 3 - x) = Real.cos (Real.pi / 3 + x) + Real.cos (Real.pi / 3 + -x) := by (have h := congrArg (fun t : ℝ => Real.cos (Real.pi / 3 + x) + Real.cos t) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + Real.cos (Real.pi / 3 + -x) := by (have h := congrArg (fun t : ℝ => t + Real.cos (Real.pi / 3 + -x)) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos (-x) - Real.sin (Real.pi / 3) * Real.sin (-x)) := by (have h := congrArg (fun t : ℝ => Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + t) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin (-x)) := by (have h := congrArg (fun t : ℝ => Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * t - Real.sin (Real.pi / 3) * Real.sin (-x))) s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * -Real.sin x) := by (have h := congrArg (fun t : ℝ => Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * t)) s5; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 2 * Real.cos (Real.pi / 3) * Real.cos x := by parley_ring
     _ = 2 * (1 / 2) * Real.cos x := by parley_real
     _ = Real.cos x := by parley_ring

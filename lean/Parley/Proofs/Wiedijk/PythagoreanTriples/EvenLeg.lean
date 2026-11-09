@@ -52,9 +52,9 @@ theorem even_leg (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 
       obtain ⟨q, s2_2_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := b))).mp hS
       -- 2.2.3. substitute
       have s2_2_3 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by
-        have c1 : a = 2 * p + 1 := by parley_subst s2_2_1
+        have c1 : a = 2 * p + 1 := by (have h := congrArg (fun t : ℤ => t) s2_2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
         have row1 : (2 * p + 1) ^ 2 + b ^ 2 = c ^ 2 := by parley_subst_at c1 hH4
-        have c2 : b = 2 * q + 1 := by parley_subst s2_2_2
+        have c2 : b = 2 * q + 1 := by (have h := congrArg (fun t : ℤ => t) s2_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
         have row2 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by parley_subst_at c2 row1
         exact row2
       -- 2.2.4. calculation
@@ -68,7 +68,7 @@ theorem even_leg (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 
       -- 2.2.7. obtain r: def:even n := c, from 2.2.6
       obtain ⟨r, s2_2_7⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := c))).mp s2_2_6
       -- 2.2.8. substitute c = 2r (line 2.2.7) into line 2.2.3
-      have s2_2_8 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = (2 * r) ^ 2 := by parley_subst_at s2_2_7 s2_2_3
+      have s2_2_8 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = (2 * r) ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = t ^ 2)) s2_2_7 s2_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.2.9. algebra, from 2.2.8
       have s2_2_9 : 2 = 4 * (r ^ 2 - p ^ 2 - p - q ^ 2 - q) := by linear_combination (norm := parley_norm) s2_2_8
       -- 2.2.10. def:divides d := 4, n := 2, from 2.2.9

@@ -31,7 +31,7 @@ theorem fibonacci_recurrence (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0
   -- 1.4. transitivity, from 1.1, 1.2
   have s1_4 : F (k + 1 + 1) = F k + G k := by parley_side
   -- 1.5. substitute F(k + 1) = G(k) (line 1.3) into line 1.4
-  have s1_5 : F (k + 1 + 1) = F k + F (k + 1) := by parley_subst_at s1_3 s1_4
+  have s1_5 : F (k + 1 + 1) = F k + F (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F (k + 1 + 1) = F k + t)) (s1_3).symm s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 1.6. substitute
   have c1 : k + 1 + 1 = k + 2 := by parley_ring
   have row1 : F (k + 2) = F k + F (k + 1) := by parley_subst_at c1 s1_5

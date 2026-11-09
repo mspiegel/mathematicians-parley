@@ -1,9 +1,7 @@
 module
 
 public import Functions
-public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -15,7 +13,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -54,9 +51,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
       -- 1.2.4. antisymmetry, from 1.2.2, 1.2.3
       have s1_2_4 : m = 1 := by parley_side
       -- 1.2.5. substitute m = 1 (line 1.2.4)
-      have s1_2_5 : abs (x m) = abs (x 1) := by
-        have s1_2_4_w : (m : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_2_4; push_cast at h; linear_combination (norm := parley_norm) h
-        first | parley_subst s1_2_4_w | parley_subst s1_2_4
+      have s1_2_5 : abs (x m) = abs (x 1) := by (have h := congrArg (fun t : ℤ => abs (x t)) s1_2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.2.6. inequalities
       parley_order
     -- 1.3. exhibit, from 1.1, 1.2
@@ -102,9 +97,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         parley_order
       · skip
         -- 1.8.4.6. substitute m = K + 1 (C2)
-        have s1_8_4_6 : abs (x m) = abs (x (K + 1)) := by
-          have hC2_w : (m : ℝ) = (K : ℝ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) hC2; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst hC2_w | parley_subst hC2
+        have s1_8_4_6 : abs (x m) = abs (x (K + 1)) := by (have h := congrArg (fun t : ℤ => abs (x t)) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 1.8.4.7. transitivity, from 1.8.4.6, 1.7
         parley_order
     -- 1.9. exhibit, from 1.8

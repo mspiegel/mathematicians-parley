@@ -1,7 +1,6 @@
 module
 
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Basic.Real.Basic
@@ -38,6 +37,6 @@ theorem a_value_in_an_image (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * x + 
     calc f 1 = 2 * 1 + 1 := by exact s4
       _ = 3 := by norm_num
   -- 6. substitute f(1) = 3 (line 5) into line 3
-  parley_subst_at s5 s3
+  (have h := Eq.subst (motive := (fun t : ℝ => t ∈ f '' ((Set.univ : Set ℝ) ∩ ({(1 : ℝ), (2 : ℝ)} : Set ℝ)))) s5 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Notations.Functions.AValueInAnImage

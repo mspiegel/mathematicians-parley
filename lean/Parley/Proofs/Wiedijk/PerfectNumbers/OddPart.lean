@@ -5,7 +5,6 @@ public import ArithTactics
 public import Functions
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -77,7 +76,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.1. obtain i: def:even n := j, from C1
           obtain ⟨i, s1_7_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := j))).mp hC1
           -- 1.7.2. substitute j = 2i (line 1.7.1) into line 1.4
-          have s1_7_2 : 1 ≤ 2 * i := by parley_subst_at s1_7_1 s1_4
+          have s1_7_2 : 1 ≤ 2 * i := by (have h := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1_7_1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 1.7.3. mun:factor-positive a := 2, b := i
           have r197_1 : (2 : ℤ) ≥ 0 := by parley_arith
           have r197_2 : 2 * i > 0 := by parley_order

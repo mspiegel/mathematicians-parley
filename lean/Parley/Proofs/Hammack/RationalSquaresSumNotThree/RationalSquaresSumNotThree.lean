@@ -51,9 +51,9 @@ theorem rational_squares_sum_not_three :
   -- 3. obtain c, d: mun:rational-coprime x := y
   obtain ⟨c, d, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Numbers.mun_rational_coprime (x := y))
   -- 4. substitute x = a/b (line 2) into line 1
-  have s4 : ((a : ℚ) / (b : ℚ)) ^ 2 + y ^ 2 - 3 = 0 := by parley_subst_at s2b s1
+  have s4 : ((a : ℚ) / (b : ℚ)) ^ 2 + y ^ 2 - 3 = 0 := by (have h := Eq.subst (motive := (fun t : ℚ => t ^ 2 + y ^ 2 - 3 = 0)) s2b s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. substitute y = c/d (line 3) into line 4
-  have s5 : ((a : ℚ) / (b : ℚ)) ^ 2 + ((c : ℚ) / (d : ℚ)) ^ 2 - 3 = 0 := by parley_subst_at s3b s4
+  have s5 : ((a : ℚ) / (b : ℚ)) ^ 2 + ((c : ℚ) / (d : ℚ)) ^ 2 - 3 = 0 := by (have h := Eq.subst (motive := (fun t : ℚ => ((a : ℚ) / (b : ℚ)) ^ 2 + t ^ 2 - 3 = 0)) s3b s4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. algebra, from 5
   have s6 : (a * d) ^ 2 + (c * b) ^ 2 = 3 * (b * d) ^ 2 := by qify at *; linear_combination (norm := parley_field) ((b : ℚ) ^ 2 * (d : ℚ) ^ 2) * s5
   -- 7. exhibit, from 6
@@ -99,9 +99,9 @@ theorem rational_squares_sum_not_three :
   -- 18. obtain t: def:divides d := 3, n := q, from 16
   obtain ⟨t, s18⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := q))).mp s16
   -- 19. substitute p = 3s (line 17) into line 12
-  have s19 : (3 * s) ^ 2 + q ^ 2 = 3 * m ^ 2 := by parley_subst_at s17 s12
+  have s19 : (3 * s) ^ 2 + q ^ 2 = 3 * m ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => u ^ 2 + q ^ 2 = 3 * m ^ 2)) s17 s12; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 20. substitute q = 3t (line 18) into line 19
-  have s20 : (3 * s) ^ 2 + (3 * t) ^ 2 = 3 * m ^ 2 := by parley_subst_at s18 s19
+  have s20 : (3 * s) ^ 2 + (3 * t) ^ 2 = 3 * m ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => (3 * s) ^ 2 + u ^ 2 = 3 * m ^ 2)) s18 s19; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 21. algebra, from 11, 20
   have s21 : m ^ 2 = 3 * (s ^ 2 + t ^ 2) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s20
   -- 22. def:divides d := 3, n := m², from 11, 21
@@ -111,13 +111,13 @@ theorem rational_squares_sum_not_three :
   -- 24. obtain u: def:divides d := 3, n := m, from 11, 23
   obtain ⟨u, s24⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := m))).mp s23
   -- 25. substitute m = 3u (line 24) into line 21
-  have s25 : (3 * u) ^ 2 = 3 * (s ^ 2 + t ^ 2) := by parley_subst_at s24 s21
+  have s25 : (3 * u) ^ 2 = 3 * (s ^ 2 + t ^ 2) := by (have h := Eq.subst (motive := (fun w : ℤ => w ^ 2 = 3 * (s ^ 2 + t ^ 2))) s24 s21; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 26. algebra, from 25
   have s26 : s ^ 2 + t ^ 2 = 3 * u ^ 2 := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s25
   -- 27. inequalities, from 11
   have s27 : m > 0 := by parley_order
   -- 28. substitute m = 3u (line 24) into line 27
-  have s28 : 3 * u > 0 := by parley_subst_at s24 s27
+  have s28 : 3 * u > 0 := by (have h := Eq.subst (motive := (fun w : ℤ => w > 0)) s24 s27; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 29. inequalities
   have s29 : u > 0 := by parley_order
   -- 30. mun:pos-int-nat m := u, from 29
@@ -133,7 +133,7 @@ theorem rational_squares_sum_not_three :
   -- 34. inequalities
   have s34 : 3 * u > u := by parley_order
   -- 35. substitute m = 3u (line 24) into line 34
-  have s35 : m > u := by parley_subst_at s24 s34
+  have s35 : m > u := by (have h := Eq.subst (motive := (fun w : ℤ => w > u)) (s24).symm s34; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 36. inequalities, from 11, 35
   have s36 : ¬ m ≤ u := by parley_set_side
   exact s36 s33

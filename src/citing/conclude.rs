@@ -571,6 +571,10 @@ pub struct Concluded {
     pub sentence: usize,
     /// Which way it is read (`readings`).
     pub way: Way,
+    /// Where the reading is an "and", the part of it that met the claim's
+    /// sentence, counted from 0 left to right with every conjunction taken
+    /// apart (`conjuncts`); None where the reading is one part.
+    pub part: Option<usize>,
 }
 
 impl Taken {
@@ -728,6 +732,7 @@ pub fn taken(
                 .map(|&c| Concluded {
                     sentence: offer.from[c],
                     way: offer.ways[c],
+                    part: offer.parts[c],
                 })
                 .collect();
             let mut taken =
@@ -825,6 +830,8 @@ struct Offer {
     from: Vec<usize>,
     /// Which way that conclusion is read for each candidate.
     ways: Vec<Way>,
+    /// Of a reading that is an "and", the part each candidate is.
+    parts: Vec<Option<usize>>,
     /// The group's hypotheses, conjunct by conjunct.
     need: Vec<Node>,
     /// The item's letters, which the claim and the facts bind.
@@ -842,6 +849,7 @@ impl Offer {
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut from = Vec::new();
         let mut ways = Vec::new();
+        let mut parts = Vec::new();
         let mut sites = Sites::new();
         for (sentence, concl) in gives.iter().enumerate() {
             binding_sites(concl, &library.ctx, &[], &mut sites);
@@ -851,11 +859,14 @@ impl Offer {
                     .iter()
                     .flat_map(|e| conjuncts(e, library))
                     .collect();
-                for c in conjuncts(&reading.claimed, library) {
-                    for turned in either_way(&c, library) {
+                let claimed = conjuncts(&reading.claimed, library);
+                let several = claimed.len() > 1;
+                for (part, c) in claimed.iter().enumerate() {
+                    for turned in either_way(c, library) {
                         candidates.push((turned, first.clone()));
                         from.push(sentence);
                         ways.push(reading.way);
+                        parts.push(several.then_some(part));
                     }
                 }
             }
@@ -880,6 +891,7 @@ impl Offer {
             candidates,
             from,
             ways,
+            parts,
             need,
             variables,
             free,

@@ -108,9 +108,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have r262_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
     have s3_17 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N (k + 1) : ℚ) + 1) (y := 10 * ((N k : ℚ) + 1)) (c := (10 ^ (k + 1).toNat : ℚ)) (by parley_set_side) (by parley_set_side))
     -- 3.18. substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.13) into line 3.16
-    have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by parley_subst_at s3_13 s3_16
+    have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by (have h := Eq.subst (motive := (fun t : ℚ => t ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat)) (s3_13).symm s3_16; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.19. substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.15) into line 3.17
-    have s3_19 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by parley_subst_at s3_15 s3_17
+    have s3_19 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by (have h := Eq.subst (motive := (fun t : ℚ => ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ t)) (s3_15).symm s3_17; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.20. calculation
     have s3_20 : L k ≤ L (k + 1) := by
       calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
@@ -181,7 +181,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 5.14. algebra
       have s5_14 : p + g + 1 = p + (g + 1) := by parley_ring
       -- 5.15. substitute (p + g) + 1 = p + (g + 1) (line 5.14) into line 5.13
-      have s5_15 : L p ≤ L (p + (g + 1)) ∧ U (p + (g + 1)) ≤ U p := by parley_subst_at s5_14 s5_13
+      have s5_15 : L p ≤ L (p + (g + 1)) ∧ U (p + (g + 1)) ≤ U p := by (have h := Eq.subst (motive := (fun t : ℤ => L p ≤ L t ∧ U t ≤ U p)) s5_14 s5_13; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact ⟨(s5_15).1, (s5_15).2⟩
   -- 6. proof
   have s6 : ∀ j : ℤ, 0 ≤ j → (∀ k : ℤ, 0 ≤ k → L j ≤ U k) := by

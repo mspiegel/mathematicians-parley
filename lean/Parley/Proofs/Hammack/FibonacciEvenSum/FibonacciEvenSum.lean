@@ -82,7 +82,7 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
         _ = F (1 + 1) := by norm_num
         _ = 1 := by exact s4_7
         _ = 2 - 1 := by norm_num
-        _ = F (2 * 1 + 1) - 1 := by parley_subst s4_9
+        _ = F (2 * 1 + 1) - 1 := by (have h := congrArg (fun t : ℤ => t - 1) (s4_9).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     | succ m hK3 hIH2 =>
       -- 4.11. proof
       -- what this block shows, Lean's types give
@@ -105,8 +105,8 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       -- 4.18. calculation
       have r122_1 : m ≥ 1 := by parley_side
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r122_1)
-        _ = F (2 * m + 1) - 1 + q (m + 1) := by parley_subst hIH2
-        _ = F (2 * m + 1) - 1 + F (2 * (m + 1)) := by parley_subst s4_12
+        _ = F (2 * m + 1) - 1 + q (m + 1) := by (have h := congrArg (fun t : ℤ => t + q (m + 1)) hIH2; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = F (2 * m + 1) - 1 + F (2 * (m + 1)) := by (have h := congrArg (fun t : ℤ => F (2 * m + 1) - 1 + t) s4_12; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = F (2 * (m + 1) + 1) - 1 := by linear_combination (norm := parley_norm) (-1) * s4_15
   -- 5. instantiate m := n in line 4, from D2
   exact (s4 n (by parley_side))

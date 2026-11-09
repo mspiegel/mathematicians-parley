@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -50,7 +49,7 @@ theorem sqrt3_irrational :
     obtain ⟨p, q, ⟨⟨s2_1a, s2_1b⟩, s2_1c⟩⟩ := (Parley.Proofs.Wiedijk.Sqrt2Irrational.LowestTerms.lowest_terms (x := (Classical.choose hS)))
     have s2_1b : Real.sqrt (3 : ℝ) = (p : ℝ) / (q : ℝ) := by rw [← Classical.choose_spec hS]; exact_mod_cast s2_1b
     -- 2.2. substitute √3 = p/q (line 2.1) into line 1
-    have s2_2 : ((p : ℚ) / (q : ℚ)) ^ 2 = 3 := by parley_subst_at s2_1b s1
+    have s2_2 : ((p : ℚ) / (q : ℚ)) ^ 2 = 3 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 = 3)) s2_1b s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.3. algebra, from 2.2
     have r154_1 : q ≠ 0 := by parley_side
     have s2_3 : p ^ 2 = 3 * q ^ 2 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 2) * s2_2
@@ -61,7 +60,7 @@ theorem sqrt3_irrational :
     -- 2.6. obtain r: def:divides d := 3, n := p, from 2.5
     obtain ⟨r, s2_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p))).mp s2_5
     -- 2.7. substitute p = 3r (line 2.6) into line 2.3
-    have s2_7 : (3 * r) ^ 2 = 3 * q ^ 2 := by parley_subst_at s2_6 s2_3
+    have s2_7 : (3 * r) ^ 2 = 3 * q ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = 3 * q ^ 2)) s2_6 s2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.8. algebra, from 2.7
     have s2_8 : q ^ 2 = 3 * r ^ 2 := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s2_7
     -- 2.9. def:divides d := 3, n := q², from 2.8

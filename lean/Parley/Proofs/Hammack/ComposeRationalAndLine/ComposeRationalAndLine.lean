@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -40,14 +39,14 @@ theorem compose_rational_and_line (f : ℝ → ℝ) (g : ℝ → ℝ) (hH3 : ∀
   have s1_4 : (g ∘ f) x = 3 / (x ^ 2 + 1) + 2 := by
     calc (g ∘ f) x = g (f x) := by exact (Parley.Items.Stdlib.Functions.mun_composition_value (Y := (Set.univ : Set ℝ)) (X := (Set.univ : Set ℝ)) (f := f) (g := g) (x := x) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_set_side))
       _ = 3 * f x + 2 := by exact (hH4 (f x))
-      _ = 3 * (1 / (x ^ 2 + 1)) + 2 := by parley_subst hH3
+      _ = 3 * (1 / (x ^ 2 + 1)) + 2 := by (have h := congrArg (fun t : ℝ => 3 * t + 2) (hH3 x); push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 3 / (x ^ 2 + 1) + 2 := by parley_ring
   -- 1.5. mun:function-value f := g
   -- 1.6. calculation
   have s1_6 : (f ∘ g) x = 1 / ((3 * x + 2) ^ 2 + 1) := by
     calc (f ∘ g) x = f (g x) := by exact (Parley.Items.Stdlib.Functions.mun_composition_value (Y := (Set.univ : Set ℝ)) (X := (Set.univ : Set ℝ)) (f := g) (g := f) (x := x) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_set_side))
       _ = 1 / (g x ^ 2 + 1) := by exact (hH3 (g x))
-      _ = 1 / ((3 * x + 2) ^ 2 + 1) := by parley_subst hH4
+      _ = 1 / ((3 * x + 2) ^ 2 + 1) := by (have h := congrArg (fun t : ℝ => 1 / (t ^ 2 + 1)) (hH4 x); push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 1.7. join 1.4, 1.6
   have s1_7a : (g ∘ f) x = 3 / (x ^ 2 + 1) + 2 := by parley_set_side
   have s1_7b : (f ∘ g) x = 1 / ((3 * x + 2) ^ 2 + 1) := by parley_set_side

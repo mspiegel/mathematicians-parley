@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
@@ -30,7 +29,7 @@ theorem cosine_of_double_by_sine (A : ℂ) :
   -- 2. algebra
   have s2 : 2 * A = A + A := by parley_ring
   -- 3. calculation
-  calc Complex.cos (2 * A) = Complex.cos (A + A) := by parley_subst s2
+  calc Complex.cos (2 * A) = Complex.cos (A + A) := by (have h := congrArg (fun t : ℂ => Complex.cos t) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin A := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := A))
     _ = 1 - 2 * Complex.sin A ^ 2 := by linear_combination (norm := parley_norm) s1
 

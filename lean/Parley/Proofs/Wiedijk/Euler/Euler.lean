@@ -93,7 +93,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 6.6. D2, from K1
     have s6_6 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 6.7. substitute f(r) = (r·a) mod n (line 6.6) into line 6.5
-    parley_subst_at s6_6 s6_5
+    (have h := Eq.subst (motive := (fun t : ℤ => t ∈ S)) (s6_6).symm s6_5; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 7. proof
   have s7 : ∀ s ∈ S, ∀ t ∈ S, f s = f t → s = t := by
     intro s hK2
@@ -161,7 +161,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 11.3. D2, from K5
     have s11_3 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 11.4. substitute f(r) = (r·a) mod n (line 11.3) into line 11.2
-    parley_subst_at s11_3 s11_2
+    (have h := Eq.subst (motive := (fun t : ℤ => r * a ≡ t [ZMOD n])) (s11_3).symm s11_2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. thm:product-congruent X := S, from 4, 5, 11
   have r160_1 : Set.MapsTo f S S := by parley_set_side
   have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) (by parley_set_side) s11 (by parley_set_side))
@@ -176,7 +176,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     have row1 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by parley_subst_at c1 s12
     exact row1
   -- 15. substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 10) into line 14
-  have s15 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by parley_subst_at s10 s14
+  have s15 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ t [ZMOD n])) s10 s14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 16. substitute φ(n) = |S| (line 13) into line 15
   have s16 : a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by first | parley_subst_at s13 s15 | (have e_nat : Nat.totient n.toNat = S.ncard := by exact_mod_cast s13; parley_subst_at e_nat s15)
   -- 17. def:set-builder u := r, from D1

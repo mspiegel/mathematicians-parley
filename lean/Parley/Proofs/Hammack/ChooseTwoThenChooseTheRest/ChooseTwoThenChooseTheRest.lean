@@ -74,7 +74,7 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   have s18 : n - 2 - (k - 2) = n - k := by parley_ring
   -- 19. substitute
   have s19 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by
-    have c1 : n - 2 - (k - 2) = n - k := by parley_subst s18
+    have c1 : n - 2 - (k - 2) = n - k := by (have h := congrArg (fun t : ℤ => t) s18; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c1_w : (n : ℚ) - 2 - ((k : ℚ) - 2) = (n : ℚ) - (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
     have row1 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by first | parley_put_at c1_w s15 | parley_put_at c1 s15 | parley_subst_at c1_w s15 | parley_subst_at c1 s15
     exact row1
@@ -83,10 +83,10 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   have r78_2 : 0 < (LeanBridges.Counting.factorial (n - k) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n - k) (by parley_side))
   have r78_3 : 0 < (LeanBridges.Counting.factorial (k - 2) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k - 2) (by parley_side))
   try qify
-  calc (LeanBridges.Counting.choose n (2 : ℤ) : ℚ) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) := by parley_subst s14
-    _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * ((LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ))) := by parley_subst s19
+  calc (LeanBridges.Counting.choose n (2 : ℤ) : ℚ) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) := by (have h := congrArg (fun t : ℚ => t * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ)) s14; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * ((LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ))) := by (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * t) s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * ((LeanBridges.Counting.factorial k : ℚ) / ((LeanBridges.Counting.factorial (k - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ))) := by parley_ring
-    _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by parley_subst s17
-    _ = (LeanBridges.Counting.choose n k : ℚ) * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by parley_subst s16
+    _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * t) (s17).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = (LeanBridges.Counting.choose n k : ℚ) * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by (have h := congrArg (fun t : ℚ => t * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ)) (s16).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Hammack.ChooseTwoThenChooseTheRest.ChooseTwoThenChooseTheRest

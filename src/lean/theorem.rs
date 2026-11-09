@@ -1206,6 +1206,44 @@ fn conjunction(parts: Vec<Printed>) -> Option<Printed> {
     })
 }
 
+/// Lean's lemma `name` applied to `args`, a proof.
+fn applied(name: &str, args: Vec<super::doc::Arg>) -> Printed {
+    Printed {
+        kind: super::doc::TermKind::App {
+            head: Box::new(super::tactics::lemma(name)),
+            args,
+            explicit: false,
+        },
+        ty: Some(super::doc::LeanType::Prop),
+    }
+}
+
+/// `start` with `letter` put at each of `places`, each a path of children
+/// from the top (`matching::SubstitutionPlaces`); a path that leads nowhere
+/// puts nothing.
+fn mark_places(start: &Node, places: &[Vec<usize>], letter: &Node) -> Node {
+    if places.iter().any(|p| p.is_empty()) {
+        return letter.clone();
+    }
+    let kids: Vec<Node> = start
+        .children
+        .iter()
+        .enumerate()
+        .map(|(k, child)| {
+            let below: Vec<Vec<usize>> = places
+                .iter()
+                .filter(|p| p.first() == Some(&k))
+                .map(|p| p[1..].to_vec())
+                .collect();
+            match below.is_empty() {
+                true => child.clone(),
+                false => mark_places(child, &below, letter),
+            }
+        })
+        .collect();
+    start.with_children(kids)
+}
+
 /// `(fun x : T => body)`: a function by its values, bracketed as an
 /// argument.
 fn lambda(letter: &str, ty: super::doc::LeanType, body: Printed) -> Printed {
@@ -7550,6 +7588,231 @@ impl<'a> Proof<'a> {
     /// `substitute`: the claim is a line, or the left side of a calculation's
     /// link, with a term put for another by an equation, which a line says
     /// or arithmetic works out.
+    /// A substitution as the checker recorded it (`CheckedTheorem::
+    /// substituted`): what the equation is put into, written with each place
+    /// it is put at as one fresh letter of the type the term put for has
+    /// there, the motive; and the equation's proof, turned where the record
+    /// puts its left side for its right. Put into a line, `Eq.subst` along
+    /// the motive takes the line to the claim; put into a side of the claim
+    /// `t = t′`, `congrArg` of the motive is the claim, turned where the side
+    /// is its right. Either is closed by `exact_mod_cast`, as a numeral put
+    /// where the claim writes it in a wider type is written with its cast.
+    /// Declined where the record has none, or a place of no number type.
+    fn substituted_by_record(
+        &self,
+        just: &Justification,
+        claim: &Node,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::{LeanType, Proof};
+        use super::tactics as t;
+        use crate::checker::record::SubstitutedInto;
+        let Some(rec) = self.rec.substituted.get(&just.line) else {
+            return Route::no("a substitution the checker recorded no way of");
+        };
+        let [left, right] = rec.equation.children.as_slice() else {
+            return Route::no("a recorded equation of no two sides");
+        };
+        let (was, faced) = match rec.put.turned {
+            false => (left, false),
+            true => (right, true),
+        };
+        // The equation's proof: the line's part the record names, turned
+        // where the line says it the other way round.
+        let Some(from) = &rec.from else {
+            return Route::no("an equation the record takes from no line");
+        };
+        let part = match self.line_part(from) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // Which way round the line says the recorded equation, as the record
+        // has the line write it with its defines kept (`FirstAt::written`),
+        // side by side: `alike_top` takes an equation either way round.
+        let as_said = match from.written.children.as_slice() {
+            [l, _] => crate::matching::alike_top(l, left, self.sources.ctx),
+            _ => true,
+        };
+        let equation = match as_said != faced {
+            true => part.proof.clone(),
+            false => t::symm(t::bracket(part.proof.clone())),
+        };
+        // A side written with a `toNat`, `((2^p − 1).toNat : ℤ)`, whose cast
+        // `push_cast` moves only knowing the term is not negative.
+        let to_nat = [left, right].iter().any(|side| {
+            self.writer
+                .formula(side)
+                .built()
+                .or_else(|| {
+                    self.writer.number(side, super::templates::Num::Int).built()
+                })
+                .is_some_and(|p| !to_nat_texts(&p).is_empty())
+        });
+        if to_nat {
+            return Route::no("an equation with a side written with toNat");
+        }
+        // A place that is an exponent is written by what the page says of
+        // its term, `(−1)^m.toNat` of m said natural, which the motive's
+        // letter has nothing of.
+        let exponent = rec.put.places.iter().any(|p| {
+            let Some((&last, up)) = p.split_last() else {
+                return false;
+            };
+            last == 1
+                && at_path(&rec.start, up)
+                    .is_some_and(|n| n.notation() == crate::notations::POWER)
+        });
+        if exponent {
+            return Route::no("a substitution into an exponent");
+        }
+        // The motive's letter, of the type the equation's proof states it
+        // in, the claim's where the line is widened to it, else the type
+        // the term put for has where it stands; and fresh to what it is put
+        // into.
+        let stated = self
+            .line_statement(&part)
+            .built()
+            .as_ref()
+            .and_then(super::doc::forms::relation_type)
+            .and_then(|t| match t {
+                LeanType::Num(n) => Some(n),
+                _ => None,
+            });
+        let ty = match (stated, self.writer.carrier(was)) {
+            (Some(n), _) => n,
+            (None, Route::Built(n)) => n,
+            (None, Route::Declined(d)) => return Route::Declined(d),
+        };
+        let taken = rec.start.names();
+        let Some(letter) = ["t", "u", "w", "s", "r"].into_iter().find(|l| {
+            !taken.iter().any(|n| n == l) && !self.writer.letters.contains_key(*l)
+        }) else {
+            return Route::no("no fresh letter for a substitution's motive");
+        };
+        let marked = mark_places(
+            &rec.start,
+            &rec.put.places,
+            &Node::name(was.sort.clone(), letter),
+        );
+        let mut letters = self.writer.letters.clone();
+        letters.insert(letter.to_string(), LetterType::Number(ty));
+        let inner = self.writer.with_letters(letters);
+        // The motive's letter standing in a slot of whole numbers in a wider
+        // type, a range's member, is written as the whole number it is
+        // (`Writer::wide_in_slot`), otherwise than the line or claim.
+        if inner.wide_in_slot(&marked).is_some() {
+            return Route::no("a motive whose letter stands for a whole number");
+        }
+        // Stated by a `have` first: `exact_mod_cast` elaborates its term
+        // with no type for a numeral exponent to default to, `t ^ 3` as an
+        // integer power. The casts of both are pushed down to the letters
+        // first, where the motive's `(a : ℚ) * (t : ℚ)` and the line's
+        // `↑(a * b)` meet; lifted instead, a division of casts is read one
+        // way on one side and another on the other. A claim that pushing
+        // alone works out, `True`, is closed on the way.
+        let close = |term: Printed| {
+            Proof::By(t::on_h(
+                &term,
+                vec![
+                    t::push_cast(Some(t::at_h(true))),
+                    Tactic::AllGoals(Box::new(t::exact_mod_cast(t::hyp("h")))),
+                ],
+            ))
+        };
+        match &rec.into {
+            SubstitutedInto::Line(at) => {
+                // A fact the line implies, `k ≤ n` of `k ∈ {1, …, n}`, has
+                // no name of its own: the line's proves what it writes.
+                if at.implied.is_some() {
+                    return Route::no("a substitution into a fact a line implies");
+                }
+                // A line saying something of the whole number a term is,
+                // `∃ m : ℤ, (m : ℚ) = t ∧ Even m`, is written otherwise than
+                // a claim of the number itself (`Writer::wide_in_slot`).
+                if self.writer.wide_in_slot(&rec.start).is_some() {
+                    return Route::no("a substitution into a line of a whole number");
+                }
+                let into = match self.line_part(at) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                // The motive is written in the equation's type, which is the
+                // line's statement only where the line is stated in it.
+                let line_type = self
+                    .line_statement(&into)
+                    .built()
+                    .as_ref()
+                    .and_then(super::doc::forms::relation_type);
+                if line_type.is_some_and(|t| t != LeanType::Num(ty)) {
+                    return Route::no(
+                        "a line in another type than the equation put into it",
+                    );
+                }
+                let body = match inner.formula(&marked) {
+                    Route::Built(b) => b,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                // The claim is the motive at the new value only where the two
+                // are written in one form: a line of a real term written as
+                // the whole number it is, `∃ m : ℤ, (m : ℝ) = t ∧ …`, is not
+                // the claim of an integer, `f k ∈ …`.
+                let claimed = self.writer.formula(claim).built();
+                let one_form = claimed.as_ref().is_some_and(|c| {
+                    std::mem::discriminant(&c.kind)
+                        == std::mem::discriminant(&body.kind)
+                });
+                if !one_form {
+                    return Route::no(
+                        "a motive written in another form than the claim",
+                    );
+                }
+                let motive = lambda(letter, LeanType::Num(ty), body);
+                Route::Built(close(applied(
+                    "Eq.subst",
+                    vec![
+                        super::doc::Arg::Named {
+                            name: "motive".to_string(),
+                            value: motive,
+                        },
+                        super::doc::Arg::Explicit(equation),
+                        super::doc::Arg::Explicit(into.proof),
+                    ],
+                )))
+            }
+            SubstitutedInto::ClaimSide(side) => {
+                // Written in the wider of the claim side's type and the
+                // equation's. Not an equation of rationals put into a wider
+                // field: its cast inside the motive is pushed onto each
+                // division, which `push_cast` spells as `Rat.divInt` on one
+                // side and not the other.
+                let at = match self.writer.carrier(&rec.start) {
+                    Route::Built(n) => n.max(ty),
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                if ty == super::templates::Num::Rat && at > ty {
+                    return Route::no(
+                        "an equation of rationals put into a wider field",
+                    );
+                }
+                let body = match inner.number(&marked, at) {
+                    Route::Built(b) => b,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let motive = lambda(letter, LeanType::Num(ty), body);
+                let made = applied(
+                    "congrArg",
+                    vec![
+                        super::doc::Arg::Explicit(motive),
+                        super::doc::Arg::Explicit(equation),
+                    ],
+                );
+                Route::Built(close(match side {
+                    0 => made,
+                    _ => t::symm(t::bracket(made)),
+                }))
+            }
+        }
+    }
+
     fn substitute(
         &self,
         just: &Justification,
@@ -7558,6 +7821,10 @@ impl<'a> Proof<'a> {
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
         use super::tactics as t;
+        // As the checker recorded it, where it did.
+        if let Route::Built(proof) = self.substituted_by_record(just, claim) {
+            return Route::Built(proof);
+        }
         if !just.rows.is_empty() {
             return self.substitute_rows(just, writer);
         }
@@ -8642,42 +8909,6 @@ impl<'a> Proof<'a> {
         })
     }
 
-    /// Of what a reading gives, an "and" of several parts, the part that
-    /// says the claim, as Lean writes both at the citation's values, by its
-    /// place among the parts (`and_parts`). None where no one part does.
-    fn part_saying(
-        &self,
-        read: &Node,
-        cited: &crate::checker::record::Cited,
-        claim: &Node,
-    ) -> Option<usize> {
-        let parts = and_parts(read);
-        if parts.len() < 2 {
-            return None;
-        }
-        use super::doc::forms::{self, Meets};
-        let wanted = self.writer.formula(claim).built()?;
-        let values = self.set_values();
-        let saying: Vec<usize> = parts
-            .iter()
-            .enumerate()
-            .filter(|(_, part)| {
-                self.written_at_values(part, &cited.binding)
-                    .is_some_and(|p| {
-                        matches!(
-                            forms::meets(&p, &wanted, &values),
-                            Some(Meets::Same | Meets::Unfolded)
-                        )
-                    })
-            })
-            .map(|(i, _)| i)
-            .collect();
-        match saying.as_slice() {
-            [one] => Some(*one),
-            _ => None,
-        }
-    }
-
     /// Whether a citation gives one of the letters an item's hypothesis
     /// uses, as Lean states it, all of a number system or a range, D := ℝ:
     /// the item asks `∀ x ∈ Set.univ, …` or `i ∈ Set.Icc a b` where the
@@ -9726,15 +9957,6 @@ impl<'a> Proof<'a> {
                 return Route::Built(ways_proof(ListReason::DefinitionBackwards, ways));
             }
         };
-        // Several sentences of the claim taken by one reading are its "and"
-        // set apart, each the projection of its place among them.
-        let same: Vec<usize> = cited
-            .concluded
-            .iter()
-            .enumerate()
-            .filter(|(_, c)| **c == *concluded)
-            .map(|(i, _)| i)
-            .collect();
         // A claim that is itself the "and", read as its parts, is the whole.
         let whole = matches!(
             node.notation(),
@@ -9746,22 +9968,18 @@ impl<'a> Proof<'a> {
             (true, [_, right]) => right,
             _ => &sentence.says,
         };
-        let path = match same.iter().position(|&i| i == k) {
-            Some(at) if same.len() > 1 && !whole => {
-                match leaf_path(read, at) {
-                    Some(path) => Some(path),
-                    None => return Route::no(
-                        "a reading whose \"and\" has fewer parts than its sentences",
-                    ),
+        // A sentence of the claim that one part of the "and" the reading
+        // gives met, "for all d …" of "p > 1 and for all d …": that part, as
+        // the checker's matcher met it (`Concluded::part`), its projection.
+        let path = match (whole, concluded.part) {
+            (false, Some(at)) => match leaf_path(read, at) {
+                Some(path) => Some(path),
+                None => {
+                    return Route::no(
+                        "a reading whose \"and\" has fewer parts than the part the claim met",
+                    )
                 }
-            }
-            // One sentence of the claim that is one part of the "and" the
-            // reading gives, "for all d …" of "p > 1 and for all d …": that
-            // part, found by its Lean text at the citation's values.
-            _ if !whole && same.len() == 1 && concluded.way == Way::Forward && iff => {
-                self.part_saying(read, cited, node)
-                    .and_then(|at| leaf_path(read, at))
-            }
+            },
             _ => None,
         };
         let term = match &path {

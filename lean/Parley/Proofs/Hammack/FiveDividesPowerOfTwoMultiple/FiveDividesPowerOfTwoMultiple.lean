@@ -7,7 +7,6 @@ public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
-public import Mathlib.Algebra.Group.Nat.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
@@ -41,7 +40,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       -- 1.1. arithmetic
       have s1_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
       -- 1.2. substitute 2^0 = 1 (line 1.1) into A
-      have s1_2 : (5 : ℤ) ∣ 1 * c := by first | parley_subst_at s1_1 hA | (have e_nat : 2 ^ 0 = 1 := by exact_mod_cast s1_1; parley_subst_at e_nat hA)
+      have s1_2 : (5 : ℤ) ∣ 1 * c := by (have h := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t * c)) s1_1 hA; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.3. restate 1.2
       parley_side
     | succ k hK hIH =>

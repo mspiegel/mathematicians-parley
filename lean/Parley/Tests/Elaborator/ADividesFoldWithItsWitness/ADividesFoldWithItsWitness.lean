@@ -1,7 +1,6 @@
 module
 
 public import Divisibility
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -37,6 +36,6 @@ theorem a_divides_fold_with_its_witness (m : ℝ) (hH2 : ∃ m₀ : ℤ, 0 < m�
   (try rw [← (by exact_mod_cast Classical.choose_spec whole1 : ((Classical.choose whole1 : ℤ) : ℝ) = 3 * m ^ 2)] at s1; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s1); norm_cast at s1)
   (try rw [← (by exact_mod_cast Classical.choose_spec whole1 : ((Classical.choose whole1 : ℤ) : ℝ) = 3 * m ^ 2)] at s2; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s2); norm_cast at s2)
   refine ⟨(Classical.choose whole1 : ℤ), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring), ?_⟩
-  (parley_subst_at s1 s2)
+  ((have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h))
 
 end Parley.Tests.Elaborator.ADividesFoldWithItsWitness.ADividesFoldWithItsWitness

@@ -68,14 +68,14 @@ theorem sum_of_binomials_along_a_diagonal (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (h
       -- 1.6. algebra
       have s1_6 : n + m + 1 + 1 = n + (m + 1) + 1 := by parley_ring
       -- 1.7. substitute n + (m + 1) = n + m + 1 (line 1.3)
-      have s1_7 : (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) = (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) := by parley_subst s1_3
+      have s1_7 : (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) = (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (m + 1) : ℤ)) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.8. calculation
       calc S (m + 1) = S m + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) := by exact s1_2
-        _ = (LeanBridges.Counting.choose (n + m + 1) m : ℤ) + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) := by parley_subst hIH
-        _ = (LeanBridges.Counting.choose (n + m + 1) m : ℤ) + (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) := by parley_subst s1_7
+        _ = (LeanBridges.Counting.choose (n + m + 1) m : ℤ) + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (LeanBridges.Counting.choose (n + m + 1) m : ℤ) + (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (n + m + 1) m : ℤ) + t) s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) m : ℤ) := by parley_ring
         _ = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ) := by exact s1_5
-        _ = (LeanBridges.Counting.choose (n + (m + 1) + 1) (m + 1) : ℤ) := by parley_subst s1_6
+        _ = (LeanBridges.Counting.choose (n + (m + 1) + 1) (m + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (m + 1) : ℤ)) s1_6; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. calculation
   calc (∑ j ∈ Finset.Icc (0 : ℤ) k, ((LeanBridges.Counting.choose (n + j) j : ℤ) : ℤ)) = S k := by simp (disch := omega) only [hD1]
     _ = (LeanBridges.Counting.choose (n + k + 1) k : ℤ) := by exact (s1 k (by parley_side))

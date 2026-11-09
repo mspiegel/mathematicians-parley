@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -31,13 +30,13 @@ theorem gcd_positive (x : ℤ) (y : ℤ) (hH3 : ¬ (x = 0 ∧ y = 0)) :
   have s3 : (Int.gcd x y : ℤ) ≠ 0 := by
     intro hS
     -- 3.1. substitute gcd(x, y) = 0 (S) into line 1
-    have s3_1 : (0 : ℤ) ∣ x := by first | parley_subst_at hS s1 | (have e_nat : Int.gcd x y = 0 := by exact_mod_cast hS; parley_subst_at e_nat s1)
+    have s3_1 : (0 : ℤ) ∣ x := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ x)) hS s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.2. mun:zero-divides n := x
     have s3_2 : (0 : ℤ) ∣ x ↔ x = 0 := by exact (Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := x))
     -- 3.3. mun:iff-from-left P := 0 divides x, Q := x = 0, from 3.1, 3.2
     have s3_3 : x = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := (0 : ℤ) ∣ x) (Q := x = 0) s3_2 s3_1)
     -- 3.4. substitute gcd(x, y) = 0 (S) into line 2
-    have s3_4 : (0 : ℤ) ∣ y := by first | parley_subst_at hS s2 | (have e_nat : Int.gcd x y = 0 := by exact_mod_cast hS; parley_subst_at e_nat s2)
+    have s3_4 : (0 : ℤ) ∣ y := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ y)) hS s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.5. mun:zero-divides n := y
     have s3_5 : (0 : ℤ) ∣ y ↔ y = 0 := by exact (Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := y))
     -- 3.6. mun:iff-from-left P := 0 divides y, Q := y = 0, from 3.4, 3.5

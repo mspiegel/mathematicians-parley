@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import NormTactics
 public import RealTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -96,7 +95,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
           try simp only [hD4] at *
           try push_cast at *
           linear_combination (norm := parley_field) (-1) * s8
-      _ = u * (v * w) := by parley_subst s10
+      _ = u * (v * w) := by (have h := congrArg (fun t : ℂ => u * t) (s10).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. both directions
   constructor
   · skip
@@ -155,7 +154,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
       rcases s12_5 with (hC6 | hC7) | hC8
       · skip
         -- 12.6.1. substitute r = 1 (C6) into line 12.4
-        have s12_6_1 : x = -((b + 1 * T + M / (1 * T)) / (3 * a)) := by parley_subst_at hC6 s12_4b
+        have s12_6_1 : x = -((b + 1 * T + M / (1 * T)) / (3 * a)) := by (have h := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC6 s12_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 12.6.2. algebra, from D3, D4, H6, H15, 12.6.1
         have s12_6_2 : u = 0 := by
           try simp only [hD3, hD4] at *
@@ -165,7 +164,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         linear_combination (norm := parley_norm) (v * w) * s12_6_2
       · skip
         -- 12.6.4. substitute r = (−1 + i·√3)/2 (C7) into line 12.4
-        have s12_6_4 : x = -((b + (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by parley_subst_at hC7 s12_4b
+        have s12_6_4 : x = -((b + (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by (have h := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC7 s12_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 12.6.5. algebra, from D1, D3, D5, H6, H15, 1, 6, 12.6.4
         have s12_6_5 : v = 0 := by
           try simp only [hD1, hD3, hD5] at *
@@ -175,7 +174,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         linear_combination (norm := parley_norm) (u * w) * s12_6_5
       · skip
         -- 12.6.7. substitute r = (−1 − i·√3)/2 (C8) into line 12.4
-        have s12_6_7 : x = -((b + (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by parley_subst_at hC8 s12_4b
+        have s12_6_7 : x = -((b + (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by (have h := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC8 s12_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 12.6.8. algebra, from D2, D3, D6, H6, H15, 1, 7, 12.6.7
         have s12_6_8 : w = 0 := by
           try simp only [hD2, hD3, hD6] at *
@@ -189,7 +188,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         _ = 0 := by exact s12_6
     -- 12.8. calculation
     calc a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := by exact s9
-      _ = 0 / (27 * a ^ 2) := by parley_subst s12_7
+      _ = 0 / (27 * a ^ 2) := by (have h := congrArg (fun t : ℂ => t / (27 * a ^ 2)) s12_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 0 := by parley_ring
 
 end Parley.Proofs.Wiedijk.Cubic.Cubic

@@ -55,7 +55,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
       _ ≤ abs (A - B) := by exact s8_1
   · skip
     -- 8.3. substitute |B − A| = |A − B| (line 6) into line 4
-    have s8_3 : abs B ≤ abs (A - B) + abs A := by parley_subst_at s6 s4
+    have s8_3 : abs B ≤ abs (A - B) + abs A := by (have h := Eq.subst (motive := (fun t : ℝ => abs B ≤ t + abs A)) s6 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 8.4. inequalities
     have s8_4 : -(abs A - abs B) ≤ abs (A - B) := by parley_order
     -- 8.5. calculation

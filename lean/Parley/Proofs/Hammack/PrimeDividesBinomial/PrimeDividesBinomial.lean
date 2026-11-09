@@ -59,7 +59,7 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
   -- 10. mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 9
   have s10 : p ∣ p * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := p) (x := (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ)) s9)
   -- 11. substitute k·C(p, k) = p·C(p − 1, k − 1) (line 7) into line 10
-  have s11 : p ∣ k * (LeanBridges.Counting.choose p k : ℤ) := by parley_subst_at s7 s10
+  have s11 : p ∣ k * (LeanBridges.Counting.choose p k : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) (s7).symm s10; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. substitute
   have s12 : p ∣ (LeanBridges.Counting.choose p k : ℤ) * k := by
     have c1 : k * (LeanBridges.Counting.choose p k : ℤ) = (LeanBridges.Counting.choose p k : ℤ) * k := by parley_ring

@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -42,9 +41,9 @@ theorem sum_of_squares_divisible_by_four (a : ℤ) (b : ℤ) (hH3 : (4 : ℤ) �
   -- 2.2. obtain n: def:odd n := b, from S
   obtain ⟨n, s2_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := b))).mp hS.2
   -- 2.3. substitute a = 2m + 1 (line 2.1)
-  have s2_3 : a ^ 2 = (2 * m + 1) ^ 2 := by parley_subst s2_1
+  have s2_3 : a ^ 2 = (2 * m + 1) ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2.4. substitute b = 2n + 1 (line 2.2)
-  have s2_4 : b ^ 2 = (2 * n + 1) ^ 2 := by parley_subst s2_2
+  have s2_4 : b ^ 2 = (2 * n + 1) ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2.5. algebra, from 1, 2.3, 2.4
   have s2_5 : (2 * m + 1) ^ 2 + (2 * n + 1) ^ 2 = 4 * k := by linear_combination (norm := parley_norm) s1 + (-1) * s2_3 + (-1) * s2_4
   -- 2.6. algebra, from 2.5

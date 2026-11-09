@@ -8,7 +8,6 @@ public import Functions
 public import InstanceTactics
 public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
@@ -52,7 +51,7 @@ theorem choose_two_formula (n : ℤ) (hH1 : 0 ≤ n) :
         calc (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) = (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by
               have hI : (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) := by parley_instance_cast ((Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs.choose_two_pairs (n := k) (by parley_side)))
               exact hI.symm
-          _ = (k : ℚ) + (k : ℚ) * ((k : ℚ) - 1) / 2 := by parley_subst hIH
+          _ = (k : ℚ) + (k : ℚ) * ((k : ℚ) - 1) / 2 := by (have h := congrArg (fun t : ℚ => (k : ℚ) + t) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by parley_ring
       first | exact_mod_cast s1_3 | (have h := s1_3; push_cast at h ⊢; exact h) | simpa using s1_3
   -- 2. instantiate k := n in line 1
