@@ -36,7 +36,9 @@ use super::state::{
 use super::tables::Leaf;
 use super::{Facts, Line, Lines};
 use crate::binds;
-use crate::checker::record::{CheckedTheorem, Cited, FirstAt, LibraryReading};
+use crate::checker::record::{
+    CheckedTheorem, Cited, FirstAt, LibraryReading, SuppliedBy,
+};
 use crate::citing::{self, filled};
 use crate::corpus::proof::{
     chain, requires_as_step, substitute_rows, ChainLine, Head, Justification, Requires,
@@ -2896,6 +2898,51 @@ impl<'a> Elaborator<'a> {
     /// of it read at a block's letter.
     fn recorded_statement(&mut self, at: &FirstAt) -> Checked<Rpn> {
         self.term(&at.written)
+    }
+
+    /// The fact the checker recorded as supplied by `by`, as the line says
+    /// it in set.mm, with its proof: in a line the step names, the
+    /// statement the checker found it in (`recorded_statement`), matched to
+    /// what the line says up to a renamed bound variable; in one of the
+    /// step's requires lines, its claim. None for a fact said once or
+    /// unstated, or one a line implies without writing it, which the
+    /// backend works out (`settle`); and for a line saying nothing the
+    /// checker read there.
+    pub(super) fn recorded_fact(
+        &mut self,
+        step: &Step,
+        by: &SuppliedBy,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Option<(Rpn, Proof)>> {
+        match by {
+            SuppliedBy::Line(at) if at.implied.is_none() => {
+                let recorded = self.recorded_statement(at)?;
+                let says = self.line_says(&at.line, scope, facts, lines)?;
+                for (said, held) in says.entries() {
+                    let same = said == recorded
+                        || self
+                            .renaming(&self.to_term(&recorded), &self.to_term(&said))?
+                            .is_some();
+                    if same {
+                        return Ok(Some((said, held)));
+                    }
+                }
+                Ok(None)
+            }
+            SuppliedBy::Requires {
+                line,
+                implied: None,
+            } => {
+                let Some(r) = step.requires.get(*line) else {
+                    return Ok(None);
+                };
+                let said = self.claim_of(&r.fact)?;
+                Ok(self.held(facts, &said, scope)?.map(|p| (said, p)))
+            }
+            _ => Ok(None),
+        }
     }
 
     /// What the line `at` names says there, with its proof and the parts of
