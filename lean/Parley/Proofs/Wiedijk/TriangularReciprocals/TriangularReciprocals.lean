@@ -100,7 +100,7 @@ theorem triangular_reciprocals :
     -- 6.3. exhibit, from 6.2
     exact ⟨N, s6_1a, s6_2⟩
   -- 7. def:tends-to L := 2, from 6
-  have s7 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ) : ℝ)) Filter.atTop (nhds 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ))) (L := (2 : ℝ)))).mpr s6 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ))) (L := (2 : ℝ)))).mpr s6; parley_side)
+  have s7 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ) : ℝ)) Filter.atTop (nhds 2) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ))) (L := (2 : ℝ)))).mpr s6
   -- 8. def:series-sum L := 2, from 7
   exact (Parley.Items.Stdlib.Calculus.def_series_sum (t := (fun k : ℤ => 1 / ((k : ℝ) * ((k : ℝ) + 1) / 2))) (L := (2 : ℝ)) (by parley_side))
 

@@ -59,6 +59,6 @@ theorem one_over_n_tends_to_zero :
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. def:tends-to L := 0, from 1, 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => 1 / (n : ℝ))) (L := (0 : ℝ)))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => 1 / (n : ℝ))) (L := (0 : ℝ)))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => 1 / (n : ℝ))) (L := (0 : ℝ)))).mpr s1
 
 end Parley.Tests.Notations.Calculus.OneOverNTendsToZero

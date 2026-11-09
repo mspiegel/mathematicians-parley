@@ -135,7 +135,7 @@ theorem halves_series :
   -- 4. proof
   -- what this block shows, Lean's types give
   -- 5. def:tends-to L := 1, from 3, 4
-  have s5 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ) : ℝ)) Filter.atTop (nhds 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ))) (L := (1 : ℝ)))).mpr s3 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ))) (L := (1 : ℝ)))).mpr s3; parley_side)
+  have s5 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ) : ℝ)) Filter.atTop (nhds 1) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ))) (L := (1 : ℝ)))).mpr s3
   -- 6. def:series-sum, from 1, 5
   exact (Parley.Items.Stdlib.Calculus.def_series_sum (t := (fun k : ℤ => (1 / 2 ^ k.toNat : ℝ))) (L := (1 : ℝ)) (by parley_side))
 

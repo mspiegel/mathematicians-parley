@@ -67,6 +67,6 @@ theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
     have s2_5 : ¬ m < m := by parley_set_side
     exact s2_5 s2_4
   -- 3. mun:set-builder-empty X := O, from D2, D3, 2
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_empty (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m}))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_set_builder_empty (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m}))).mpr (by parley_set_side); parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.mun_set_builder_empty (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m}))).mpr (by parley_set_side)
 
 end Parley.Proofs.Wiedijk.Ballot.TieAtTheEnd

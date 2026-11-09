@@ -95,7 +95,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 8.8. inequalities, from 8.4, 8.5, 8.7
     have s8_8 : ¬ f x < f (f x) := by parley_set_side
     -- 8.9. def:set-builder u := f(x), from D2, H4, 8.1, 8.8
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side)
   set g : ℤ → ℤ := fun x : ℤ => f x with hD3
   -- 9. mun:function-into, from D3, 8
   have s9 : Set.MapsTo g L U := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := L) (Y := U) (by parley_set_side) s8)
@@ -146,7 +146,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
       calc f u < u := by parley_set_side
         _ = f (f u) := by parley_set_side
     -- 12.6. def:set-builder u := f(u), from D1, H4, 12.1, 12.5
-    have s12_6 : f u ∈ L := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := f u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := f u))).mpr (by parley_set_side); parley_set_side)
+    have s12_6 : f u ∈ L := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := f u))).mpr (by parley_set_side)
     -- 12.7. D3, from 12.6
     have s12_7 : g (f u) = f (f u) := by simp (disch := omega) only [hD3]
     -- 12.8. calculation

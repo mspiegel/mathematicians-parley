@@ -120,7 +120,7 @@ theorem leibniz :
     -- 3.3. exhibit, from 3.2
     exact ⟨N, s3_1a, s3_2⟩
   -- 4. def:tends-to L := π/4, from 3
-  have s4 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ) : ℝ)) Filter.atTop (nhds (Real.pi / 4)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ))) (L := Real.pi / 4))).mpr s3 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ))) (L := Real.pi / 4))).mpr s3; parley_side)
+  have s4 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ) : ℝ)) Filter.atTop (nhds (Real.pi / 4)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ))) (L := Real.pi / 4))).mpr s3
   -- 5. def:series-sum-from-zero L := π/4, from 4
   exact (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := (fun k : ℤ => (-1) ^ k.toNat / (2 * (k : ℝ) + 1))) (L := Real.pi / 4) s4)
 

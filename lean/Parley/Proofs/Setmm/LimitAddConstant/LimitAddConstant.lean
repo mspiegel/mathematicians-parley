@@ -47,6 +47,6 @@ theorem limit_add_constant (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Filter.T
     -- 1.5. exhibit, from 1.4
     exact ⟨N, s1_3a, s1_4⟩
   -- 2. def:tends-to L := L + C, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => x n + C)) (L := L + C))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => x n + C)) (L := L + C))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => x n + C)) (L := L + C))).mpr s1
 
 end Parley.Proofs.Setmm.LimitAddConstant.LimitAddConstant

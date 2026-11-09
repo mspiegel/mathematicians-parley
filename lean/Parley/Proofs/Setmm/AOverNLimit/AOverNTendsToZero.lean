@@ -87,6 +87,6 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
     -- 5.5. exhibit, from 5.4
     exact ⟨N, s5_3a, s5_4⟩
   -- 6. def:tends-to L := 0, from 4, 5
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => A / (n : ℝ))) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s5) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => A / (n : ℝ))) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s5); parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => A / (n : ℝ))) (L := (0 : ℝ)))).mpr (by simpa only [sub_zero] using s5)
 
 end Parley.Proofs.Setmm.AOverNLimit.AOverNTendsToZero

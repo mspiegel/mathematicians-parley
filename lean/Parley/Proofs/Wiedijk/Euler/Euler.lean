@@ -91,7 +91,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     have r80_2 : 0 ≤ r * a % n := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := r * a) (b := n) (by parley_set_side))
     have s6_4 : r * a % n ∈ Finset.Icc (0 : ℤ) (n - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_set_side) (x := r * a % n) (by parley_set_side) s6_3)
     -- 6.5. def:set-builder u := (r·a) mod n, from D1, 6.2, 6.4
-    have s6_5 : r * a % n ∈ S := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr (by parley_set_side); parley_set_side)
+    have s6_5 : r * a % n ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr (by parley_set_side)
     -- 6.6. D2, from K1
     have s6_6 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 6.7. substitute f(r) = (r·a) mod n (line 6.6) into line 6.5

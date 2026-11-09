@@ -8838,12 +8838,18 @@ impl<'a> Proof<'a> {
                     ty: None,
                 };
                 // The definition's left side as Lean states it at the
-                // citation's values, where it is the claim as Lean writes it:
-                // the reading proves the claim as it stands.
+                // citation's values, where it is the claim up to what Lean
+                // takes as the same term: a function applied worked out,
+                // `(fun n => x n + C) n` as `x n + C`, a bound letter
+                // renamed, a `set` letter read as its value
+                // (`forms::alike_once_set`). The reading proves the claim as
+                // it stands, which the term's type checks by definitional
+                // equality.
                 let left = left_side(&statement);
+                let values = self.set_values();
                 let as_claimed = match (&left, &claim_lean) {
                     (Some(left), Some(claim)) => {
-                        super::doc::forms::written_alike(left, claim)
+                        super::doc::forms::alike_once_set(left, claim, &values)
                     }
                     _ => false,
                 };

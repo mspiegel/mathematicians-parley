@@ -45,7 +45,7 @@ theorem cantor {α : Type*} (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f
     -- 2.2. substitute f(x) = B (S) into line 2.1
     have s2_2 : ¬ x ∈ f x := by parley_subst_at hS s2_1
     -- 2.3. def:set-builder, from D1, K, 2.2
-    have s2_3 : x ∈ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mpr (by parley_set_side); parley_set_side)
+    have s2_3 : x ∈ B := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mpr (by parley_set_side)
     exact s2_1 s2_3
   -- 3. exhibit, from 1, 2
   exact ⟨B, by parley_set_side, by parley_set_side⟩

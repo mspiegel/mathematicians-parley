@@ -149,6 +149,6 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     -- 9.21. exhibit, from 9.20
     exact ⟨P + Q, by parley_side, s9_20⟩
   -- 10. def:tends-to L := L·M, from 9
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n * b n)) (L := L * M))).mpr s9 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n * b n)) (L := L * M))).mpr s9; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n * b n)) (L := L * M))).mpr s9
 
 end Parley.Proofs.Hammack.ProductOfSequenceLimits.ProductOfSequenceLimits

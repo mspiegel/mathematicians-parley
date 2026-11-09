@@ -43,7 +43,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have r37_2 : a ≤ b := by parley_set_side
   have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side)
   -- 2. def:set-builder u := a, from D1, H6, 1
-  have s2 : a ∈ S := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := a))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := a))).mpr (by parley_set_side); parley_set_side)
+  have s2 : a ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := a))).mpr (by parley_set_side)
   -- 3. mun:set-builder-subset, from D1
   have s3 : S ⊆ (Set.Icc a b : Set ℝ) := by
     try simp only [hD1] at *
@@ -116,7 +116,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.7. inequalities
       have s16_7 : c < c + δ / 2 := by parley_order
       -- 16.8. mun:lt-min z := c, x := b, y := c + δ/2, from D2, 16.2, 16.7
-      have s16_8 : c < x₁ := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := c) (x := b) (y := c + δ / 2))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := c) (x := b) (y := c + δ / 2))).mpr (by parley_set_side); parley_set_side)
+      have s16_8 : c < x₁ := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := c) (x := b) (y := c + δ / 2))).mpr (by parley_set_side)
       -- 16.9. mun:min-le x := b, y := c + δ/2, from D2
       have s16_9a : x₁ ≤ b := by
         try simp only [hD2] at *
@@ -155,7 +155,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.23. inequalities
       have s16_23 : f x₁ < 0 := by parley_order
       -- 16.24. def:set-builder u := x₁, from D1, 16.15, 16.23
-      have s16_24 : x₁ ∈ S := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := x₁))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := x₁))).mpr (by parley_set_side); parley_set_side)
+      have s16_24 : x₁ ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := x₁))).mpr (by parley_set_side)
       -- 16.25. instantiate s := x₁ in line 10, from 16.24
       have s16_25 : x₁ ≤ c := by first | linarith [(s10 x₁ (by parley_set_side))] | (have h := (s10 x₁ (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 x₁ (by parley_set_side)) | (have h := (s10 x₁ (by parley_set_side)); parley_set_side)
       -- 16.26. inequalities, from 16.8

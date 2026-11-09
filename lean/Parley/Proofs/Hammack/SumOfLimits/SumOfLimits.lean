@@ -79,6 +79,6 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
     -- 1.13. exhibit, from 1.12
     exact ⟨P + Q, by parley_side, s1_12⟩
   -- 2. def:tends-to L := L + M, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n + b n)) (L := L + M))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n + b n)) (L := L + M))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n + b n)) (L := L + M))).mpr s1
 
 end Parley.Proofs.Hammack.SumOfLimits.SumOfLimits

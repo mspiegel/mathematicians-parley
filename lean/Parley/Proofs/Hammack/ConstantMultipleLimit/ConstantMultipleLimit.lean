@@ -84,6 +84,6 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
     -- 4.7. exhibit, from 4.6
     exact ⟨N, s4_5a, s4_6⟩
   -- 5. def:tends-to L := c·L, from 4
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => c * a n)) (L := c * L))).mpr s4 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => c * a n)) (L := c * L))).mpr s4; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => c * a n)) (L := c * L))).mpr s4
 
 end Parley.Proofs.Hammack.ConstantMultipleLimit.ConstantMultipleLimit

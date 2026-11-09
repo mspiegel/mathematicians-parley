@@ -54,6 +54,6 @@ theorem limit_negative (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n 
     -- 1.5. exhibit, from 1.4
     exact ⟨N, s1_3a, s1_4⟩
   -- 2. def:tends-to L := −L, from 1
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => -x n)) (L := -L))).mpr s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => -x n)) (L := -L))).mpr s1; parley_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => -x n)) (L := -L))).mpr s1
 
 end Parley.Proofs.Setmm.LimitNegative.LimitNegative

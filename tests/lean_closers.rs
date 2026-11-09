@@ -45,6 +45,13 @@ const SITES: &[Site] = &[
         why: "a definition over any ring taken at ℤ, ∃ m : ℤ, 0 < m ∧ (m : ℤ) = N beside the writer's 0 < N: Int.cast_id and exists_eq_right",
     },
     Site {
+        file: "lean/Parley/Proofs/Setmm/LimitAddConstant/LimitAddConstant.lean",
+        step: "2",
+        holds: ".mpr s1",
+        list: false,
+        why: "a definition read backwards whose left side is the claim up to what Lean takes as one term, (fun n => x n + C) n beside x n + C: the reading as a term",
+    },
+    Site {
         file: "lean/Parley/Tests/Notations/Powers/EToARealPower.lean",
         step: "1",
         holds: "first |",
