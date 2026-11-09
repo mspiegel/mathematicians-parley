@@ -1910,6 +1910,47 @@ impl<'a> Elaborator<'a> {
         for v in &pairs {
             values.insert(v.name.clone(), self.term(&v.value)?);
         }
+        // The sentence, or the part of one, the checker instantiated
+        // (`CheckedTheorem::instantiated`): where it recorded one, that is
+        // the universal, and a record naming no universal of the line is a
+        // defect.
+        let at = self
+            .checked
+            .instantiated
+            .get(&step.just.line)
+            .map(|r| r.at.clone());
+        let recorded = match at {
+            Some(at) => {
+                // The line as elaborated may bind another letter than the
+                // sentence read afresh: one claim with its bound variable
+                // renamed (`renaming`).
+                let s = self.recorded_statement(&at)?;
+                let mut found = None;
+                for p in &universals {
+                    let same = *p == s
+                        || self
+                            .renaming(&self.to_term(&s), &self.to_term(p))?
+                            .is_some();
+                    if same {
+                        found = Some(p.clone());
+                        break;
+                    }
+                }
+                match found {
+                    Some(p) => Some(p),
+                    None => {
+                        return Err(self.defect(
+                            step.line,
+                            format!(
+                                "the checker instantiated {} of {where_}, which says no for all there",
+                                at.line
+                            ),
+                        ))
+                    }
+                }
+            }
+            None => None,
+        };
         let mut fewest: Option<(usize, &Rpn)> = None;
         for p in &candidates {
             let Some(asked) = self.conditions_to(p, &values, term) else {
@@ -1919,10 +1960,13 @@ impl<'a> Elaborator<'a> {
                 fewest = Some((asked, p));
             }
         }
-        let said = fewest
-            .map(|(_, p)| p)
-            .or(candidates.first().copied())
-            .cloned();
+        let said = match recorded {
+            Some(p) => Some(p),
+            None => fewest
+                .map(|(_, p)| p)
+                .or(candidates.first().copied())
+                .cloned(),
+        };
         let Some(said) = said else {
             return Err(self.unreached(
                 step.line,
@@ -2945,6 +2989,13 @@ impl<'a> Elaborator<'a> {
             return Ok(Vec::new());
         };
         Ok(self.cited_here(step, &item.qualified())?.firsts)
+    }
+
+    /// What the line `at` names says there, as the checker read it
+    /// (`FirstAt::written`): the sentence, the part of one, or a "for all"
+    /// of it read at a block's letter.
+    fn recorded_statement(&mut self, at: &FirstAt) -> Checked<Rpn> {
+        self.term(&at.written)
     }
 
     /// What the line `at` names says there, with its proof and the parts of
