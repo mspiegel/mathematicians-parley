@@ -29,11 +29,11 @@ theorem half_turn (x : ℝ) (hH2 : x ∈ ({-Real.pi, Real.pi} : Set ℝ)) :
     -- 2.1. algebra, from C1
     have s2_1 : x = (2 * -1 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC1
     -- 2.2. exhibit, from 2.1
-    exact ⟨(-1 : ℤ), by simpa using s2_1⟩
+    exact ⟨(-1 : ℤ), by exact_mod_cast s2_1⟩
   · skip
     -- 2.3. algebra, from C2
     have s2_3 : x = (2 * 0 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC2
     -- 2.4. exhibit, from 2.3
-    exact ⟨(0 : ℤ), by simpa using s2_3⟩
+    exact ⟨(0 : ℤ), by exact_mod_cast s2_3⟩
 
 end Parley.Stdlib.Geometry.HalfTurn

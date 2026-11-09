@@ -7,7 +7,9 @@ public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -37,7 +39,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_1 : A ^ 0 = 1 := by parley_ring
       -- 1.2. inequalities
       have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_order
-      simpa using s1_2
+      simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
     | succ k hK hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
       have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side))
@@ -67,7 +69,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k.toNat * A := by parley_order
       -- 1.12. transitivity, from 1.11, 1.3
       have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1).toNat := by parley_order
-      simpa using s1_12
+      exact_mod_cast s1_12
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))
 

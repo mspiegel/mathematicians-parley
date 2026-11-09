@@ -17,6 +17,9 @@
 {"key":"Finset.coe_Icc","kind":"const","modules":["Mathlib.Order.Interval.Finset.Defs"]}
 {"key":"Finset.mem_Icc","kind":"const","modules":["Mathlib.Order.Interval.Finset.Defs"]}
 {"key":"Finset.mem_Icc.mp","kind":"const","modules":[]}
+{"key":"Int.cast_ofNat","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
+{"key":"Int.cast_one","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
+{"key":"Int.cast_zero","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
 {"key":"Int.gcd","kind":"const","modules":["Mathlib.Tactic.NormNum.GCD","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"Int.lcm","kind":"const","modules":["Mathlib.Tactic.NormNum.GCD","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"Int.reduceAdd","kind":"const","modules":[]}
@@ -27,6 +30,9 @@
 {"key":"IsAlgebraic","kind":"const","modules":["Mathlib.RingTheory.Algebraic.Defs"]}
 {"key":"IsOpen","kind":"const","modules":["Mathlib.Topology.Defs.Basic"]}
 {"key":"Nat.Prime","kind":"const","modules":["Mathlib.Tactic.NormNum.Prime","Mathlib.Data.Nat.Prime.Defs"]}
+{"key":"Nat.cast_ofNat","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
+{"key":"Nat.cast_one","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
+{"key":"Nat.cast_zero","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
 {"key":"Nat.reduceAdd","kind":"const","modules":[]}
 {"key":"Nat.reduceMul","kind":"const","modules":[]}
 {"key":"Nat.totient","kind":"const","modules":["Mathlib.Data.Nat.Totient"]}

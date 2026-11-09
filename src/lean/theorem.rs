@@ -103,18 +103,59 @@ enum Proved {
     /// By this term.
     Term(Printed),
     /// By the line `line`, once the goal and it are rewritten by Mathlib's
-    /// lemmas `rules`, or simplified alike where none is named.
+    /// lemmas `rules`.
     Simplified {
         rules: Vec<&'static str>,
         line: Printed,
     },
-    /// By the line `line`, its casts and the goal's moved alike, once each
-    /// is rewritten by the `set` equations its letters name; taken up to the
-    /// goal's type where it is narrower (`forms::CastsApart`).
+    /// By the line `line`, its casts and the goal's moved alike by `by`,
+    /// once each is rewritten by the `set` equations its letters name
+    /// (`forms::CastsApart`).
     Cast {
         apart: super::doc::forms::CastsApart,
+        by: CastsBy,
         line: Printed,
     },
+    /// By the line `line`, the two apart in casts the cast table does not
+    /// settle: the ways tried in order, a `first` list the register of
+    /// lists keeps (`tests/first_lists.rs`).
+    Ways { line: Printed },
+}
+
+/// The tactic that moves the casts of a line and a goal apart only in them,
+/// by what the cast table says of both (`cast_proved`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum CastsBy {
+    /// `exact_mod_cast`: `norm_cast` moves every cast of both, and so
+    /// brings them to one form, a line in a narrower type than the goal's
+    /// among them.
+    NormCast,
+    /// `push_cast at h ⊢; exact h`: `push_cast` moves every cast of both to
+    /// the letters and numerals and `norm_cast` does not, a numeral
+    /// quotient among them, and neither is in a narrower type.
+    PushCast,
+}
+
+/// The proof of `wanted` from `line`, which says `says`, the two apart only
+/// in casts (`apart`): by whichever of `norm_cast` and `push_cast` the cast
+/// table says moves every cast of both; by the ways tried in order where
+/// neither does, or where only `push_cast` does and the line is in a
+/// narrower type, which it does not lift.
+fn cast_proved(
+    apart: super::doc::forms::CastsApart,
+    line: Printed,
+    says: &Printed,
+    wanted: &Printed,
+) -> Option<Proved> {
+    use super::casts::{norm_cast_moves_all, push_cast_moves_all};
+    let by = if norm_cast_moves_all(says) && norm_cast_moves_all(wanted) {
+        CastsBy::NormCast
+    } else if !apart.lift && push_cast_moves_all(says) && push_cast_moves_all(wanted) {
+        CastsBy::PushCast
+    } else {
+        return Some(Proved::Ways { line });
+    };
+    Some(Proved::Cast { apart, by, line })
 }
 
 impl Proved {
@@ -123,22 +164,35 @@ impl Proved {
         use super::tactics as t;
         match self {
             Proved::Term(term) => Tactic::Exact(term.clone()),
-            Proved::Simplified { rules, line } if rules.is_empty() => {
-                t::call("simpa", vec![TacticArg::Using(line.clone())])
-            }
             Proved::Simplified { rules, line } => {
                 t::simpa_only(rules.clone(), line.clone())
             }
+            Proved::Ways { line } => Tactic::First(vec![
+                t::exact_mod_cast(line.clone()),
+                t::on_h(
+                    line,
+                    vec![
+                        t::push_cast(Some(t::at_h(true))),
+                        Tactic::Exact(t::hyp("h")),
+                    ],
+                ),
+                t::call("simpa", vec![TacticArg::Using(line.clone())]),
+            ]),
             // Each side rewritten by the `set` equations its letters name, and
-            // then the casts taken up to the goal's, `exact_mod_cast`. Where
-            // nothing was rewritten and neither is narrower, both are
-            // simplified alike, `simpa using`: `exact_mod_cast` leaves a cast
-            // numeral under a division, ↑1 / 3, as `NNRat.divNat` on the one
-            // side and not the other, and a goal of numerals alone the
-            // simplifying closes itself.
-            Proved::Cast { apart, line } => {
+            // then the casts moved by the tactic the cast table gives
+            // (`CastsBy`).
+            Proved::Cast { apart, by, line } => {
                 let super::doc::TermKind::Letter(name) = &line.kind else {
-                    return t::exact_mod_cast(line.clone());
+                    return match by {
+                        CastsBy::NormCast => t::exact_mod_cast(line.clone()),
+                        CastsBy::PushCast => t::on_h(
+                            line,
+                            vec![
+                                t::push_cast(Some(t::at_h(true))),
+                                Tactic::Exact(t::hyp("h")),
+                            ],
+                        ),
+                    };
                 };
                 let rewrite = |by: &[String], at: Vec<super::doc::Location>| {
                     t::call(
@@ -160,10 +214,16 @@ impl Proved {
                         vec![super::doc::Location::Goal],
                     ));
                 }
-                match apart.lift || !steps.is_empty() {
-                    true => steps.push(t::exact_mod_cast(line.clone())),
-                    false => steps
-                        .push(t::call("simpa", vec![TacticArg::Using(line.clone())])),
+                match by {
+                    CastsBy::NormCast => steps.push(t::exact_mod_cast(line.clone())),
+                    CastsBy::PushCast => {
+                        let both = vec![
+                            super::doc::Location::Hypothesis(name.clone()),
+                            super::doc::Location::Goal,
+                        ];
+                        steps.push(t::push_cast(Some(TacticArg::At(both))));
+                        steps.push(Tactic::Exact(line.clone()));
+                    }
                 }
                 match steps.len() {
                     1 => steps.remove(0),
@@ -4778,13 +4838,21 @@ impl<'a> Proof<'a> {
                 .chain(forms::to_nat_rules(wanted))
                 .collect(),
         };
-        // Numerals taken to ℕ beside casts the writer placed otherwise are
-        // simplified alike on both, `simpa using`.
+        // A numeral's `toNat` is worked out by its simprocs (`to_nat_rules`),
+        // and the cast of a numeral it leaves, ↑0 beside 0, from ℕ or from
+        // ℤ, is that numeral (`Nat.cast_ofNat`, `Nat.cast_zero`,
+        // `Nat.cast_one`, and the same of `Int`).
         if met.identities.is_empty() && !to_nat.is_empty() {
-            return Some(Proved::Simplified {
-                rules: Vec::new(),
-                line: proof,
-            });
+            let mut rules = to_nat;
+            rules.extend([
+                "Nat.cast_ofNat",
+                "Nat.cast_zero",
+                "Nat.cast_one",
+                "Int.cast_ofNat",
+                "Int.cast_zero",
+                "Int.cast_one",
+            ]);
+            return Some(Proved::Simplified { rules, line: proof });
         }
         if !met.identities.is_empty() {
             let mut rules: Vec<&'static str> = Vec::new();
@@ -4801,12 +4869,10 @@ impl<'a> Proof<'a> {
             }
             return Some(Proved::Simplified { rules, line: proof });
         }
-        Some(
-            match forms::casts_differ(&says, wanted, &self.set_values()) {
-                Some(apart) => Proved::Cast { apart, line: proof },
-                None => Proved::Term(proof),
-            },
-        )
+        match forms::casts_differ(&says, wanted, &self.set_values()) {
+            Some(apart) => cast_proved(apart, proof, &says, wanted),
+            None => Some(Proved::Term(proof)),
+        }
     }
 
     /// The letters the proof so far names by `set`, with their values.
@@ -5105,7 +5171,7 @@ impl<'a> Proof<'a> {
             Meets::Identities(rules) => Proved::Simplified { rules, line: proof },
             Meets::Casts { .. } => {
                 match forms::casts_differ(says, wanted, &self.set_values()) {
-                    Some(apart) => Proved::Cast { apart, line: proof },
+                    Some(apart) => cast_proved(apart, proof, says, wanted)?,
                     None => Proved::Term(proof),
                 }
             }
@@ -5156,7 +5222,10 @@ impl<'a> Proof<'a> {
                 // move, are no fact a tactic is known to take the one to the
                 // other by.
                 Some(
-                    Proved::Term(_) | Proved::Cast { .. } | Proved::Simplified { .. },
+                    Proved::Term(_)
+                    | Proved::Cast { .. }
+                    | Proved::Simplified { .. }
+                    | Proved::Ways { .. },
                 )
                 | None => {}
             }

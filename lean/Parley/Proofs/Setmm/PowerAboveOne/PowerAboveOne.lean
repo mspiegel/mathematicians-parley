@@ -8,7 +8,9 @@ public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -32,7 +34,7 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℤ) (hH3 : 0 < n) :
     | base =>
       -- 1.1. restate H2
       have s1_1 : 1 < A ^ 1 := by parley_side
-      simpa using s1_1
+      simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. inequalities
       have s1_2 : 1 ≤ A ^ k.toNat := by parley_order

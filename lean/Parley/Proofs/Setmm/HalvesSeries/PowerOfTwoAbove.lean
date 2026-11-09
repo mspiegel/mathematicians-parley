@@ -10,7 +10,9 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -34,7 +36,7 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by parley_arith
-      simpa using s1_1
+      simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k
       have s1_2 : (0 : ℤ) < 2 ^ k.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k) (by parley_side))

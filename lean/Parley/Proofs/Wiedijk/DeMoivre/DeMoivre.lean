@@ -14,7 +14,9 @@ public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -59,7 +61,7 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
           _ = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by
               have s2_1_w : 0 * (x : ℂ) = 0 := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
               first | parley_subst s2_1_w | parley_subst s2_1
-      simpa using s2_4
+      simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_4
     | succ k hK hIH =>
       -- 2.5. thm:cos-add a := k·x, b := x
       have s2_5 : Real.cos ((k : ℝ) * x + x) = Real.cos ((k : ℝ) * x) * Real.cos x - Real.sin ((k : ℝ) * x) * Real.sin x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))); parley_side)
@@ -83,7 +85,7 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
           _ = (Real.cos (((k : ℝ) + 1) * x) : ℂ) + Complex.I * (Real.sin (((k : ℝ) + 1) * x) : ℂ) := by
               have s2_7_w : (k : ℂ) * (x : ℂ) + (x : ℂ) = ((k : ℂ) + 1) * (x : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_7; push_cast at h; linear_combination (norm := parley_norm) h
               first | parley_subst s2_7_w | parley_subst s2_7
-      simpa using s2_8
+      first | exact_mod_cast s2_8 | (have h := s2_8; push_cast at h ⊢; exact h) | simpa using s2_8
   -- 3. instantiate k := n in line 2
   exact (s2 n (by parley_side))
 

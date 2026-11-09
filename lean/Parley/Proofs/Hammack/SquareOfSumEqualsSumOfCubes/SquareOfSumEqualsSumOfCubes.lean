@@ -55,7 +55,7 @@ theorem square_of_sum_equals_sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
         calc (C 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((j : ℚ) ^ 3 : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
           _ = 1 ^ 3 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))); parley_side)
           _ = (1 * (1 + 1) / 2) ^ 2 := by norm_num
-      simpa using s1_1
+      first | exact_mod_cast s1_1 | (have h := s1_1; push_cast at h ⊢; exact h) | simpa using s1_1
     | succ k hK hIH =>
       -- 1.2. calculation
       have r29_1 : k ≥ 1 := by parley_side
@@ -68,7 +68,7 @@ theorem square_of_sum_equals_sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
         calc (C (k + 1) : ℚ) = (C k : ℚ) + ((k : ℚ) + 1) ^ 3 := by parley_side
           _ = ((k : ℚ) * ((k : ℚ) + 1) / 2) ^ 2 + ((k : ℚ) + 1) ^ 3 := by parley_subst hIH
           _ = (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2) ^ 2 := by parley_ring
-      simpa using s1_3
+      first | exact_mod_cast s1_3 | (have h := s1_3; push_cast at h ⊢; exact h) | simpa using s1_3
   -- 2. thm:sum-formula
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by exact (Parley.Proofs.Wiedijk.SumFormula.SumFormula.sum_formula (n := n) (by parley_side))
   -- 3. calculation

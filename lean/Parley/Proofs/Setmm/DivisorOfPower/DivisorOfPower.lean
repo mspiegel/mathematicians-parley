@@ -7,7 +7,9 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -34,7 +36,7 @@ theorem divisor_of_power (K : ℤ) (M : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : K �
     | base =>
       -- 1.1. restate H4
       have s1_1 : K ∣ M ^ 1 := by parley_side
-      simpa using s1_1
+      simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ m hK hIH =>
       -- 1.2. mun:divides-multiple e := K, a := M^m, x := M, from IH
       have s1_2 : K ∣ M ^ m.toNat * M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := K) (a := M ^ m.toNat) (x := M) hIH)

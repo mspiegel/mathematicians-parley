@@ -49,6 +49,11 @@ pub enum CastOp {
     Lt,
     /// An order, `a ≤ b`.
     Le,
+    /// A quotient of numerals, `1 / 3`, in a statement a line says and a
+    /// goal asks with its casts set otherwise: `norm_cast` takes a cast
+    /// numeral under it to `NNRat.divNat 1 3`, which the goal's `1 / 3` is
+    /// not, and `push_cast` takes the cast to the numeral.
+    NumeralQuotient,
 }
 
 /// What `push_cast` and `norm_cast` do with a cast from one number type to
@@ -79,7 +84,22 @@ impl OpTable {
     fn joined_by(&self) -> &'static str {
         match self.op {
             CastOp::Eq | CastOp::Lt | CastOp::Le => "↔",
+            CastOp::NumeralQuotient => "→",
             _ => "=",
+        }
+    }
+
+    /// The tactics each fact is checked by. A statement taken from a line
+    /// to a goal, `→`, is checked as a closer takes it, the line `h` to the
+    /// goal: `norm_cast` on an `↔` or `=` would bring both sides to one form
+    /// alike and say nothing of a line against a goal.
+    fn tactics(&self) -> (&'static str, &'static str) {
+        match self.op {
+            CastOp::NumeralQuotient => (
+                "intro h; push_cast at h ⊢; exact h",
+                "intro h; exact_mod_cast h",
+            ),
+            _ => ("push_cast; try rfl", "norm_cast"),
         }
     }
 }
@@ -274,6 +294,32 @@ const TABLES: &[OpTable] = &[
         facts: WIDENINGS,
     },
     OpTable {
+        op: CastOp::NumeralQuotient,
+        binders: "(x : {S})",
+        lhs: "((1 : {S}) : {T}) / 3 ≤ (x : {T})",
+        rhs: "(1 : {T}) / 3 ≤ (x : {T})",
+        facts: &[
+            CastFacts {
+                from: Z,
+                to: Q,
+                push_cast: true,
+                norm_cast: false,
+            },
+            CastFacts {
+                from: Z,
+                to: R,
+                push_cast: true,
+                norm_cast: false,
+            },
+            CastFacts {
+                from: Q,
+                to: R,
+                push_cast: true,
+                norm_cast: false,
+            },
+        ],
+    },
+    OpTable {
         op: CastOp::Eq,
         binders: "(a b : {S})",
         lhs: "((a : {S}) : {T}) = ((b : {S}) : {T})",
@@ -348,11 +394,19 @@ pub fn lean_test(module: &str) -> String {
             // A fact that the tactic moves the cast is the equation proved
             // by it; one that it does not, the tactic failing on it, with
             // nothing left unproved.
+            // The letters the binders give, which the failing check takes by
+            // name, as the proving one has them.
+            let names: Vec<&str> = binders
+                .split(['(', ')'])
+                .filter_map(|group| group.split(':').next())
+                .flat_map(str::split_whitespace)
+                .collect();
+            let names = names.join(" ");
             let checked = |tactic: &str, moves: bool| {
                 match moves {
                 true => format!("example {binders} : {equation} := by {tactic}\n"),
                 false => format!(
-                    "example : True := by\n  fail_if_success (have : ∀ {binders}, {equation} := by intros; {tactic})\n  trivial\n"
+                    "example : True := by\n  fail_if_success (have : ∀ {binders}, {equation} := by intro {names}; {tactic})\n  trivial\n"
                 ),
             }
             };
@@ -362,8 +416,9 @@ pub fn lean_test(module: &str) -> String {
                 if f.push_cast { "moves" } else { "stops" },
                 if f.norm_cast { "moves" } else { "stops" },
             ));
-            out.push_str(&checked("push_cast; try rfl", f.push_cast));
-            out.push_str(&checked("norm_cast", f.norm_cast));
+            let (push_cast, norm_cast) = table.tactics();
+            out.push_str(&checked(push_cast, f.push_cast));
+            out.push_str(&checked(norm_cast, f.norm_cast));
             out.push('\n');
         }
     }
@@ -407,6 +462,16 @@ impl Mover {
     }
 }
 
+/// Whether `term` is a numeral, cast or not, `3` or `((1 : ℤ) : ℚ)`.
+fn numeral(term: &Term) -> bool {
+    use super::doc::TermKind;
+    match &term.kind {
+        TermKind::Numeral(_) => true,
+        TermKind::Cast { inner, .. } | TermKind::Paren(inner) => numeral(inner),
+        _ => false,
+    }
+}
+
 /// `norm_cast_moves_all` of `term`, which stands under the operations
 /// `over`, outermost first; an operation the table does not know stops a
 /// cast below it.
@@ -422,6 +487,15 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
         more
     };
     match &term.kind {
+        // A numeral given its type, `(1 : ℚ)`, is that numeral of the type,
+        // which Lean elaborates as one: no cast. A numeral of another type
+        // cast to it, `((1 : ℤ) : ℚ)`, is a cast.
+        TermKind::Cast { inner, to }
+            if matches!(inner.kind, TermKind::Numeral(_))
+                && inner.ty.as_ref().is_none_or(|t| t == to) =>
+        {
+            true
+        }
         TermKind::Cast { inner, to } => {
             let (Some(from), LeanType::Num(to)) = (num(inner), to) else {
                 return inner.ty.as_ref() == Some(to) && moves_all(inner, over, by);
@@ -440,6 +514,22 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
         TermKind::Quantified { guard, body, .. } => {
             guard.as_ref().is_none_or(|g| moves_all(g, over, by))
                 && moves_all(body, over, by)
+        }
+        // A quotient of numerals, cast or not, which the table says
+        // `norm_cast` takes otherwise than the goal has it.
+        TermKind::Infix { op, lhs, rhs }
+            if op.symbol == "/" && numeral(lhs) && numeral(rhs) =>
+        {
+            let quotient = |f: CastFacts| by.moves(f);
+            [
+                (Num::Int, Num::Rat),
+                (Num::Int, Num::Real),
+                (Num::Rat, Num::Real),
+            ]
+            .iter()
+            .all(|(from, to)| {
+                facts(CastOp::NumeralQuotient, *from, *to).is_some_and(quotient)
+            })
         }
         TermKind::Infix { op, lhs, rhs } => {
             let at = match op.symbol {

@@ -52,7 +52,7 @@ theorem sum_of_first_naturals (n : ℤ) (hH1 : 0 < n) :
         calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((j : ℚ) : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
           _ = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))); parley_side)
           _ = (1 ^ 2 + 1) / 2 := by norm_num
-      simpa using s1_1
+      first | exact_mod_cast s1_1 | (have h := s1_1; push_cast at h ⊢; exact h) | simpa using s1_1
     | succ k hK hIH =>
       -- 1.2. calculation
       have r27_1 : k ≥ 1 := by parley_side
@@ -65,7 +65,7 @@ theorem sum_of_first_naturals (n : ℤ) (hH1 : 0 < n) :
         calc (S (k + 1) : ℚ) = (S k : ℚ) + ((k : ℚ) + 1) := by parley_side
           _ = ((k : ℚ) ^ 2 + (k : ℚ)) / 2 + ((k : ℚ) + 1) := by parley_subst hIH
           _ = (((k : ℚ) + 1) ^ 2 + ((k : ℚ) + 1)) / 2 := by parley_ring
-      simpa using s1_3
+      first | exact_mod_cast s1_3 | (have h := s1_3; push_cast at h ⊢; exact h) | simpa using s1_3
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num
     _ = ((n : ℚ) ^ 2 + (n : ℚ)) / 2 := by exact (s1 n (by parley_side))

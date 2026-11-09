@@ -11,7 +11,9 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -43,7 +45,7 @@ theorem factorial_beats_power (n : ℤ) (hH1 : 0 < n) :
       have s1_2 : 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_arith
       -- 1.3. join 1.1, 1.2
       have s1_3 : 2 ^ 1 ≤ 2 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) ∧ 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_side
-      exact ⟨by simpa using (s1_3).1, by simpa using (s1_3).2⟩
+      exact ⟨by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using (s1_3).1, by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using (s1_3).2⟩
     | succ k hK hIH =>
       -- 1.4. mun:factorial-nat n := k
       have s1_4 : 0 < (LeanBridges.Counting.factorial k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k) (by parley_side))

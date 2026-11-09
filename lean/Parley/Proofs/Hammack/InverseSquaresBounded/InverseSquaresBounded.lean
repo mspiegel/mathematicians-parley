@@ -56,7 +56,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       have s2_1 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / 1 := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) = 1 / 1 ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); parley_side)
           _ ≤ 2 - 1 / 1 := by norm_num
-      simpa using s2_1
+      first | exact_mod_cast s2_1 | (have h := s2_1; push_cast at h ⊢; exact h) | simpa using s2_1
     | succ k hK hIH =>
       -- 2.2. mun:sum-extended a := 1, n := k, from 1
       have r35_1 : k ≥ 1 := by parley_side
@@ -96,7 +96,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       have s2_16 : 2 - 1 / (k : ℚ) + 1 / ((k : ℚ) + 1) ^ 2 ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_order
       -- 2.17. transitivity, from 2.2, 2.15, 2.16
       have s2_17 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_order
-      simpa using s2_17
+      first | exact_mod_cast s2_17 | (have h := s2_17; push_cast at h ⊢; exact h) | simpa using s2_17
   -- 3. instantiate k := n in line 2
   first | linarith [(s2 n (by parley_side))] | (have h := (s2 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)
 
