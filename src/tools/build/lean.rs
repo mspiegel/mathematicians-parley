@@ -483,8 +483,19 @@ pub fn make(
         }
     }
 
+    // The cast table's facts, checked by Lean as everything else is
+    // (`lean::casts`).
+    let cast_table = "Parley.Tests.CastTable";
+    let cast_table_path = path_of_module(cast_table);
+    made.files.insert(
+        cast_table_path.clone(),
+        crate::lean::casts::lean_test(cast_table),
+    );
+    made.imports
+        .insert(cast_table_path, vec!["Mathlib".to_string()]);
     let root_imports: Vec<String> = std::iter::once(LIBRARY.to_string())
         .chain(written.iter().cloned())
+        .chain(std::iter::once(cast_table.to_string()))
         .collect();
     let mut root = String::from("module\n\n");
     for m in &root_imports {

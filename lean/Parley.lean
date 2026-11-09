@@ -1573,3 +1573,4 @@ public import Parley.Tests.Stdlib.Trigonometry.ArctanValues
 public import Parley.Tests.Stdlib.Trigonometry.ArctanReal
 public import Parley.Tests.Stdlib.Trigonometry.ContinuousArctan
 public import Parley.Tests.Stdlib.Trigonometry.DerivativeArctan
+public import Parley.Tests.CastTable

@@ -7,6 +7,7 @@
 #![deny(clippy::disallowed_methods)]
 
 pub mod algebra;
+pub mod casts;
 pub mod coverage;
 pub mod doc;
 pub mod export;
