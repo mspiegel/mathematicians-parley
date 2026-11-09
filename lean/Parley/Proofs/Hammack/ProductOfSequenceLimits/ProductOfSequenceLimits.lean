@@ -15,7 +15,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -39,14 +38,14 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     Filter.Tendsto (fun n : ℤ => (a n * b n : ℝ)) Filter.atTop (nhds (L * M)) := by
   -- 1. mun:abs-real x := L
   -- 2. mun:abs-nonneg x := L
-  have s2 : abs L ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))); parley_side)
+  have s2 : abs L ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ)))
   set s : ℝ := abs L + 1 with hD1
   have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))); parley_side)
   -- 3. inequalities, from D1, 2
   have s3 : s > 0 := by parley_order
   -- 4. mun:abs-real x := M
   -- 5. mun:abs-nonneg x := M
-  have s5 : abs M ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))); parley_side)
+  have s5 : abs M ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ)))
   set t : ℝ := abs M + 1 with hD2
   have hD2_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))); parley_side)
   -- 6. inequalities, from D2, 5

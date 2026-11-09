@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -22,8 +21,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
@@ -45,7 +42,7 @@ theorem product_factor (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 1.2. membership, from 1.1
     exact trivial
   -- 2. mun:product-of-products, from H2, 1
-  have s2 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * (∏ᶠ x ∈ X, (c : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2); parley_set_side)
+  have s2 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * (∏ᶠ x ∈ X, (c : ℤ)) := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2)
   -- 3. substitute
   have s3 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * c ^ X.ncard := by
     have c1 : (∏ᶠ x ∈ X, (c : ℤ)) = c ^ X.ncard := by exact (Parley.Items.Stdlib.Sums.mun_product_constant (X := X) hH2 (c := c))

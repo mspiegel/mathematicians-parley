@@ -18,7 +18,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -40,7 +39,7 @@ set_option maxHeartbeats 400000 in
 theorem a_over_n_tends_to_zero (A : ℝ) :
     Filter.Tendsto (fun n : ℤ => (A / (n : ℝ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. mun:abs-nonneg x := A
-  have s1 : abs A ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ))); parley_side)
+  have s1 : abs A ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ)))
   -- 2. inequalities, from 1
   have s2 : abs A + 1 > 0 := by parley_order
   -- 3. inequalities

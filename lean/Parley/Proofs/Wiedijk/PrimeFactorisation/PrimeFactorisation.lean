@@ -106,7 +106,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.16. inequalities
       have s1_16 : r ≤ N := by parley_order
       -- 1.17. mun:le-cases x := 1, y := r, from D2
-      have s1_17 : 1 < r ∨ 1 = r := by first | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side); parley_set_side)
+      have s1_17 : 1 < r ∨ 1 = r := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side)
       -- 1.18. cases, from 1.17
       rcases s1_17 with hC1 | hC2
       · skip

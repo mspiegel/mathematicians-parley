@@ -13,7 +13,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -34,7 +33,7 @@ set_option maxHeartbeats 400000 in
 theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℤ => (C * x n : ℝ)) Filter.atTop (nhds (C * L)) := by
   -- 1. mun:abs-nonneg x := C
-  have s1 : abs C ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ))); parley_side)
+  have s1 : abs C ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ)))
   -- 2. inequalities, from 1
   have s2 : abs C + 1 > 0 := by parley_order
   -- 3. inequalities

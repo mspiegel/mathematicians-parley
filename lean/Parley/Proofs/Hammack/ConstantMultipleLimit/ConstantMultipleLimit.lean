@@ -33,7 +33,7 @@ set_option maxHeartbeats 600000 in
 theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℤ => (c * a n : ℝ)) Filter.atTop (nhds (c * L)) := by
   -- 1. mun:abs-nonneg x := c
-  have s1 : abs c ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ))); parley_side)
+  have s1 : abs c ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ)))
   -- 2. inequalities, from 1
   have s2 : abs c + 1 > 0 := by parley_order
   -- 3. inequalities

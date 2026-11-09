@@ -9,7 +9,6 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -32,7 +31,7 @@ theorem sqrt_of_square (x : ℝ) :
   have s2a : Real.sqrt (x ^ 2) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x ^ 2) s1)
   have s2b : Real.sqrt (x ^ 2) ^ 2 = x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x ^ 2) s1)
   -- 3. mun:abs-nonneg
-  have s3 : abs x ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ))); parley_side)
+  have s3 : abs x ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ)))
   -- 4. calculation
   have s4 : Real.sqrt (x ^ 2) ^ 2 = abs x ^ 2 := by
     calc Real.sqrt (x ^ 2) ^ 2 = x ^ 2 := by parley_side

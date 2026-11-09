@@ -446,6 +446,54 @@ pub fn push_cast_moves_all(term: &Term) -> bool {
     moves_all(term, &[], Mover::PushCast)
 }
 
+/// A statement as `norm_cast` leaves it where it moves every cast
+/// (`norm_cast_moves_all`), for comparing two such: its casts gone and
+/// brackets with them, and the norm of a cast real its absolute value,
+/// `‖(a : ℂ)‖` as `|a|`, which the table says `norm_cast` takes it to.
+/// Two statements in one type whose forms are alike `norm_cast` brings to
+/// one, and `exact_mod_cast` closes the one by the other.
+pub fn norm_cast_form(term: &Term) -> Term {
+    use super::doc::TermKind;
+    match &term.kind {
+        TermKind::Cast { inner, .. } | TermKind::Paren(inner) => {
+            return norm_cast_form(inner)
+        }
+        TermKind::Enclosed {
+            open: "‖", inner, ..
+        } if matches!(inner.kind, TermKind::Cast { .. }) => {
+            return absolute(norm_cast_form(inner));
+        }
+        // `abs x` and `|x|` are one function written two ways.
+        TermKind::App { head, args, .. } => {
+            if let (TermKind::Const(c), [super::doc::Arg::Explicit(x)]) =
+                (&head.kind, args.as_slice())
+            {
+                if c.name == "abs" {
+                    return absolute(norm_cast_form(x));
+                }
+            }
+        }
+        _ => {}
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = norm_cast_form(c);
+    }
+    out.untyped()
+}
+
+/// `|x|`.
+fn absolute(x: Term) -> Term {
+    Term {
+        kind: super::doc::TermKind::Enclosed {
+            open: "|",
+            close: "|",
+            inner: Box::new(x),
+        },
+        ty: None,
+    }
+}
+
 /// The tactic a walk asks of the table.
 #[derive(Clone, Copy)]
 enum Mover {
@@ -562,13 +610,15 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
         }
         TermKind::Neg(inner) => moves_all(inner, &under(Some(CastOp::Neg)), by),
         TermKind::Enclosed { open, inner, .. } => {
-            let at = match *open {
-                "|" => Some(CastOp::Abs),
-                "‖" => Some(CastOp::Norm),
-                "⌊" => Some(CastOp::Floor),
-                _ => None,
-            };
-            moves_all(inner, &under(at), by)
+            match *open {
+                "|" => moves_all(inner, &under(Some(CastOp::Abs)), by),
+                // A norm is real and a floor an integer, whatever they are
+                // of: a cast inside one stands under it alone, and what is
+                // above it is in another type than the cast's.
+                "‖" => moves_all(inner, &[Some(CastOp::Norm)], by),
+                "⌊" => moves_all(inner, &[Some(CastOp::Floor)], by),
+                _ => moves_all(inner, &under(None), by),
+            }
         }
         TermKind::App { head, args, .. } => {
             let at = match &head.kind {

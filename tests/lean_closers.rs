@@ -30,6 +30,13 @@ const SITES: &[Site] = &[
         why: "a citation alike but for casts, every cast one norm_cast moves (Σ, /, ^): exact_mod_cast",
     },
     Site {
+        file: "lean/Parley/Tests/Stdlib/Numbers/AbsNonneg.lean",
+        step: "1",
+        holds: "exact_mod_cast",
+        list: false,
+        why: "a citation the writer's comparison does not meet, ‖(x : ℂ)‖ beside |x|, whose forms as norm_cast leaves them are alike: exact_mod_cast",
+    },
+    Site {
         file: "lean/Parley/Tests/Notations/Powers/EToARealPower.lean",
         step: "1",
         holds: "first |",

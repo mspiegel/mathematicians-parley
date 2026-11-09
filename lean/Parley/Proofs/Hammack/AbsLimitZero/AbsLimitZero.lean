@@ -10,7 +10,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,7 +46,7 @@ theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (
       have s1_4_1 : abs (abs (a n)) < ε := by exact (s1_3b n (by parley_side) (by parley_side))
       -- 1.4.2. membership, from H1
       -- 1.4.3. mun:abs-nonneg x := a(n), from 1.4.2
-      have s1_4_3 : abs (a n) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))); parley_side)
+      have s1_4_3 : abs (a n) ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ)))
       -- 1.4.4. mun:abs-real x := a(n), from 1.4.2
       -- 1.4.5. def:abs x := |a(n)|, from 1.4.3, 1.4.4
       have s1_4_5 : abs (abs (a n)) = abs (a n) := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs (a n))) s1_4_3

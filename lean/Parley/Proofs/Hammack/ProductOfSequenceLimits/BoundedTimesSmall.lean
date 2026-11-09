@@ -8,7 +8,6 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -25,7 +24,7 @@ namespace Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall
 theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0) (hH6 : abs C < K) (hH7 : abs u < d) :
     abs (C * u) < K * d := by
   -- 1. mun:abs-nonneg x := u
-  have s1 : abs u ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ))); parley_side)
+  have s1 : abs u ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ)))
   -- 2. inequalities
   have s2 : K - abs C > 0 := by parley_order
   -- 3. inequalities

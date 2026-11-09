@@ -5235,6 +5235,18 @@ impl<'a> Proof<'a> {
                 )
                 | None => {}
             }
+            // Statements the writer's comparison does not meet, `0 ≤ ‖(C : ℂ)‖`
+            // beside `|C| ≥ 0`, whose forms as `norm_cast` leaves them are
+            // alike (`casts::norm_cast_form`): `exact_mod_cast`.
+            let values = self.set_values();
+            let formed = super::doc::forms::alike_once_set(
+                &super::casts::norm_cast_form(says),
+                &super::casts::norm_cast_form(claim),
+                &values,
+            );
+            if by_norm_cast && formed {
+                return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
+            }
         }
         close(&self.writer, node, term)
     }
