@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import NormTactics
+public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -27,6 +28,8 @@ public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
@@ -146,13 +149,13 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
     have row2 : F x / G x = (deriv F) ξ / (deriv G) ξ := by parley_subst_at c2 row1
     exact row2
   -- 30. instantiate t := x in line 8, from H11
-  have s30 : F x = f x := by linear_combination (norm := parley_norm) (s8 x (by parley_set_side))
+  have s30 : F x = f x := by first | linear_combination (norm := parley_norm) (s8 x (by parley_set_side)) | (have h := (s8 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s8 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s8 x (by parley_set_side)) | exact_mod_cast ((s8 x (by parley_set_side))).symm | (have h := (s8 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s8 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s8 x (by parley_set_side)); parley_int_power h) | (have h := (s8 x (by parley_set_side)); parley_set_side)
   -- 31. instantiate t := x in line 9, from H11
-  have s31 : G x = g x := by linear_combination (norm := parley_norm) (s9 x (by parley_set_side))
+  have s31 : G x = g x := by first | linear_combination (norm := parley_norm) (s9 x (by parley_set_side)) | (have h := (s9 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s9 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s9 x (by parley_set_side)) | exact_mod_cast ((s9 x (by parley_set_side))).symm | (have h := (s9 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s9 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s9 x (by parley_set_side)); parley_int_power h) | (have h := (s9 x (by parley_set_side)); parley_set_side)
   -- 32. instantiate t := ξ in line 18, from 27
-  have s32 : (deriv F) ξ = (deriv f) ξ := by linear_combination (norm := parley_norm) (s18 ξ (by parley_set_side))
+  have s32 : (deriv F) ξ = (deriv f) ξ := by first | linear_combination (norm := parley_norm) (s18 ξ (by parley_set_side)) | (have h := (s18 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s18 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s18 ξ (by parley_set_side)) | exact_mod_cast ((s18 ξ (by parley_set_side))).symm | (have h := (s18 ξ (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s18 ξ (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s18 ξ (by parley_set_side)); parley_int_power h) | (have h := (s18 ξ (by parley_set_side)); parley_set_side)
   -- 33. instantiate t := ξ in line 20, from 27
-  have s33 : (deriv G) ξ = (deriv g) ξ := by linear_combination (norm := parley_norm) (s20 ξ (by parley_set_side))
+  have s33 : (deriv G) ξ = (deriv g) ξ := by first | linear_combination (norm := parley_norm) (s20 ξ (by parley_set_side)) | (have h := (s20 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s20 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s20 ξ (by parley_set_side)) | exact_mod_cast ((s20 ξ (by parley_set_side))).symm | (have h := (s20 ξ (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s20 ξ (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s20 ξ (by parley_set_side)); parley_int_power h) | (have h := (s20 ξ (by parley_set_side)); parley_set_side)
   -- 34. substitute F(x) = f(x) (line 30) into line 29
   have s34 : f x / G x = (deriv F) ξ / (deriv G) ξ := by parley_subst_at s30 s29
   -- 35. substitute G(x) = g(x) (line 31) into line 34

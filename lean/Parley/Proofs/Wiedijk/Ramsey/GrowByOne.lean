@@ -11,6 +11,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -67,14 +68,14 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
       rcases s4_6_1 with hC2 | hC3
       · skip
         -- 4.6.2.1. instantiate Y := Y in line 4.1, from C2, K2
-        exact (s4_1.2 Y (by parley_set_side) (by parley_set_side))
+        first | exact (s4_1.2 Y (by parley_set_side) (by parley_set_side)) | exact ((s4_1.2 Y (by parley_set_side) (by parley_set_side))).symm | simpa using (s4_1.2 Y (by parley_set_side) (by parley_set_side)) | exact_mod_cast (s4_1.2 Y (by parley_set_side) (by parley_set_side)) | (have h := (s4_1.2 Y (by parley_set_side) (by parley_set_side)); parley_set_side)
       · skip
         -- 4.6.2.2. obtain w from C3
         obtain ⟨w, s4_6_2_2a, s4_6_2_2b⟩ := hC3
         -- 4.6.2.3. mun:in-subset, from H10, 4.6.2.2
         have s4_6_2_3 : w ∈ N := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := W) (Y := N) (u := w) hH10 s4_6_2_2a)
         -- 4.6.2.4. instantiate w := w in H9, from 4.6.2.3
-        have s4_6_2_4 : ({v, w} : Set α) ∈ E := by exact (hH9 w (by parley_set_side))
+        have s4_6_2_4 : ({v, w} : Set α) ∈ E := by first | exact (hH9 w (by parley_set_side)) | exact ((hH9 w (by parley_set_side))).symm | simpa using (hH9 w (by parley_set_side)) | exact_mod_cast (hH9 w (by parley_set_side)) | (have h := (hH9 w (by parley_set_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (hH9 w (by parley_set_side)); parley_set_side)
         -- 4.6.2.5. substitute Y = {v, w} (line 4.6.2.2) into line 4.6.2.4
         parley_subst_at s4_6_2_2b s4_6_2_4
     -- 4.7. mun:singleton-subset, from H7

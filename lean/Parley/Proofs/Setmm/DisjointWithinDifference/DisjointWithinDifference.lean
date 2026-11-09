@@ -41,7 +41,7 @@ theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : S
     have s4 : ∀ s ∈ A, ¬ s ∈ B := by
       intro s hK
       -- 4.1. instantiate t := s in line 3, from K
-      have s4_1 : s ∈ C \ B := by exact (s3 s (by parley_set_side))
+      have s4_1 : s ∈ C \ B := by first | exact (s3 s (by parley_set_side)) | exact ((s3 s (by parley_set_side))).symm | simpa using (s3 s (by parley_set_side)) | exact_mod_cast (s3 s (by parley_set_side)) | (have h := (s3 s (by parley_set_side)); parley_set_side)
       -- 4.2. def:difference u := s, Y := C, Z := B, from 4.1
       have s4_2 : s ∈ C ∧ ¬ s ∈ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := s))).mp s4_1
       -- 4.3. restate 4.2

@@ -30,7 +30,7 @@ theorem a_half_does_not_bound_the_unit_interval :
   -- 2.1. def:upper-bound u := 1/2, S := [0, 1], from S
   have s2_1 : ∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 / 2 := by parley_set_side
   -- 2.2. instantiate s := 1 in line 2.1, from 1
-  have s2_2 : (1 : ℚ) ≤ 1 / 2 := by linarith [(s2_1 (1 : ℝ) (by parley_set_side))]
+  have s2_2 : (1 : ℚ) ≤ 1 / 2 := by first | linarith [(s2_1 (1 : ℝ) (by parley_set_side))] | (have h := (s2_1 (1 : ℝ) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s2_1 (1 : ℝ) (by parley_set_side)) | (have h := (s2_1 (1 : ℝ) (by parley_set_side)); parley_set_side)
   exact absurd s2_2 (by norm_num)
 
 end Parley.Tests.Notations.Calculus.AHalfDoesNotBoundTheUnitInterval

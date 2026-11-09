@@ -264,7 +264,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 10.2. def:upper-bound, from 10.1
     parley_set_side
   -- 11. instantiate k := 0 in line 10
-  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; linarith [(s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side))]
+  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; first | linarith [(s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side))] | (have h := (s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side)) | (have h := (s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side)); parley_set_side)
   -- 12. obtain c: axi:completeness, from 7, 9, 11
   obtain ⟨c, s12⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s7 (by parley_set_side) (by parley_set_side))
   -- 13. def:least-upper-bound, from 12
@@ -276,7 +276,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
   have s15 : ∀ k : ℤ, 0 ≤ k → (L k : ℝ) ≤ c ∧ c ≤ (U k : ℝ) := by
     intro k hK5
     -- 15.1. instantiate y := L(k) in line 14, from 8
-    have s15_1 : (L k : ℝ) ≤ c := by linarith [(s14 (L k : ℝ) (by parley_set_side))]
+    have s15_1 : (L k : ℝ) ≤ c := by first | linarith [(s14 (L k : ℝ) (by parley_set_side))] | (have h := (s14 (L k : ℝ) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s14 (L k : ℝ) (by parley_set_side)) | (have h := (s14 (L k : ℝ) (by parley_set_side)); parley_set_side)
     -- 15.2. instantiate u := U(k) in line 13, from 10
     have s15_2 : c ≤ (U k : ℝ) := by exact (s13b (U k : ℝ) (by parley_set_side))
     -- 15.3. join 15.1, 15.2

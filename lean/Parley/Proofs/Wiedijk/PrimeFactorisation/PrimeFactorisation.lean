@@ -9,6 +9,7 @@ public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
@@ -150,7 +151,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.13. D1, from 1.18.12
         parley_set_side
   -- 2. instantiate N := n in line 1
-  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n (by parley_set_side) m (by parley_set_side))
+  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; first | exact (s1 n (by parley_set_side) m (by parley_set_side)) | exact ((s1 n (by parley_set_side) m (by parley_set_side))).symm | simpa using (s1 n (by parley_set_side) m (by parley_set_side)) | exact_mod_cast (s1 n (by parley_set_side) m (by parley_set_side)) | (have h := (s1 n (by parley_set_side) m (by parley_set_side)); rw [← Finset.coe_Icc, finprod_mem_coe_finset] at h; exact h) | (have h := (s1 n (by parley_set_side) m (by parley_set_side)); parley_set_side)
   -- 3. def:range-between k := n, a := 2, b := n, from H2
   have r317_1 : n ≤ n := by parley_order
   have s3 : n ∈ Finset.Icc (2 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr (by parley_set_side)

@@ -81,6 +81,6 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       exact row1
   -- 2. instantiate Y := X in line 1
   have r124_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  linear_combination (norm := parley_norm) (s1 X (by parley_set_side))
+  first | linear_combination (norm := parley_norm) (s1 X (by parley_set_side)) | (have h := (s1 X (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 X (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (s1 X (by parley_set_side))) | exact_mod_cast (s1 X (by parley_set_side)) | exact_mod_cast ((s1 X (by parley_set_side))).symm | (have h := (s1 X (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 X (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 X (by parley_set_side)); parley_int_power h) | (have h := (s1 X (by parley_set_side)); parley_set_side)
 
 end Parley.Stdlib.Sums.ProductConstant

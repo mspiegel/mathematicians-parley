@@ -54,7 +54,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
     rcases s4_4 with hC1 | hC2
     · skip
       -- 4.5.1. instantiate p := t, q := i in H7, from C1, H6, K1
-      have s4_5_1 : c t < c i := by linarith [(hH7 t (by parley_set_side) i (by parley_set_side) (by parley_set_side))]
+      have s4_5_1 : c t < c i := by first | linarith [(hH7 t (by parley_set_side) i (by parley_set_side) (by parley_set_side))] | (have h := (hH7 t (by parley_set_side) i (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (hH7 t (by parley_set_side) i (by parley_set_side) (by parley_set_side)) | (have h := (hH7 t (by parley_set_side) i (by parley_set_side) (by parley_set_side)); parley_set_side)
       -- 4.5.2. transitivity, from 4.5.1, H9
       parley_order
     · skip
@@ -80,7 +80,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
     rcases s5_2 with hC4 | hC5
     · skip
       -- 5.3.3.1. instantiate p := p, q := q in H7, from C3, C4, K4
-      linarith [(hH7 p (by parley_set_side) q (by parley_set_side) (by parley_set_side))]
+      first | linarith [(hH7 p (by parley_set_side) q (by parley_set_side) (by parley_set_side))] | (have h := (hH7 p (by parley_set_side) q (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (hH7 p (by parley_set_side) q (by parley_set_side) (by parley_set_side)) | (have h := (hH7 p (by parley_set_side) q (by parley_set_side) (by parley_set_side)); parley_set_side)
     · skip
       -- 5.3.3.2. def:singleton x := p, a := j, from C5
       have s5_3_3_2 : p = j := ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC5
@@ -99,7 +99,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       rcases s5_2 with hC7 | hC8
       · skip
         -- 5.3.5.1. instantiate t := p in line 4, from C7
-        linarith [(s4 p (by parley_set_side))]
+        first | linarith [(s4 p (by parley_set_side))] | (have h := (s4 p (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4 p (by parley_set_side)) | (have h := (s4 p (by parley_set_side)); parley_set_side)
       · skip
         -- 5.3.5.2. def:singleton x := p, a := j, from C8
         have s5_3_5_2 : p = j := ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC8

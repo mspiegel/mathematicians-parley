@@ -32,7 +32,7 @@ theorem constant_map_is_not_one_to_one {α : Type*} (A : Set α) (C : Set α) (B
   have s4_1a : Set.MapsTo F A C := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) (by parley_set_side))).mp hS).1
   have s4_1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) (by parley_set_side))).mp hS).2
   -- 4.2. instantiate s := X, t := Y in line 4.1, from H5, H6, 3
-  have s4_2 : X = Y := by exact (s4_1b X (by parley_set_side) Y (by parley_set_side) (by parley_set_side))
+  have s4_2 : X = Y := by first | exact (s4_1b X (by parley_set_side) Y (by parley_set_side) (by parley_set_side)) | exact ((s4_1b X (by parley_set_side) Y (by parley_set_side) (by parley_set_side))).symm | simpa using (s4_1b X (by parley_set_side) Y (by parley_set_side) (by parley_set_side)) | exact_mod_cast (s4_1b X (by parley_set_side) Y (by parley_set_side) (by parley_set_side)) | (have h := (s4_1b X (by parley_set_side) Y (by parley_set_side) (by parley_set_side)); parley_set_side)
   -- 4.3. restate H7
   have s4_3 : ¬ X = Y := by parley_set_side
   exact s4_3 s4_2

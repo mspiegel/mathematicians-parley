@@ -49,6 +49,6 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.2.2. inequalities, from 1.2.1
       parley_order
   -- 2. instantiate N := n in line 1
-  intro j h_j; linarith [(s1 n (by parley_side) j (by parley_side))]
+  intro j h_j; first | linarith [(s1 n (by parley_side) j (by parley_side))] | (have h := (s1 n (by parley_side) j (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side) j (by parley_side)) | (have h := (s1 n (by parley_side) j (by parley_side)); parley_side)
 
 end Parley.Tests.Elaborator.AnInductionOverARangeItEnds.AnInductionOverARangeItEnds

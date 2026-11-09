@@ -90,7 +90,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.10. algebra, from D0, 3.9
       have s3_10 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by linear_combination (norm := parley_field) s3_9
       -- 3.11. instantiate j := j in line 1, from D1
-      have s3_11 : A + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by linarith [(s1 j (by parley_side))]
+      have s3_11 : A + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by first | linarith [(s1 j (by parley_side))] | (have h := (s1 j (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 j (by parley_side)) | (have h := (s1 j (by parley_side)); parley_side)
       -- 3.12. substitute
       have s3_12 : A + j ≤ (LeanBridges.Counting.factorial (n + j + 1) : ℤ) := by
         have c1 : n + 1 + j = n + j + 1 := by parley_ring

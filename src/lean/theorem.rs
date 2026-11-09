@@ -222,6 +222,19 @@ fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
     Some(goal)
 }
 
+/// The casts a statement as Lean writes it takes, each by its text, a cast
+/// of a term to its own type left out, in order.
+fn cast_texts(term: &Printed) -> Vec<String> {
+    term.walk()
+        .into_iter()
+        .filter(|t| match &t.kind {
+            super::doc::TermKind::Cast { inner, to } => inner.ty.as_ref() != Some(to),
+            _ => false,
+        })
+        .map(|t| t.untyped().text())
+        .collect()
+}
+
 /// The `toNat`s a statement as Lean writes it takes, each by its text, in
 /// order.
 fn to_nat_texts(term: &Printed) -> Vec<String> {
@@ -6319,10 +6332,10 @@ impl<'a> Proof<'a> {
     /// two differ otherwise, the instance, turned where the checker turned
     /// it, is taken down to the claim's field where it is in a wider one,
     /// `parley_rat_of_real` of ℝ for a claim in ℚ and `parley_of_complex` of
-    /// ℂ; and otherwise reaches the claim by the claim's own closer, as a
-    /// line of the proof is typed as its claims are: `linear_combination`
-    /// for an equation of numbers, `linarith` for an order, `exact` for any
-    /// other claim.
+    /// ℂ; read in natural powers where it has a `toNat` the claim lacks,
+    /// `parley_zpow_toNat`; and otherwise reaches the claim by the closer
+    /// whose Lean fact holds of the two, the ways tried in order where none
+    /// does (`close`).
     fn instance_closed(
         &self,
         node: &Node,
@@ -6421,11 +6434,31 @@ impl<'a> Proof<'a> {
                 ],
             ));
         }
+        // The two in one type, met by the checker: each closer where its
+        // Lean fact holds of Lean's statements of them. An equation of
+        // numbers whose casts `push_cast` all moves (the cast table) is the
+        // instance once pushed in and put by the ring's laws,
+        // `linear_combination`, whose `parley_norm` checks
+        // `push_cast; ring1`; an order with the same casts as the instance
+        // is it over the same atoms, `linarith`; any claim Lean writes as
+        // the instance is it, `exact`. Any other keeps the ways it tries.
+        let Some((says, wanted)) = lean else {
+            return close(&self.writer, node, proof);
+        };
+        let says = match recorded.meeting.turned {
+            true => super::doc::forms::turned_statement(&says),
+            false => says,
+        };
         let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
+        let pushed = super::casts::push_cast_moves_all(&says)
+            && super::casts::push_cast_moves_all(&wanted);
+        let same_casts = cast_texts(&says) == cast_texts(&wanted);
+        let alike = super::doc::forms::written_alike(&says, &wanted);
         super::doc::Proof::By(match node.notation() {
-            EQUALITY if of_numbers => t::linear_combination(proof),
-            ORDER => t::call("linarith", vec![t::rules(vec![proof])]),
-            _ => Tactic::Exact(proof),
+            EQUALITY if of_numbers && pushed => t::linear_combination(proof),
+            ORDER if same_casts => t::call("linarith", vec![t::rules(vec![proof])]),
+            _ if alike => Tactic::Exact(proof),
+            _ => return close(&self.writer, node, proof),
         })
     }
 

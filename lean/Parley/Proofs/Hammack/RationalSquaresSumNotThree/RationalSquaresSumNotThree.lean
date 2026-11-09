@@ -122,7 +122,7 @@ theorem rational_squares_sum_not_three :
   -- 32. def:set-builder, from D1, 30, 31
   have s32 : u ∈ T := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := u))).mpr (by parley_set_side); parley_set_side)
   -- 33. instantiate t := u in line 10, from 32
-  have s33 : m ≤ u := by linarith [(s10b u (by parley_set_side))]
+  have s33 : m ≤ u := by first | linarith [(s10b u (by parley_set_side))] | (have h := (s10b u (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10b u (by parley_set_side)) | (have h := (s10b u (by parley_set_side)); parley_set_side)
   -- 34. inequalities
   have s34 : 3 * u > u := by parley_order
   -- 35. substitute m = 3u (line 24) into line 34

@@ -20,6 +20,6 @@ theorem an_onto_function_reaches_a_point {α : Type*} (A : Set α) (B : Set α) 
   -- 1. def:onto, from H3
   have s1 : ∀ y ∈ B, ∃ x ∈ A, y = f x := (((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mp hH3).2
   -- 2. instantiate y := y in line 1, from H4
-  exact (s1 y (by parley_set_side))
+  first | exact (s1 y (by parley_set_side)) | exact ((s1 y (by parley_set_side))).symm | simpa using (s1 y (by parley_set_side)) | exact_mod_cast (s1 y (by parley_set_side)) | (have h := (s1 y (by parley_set_side)); parley_set_side)
 
 end Parley.Tests.Notations.Functions.AnOntoFunctionReachesAPoint

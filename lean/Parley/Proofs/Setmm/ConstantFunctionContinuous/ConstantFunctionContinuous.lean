@@ -43,9 +43,9 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       intro x hK3
       intro hA2
       -- 1.1.1.1. instantiate x := x in H4, from K3
-      have s1_1_1_1 : f x = k := by linear_combination (norm := parley_norm) (hH4 x (by parley_set_side))
+      have s1_1_1_1 : f x = k := by first | linear_combination (norm := parley_norm) (hH4 x (by parley_set_side)) | (have h := (hH4 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH4 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH4 x (by parley_set_side)) | exact_mod_cast ((hH4 x (by parley_set_side))).symm | (have h := (hH4 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH4 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH4 x (by parley_set_side)); parley_int_power h) | (have h := (hH4 x (by parley_set_side)); parley_set_side)
       -- 1.1.1.2. instantiate x := a in H4, from K1
-      have s1_1_1_2 : f a = k := by linear_combination (norm := parley_norm) (hH4 a (by parley_set_side))
+      have s1_1_1_2 : f a = k := by first | linear_combination (norm := parley_norm) (hH4 a (by parley_set_side)) | (have h := (hH4 a (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH4 a (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH4 a (by parley_set_side)) | exact_mod_cast ((hH4 a (by parley_set_side))).symm | (have h := (hH4 a (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH4 a (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH4 a (by parley_set_side)); parley_int_power h) | (have h := (hH4 a (by parley_set_side)); parley_set_side)
       -- 1.1.1.3. algebra, from 1.1.1.1, 1.1.1.2
       have s1_1_1_3 : f x - f a = 0 := by linear_combination (norm := parley_norm) s1_1_1_1 + (-1) * s1_1_1_2
       -- 1.1.1.4. calculation

@@ -89,7 +89,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         exact ⟨W, by parley_set_side, by parley_set_side⟩
       | succ j hK5 hIH2 =>
         -- 1.8.7. instantiate j := j + 1 in IH1
-        have s1_8_7 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + (j + 1) - 2) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; exact (hIH1 (j + 1) (by parley_set_side) X (by parley_set_side))
+        have s1_8_7 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + (j + 1) - 2) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; first | exact (hIH1 (j + 1) (by parley_set_side) X (by parley_set_side)) | exact ((hIH1 (j + 1) (by parley_set_side) X (by parley_set_side))).symm | simpa using (hIH1 (j + 1) (by parley_set_side) X (by parley_set_side)) | exact_mod_cast (hIH1 (j + 1) (by parley_set_side) X (by parley_set_side)) | (have h := (hIH1 (j + 1) (by parley_set_side) X (by parley_set_side)); parley_set_side)
         -- 1.8.8. substitute
         have s1_8_8 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by parley_count_after (by
           have c1 : k + (j + 1) - 2 = k + j - 1 := by parley_ring
@@ -116,6 +116,6 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
   -- 2. mun:subset-self
   have s2 : V ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := V))
   -- 3. instantiate k := r, j := s, X := V in line 1, from H8, 2
-  exact (s1 r (by parley_set_side) s (by parley_set_side) V (by parley_set_side) (by parley_set_side))
+  first | exact (s1 r (by parley_set_side) s (by parley_set_side) V (by parley_set_side) (by parley_set_side)) | exact ((s1 r (by parley_set_side) s (by parley_set_side) V (by parley_set_side) (by parley_set_side))).symm | simpa using (s1 r (by parley_set_side) s (by parley_set_side) V (by parley_set_side) (by parley_set_side)) | exact_mod_cast (s1 r (by parley_set_side) s (by parley_set_side) V (by parley_set_side) (by parley_set_side)) | (have h := (s1 r (by parley_set_side) s (by parley_set_side) V (by parley_set_side) (by parley_set_side)); parley_set_side)
 
 end Parley.Proofs.Wiedijk.Ramsey.Ramsey

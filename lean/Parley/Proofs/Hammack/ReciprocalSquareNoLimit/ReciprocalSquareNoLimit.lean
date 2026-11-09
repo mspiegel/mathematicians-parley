@@ -4,6 +4,8 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
+public import PowerTactics
+public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -29,6 +31,8 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
@@ -103,7 +107,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 22. join 16, 21
   have s22 : 1 + 1 / (N : ℚ) ≠ 1 ∧ abs (1 + 1 / (N : ℝ) - 1) < p := by parley_set_side
   -- 23. instantiate x := 1 + 1/N in line 4, from 17, 22
-  have s23 : abs (f (1 + 1 / (N : ℝ)) - L) < 1 := by linarith [(s4b (1 + 1 / (N : ℝ)) (by parley_set_side) (by parley_set_side))]
+  have s23 : abs (f (1 + 1 / (N : ℝ)) - L) < 1 := by first | linarith [(s4b (1 + 1 / (N : ℝ)) (by parley_set_side) (by parley_set_side))] | (have h := (s4b (1 + 1 / (N : ℝ)) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (1 + 1 / (N : ℝ)) (by parley_set_side) (by parley_set_side)) | (have h := (s4b (1 + 1 / (N : ℝ)) (by parley_set_side) (by parley_set_side)); parley_set_side)
   -- 24. inequalities
   have s24 : 1 / (N : ℚ) ≠ 0 := by parley_set_side
   -- 25. mun:square-positive x := 1/N, from 24
@@ -117,7 +121,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have s27 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 ≠ 0 := by parley_set_side
   -- 28. calculation
   have s28 : f (1 + 1 / (N : ℝ)) = (N : ℝ) ^ 2 := by
-    calc f (1 + 1 / (N : ℝ)) = 1 / ((1 + 1 / (N : ℝ)) ^ 2 - 2 * (1 + 1 / (N : ℝ)) + 1) := by linear_combination (norm := parley_norm) (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side))
+    calc f (1 + 1 / (N : ℝ)) = 1 / ((1 + 1 / (N : ℝ)) ^ 2 - 2 * (1 + 1 / (N : ℝ)) + 1) := by first | linear_combination (norm := parley_norm) (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)) | (have h := (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)) | exact_mod_cast ((hH2 (1 + 1 / (N : ℝ)) (by parley_set_side))).symm | (have h := (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)); parley_int_power h) | (have h := (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)); parley_rat_of_real h) | (have h := (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side)); parley_set_side)
       _ = (N : ℝ) ^ 2 := by parley_ring
   -- 29. mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 23
   have s29 : L - 1 < f (1 + 1 / (N : ℝ)) ∧ f (1 + 1 / (N : ℝ)) < L + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (1 + 1 / (N : ℝ))) (c := L) (δ := (1 : ℝ)))).mp s23

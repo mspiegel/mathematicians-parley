@@ -379,13 +379,38 @@ pub fn lean_test(module: &str) -> String {
 /// this holds of both, as `norm_cast` brings both to the same form. A cast
 /// of a term to its own type is no cast.
 pub fn norm_cast_moves_all(term: &Term) -> bool {
-    moves_all(term, &[])
+    moves_all(term, &[], Mover::NormCast)
+}
+
+/// Whether `push_cast` moves every cast in `term` to the letters and
+/// numerals, as `norm_cast_moves_all` asks of `norm_cast`: the casts of two
+/// statements alike but for them are then pushed in alike, and what is left
+/// between them is the ring's, which `parley_norm`'s `push_cast; ring1`
+/// checks.
+pub fn push_cast_moves_all(term: &Term) -> bool {
+    moves_all(term, &[], Mover::PushCast)
+}
+
+/// The tactic a walk asks of the table.
+#[derive(Clone, Copy)]
+enum Mover {
+    PushCast,
+    NormCast,
+}
+
+impl Mover {
+    fn moves(self, f: CastFacts) -> bool {
+        match self {
+            Mover::PushCast => f.push_cast,
+            Mover::NormCast => f.norm_cast,
+        }
+    }
 }
 
 /// `norm_cast_moves_all` of `term`, which stands under the operations
 /// `over`, outermost first; an operation the table does not know stops a
 /// cast below it.
-fn moves_all(term: &Term, over: &[Option<CastOp>]) -> bool {
+fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
     use super::doc::{Arg, LeanType, Piece, TermKind};
     let num = |t: &Term| match &t.ty {
         Some(LeanType::Num(n)) => Some(*n),
@@ -399,26 +424,27 @@ fn moves_all(term: &Term, over: &[Option<CastOp>]) -> bool {
     match &term.kind {
         TermKind::Cast { inner, to } => {
             let (Some(from), LeanType::Num(to)) = (num(inner), to) else {
-                return inner.ty.as_ref() == Some(to) && moves_all(inner, over);
+                return inner.ty.as_ref() == Some(to) && moves_all(inner, over, by);
             };
             if from == *to {
-                return moves_all(inner, over);
+                return moves_all(inner, over, by);
             }
             let through = over.iter().all(|op| {
-                op.is_some_and(|op| facts(op, from, *to).is_some_and(|f| f.norm_cast))
+                op.is_some_and(|op| facts(op, from, *to).is_some_and(|f| by.moves(f)))
             });
-            through && moves_all(inner, &[])
+            through && moves_all(inner, &[], by)
         }
-        TermKind::Paren(inner) => moves_all(inner, over),
+        TermKind::Paren(inner) => moves_all(inner, over, by),
         // The logic around statements passes a cast through to them.
-        TermKind::Not(inner) => moves_all(inner, over),
+        TermKind::Not(inner) => moves_all(inner, over, by),
         TermKind::Quantified { guard, body, .. } => {
-            guard.as_ref().is_none_or(|g| moves_all(g, over)) && moves_all(body, over)
+            guard.as_ref().is_none_or(|g| moves_all(g, over, by))
+                && moves_all(body, over, by)
         }
         TermKind::Infix { op, lhs, rhs } => {
             let at = match op.symbol {
                 "∧" | "∨" | "→" | "↔" => {
-                    return moves_all(lhs, over) && moves_all(rhs, over)
+                    return moves_all(lhs, over, by) && moves_all(rhs, over, by)
                 }
                 "+" => Some(CastOp::Add),
                 "-" => Some(CastOp::Sub),
@@ -442,9 +468,9 @@ fn moves_all(term: &Term, over: &[Option<CastOp>]) -> bool {
                 "≤" | "≥" => Some(CastOp::Le),
                 _ => None,
             };
-            moves_all(lhs, &under(at)) && moves_all(rhs, &under(at))
+            moves_all(lhs, &under(at), by) && moves_all(rhs, &under(at), by)
         }
-        TermKind::Neg(inner) => moves_all(inner, &under(Some(CastOp::Neg))),
+        TermKind::Neg(inner) => moves_all(inner, &under(Some(CastOp::Neg)), by),
         TermKind::Enclosed { open, inner, .. } => {
             let at = match *open {
                 "|" => Some(CastOp::Abs),
@@ -452,7 +478,7 @@ fn moves_all(term: &Term, over: &[Option<CastOp>]) -> bool {
                 "⌊" => Some(CastOp::Floor),
                 _ => None,
             };
-            moves_all(inner, &under(at))
+            moves_all(inner, &under(at), by)
         }
         TermKind::App { head, args, .. } => {
             let at = match &head.kind {
@@ -468,10 +494,10 @@ fn moves_all(term: &Term, over: &[Option<CastOp>]) -> bool {
                 _ => None,
             };
             let below = under(at);
-            moves_all(head, &below)
+            moves_all(head, &below, by)
                 && args.iter().all(|a| match a {
                     Arg::Explicit(t) | Arg::Named { value: t, .. } => {
-                        moves_all(t, &below)
+                        moves_all(t, &below, by)
                     }
                 })
         }
@@ -483,10 +509,13 @@ fn moves_all(term: &Term, over: &[Option<CastOp>]) -> bool {
             };
             let below = under(at);
             pieces.iter().all(|p| match p {
-                Piece::Term { term, .. } => moves_all(term, &below),
+                Piece::Term { term, .. } => moves_all(term, &below, by),
                 Piece::Text(_) => true,
             })
         }
-        _ => term.children().iter().all(|c| moves_all(c, &under(None))),
+        _ => term
+            .children()
+            .iter()
+            .all(|c| moves_all(c, &under(None), by)),
     }
 }

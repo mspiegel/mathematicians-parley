@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import OrderTactics
+public import PowerTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Field.Defs
@@ -22,6 +23,8 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -49,7 +52,7 @@ theorem zero_derivative_ends (a : ℝ) (b : ℝ) (hH3 : a < b) (H : ℝ → ℝ)
   -- 4. calculation
   have s4 : (H b - H a) / (b - a) = 0 := by
     calc (H b - H a) / (b - a) = (deriv H) c := by parley_set_side
-      _ = 0 := by linear_combination (norm := parley_norm) (hH7 c (by parley_set_side))
+      _ = 0 := by first | linear_combination (norm := parley_norm) (hH7 c (by parley_set_side)) | (have h := (hH7 c (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH7 c (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH7 c (by parley_set_side)) | exact_mod_cast ((hH7 c (by parley_set_side))).symm | (have h := (hH7 c (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH7 c (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH7 c (by parley_set_side)); parley_int_power h) | (have h := (hH7 c (by parley_set_side)); parley_set_side)
   -- 5. inequalities
   have s5 : b - a > 0 := by parley_order
   -- 6. algebra, from 4

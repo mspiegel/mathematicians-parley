@@ -115,7 +115,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       -- 1.8. D1, from 1.7
       parley_side
   -- 2. instantiate N := n in line 1
-  have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; exact (s1 n (by parley_side) j (by parley_side))
+  have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; first | exact (s1 n (by parley_side) j (by parley_side)) | exact ((s1 n (by parley_side) j (by parley_side))).symm | simpa using (s1 n (by parley_side) j (by parley_side)) | exact_mod_cast (s1 n (by parley_side) j (by parley_side)) | (have h := (s1 n (by parley_side) j (by parley_side)); parley_side)
   -- 3. def:range-between k := n, a := 1, b := n
   have r260_1 : 1 ≤ n := by parley_order
   have r260_2 : n ≤ n := by parley_order
