@@ -4290,6 +4290,7 @@ impl<'a> Elaborator<'a> {
         defines: &BTreeSet<String>,
     ) -> Checked<Proof> {
         let cite = line.cite.as_str();
+        let link_line = line.line;
         let what = format!("a link of step {} claims {written}", step.number);
         // A line giving a reason of its own proves its link as the step it
         // would be, resting on the calculation's requires lines, as a
@@ -4419,8 +4420,35 @@ impl<'a> Elaborator<'a> {
             return Ok(proof);
         }
         // A line may say several things, and the link be one of them
-        // (`line_says`).
-        let known = self.line_says(cite, scope, facts, lines)?;
+        // (`line_says`): the one the checker found it in
+        // (`CheckedTheorem::link_places`), matched to what the line says in
+        // set.mm up to a renamed bound variable.
+        let says = self.line_says(cite, scope, facts, lines)?;
+        let Some(at) = self.checked.link_places.get(&link_line).cloned() else {
+            return Err(self.defect(
+                step.line,
+                format!("the checker recorded no place in {cite} for {written}"),
+            ));
+        };
+        let recorded = self.recorded_statement(&at)?;
+        let known = Facts::new();
+        for (said_as, held) in says.entries() {
+            let same = said_as == recorded
+                || self
+                    .renaming(&self.to_term(&recorded), &self.to_term(&said_as))?
+                    .is_some();
+            if same {
+                self.know(&known, said_as, held);
+            }
+        }
+        if known.entries().is_empty() {
+            return Err(self.defect(
+                step.line,
+                format!(
+                    "the checker found {written} in {cite}, which says nothing it read there"
+                ),
+            ));
+        }
         for (said_as, held) in known.entries() {
             if said_as == wanted {
                 return Ok(held);

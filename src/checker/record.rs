@@ -295,7 +295,9 @@ pub struct CheckedTheorem {
     /// link's line (`formulas::define_link_meetings`).
     pub define_links: IndexMap<usize, crate::matching::Meeting>,
     /// Where in the line each calculation link cites the link stands, by
-    /// the link's line (`formulas::link_places`).
+    /// the link's line (`formulas::link_places`). A link read off a chain,
+    /// a = c of a = b = c, is placed at the chain's sentence with the pair it
+    /// reads as `written`.
     pub link_places: IndexMap<usize, FirstAt>,
     /// What each of the theorem's `let` lines asserts that the page does not
     /// read as a formula, `f : A → B be one-to-one` as `f : A → B is

@@ -6497,10 +6497,21 @@ pub fn link_places(
             let said = known.as_cited(&claim, &defined);
             let says = known.says(stated, &defined);
             let own = known.sentence_count(stated);
+            // A link read off a chain, a = c of a = b = c, stands in the
+            // sentence the chain is, and is the pair it reads.
             let placed = says
                 .iter()
                 .filter(|s| alike_top(&said, &s.cited, &library.ctx))
-                .find_map(|s| super::citations::placed(cite, s, &says, own));
+                .find_map(|s| match s.from {
+                    SaidFrom::Pair(sentence) => Some(crate::checker::record::FirstAt {
+                        line: cite.to_string(),
+                        sentence: Some(sentence),
+                        part: None,
+                        written: s.written.clone(),
+                        implied: None,
+                    }),
+                    _ => super::citations::placed(cite, s, &says, own),
+                });
             if let Some(at) = placed {
                 out.insert(link.line.line, at);
             }
