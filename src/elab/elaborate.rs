@@ -7042,7 +7042,7 @@ fn conjunction_parts(term: &Term) -> Vec<Term> {
 /// itself joins claims by "and" or chains equations, as the checker counts
 /// a `FirstAt`'s part (`citing::conjuncts`). A claim whose own set.mm form
 /// is a conjunction, as "n is odd" is n ∈ ℤ ∧ ¬ 2 ∥ n, stays one part.
-fn parts_along(node: &Node, term: &Term) -> Vec<Term> {
+pub(super) fn parts_along(node: &Node, term: &Term) -> Vec<Term> {
     if node.notation() == EQUAL_CHAIN {
         return conjunction_parts(term);
     }

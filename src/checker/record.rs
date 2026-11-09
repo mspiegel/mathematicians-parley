@@ -581,6 +581,10 @@ pub struct ObtainedPart {
     pub part: usize,
     /// The part of the "there is"'s body it is, counted alike.
     pub owed: usize,
+    /// That part as the checker read it, with each letter obtained put in
+    /// for the one the "there is" binds: what a backend finds among the
+    /// body's parts.
+    pub owed_written: Node,
     /// How the two meet (`Known::alike_how`).
     pub meeting: crate::matching::Meeting,
 }

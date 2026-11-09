@@ -2879,10 +2879,12 @@ fn obtained_reading(
             all = false;
             break;
         };
+        let owed = left.remove(at);
         reading.parts.push(ObtainedPart {
             sentence: *sentence,
             part: *part,
-            owed: left.remove(at),
+            owed,
+            owed_written: owes[owed].clone(),
             meeting,
         });
     }

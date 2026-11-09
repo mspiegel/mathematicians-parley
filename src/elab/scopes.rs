@@ -2351,6 +2351,185 @@ impl<'a> Elaborator<'a> {
     /// kernel cannot hand a name out of an existential, so everything below
     /// is proved as the body of an implication and the existential is
     /// discharged at the very end.
+    /// An obtain's line, its sentences after the memberships, from the body
+    /// its "there is" gives (`body`, proved by `proof`), as the checker
+    /// paired them (`pairs`, `CheckedTheorem::obtained_parts`): each part of
+    /// each sentence carried from the part of the body the checker found it
+    /// in (`ObtainedPart::owed_written`), as it stands, with its bound
+    /// variable renamed (`renaming`), as `same` takes the one to the other,
+    /// or once identity elements are dropped (`reached`); then each sentence
+    /// joined from its parts, and the line from its sentences in order.
+    #[allow(clippy::too_many_arguments)]
+    fn obtained_line(
+        &mut self,
+        step: &Step,
+        pairs: &[record::ObtainedPart],
+        sentences: &[Node],
+        got: usize,
+        body: &Rpn,
+        proof: &Proof,
+        inner: &Rpn,
+        lifted: &Facts,
+        allowed: &BTreeSet<String>,
+    ) -> Checked<(Rpn, Proof)> {
+        let unpaired = |me: &Self, what: &str| {
+            me.defect(step.line, format!("step {}: {what}", step.number))
+        };
+        let held = Facts::new();
+        self.know(&held, body.clone(), proof.clone());
+        self.unpack_all(body, proof, inner, &held);
+        let mut line: Option<(Rpn, Proof)> = None;
+        for (k, node) in sentences.iter().enumerate().skip(got) {
+            let said = self.term(node)?;
+            let parts = super::elaborate::parts_along(node, &self.to_term(&said));
+            let mut proofs = Vec::new();
+            for (j, part) in parts.iter().enumerate() {
+                let Some(pair) = pairs.iter().find(|p| p.sentence == k && p.part == j)
+                else {
+                    return Err(unpaired(
+                        self,
+                        "a part the checker paired with nothing",
+                    ));
+                };
+                // A body built as the step's claim states it
+                // (`existence_claimed`) gives the part itself.
+                let want = self.rpn(part);
+                if let Some(itself) = self.held(&held, &want, inner)? {
+                    proofs.push(itself);
+                    continue;
+                }
+                // The body's part, found among what the body gives: as the
+                // checker read it, over other bound letters (`renaming`), or
+                // one claim in set.mm (`same`), as a map applied is its
+                // rule at its argument.
+                let written = self.term(&pair.owed_written)?;
+                let mut source = None;
+                for (one, p) in held.entries() {
+                    let (one_term, written_term) =
+                        (self.to_term(&one), self.to_term(&written));
+                    let mut found = one == written
+                        || self.renaming(&written_term, &one_term)?.is_some();
+                    if !found {
+                        let alike = self.resting_on(Some(allowed.clone()), |me| {
+                            let offered = me.in_hand(lifted);
+                            me.same(
+                                &one_term,
+                                &written_term,
+                                inner,
+                                &offered,
+                                Some(step),
+                            )
+                        })?;
+                        found = !alike.is_declined();
+                    }
+                    if found {
+                        source = Some((one, p));
+                        break;
+                    }
+                }
+                let Some((owed, from)) = source else {
+                    return Err(unpaired(
+                        self,
+                        "a part of the body its proof does not give",
+                    ));
+                };
+                let carried = if owed == want {
+                    from
+                } else if let Some(same) = self.renaming(&self.to_term(&owed), part)? {
+                    self.b.ap(
+                        "sylib",
+                        &binds! {"ph" => inner, "ps" => &owed, "ch" => &want},
+                        &[&from, &same],
+                    )
+                } else {
+                    let (to, owed_term) = (part.clone(), self.to_term(&owed));
+                    let alike = self.resting_on(Some(allowed.clone()), |me| {
+                        let offered = me.in_hand(lifted);
+                        me.same(&owed_term, &to, inner, &offered, Some(step))
+                    })?;
+                    match alike {
+                        Built(alike) => {
+                            pf!(self.b; inner, owed, want, from, alike, "mpbid")
+                        }
+                        Declined(_) => {
+                            let reached =
+                                self.resting_on(Some(allowed.clone()), |me| {
+                                    let offered = me.in_hand(lifted);
+                                    me.reached(&from, &owed, &want, inner, &offered)
+                                })?;
+                            let Some(p) = reached else {
+                                return Err(self.defect(
+                                    step.line,
+                                    format!(
+                                        "step {} claims {}, and what it obtains says {}",
+                                        step.number,
+                                        self.render(&want),
+                                        self.render(&owed)
+                                    ),
+                                ));
+                            };
+                            p
+                        }
+                    }
+                };
+                proofs.push(carried);
+            }
+            let mut proofs = proofs.into_iter();
+            let Some(sentence) =
+                self.joined_along(node, &self.to_term(&said), &mut proofs, inner)
+            else {
+                return Err(unpaired(self, "a sentence its parts do not join to"));
+            };
+            line = Some(match line {
+                None => (said, sentence),
+                Some((so_far, p)) => {
+                    let both = t!(so_far, said, "wa");
+                    let proof = pf!(self.b; inner, so_far, said, p, sentence, "jca");
+                    (both, proof)
+                }
+            });
+        }
+        line.ok_or_else(|| unpaired(self, "no sentence after its memberships"))
+    }
+
+    /// The proof of `term`, the set.mm form of the sentence `node`, from the
+    /// proofs of its parts in order (`parts_along`), joined where the
+    /// sentence joins them; None where the parts run out, or the sentence
+    /// is joined by other than conjunctions of two.
+    fn joined_along(
+        &mut self,
+        node: &Node,
+        term: &Term,
+        proofs: &mut std::vec::IntoIter<Proof>,
+        scope: &Rpn,
+    ) -> Option<Proof> {
+        let count = super::elaborate::parts_along(node, term).len();
+        self.joined_tree(term, count, proofs, scope)
+    }
+
+    /// `term`, a conjunction of `count` parts, each proved in turn by
+    /// `proofs`, joined by `jca` as its conjunctions nest.
+    fn joined_tree(
+        &mut self,
+        term: &Term,
+        count: usize,
+        proofs: &mut std::vec::IntoIter<Proof>,
+        scope: &Rpn,
+    ) -> Option<Proof> {
+        if count == 1 {
+            return proofs.next();
+        }
+        if term.label() != Some("wa") {
+            return None;
+        }
+        let (l, r) = (term.children()[0].clone(), term.children()[1].clone());
+        let left_count = super::matcher::conjuncts_of(&l).len().min(count - 1);
+        let left = self.joined_tree(&l, left_count, proofs, scope)?;
+        let right = self.joined_tree(&r, count - left_count, proofs, scope)?;
+        let (lr, rr) = (self.rpn(&l), self.rpn(&r));
+        Some(pf!(self.b; scope, lr, rr, left, right, "jca"))
+    }
+
     pub fn obtain(
         &mut self,
         step: &Step,
@@ -2803,12 +2982,29 @@ impl<'a> Elaborator<'a> {
         // names, and the body it obtains, which stands for the step.
         let mut allowed = self.named(step, number, false);
         allowed.insert(number.to_string());
-        // The line is what the page writes. An item states its body in its
-        // own bound letters, `for all x ∈ ℂ`, and the page may bind another,
+        // The line is what the page writes: built from the body as the
+        // checker paired its sentences with the body's parts
+        // (`obtained_line`), where it did. An obtain whose "there is" the
+        // checker leaves to the build, a part or a function said otherwise,
+        // is read here whole. An item states its body in its own bound
+        // letters, `for all x ∈ ℂ`, and the page may bind another,
         // `for all n ∈ ℂ`, which a later `instantiate n := …` names; the two
         // are one claim (`renaming`).
-        let (line_term, line_proof) = match sentences.get(got.len()..) {
-            Some([first, rest @ ..]) => {
+        let index = self.thm.steps.iter().position(|s| s.line == step.line);
+        let pairs = index.and_then(|i| self.checked.obtained_parts.get(&i).cloned());
+        let (line_term, line_proof) = match (sentences.get(got.len()..), pairs) {
+            (Some([_, ..]), Some(pairs)) => self.obtained_line(
+                step,
+                &pairs,
+                &sentences,
+                got.len(),
+                &body,
+                &proof,
+                &inner,
+                &lifted,
+                &allowed,
+            )?,
+            (Some([first, rest @ ..]), None) => {
                 let mut said = self.term(first)?;
                 for s in rest {
                     said = t!(said, self.term(s)?, "wa");
