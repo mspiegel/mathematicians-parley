@@ -1603,6 +1603,30 @@ asking `0 ∈ ℕ₀`, by `0nn0`. Splitting a conjunction applies no lemma and
 spends none of it; nor does going under a "for all". What a lemma asks of
 a sum's index is the one place a chain of four is allowed, as above.
 
+## What the elaborator takes from the checker
+
+The checker records, for each step, the page facts it settled
+(`docs/CHECKER.md`). The elaborator reads them and does not find them again:
+
+- an `instantiate` step's "for all": the sentence, the part of one, or the
+  reading at a block's letter (`instantiated`);
+- the place in a line a calculation link reads (`link_places`), a chain's
+  pair included;
+- for an exhibit, the line supplying each fact its "there is" asks
+  (`Exhibit::shown`);
+- for an obtain, which part of the body each part of each sentence is
+  (`obtained_parts`);
+- for a cited record, the line supplying each hypothesis (`Cited::supplied`).
+
+A recorded fact is read where it stands (`FirstAt::written`) and matched to
+what the line says in set.mm up to a renamed bound variable. A fact said once,
+or written by no line, is settled as before.
+
+What stays the elaborator's is every question about set.mm terms: which lemma
+carries one statement to another, how a lemma's antecedents pair with the
+page's hypotheses, and what set.mm asks that the page never writes, such as a
+class being a set. The record says nothing of set.mm.
+
 ## Nothing a file says is assumed
 
 A line no route builds stops the build there, with a defect naming it, and

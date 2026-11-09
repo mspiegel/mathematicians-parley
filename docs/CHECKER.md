@@ -41,6 +41,9 @@ and not inferred inside one.
   `x ∈ S`, and the narrowest the page says its value is in once
   (`citing::within`). For `mun:abs-nonneg x := C` with C real: x in ℂ, from
   ℝ.
+- `Cited::facings`: for each conclusion a citation takes, whether the item's
+  equation, read at the citation's values, meets the claim's equation
+  straight or turned round.
 - `Cited::firsts`: the line, or the sentence of one, a reading of a
   definition starts from, with the fact as the page writes it
   (`FirstAt::written`). Metamath unfolds the definition from it; Lean gives
@@ -60,7 +63,8 @@ and not inferred inside one.
 - `obtained_parts`: how each obtain step's sentences after its memberships
   are the parts of the "there is" it obtains from, and how each pair meets
   (`ObtainedPart`). Lean restates a part the checker met otherwise than as
-  written.
+  written. Each pairing carries the body's part as the checker read it
+  (`owed_written`), since the checker counts parts as the page writes them.
 - `instantiated`: for each instantiation, a step's, a calculation row's or a
   requires line's, three facts (`Instantiated`). The first is the sentence
   of the line instantiated (`FirstAt`). The second is how many conditions
@@ -68,7 +72,9 @@ and not inferred inside one.
   the claim. Lean instantiates that sentence and closes the step by that
   meeting.
 - `link_places`: for each link of a calculation that cites a line, where in
-  the line the link stands (`FirstAt`), by the link's line.
+  the line the link stands (`FirstAt`), by the link's line. A link read off
+  a chain, `a = c` of `a = b = c`, stands at the chain's sentence, with the
+  pair as `written`.
 - `define_links`: for each calculation row citing a define, and each step
   whose reason is defines it names, how the two sides of its equation meet
   once the defines are written out. Lean closes it by `simp only [hD]`,

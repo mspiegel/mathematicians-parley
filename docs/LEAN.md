@@ -58,6 +58,14 @@ makes is removed.
 
 ## How a file is made
 
+Every term the writer builds is a tree (`doc::Term`) with no text in it. A
+binder is a node that holds its letter, the letter's type, what it runs over
+and its body: sums and products, `⋃`, integrals, set-builders, `∀ x ∈ S`,
+`fun` and `if h :`. So are `⟨…⟩`, `{a, b}`, `show`, `''`, `⁻¹'`, `𝒫` and
+`⁻¹`. Only the printer makes text. Substituting, renaming and comparing all go
+through the nodes, so a letter a binder binds is never touched by a value put
+in from outside.
+
 The writer builds each file as a tree, not as text (`src/lean/doc/`). Every
 term carries its Lean type, and every constant and tactic carries its source:
 Mathlib, a bridge module or an item module. The printer is the one place text
