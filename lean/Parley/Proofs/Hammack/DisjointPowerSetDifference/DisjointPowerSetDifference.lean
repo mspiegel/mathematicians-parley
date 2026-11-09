@@ -35,7 +35,7 @@ theorem disjoint_power_set_difference {α : Type*} (A : Set α) (B : Set α) (hH
       -- 1.3.3. def:difference u := x, Y := A, Z := B, from 1.3.1, 1.3.2
       exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr (by parley_set_side)
     -- 1.4. def:subset, from 1.3
-    have s1_4 : t ⊆ A \ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A \ B))).mpr (by parley_set_side)
+    have s1_4 : t ⊆ A \ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A \ B))).mpr s1_3
     -- 1.5. def:powerset S := t, A := A ∖ B, from 1.4
     exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A \ B) (S := t))).mpr s1_4
   -- 2. def:subset, from 1

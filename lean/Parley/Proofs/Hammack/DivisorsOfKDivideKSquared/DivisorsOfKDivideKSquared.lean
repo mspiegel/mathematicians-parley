@@ -40,7 +40,7 @@ theorem divisors_of_k_divide_k_squared (k : ℤ) :
     -- 1.3. algebra, from 1.1, 1.2
     have s1_3 : k ^ 2 = t * (c * k) := by linear_combination (norm := parley_norm) (k) * s1_2
     -- 1.4. def:divides d := t, n := k², from 1.1, 1.3
-    have s1_4 : t ∣ k ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k ^ 2))).mpr ⟨c * k, by parley_set_side⟩
+    have s1_4 : t ∣ k ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k ^ 2))).mpr ⟨c * k, s1_3⟩
     -- 1.5. def:set-builder, from 1.1, 1.4
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side); parley_set_side)
   -- 2. def:subset, from 1

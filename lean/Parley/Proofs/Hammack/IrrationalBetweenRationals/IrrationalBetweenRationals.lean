@@ -138,7 +138,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.16. algebra, from 17.15
     have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by linear_combination (norm := parley_field) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15
     -- 17.17. def:rational x := √2, from 17.16
-    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by parley_side⟩
+    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by first | exact_mod_cast s17_16 | (have h := s17_16; push_cast at h ⊢; exact h) | simpa using s17_16⟩
     -- 17.18. def:irrational x := √2, from 2
     have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp s2).2
     exact s17_18 s17_17

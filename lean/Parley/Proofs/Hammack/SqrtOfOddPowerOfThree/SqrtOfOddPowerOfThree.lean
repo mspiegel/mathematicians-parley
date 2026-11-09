@@ -55,7 +55,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 4. inequalities
   have s4 : 0 ≤ m := by parley_order
   -- 5. mun:nat0-as-int n := m, from 4
-  have s5 : 0 ≤ m := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr (by parley_side); parley_side)
+  have s5 : 0 ≤ m := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr (by parley_side)
   -- 6. mun:power-nat a := 3, from 5
   have s6 : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = 3 ^ m := by
     have whole1 : ((3 : ℚ) : ℚ) ^ (m).toNat = (3 ^ m : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg s5]

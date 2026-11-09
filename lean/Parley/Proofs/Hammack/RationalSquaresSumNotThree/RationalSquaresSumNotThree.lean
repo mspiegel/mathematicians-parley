@@ -15,6 +15,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -70,7 +71,7 @@ theorem rational_squares_sum_not_three :
   have s11a : 0 < m := by
     try simp only [hD1] at *
     try push_cast at *
-    first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1; parley_set_side)
+    simpa only [Int.cast_id, Set.mem_setOf_eq] using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1
   have s11b : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * m ^ 2 := by
     try simp only [hD1] at *
     try push_cast at *

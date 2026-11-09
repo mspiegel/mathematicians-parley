@@ -172,7 +172,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       calc (0 : ℤ) = -1 + 1 := by norm_num
         _ ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (-1 : ℤ)) (n := q) s5_11)
     -- 5.13. mun:nat0-as-int n := q, from 5.12
-    have s5_13 : 0 ≤ q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr (by parley_side); parley_side)
+    have s5_13 : 0 ≤ q := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr (by parley_side)
     -- 5.14. cases, from 5.3
     rcases s5_3 with (hC1 | hC2) | hC3
     · skip

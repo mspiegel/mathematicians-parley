@@ -35,7 +35,7 @@ theorem six_divides_three_consecutive (k : ℤ) (hH1 : 0 ≤ k) :
       calc 3 * k * (k + 1) = 3 * (2 * m) * (2 * m + 1) := by parley_subst s2_1
         _ = 6 * (m * (2 * m + 1)) := by parley_ring
     -- 2.3. def:divides d := 6, n := 3·k·(k + 1), from 2.2
-    exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨m * (2 * m + 1), by parley_side⟩
+    exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨m * (2 * m + 1), s2_2⟩
   · skip
     -- 2.4. obtain m: def:odd n := k, from C2
     obtain ⟨m, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := k))).mp hC2
@@ -44,6 +44,6 @@ theorem six_divides_three_consecutive (k : ℤ) (hH1 : 0 ≤ k) :
       calc 3 * k * (k + 1) = 3 * (2 * m + 1) * (2 * m + 1 + 1) := by parley_subst s2_4
         _ = 6 * ((2 * m + 1) * (m + 1)) := by parley_ring
     -- 2.6. def:divides d := 6, n := 3·k·(k + 1), from 2.5
-    exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨(2 * m + 1) * (m + 1), by parley_side⟩
+    exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨(2 * m + 1) * (m + 1), s2_5⟩
 
 end Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConsecutive

@@ -807,14 +807,130 @@ impl Term {
 
     /// The term with each letter `given` names put for by the term it
     /// gives, as a citation gives an item's letters values. A letter bound
-    /// inside the term is left as it is where a quantifier binds it.
+    /// inside the term is left as it is where a quantifier binds it, and a
+    /// binder whose letter a value names is renamed first
+    /// (`binders_clear_of`).
     pub fn substituted(
         &self,
         given: &std::collections::BTreeMap<String, Term>,
     ) -> Term {
-        let mut out = self.clone();
+        let mut out = self.binders_clear_of(given.values());
         out.substitute(given);
         out
+    }
+
+    /// The term with each binder whose letter one of `values` names given
+    /// a fresh letter, as Lean renames a bound variable a value would
+    /// otherwise be captured by: `∃ m, 0 ≤ m ∧ m = n` with `m` put for `n`
+    /// is `∃ m', 0 ≤ m' ∧ m' = m`, not `∃ m, 0 ≤ m ∧ m = m`.
+    pub fn binders_clear_of<'a>(
+        &self,
+        values: impl IntoIterator<Item = &'a Term>,
+    ) -> Term {
+        let mut named = std::collections::BTreeSet::new();
+        for v in values {
+            v.letters_into(&mut named);
+        }
+        let mut out = self.clone();
+        if named.is_empty() {
+            return out;
+        }
+        let mut used = named.clone();
+        self.letters_into(&mut used);
+        out.clear_binders(&named, &mut used);
+        out
+    }
+
+    /// Every letter the term names, free or bound.
+    fn letters_into(&self, out: &mut std::collections::BTreeSet<String>) {
+        for t in self.walk() {
+            match &t.kind {
+                TermKind::Letter(l)
+                | TermKind::Quantified { letter: l, .. }
+                | TermKind::Bound { letter: l, .. }
+                | TermKind::DependentIf { proof: l, .. } => {
+                    out.insert(l.clone());
+                }
+                TermKind::Lambda { letters, .. } => out.extend(letters.iter().cloned()),
+                _ => {}
+            }
+        }
+    }
+
+    fn clear_binders(
+        &mut self,
+        named: &std::collections::BTreeSet<String>,
+        used: &mut std::collections::BTreeSet<String>,
+    ) {
+        match &mut self.kind {
+            TermKind::Quantified {
+                letter,
+                guard,
+                body,
+                ..
+            } if named.contains(letter.as_str()) => {
+                let new = fresh_letter(letter, used);
+                if let Some(g) = guard {
+                    g.rename_free(letter, &new);
+                }
+                body.rename_free(letter, &new);
+                *letter = new;
+            }
+            TermKind::Bound { letter, body, .. } if named.contains(letter.as_str()) => {
+                let new = fresh_letter(letter, used);
+                body.rename_free(letter, &new);
+                *letter = new;
+            }
+            TermKind::Lambda { letters, body } => {
+                for l in letters.iter_mut() {
+                    if named.contains(l.as_str()) {
+                        let new = fresh_letter(l, used);
+                        body.rename_free(l, &new);
+                        *l = new;
+                    }
+                }
+            }
+            TermKind::DependentIf { proof, yes, no, .. }
+                if named.contains(proof.as_str()) =>
+            {
+                let new = fresh_letter(proof, used);
+                yes.rename_free(proof, &new);
+                no.rename_free(proof, &new);
+                *proof = new;
+            }
+            _ => {}
+        }
+        for c in self.children_mut() {
+            c.clear_binders(named, used);
+        }
+    }
+
+    /// The term with the letter `from` written `to` wherever it is free.
+    fn rename_free(&mut self, from: &str, to: &str) {
+        match &mut self.kind {
+            TermKind::Letter(l) if l == from => {
+                *l = to.to_string();
+                return;
+            }
+            TermKind::Quantified { letter, .. } if letter == from => return,
+            TermKind::Lambda { letters, .. } if letters.iter().any(|l| l == from) => {
+                return
+            }
+            TermKind::Bound { letter, form, .. } if letter == from => {
+                for o in form.over_mut() {
+                    o.rename_free(from, to);
+                }
+                return;
+            }
+            TermKind::DependentIf { proof, cond, .. } if proof == from => {
+                cond.rename_free(from, to);
+                return;
+            }
+            _ => {}
+        }
+        for c in self.children_mut() {
+            c.rename_free(from, to);
+        }
     }
 
     fn substitute(&mut self, given: &std::collections::BTreeMap<String, Term>) {
@@ -1243,4 +1359,15 @@ impl Term {
             })
             .collect()
     }
+}
+
+/// A letter not among `used`, made from `letter` by priming it, as Lean
+/// writes a renamed bound variable; it joins `used`.
+fn fresh_letter(letter: &str, used: &mut std::collections::BTreeSet<String>) -> String {
+    let mut new = format!("{letter}'");
+    while used.contains(&new) {
+        new.push('\'');
+    }
+    used.insert(new.clone());
+    new
 }

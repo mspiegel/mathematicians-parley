@@ -358,6 +358,25 @@ fn cast_texts(term: &Printed) -> Vec<String> {
         .collect()
 }
 
+/// The lemmas `simpa only` takes `says` to `claim` by, where the two differ
+/// as written and are alike once each is read as `forms::simp_read` reads
+/// it; None otherwise.
+fn simp_read_meeting(says: &Printed, claim: &Printed) -> Option<Vec<&'static str>> {
+    use super::doc::forms;
+    if forms::written_alike(says, claim) {
+        return None;
+    }
+    let (said, mut rules) = forms::simp_read(says);
+    let (claimed, more) = forms::simp_read(claim);
+    if !forms::written_alike(&said, &claimed) {
+        return None;
+    }
+    rules.extend(more);
+    rules.sort_unstable();
+    rules.dedup();
+    Some(rules)
+}
+
 /// The `toNat`s a statement as Lean writes it takes, each by its text, in
 /// order.
 fn to_nat_texts(term: &Printed) -> Vec<String> {
@@ -5336,18 +5355,13 @@ impl<'a> Proof<'a> {
             if by_norm_cast && formed {
                 return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
             }
-            // An item over any ring taken at ℤ says a membership of ℕ or ℕ₀
-            // as `∃ m : ℤ, 0 < m ∧ (m : ℤ) = n`, where the writer says it of
-            // an integer as `0 < n`: `Int.cast_id` and `exists_eq_right`
-            // take the one to the other (`forms::exists_eq_dropped`).
-            let dropped = super::doc::forms::exists_eq_dropped(says);
-            if super::doc::forms::written_alike(&dropped, claim)
-                && !super::doc::forms::written_alike(says, claim)
-            {
-                return super::doc::Proof::By(super::tactics::simpa_only(
-                    vec!["Int.cast_id", "exists_eq_right"],
-                    term,
-                ));
+            // An item over any ring or any set, taken at ℤ or ℕ, states a
+            // membership in its general terms, `∃ m : ℤ, 0 < m ∧ (m : ℤ) = n`
+            // or `n ∈ {n : ℤ | 0 < n}`, where the writer states it of an
+            // integer as `0 < n`: the lemmas `forms::simp_read` names take
+            // the one to the other.
+            if let Some(rules) = simp_read_meeting(says, claim) {
+                return super::doc::Proof::By(super::tactics::simpa_only(rules, term));
             }
             // The checker met the item's conclusion at its values with the
             // claim, so in one type the two differ only in spelling and
@@ -8921,6 +8935,17 @@ impl<'a> Proof<'a> {
                 };
                 if as_claimed && !by_to_nat {
                     return Route::Built(Proof::Term(mpr));
+                }
+                // An item over any ring or any set, taken at ℤ or ℕ, states
+                // a membership in its general terms, where the claim of an
+                // integer states its own fact: the lemmas `forms::simp_read`
+                // names take the one to the other.
+                let read = match (&left, &claim_lean) {
+                    (Some(left), Some(claim)) => simp_read_meeting(left, claim),
+                    _ => None,
+                };
+                if let (Some(rules), false) = (read, by_to_nat) {
+                    return Route::Built(Proof::By(t::simpa_only(rules, mpr)));
                 }
                 let mut ways = vec![
                     t::steps(vec![

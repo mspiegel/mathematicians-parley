@@ -16,7 +16,7 @@ namespace Parley.Tests.Elaborator.ACitedLineNarrowsALetter.ACitedLineNarrowsALet
 theorem a_cited_line_narrows_a_letter (q : ℤ) (hH2 : q ≥ 0) (hH3 : ∀ k : ℤ, 0 ≤ k → k + 1 > 0) :
     3 * q + 1 + 1 > 0 := by
   -- 1. mun:nat0-as-int n := q, from H2
-  have s1 : 0 ≤ q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr (by parley_side); parley_side)
+  have s1 : 0 ≤ q := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr (by parley_side)
   -- 2. instantiate k := 3q + 1 in H3, from 1
   exact (hH3 (3 * q + 1) (by parley_side))
 

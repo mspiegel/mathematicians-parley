@@ -72,7 +72,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s16 : c ∈ Finset.Icc (0 : ℤ) (a - b + c) := ((Parley.Items.Stdlib.Sums.def_range_between (k := c) (a := (0 : ℤ)) (b := a - b + c))).mpr (by parley_side)
   -- 17. mun:nat0-as-int
   have r77_1 : 0 ≤ a - b + c := by parley_side
-  have s17 : 0 ≤ a - b + c := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b + c))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b + c))).mpr (by parley_side); parley_side)
+  have s17 : 0 ≤ a - b + c := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b + c))).mpr (by parley_side)
   -- 18. def:C n := a − b + c, k := c, from 16
   have r81_1 : 0 ≤ a - b + c := by parley_side
   have s18 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b + c - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := a - b + c) (by parley_side) (k := c)) s16
@@ -84,10 +84,10 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     exact row1
   -- 20. mun:nat0-as-int
   have r90_1 : 0 ≤ a - b := by parley_side
-  have s20 : 0 ≤ a - b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b))).mpr (by parley_side); parley_side)
+  have s20 : 0 ≤ a - b := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b))).mpr (by parley_side)
   -- 21. mun:nat0-as-int
   have r94_1 : 0 ≤ b - c := by parley_side
-  have s21 : 0 ≤ b - c := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr (by parley_side); parley_side)
+  have s21 : 0 ≤ b - c := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr (by parley_side)
   -- 22. mun:factorial-nat n := a − b, from 20
   have s22 : 0 < (LeanBridges.Counting.factorial (a - b) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side))
   -- 23. mun:factorial-nat n := b − c, from 21

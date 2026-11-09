@@ -38,7 +38,7 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 1.4.3. def:intersection u := x, Y := A, Z := B, from 1.4.1, 1.4.2
       exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mpr (by parley_set_side)
     -- 1.5. def:subset, from 1.4
-    have s1_5 : t ⊆ A ∩ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A ∩ B))).mpr (by parley_set_side)
+    have s1_5 : t ⊆ A ∩ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A ∩ B))).mpr s1_4
     -- 1.6. def:powerset S := t, A := A ∩ B, from 1.5
     exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A ∩ B) (S := t))).mpr s1_5
   -- 2. def:subset, from 1
@@ -63,9 +63,9 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 3.3.2. def:intersection u := x, Y := A, Z := B, from 3.3.1
       exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mp s3_3_1).2
     -- 3.4. def:subset, from 3.2
-    have s3_4 : t ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A))).mpr (by parley_set_side)
+    have s3_4 : t ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A))).mpr s3_2
     -- 3.5. def:subset, from 3.3
-    have s3_5 : t ⊆ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := B))).mpr (by parley_set_side)
+    have s3_5 : t ⊆ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := B))).mpr s3_3
     -- 3.6. def:powerset S := t, from 3.4
     have s3_6 : t ∈ 𝒫 A := ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := t))).mpr s3_4
     -- 3.7. def:powerset S := t, A := B, from 3.5

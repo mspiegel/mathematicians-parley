@@ -81,7 +81,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.7. obtain p: thm:prime-factor, from 1.6
       have r203_1 : m > 1 := by parley_order
       obtain ⟨p, s1_7a, ⟨s1_7b, s1_7c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := m) (by parley_set_side) r203_1)
-      have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := by first | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c | exact (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c).symm | simpa using ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c; parley_set_side)
+      have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c
       obtain ⟨r, hD2_pos, hD2⟩ := hD2_kind
       -- 1.8. def:prime, from 1.7
       have s1_8 : p > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_set_side))).mp s1_7b).1

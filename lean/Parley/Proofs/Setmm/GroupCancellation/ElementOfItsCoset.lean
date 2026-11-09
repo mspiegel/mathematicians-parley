@@ -23,6 +23,6 @@ theorem element_of_its_coset {G : Type*} [Group G] (H : Subgroup G) (hH2 : True)
   -- 1. exhibit, from H4
   have s1 : ∃ k ∈ (H : Set G), g * h = g * k := ⟨h, hH4, by parley_set_side⟩
   -- 2. def:coset u := g·h, from H2, H3, 1
-  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g * h) (H := H) hH2 hH3)).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g * h) (H := H) hH2 hH3)).mpr s1
 
 end Parley.Proofs.Setmm.GroupCancellation.ElementOfItsCoset

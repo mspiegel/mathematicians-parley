@@ -911,20 +911,76 @@ pub fn casts_set_letter(term: &Term, values: &Values) -> bool {
     })
 }
 
-/// The statement as `simp only [Int.cast_id, exists_eq_right]` leaves it:
-/// a cast of a term to its own type gone (`Int.cast_id`), and each
-/// `∃ m, P m ∧ m = x` read as `P x` (`exists_eq_right`). An item over any
-/// ring writes membership of ℕ as `∃ m : ℤ, 0 < m ∧ (m : K) = n`, which at
-/// K = ℤ this takes to `0 < n`, as the writer writes it of an integer.
-pub fn exists_eq_dropped(term: &Term) -> Term {
+/// The statement as `simp only` leaves it with the lemmas a general item
+/// taken at ℤ or at ℕ asks, and the lemmas it used. An item over any ring,
+/// or over any set, states a membership in its own general terms, where the
+/// writer states it of an integer as the integer's own fact:
+/// - a cast of a term to its own type is gone (`Int.cast_id`);
+/// - `∃ m, P m ∧ m = x` is `P x` (`exists_eq_right`), so ℕ₀ of an item
+///   over K, `∃ m : ℤ, 0 ≤ m ∧ (m : ℤ) = n` at K = ℤ, is `0 ≤ n`;
+/// - `x ∈ {y : T | P y}` is `P x` (`Set.mem_setOf_eq`), so an item's
+///   `m ∈ X` at X = ℕ, `m ∈ {n : ℤ | 0 < n}`, is `0 < m`;
+/// - `x ∈ {y ∈ X | P y}` is `x ∈ X ∧ P x` (`Set.mem_sep_iff`).
+pub fn simp_read(term: &Term) -> (Term, Vec<&'static str>) {
+    let mut used = std::collections::BTreeSet::new();
     let stripped = ascriptions_dropped(term);
-    exists_eq_right(&stripped)
+    if stripped != *term {
+        used.insert("Int.cast_id");
+    }
+    // `simp` puts a function's argument into its body as it goes, which no
+    // lemma names: `(fun d => d ∣ m) t` is `t ∣ m`.
+    let read = beta_reduced(&simp_read_into(&beta_reduced(&stripped), &mut used));
+    (read, used.into_iter().collect())
 }
 
-fn exists_eq_right(term: &Term) -> Term {
+fn simp_read_into(
+    term: &Term,
+    used: &mut std::collections::BTreeSet<&'static str>,
+) -> Term {
     let mut out = term.clone();
     for c in out.children_mut() {
-        *c = exists_eq_right(c);
+        *c = simp_read_into(c, used);
+    }
+    let prop = Some(LeanType::Prop);
+    let and = |a: Term, b: Term| match super::term::Op::of("∧") {
+        Some(op) => Term::infix(op, a, b, LeanType::Prop),
+        None => a,
+    };
+    if let TermKind::Infix { op, lhs, rhs } = &out.kind {
+        if op.symbol == "∈" {
+            match &bare(rhs).kind {
+                TermKind::Bound {
+                    form: BoundForm::SetOf,
+                    letter,
+                    body,
+                    ..
+                } => {
+                    used.insert("Set.mem_setOf_eq");
+                    return simp_read_into(&substituted(body, letter, lhs), used);
+                }
+                TermKind::Bound {
+                    form: BoundForm::SetOfMember { set },
+                    letter,
+                    body,
+                    ..
+                } => {
+                    used.insert("Set.mem_sep_iff");
+                    let member = Term {
+                        kind: TermKind::Infix {
+                            op: *op,
+                            lhs: lhs.clone(),
+                            rhs: set.clone(),
+                        },
+                        ty: prop.clone(),
+                    };
+                    return and(
+                        simp_read_into(&member, used),
+                        simp_read_into(&substituted(body, letter, lhs), used),
+                    );
+                }
+                _ => {}
+            }
+        }
     }
     if let TermKind::Quantified {
         quant: super::term::Quant::Exists,
@@ -942,6 +998,7 @@ fn exists_eq_right(term: &Term) -> Term {
                     .iter()
                     .any(|t| matches!(&t.kind, TermKind::Letter(l) if l == letter))
             {
+                used.insert("exists_eq_right");
                 return substituted(guard, letter, rhs);
             }
         }
@@ -1015,8 +1072,13 @@ fn identities_dropped(
 
 /// The term with `value` put for the letter `letter` wherever it is free,
 /// as Lean puts an induction's value into its motive: a cast of the letter
-/// stays a cast of the value, `↑(k + 1)`.
+/// stays a cast of the value, `↑(k + 1)`. A binder whose letter the value
+/// names is renamed first (`Term::binders_clear_of`).
 pub fn substituted(term: &Term, letter: &str, value: &Term) -> Term {
+    substituted_free(&term.binders_clear_of([value]), letter, value)
+}
+
+fn substituted_free(term: &Term, letter: &str, value: &Term) -> Term {
     match &term.kind {
         TermKind::Letter(l) if l == letter => return value.clone(),
         TermKind::Quantified { letter: bound, .. } if bound == letter => {
@@ -1035,7 +1097,7 @@ pub fn substituted(term: &Term, letter: &str, value: &Term) -> Term {
             return Term {
                 kind: TermKind::DependentIf {
                     proof: proof.clone(),
-                    cond: Box::new(substituted(cond, letter, value)),
+                    cond: Box::new(substituted_free(cond, letter, value)),
                     yes: yes.clone(),
                     no: no.clone(),
                 },
@@ -1051,7 +1113,7 @@ pub fn substituted(term: &Term, letter: &str, value: &Term) -> Term {
         } if bound == letter => {
             let mut form = form.clone();
             for o in form.over_mut() {
-                *o = substituted(o, letter, value);
+                *o = substituted_free(o, letter, value);
             }
             return Term {
                 kind: TermKind::Bound {
@@ -1067,15 +1129,23 @@ pub fn substituted(term: &Term, letter: &str, value: &Term) -> Term {
     }
     let mut out = term.clone();
     for c in out.children_mut() {
-        *c = substituted(c, letter, value);
+        *c = substituted_free(c, letter, value);
     }
     out
 }
 
 /// The term with each letter of `values` put as its value at once, as Lean
 /// puts a citation's arguments into the cited statement: a value is not
-/// itself put into again.
+/// itself put into again. A binder whose letter a value names is renamed
+/// first (`Term::binders_clear_of`).
 pub fn substituted_all(
+    term: &Term,
+    values: &std::collections::BTreeMap<String, Term>,
+) -> Term {
+    all_substituted_free(&term.binders_clear_of(values.values()), values)
+}
+
+fn all_substituted_free(
     term: &Term,
     values: &std::collections::BTreeMap<String, Term>,
 ) -> Term {
@@ -1090,7 +1160,7 @@ pub fn substituted_all(
             inner.remove(letter);
             let mut out = term.clone();
             for c in out.children_mut() {
-                *c = substituted_all(c, &inner);
+                *c = all_substituted_free(c, &inner);
             }
             return out;
         }
@@ -1102,7 +1172,7 @@ pub fn substituted_all(
             return Term {
                 kind: TermKind::Lambda {
                     letters: letters.clone(),
-                    body: Box::new(substituted_all(body, &inner)),
+                    body: Box::new(all_substituted_free(body, &inner)),
                 },
                 ty: term.ty.clone(),
             };
@@ -1118,9 +1188,9 @@ pub fn substituted_all(
             return Term {
                 kind: TermKind::DependentIf {
                     proof: proof.clone(),
-                    cond: Box::new(substituted_all(cond, values)),
-                    yes: Box::new(substituted_all(yes, &inner)),
-                    no: Box::new(substituted_all(no, &inner)),
+                    cond: Box::new(all_substituted_free(cond, values)),
+                    yes: Box::new(all_substituted_free(yes, &inner)),
+                    no: Box::new(all_substituted_free(no, &inner)),
                 },
                 ty: term.ty.clone(),
             };
@@ -1133,9 +1203,9 @@ pub fn substituted_all(
             let mut out = term.clone();
             if let TermKind::Bound { form, body, .. } = &mut out.kind {
                 for o in form.over_mut() {
-                    *o = substituted_all(o, values);
+                    *o = all_substituted_free(o, values);
                 }
-                **body = substituted_all(body, &inner);
+                **body = all_substituted_free(body, &inner);
             }
             return out;
         }
@@ -1143,7 +1213,7 @@ pub fn substituted_all(
     }
     let mut out = term.clone();
     for c in out.children_mut() {
-        *c = substituted_all(c, values);
+        *c = all_substituted_free(c, values);
     }
     out
 }
@@ -1597,6 +1667,46 @@ mod tests {
             int(),
         );
         assert!(alike_once_set(&sum_over_k(), &renamed, &Values::new()));
+    }
+
+    /// `∃ m : ℤ, 0 ≤ m ∧ m = n`, ℕ₀ as an item over any ring states it.
+    fn some_natural_is_n() -> Term {
+        let m = Term::letter("m", int());
+        let at_least = Term::infix(
+            super::super::term::Op::AT_MOST,
+            Term::numeral("0", int()),
+            m.clone(),
+            LeanType::Prop,
+        );
+        let is_n = Term::infix(
+            super::super::term::Op::EQUALS,
+            m,
+            Term::letter("n", int()),
+            LeanType::Prop,
+        );
+        Term::of(
+            TermKind::Quantified {
+                quant: super::super::term::Quant::Exists,
+                letter: "m".to_string(),
+                letter_ty: int(),
+                guard: Some(Box::new(at_least)),
+                body: Box::new(is_n),
+                bounded: false,
+            },
+            LeanType::Prop,
+        )
+    }
+
+    #[test]
+    fn a_value_naming_a_bound_letter_is_not_captured() {
+        let m = Term::letter("m", int());
+        let put = substituted(&some_natural_is_n(), "n", &m);
+        assert_eq!(simp_read(&put).0.text(), "0 ≤ m");
+        let mut values = std::collections::BTreeMap::new();
+        values.insert("n".to_string(), m);
+        let put = substituted_all(&some_natural_is_n(), &values);
+        assert_eq!(simp_read(&put).0.text(), "0 ≤ m");
+        assert_eq!(some_natural_is_n().substituted(&values).text(), put.text());
     }
 
     #[test]
