@@ -29,8 +29,8 @@ theorem subset_by_double_difference {α : Type*} (A : Set α) (B : Set α) :
       intro t hK1
       by_contra hS1
       -- 1.1. def:difference u := t, Y := B, Z := B ∖ A, from K1
-      have s1_1a : t ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := B \ A) (u := t))).mp hK1).1
-      have s1_1b : ¬ t ∈ B \ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := B \ A) (u := t))).mp hK1).2
+      have s1_1a : t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := B \ A) (u := t))).mp hK1).1
+      have s1_1b : ¬ t ∈ B \ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := B \ A) (u := t))).mp hK1).2
       -- 1.2. def:difference u := t, Y := B, Z := A, from S1, 1.1
       have s1_2 : t ∈ B \ A := ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := t))).mpr (by parley_set_side)
       -- 1.3. restate 1.1
@@ -47,8 +47,8 @@ theorem subset_by_double_difference {α : Type*} (A : Set α) (B : Set α) :
       have s3_2 : ¬ t ∈ B \ A := by
         intro hS2
         -- 3.2.1. def:difference u := t, Y := B, Z := A, from S2
-        have s3_2_1a : t ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := t))).mp hS2).1
-        have s3_2_1b : ¬ t ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := t))).mp hS2).2
+        have s3_2_1a : t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := t))).mp hS2).1
+        have s3_2_1b : ¬ t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := t))).mp hS2).2
         -- 3.2.2. restate 3.2.1
         have s3_2_2 : ¬ t ∈ A := by parley_set_side
         exact s3_2_2 hK2

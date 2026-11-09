@@ -35,7 +35,7 @@ theorem binomial_of_two (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.1. arithmetic
       have s1_1 : (0 : ℤ) < 2 := by parley_arith
       -- 1.2. def:C n := 0, k := 2, from 1.1
-      have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℤ) = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (2 : ℤ))) s1_1
+      have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (2 : ℤ))) s1_1
       -- 1.3. calculation
       calc 2 * (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℤ) = 2 * 0 := by parley_subst s1_2
         _ = 0 * (0 - 1) := by norm_num

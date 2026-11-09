@@ -28,8 +28,8 @@ theorem counted_to_one (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ (∀ k : ℤ
   have s3 : F 0 + 1 = 0 + 1 := by parley_subst s1
   -- 4. calculation
   calc F 1 = F (0 + 1) := by norm_num
-    _ = F 0 + 1 := by parley_side
-    _ = 0 + 1 := by parley_side
+    _ = F 0 + 1 := by exact s2
+    _ = 0 + 1 := by exact s3
     _ = 1 := by norm_num
 
 end Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne

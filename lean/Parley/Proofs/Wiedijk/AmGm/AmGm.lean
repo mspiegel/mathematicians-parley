@@ -4,7 +4,6 @@ public import ComplexTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -51,7 +50,7 @@ set_option maxHeartbeats 400000 in
 theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ≥ 0) :
     (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ^ (1 / (n : ℝ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) := by
   set P : ℝ := ∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ) with hD1
-  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := n)) | exact ((Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := n))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := n)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := n)) | (have h := (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := n)); parley_side)
+  have hD1_kind : True := by trivial
   set M : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) with hD2
   have hD2_kind : True := by parley_side
   -- 1. thm:am-gm-power, from D1, D2, H3
@@ -72,7 +71,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
     try push_cast at *
     exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) (y := (n : ℝ)) (by parley_side) (by parley_side))
   set r : ℝ := P ^ (1 / (n : ℝ)) with hD3
-  have hD3_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) s2 (y := 1 / (n : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) s2 (y := 1 / (n : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) s2 (y := 1 / (n : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) s2 (y := 1 / (n : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) s2 (y := 1 / (n : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) s2 (y := 1 / (n : ℝ))); parley_side)
+  have hD3_kind : True := by trivial
   -- 5. mun:root-power x := P, from D3
   have s5 : r ^ n.toNat = P := by
     try simp only [hD3] at *
@@ -93,7 +92,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
   -- 7. calculation
   calc (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ^ (1 / (n : ℝ)) = P ^ (1 / (n : ℝ)) := by simp (disch := omega) only [hD1]
     _ = r := by simp (disch := omega) only [hD3]
-    _ ≤ M := by parley_side
+    _ ≤ M := by exact s6
     _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) := by simp (disch := omega) only [hD2]
 
 end Parley.Proofs.Wiedijk.AmGm.AmGm

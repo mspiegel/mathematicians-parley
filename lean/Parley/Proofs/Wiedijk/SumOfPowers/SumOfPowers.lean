@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -59,7 +60,9 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
     try have hK1_bounds := Finset.mem_Icc.mp hK1
     -- 1.1. thm:bernoulli-difference n := k + 1, x := n
     have r20_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) (by parley_side))
-    have s1_1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))) | (have h := (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))); parley_side)
+    have s1_1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by
+      have hI : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by parley_instance ((Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))))
+      exact hI
     -- 1.2. substitute
     have c1 : k + 1 - 1 = k := by parley_ring
     have c1_w : (k : ℂ) + 1 - 1 = (k : ℂ) := by have h := congrArg (fun x : ℤ => (x : ℂ)) c1; push_cast at h; linear_combination (norm := parley_norm) h

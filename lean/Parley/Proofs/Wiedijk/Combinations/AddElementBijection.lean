@@ -51,8 +51,8 @@ theorem add_element_bijection {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈
     -- 1.6. substitute S ∪ {a} = T ∪ {a} (K3) into line 1.5
     have s1_6 : (T ∪ ({a} : Set α)) \ ({a} : Set α) = S \ ({a} : Set α) := by parley_subst_at hK3 s1_5
     -- 1.7. calculation
-    calc S = S \ ({a} : Set α) := (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3).symm
-      _ = (T ∪ ({a} : Set α)) \ ({a} : Set α) := by parley_set_side
+    calc S = S \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3).symm
+      _ = (T ∪ ({a} : Set α)) \ ({a} : Set α) := by exact s1_6.symm
       _ = T \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := T) (a := a))
       _ = T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := T) (a := a) s1_4)
   -- 2. mun:image-of-injection, from D1, 1

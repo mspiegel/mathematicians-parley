@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Tactics
@@ -34,7 +35,9 @@ theorem divisors_of_k_divide_k_squared (k : ℤ) :
   have s1 : ∀ t ∈ {n : ℤ | n ∣ k}, t ∈ {n : ℤ | n ∣ k ^ 2} := by
     intro t hK1
     -- 1.1. def:set-builder, from K1
-    have s1_1 : t ∣ k := by exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2
+    have s1_1 : t ∣ k := by
+      have hI : t ∣ k := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by parley_set_side)).2)
+      exact hI
     -- 1.2. obtain c: def:divides d := t, n := k, from 1.1
     obtain ⟨c, s1_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k))).mp s1_1
     -- 1.3. algebra, from 1.1, 1.2
@@ -42,7 +45,8 @@ theorem divisors_of_k_divide_k_squared (k : ℤ) :
     -- 1.4. def:divides d := t, n := k², from 1.1, 1.3
     have s1_4 : t ∣ k ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k ^ 2))).mpr ⟨c * k, s1_3⟩
     -- 1.5. def:set-builder, from 1.1, 1.4
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side); parley_set_side)
+    have hI : t ∈ {a : ℤ | a ∣ k ^ 2} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side))
+    exact hI
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := {n : ℤ | n ∣ k}) (Y := {n : ℤ | n ∣ k ^ 2}))).mpr s1
 

@@ -27,7 +27,6 @@ public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -65,9 +64,9 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 4. mun:open-within-closed
   have s4 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))
   -- 5. D1
-  have s5 : ∀ x ∈ (Set.Icc a b : Set ℝ), G x = (∫ t in a..x, (f t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s5 : ∀ x ∈ (Set.Icc a b : Set ℝ), G x = (∫ t in a..x, (f t : ℝ)) := by simp (disch := omega) only [hD1, implies_true]
   -- 6. D2
-  have s6 : ∀ x ∈ (Set.Icc a b : Set ℝ), H x = G x - F x := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s6 : ∀ x ∈ (Set.Icc a b : Set ℝ), H x = G x - F x := by simp (disch := omega) only [hD2, implies_true]
   -- 7. proof
   have s7 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by
     intro x hK1
@@ -128,17 +127,17 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 22. calculation
   have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have s22 : G b - F b = G a - F a := by
-    calc G b - F b = H b := by parley_set_side
+    calc G b - F b = H b := by exact s19
       _ = H a := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds.zero_derivative_ends (a := a) (b := b) hH3 (H := H) (by parley_set_side) s14 s15 s17)
-      _ = G a - F a := by parley_set_side
+      _ = G a - F a := by exact s18
   -- 23. calculation
   have s23 : G a = 0 := by
-    calc G a = (∫ t in a..a, (f t : ℝ)) := by parley_set_side
+    calc G a = (∫ t in a..a, (f t : ℝ)) := by exact s20
       _ = 0 := by exact (Parley.Items.Stdlib.Calculus.mun_integral_point (f := f) (X := (Set.Icc a b : Set ℝ)) (a := a))
   -- 24. substitute G(a) = 0 (line 23) into line 22
   have s24 : G b - F b = 0 - F a := by parley_subst_at s23 s22
   -- 25. calculation
-  calc (∫ t in a..b, (f t : ℝ)) = G b := by parley_set_side
+  calc (∫ t in a..b, (f t : ℝ)) = G b := by exact s21
     _ = F b - F a := by linear_combination (norm := parley_norm) s24
 
 end Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus

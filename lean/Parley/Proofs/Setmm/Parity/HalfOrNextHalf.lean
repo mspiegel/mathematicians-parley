@@ -8,13 +8,11 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
 
@@ -38,7 +36,7 @@ theorem half_or_next_half (N : ℤ) :
       have s2_1_w : (N : ℚ) = 2 * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
       linear_combination (norm := parley_norm) ((1) / ((2))) * s2_1_w
     -- 2.3. membership, from 2.2
-    have s2_3 : ∃ m : ℤ, (m : ℚ) = (N : ℚ) / 2 := ⟨k, by first | (push_cast; linarith [s2_2]) | (rw [s2_2]; push_cast; ring) | (rw [← s2_2]; push_cast; ring) | exact s2_2 | exact s2_2.symm⟩
+    have s2_3 : ∃ m : ℤ, (m : ℚ) = (N : ℚ) / 2 := ⟨k, by exact_mod_cast (s2_2).symm⟩
     -- 2.4. mun:or-left P := N/2 ∈ ℤ, Q := (N + 1)/2 ∈ ℤ, from 2.3
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := ∃ m : ℤ, (m : ℚ) = (N : ℚ) / 2) (Q := ∃ m : ℤ, (m : ℚ) = ((N : ℚ) + 1) / 2) s2_3)
   · skip
@@ -49,7 +47,7 @@ theorem half_or_next_half (N : ℤ) :
       have s2_5_w : (N : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
       linear_combination (norm := parley_norm) ((1) / ((2))) * s2_5_w
     -- 2.7. membership, from 2.6
-    have s2_7 : ∃ m : ℤ, (m : ℚ) = ((N : ℚ) + 1) / 2 := ⟨k + 1, by first | (push_cast; linarith [s2_6]) | (rw [s2_6]; push_cast; ring) | (rw [← s2_6]; push_cast; ring) | exact s2_6 | exact s2_6.symm⟩
+    have s2_7 : ∃ m : ℤ, (m : ℚ) = ((N : ℚ) + 1) / 2 := ⟨k + 1, by exact_mod_cast (s2_6).symm⟩
     -- 2.8. mun:or-right P := N/2 ∈ ℤ, Q := (N + 1)/2 ∈ ℤ, from 2.7
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := ∃ m : ℤ, (m : ℚ) = (N : ℚ) / 2) (Q := ∃ m : ℤ, (m : ℚ) = ((N : ℚ) + 1) / 2) s2_7)
 

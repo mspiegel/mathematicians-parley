@@ -23,7 +23,7 @@ namespace Parley.Proofs.Hammack.CongruentSameRemainder.CongruentSameRemainder
 theorem congruent_same_remainder (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a ≡ b [ZMOD n]) :
     a % n = b % n := by
   -- 1. def:congruent-mod, from H4
-  have s1 : n ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
+  have s1 : n ∣ a - b := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
   -- 2. obtain k: def:divides d := n, n := a − b, from 1
   obtain ⟨k, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := a - b))).mp s1
   -- 3. mun:mod-multiple r := b, m := n, q := k

@@ -45,7 +45,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
     have s4 : ∀ u ∈ F '' (A ∩ B), u ∈ (∅ : Set α) := by
       intro u hK2
       -- 4.1. def:image, from H3, K2
-      have s4_1 : ∃ s ∈ B, u = F s := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B) (f := F) (u := u) (W := Set.univ) hH3 (by parley_set_side))).mp hK2
+      have s4_1 : ∃ s ∈ B, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B) (f := F) (u := u) (W := Set.univ) hH3 (by parley_set_side))).mp hK2
       -- 4.2. obtain s from line 4.1
       obtain ⟨s, s4_2a, s4_2b⟩ := s4_1
       -- 4.3. substitute B = ∅ (D2) into line 4.2

@@ -48,8 +48,8 @@ theorem two_elements {α : Type*} (V : Set α) :
     -- 4. obtain a: mun:card-nonempty X := V ∖ {b}, k := 0, from 3
     obtain ⟨a, s4, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V \ ({b} : Set α)) (k := (0 : ℤ)) (by parley_set_side) (by parley_set_side))
     -- 5. mun:remove-member u := a, Y := V, a := b, from 4
-    have s5a : a ∈ V := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).1
-    have s5b : ¬ a = b := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).2
+    have s5a : a ∈ V := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).1
+    have s5b : ¬ a = b := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).2
     -- 6. mun:card-remove X := V ∖ {b}, k := 0, from 3, 4
     have s6 : ((V \ ({b} : Set α)) \ ({a} : Set α)).encard = ((0 : ℕ) : ℕ∞) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_remove (X := V \ ({b} : Set α)) (a := a) s4 (k := (0 : ℤ)) (by parley_set_side) (by parley_set_side)); simp only [← Set.Finite.cast_ncard_eq (show ((V \ {b}) \ {a} : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
     -- 7. proof

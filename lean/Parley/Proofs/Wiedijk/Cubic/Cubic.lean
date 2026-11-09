@@ -103,10 +103,10 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
     intro hA1
     -- 12.1. calculation
     have s12_1 : u * (v * w) = 0 := by
-      calc u * (v * w) = y ^ 3 - 3 * M * y + N := by parley_set_side
+      calc u * (v * w) = y ^ 3 - 3 * M * y + N := by exact s11.symm
         _ = 0 := by linear_combination (norm := parley_field) (27 * a ^ 2) * hA1 + (-(27 * a ^ 2)) * s9
     -- 12.2. mun:zero-product x := u, y := v·w, from 12.1
-    have s12_2 : u = 0 ∨ v * w = 0 := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v * w))).mp s12_1
+    have s12_2 : u = 0 ∨ v * w = 0 := by exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v * w))).mp s12_1
     -- 12.3. cases, from 12.2
     rcases s12_2 with hC1 | hC2
     · skip
@@ -121,7 +121,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
       exact ⟨(1 : ℂ), s12_3_2, by simpa only [one_mul] using s12_3_1⟩
     · skip
       -- 12.3.4. mun:zero-product x := v, y := w, from C2
-      have s12_3_4 : v = 0 ∨ w = 0 := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := v) (y := w))).mp hC2
+      have s12_3_4 : v = 0 ∨ w = 0 := by exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := v) (y := w))).mp hC2
       -- 12.3.5. cases, from 12.3.4
       rcases s12_3_4 with hC3 | hC4
       · skip
@@ -149,7 +149,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
     -- 12.4. obtain r from A2
     obtain ⟨r, s12_4a, s12_4b⟩ := hA2
     -- 12.5. def:triple x := r, from 12.4
-    have s12_5 : (r = 1 ∨ r = (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) ∨ r = (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 := ((Parley.Items.Stdlib.Sets.def_triple (u := (1 : ℂ)) (v := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (x := r))).mp s12_4a
+    have s12_5 : (r = 1 ∨ r = (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) ∨ r = (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 := by exact ((Parley.Items.Stdlib.Sets.def_triple (u := (1 : ℂ)) (v := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (x := r))).mp s12_4a
     -- 12.6. cases, from 12.5
     have s12_6 : u * (v * w) = 0 := by
       rcases s12_5 with (hC6 | hC7) | hC8
@@ -185,10 +185,10 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         linear_combination (norm := parley_norm) (u * v) * s12_6_8
     -- 12.7. calculation
     have s12_7 : y ^ 3 - 3 * M * y + N = 0 := by
-      calc y ^ 3 - 3 * M * y + N = u * (v * w) := by parley_set_side
-        _ = 0 := by parley_set_side
+      calc y ^ 3 - 3 * M * y + N = u * (v * w) := by exact s11
+        _ = 0 := by exact s12_6
     -- 12.8. calculation
-    calc a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := by parley_set_side
+    calc a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := by exact s9
       _ = 0 / (27 * a ^ 2) := by parley_subst s12_7
       _ = 0 := by parley_ring
 

@@ -43,7 +43,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 ≤ n) :
         have row1 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by parley_subst_at c1 s1_4
         exact row1
       -- 1.6. calculation
-      calc (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 := by parley_side
+      calc (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 := by exact s1_5.symm
         _ = k + 1 := by parley_subst hIH
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))

@@ -69,7 +69,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.5. mun:reciprocal-order x := N, y := n, from A2
       have r138_1 : N > 0 := by parley_order
       have r138_2 : n > 0 := by parley_order
-      have s1_3_5 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s1_3_5 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
       -- 1.3.6. inequalities
       have s1_3_6 : 4 / (n : ℚ) ≤ 4 / (N : ℚ) := by parley_order
       -- 1.3.7. inequalities
@@ -90,7 +90,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.14. join 1.3.12, 1.3.13
       have s1_3_14 : 0 - ε < a n ∧ a n < ε := by parley_side
       -- 1.3.15. mun:abs-difference-lt x := a(n), c := 0, δ := ε, from 1.3.14
-      first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (0 : ℝ)) (δ := ε))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (0 : ℝ)) (δ := ε))).mpr (by parley_side); parley_side)
+      simpa only [sub_zero] using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (0 : ℝ)) (δ := ε))).mpr (by parley_side)
     -- 1.4. exhibit, from 1.3
     exact ⟨N, s1_2a, s1_3⟩
   -- 2. def:tends-to L := 0, from 1

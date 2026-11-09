@@ -24,7 +24,7 @@ theorem exp_is_increasing (a : ℝ) (b : ℝ) (hH3 : a < b) :
   have s3 : Real.log (Real.exp a) < Real.log (Real.exp b) := by
     calc Real.log (Real.exp a) = a := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := a))
       _ < b := by parley_side
-      _ = Real.log (Real.exp b) := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := b)).symm
+      _ = Real.log (Real.exp b) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := b)).symm
   -- 4. mun:ln-order x := exp(a), y := exp(b), from 1, 2, 3
   exact ((Parley.Items.Stdlib.Logarithms.mun_ln_order (x := Real.exp a) (y := Real.exp b) s1 s2)).mpr s3
 

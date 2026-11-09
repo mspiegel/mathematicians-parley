@@ -3,29 +3,21 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import NormTactics
-public import PowerTactics
+public import InstanceTactics
 public import SubstTactics
 public import Tactics
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/alternating-sign-bijection.proof by parley build lean. -/
@@ -49,7 +41,9 @@ theorem even_power_of_minus_one (k : ℤ) (hH1 : 0 ≤ k) :
       have s1_2 : 2 * (j + 1) = 2 * j + 2 := by parley_ring
       -- 1.3. calculation
       calc ((-1) ^ (2 * (j + 1)).toNat : ℤ) = (-1) ^ (2 * j + 2).toNat := by parley_subst s1_2
-        _ = (-1) ^ (2 * j).toNat * (-1) ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)); parley_side)
+        _ = (-1) ^ (2 * j).toNat * (-1) ^ 2 := by
+            have hI : ((-1) ^ (2 * j + 2).toNat : ℤ) = (-1) ^ (2 * j).toNat * (-1) ^ 2 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (by parley_side) (n := (2 : ℤ)) (by parley_side)))
+            exact hI
         _ = 1 * (-1) ^ 2 := by parley_subst hIH
         _ = 1 := by norm_num
   -- 2. instantiate j := k in line 1

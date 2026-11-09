@@ -33,14 +33,14 @@ theorem the_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
   -- 5. axi:group-associative a := a⁻¹, b := a, c := a⁻¹·a, from H2, 2, 3
   have s5 : a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * (a * (a⁻¹ * a)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a⁻¹) (b := a) (c := a⁻¹ * a) s2 hH2 s3)
   -- 6. axi:group-associative b := a⁻¹, c := a, from H2, 2
-  have s6 : a * (a⁻¹ * a) = a * a⁻¹ * a := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s2 hH2).symm
+  have s6 : a * (a⁻¹ * a) = a * a⁻¹ * a := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s2 hH2).symm
   -- 7. substitute
   have s7 : a * (a⁻¹ * a) = (1 : G) * a := by
     have c1 : a * a⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2)
     have row1 : a * (a⁻¹ * a) = (1 : G) * a := by parley_subst_at c1 s6
     exact row1
   -- 8. axi:group-associative a := a⁻¹, b := e, c := a, from H2, 1, 2
-  have s8 : a⁻¹ * ((1 : G) * a) = a⁻¹ * (1 : G) * a := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a⁻¹) (b := (1 : G)) (c := a) s2 s1 hH2).symm
+  have s8 : a⁻¹ * ((1 : G) * a) = a⁻¹ * (1 : G) * a := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a⁻¹) (b := (1 : G)) (c := a) s2 s1 hH2).symm
   -- 9. substitute
   have s9 : a⁻¹ * ((1 : G) * a) = a⁻¹ * a := by
     have c1 : a⁻¹ * (1 : G) = a⁻¹ := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a⁻¹) s2)
@@ -50,8 +50,8 @@ theorem the_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
   have s10 : a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * ((1 : G) * a) := by parley_subst_at s7 s5
   -- 11. calculation
   have s11 : a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * a := by
-    calc a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * ((1 : G) * a) := by parley_set_side
-      _ = a⁻¹ * a := by parley_set_side
+    calc a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * ((1 : G) * a) := by exact s10
+      _ = a⁻¹ * a := by exact s9
   -- 12. axi:group-associative a := a⁻¹·a, b := a⁻¹·a, c := (a⁻¹·a)⁻¹, from 3, 4
   have s12 : a⁻¹ * a * (a⁻¹ * a) * (a⁻¹ * a)⁻¹ = a⁻¹ * a * (a⁻¹ * a * (a⁻¹ * a)⁻¹) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a⁻¹ * a) (b := a⁻¹ * a) (c := (a⁻¹ * a)⁻¹) s3 s3 s4)
   -- 13. substitute (a⁻¹·a)·(a⁻¹·a) = a⁻¹·a (line 11) into line 12
@@ -63,6 +63,6 @@ theorem the_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
     exact row1
   -- 15. calculation
   calc a⁻¹ * a = a⁻¹ * a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a⁻¹ * a) s3).symm
-    _ = (1 : G) := by parley_set_side
+    _ = (1 : G) := by exact s14.symm
 
 end Parley.Proofs.Setmm.GroupCancellation.TheLeftInverse

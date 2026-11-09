@@ -1,9 +1,9 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -36,7 +36,6 @@ public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Lattice
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -45,10 +44,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -93,12 +89,16 @@ theorem leibniz :
       have s3_2_4 : (abs ((-1) ^ (n + 1).toNat) : ℤ) = 1 := by
         calc (abs ((-1) ^ (n + 1).toNat) : ℤ) = abs (-1) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_abs_power (x := (-1 : ℤ)) (n := n + 1) (by parley_side))
           _ = 1 ^ (n + 1).toNat := by parley_subst s3_2_3
-          _ = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); parley_side)
+          _ = 1 := by
+              have hI : (1 ^ (n + 1).toNat : ℤ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)))
+              exact hI
       -- 3.2.5. thm:integral-bounds n := n + 1
       have s3_2_5a : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.1
-      have s3_2_5b : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * ((n : ℝ) + 1) + 1) := by first | (have h := (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.2; simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.2] | (have h := (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.2; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.2 | (have h := (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.2; parley_side)
+      have s3_2_5b : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * ((n : ℝ) + 1) + 1) := by
+        have hI : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * ((n : ℝ) + 1) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.2)
+        exact hI
       -- 3.2.6. def:abs x := J(n + 1), from 3.2.5
-      have s3_2_6 : abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) s3_2_5a
+      have s3_2_6 : abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) s3_2_5a
       -- 3.2.7. algebra, from 3.2.5
       have s3_2_7 : 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_ring
       -- 3.2.8. calculation
@@ -110,13 +110,13 @@ theorem leibniz :
               have s3_2_4_w : (abs ((-1) ^ (n + 1).toNat) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3_2_4; push_cast at h; linear_combination (norm := parley_norm) h
               first | parley_subst s3_2_4_w | parley_subst s3_2_4
           _ = 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_subst s3_2_6
-          _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by first | parley_side | parley_line_toNat s3_2_7
+          _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact s3_2_7
       -- 3.2.9. inequalities, from A2, K2
       have s3_2_9 : N ≤ 2 * (n + 1) + 1 := by parley_order
       -- 3.2.10. mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.9
       have r800_1 : N > 0 := by parley_order
       have r800_2 : 2 * (n + 1) + 1 > 0 := by parley_order
-      have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := 2 * ((n : ℚ) + 1) + 1) (by parley_side))).mp (by parley_side)
+      have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := 2 * ((n : ℚ) + 1) + 1) (by parley_side))).mp (by parley_side)
       -- 3.2.11. transitivity, from 3.2.8, 3.2.5, 3.2.10, 3.1
       parley_order
     -- 3.3. exhibit, from 3.2

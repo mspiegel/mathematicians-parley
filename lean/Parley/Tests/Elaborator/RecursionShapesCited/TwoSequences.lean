@@ -25,7 +25,7 @@ theorem two_sequences (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ)
   have s2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
   -- 3. calculation
   calc F 1 = F (0 + 1) := by norm_num
-    _ = G 0 := by parley_side
-    _ = 1 := by parley_side
+    _ = G 0 := by exact s1
+    _ = 1 := by exact s2
 
 end Parley.Tests.Elaborator.RecursionShapesCited.TwoSequences

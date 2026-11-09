@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -34,7 +35,7 @@ theorem coprime_to_a_product (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c 
   have s5 : a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) = 1 := by
     calc a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) = (a * x + c * y) * (b * u + c * v) := by parley_ring
       _ = 1 * (b * u + c * v) := by parley_subst s2
-      _ = 1 := by parley_side
+      _ = 1 := by simpa only [one_mul] using s4
   -- 6. def:gcd a := a·b, b := c
   have s6a : 0 < (Int.gcd (a * b) c : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) (by parley_side))
   have s6b : (Int.gcd (a * b) c : ℤ) ∣ a * b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) (by parley_side))

@@ -21,8 +21,8 @@ theorem not_both (a : ℝ) (b : ℝ) :
     intro hD1
     by_contra hS
     -- 1. mun:not-either, from S
-    have s1a : ¬ a ≠ 0 := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := a ≠ 0) (Q := b ≠ 0))).mp hS).1
-    have s1b : ¬ b ≠ 0 := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := a ≠ 0) (Q := b ≠ 0))).mp hS).2
+    have s1a : ¬ a ≠ 0 := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := a ≠ 0) (Q := b ≠ 0))).mp hS).1
+    have s1b : ¬ b ≠ 0 := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := a ≠ 0) (Q := b ≠ 0))).mp hS).2
     -- 2. mun:double-negation, from 1
     have s2 : a = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_double_negation (P := a = 0) s1a)
     -- 3. mun:double-negation, from 1

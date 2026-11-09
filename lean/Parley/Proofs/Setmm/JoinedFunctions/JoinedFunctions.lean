@@ -25,7 +25,7 @@ theorem joined_functions {α : Type*} (A : Set α) (B : Set α) (C : Set α) (D 
   have s1 : ∀ x ∈ A ∪ B, H x ∈ C ∪ D := by
     intro x hK1
     -- 1.1. def:union, from K1
-    have s1_1 : x ∈ A ∨ x ∈ B := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := x))).mp hK1
+    have s1_1 : x ∈ A ∨ x ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := x))).mp hK1
     -- 1.2. cases, from 1.1
     rcases s1_1 with hC1 | hC2
     · skip

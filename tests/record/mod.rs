@@ -218,7 +218,12 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         .map(|l| {
             let item = l.item_system.map_or("none", |s| s.label());
             let value = l.value_system.map_or("none", |s| s.label());
-            format!("{} {item} from {value}", l.letter)
+            match l.value_set {
+                Some(set) => {
+                    format!("{} {item} from {value}, the set {}", l.letter, set.label())
+                }
+                None => format!("{} {item} from {value}", l.letter),
+            }
         })
         .collect();
     letters.sort();

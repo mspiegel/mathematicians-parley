@@ -23,7 +23,7 @@ theorem union_split {α : Type*} (A : Set α) (B : Set α) :
   have s1 : ∀ u ∈ A ∪ B \ A, u ∈ A ∪ B := by
     intro u hK1
     -- 1.1. def:union Y := A, Z := B ∖ A, from K1
-    have s1_1 : u ∈ A ∨ u ∈ B \ A := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B \ A) (u := u))).mp hK1
+    have s1_1 : u ∈ A ∨ u ∈ B \ A := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B \ A) (u := u))).mp hK1
     -- 1.2. cases, from 1.1
     rcases s1_1 with hC1 | hC2
     · skip
@@ -31,8 +31,8 @@ theorem union_split {α : Type*} (A : Set α) (B : Set α) :
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC1)
     · skip
       -- 1.2.2. def:difference Y := B, Z := A, from C2
-      have s1_2_2a : u ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := u))).mp hC2).1
-      have s1_2_2b : ¬ u ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := u))).mp hC2).2
+      have s1_2_2a : u ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := u))).mp hC2).1
+      have s1_2_2b : ¬ u ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := u))).mp hC2).2
       -- 1.2.3. mun:in-union-right Y := A, Z := B, from 1.2.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s1_2_2a)
   -- 2. def:subset X := A ∪ (B ∖ A), Y := A ∪ B, from 1
@@ -41,7 +41,7 @@ theorem union_split {α : Type*} (A : Set α) (B : Set α) :
   have s3 : ∀ u ∈ A ∪ B, u ∈ A ∪ B \ A := by
     intro u hK2
     -- 3.1. def:union Y := A, Z := B, from K2
-    have s3_1 : u ∈ A ∨ u ∈ B := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := u))).mp hK2
+    have s3_1 : u ∈ A ∨ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := u))).mp hK2
     -- 3.2. axi:excluded-middle P := u ∈ A
     have s3_2 : u ∈ A ∨ ¬ u ∈ A := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A))
     -- 3.3. cases, from 3.2

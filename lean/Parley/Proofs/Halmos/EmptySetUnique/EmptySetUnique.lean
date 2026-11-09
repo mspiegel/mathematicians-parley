@@ -28,7 +28,7 @@ theorem empty_set_unique {α : Type*} (A : Set α) (hH2 : ¬ (∃ a ∈ A, True)
   -- 2. mun:empty-subset X := A
   have s2 : ∅ ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_empty_subset (X := A))
   -- 3. def:subset X := ∅, Y := A, from 2
-  have s3 : ∀ x ∈ (∅ : Set α), x ∈ A := ((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp s2
+  have s3 : ∀ x ∈ (∅ : Set α), x ∈ A := by exact ((Parley.Items.Stdlib.Sets.def_subset (X := ∅) (Y := A))).mp s2
   -- 4. axi:extensionality X := A, Y := ∅, from 1, 3
   exact (Parley.Items.Stdlib.Sets.axi_extensionality (X := A) (Y := ∅) s1 s3)
 

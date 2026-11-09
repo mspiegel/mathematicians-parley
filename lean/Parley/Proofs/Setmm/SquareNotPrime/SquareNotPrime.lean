@@ -40,7 +40,7 @@ theorem square_not_prime (A : ℤ) :
   -- 1. mun:prime-nat p := A², from S
   have s1 : 0 < A ^ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := A ^ 2) hS)
   -- 2. def:prime p := A², from S, 1
-  have s2 : A ^ 2 > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := A ^ 2) (by parley_side))).mp hS).1
+  have s2 : A ^ 2 > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := A ^ 2) (by parley_side))).mp hS).1
   -- 3. mun:abs-square x := A
   have s3 : abs A ^ 2 = A ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A))
   -- 4. contradiction
@@ -60,7 +60,7 @@ theorem square_not_prime (A : ℤ) :
   -- 7. def:divides d := |A|, n := A², from 6
   have s7 : abs A ∣ A ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := abs A) (n := A ^ 2))).mpr ⟨abs A, s6⟩
   -- 8. def:prime p := A², from S, 1
-  have s8 : ∀ d : ℤ, 0 < d → d ∣ A ^ 2 → d = 1 ∨ d = A ^ 2 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := A ^ 2) (by parley_side))).mp hS).2
+  have s8 : ∀ d : ℤ, 0 < d → d ∣ A ^ 2 → d = 1 ∨ d = A ^ 2 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := A ^ 2) (by parley_side))).mp hS).2
   -- 9. instantiate d := |A| in line 8, from 5
   have s9 : abs A ∣ A ^ 2 → abs A = 1 ∨ abs A = A ^ 2 := by exact (s8 (abs A) (by parley_side))
   -- 10. mun:modus-ponens, from 7, 9

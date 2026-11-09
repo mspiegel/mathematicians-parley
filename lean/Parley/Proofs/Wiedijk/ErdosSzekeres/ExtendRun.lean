@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
@@ -42,13 +43,17 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
   have s4 : ∀ t ∈ T, c t < c j := by
     intro t hK1
     -- 4.1. mun:in-subset, from H5, K1
-    have s4_1 : t ∈ Finset.Icc (1 : ℤ) i := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) (by parley_whole_side) hK1) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) (by parley_whole_side) hK1)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) (by parley_whole_side) hK1) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) (by parley_whole_side) hK1) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) (by parley_whole_side) hK1); parley_set_side)
+    have s4_1 : t ∈ Finset.Icc (1 : ℤ) i := by
+      have hI : t ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) (by parley_whole_side) hK1))
+      exact hI
     -- 4.2. mun:in-subset, from K1, 3
-    have s4_2 : t ∈ Finset.Icc (1 : ℤ) N := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) (by parley_whole_side) hK1) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) (by parley_whole_side) hK1)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) (by parley_whole_side) hK1) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) (by parley_whole_side) hK1) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) (by parley_whole_side) hK1); parley_set_side)
+    have s4_2 : t ∈ Finset.Icc (1 : ℤ) N := by
+      have hI : t ∈ Finset.Icc (1 : ℤ) N := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) (by parley_whole_side) hK1))
+      exact hI
     -- 4.3. mun:range-bounds a := 1, b := i, k := t, from 4.1
     have s4_3 : t ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := i) (k := t) s4_1)
     -- 4.4. mun:le-cases x := t, y := i, from 4.3
-    have s4_4 : t < i ∨ t = i := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := t) (y := i))).mp s4_3
+    have s4_4 : t < i ∨ t = i := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := t) (y := i))).mp s4_3
     -- 4.5. cases, from 4.4
     rcases s4_4 with hC1 | hC2
     · skip
@@ -65,14 +70,16 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
   intro q hK3
   intro hK4
   -- 5.1. def:union, from K3
-  have s5_1 : q ∈ T ∨ q ∈ ({j} : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_union (Y := T) (Z := ({j} : Set ℤ)) (u := q))).mp hK3
+  have s5_1 : q ∈ T ∨ q ∈ ({j} : Set ℤ) := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := T) (Z := ({j} : Set ℤ)) (u := q))).mp hK3
   -- 5.2. def:union, from K2
-  have s5_2 : p ∈ T ∨ p ∈ ({j} : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_union (Y := T) (Z := ({j} : Set ℤ)) (u := p))).mp hK2
+  have s5_2 : p ∈ T ∨ p ∈ ({j} : Set ℤ) := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := T) (Z := ({j} : Set ℤ)) (u := p))).mp hK2
   -- 5.3. cases, from 5.1
   rcases s5_1 with hC3 | hC6
   · skip
     -- 5.3.1. mun:in-subset, from C3, H5
-    have s5_3_1 : q ∈ Finset.Icc (1 : ℤ) i := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) (by parley_whole_side) hC3) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) (by parley_whole_side) hC3)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) (by parley_whole_side) hC3) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) (by parley_whole_side) hC3) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) (by parley_whole_side) hC3); parley_set_side)
+    have s5_3_1 : q ∈ Finset.Icc (1 : ℤ) i := by
+      have hI : q ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) (by parley_whole_side) hC3))
+      exact hI
     -- 5.3.2. mun:range-bounds a := 1, b := i, k := q, from 5.3.1
     have s5_3_2 : q ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := i) (k := q) s5_3_1)
     -- 5.3.3. cases, from 5.2
@@ -82,7 +89,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       exact (hH7 p (by parley_set_side) q (by parley_set_side) (by parley_set_side))
     · skip
       -- 5.3.3.2. def:singleton x := p, a := j, from C5
-      have s5_3_3_2 : p = j := ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC5
+      have s5_3_3_2 : p = j := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC5
       -- 5.3.3.3. substitute p = j (line 5.3.3.2) into K4
       have s5_3_3_3 : j < q := by parley_subst_at s5_3_3_2 hK4
       -- 5.3.3.4. transitivity, from 5.3.3.3, 5.3.2, H8
@@ -92,7 +99,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       exact absurd s5_3_3_4 s5_3_3_5
   · skip
     -- 5.3.4. def:singleton x := q, a := j, from C6
-    have s5_3_4 : q = j := ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := q))).mp hC6
+    have s5_3_4 : q = j := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := q))).mp hC6
     -- 5.3.5. cases, from 5.2
     have s5_3_5 : c p < c j := by
       rcases s5_2 with hC7 | hC8
@@ -101,7 +108,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
         exact (s4 p (by parley_set_side))
       · skip
         -- 5.3.5.2. def:singleton x := p, a := j, from C8
-        have s5_3_5_2 : p = j := ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC8
+        have s5_3_5_2 : p = j := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC8
         -- 5.3.5.3. substitute p = j (line 5.3.5.2) into K4
         have s5_3_5_3 : j < q := by parley_subst_at s5_3_5_2 hK4
         -- 5.3.5.4. substitute q = j (line 5.3.4) into line 5.3.5.3

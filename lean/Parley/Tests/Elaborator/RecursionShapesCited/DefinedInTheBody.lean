@@ -21,7 +21,7 @@ theorem defined_in_the_body :
   -- 1. thm:names-the-index
   have s1 : T 1 = 1 := by exact (Parley.Tests.Elaborator.RecursionShapesCited.NamesTheIndex.names_the_index (T := T) (by parley_side))
   -- 2. calculation
-  calc (1 : ℤ) = T 1 := by parley_side
-    _ = 1 := by parley_side
+  calc (1 : ℤ) = T 1 := by exact s1.symm
+    _ = 1 := by exact s1
 
 end Parley.Tests.Elaborator.RecursionShapesCited.DefinedInTheBody

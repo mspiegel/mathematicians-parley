@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
@@ -42,10 +43,14 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   have s2 : (M - L) / 3 > 0 := by parley_order
   -- 3. thm:limit-unfolded D := ℝ, from H5
   have r51_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  have s3 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by first | exact (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) (by parley_whole_side)) | exact ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) (by parley_whole_side))).symm | simpa using (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) (by parley_whole_side)) | exact_mod_cast (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) (by parley_whole_side)) | (have h := (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) (by parley_whole_side)); parley_set_side)
+  have s3 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by
+    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) (by parley_whole_side)))
+    exact hI
   -- 4. thm:limit-unfolded D := ℝ, L := M, from H6
   have r55_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  have s4 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by first | exact (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)) | exact ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side))).symm | simpa using (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)) | exact_mod_cast (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)) | (have h := (Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)); parley_set_side)
+  have s4 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by
+    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)))
+    exact hI
   -- 5. instantiate ε := (M − L)/3 in line 3, from 2
   have s5 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < (M - L) / 3) := by exact (s3 ((M - L) / 3) (by parley_set_side))
   -- 6. instantiate ε := (M − L)/3 in line 4, from 2
@@ -55,7 +60,7 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 8. obtain q from line 6
   obtain ⟨q, ⟨s8a, s8b⟩⟩ := s6
   set m : ℝ := min p q with hD1
-  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)); parley_set_side)
+  have hD1_kind : True := by trivial
   -- 9. mun:lt-min z := 0, x := p, y := q, from 7, 8
   have s9 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side)
   -- 10. mun:min-le x := p, y := q
@@ -106,9 +111,9 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 31. instantiate x := x₁ in line 8, from 14, 29
   have s31 : abs (f x₁ - M) < (M - L) / 3 := by exact (s8b x₁ (by parley_set_side))
   -- 32. mun:abs-difference-lt x := f(x₁), c := L, δ := (M − L)/3, from 30
-  have s32 : f x₁ < L + (M - L) / 3 := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x₁) (c := L) (δ := (M - L) / 3))).mp s30).2
+  have s32 : f x₁ < L + (M - L) / 3 := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x₁) (c := L) (δ := (M - L) / 3))).mp s30).2
   -- 33. mun:abs-difference-lt x := f(x₁), c := M, δ := (M − L)/3, from 31
-  have s33 : M - (M - L) / 3 < f x₁ := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x₁) (c := M) (δ := (M - L) / 3))).mp s31).1
+  have s33 : M - (M - L) / 3 < f x₁ := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x₁) (c := M) (δ := (M - L) / 3))).mp s31).1
   -- 34. transitivity, from 33, 32
   have s34 : M - (M - L) / 3 < L + (M - L) / 3 := by parley_order
   -- 35. inequalities

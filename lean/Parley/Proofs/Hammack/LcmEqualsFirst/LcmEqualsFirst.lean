@@ -55,7 +55,7 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
       -- 5.6.1. substitute lcm(a, b) = 0 (S) into line 5.5
       have s5_6_1 : (0 : ℤ) ∣ a := by first | parley_subst_at hS s5_5 | (have e_nat : Int.lcm a b = 0 := by exact_mod_cast hS; parley_subst_at e_nat s5_5)
       -- 5.6.2. mun:zero-divides n := a, from 5.6.1
-      have s5_6_2 : a = 0 := ((Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := a))).mp s5_6_1
+      have s5_6_2 : a = 0 := by exact ((Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := a))).mp s5_6_1
       -- 5.6.3. inequalities, from H1
       have s5_6_3 : a ≠ 0 := by parley_side
       exact s5_6_3 s5_6_2

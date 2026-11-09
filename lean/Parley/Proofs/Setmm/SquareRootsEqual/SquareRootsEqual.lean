@@ -34,7 +34,7 @@ theorem square_roots_equal (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : 0 ≤ b) :
     have s2_1 : Real.sqrt b ^ 2 = a := by parley_subst_at hD1 s1
     -- 2.2. calculation
     have r25_1 : b ≥ 0 := by parley_side
-    calc a = Real.sqrt b ^ 2 := by parley_side
+    calc a = Real.sqrt b ^ 2 := by exact s2_1.symm
       _ = b := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := b) r25_1)
   · skip
     intro hD2

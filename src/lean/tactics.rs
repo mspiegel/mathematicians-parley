@@ -177,6 +177,11 @@ pub fn simpa_only(rules: Vec<&'static str>, using: Term) -> Tactic {
     )
 }
 
+/// `first | a | b`: the ways tried in order, for the reason `why`.
+pub fn first(why: super::doc::ListReason, ways: Vec<Tactic>) -> Tactic {
+    Tactic::First { why, ways }
+}
+
 /// A rule used forwards.
 pub fn forwards(by: Term) -> Rule {
     Rule {

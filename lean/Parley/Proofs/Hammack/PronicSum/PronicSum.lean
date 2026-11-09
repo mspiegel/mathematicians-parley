@@ -2,7 +2,7 @@ module
 
 public import AlgebraTactics
 public import Functions
-public import NormTactics
+public import InstanceTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -16,7 +16,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -45,7 +44,9 @@ theorem pronic_sum (n : ℤ) (hH1 : 0 < n) :
       -- 1.1. calculation
       have s1_1 : (S 1 : ℚ) = 1 * (1 + 1) * (1 + 2) / 3 := by
         calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((j : ℚ) * ((j : ℚ) + 1) : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
-          _ = 1 * (1 + 1) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 1))) (a := (1 : ℤ)))
+          _ = 1 * (1 + 1) := by
+              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((k : ℚ) * ((k : ℚ) + 1) : ℚ)) = 1 * (1 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 1))) (a := (1 : ℤ))))
+              exact hI
           _ = 1 * (1 + 1) * (1 + 2) / 3 := by norm_num
       first | exact_mod_cast s1_1 | (have h := s1_1; push_cast at h ⊢; exact h) | simpa using s1_1
     | succ k hK hIH =>

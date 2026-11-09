@@ -12,6 +12,7 @@ pub enum BridgeModule {
     SubstTactics,
     OrderTactics,
     PowerTactics,
+    InstanceTactics,
     ComplexTactics,
     ArithTactics,
     RealTactics,
@@ -32,7 +33,7 @@ pub enum BridgeModule {
 
 impl BridgeModule {
     /// Every module, in no order Lean reads.
-    pub const ALL: [BridgeModule; 23] = [
+    pub const ALL: [BridgeModule; 24] = [
         BridgeModule::Tactics,
         BridgeModule::NormTactics,
         BridgeModule::SetTactics,
@@ -40,6 +41,7 @@ impl BridgeModule {
         BridgeModule::SubstTactics,
         BridgeModule::OrderTactics,
         BridgeModule::PowerTactics,
+        BridgeModule::InstanceTactics,
         BridgeModule::ComplexTactics,
         BridgeModule::ArithTactics,
         BridgeModule::RealTactics,
@@ -69,6 +71,7 @@ impl BridgeModule {
             BridgeModule::SubstTactics => "SubstTactics",
             BridgeModule::OrderTactics => "OrderTactics",
             BridgeModule::PowerTactics => "PowerTactics",
+            BridgeModule::InstanceTactics => "InstanceTactics",
             BridgeModule::ComplexTactics => "ComplexTactics",
             BridgeModule::ArithTactics => "ArithTactics",
             BridgeModule::RealTactics => "RealTactics",
@@ -126,6 +129,9 @@ pub enum BridgeTactic {
     WitnessNotAt,
     LineToNat,
     ZpowToNat,
+    Instance,
+    InstanceCast,
+    InstanceReal,
     OfComplex,
     Arith,
     Suppose,
@@ -141,7 +147,7 @@ pub enum BridgeTactic {
 
 impl BridgeTactic {
     /// Every tactic, in no order Lean reads.
-    pub const ALL: [BridgeTactic; 38] = [
+    pub const ALL: [BridgeTactic; 41] = [
         BridgeTactic::Side,
         BridgeTactic::Norm,
         BridgeTactic::SetSide,
@@ -169,6 +175,9 @@ impl BridgeTactic {
         BridgeTactic::WitnessNotAt,
         BridgeTactic::LineToNat,
         BridgeTactic::ZpowToNat,
+        BridgeTactic::Instance,
+        BridgeTactic::InstanceCast,
+        BridgeTactic::InstanceReal,
         BridgeTactic::OfComplex,
         BridgeTactic::Arith,
         BridgeTactic::Suppose,
@@ -212,6 +221,9 @@ impl BridgeTactic {
             BridgeTactic::WitnessNotAt => "parley_witness_not_at",
             BridgeTactic::LineToNat => "parley_line_toNat",
             BridgeTactic::ZpowToNat => "parley_zpow_toNat",
+            BridgeTactic::Instance => "parley_instance",
+            BridgeTactic::InstanceCast => "parley_instance_cast",
+            BridgeTactic::InstanceReal => "parley_instance_real",
             BridgeTactic::OfComplex => "parley_of_complex",
             BridgeTactic::Arith => "parley_arith",
             BridgeTactic::Suppose => "parley_suppose",
@@ -256,6 +268,9 @@ impl BridgeTactic {
             | BridgeTactic::WitnessNotAt
             | BridgeTactic::LineToNat
             | BridgeTactic::ZpowToNat => BridgeModule::PowerTactics,
+            BridgeTactic::Instance
+            | BridgeTactic::InstanceCast
+            | BridgeTactic::InstanceReal => BridgeModule::InstanceTactics,
             BridgeTactic::OfComplex => BridgeModule::ComplexTactics,
             BridgeTactic::Arith | BridgeTactic::Suppose => BridgeModule::ArithTactics,
             BridgeTactic::Real | BridgeTactic::RatOfReal => BridgeModule::RealTactics,

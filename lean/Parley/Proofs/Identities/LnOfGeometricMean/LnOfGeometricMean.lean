@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import NormTactics
 public import SubstTactics
 public import Tactics
@@ -46,7 +47,9 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
   have s5 : Real.sqrt (x * y) ^ 2 = x * y := by parley_side
   -- 6. calculation
   have s6 : 2 * Real.log (Real.sqrt (x * y)) = Real.log x + Real.log y := by
-    calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4).symm
+    calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by
+          have hI : Real.log (Real.sqrt (x * y) ^ 2) = 2 * Real.log (Real.sqrt (x * y)) := by parley_instance ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4))
+          exact hI.symm
       _ = Real.log (x * y) := by parley_subst s5
       _ = Real.log x + Real.log y := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) hH3 hH4)
   -- 7. algebra, from 6

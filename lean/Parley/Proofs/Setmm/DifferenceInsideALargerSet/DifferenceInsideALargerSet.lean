@@ -22,8 +22,8 @@ theorem difference_inside_a_larger_set {α : Type*} (A : Set α) (B : Set α) (C
   have s1 : ∀ t ∈ A \ B, t ∈ (C \ B) ∩ A := by
     intro t hK1
     -- 1.1. def:difference u := t, Y := A, Z := B, from K1
-    have s1_1a : t ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).1
-    have s1_1b : ¬ t ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).2
+    have s1_1a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).1
+    have s1_1b : ¬ t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).2
     -- 1.2. mun:in-subset X := A, Y := C, u := t, from H4, 1.1
     have s1_2 : t ∈ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := t) hH4 s1_1a)
     -- 1.3. def:difference u := t, Y := C, Z := B, from 1.1, 1.2
@@ -36,11 +36,11 @@ theorem difference_inside_a_larger_set {α : Type*} (A : Set α) (B : Set α) (C
   have s3 : ∀ t ∈ (C \ B) ∩ A, t ∈ A \ B := by
     intro t hK2
     -- 3.1. def:intersection u := t, Y := C ∖ B, Z := A, from K2
-    have s3_1a : t ∈ C \ B := (((Parley.Items.Stdlib.Sets.def_intersection (Y := C \ B) (Z := A) (u := t))).mp hK2).1
-    have s3_1b : t ∈ A := (((Parley.Items.Stdlib.Sets.def_intersection (Y := C \ B) (Z := A) (u := t))).mp hK2).2
+    have s3_1a : t ∈ C \ B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := C \ B) (Z := A) (u := t))).mp hK2).1
+    have s3_1b : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := C \ B) (Z := A) (u := t))).mp hK2).2
     -- 3.2. def:difference u := t, Y := C, Z := B, from 3.1
-    have s3_2a : t ∈ C := (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mp s3_1a).1
-    have s3_2b : ¬ t ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mp s3_1a).2
+    have s3_2a : t ∈ C := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mp s3_1a).1
+    have s3_2b : ¬ t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mp s3_1a).2
     -- 3.3. def:difference u := t, Y := A, Z := B, from 3.1, 3.2
     exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
   -- 4. def:subset, from 3

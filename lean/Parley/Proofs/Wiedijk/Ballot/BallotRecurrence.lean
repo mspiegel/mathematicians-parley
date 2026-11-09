@@ -3,9 +3,9 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -28,7 +28,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
@@ -110,7 +109,9 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   -- 21. def:range0 k := m − 1, n := m + (n − 1), from 1, 2, 20
   have s21 : m - 1 ∈ Finset.Icc (0 : ℤ) (m + (n - 1)) := ((Parley.Items.Stdlib.Sums.def_range0 (k := m - 1) (n := m + (n - 1)) (by parley_set_side))).mpr (by parley_set_side)
   -- 22. thm:absorption n := m + (n − 1), k := m − 1, from 2, 21
-  have s22 : (LeanBridges.Counting.choose (m + (n - 1) + 1) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21) | (have h := (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21) | exact_mod_cast ((Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21)).symm | (have h := (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21); parley_set_side)
+  have s22 : (LeanBridges.Counting.choose (m + (n - 1) + 1) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)) := by
+    have hI : (LeanBridges.Counting.choose (m + (n - 1) + 1) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (by parley_set_side) (k := m - 1) s21))
+    exact hI
   -- 23. algebra
   have s23 : m + (n - 1) + 1 = m + n := by parley_ring
   -- 24. substitute (m + (n − 1)) + 1 = m + n (line 23) into line 22

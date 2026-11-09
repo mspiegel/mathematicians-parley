@@ -46,7 +46,7 @@ theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
       -- 1.2.1. instantiate x := x in H2
       have s1_2_1 : f x = 8 * x - 3 := by exact (hH2 x)
       -- 1.2.2. mun:abs-difference-lt c := 5, δ := ε/8, from A2
-      have s1_2_2 : 5 - ε / 8 < x ∧ x < 5 + ε / 8 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (5 : ℝ)) (δ := ε / 8))).mp hA2.2
+      have s1_2_2 : 5 - ε / 8 < x ∧ x < 5 + ε / 8 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (5 : ℝ)) (δ := ε / 8))).mp hA2.2
       -- 1.2.3. inequalities
       have s1_2_3 : 37 - ε < 8 * x - 3 := by parley_order
       -- 1.2.4. transitivity, from 1.2.3, 1.2.1

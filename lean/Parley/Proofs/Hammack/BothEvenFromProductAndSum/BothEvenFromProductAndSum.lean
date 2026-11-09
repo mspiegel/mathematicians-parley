@@ -21,7 +21,7 @@ set_option maxHeartbeats 400000 in
 theorem both_even_from_product_and_sum (a : ℤ) (b : ℤ) (hH3 : Even (a * b)) (hH4 : Even (a + b)) :
     (Even a ∧ Even b) := by
   -- 1. mun:even-product-factor, from H3
-  have s1 : Even a ∨ Even b := ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp hH3
+  have s1 : Even a ∨ Even b := by exact ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a) (b := b))).mp hH3
   -- 2. obtain m: def:even n := a + b, from H4
   obtain ⟨m, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a + b))).mp hH4
   -- 3. cases, from 1

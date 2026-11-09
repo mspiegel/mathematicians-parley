@@ -84,10 +84,10 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
     intro hA1
     -- 10.1. calculation
     have s10_1 : u * v = 0 := by
-      calc u * v = x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d := by parley_side
+      calc u * v = x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d := by exact s9.symm
         _ = 0 := by parley_side
     -- 10.2. mun:zero-product x := u, y := v, from 10.1
-    have s10_2 : u = 0 ∨ v = 0 := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp s10_1
+    have s10_2 : u = 0 ∨ v = 0 := by exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp s10_1
     -- 10.3. cases, from 10.2
     rcases s10_2 with hC1 | hC4
     · skip
@@ -196,7 +196,7 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           try push_cast at *
           linear_combination (norm := parley_norm) (-(J * u) - S * u + u * y) * s10_4_2_3
     -- 10.5. calculation
-    calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by parley_side
-      _ = 0 := by parley_side
+    calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by exact s9
+      _ = 0 := by exact s10_4
 
 end Parley.Proofs.Wiedijk.Quartic.Quartic

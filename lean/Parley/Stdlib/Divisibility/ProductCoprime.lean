@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Sets
@@ -52,13 +53,15 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       -- 2.3. transitivity, from 2.2, 2.1
       have s2_3 : (Int.gcd (1 : ℤ) n : ℤ) = 1 := by parley_set_side
       -- 2.4. substitute
-      have c1 : 1 = (∏ᶠ x ∈ (∅ : Set ℤ), (x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : ℤ => x))).symm
+      have c1 : 1 = (∏ᶠ x ∈ (∅ : Set ℤ), (x : ℤ)) := by
+        have hI : (∏ᶠ a ∈ (∅ : Set ℤ), (a : ℤ)) = 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : ℤ => x))))
+        exact hI.symm
       have row1 : (Int.gcd (∏ᶠ x ∈ (∅ : Set ℤ), (x : ℤ)) n : ℤ) = 1 := by parley_subst_at c1 s2_3
       exact row1
     · intro Y hK hIH
       intro a hK2
       -- 2.5. def:difference u := a, Y := X, Z := Y, from K2
-      have s2_5 : a ∈ X ∧ ¬ a ∈ Y := ((Parley.Items.Stdlib.Sets.def_difference (Y := X) (Z := Y) (u := a))).mp hK2
+      have s2_5 : a ∈ X ∧ ¬ a ∈ Y := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := X) (Z := Y) (u := a))).mp hK2
       -- 2.6. mun:finite-part, from H2, K
       have s2_6 : Y.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := Y) hH2 hK)
       -- 2.7. instantiate y := a in H4, from 2.5

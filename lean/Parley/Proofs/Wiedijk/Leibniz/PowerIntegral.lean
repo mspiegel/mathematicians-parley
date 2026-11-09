@@ -2,8 +2,8 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
+public import InstanceTactics
 public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -34,19 +34,13 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
-public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
@@ -76,11 +70,11 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 2. mun:interval-real
   have s2 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   -- 3. D1
-  have s3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), p x = x ^ m.toNat := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), p x = x ^ m.toNat := by simp (disch := omega) only [hD1, implies_true]
   -- 4. D2
-  have s4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), q x = x ^ (m + 1).toNat := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), q x = x ^ (m + 1).toNat := by simp (disch := omega) only [hD2, implies_true]
   -- 5. D3
-  have s5 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), F x = 1 / ((m : ℝ) + 1) * q x := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+  have s5 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), F x = 1 / ((m : ℝ) + 1) * q x := by simp (disch := omega) only [hD3, implies_true]
   -- 6. membership, from D1
   have s6 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 7. membership, from D2
@@ -130,7 +124,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
       _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by parley_subst s16
       _ = x ^ m.toNat := by parley_ring
-      _ = p x := by first | parley_set_side | parley_line_toNat s19_2
+      _ = p x := by exact s19_2
   -- 20. arithmetic
   have s20 : (0 : ℤ) < 1 := by parley_arith
   -- 21. def:interval a := 0, b := 1, x := 0
@@ -144,7 +138,9 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 23. D2, from 22
   have s23 : q 1 = 1 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 24. mun:one-power m := m + 1
-  have s24 : (1 ^ (m + 1).toNat : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); parley_set_side)
+  have s24 : (1 ^ (m + 1).toNat : ℤ) = 1 := by
+    have hI : (1 ^ (m + 1).toNat : ℤ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)))
+    exact hI
   -- 25. D2, from 21
   have s25 : q 0 = 0 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 26. mun:zero-power n := m + 1, from 1
@@ -155,14 +151,14 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   have s28 : F 0 = 1 / ((m : ℝ) + 1) * q 0 := by simp (disch := omega) only [hD3]
   -- 29. calculation
   have s29 : F 1 = 1 / ((m : ℝ) + 1) * 1 := by
-    calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := by parley_set_side
+    calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := by exact s27
       _ = 1 / ((m : ℝ) + 1) * 1 ^ (m + 1).toNat := by parley_subst s23
       _ = 1 / ((m : ℝ) + 1) * 1 := by
           have s24_w : (1 ^ (m + 1).toNat : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s24_w | parley_subst s24
   -- 30. calculation
   have s30 : F 0 = 1 / ((m : ℝ) + 1) * 0 := by
-    calc F 0 = 1 / ((m : ℝ) + 1) * q 0 := by parley_set_side
+    calc F 0 = 1 / ((m : ℝ) + 1) * q 0 := by exact s28
       _ = 1 / ((m : ℝ) + 1) * 0 ^ (m + 1).toNat := by parley_subst s25
       _ = 1 / ((m : ℝ) + 1) * 0 := by
           have s26_w : (0 ^ (m + 1).toNat : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s26; push_cast at h; linear_combination (norm := parley_norm) h

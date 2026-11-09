@@ -1,6 +1,6 @@
 module
 
-public import RealTactics
+public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -37,6 +37,7 @@ theorem a_square_is_differentiable (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = x
   have r127_3 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r127_4 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Z := (Set.univ : Set ℝ)) r127_2 (by parley_whole_side))
   have r127_5 : IsOpen (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := (0 : ℝ)) (b := (1 : ℝ)))
-  first | exact (Parley.Items.Stdlib.Calculus.thm_derivative_square_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r127_5 (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Calculus.thm_derivative_square_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r127_5 (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Calculus.thm_derivative_square_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r127_5 (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.thm_derivative_square_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r127_5 (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Calculus.thm_derivative_square_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r127_5 (by parley_whole_side)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Calculus.thm_derivative_square_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r127_5 (by parley_whole_side)); parley_set_side)
+  have hI : ∀ x ∈ (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ), DifferentiableAt ℝ g x := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_square_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (by parley_whole_side) (by parley_whole_side) r127_5 (by parley_whole_side)))
+  exact hI
 
 end Parley.Tests.Notations.Calculus.ASquareIsDifferentiable

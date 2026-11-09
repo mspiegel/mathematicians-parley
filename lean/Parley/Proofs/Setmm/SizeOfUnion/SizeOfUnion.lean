@@ -44,8 +44,8 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   have s7 : ∀ s ∈ B \ A, ¬ s ∈ A := by
     intro s hK
     -- 7.1. def:difference Y := B, Z := A, from K
-    have s7_1a : s ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).1
-    have s7_1b : ¬ s ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).2
+    have s7_1a : s ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).1
+    have s7_1b : ¬ s ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).2
     -- 7.2. restate 7.1
     parley_set_side
   -- 8. mun:disjoint-empty Y := A, Z := B ∖ A, from 7

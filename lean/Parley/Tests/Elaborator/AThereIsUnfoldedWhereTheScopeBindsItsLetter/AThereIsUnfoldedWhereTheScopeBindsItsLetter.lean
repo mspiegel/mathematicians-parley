@@ -19,7 +19,7 @@ theorem a_there_is_unfolded_where_the_scope_binds_its_letter (p : ℤ) (hH2 : (3
   -- 1. contradiction
   intro hS
   -- 1.1. def:divides d := 3, n := p, from H2
-  have s1_1 : ∃ s : ℤ, p = 3 * s := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p))).mp hH2
+  have s1_1 : ∃ s : ℤ, p = 3 * s := by exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p))).mp hH2
   exact hS s1_1
 
 end Parley.Tests.Elaborator.AThereIsUnfoldedWhereTheScopeBindsItsLetter.AThereIsUnfoldedWhereTheScopeBindsItsLetter

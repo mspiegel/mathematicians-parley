@@ -28,11 +28,11 @@ theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (
   have s2 : ∀ u ∈ F '' (A ∩ ({B, C} : Set α)), u ∈ ({F B, F C} : Set α) := by
     intro u hK1
     -- 2.1. def:image X := A, Y := {B, C}, from K1, 1
-    have s2_1 : ∃ s ∈ ({B, C} : Set α), u = F s := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := ({B, C} : Set α)) (f := F) (u := u) (W := Set.univ) s1 (by parley_set_side))).mp hK1
+    have s2_1 : ∃ s ∈ ({B, C} : Set α), u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := ({B, C} : Set α)) (f := F) (u := u) (W := Set.univ) s1 (by parley_set_side))).mp hK1
     -- 2.2. obtain s from line 2.1
     obtain ⟨s, s2_2a, s2_2b⟩ := s2_1
     -- 2.3. def:pair x := s, u := B, w := C, from 2.2
-    have s2_3 : s = B ∨ s = C := ((Parley.Items.Stdlib.Sets.def_pair (u := B) (w := C) (x := s))).mp s2_2a
+    have s2_3 : s = B ∨ s = C := by exact ((Parley.Items.Stdlib.Sets.def_pair (u := B) (w := C) (x := s))).mp s2_2a
     -- 2.4. cases, from 2.3
     rcases s2_3 with hC1 | hC2
     · skip
@@ -55,7 +55,7 @@ theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (
   have s4 : ∀ u ∈ ({F B, F C} : Set α), u ∈ F '' (A ∩ ({B, C} : Set α)) := by
     intro u hK2
     -- 4.1. def:pair x := u, u := F(B), w := F(C), from K2
-    have s4_1 : u = F B ∨ u = F C := ((Parley.Items.Stdlib.Sets.def_pair (u := F B) (w := F C) (x := u))).mp hK2
+    have s4_1 : u = F B ∨ u = F C := by exact ((Parley.Items.Stdlib.Sets.def_pair (u := F B) (w := F C) (x := u))).mp hK2
     -- 4.2. cases, from 4.1
     rcases s4_1 with hC3 | hC4
     · skip

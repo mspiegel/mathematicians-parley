@@ -32,9 +32,9 @@ set_option maxHeartbeats 400000 in
 theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q : ℤ) (hH3 : 0 < Q) (hH4 : Nat.Prime Q.toNat) (N : ℤ) (hH5 : 0 ≤ N) (hH6 : P ∣ Q ^ N.toNat) :
     P = Q := by
   -- 1. def:prime p := P, from H2
-  have s1 : P > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
+  have s1 : P > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
   -- 2. def:prime p := Q, from H4
-  have s2 : ∀ d : ℤ, 0 < d → d ∣ Q → d = 1 ∨ d = Q := (((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp hH4).2
+  have s2 : ∀ d : ℤ, 0 < d → d ∣ Q → d = 1 ∨ d = Q := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := Q) (by parley_side))).mp hH4).2
   -- 3. induction on m starting at 0
   have s3 : ∀ m : ℤ, 0 ≤ m → P ∣ Q ^ m.toNat → P = Q := by
     intro m h_m
@@ -58,7 +58,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       -- 3.6. substitute Q^(m + 1) = Q^m·Q (line 3.5) into C2
       have s3_6 : P ∣ Q ^ m.toNat * Q := by parley_subst_at s3_5 hC2
       -- 3.7. thm:prime-divides-product m := Q^m, n := Q, from H2, 3.6
-      have s3_7 : P ∣ Q ^ m.toNat ∨ P ∣ Q := ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp s3_6
+      have s3_7 : P ∣ Q ^ m.toNat ∨ P ∣ Q := by exact ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp s3_6
       -- 3.8. cases, from 3.7
       rcases s3_7 with hC3 | hC4
       · skip

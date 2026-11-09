@@ -46,7 +46,7 @@ theorem four_x_plus_six_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x 
       -- 1.2.1. instantiate x := x in H2
       have s1_2_1 : f x = 4 * x + 6 := by exact (hH2 x)
       -- 1.2.2. mun:abs-difference-lt c := −1, δ := ε/4, from A2
-      have s1_2_2 : -1 - ε / 4 < x ∧ x < -1 + ε / 4 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (-1 : ℝ)) (δ := ε / 4))).mp hA2.2
+      have s1_2_2 : -1 - ε / 4 < x ∧ x < -1 + ε / 4 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (-1 : ℝ)) (δ := ε / 4))).mp hA2.2
       -- 1.2.3. inequalities
       have s1_2_3 : 2 - ε < 4 * x + 6 := by parley_order
       -- 1.2.4. transitivity, from 1.2.3, 1.2.1

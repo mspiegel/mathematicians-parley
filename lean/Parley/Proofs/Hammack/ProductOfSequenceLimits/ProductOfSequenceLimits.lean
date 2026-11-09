@@ -2,8 +2,8 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
+public import InstanceTactics
 public import OrderTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -40,16 +40,20 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     Filter.Tendsto (fun n : ℤ => (a n * b n : ℝ)) Filter.atTop (nhds (L * M)) := by
   -- 1. mun:abs-real x := L
   -- 2. mun:abs-nonneg x := L
-  have s2 : abs L ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ)))
+  have s2 : abs L ≥ 0 := by
+    have hI : 0 ≤ abs L := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))))
+    exact hI
   set s : ℝ := abs L + 1 with hD1
-  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))); parley_side)
+  have hD1_kind : True := by trivial
   -- 3. inequalities, from D1, 2
   have s3 : s > 0 := by parley_order
   -- 4. mun:abs-real x := M
   -- 5. mun:abs-nonneg x := M
-  have s5 : abs M ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ)))
+  have s5 : abs M ≥ 0 := by
+    have hI : 0 ≤ abs M := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))))
+    exact hI
   set t : ℝ := abs M + 1 with hD2
-  have hD2_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))); parley_side)
+  have hD2_kind : True := by trivial
   -- 6. inequalities, from D2, 5
   have s6 : t > 0 := by parley_order
   -- 7. inequalities
@@ -74,16 +78,16 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have s9_6 : ε / (2 * t) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side))
     -- 9.7. mun:quotient-real x := ε, y := 2·t, from 9.5
     set m : ℝ := min 1 (ε / (2 * t)) with hD3
-    have hD3_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))); parley_side)
+    have hD3_kind : True := by trivial
     -- 9.8. mun:lt-min z := 0, x := 1, y := ε/(2·t), from 9.6, 9.7
     have r148_1 : (0 : ℤ) < 1 := by parley_arith
     have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr (by parley_side)
     -- 9.9. inequalities, from D3, 9.8
     have s9_9 : m > 0 := by parley_order
     -- 9.10. def:tends-to x := a, from H5
-    have s9_10 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH5
+    have s9_10 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH5
     -- 9.11. def:tends-to x := b, L := M, from H6
-    have s9_11 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := M))).mp hH6
+    have s9_11 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := M))).mp hH6
     -- 9.12. instantiate ε := m in line 9.10, from 9.9
     have s9_12 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < m) := by exact (s9_10 m (by parley_side))
     -- 9.13. instantiate ε := ε/(2·s) in line 9.11, from 9.3
@@ -146,7 +150,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.15. calculation
       calc abs (a n * b n - L * M) = abs (a n * (b n - M) + M * (a n - L)) := by parley_subst s9_20_13
         _ ≤ abs (a n * (b n - M)) + abs (M * (a n - L)) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L)))
-        _ < ε / 2 + ε / 2 := by parley_side
+        _ < ε / 2 + ε / 2 := by exact s9_20_14
         _ = ε := by parley_ring
     -- 9.21. exhibit, from 9.20
     exact ⟨P + Q, by parley_side, s9_20⟩

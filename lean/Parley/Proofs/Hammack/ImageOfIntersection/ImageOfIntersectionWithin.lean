@@ -24,8 +24,8 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
   have s1 : ∀ s ∈ W ∩ X, s ∈ A := by
     intro s hK1
     -- 1.1. def:intersection u := s, Y := W, Z := X, from K1
-    have s1_1a : s ∈ W := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp hK1).1
-    have s1_1b : s ∈ X := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp hK1).2
+    have s1_1a : s ∈ W := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp hK1).1
+    have s1_1b : s ∈ X := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp hK1).2
     -- 1.2. mun:in-subset X := W, Y := A, u := s, from H4, 1.1
     exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := W) (Y := A) (u := s) hH4 s1_1a)
   -- 2. def:subset, from 1
@@ -36,8 +36,8 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     -- 3.1. obtain s: def:image u := y, Y := W ∩ X, from K2, 2
     obtain ⟨s, s3_1a, s3_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := W ∩ X) (f := f) (u := y) (W := Set.univ) s2 (by parley_set_side))).mp hK2
     -- 3.2. def:intersection u := s, Y := W, Z := X, from 3.1
-    have s3_2a : s ∈ W := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).1
-    have s3_2b : s ∈ X := (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).2
+    have s3_2a : s ∈ W := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).1
+    have s3_2b : s ∈ X := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := W) (Z := X) (u := s))).mp s3_1a).2
     -- 3.3. mun:value-in-image Y := W, from H4, 3.2
     have s3_3 : f s ∈ f '' (A ∩ W) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := W) (f := f) (s := s) (W := Set.univ) hH4 s3_2a (by parley_set_side))
     -- 3.4. mun:value-in-image Y := X, from H5, 3.2

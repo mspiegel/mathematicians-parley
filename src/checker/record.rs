@@ -290,10 +290,12 @@ pub struct CheckedTheorem {
     /// justification
     /// (`citations::instantiations`).
     pub instantiated: IndexMap<usize, Instantiated>,
-    /// How each calculation link citing a define meets the define written
-    /// out, its two sides once the define's name is its value, by the
-    /// link's line (`formulas::define_link_meetings`).
-    pub define_links: IndexMap<usize, crate::matching::Meeting>,
+    /// How each calculation link citing a define, and each step whose reason
+    /// is defines, meets the defines written out: its equation's two sides
+    /// once each define's name is its value, a "for all"'s at its body; None
+    /// where they do not meet and arithmetic is left. By the link's or the
+    /// step's line (`formulas::define_link_meetings`).
+    pub define_links: IndexMap<usize, Option<crate::matching::Meeting>>,
     /// Where in the line each calculation link cites the link stands, by
     /// the link's line (`formulas::link_places`). A link read off a chain,
     /// a = c of a = b = c, is placed at the chain's sentence with the pair it
@@ -616,6 +618,9 @@ pub struct ItemLetter {
     /// The narrowest number system the page says its value is in once;
     /// None for a value in none, a set or a function.
     pub value_system: Option<crate::rules::System>,
+    /// For a letter that stands for a set, the number system its value is
+    /// as a set, ℕ of `X := ℕ`; None for any other value.
+    pub value_set: Option<crate::rules::System>,
 }
 
 /// What one sentence of an exhibit's claim shows, a "there is".

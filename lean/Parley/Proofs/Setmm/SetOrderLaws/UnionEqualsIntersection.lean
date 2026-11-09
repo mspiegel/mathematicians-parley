@@ -50,7 +50,7 @@ theorem union_equals_intersection {α : Type*} (A : Set α) (B : Set α) :
     -- 10. calculation
     calc A ∪ B = A ∪ A := by parley_subst hD2
       _ = A := by exact (Parley.Items.Stdlib.Sets.mun_union_self (Y := A))
-      _ = A ∩ A := (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)).symm
+      _ = A ∩ A := by exact (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)).symm
       _ = A ∩ B := by parley_subst hD2
 
 end Parley.Proofs.Setmm.SetOrderLaws.UnionEqualsIntersection

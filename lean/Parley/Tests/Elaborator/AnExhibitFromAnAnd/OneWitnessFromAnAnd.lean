@@ -17,7 +17,7 @@ namespace Parley.Tests.Elaborator.AnExhibitFromAnAnd.OneWitnessFromAnAnd
 theorem one_witness_from_an_and {α : Type*} (V : Set α) (b : α) (hH2 : b ∈ V) (a : α) (hH3 : a ∈ V \ ({b} : Set α)) :
     (∃ x ∈ V, ¬ x = b) := by
   -- 1. mun:remove-member u := a, Y := V, a := b, from H3
-  have s1 : a ∈ V ∧ ¬ a = b := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp hH3
+  have s1 : a ∈ V ∧ ¬ a = b := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp hH3
   -- 2. exhibit, from 1
   exact ⟨a, s1.1, s1.2⟩
 

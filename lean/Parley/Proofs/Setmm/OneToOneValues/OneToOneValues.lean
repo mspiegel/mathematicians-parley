@@ -19,7 +19,7 @@ namespace Parley.Proofs.Setmm.OneToOneValues.OneToOneValues
 theorem one_to_one_values {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (C : α) (hH4 : C ∈ A) (D : α) (hH5 : D ∈ A) (hH6 : F C = F D) :
     C = D := by
   -- 1. def:one-to-one, from H3
-  have s1 : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).2
+  have s1 : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).2
   -- 2. instantiate s := C, t := D in line 1, from H4, H5
   have s2 : F C = F D → C = D := by exact (s1 C (by parley_set_side) D (by parley_set_side))
   -- 3. mun:modus-ponens, from H6, 2

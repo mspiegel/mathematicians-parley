@@ -21,8 +21,8 @@ namespace Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderA
 theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (X : α) (hH4 : X ∈ A) (Y : Set α) (hH5 : Y ⊆ A) :
     (F X ∈ F '' (A ∩ Y) ↔ X ∈ Y) := by
   -- 1. def:one-to-one, from H3
-  have s1a : Set.MapsTo F A B := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).1
-  have s1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).2
+  have s1a : Set.MapsTo F A B := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).1
+  have s1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).2
   -- 2. both directions
   constructor
   · skip

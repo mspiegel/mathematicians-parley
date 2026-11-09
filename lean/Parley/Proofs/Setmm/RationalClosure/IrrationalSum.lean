@@ -22,7 +22,7 @@ namespace Parley.Proofs.Setmm.RationalClosure.IrrationalSum
 theorem irrational_sum (A : ℝ) (B : ℚ) (hH3 : Irrational A) :
     Irrational (A + (B : ℝ)) := by
   -- 1. def:irrational x := A, from H3
-  have s1 : ¬ (∃ m : ℚ, (m : ℝ) = A) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := A))).mp hH3).2
+  have s1 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := A))).mp hH3).2
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = A + (B : ℝ)) := by
     intro hS

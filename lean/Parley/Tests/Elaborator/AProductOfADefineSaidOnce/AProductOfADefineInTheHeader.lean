@@ -30,7 +30,7 @@ theorem a_product_of_a_define_in_the_header (p : ℤ) (hH1 : 0 < p) (e : ℤ →
   have r44_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_side
   have s2 : e 1 = p := by (try simp only [hD1]); first | done | parley_side
   -- 3. calculation
-  calc (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := by parley_side
-    _ = p := by parley_side
+  calc (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := by exact s1
+    _ = p := by exact s2
 
 end Parley.Tests.Elaborator.AProductOfADefineSaidOnce.AProductOfADefineInTheHeader

@@ -41,7 +41,7 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
       exact s1_1_2 s1_1_1
     -- 1.2. calculation
     have s1_2 : A = ∅ := by
-      calc A = A ∩ A := (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)).symm
+      calc A = A ∩ A := by exact (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)).symm
         _ = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := A) s1_1)
     -- 1.3. restate H2
     have s1_3 : ¬ A = ∅ := by parley_set_side

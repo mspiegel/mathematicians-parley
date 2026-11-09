@@ -4,6 +4,7 @@ public import Counting
 public import FactorialTactics
 public import NormTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -36,7 +37,7 @@ theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (
   rcases hH2 with hC1 | hC2
   · skip
     -- 2.1. def:congruent-mod, from C1
-    have s2_1 : (4 : ℤ) ∣ a := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (0 : ℤ)))).mp hC1 | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (0 : ℤ)))).mp hC1).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (0 : ℤ)))).mp hC1 | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (0 : ℤ)))).mp hC1 | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (0 : ℤ)))).mp hC1; parley_side)
+    have s2_1 : (4 : ℤ) ∣ a := by simpa only [sub_zero] using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (0 : ℤ)))).mp hC1
     -- 2.2. obtain k: def:divides d := 4, n := a, from 2.1
     obtain ⟨k, s2_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a))).mp s2_1
     -- 2.3. algebra, from 1, 2.2
@@ -45,7 +46,7 @@ theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k - 1), s2_3⟩
   · skip
     -- 2.5. def:congruent-mod, from C2
-    have s2_5 : (4 : ℤ) ∣ a - 1 := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (1 : ℤ)))).mp hC2
+    have s2_5 : (4 : ℤ) ∣ a - 1 := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := a) (b := (1 : ℤ)))).mp hC2
     -- 2.6. obtain k: def:divides d := 4, n := a − 1, from 2.5
     obtain ⟨k, s2_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a - 1))).mp s2_5
     -- 2.7. algebra, from 1, 2.6

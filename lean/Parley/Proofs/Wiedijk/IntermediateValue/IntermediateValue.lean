@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import OrderTactics
 public import SetTactics
 public import SubstTactics
@@ -14,7 +15,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -84,7 +84,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have s14 : (f c < 0 ∨ f c = 0) ∨ 0 < f c := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c))
   -- 15. def:continuous-on, from H5
   have r89_1 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
-  have s15 : ∀ c' ∈ (Set.Icc a b : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c') < δ → abs (f x - f c') < ε)) := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) r89_1)).mp hH5
+  have s15 : ∀ c' ∈ (Set.Icc a b : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c') < δ → abs (f x - f c') < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) r89_1)).mp hH5
   -- 16. cases, from 14
   have s16 : f c = 0 := by
     rcases s14 with (hC1 | hC2) | hC3
@@ -112,7 +112,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.5. obtain δ from line 16.4
       obtain ⟨δ, ⟨s16_5a, s16_5b⟩⟩ := s16_4
       set x₁ : ℝ := min b (c + δ / 2) with hD2
-      have hD2_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)); parley_set_side)
+      have hD2_kind : True := by trivial
       -- 16.6. inequalities
       have s16_6 : δ / 2 > 0 := by parley_order
       -- 16.7. inequalities
@@ -183,7 +183,8 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         have s16_29_2 : f s < 0 := by
           try simp only [hD1] at *
           try push_cast at *
-          first | linarith [((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2] | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2; push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2 | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2; parley_set_side)
+          have hI : f s < 0 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).2)
+          exact hI
         -- 16.29.3. inequalities, from S2
         have s16_29_3 : c - δ < s := by parley_order
         -- 16.29.4. inequalities, from 10, 16.28

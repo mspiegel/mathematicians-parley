@@ -44,7 +44,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
     intro m hK1
     intro hA1
     -- 1.5. mun:le-cases x := m, y := n + 1, from A1
-    have s1_5 : m < n + 1 ∨ m = n + 1 := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := m) (y := n + 1))).mp hA1
+    have s1_5 : m < n + 1 ∨ m = n + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := m) (y := n + 1))).mp hA1
     -- 1.6. cases, from 1.5
     rcases s1_5 with hC1 | hC2
     · skip

@@ -12,7 +12,6 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Set
@@ -28,7 +27,7 @@ theorem a_function_and_its_length_exhibited (n : ℤ) (hH1 : 0 < n) :
     (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → f i = 1))) := by
   set g : ℤ → ℤ := fun i : ℤ => (1 : ℤ) with hD1
   -- 1. D1
-  have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → g i = 1 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → g i = 1 := by simp (disch := omega) only [hD1, implies_true]
   -- 2. membership, from D1
   have s2 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → 0 < g i := by intro i h_i; parley_set_side
   -- 3. mun:function-into, from 2

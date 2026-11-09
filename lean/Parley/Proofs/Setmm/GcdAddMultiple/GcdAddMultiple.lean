@@ -33,9 +33,9 @@ theorem gcd_add_multiple (K : ℤ) (M : ℤ) (hH2 : 0 < M) (N : ℤ) :
   -- 4. substitute (N + K·M) mod M = N mod M (line 3) into line 1
   have s4 : (Int.gcd (N % M) M : ℤ) = (Int.gcd (N + K * M) M : ℤ) := by parley_subst_at s3 s1
   -- 5. calculation
-  calc (Int.gcd M N : ℤ) = (Int.gcd N M : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := M)).symm
-    _ = (Int.gcd (N % M) M : ℤ) := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) (by parley_side)).symm
-    _ = (Int.gcd (N + K * M) M : ℤ) := by parley_side
+  calc (Int.gcd M N : ℤ) = (Int.gcd N M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := M)).symm
+    _ = (Int.gcd (N % M) M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) (by parley_side)).symm
+    _ = (Int.gcd (N + K * M) M : ℤ) := by exact s4
     _ = (Int.gcd M (N + K * M) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N + K * M) (b := M))
 
 end Parley.Proofs.Setmm.GcdAddMultiple.GcdAddMultiple

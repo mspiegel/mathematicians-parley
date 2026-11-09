@@ -1,0 +1,417 @@
+lean/Parley/Stdlib/Calculus/FirstTermsBounded.lean	1.2.5	substitute: equation put in
+lean/Parley/Stdlib/Calculus/FirstTermsBounded.lean	1.8.4.6	substitute: equation put in
+lean/Parley/Stdlib/Calculus/IncreasingTerms.lean	1.3	substitute: equation put in
+lean/Parley/Stdlib/Calculus/IncreasingTerms.lean	1.6.6	substitute: equation put in
+lean/Parley/Stdlib/Divisibility/CoprimeDivides.lean	2	substitute: equation put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.3	named numbers put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.5	row: equation put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.11	named numbers put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.12	named numbers put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.12	named numbers put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.12	named numbers put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.13	substitute: equation put in
+lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.15	substitute: equation put in
+lean/Parley/Stdlib/Sums/ProductConstant.lean	1.3	cited: claim counts a set
+lean/Parley/Stdlib/Sums/ProductConstant.lean	1.3	row: equation put in
+lean/Parley/Stdlib/Sums/ProductConstant.lean	1.9	cited: claim counts a set
+lean/Parley/Stdlib/Sums/ProductConstant.lean	1.12	cited: claim counts a set
+lean/Parley/Stdlib/Sums/ProductConstant.lean	1.12	row: equation put in
+lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingValueEven.lean	2	substitute: equation put in
+lean/Parley/Proofs/Hammack/AlternatingSignBijection/AlternatingValueOdd.lean	2	substitute: equation put in
+lean/Parley/Proofs/Hammack/BinomialSumWithPowersOfTwo/BinomialSumWithPowersOfTwo.lean	5	cited: item and claim in different types
+lean/Parley/Proofs/Hammack/BinomialSumWithPowersOfTwo/BinomialSumWithPowersOfTwo.lean	5	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/BinomialSumWithPowersOfTwo/BinomialSumWithPowersOfTwo.lean	5	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/BinomialSumWithPowersOfTwo/BinomialSumWithPowersOfTwo.lean	5	substitute: equation put in
+lean/Parley/Proofs/Hammack/ChooseOfChoose/ChooseOfChoose.lean	12	row: equation put in
+lean/Parley/Proofs/Hammack/ChooseOfChoose/ChooseOfChoose.lean	19	row: equation put in
+lean/Parley/Proofs/Hammack/ChooseTwoEven/ChooseTwoFormula.lean	1.2	cited: item and claim in different types
+lean/Parley/Proofs/Hammack/ChooseTwoEven/ChooseTwoFormula.lean	1.2	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/ChooseTwoEven/ChooseTwoFormula.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/ChooseTwoThenChooseTheRest/ChooseTwoThenChooseTheRest.lean	19	row: equation put in
+lean/Parley/Proofs/Hammack/ConstantSequence/ConstantSequence.lean	1.1.2	cited: item and claim in different types
+lean/Parley/Proofs/Hammack/CoprimeToAProduct/CoprimeToAProduct.lean	2	substitute: equation put in
+lean/Parley/Proofs/Hammack/CoprimeToAProduct/CoprimeToAProduct.lean	4	substitute: equation put in
+lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	7	substitute: equation put in
+lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	15	substitute: equation put in
+lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	19	cited: ring atoms apart
+lean/Parley/Proofs/Hammack/FiveDividesPowerOfTwoMultiple/FiveDividesPowerOfTwoMultiple.lean	1.2	substitute: equation put in
+lean/Parley/Proofs/Hammack/GcdIntegerNatural/GcdIntegerNatural.lean	6.6	substitute: equation put in
+lean/Parley/Proofs/Hammack/GcdIntegerNatural/GcdIntegerNatural.lean	6.9	substitute: equation put in
+lean/Parley/Proofs/Hammack/GcdIntegerNatural/GcdIntegerNatural.lean	6.9	substitute: equation put in
+lean/Parley/Proofs/Hammack/GcdIntegerNatural/GcdIntegerNatural.lean	6.9	substitute: equation put in
+lean/Parley/Proofs/Hammack/GeometricSumBaseThree/GeometricSumBaseThree.lean	1.1	row: read off a cited line
+lean/Parley/Proofs/Hammack/GeometricSumBaseThree/GeometricSumBaseThree.lean	1.4	row: read off a cited line
+lean/Parley/Proofs/Hammack/GeometricSumBaseThree/GeometricSumBaseThree.lean	1.4	substitute: equation put in
+lean/Parley/Proofs/Hammack/GeometricSumBaseThree/GeometricSumBaseThree.lean	2	row: read off a cited line
+lean/Parley/Proofs/Hammack/HarmonicLowerBound/HarmonicDoubling.lean	15	substitute: equation put in
+lean/Parley/Proofs/Hammack/HarmonicLowerBound/HarmonicLowerBound.lean	2.5	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/InverseSquaresBounded/InverseSquaresBounded.lean	2.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/InverseSquaresBounded/InverseSquaresBounded.lean	2.17	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.13	row: equation put in
+lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.13	row: equation put in
+lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.15	substitute: equation put in
+lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.17	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/LcmEqualsFirst/LcmEqualsFirst.lean	5.6.1	substitute: equation put in
+lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/PowerOfTwoEven.lean	3	row: equation put in
+lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/PowerOfTwoEven.lean	5	named numbers put in
+lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/LogThreeOverTwoIrrational.lean	2.6	cited: item and claim in different types
+lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/LogThreeOverTwoIrrational.lean	2.6	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/LogThreeOverTwoIrrational.lean	2.6	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/LogThreeOverTwoIrrational.lean	2.10	named numbers put in
+lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/LogThreeOverTwoIrrational.lean	2.11	substitute: equation put in
+lean/Parley/Proofs/Hammack/MersennePrimeExponent/PrimeExponent.lean	4.9	substitute: equation put in
+lean/Parley/Proofs/Hammack/MersennePrimeExponent/PrimeExponent.lean	4.9	row: read off a cited line
+lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/NinePowerIsThreePower.lean	3	row: equation put in
+lean/Parley/Proofs/Hammack/OneMinusHalfPowerLimit/OneMinusHalfPowerLimit.lean	2.2.2	cited: item and claim in different types
+lean/Parley/Proofs/Hammack/OneMinusHalfPowerLimit/OneMinusHalfPowerLimit.lean	2.2.2	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/OneMinusHalfPowerLimit/OneMinusHalfPowerLimit.lean	2.2.2	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/PrimeByTrialDivision/PrimeByTrialDivision.lean	1.11.7	cited: item and claim in different types
+lean/Parley/Proofs/Hammack/ProductOfOneMinusHalves/ProductOfOneMinusHalves.lean	2.10	substitute: equation put in
+lean/Parley/Proofs/Hammack/PronicSum/PronicSum.lean	1.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/PronicSum/PronicSum.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/RationalTimesIrrational/RationalTimesIrrational.lean	1.4	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/ReciprocalProductSum/ReciprocalProductSum.lean	2.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/ReciprocalProductSum/ReciprocalProductSum.lean	2.2	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/ReciprocalSquareNoLimit/ReciprocalSquareNoLimit.lean	21	substitute: equation put in
+lean/Parley/Proofs/Hammack/ScaledGcdBound/GcdPositive.lean	3.1	substitute: equation put in
+lean/Parley/Proofs/Hammack/ScaledGcdBound/GcdPositive.lean	3.4	substitute: equation put in
+lean/Parley/Proofs/Hammack/ShiftedPronicSum/ShiftedPronicSum.lean	1.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/ShiftedPronicSum/ShiftedPronicSum.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SqrtOfOddPowerOfThree/SqrtOfOddPowerOfThree.lean	6	named numbers put in
+lean/Parley/Proofs/Hammack/SqrtOfOddPowerOfThree/SqrtOfOddPowerOfThree.lean	10	substitute: equation put in
+lean/Parley/Proofs/Hammack/SqrtOfOddPowerOfThree/SqrtOfOddPowerOfThree.lean	14	row: read off a cited line
+lean/Parley/Proofs/Hammack/SquareOfSumEqualsSumOfCubes/SquareOfSumEqualsSumOfCubes.lean	1.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SquareOfSumEqualsSumOfCubes/SquareOfSumEqualsSumOfCubes.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SumOfCubes/SumOfCubes.lean	1.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SumOfCubes/SumOfCubes.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SumOfFactorialQuotients/FactorialQuotientStep.lean	4	substitute: equation put in
+lean/Parley/Proofs/Hammack/SumOfFactorialQuotients/SumOfFactorialQuotients.lean	2.3	substitute: equation put in
+lean/Parley/Proofs/Hammack/SumOfFactorialQuotients/SumOfFactorialQuotients.lean	2.3	substitute: equation put in
+lean/Parley/Proofs/Hammack/SumOfFactorialQuotients/SumOfFactorialQuotients.lean	2.6	substitute: equation put in
+lean/Parley/Proofs/Hammack/SumOfFactorialQuotients/SumOfFactorialQuotients.lean	2.6	substitute: equation put in
+lean/Parley/Proofs/Hammack/SumOfFirstNaturals/SumOfFirstNaturals.lean	1.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SumOfFirstNaturals/SumOfFirstNaturals.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SumOfSquares/SumOfSquares.lean	1.1	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/SumOfSquares/SumOfSquares.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/WeightedTerm.lean	15	substitute: equation put in
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/WeightedTerm.lean	16	substitute: equation put in
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/WeightedTerm.lean	16	substitute: equation put in
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/BinomialRowSum.lean	2.3	substitute: equation put in
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/BinomialRowSum.lean	4	cited: item and claim in different types
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/BinomialRowSum.lean	4	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/BinomialRowSum.lean	4	exponents taken to ℕ
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/BinomialRowSum.lean	4	substitute: equation put in
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/WeightedRowSum.lean	6	cited: ring atoms apart
+lean/Parley/Proofs/Hammack/WeightedBinomialSum/WeightedBinomialSum.lean	2	row: equation put in
+lean/Parley/Proofs/Identities/CosinePlusPi/CosinePlusPi.lean	1	cited: item and claim in different types
+lean/Parley/Proofs/Identities/CosinesAroundAThirdOfPi/CosinesAroundAThirdOfPi.lean	1	cited: item and claim in different types
+lean/Parley/Proofs/Identities/CosinesAroundAThirdOfPi/CosinesAroundAThirdOfPi.lean	2	cited: item and claim in different types
+lean/Parley/Proofs/Identities/ExpOfLnPlusOne/ExpOfLnPlusOne.lean	1	cited: item and claim in different types
+lean/Parley/Proofs/Identities/SineOfHalfPiMinus/SineOfHalfPiMinus.lean	4	cited: item and claim in different types
+lean/Parley/Proofs/Identities/SqrtTwoPlusSqrtThree/SqrtTwoPlusSqrtThree.lean	2	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Identities/SqrtTwoPlusSqrtThree/SqrtTwoPlusSqrtThree.lean	3	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Identities/SqrtTwoPlusSqrtThree/SqrtTwoPlusSqrtThree.lean	4.1	named numbers put in
+lean/Parley/Proofs/Setmm/AOverNLimit/AOverNTendsToZero.lean	5.4.5	row: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseAll.lean	5	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseOne.lean	2.7	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseOne.lean	2.7	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseNextRow.lean	6	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseNextRow.lean	6	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	2.3.13	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	2.3.13	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	2.3.13	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialBasics/ChooseComplement.lean	2.9	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialCoefficientsSum/BinomialCoefficientsSum.lean	3	substitute: equation put in
+lean/Parley/Proofs/Setmm/BinomialCoefficientsSum/BinomialCoefficientsSum.lean	3	cited: item and claim in different types
+lean/Parley/Proofs/Setmm/BinomialCoefficientsSum/BinomialCoefficientsSum.lean	3	exponents taken to ℕ
+lean/Parley/Proofs/Setmm/BinomialCoefficientsSum/BinomialCoefficientsSum.lean	3	exponents taken to ℕ
+lean/Parley/Proofs/Setmm/ChooseOneLess/ChooseOneLess.lean	2.6	substitute: equation put in
+lean/Parley/Proofs/Setmm/ChooseOneLess/ChooseOneLess.lean	2.6	substitute: equation put in
+lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.3.11	substitute: equation put in
+lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.3.11	substitute: equation put in
+lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.3.12	substitute: equation put in
+lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.6	substitute: equation put in
+lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.6	substitute: equation put in
+lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.6	cited: item and claim in different types
+lean/Parley/Proofs/Setmm/ConstantFunctionContinuous/ConstantFunctionContinuous.lean	1.1.1.4	cited: item and claim in different types
+lean/Parley/Proofs/Setmm/ConstantSequenceLimit/ConstantSequenceLimit.lean	1.1.2	cited: item and claim in different types
+lean/Parley/Proofs/Setmm/HalvesSeries/HalvesSeries.lean	2.5	substitute: equation put in
+lean/Parley/Proofs/Setmm/HalvesSeries/HalvesSeries.lean	3.2.13	row: equation put in
+lean/Parley/Proofs/Setmm/ImageAsASelection/ImageAsASelection.lean	3.1	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Setmm/IrrationalPlusRational/IrrationalPlusRational.lean	3.5	casts the cast table does not settle
+lean/Parley/Proofs/Setmm/IrrationalTimesRational/IrrationalTimesRational.lean	3.1	named numbers put in
+lean/Parley/Proofs/Setmm/JoinedFunctions/JoinedFunctions.lean	1.2.1	header function put in
+lean/Parley/Proofs/Setmm/JoinedFunctions/JoinedFunctions.lean	1.2.7	header function put in
+lean/Parley/Proofs/Setmm/Parity/OddSquareOverEight.lean	1	substitute: equation put in
+lean/Parley/Proofs/Setmm/Parity/OddSquareOverEight.lean	1	casts the cast table does not settle
+lean/Parley/Proofs/Setmm/PrimeNotDividesFactorial/PrimeNotDividesFactorial.lean	2.1.2	substitute: equation put in
+lean/Parley/Proofs/Setmm/PrimeNotDividesFactorial/PrimeNotDividesFactorial.lean	4.3.1	substitute: equation put in
+lean/Parley/Proofs/Setmm/RationalClosure/RationalSum.lean	4	casts the cast table does not settle
+lean/Parley/Proofs/Setmm/RationalClosure/RationalNegative.lean	3	casts the cast table does not settle
+lean/Parley/Proofs/Setmm/RationalClosure/RationalProduct.lean	4	casts the cast table does not settle
+lean/Parley/Proofs/Setmm/RationalClosure/RationalReciprocal.lean	2.1	substitute: equation put in
+lean/Parley/Proofs/Setmm/RationalClosure/IrrationalSum.lean	2.1	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Setmm/RationalClosure/IrrationalProduct.lean	2.1	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Setmm/RemainderFacts/RemainderShifts.lean	4	substitute: equation put in
+lean/Parley/Proofs/Setmm/RemainderFacts/RemainderOfSmall.lean	6	substitute: equation put in
+lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.4	cited: item and claim in different types
+lean/Parley/Proofs/Setmm/ShiftByRational/ShiftByRational.lean	2.2	substitute: equation put in
+lean/Parley/Proofs/Setmm/ShiftByRational/ShiftByRational.lean	2.3	casts the cast table does not settle
+lean/Parley/Proofs/Setmm/ShiftByRational/ShiftByRational.lean	2.6	substitute: equation put in
+lean/Parley/Proofs/Setmm/ShiftByRational/ShiftByRational.lean	2.7	casts the cast table does not settle
+lean/Parley/Proofs/Setmm/SizeIsNatural/SizeIsNatural.lean	3	substitute: equation put in
+lean/Parley/Proofs/Setmm/SizeWithoutAPair/SizeWithoutAPair.lean	3	cited: claim counts a set
+lean/Parley/Proofs/Setmm/SizeZeroOneOrMore/SizeZeroOneOrMore.lean	2.1	cited: claim counts a set
+lean/Parley/Proofs/Setmm/SizeZeroOneOrMore/SizeZeroOneOrMore.lean	2.1	cited: claim counts a set
+lean/Parley/Proofs/Setmm/SizeZeroOneOrMore/SizeZeroOneOrMore.lean	2.2	cited: claim counts a set
+lean/Parley/Proofs/Setmm/SizeZeroOneOrMore/SizeZeroOneOrMore.lean	2.2	cited: claim counts a set
+lean/Parley/Proofs/Setmm/TwoElements/TwoElements.lean	13	cited: claim counts a set
+lean/Parley/Proofs/Setmm/WholeNumberBySize/WholeNumberBySize.lean	1	named numbers put in
+lean/Parley/Proofs/Setmm/WholeNumberBySize/WholeNumberBySize.lean	2	named numbers put in
+lean/Parley/Proofs/Setmm/WholeNumberBySize/WholeNumberBySize.lean	4.5	named numbers put in
+lean/Parley/Proofs/Wiedijk/AmGm/AmGmPower.lean	1.20	casts the cast table does not settle
+lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	5	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	5	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	5	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Ballot/GoodFinite.lean	2.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/TieAtTheEnd.lean	2.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	2.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	2.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.4	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.4	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	8.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	8.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	8.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	24	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	25	row: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	8.3	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	12	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	12	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	18	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	20.3	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	20.3	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	22	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	23	cited: toNat in different places
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	23	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	23	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	26	cited: toNat in different places
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	26	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	26	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	26	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	27.4	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	cited: ring atoms apart
+lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	1.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	1.3.2	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	4.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	6.1	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.2	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.5	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Wiedijk/DeMoivre/DeMoivre.lean	2.4	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/DeMoivre/DeMoivre.lean	2.8	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/DeMoivre/DeMoivre.lean	2.8	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/DeMoivre/DeMoivre.lean	2.8	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/DeMoivre/DeMoivre.lean	2.8	casts the cast table does not settle
+lean/Parley/Proofs/Wiedijk/ErdosSzekeres/ExtendRun.lean	4.5.3	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/ErdosSzekeres/ExtendRun.lean	5.3.6	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	16	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/GeometricSeries/GeometricSum.lean	1.1	cited: toNat in different places
+lean/Parley/Proofs/Wiedijk/GeometricSeries/GeometricSum.lean	1.1	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/GeometricSeries/GeometricSum.lean	1.1	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicBlock.lean	15	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean	2.2	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean	2.2	cited: casts push_cast does not move
+lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean	2.7	casts the cast table does not settle
+lean/Parley/Proofs/Wiedijk/Leibniz/PowerIntegral.lean	19.3	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/Leibniz/PowerIntegral.lean	29	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Leibniz/PowerIntegral.lean	30	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Leibniz/IntegralOfArctanDerivative.lean	12.4	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/Leibniz/IntegralRecurrence.lean	1.2	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.4	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.8	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.8	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Leibniz/Leibniz.lean	3.2.8	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	6	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	7	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	8.2	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	9.2	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.5	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.7	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.14	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.14	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.14	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	3.19	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	4	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.3	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.8	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtLeast.lean	2.3	row: equation put in
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean	2.5	row: equation put in
+lean/Parley/Proofs/Wiedijk/LiouvilleNumber/ScaledSumInteger.lean	10	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	3	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.1	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.1	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.2	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	5	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	5	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	cited: toNat in different places
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	10	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	10	named numbers put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	10	definition read backwards
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	5	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	5	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	5	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	23.2	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	23.2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	23.2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	31	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	31	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	31	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	3.2	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	4.2.1	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	4.2.5	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.1	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.5	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	10	define by cases: the case not recorded
+lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeFactorisation.lean	1.11	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/Ptolemy/Ptolemy.lean	3	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/PythagoreanTriples/LegHypotenuseCoprime.lean	7	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/PythagoreanTriples/PrimitiveTriple.lean	6.6	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/PythagoreanTriples/PrimitiveTriple.lean	65	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Ramsey/OnePointPart.lean	6.2	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Ramsey/OnePointPart.lean	6.3	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Ramsey/GrowByOne.lean	4.5	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/Ramsey/RamseyStep.lean	32.10.5	cited: claim counts a set
+lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean	3.13	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean	3.15	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean	10.1.3	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean	10.1.3	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/Sqrt2Irrational/LowestTerms.lean	2.3	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/SumFormula/SumFormula.lean	1.1	casts the cast table does not settle
+lean/Parley/Proofs/Wiedijk/SumFormula/SumFormula.lean	1.3	casts the cast table does not settle
+lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	1.2	row: equation put in
+lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	2	cited: casts push_cast does not move
+lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/TriangularReciprocals/TriangularReciprocals.lean	5.1	cited: casts push_cast does not move
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.3	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.1	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.2	cited: item and claim in different types
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.2	exponents taken to ℕ
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.3	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.3	cited: other shape, met otherwise than written
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.2	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.4	row: equation put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.5	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.6	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.8	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.8	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.8	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.9	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.9	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.10	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.10	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.10	substitute: equation put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.12	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	row: read off a cited line
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	named numbers put in
+lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.15.4	row: read off a cited line
+lean/Parley/Tests/Elaborator/ADefineAtEveryMemberOfARange/ADefineAtEveryMemberOfARange.lean	1	header function put in
+lean/Parley/Tests/Elaborator/ADefineFillingACitedFunction/ADefineFillingACitedFunction.lean	1	header function put in
+lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	2.4	header function put in
+lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.8	header function put in
+lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.9	header function put in
+lean/Parley/Tests/Elaborator/ADividesFoldWithItsWitness/ADividesFoldWithItsWitness.lean	2	named numbers put in
+lean/Parley/Tests/Elaborator/ADividesFoldWithItsWitness/ADividesFoldWithItsWitness.lean	2	named numbers put in
+lean/Parley/Tests/Elaborator/ADividesFoldWithItsWitness/ADividesFoldWithItsWitness.lean	3	named numbers put in
+lean/Parley/Tests/Elaborator/AFamilyOfPartsByADefine/AFamilyOfPartsIsFinite.lean	2.1	cited: claim counts a set
+lean/Parley/Tests/Elaborator/AFamilyOfPartsByADefine/AFamilyAtZero.lean	1	cited: claim counts a set
+lean/Parley/Tests/Elaborator/AForAllLineReadInABlock/AForAllLineInACalculationLink.lean	1.1	row: read off a cited line
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	1	named numbers put in
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.1	named numbers put in
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.2	cited: item and claim in different types
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.2	exponents taken to ℕ
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.2	exponents taken to ℕ
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.3	named numbers put in
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.3	cited: other shape, met otherwise than written
+lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.6	substitute: equation put in
+lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	2.4	header function put in
+lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.8	header function put in
+lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.9	header function put in
+lean/Parley/Tests/Elaborator/ANamedTermIsANumber/AnOddSquareOverEight.lean	1	casts the cast table does not settle
+lean/Parley/Tests/Elaborator/APhraseDefined/SixIsTriangular.lean	2	casts the cast table does not settle
+lean/Parley/Tests/Elaborator/APhraseImported/TenIsTriangular.lean	2	casts the cast table does not settle
+lean/Parley/Tests/Elaborator/AProductOfADefineSaidOnce/AProductOfADefineInTheHeader.lean	2	header function put in
+lean/Parley/Tests/Elaborator/ASineLessACosineInTheSecondQuadrant/ASineLessACosineInTheSecondQuadrant.lean	11	cited: item and claim in different types
+lean/Parley/Tests/Elaborator/AnIdentityASubstitutionMakes/AnIdentityASubstitutionMakesAtAValue.lean	1	substitute: equation put in
+lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/APairCitedInTheOtherOrder.lean	1	cited: ring atoms apart
+lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/APairPairedByTheRestOfTheClaim.lean	1	cited: other shape, met otherwise than written
+lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/APairInsideASubset.lean	1	cited: other shape, met otherwise than written
+lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/APairFromLines.lean	1	cited: ring atoms apart
+lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/ATripleInAnEquation.lean	1	cited: ring atoms apart
+lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/FourInAnEquation.lean	1	cited: ring atoms apart
+lean/Parley/Tests/Elaborator/ModOnTheReals/TheFractionalPart.lean	1	cited: ring atoms apart
+lean/Parley/Tests/Elaborator/ReadingDefines/ADefineAppliedAsASubstitutedEquation.lean	1	header function put in
+lean/Parley/Tests/Elaborator/ReadingDefines/ADefineAppliedSubstitutedIntoALine.lean	1	header function put in
+lean/Parley/Tests/Elaborator/ReadingSentences/ASecondSentenceByMembership.lean	1	named numbers put in
+lean/Parley/Tests/Elaborator/ReadingSentences/AnAndPartByMembership.lean	1	named numbers put in
+lean/Parley/Tests/Elaborator/RecordsProductsGcdsPreimages/APowerOfAPositiveBase.lean	1	cited: item and claim in different types
+lean/Parley/Tests/Elaborator/RecordsProductsGcdsPreimages/APowerOfAPositiveBase.lean	1	exponents taken to ℕ
+lean/Parley/Tests/Elaborator/RecordsProductsGcdsPreimages/APowerOfAPositiveBase.lean	1	exponents taken to ℕ
+lean/Parley/Tests/Elaborator/SetsADefineNames/AConjunctOfAProperty.lean	1	cited: other shape, met otherwise than written
+lean/Parley/Tests/Elaborator/SubstituteRows/SubstituteRowsFromALine.lean	1	row: equation put in
+lean/Parley/Tests/Elaborator/TextbookExerciseShapes/AOneDroppedFromTheMiddle.lean	2	substitute: equation put in
+lean/Parley/Tests/Notations/Calculus/OneOverNDoesNotTendToOne.lean	2.4	casts the cast table does not settle
+lean/Parley/Tests/Notations/Continuity/AStepIsNotContinuous.lean	3	header function put in
+lean/Parley/Tests/Notations/Continuity/AStepIsNotContinuous.lean	4.15	header function put in
+lean/Parley/Tests/Notations/Counting/FactorialOfTwo.lean	3	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/FactorialOfTwo.lean	5	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	3	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	5	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	8	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	10	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/ChooseFourTwo.lean	5	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/ChooseFourTwo.lean	6	substitute: equation put in
+lean/Parley/Tests/Notations/Counting/ChooseFourTwo.lean	7	substitute: equation put in
+lean/Parley/Tests/Notations/Functions/AValueOfALine.lean	1	header function put in
+lean/Parley/Tests/Notations/Functions/ALineIsOneToOne.lean	2.1	header function put in
+lean/Parley/Tests/Notations/Functions/ALineIsOneToOne.lean	2.2	header function put in
+lean/Parley/Tests/Notations/Functions/ALineIsOnto.lean	2.1	header function put in
+lean/Parley/Tests/Notations/Functions/ALineIsOneToOneAndOnto.lean	3.1	header function put in
+lean/Parley/Tests/Notations/Functions/ASquareIsNotOneToOne.lean	1	header function put in
+lean/Parley/Tests/Notations/Functions/ASquareIsNotOneToOne.lean	2	header function put in
+lean/Parley/Tests/Notations/Functions/ASquareIsNotOnto.lean	1.4	header function put in
+lean/Parley/Tests/Notations/Powers/EToARealPower.lean	1	cited: item and claim in different types
+lean/Parley/Tests/Notations/Powers/ARealPowerOfARealPower.lean	1	cited: item and claim in different types
+lean/Parley/Tests/Notations/Sets/ARepeatCountsOnce.lean	3	cited: claim counts a set
+lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	5	substitute: equation put in
+lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	9	substitute: equation put in
+lean/Parley/Tests/Notations/Trigonometry/CosineOfASumAtZero.lean	1	cited: item and claim in different types
+lean/Parley/Tests/Stdlib/Sums/Range.lean	1	cited: other shape, met otherwise than written
+lean/Parley/Tests/Stdlib/Sums/Range0.lean	1	cited: other shape, met otherwise than written

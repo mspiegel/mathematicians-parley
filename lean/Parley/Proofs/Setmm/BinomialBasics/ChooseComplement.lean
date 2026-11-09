@@ -58,19 +58,19 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     have s2_8 : 0 < (LeanBridges.Counting.factorial K : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side))
     -- 2.9. calculation
     try qify
-    calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := K)) hC1
+    calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := K)) hC1
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial K : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by parley_ring
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - (N - K)) : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by
           have s2_6_w : (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) = (LeanBridges.Counting.factorial K : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_6; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s2_6_w | parley_subst s2_6
-      _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := N - K)) s2_4).symm
+      _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := by exact ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := N - K)) s2_4).symm
   · skip
     -- 2.10. contradiction
     have s2_10 : ¬ N - K ∈ Finset.Icc (0 : ℤ) N := by
       intro hS
       -- 2.10.1. def:range-between k := N − K, a := 0, b := N, from S
-      have s2_10_1a : 0 ≤ N - K := (((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mp hS).1
-      have s2_10_1b : N - K ≤ N := (((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mp hS).2
+      have s2_10_1a : 0 ≤ N - K := by exact (((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mp hS).1
+      have s2_10_1b : N - K ≤ N := by exact (((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mp hS).2
       -- 2.10.2. inequalities
       have s2_10_2 : K ≥ 0 := by parley_order
       -- 2.10.3. inequalities
@@ -82,6 +82,6 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
       exact s2_10_5 s2_10_4
     -- 2.11. calculation
     calc (LeanBridges.Counting.choose N K : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2)
-      _ = (LeanBridges.Counting.choose N (N - K) : ℤ) := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10).symm
+      _ = (LeanBridges.Counting.choose N (N - K) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10).symm
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseComplement

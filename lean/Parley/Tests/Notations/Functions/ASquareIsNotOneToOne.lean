@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -30,13 +31,15 @@ theorem a_square_is_not_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x
   have s2 : f 1 = 1 ^ 2 := by (try simp only [hD1]); first | done | parley_set_side
   -- 3. calculation
   have s3 : f (-1) = f 1 := by
-    calc f (-1) = (-1) ^ 2 := by parley_set_side
+    calc f (-1) = (-1) ^ 2 := by exact s1
       _ = 1 ^ 2 := by norm_num
-      _ = f 1 := by parley_set_side
+      _ = f 1 := by exact s2.symm
   -- 4. contradiction
   intro hS
   -- 4.1. def:one-to-one, from S
-  have s4_1 : ∀ s : ℝ, ∀ t : ℝ, f s = f t → s = t := by first | exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2 | exact ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2 | (have h := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2; parley_set_side)
+  have s4_1 : ∀ s : ℝ, ∀ t : ℝ, f s = f t → s = t := by
+    have hI : ∀ s : ℝ, ∀ t : ℝ, f s = f t → s = t := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2)
+    exact hI
   -- 4.2. instantiate s := −1, t := 1 in line 4.1, from 3
   have s4_2 : (-1 : ℝ) = 1 := by exact (s4_1 (-1 : ℝ) (1 : ℝ) (by parley_set_side))
   exact absurd s4_2 (by norm_num)

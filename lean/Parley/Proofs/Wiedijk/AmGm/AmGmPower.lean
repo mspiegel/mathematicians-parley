@@ -2,9 +2,9 @@ module
 
 public import AlgebraTactics
 public import Functions
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -25,7 +25,6 @@ public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -33,7 +32,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
@@ -112,7 +110,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
         try push_cast at *
         exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) (y := (j : ℝ) + 1) (by parley_side) (by parley_side))
       -- 1.18. mun:le-cases, from 1.15
-      have s1_18 : 0 < A ∨ 0 = A := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (0 : ℝ)) (y := A))).mp s1_15
+      have s1_18 : 0 < A ∨ 0 = A := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (0 : ℝ)) (y := A))).mp s1_15
       -- 1.19. cases, from 1.18
       have s1_19 : A ^ j.toNat * x ≤ B ^ (j + 1).toNat := by
         rcases s1_18 with hC3 | hC4
@@ -127,14 +125,18 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.2. inequalities, from 1.19.1
           have s1_19_2 : r - 1 ≥ -1 := by parley_order
           -- 1.19.3. thm:bernoulli-inequality x := r − 1, n := j + 1, from 1.19.2
-          have s1_19_3 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by exact_mod_cast (Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := r - 1) (n := j + 1) (by parley_side) (by parley_side))
+          have s1_19_3 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by
+            have hI : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := r - 1) (n := j + 1) (by parley_side) (by parley_side)))
+            exact hI
           -- 1.19.4. substitute
           have s1_19_4 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by
             have c1 : 1 + (r - 1) = r := by parley_ring
             have row1 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by parley_subst_at c1 s1_19_3
             exact row1
           -- 1.19.5. mun:power-positive, from C3
-          have s1_19_5 : A ^ j.toNat > 0 := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); parley_side)
+          have s1_19_5 : A ^ j.toNat > 0 := by
+            have hI : 0 < A ^ j.toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)))
+            exact hI
           -- 1.19.6. mun:product-positive, from C3, 1.19.5
           have s1_19_6 : A ^ j.toNat * A > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := A ^ j.toNat) (y := A) (by parley_side) (by parley_side))
           -- 1.19.7. algebra, from D4
@@ -175,7 +177,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
               try simp only [hD1, hD2] at *
               try push_cast at *
               exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := ∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat) (c := a (j + 1)) (by parley_side) (by parley_side))
-          _ ≤ B ^ (j + 1).toNat := by first | parley_side | parley_line_toNat s1_19
+          _ ≤ B ^ (j + 1).toNat := by exact s1_19
           _ = ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by simp (disch := omega) only [hD3]
       first | exact_mod_cast s1_20 | (have h := s1_20; push_cast at h ⊢; exact h) | simpa using s1_20
   -- 2. instantiate j := n in line 1

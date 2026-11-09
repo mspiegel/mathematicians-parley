@@ -22,7 +22,7 @@ namespace Parley.Stdlib.Geometry.HalfTurn
 theorem half_turn (x : ℝ) (hH2 : x ∈ ({-Real.pi, Real.pi} : Set ℝ)) :
     (∃ j : ℤ, x = (2 * (j : ℝ) + 1) * Real.pi) := by
   -- 1. def:pair u := −π, w := π, from H2
-  have s1 : x = -Real.pi ∨ x = Real.pi := ((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp hH2
+  have s1 : x = -Real.pi ∨ x = Real.pi := by exact ((Parley.Items.Stdlib.Sets.def_pair (u := -Real.pi) (w := Real.pi) (x := x))).mp hH2
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip

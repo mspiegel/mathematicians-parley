@@ -125,7 +125,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 21. calculation
   have s21 : b * 2 = (s - t) * 2 := by
     calc b * 2 = c + b - (c - b) := by parley_ring
-      _ = (s - t) * 2 := by parley_side
+      _ = (s - t) * 2 := by exact s20.symm
   -- 22. mun:multiply-cancel a := b, b := s − t, c := 2, from 21
   have r287_1 : (2 : ℤ) ≠ 0 := by parley_arith
   have s22 : b = s - t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := b) (b := s - t) (c := (2 : ℤ)) (by parley_side) (by parley_side))
@@ -167,7 +167,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     calc w ^ 2 * 4 = (2 * w) ^ 2 := by parley_ring
       _ = a ^ 2 := by parley_subst s1
       _ = c ^ 2 - b ^ 2 := by linear_combination (norm := parley_norm) hH4
-      _ = 2 * s * (2 * t) := by parley_side
+      _ = 2 * s * (2 * t) := by exact s34.symm
       _ = s * t * 4 := by parley_ring
   -- 36. mun:multiply-cancel a := w², b := s·t, c := 4, from 35
   have r347_1 : (4 : ℤ) ≠ 0 := by parley_arith
@@ -201,14 +201,14 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have hD1_pos := hD1_kind
   -- 46. calculation
   have s46 : s = m ^ 2 := by
-    calc s = (Int.gcd s w : ℤ) ^ 2 := by parley_side
+    calc s = (Int.gcd s w : ℤ) ^ 2 := by exact s45a
       _ = m ^ 2 := by simp (disch := omega) only [hD1]
   have hD2_kind : 0 < (Int.gcd t w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := t) (by parley_side) (b := w) (by parley_side))
   set n : ℤ := (Int.gcd t w : ℤ) with hD2
   have hD2_pos := hD2_kind
   -- 47. calculation
   have s47 : t = n ^ 2 := by
-    calc t = (Int.gcd t w : ℤ) ^ 2 := by parley_side
+    calc t = (Int.gcd t w : ℤ) ^ 2 := by exact s45b
       _ = n ^ 2 := by simp (disch := omega) only [hD2]
   -- 48. substitute
   have s48 : w ^ 2 = m ^ 2 * n ^ 2 := by
@@ -224,7 +224,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 51. mun:square-equal x := w, y := m·n, from 50
   have r410_1 : w ≥ 0 := by parley_order
   have r410_2 : m * n ≥ 0 := by parley_order
-  have s51 : w = m * n := ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := w) (y := m * n) (by parley_side) (by parley_side))).mp s50
+  have s51 : w = m * n := by exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := w) (y := m * n) (by parley_side) (by parley_side))).mp s50
   -- 52. substitute w = m·n (line 51) into line 1
   have s52 : a = 2 * (m * n) := by parley_subst_at s51 s1
   -- 53. substitute
@@ -290,8 +290,8 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     have s67_5 : m ^ 2 - n ^ 2 = 2 * u * (m - n) := by parley_subst_at s67_3 s67_4
     -- 67.6. calculation
     have s67_6 : b = 2 * (u * (m - n)) := by
-      calc b = m ^ 2 - n ^ 2 := by parley_side
-        _ = 2 * u * (m - n) := by parley_side
+      calc b = m ^ 2 - n ^ 2 := by exact s53
+        _ = 2 * u * (m - n) := by exact s67_5
         _ = 2 * (u * (m - n)) := by parley_ring
     -- 67.7. def:even n := b, from 67.6
     have s67_7 : Even b := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mpr ⟨u * (m - n), s67_6⟩

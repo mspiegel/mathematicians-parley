@@ -81,7 +81,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.17. mun:reciprocal-order x := 5n, y := 9n − 3, from 1.2.6
       have r103_1 : 5 * n > 0 := by parley_side
       have r103_2 : 9 * n - 3 > 0 := by parley_side
-      have s1_2_17 : 1 / (9 * (n : ℚ) - 3) ≤ 1 / (5 * (n : ℚ)) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 5 * (n : ℚ)) (by parley_side) (y := 9 * (n : ℚ) - 3) (by parley_side))).mp (by parley_side)
+      have s1_2_17 : 1 / (9 * (n : ℚ) - 3) ≤ 1 / (5 * (n : ℚ)) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 5 * (n : ℚ)) (by parley_side) (y := 9 * (n : ℚ) - 3) (by parley_side))).mp (by parley_side)
       -- 1.2.18. inequalities
       have r108_1 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_18 : 5 * (1 / (9 * (n : ℚ) - 3)) ≤ 5 * (1 / (5 * (n : ℚ))) := by parley_order
@@ -90,7 +90,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.20. mun:reciprocal-order x := N, y := n, from A2
       have r117_1 : N > 0 := by parley_order
       have r117_2 : n > 0 := by parley_side
-      have s1_2_20 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s1_2_20 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
       -- 1.2.21. transitivity, from 1.2.10, 1.2.18, 1.2.19, 1.2.20, 1.1
       have r122_1 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_21 : a n - 2 / 3 < ε := by parley_order

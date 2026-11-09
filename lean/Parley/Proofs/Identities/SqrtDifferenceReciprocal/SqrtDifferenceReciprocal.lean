@@ -39,9 +39,9 @@ theorem sqrt_difference_reciprocal (x : ℝ) (hH2 : x ≥ 0) :
   have s4 : x < x + 1 := by parley_order
   -- 5. calculation
   have s5 : Real.sqrt x ^ 2 < Real.sqrt (x + 1) ^ 2 := by
-    calc Real.sqrt x ^ 2 = x := by parley_side
-      _ < x + 1 := by parley_side
-      _ = Real.sqrt (x + 1) ^ 2 := by parley_side
+    calc Real.sqrt x ^ 2 = x := by exact s3b
+      _ < x + 1 := by exact s4
+      _ = Real.sqrt (x + 1) ^ 2 := by exact s2b.symm
   -- 6. mun:square-less x := √x, y := √(x + 1), from 2, 3, 5
   have s6 : Real.sqrt x < Real.sqrt (x + 1) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt x) (y := Real.sqrt (x + 1)) (by parley_side) (by parley_side))).mpr s5
   -- 7. transitivity, from 3, 6

@@ -51,7 +51,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
       -- 1.3. calculation
       have r559_1 : 0 ≤ j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := j) (by parley_set_side))
       have s1_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
-        calc (1 : ℤ) = (LeanBridges.Counting.choose (j - 1) (0 : ℤ) : ℤ) := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := j - 1) (by parley_set_side)).symm
+        calc (1 : ℤ) = (LeanBridges.Counting.choose (j - 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := j - 1) (by parley_set_side)).symm
           _ = (LeanBridges.Counting.choose (j - 1) (1 - 1 : ℤ) : ℤ) := by norm_num
           _ = (LeanBridges.Counting.choose (1 + j - 2) (1 - 1 : ℤ) : ℤ) := by parley_subst s1_1
           _ ≤ (X.ncard : ℤ) := by parley_set_side)
@@ -77,7 +77,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         have s1_8_2 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hK4)
         -- 1.8.3. calculation
         have s1_8_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
-          calc (1 : ℤ) = (LeanBridges.Counting.choose k k : ℤ) := (Parley.Items.Stdlib.Counting.mun_binomial_all (n := k) (by parley_set_side)).symm
+          calc (1 : ℤ) = (LeanBridges.Counting.choose k k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := k) (by parley_set_side)).symm
             _ = (LeanBridges.Counting.choose k (k + 1 - 1) : ℤ) := by parley_subst s1_7
             _ = (LeanBridges.Counting.choose (k + 1 + 1 - 2) (k + 1 - 1) : ℤ) := by parley_subst s1_8_1
             _ ≤ (X.ncard : ℤ) := by parley_set_side)

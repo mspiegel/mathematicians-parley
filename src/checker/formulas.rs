@@ -6428,24 +6428,37 @@ fn define_link_meeting(link: &Link, known: &Known) -> Option<Option<Meeting>> {
     let claim = link.claim(known)?;
     let cite = &link.line.cite;
     let written = known.as_cited(&claim, &known.citing(std::slice::from_ref(cite)));
-    match (written.notation(), written.children.as_slice()) {
-        (EQUALITY, [one, other]) => Some(known.alike_how(one, other)),
+    let (one, other) = equation_sides(&written)?;
+    Some(known.alike_how(one, other))
+}
+
+/// The two sides of an equation, read under each "for all" it stands in:
+/// `A` and `B` of `for all x ∈ S, A = B`. None for a statement of another
+/// shape.
+fn equation_sides(statement: &Node) -> Option<(&Node, &Node)> {
+    match (statement.notation(), statement.children.as_slice()) {
+        (EQUALITY, [one, other]) => Some((one, other)),
+        (FOR_ALL, [_, _, body]) => equation_sides(body),
         _ => None,
     }
 }
 
 /// How each link citing a define, and each step whose reason is defines it
 /// names, meets the defines written out: the two sides of the equation it
-/// claims, by the link's line or the line of the step's reason
+/// claims, a "for all"'s at its body, or None where they do not meet; by the
+/// link's line or the line of the step's reason
 /// (`CheckedTheorem::define_links`).
-pub fn define_link_meetings(thm: &Theorem, known: &Known) -> IndexMap<usize, Meeting> {
+pub fn define_link_meetings(
+    thm: &Theorem,
+    known: &Known,
+) -> IndexMap<usize, Option<Meeting>> {
     let defines = define_labels(thm, known.env.scopes);
-    let mut out: IndexMap<usize, Meeting> = thm
+    let mut out: IndexMap<usize, Option<Meeting>> = thm
         .steps
         .iter()
         .flat_map(|step| chain_links(&step.just, &thm.path))
         .filter(|link| defines.contains(link.line.cite.as_str()))
-        .filter_map(|link| Some((link.line.line, define_link_meeting(&link, known)??)))
+        .filter_map(|link| Some((link.line.line, define_link_meeting(&link, known)?)))
         .collect();
     for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
         let Some(claim) = known.whole(step, &step.claim) else {
@@ -6459,12 +6472,8 @@ pub fn define_link_meetings(thm: &Theorem, known: &Known) -> IndexMap<usize, Mee
             .cloned()
             .collect();
         let written = known.as_cited(&claim, &known.citing(&cited));
-        if let (EQUALITY, [one, other]) =
-            (written.notation(), written.children.as_slice())
-        {
-            if let Some(met) = known.alike_how(one, other) {
-                out.insert(step.just.line, met);
-            }
+        if let Some((one, other)) = equation_sides(&written) {
+            out.insert(step.just.line, known.alike_how(one, other));
         }
     }
     out

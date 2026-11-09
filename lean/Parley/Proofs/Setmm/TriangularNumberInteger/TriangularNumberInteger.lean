@@ -8,13 +8,11 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/triangular-number-integer.proof by parley build lean. -/
@@ -37,7 +35,7 @@ theorem triangular_number_integer (n : ℤ) :
       have s2_1_w : (n : ℚ) = 2 * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
       linear_combination (norm := parley_norm) ((2 * (k : ℚ) + (n : ℚ) + 1) / ((2))) * s2_1_w
     -- 2.3. membership, from 2.2
-    exact ⟨k * (2 * k + 1), by first | (push_cast; linarith [s2_2]) | (rw [s2_2]; push_cast; ring) | (rw [← s2_2]; push_cast; ring) | exact s2_2 | exact s2_2.symm⟩
+    exact ⟨k * (2 * k + 1), by exact_mod_cast (s2_2).symm⟩
   · skip
     -- 2.4. obtain k: def:odd, from C2
     obtain ⟨k, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hC2
@@ -46,6 +44,6 @@ theorem triangular_number_integer (n : ℤ) :
       have s2_4_w : (n : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
       linear_combination (norm := parley_norm) ((2 * (k : ℚ) + (n : ℚ) + 2) / ((2))) * s2_4_w
     -- 2.6. membership, from 2.5
-    exact ⟨(2 * k + 1) * (k + 1), by first | (push_cast; linarith [s2_5]) | (rw [s2_5]; push_cast; ring) | (rw [← s2_5]; push_cast; ring) | exact s2_5 | exact s2_5.symm⟩
+    exact ⟨(2 * k + 1) * (k + 1), by exact_mod_cast (s2_5).symm⟩
 
 end Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger

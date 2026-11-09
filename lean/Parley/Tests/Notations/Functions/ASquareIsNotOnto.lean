@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -29,7 +30,9 @@ theorem a_square_is_not_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x ^ 2) 
   -- 1. contradiction
   intro hS
   -- 1.1. def:onto, from S
-  have s1_1 : ∀ y : ℝ, ∃ x : ℝ, y = f x := by first | exact (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2 | exact ((((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2 | (have h := (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2; parley_set_side)
+  have s1_1 : ∀ y : ℝ, ∃ x : ℝ, y = f x := by
+    have hI : ∀ y : ℝ, ∃ x : ℝ, y = f x := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2)
+    exact hI
   -- 1.2. instantiate y := −1 in line 1.1
   have s1_2 : ∃ x : ℝ, -1 = f x := by exact (s1_1 (-1 : ℝ))
   -- 1.3. obtain x from line 1.2
@@ -41,7 +44,7 @@ theorem a_square_is_not_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x ^ 2) 
   -- 1.6. calculation
   have s1_6 : -1 = x ^ 2 := by
     calc (-1 : ℝ) = f x := by parley_set_side
-      _ = x ^ 2 := by parley_set_side
+      _ = x ^ 2 := by exact s1_4
   -- 1.7. substitute −1 = x² (line 1.6) into line 1.5
   have s1_7 : (-1 : ℝ) ≥ 0 := by parley_subst_at s1_6 s1_5
   exact absurd s1_7 (by norm_num)

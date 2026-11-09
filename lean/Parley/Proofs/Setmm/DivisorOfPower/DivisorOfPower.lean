@@ -41,7 +41,7 @@ theorem divisor_of_power (K : ℤ) (M : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : K �
       -- 1.2. mun:divides-multiple e := K, a := M^m, x := M, from IH
       have s1_2 : K ∣ M ^ m.toNat * M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := K) (a := M ^ m.toNat) (x := M) hIH)
       -- 1.3. substitute
-      have c1 : M ^ m.toNat * M = M ^ (m + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := M) (m := m) (by parley_side)).symm
+      have c1 : M ^ m.toNat * M = M ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := M) (m := m) (by parley_side)).symm
       have row1 : K ∣ M ^ (m + 1).toNat := by parley_subst_at c1 s1_2
       exact row1
   -- 2. instantiate m := n in line 1

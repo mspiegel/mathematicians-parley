@@ -3,6 +3,7 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import PowerTactics
 public import RealTactics
@@ -60,7 +61,9 @@ theorem binomial_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
     -- 2.1. mun:one-power m := m − k
     have s2_1 : (1 ^ (m - k) : ℚ) = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := m - k))
     -- 2.2. mun:one-power m := k
-    have s2_2 : (1 ^ k.toNat : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := k))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); parley_side)
+    have s2_2 : (1 ^ k.toNat : ℤ) = 1 := by
+      have hI : (1 ^ k.toNat : ℤ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := k)))
+      exact hI
     -- 2.3. calculation
     calc (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) * 1 ^ k.toNat := by parley_subst s2_1
       _ = (LeanBridges.Counting.choose m k : ℚ) := by

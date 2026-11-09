@@ -23,8 +23,8 @@ theorem complement_of_intersection {α : Type*} (U : Set α) (A : Set α) (B : S
   have s1 : ∀ t ∈ U \ (A ∩ B), t ∈ U \ A ∪ U \ B := by
     intro t hK1
     -- 1.1. def:difference u := t, Y := U, Z := A ∩ B, from K1
-    have s1_1a : t ∈ U := (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A ∩ B) (u := t))).mp hK1).1
-    have s1_1b : ¬ t ∈ A ∩ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A ∩ B) (u := t))).mp hK1).2
+    have s1_1a : t ∈ U := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A ∩ B) (u := t))).mp hK1).1
+    have s1_1b : ¬ t ∈ A ∩ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A ∩ B) (u := t))).mp hK1).2
     -- 1.2. axi:excluded-middle P := t ∈ A
     have s1_2 : t ∈ A ∨ ¬ t ∈ A := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t ∈ A))
     -- 1.3. cases, from 1.2
@@ -51,30 +51,30 @@ theorem complement_of_intersection {α : Type*} (U : Set α) (A : Set α) (B : S
   have s3 : ∀ t ∈ U \ A ∪ U \ B, t ∈ U \ (A ∩ B) := by
     intro t hK2
     -- 3.1. def:union u := t, Y := U ∖ A, Z := U ∖ B, from K2
-    have s3_1 : t ∈ U \ A ∨ t ∈ U \ B := ((Parley.Items.Stdlib.Sets.def_union (Y := U \ A) (Z := U \ B) (u := t))).mp hK2
+    have s3_1 : t ∈ U \ A ∨ t ∈ U \ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := U \ A) (Z := U \ B) (u := t))).mp hK2
     -- 3.2. cases, from 3.1
     rcases s3_1 with hC3 | hC4
     · skip
       -- 3.2.1. def:difference u := t, Y := U, Z := A, from C3
-      have s3_2_1a : t ∈ U := (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A) (u := t))).mp hC3).1
-      have s3_2_1b : ¬ t ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A) (u := t))).mp hC3).2
+      have s3_2_1a : t ∈ U := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A) (u := t))).mp hC3).1
+      have s3_2_1b : ¬ t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A) (u := t))).mp hC3).2
       -- 3.2.2. contradiction
       have s3_2_2 : ¬ t ∈ A ∩ B := by
         intro hS2
         -- 3.2.2.1. def:intersection u := t, Y := A, Z := B, from S2
-        have s3_2_2_1 : t ∈ A := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hS2).1
+        have s3_2_2_1 : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hS2).1
         exact s3_2_1b s3_2_2_1
       -- 3.2.3. def:difference u := t, Y := U, Z := A ∩ B, from 3.2.1, 3.2.2
       exact ((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A ∩ B) (u := t))).mpr (by parley_set_side)
     · skip
       -- 3.2.4. def:difference u := t, Y := U, Z := B, from C4
-      have s3_2_4a : t ∈ U := (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := B) (u := t))).mp hC4).1
-      have s3_2_4b : ¬ t ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := B) (u := t))).mp hC4).2
+      have s3_2_4a : t ∈ U := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := B) (u := t))).mp hC4).1
+      have s3_2_4b : ¬ t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := B) (u := t))).mp hC4).2
       -- 3.2.5. contradiction
       have s3_2_5 : ¬ t ∈ A ∩ B := by
         intro hS3
         -- 3.2.5.1. def:intersection u := t, Y := A, Z := B, from S3
-        have s3_2_5_1 : t ∈ B := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hS3).2
+        have s3_2_5_1 : t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hS3).2
         exact s3_2_4b s3_2_5_1
       -- 3.2.6. def:difference u := t, Y := U, Z := A ∩ B, from 3.2.4, 3.2.5
       exact ((Parley.Items.Stdlib.Sets.def_difference (Y := U) (Z := A ∩ B) (u := t))).mpr (by parley_set_side)

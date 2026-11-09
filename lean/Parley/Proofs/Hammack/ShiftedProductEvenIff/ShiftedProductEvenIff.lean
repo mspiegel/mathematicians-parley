@@ -34,7 +34,7 @@ theorem shifted_product_even_iff (a : ℤ) (b : ℤ) :
   · skip
     intro hD1
     -- 1. mun:even-product-factor n := a − 3, from D1
-    have s1 : Even (a - 3) ∨ Even (b ^ 2) := ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a - 3) (b := b ^ 2))).mp hD1
+    have s1 : Even (a - 3) ∨ Even (b ^ 2) := by exact ((Parley.Items.Stdlib.Divisibility.mun_even_product_factor (a := a - 3) (b := b ^ 2))).mp hD1
     -- 2. cases, from 1
     rcases s1 with hC1 | hC2
     · skip

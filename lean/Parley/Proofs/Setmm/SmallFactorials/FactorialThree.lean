@@ -35,7 +35,7 @@ theorem factorial_three :
     have row1 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by parley_subst_at c1 s2
     exact row1
   -- 4. calculation
-  calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by parley_side
+  calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by exact s3
     _ = 6 := by norm_num
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialThree

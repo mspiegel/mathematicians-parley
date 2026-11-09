@@ -42,7 +42,7 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
       -- 3.1. mun:in-subset X := A, Y := B ∩ C, from D2, K2
       have s3_1 : u ∈ B ∩ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∩ C) (u := u) hD2 hK2)
       -- 3.2. def:intersection, from 3.1
-      have s3_2 : u ∈ B ∧ u ∈ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mp s3_1
+      have s3_2 : u ∈ B ∧ u ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mp s3_1
       exact ⟨(s3_2).1, (s3_2).2⟩
     -- 4. proof
     have s4 : ∀ u ∈ A, u ∈ B := by

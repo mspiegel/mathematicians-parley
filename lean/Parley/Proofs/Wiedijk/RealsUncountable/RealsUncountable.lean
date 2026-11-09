@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -27,7 +28,9 @@ theorem reals_uncountable :
   -- 1. obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
   obtain ⟨f, _, s1⟩ := (Parley.Items.Stdlib.Functions.mun_bijection_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (by parley_whole_side))
   -- 2. def:onto, from 1
-  have s2 : ∀ y : ℝ, ∃ n : ℤ, 0 < n ∧ y = f n := by first | exact (((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2 | exact ((((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2 | (have h := (((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2; parley_set_side)
+  have s2 : ∀ y : ℝ, ∃ n : ℤ, 0 < n ∧ y = f n := by
+    have hI : ∀ y : ℝ, ∃ x : ℤ, 0 < x ∧ y = f x := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2)
+    exact hI
   -- 3. obtain x: thm:sequence-misses-real
   obtain ⟨x, s3⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.SequenceMissesReal.sequence_misses_real (f := f))
   -- 4. instantiate y := x in line 2

@@ -28,8 +28,8 @@ theorem names_the_index (T : ℤ → ℤ) (hD1 : T 0 = (0 : ℤ) ∧ (∀ k : �
   have s3 : T 0 + (0 + 1) = 0 + (0 + 1) := by parley_subst s1
   -- 4. calculation
   calc T 1 = T (0 + 1) := by norm_num
-    _ = T 0 + (0 + 1) := by parley_side
-    _ = 0 + (0 + 1) := by parley_side
+    _ = T 0 + (0 + 1) := by exact s2
+    _ = 0 + (0 + 1) := by exact s3
     _ = 1 := by norm_num
 
 end Parley.Tests.Elaborator.RecursionShapesCited.NamesTheIndex

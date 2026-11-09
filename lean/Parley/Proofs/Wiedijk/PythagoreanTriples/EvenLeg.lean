@@ -59,7 +59,7 @@ theorem even_leg (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 
         exact row2
       -- 2.2.4. calculation
       have s2_2_4 : c ^ 2 = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by
-        calc c ^ 2 = (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 := by parley_side
+        calc c ^ 2 = (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 := by exact s2_2_3.symm
           _ = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by parley_ring
       -- 2.2.5. def:even n := c², from 2.2.4
       have s2_2_5 : Even (c ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := c ^ 2))).mpr ⟨2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1, s2_2_4⟩

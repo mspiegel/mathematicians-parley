@@ -35,7 +35,7 @@ theorem a_value_in_an_image (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * x + 
   have s4 : f 1 = 2 * 1 + 1 := by exact (hH2 (1 : ℝ))
   -- 5. calculation
   have s5 : f 1 = 3 := by
-    calc f 1 = 2 * 1 + 1 := by parley_set_side
+    calc f 1 = 2 * 1 + 1 := by exact s4
       _ = 3 := by norm_num
   -- 6. substitute f(1) = 3 (line 5) into line 3
   parley_subst_at s5 s3

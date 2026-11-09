@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
@@ -24,7 +25,9 @@ namespace Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall
 theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0) (hH6 : abs C < K) (hH7 : abs u < d) :
     abs (C * u) < K * d := by
   -- 1. mun:abs-nonneg x := u
-  have s1 : abs u ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ)))
+  have s1 : abs u ≥ 0 := by
+    have hI : 0 ≤ abs u := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ))))
+    exact hI
   -- 2. inequalities
   have s2 : K - abs C > 0 := by parley_order
   -- 3. inequalities
@@ -40,7 +43,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   have s6 : abs C * abs u ≤ K * abs u := by parley_order
   -- 7. calculation
   calc abs (C * u) = abs C * abs u := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))
-    _ ≤ K * abs u := by parley_side
-    _ < K * d := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp hH7
+    _ ≤ K * abs u := by exact s6
+    _ < K * d := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp hH7
 
 end Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall

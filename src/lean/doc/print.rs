@@ -296,8 +296,8 @@ impl Tactic {
             }
             Tactic::Name { name, term } => format!("have {name} := {}", term.text()),
             Tactic::Fact(term) => format!("have := {}", term.text()),
-            Tactic::First(ts) => {
-                let alternatives: Vec<String> = ts.iter().map(Tactic::text).collect();
+            Tactic::First { ways, .. } => {
+                let alternatives: Vec<String> = ways.iter().map(Tactic::text).collect();
                 format!("first | {}", alternatives.join(" | "))
             }
             Tactic::Seq(ts) => {
@@ -546,19 +546,25 @@ mod tests {
             tactic: TacticRef::Bridge(super::super::bridges::BridgeTactic::Side),
             args: Vec::new(),
         };
-        let proof = Proof::By(Tactic::First(vec![
-            Tactic::Exact(applied.clone()),
-            Tactic::Group(Box::new(Tactic::Seq(vec![
-                Tactic::Name {
-                    name: "h".to_string(),
-                    term: Term::of(
-                        TermKind::Paren(Box::new(Term::letter("x", LeanType::Prop))),
-                        LeanType::Prop,
-                    ),
-                },
-                side,
-            ]))),
-        ]));
+        let proof = Proof::By(Tactic::First {
+            why: super::super::tactic::ListReason::CitedOtherShape,
+            ways: vec![
+                Tactic::Exact(applied.clone()),
+                Tactic::Group(Box::new(Tactic::Seq(vec![
+                    Tactic::Name {
+                        name: "h".to_string(),
+                        term: Term::of(
+                            TermKind::Paren(Box::new(Term::letter(
+                                "x",
+                                LeanType::Prop,
+                            ))),
+                            LeanType::Prop,
+                        ),
+                    },
+                    side,
+                ]))),
+            ],
+        });
         assert_eq!(
             proof.text(),
             "by first | exact Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)) | (have h := (x); parley_side)"

@@ -21,7 +21,7 @@ theorem intersection_with_difference {α : Type*} (A : Set α) (B : Set α) :
   have s1 : ∀ u ∈ A ∩ (A \ B), u ∈ A \ B := by
     intro u hK1
     -- 1.1. def:intersection, from K1
-    have s1_1 : u ∈ A ∧ u ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := A \ B) (u := u))).mp hK1
+    have s1_1 : u ∈ A ∧ u ∈ A \ B := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := A \ B) (u := u))).mp hK1
     -- 1.2. restate 1.1
     parley_set_side
   -- 2. def:subset, from 1
@@ -30,7 +30,7 @@ theorem intersection_with_difference {α : Type*} (A : Set α) (B : Set α) :
   have s3 : ∀ u ∈ A \ B, u ∈ A ∩ (A \ B) := by
     intro u hK2
     -- 3.1. def:difference, from K2
-    have s3_1 : u ∈ A ∧ ¬ u ∈ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp hK2
+    have s3_1 : u ∈ A ∧ ¬ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp hK2
     -- 3.2. join K2, 3.1
     have s3_2 : u ∈ A ∧ u ∈ A \ B := by parley_set_side
     -- 3.3. def:intersection, from 3.2

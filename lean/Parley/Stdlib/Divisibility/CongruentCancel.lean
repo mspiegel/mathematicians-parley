@@ -24,7 +24,7 @@ namespace Parley.Stdlib.Divisibility.CongruentCancel
 theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (hH5 : x * c ≡ y * c [ZMOD n]) (hH6 : (Int.gcd c n : ℤ) = 1) :
     x ≡ y [ZMOD n] := by
   -- 1. def:congruent-mod a := x·c, b := y·c, from H5
-  have s1 : n ∣ x * c - y * c := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp hH5
+  have s1 : n ∣ x * c - y * c := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp hH5
   -- 2. substitute
   have s2 : n ∣ (x - y) * c := by
     have c1 : x * c - y * c = (x - y) * c := by parley_ring

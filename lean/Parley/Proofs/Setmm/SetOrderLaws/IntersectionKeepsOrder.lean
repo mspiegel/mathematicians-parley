@@ -20,7 +20,7 @@ theorem intersection_keeps_order {α : Type*} (A : Set α) (B : Set α) (C : Set
   have s1 : ∀ u ∈ A ∩ C, u ∈ B ∩ C := by
     intro u hK1
     -- 1.1. def:intersection, from K1
-    have s1_1 : u ∈ A ∧ u ∈ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := u))).mp hK1
+    have s1_1 : u ∈ A ∧ u ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := u))).mp hK1
     -- 1.2. mun:in-subset X := A, Y := B, from H4, 1.1
     have s1_2 : u ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := u) hH4 s1_1.1)
     -- 1.3. join 1.1, 1.2

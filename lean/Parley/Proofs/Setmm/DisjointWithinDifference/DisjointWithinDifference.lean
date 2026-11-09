@@ -36,14 +36,14 @@ theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : S
   · skip
     intro hD2
     -- 3. def:subset X := A, Y := C ∖ B, from D2
-    have s3 : ∀ t ∈ A, t ∈ C \ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C \ B))).mp hD2
+    have s3 : ∀ t ∈ A, t ∈ C \ B := by exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C \ B))).mp hD2
     -- 4. proof
     have s4 : ∀ s ∈ A, ¬ s ∈ B := by
       intro s hK
       -- 4.1. instantiate t := s in line 3, from K
       have s4_1 : s ∈ C \ B := by exact (s3 s (by parley_set_side))
       -- 4.2. def:difference u := s, Y := C, Z := B, from 4.1
-      have s4_2 : s ∈ C ∧ ¬ s ∈ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := s))).mp s4_1
+      have s4_2 : s ∈ C ∧ ¬ s ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := s))).mp s4_1
       -- 4.3. restate 4.2
       parley_set_side
     -- 5. calculation

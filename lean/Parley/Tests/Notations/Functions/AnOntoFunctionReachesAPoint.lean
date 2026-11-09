@@ -18,7 +18,7 @@ namespace Parley.Tests.Notations.Functions.AnOntoFunctionReachesAPoint
 theorem an_onto_function_reaches_a_point {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B ∧ Set.SurjOn f A B) (y : α) (hH4 : y ∈ B) :
     (∃ x ∈ A, y = f x) := by
   -- 1. def:onto, from H3
-  have s1 : ∀ y ∈ B, ∃ x ∈ A, y = f x := (((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mp hH3).2
+  have s1 : ∀ y ∈ B, ∃ x ∈ A, y = f x := by exact (((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mp hH3).2
   -- 2. instantiate y := y in line 1, from H4
   exact (s1 y (by parley_set_side))
 

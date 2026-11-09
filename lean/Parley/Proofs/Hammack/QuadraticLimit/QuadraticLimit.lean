@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -49,7 +48,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     intro ε
     intro hA1
     set m : ℝ := min 1 (ε / 12) with hD1
-    have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)); parley_set_side)
+    have hD1_kind : True := by trivial
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 12 := by parley_order
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
@@ -68,14 +67,14 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
         try push_cast at *
         exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp hA2.2
       -- 1.4.2. mun:abs-difference-lt c := 1, δ := 1, from 1.4.1
-      have s1_4_2 : 1 - 1 < x ∧ x < 1 + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
+      have s1_4_2 : 1 - 1 < x ∧ x < 1 + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
       -- 1.4.3. inequalities
       have s1_4_3 : 4 * x > 0 := by parley_order
       -- 1.4.4. inequalities, from 1.4.3
       have s1_4_4 : 4 * x + 4 > 0 := by parley_order
       -- 1.4.5. def:abs x := 4·x + 4
       have r64_1 : 4 * x + 4 ≥ 0 := by parley_set_side
-      have s1_4_5 : abs (4 * x + 4) = 4 * x + 4 := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 4 * x + 4)) (by parley_set_side)
+      have s1_4_5 : abs (4 * x + 4) = 4 * x + 4 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 4 * x + 4)) (by parley_set_side)
       -- 1.4.6. inequalities
       have s1_4_6 : 4 * x + 4 < 12 := by parley_order
       -- 1.4.7. transitivity, from 1.4.4, 1.4.5
@@ -97,8 +96,8 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
         exact row1
       -- 1.4.14. calculation
       have r99_1 : ε / 12 > 0 := by parley_set_side
-      calc abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := by parley_set_side
-        _ < abs (4 * x + 4) * (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 1)) (y := ε / 12) (c := abs (4 * x + 4)) (by parley_set_side))).mp s1_4_1.2
+      calc abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := by exact s1_4_13
+        _ < abs (4 * x + 4) * (ε / 12) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 1)) (y := ε / 12) (c := abs (4 * x + 4)) (by parley_set_side))).mp s1_4_1.2
         _ = ε / 12 * abs (4 * x + 4) := by parley_ring
         _ ≤ ε / 12 * 12 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (4 * x + 4)) (y := (12 : ℝ)) (c := ε / 12) (by parley_set_side) (by parley_set_side))
         _ = ε := by parley_ring

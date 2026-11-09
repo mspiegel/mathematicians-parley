@@ -48,8 +48,8 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
       have s1_3 : S 0 = (LeanBridges.Counting.choose (1 : ℤ) (r + 1) : ℤ) := by
         calc S 0 = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose j r : ℤ) : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (LeanBridges.Counting.choose (0 : ℤ) r : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (LeanBridges.Counting.choose j r : ℤ))) (a := (0 : ℤ)))
-          _ = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := r)) s1_1
-          _ = (LeanBridges.Counting.choose (1 : ℤ) (r + 1) : ℤ) := ((Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by parley_side) (k := r + 1)) s1_2).symm
+          _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := r)) s1_1
+          _ = (LeanBridges.Counting.choose (1 : ℤ) (r + 1) : ℤ) := by exact ((Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by parley_side) (k := r + 1)) s1_2).symm
       simpa only [zero_add] using s1_3
     | succ m hK hIH =>
       -- 1.4. calculation
@@ -66,9 +66,9 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
         have row1 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by parley_subst_at c1 s1_5
         exact row1
       -- 1.7. calculation
-      calc S (m + 1) = S m + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by parley_side
+      calc S (m + 1) = S m + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by exact s1_4
         _ = (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by parley_subst hIH
-        _ = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by parley_side
+        _ = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by exact s1_6
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose k r : ℤ) : ℤ)) = S n := by simp (disch := omega) only [hD1]
     _ = (LeanBridges.Counting.choose (n + 1) (r + 1) : ℤ) := by exact (s1 n (by parley_side))

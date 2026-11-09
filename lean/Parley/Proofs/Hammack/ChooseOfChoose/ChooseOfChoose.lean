@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SubstTactics
@@ -39,13 +40,13 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 2. def:range-between k := b, a := 0, b := a, from H5, 1
   have s2 : b ∈ Finset.Icc (0 : ℤ) a := ((Parley.Items.Stdlib.Sums.def_range_between (k := b) (a := (0 : ℤ)) (b := a))).mpr (by parley_side)
   -- 3. def:C n := a, k := b, from 2
-  have s3 : (LeanBridges.Counting.choose a b : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial b : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := a) (by parley_side) (k := b)) s2
+  have s3 : (LeanBridges.Counting.choose a b : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial b : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := a) (by parley_side) (k := b)) s2
   -- 4. inequalities, from H3
   have s4 : 0 ≤ c := by parley_order
   -- 5. def:range-between k := c, a := 0, from H4, 4
   have s5 : c ∈ Finset.Icc (0 : ℤ) b := ((Parley.Items.Stdlib.Sums.def_range_between (k := c) (a := (0 : ℤ)) (b := b))).mpr (by parley_side)
   -- 6. def:C n := b, k := c, from 5
-  have s6 : (LeanBridges.Counting.choose b c : ℚ) = (LeanBridges.Counting.factorial b : ℚ) / ((LeanBridges.Counting.factorial (b - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := b) (by parley_side) (k := c)) s5
+  have s6 : (LeanBridges.Counting.choose b c : ℚ) = (LeanBridges.Counting.factorial b : ℚ) / ((LeanBridges.Counting.factorial (b - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := b) (by parley_side) (k := c)) s5
   -- 7. inequalities
   have s7 : 0 ≤ b - c := by parley_order
   -- 8. inequalities
@@ -55,7 +56,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 10. def:range-between k := b − c, a := 0, b := a, from 7, 9
   have s10 : b - c ∈ Finset.Icc (0 : ℤ) a := ((Parley.Items.Stdlib.Sums.def_range_between (k := b - c) (a := (0 : ℤ)) (b := a))).mpr (by parley_side)
   -- 11. def:C n := a, k := b − c, from 10
-  have s11 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - (b - c)) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := a) (by parley_side) (k := b - c)) s10
+  have s11 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - (b - c)) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := a) (by parley_side) (k := b - c)) s10
   -- 12. substitute
   have s12 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by
     have c1 : a - (b - c) = a - b + c := by parley_ring
@@ -72,10 +73,12 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s16 : c ∈ Finset.Icc (0 : ℤ) (a - b + c) := ((Parley.Items.Stdlib.Sums.def_range_between (k := c) (a := (0 : ℤ)) (b := a - b + c))).mpr (by parley_side)
   -- 17. mun:nat0-as-int
   have r77_1 : 0 ≤ a - b + c := by parley_side
-  have s17 : 0 ≤ a - b + c := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b + c))).mpr (by parley_side)
+  have s17 : 0 ≤ a - b + c := by
+    have hI : 0 ≤ a - b + c := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b + c))).mpr (by parley_side))
+    exact hI
   -- 18. def:C n := a − b + c, k := c, from 16
   have r81_1 : 0 ≤ a - b + c := by parley_side
-  have s18 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b + c - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := a - b + c) (by parley_side) (k := c)) s16
+  have s18 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b + c - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := a - b + c) (by parley_side) (k := c)) s16
   -- 19. substitute
   have s19 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by
     have c1 : a - b + c - c = a - b := by parley_ring
@@ -84,10 +87,14 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     exact row1
   -- 20. mun:nat0-as-int
   have r90_1 : 0 ≤ a - b := by parley_side
-  have s20 : 0 ≤ a - b := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b))).mpr (by parley_side)
+  have s20 : 0 ≤ a - b := by
+    have hI : 0 ≤ a - b := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b))).mpr (by parley_side))
+    exact hI
   -- 21. mun:nat0-as-int
   have r94_1 : 0 ≤ b - c := by parley_side
-  have s21 : 0 ≤ b - c := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr (by parley_side)
+  have s21 : 0 ≤ b - c := by
+    have hI : 0 ≤ b - c := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr (by parley_side))
+    exact hI
   -- 22. mun:factorial-nat n := a − b, from 20
   have s22 : 0 < (LeanBridges.Counting.factorial (a - b) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) (by parley_side))
   -- 23. mun:factorial-nat n := b − c, from 21

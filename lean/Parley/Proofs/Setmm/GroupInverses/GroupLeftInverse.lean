@@ -64,6 +64,6 @@ theorem group_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ 
     _ = b * ((1 : G) * c) := by parley_subst s8
     _ = b * (1 : G) * c := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := (1 : G)) (c := c) s2 s1 s3).symm
     _ = b * c := by parley_subst s9
-    _ = (1 : G) := by parley_set_side
+    _ = (1 : G) := by exact s6
 
 end Parley.Proofs.Setmm.GroupInverses.GroupLeftInverse

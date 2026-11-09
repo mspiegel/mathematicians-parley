@@ -28,7 +28,7 @@ theorem an_inverse_value (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.univ : Set �
   have s2 : f 3 = 2 * 3 + 1 := by exact (hH2 (3 : ℝ))
   -- 3. calculation
   have s3 : f 3 = 7 := by
-    calc f 3 = 2 * 3 + 1 := by parley_set_side
+    calc f 3 = 2 * 3 + 1 := by exact s2
       _ = 7 := by norm_num
   -- 4. substitute f(3) = 7 (line 3) into line 1
   parley_subst_at s3 s1

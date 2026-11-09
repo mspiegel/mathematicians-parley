@@ -4,9 +4,9 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -26,8 +26,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 
@@ -47,11 +45,13 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
     induction j, h_j using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. mun:sum-single a := 0
-      have s1_1 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose m m : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))); parley_side)
+      have s1_1 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose m m : ℤ) := by
+        have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (b * (LeanBridges.Counting.choose (m + b) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 0) m : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))))
+        simpa only [add_zero] using hI
       -- 1.2. inequalities
       have s1_2 : m + 1 < m + 2 := by parley_order
       -- 1.3. def:C n := m + 1, k := m + 2, from 1.2
-      have s1_3 : (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := m + 1) (by parley_side) (k := m + 2)) s1_2
+      have s1_3 : (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m + 1) (by parley_side) (k := m + 2)) s1_2
       -- 1.4. algebra, from 1.1, 1.3
       have s1_4 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 1) (m + 1) : ℤ) - (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) := by linear_combination (norm := parley_norm) s1_1 + s1_3
       simpa only [add_zero] using s1_4

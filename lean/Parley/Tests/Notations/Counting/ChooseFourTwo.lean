@@ -42,7 +42,7 @@ theorem choose_four_two :
   have r89_1 : (0 : ℤ) ≤ 2 := by parley_arith
   have r89_2 : (2 : ℤ) ≤ 4 := by parley_arith
   have r89_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr (by parley_side)
-  have s3 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (4 - 2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side)
+  have s3 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (4 - 2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side)
   -- 4. arithmetic
   have s4 : (4 - 2 : ℤ) = 2 := by parley_arith
   -- 5. substitute 4 − 2 = 2 (line 4) into line 3
@@ -59,7 +59,7 @@ theorem choose_four_two :
     first | parley_subst_at s2_w s6 | parley_subst_at s2 s6 | (have e_nat : LeanBridges.Counting.factorial (2 : ℤ) = 2 := by exact_mod_cast s2; parley_subst_at e_nat s6)
   -- 8. calculation
   try qify
-  calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by parley_side
+  calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by exact s7
     _ = 6 := by norm_num
 
 end Parley.Tests.Notations.Counting.ChooseFourTwo

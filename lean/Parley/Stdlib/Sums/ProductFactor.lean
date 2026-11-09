@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import SubstTactics
@@ -42,7 +43,9 @@ theorem product_factor (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 1.2. membership, from 1.1
     exact trivial
   -- 2. mun:product-of-products, from H2, 1
-  have s2 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * (∏ᶠ x ∈ X, (c : ℤ)) := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2)
+  have s2 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * (∏ᶠ x ∈ X, (c : ℤ)) := by
+    have hI : (∏ᶠ a ∈ X, (a * c : ℤ)) = (∏ᶠ a ∈ X, (a : ℤ)) * (∏ᶠ a ∈ X, (c : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2))
+    exact hI
   -- 3. substitute
   have s3 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * c ^ X.ncard := by
     have c1 : (∏ᶠ x ∈ X, (c : ℤ)) = c ^ X.ncard := by exact (Parley.Items.Stdlib.Sums.mun_product_constant (X := X) hH2 (c := c))

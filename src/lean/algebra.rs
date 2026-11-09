@@ -33,6 +33,10 @@ pub struct Cited {
     /// The line's proof: its name, a part of it, `H3.1`, or the line
     /// read at a letter, `(h n (by parley_side))`.
     pub proof: Printed,
+    /// What the line says in Lean, as its `have` or hypothesis states it,
+    /// where it is a line of the proof's; None where it is to be written
+    /// from `node`.
+    pub says: Option<Printed>,
 }
 
 /// The equation a `≠` says is false, `s − 1 = 0` of `s − 1 ≠ 0`.
@@ -66,6 +70,7 @@ fn unequal(
         let given = Cited {
             node: supposed.clone(),
             proof: t::hyp("h"),
+            says: None,
         };
         match algebra(writer, targets, wanted, std::slice::from_ref(&given)) {
             Route::Built(inner) => {

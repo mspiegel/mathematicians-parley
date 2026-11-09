@@ -22,7 +22,7 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
   have s1 : ∀ u ∈ A \ (A ∩ B), u ∈ A \ B := by
     intro u hK1
     -- 1.1. def:difference, from K1
-    have s1_1 : u ∈ A ∧ ¬ u ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp hK1
+    have s1_1 : u ∈ A ∧ ¬ u ∈ A ∩ B := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp hK1
     -- 1.2. contradiction
     have s1_2 : ¬ u ∈ B := by
       intro hS1
@@ -41,12 +41,12 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
   have s3 : ∀ u ∈ A \ B, u ∈ A \ (A ∩ B) := by
     intro u hK2
     -- 3.1. def:difference, from K2
-    have s3_1 : u ∈ A ∧ ¬ u ∈ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp hK2
+    have s3_1 : u ∈ A ∧ ¬ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp hK2
     -- 3.2. contradiction
     have s3_2 : ¬ u ∈ A ∩ B := by
       intro hS2
       -- 3.2.1. def:intersection, from S2
-      have s3_2_1 : u ∈ A ∧ u ∈ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp hS2
+      have s3_2_1 : u ∈ A ∧ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp hS2
       -- 3.2.2. restate 3.2.1
       have s3_2_2 : u ∈ B := by parley_set_side
       exact s3_1.2 s3_2_2

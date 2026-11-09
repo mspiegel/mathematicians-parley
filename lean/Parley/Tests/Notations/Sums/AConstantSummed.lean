@@ -31,7 +31,7 @@ theorem a_constant_summed :
   have r11_1 : (1 : ℤ) ≤ 3 := by parley_arith
   have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (5 : ℤ)) = (3 - 1 + 1) * 5 := by exact (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := (3 : ℤ)) r11_1 (c := (5 : ℤ)))
   -- 2. calculation
-  calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (5 : ℤ)) = (3 - 1 + 1) * 5 := by parley_side
+  calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (5 : ℤ)) = (3 - 1 + 1) * 5 := by exact s1
     _ = 15 := by norm_num
 
 end Parley.Tests.Notations.Sums.AConstantSummed

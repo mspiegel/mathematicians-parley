@@ -26,7 +26,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
   · skip
     intro hD1
     -- 1. def:onto, from D1
-    have s1 : ∀ y ∈ B, ∃ x ∈ A, y = f x := (((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mp hD1).2
+    have s1 : ∀ y ∈ B, ∃ x ∈ A, y = f x := by exact (((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mp hD1).2
     -- 2. proof
     intro Y hK1
     -- 2.1. proof
@@ -42,8 +42,8 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 2.3.1. obtain s: def:image u := y, Y := f⁻¹[Y], from K3, 2.2
       obtain ⟨s, s2_3_1a, s2_3_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (u := y) (W := Set.univ) s2_2 (by parley_set_side))).mp hK3
       -- 2.3.2. def:preimage u := s, Z := Y, from 2.3.1
-      have s2_3_2a : s ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).1
-      have s2_3_2b : f s ∈ Y := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).2; parley_set_side)
+      have s2_3_2a : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).1
+      have s2_3_2b : f s ∈ Y := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s2_3_1a).2
       -- 2.3.3. substitute y = f(s) (line 2.3.1) into line 2.3.2
       parley_subst_at s2_3_1b s2_3_2b
     -- 2.4. def:subset, from 2.3
@@ -93,7 +93,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 3.6. obtain s: def:image u := y, Y := f⁻¹[{y}], from 3.3, 3.5
       obtain ⟨s, s3_6a, s3_6b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A ∩ f ⁻¹' ({y} : Set α)) (f := f) (u := y) (W := Set.univ) s3_5 (by parley_set_side))).mp s3_3
       -- 3.7. def:preimage u := s, Z := {y}, from 3.6
-      have s3_7 : s ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := ({y} : Set α)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_6a).1
+      have s3_7 : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := ({y} : Set α)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_6a).1
       -- 3.8. exhibit, from 3.6, 3.7
       exact ⟨s, s3_7, s3_6b⟩
     -- 4. def:onto, from H3, 3

@@ -43,7 +43,7 @@ theorem a_limit_at_zero_without_its_zero (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f
       -- 1.1.1. instantiate x := x in H2
       have s1_1_1 : f x = x + 2 := by exact (hH2 x)
       -- 1.1.2. mun:abs-difference-lt c := 0, δ := ε, from A2
-      have s1_1_2 : 0 - ε < x ∧ x < 0 + ε := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2)
+      have s1_1_2 : 0 - ε < x ∧ x < 0 + ε := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2)
       -- 1.1.3. inequalities
       have s1_1_3 : 2 - ε < x + 2 := by parley_order
       -- 1.1.4. transitivity, from 1.1.3, 1.1.1

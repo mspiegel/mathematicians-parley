@@ -41,7 +41,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     · skip
       -- 6.1. calculation
       have s6_1 : (Int.gcd a b : ℤ) = b := by
-        calc (Int.gcd a b : ℤ) = (Int.gcd (a % b) b : ℤ) := by parley_side
+        calc (Int.gcd a b : ℤ) = (Int.gcd (a % b) b : ℤ) := by exact s1.symm
           _ = (Int.gcd (0 : ℤ) b : ℤ) := by parley_subst hC1
           _ = (Int.gcd b (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := (0 : ℤ)) (b := b))
           _ = b := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := b) (by parley_side))

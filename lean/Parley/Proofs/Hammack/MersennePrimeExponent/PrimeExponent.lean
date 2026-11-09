@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -43,8 +44,8 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
   -- 1. mun:prime-nat p := 2^n − 1, from H2
   have s1 : (0 : ℤ) < 2 ^ n.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ n.toNat - 1 : ℤ)) hH2)
   -- 2. def:prime p := 2^n − 1, from H2, 1
-  have s2a : (2 ^ n.toNat - 1 : ℤ) > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).1
-  have s2b : ∀ c : ℤ, 0 < c → c ∣ (2 ^ n.toNat - 1 : ℤ) → c = 1 ∨ c = 2 ^ n.toNat - 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).2
+  have s2a : (2 ^ n.toNat - 1 : ℤ) > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).1
+  have s2b : ∀ c : ℤ, 0 < c → c ∣ (2 ^ n.toNat - 1 : ℤ) → c = 1 ∨ c = 2 ^ n.toNat - 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).2
   -- 3. contradiction
   have s3 : n > 1 := by
     by_contra hS1
@@ -65,8 +66,12 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     intro hK2
     by_contra hS2
     -- 4.1. mun:not-either P := d = 1, Q := d = n, from S2
-    have s4_1a : d ≠ 1 := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).1
-    have s4_1b : d ≠ n := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).2
+    have s4_1a : d ≠ 1 := by
+      have hI : d ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).1)
+      exact hI
+    have s4_1b : d ≠ n := by
+      have hI : d ≠ n := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).2)
+      exact hI
     -- 4.2. obtain e: def:divides, from K2
     obtain ⟨e, s4_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := d) (n := n))).mp hK2
     -- 4.3. contradiction
@@ -151,7 +156,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         -- 4.18.7. calculation
         have s4_18_7 : 2 ^ d.toNat - 1 = (2 ^ d.toNat - 1) * q := by
           calc (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by parley_side
-            _ = (2 ^ d.toNat - 1) * q := by first | parley_side | parley_line_toNat s4_9
+            _ = (2 ^ d.toNat - 1) * q := by exact s4_9
         -- 4.18.8. inequalities, from 4.14
         have s4_18_8 : (0 : ℤ) < 2 ^ d.toNat - 1 := by parley_order
         -- 4.18.9. inequalities

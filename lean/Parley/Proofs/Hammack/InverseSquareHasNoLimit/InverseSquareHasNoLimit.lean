@@ -4,10 +4,10 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -53,7 +53,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   obtain ⟨L, s1⟩ := hS
   -- 2. def:limit-at D := ℝ ∖ {0}, c := 0, from 1
   have r28_1 : (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ)))
-  have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1 | exact (((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1 | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1; parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1; parley_set_side)
+  have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by simpa only [sub_zero] using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r32_1 : (0 : ℤ) < 1 := by parley_arith
   have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
@@ -81,7 +81,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.3. mun:reciprocal-order x := m, y := j, from A1
     have r72_1 : m > 0 := by parley_set_side
     have r72_2 : j > 0 := by parley_set_side
-    have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by parley_set_side) (y := (j : ℚ)) (by parley_set_side))).mp (by parley_set_side)
+    have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by parley_set_side) (y := (j : ℚ)) (by parley_set_side))).mp (by parley_set_side)
     -- 10.4. inequalities
     have r77_1 : p ≠ 0 := by parley_set_side
     have s10_4 : (m : ℝ) ≥ 2 / p := by parley_order
@@ -89,7 +89,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have r83_1 : 2 / p > 0 := by parley_set_side
     have r83_2 : m > 0 := by parley_set_side
     have r83_3 : p ≠ 0 := by parley_set_side
-    have s10_5 : 1 / (m : ℝ) ≤ 1 / (2 / p) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_set_side) (y := (m : ℝ)) (by parley_set_side))).mp s10_4
+    have s10_5 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_set_side) (y := (m : ℝ)) (by parley_set_side))).mp s10_4
     -- 10.6. algebra
     have r89_1 : p ≠ 0 := by parley_set_side
     have s10_6 : 1 / (2 / p) = p / 2 := by parley_ring
@@ -109,7 +109,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr (by parley_set_side)
     -- 10.11. def:abs x := t
     have r112_1 : t ≥ 0 := by parley_set_side
-    have s10_11 : abs t = t := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) (by parley_set_side)
+    have s10_11 : abs t = t := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) (by parley_set_side)
     -- 10.12. transitivity, from D1, 10.7
     have s10_12 : t < p := by parley_order
     -- 10.13. transitivity, from 10.11, 10.12
@@ -151,9 +151,9 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   have r158_1 : m + 1 ≥ m := by parley_order
   have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by exact_mod_cast (s10 (m + 1) (by parley_set_side) (by parley_set_side))
   -- 13. mun:abs-difference-lt x := m², c := L, δ := 1, from 11
-  have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s11
+  have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s11
   -- 14. mun:abs-difference-lt x := (m + 1)², c := L, δ := 1, from 12
-  have s14 : L - 1 < ((m : ℝ) + 1) ^ 2 ∧ ((m : ℝ) + 1) ^ 2 < L + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s12
+  have s14 : L - 1 < ((m : ℝ) + 1) ^ 2 ∧ ((m : ℝ) + 1) ^ 2 < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s12
   -- 15. inequalities, from 13, 14
   have s15 : L - 1 + ((m : ℝ) + 1) ^ 2 < (m : ℝ) ^ 2 + (L + 1) := by parley_order
   -- 16. inequalities

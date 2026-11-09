@@ -30,7 +30,7 @@ theorem sqrt_four :
   have s1b : Real.sqrt (4 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (4 : ℝ)) (by parley_side))
   -- 2. calculation
   have s2 : Real.sqrt (4 : ℝ) ^ 2 = 2 ^ 2 := by
-    calc Real.sqrt (4 : ℝ) ^ 2 = 4 := by parley_side
+    calc Real.sqrt (4 : ℝ) ^ 2 = 4 := by exact s1a
       _ = 2 ^ 2 := by norm_num
   -- 3. mun:square-equal x := √4, y := 2, from 2
   have r97_1 : Real.sqrt (4 : ℝ) ≥ 0 := by parley_side

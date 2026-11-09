@@ -36,9 +36,9 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.1. inequalities
     have s1_1 : r / 2 > 0 := by parley_order
     -- 1.2. def:tends-to, from H4
-    have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp hH4
+    have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp hH4
     -- 1.3. def:tends-to L := B, from H5
-    have s1_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - B) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp hH5
+    have s1_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - B) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := B))).mp hH5
     -- 1.4. instantiate ε := r/2 in line 1.2, from 1.1
     have s1_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < r / 2) := by exact (s1_2 (r / 2) (by parley_side))
     -- 1.5. instantiate ε := r/2 in line 1.3, from 1.1
@@ -57,9 +57,9 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     have s1_11 : abs (x (P + Q) - B) < r / 2 := by exact (s1_7b (P + Q) (by parley_side) (by parley_side))
     -- 1.12. membership, from H1
     -- 1.13. mun:abs-difference-lt x := x(P + Q), c := A, δ := r/2, from 1.10, 1.12
-    have s1_13 : A - r / 2 < x (P + Q) ∧ x (P + Q) < A + r / 2 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp s1_10
+    have s1_13 : A - r / 2 < x (P + Q) ∧ x (P + Q) < A + r / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp s1_10
     -- 1.14. mun:abs-difference-lt x := x(P + Q), c := B, δ := r/2, from 1.11, 1.12
-    have s1_14 : B - r / 2 < x (P + Q) ∧ x (P + Q) < B + r / 2 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp s1_11
+    have s1_14 : B - r / 2 < x (P + Q) ∧ x (P + Q) < B + r / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp s1_11
     -- 1.15. inequalities, from 1.12, 1.13
     have s1_15 : A - r / 2 < x (P + Q) := by parley_order
     -- 1.16. inequalities, from 1.12, 1.14

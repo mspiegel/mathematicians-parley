@@ -45,7 +45,7 @@ theorem one_to_three_summed :
   have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) = 1 + 2 := by parley_subst_at s1 s5
   -- 7. calculation
   have s7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) = 3 := by
-    calc (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) = 1 + 2 := by parley_side
+    calc (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) = 1 + 2 := by exact s6
       _ = 3 := by norm_num
   -- 8. arithmetic
   have s8 : (2 + 1 : ℤ) = 3 := by parley_arith
@@ -54,7 +54,7 @@ theorem one_to_three_summed :
   -- 10. substitute Σ(k = 1 to 2) k = 3 (line 7) into line 9
   have s10 : (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 3 + 3 := by parley_subst_at s7 s9
   -- 11. calculation
-  calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 3 + 3 := by parley_side
+  calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 3 + 3 := by exact s10
     _ = 6 := by norm_num
 
 end Parley.Tests.Notations.Sums.OneToThreeSummed

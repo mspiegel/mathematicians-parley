@@ -1,7 +1,6 @@
 module
 
-public import NormTactics
-public import PowerTactics
+public import InstanceTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
@@ -17,13 +16,10 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter
 
 /-! Written from tests/elaborator/a-theorem-over-a-define-cited-with-other-letters.proof by parley build lean. -/
@@ -35,6 +31,7 @@ namespace Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ATheo
 theorem a_theorem_over_a_define_cited_with_other_letters :
     (∫ t in 0..1, (t ^ 0 : ℝ)) = (∫ b in 0..1, (b ^ 0 : ℝ)) := by
   -- 1. thm:a-define-written-out-beside-its-own-letter n := 0
-  first | linear_combination (norm := parley_norm) (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)) | (have h := (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side))).symm | (have h := (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)); parley_side)
+  have hI : (∫ t in 0..1, (t ^ 0 : ℝ)) = (∫ t in 0..1, (t ^ 0 : ℝ)) := by parley_instance ((Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)))
+  exact hI
 
 end Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ATheoremOverADefineCitedWithOtherLetters

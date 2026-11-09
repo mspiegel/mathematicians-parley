@@ -46,6 +46,6 @@ theorem remainder_shifts (X : ℝ) (M : ℝ) (hH3 : M > 0) (K : ℤ) :
         have s3_w : (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) = (⌊X / M⌋ : ℝ) + (K : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3; push_cast at h; linear_combination (norm := parley_norm) h
         first | parley_subst s3_w | parley_subst s3
     _ = X - M * (⌊X / M⌋ : ℝ) := by parley_ring
-    _ = LeanBridges.Divisibility.mod X M := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) hH3).symm
+    _ = LeanBridges.Divisibility.mod X M := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) hH3).symm
 
 end Parley.Proofs.Setmm.RemainderFacts.RemainderShifts

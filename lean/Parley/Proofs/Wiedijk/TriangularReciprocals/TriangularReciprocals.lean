@@ -81,7 +81,7 @@ theorem triangular_reciprocals :
       -- 6.2.2. mun:reciprocal-order x := N, y := n + 1, from 6.2.1
       have r79_1 : N > 0 := by parley_order
       have r79_2 : n + 1 > 0 := by parley_order
-      have s6_2_2 : 1 / ((n : ℚ) + 1) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ) + 1) (by parley_side))).mp (by parley_side)
+      have s6_2_2 : 1 / ((n : ℚ) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ) + 1) (by parley_side))).mp (by parley_side)
       -- 6.2.3. mun:reciprocal-positive x := n + 1
       have r84_1 : n + 1 > 0 := by parley_order
       have s6_2_3 : 1 / ((n : ℚ) + 1) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) + 1) (by parley_side))

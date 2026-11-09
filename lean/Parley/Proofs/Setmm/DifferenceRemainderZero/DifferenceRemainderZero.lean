@@ -42,7 +42,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     -- 4. mun:mod-equal-congruent, from C2
     have s4 : A ≡ B [ZMOD N] := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2)
     -- 5. def:congruent-mod, from 4
-    have s5 : N ∣ A - B := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp s4
+    have s5 : N ∣ A - B := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp s4
     -- 6. obtain k: def:divides d := N, n := A − B, from 5
     obtain ⟨k, s6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := A - B))).mp s5
     -- 7. algebra, from 6

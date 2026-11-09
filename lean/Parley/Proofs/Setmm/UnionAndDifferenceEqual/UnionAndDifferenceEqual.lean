@@ -28,12 +28,12 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
     have s1 : ∀ u ∈ C \ A, u ∈ B := by
       intro u hK1
       -- 1.1. def:difference Y := C, Z := A, from K1
-      have s1_1a : u ∈ C := (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mp hK1).1
-      have s1_1b : ¬ u ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mp hK1).2
+      have s1_1a : u ∈ C := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mp hK1).1
+      have s1_1b : ¬ u ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mp hK1).2
       -- 1.2. substitute A ∪ B = C (D1) into line 1.1
       have s1_2 : u ∈ A ∪ B := by parley_subst_at hD1 s1_1a
       -- 1.3. def:union Y := A, Z := B, from 1.2
-      have s1_3 : u ∈ A ∨ u ∈ B := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := u))).mp s1_2
+      have s1_3 : u ∈ A ∨ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := u))).mp s1_2
       -- 1.4. cases, from 1.3
       rcases s1_3 with hC1 | hC2
       · skip

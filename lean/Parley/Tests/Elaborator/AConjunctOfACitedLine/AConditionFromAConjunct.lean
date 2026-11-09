@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
@@ -19,7 +20,9 @@ namespace Parley.Tests.Elaborator.AConjunctOfACitedLine.AConditionFromAConjunct
 theorem a_condition_from_a_conjunct (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b : Set ℝ)) (h : ℝ → ℝ) (hH4 : Set.MapsTo h (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ∀ x ∈ (Set.Ioo a b : Set ℝ), x ≠ c → h x = 0) (y : ℝ) (hH6 : y ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) :
     h y = 0 := by
   -- 1. mun:remove-member, from H6
-  have s1 : y ∈ (Set.Ioo a b : Set ℝ) ∧ y ≠ c := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := y))).mp hH6
+  have s1 : y ∈ (Set.Ioo a b : Set ℝ) ∧ y ≠ c := by
+    have hI : y ∈ (Set.Ioo a b : Set ℝ) ∧ y ≠ c := by parley_instance (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := y))).mp hH6)
+    exact hI
   -- 2. instantiate x := y in H5, from 1
   exact (hH5 y (by parley_set_side) (by parley_set_side))
 

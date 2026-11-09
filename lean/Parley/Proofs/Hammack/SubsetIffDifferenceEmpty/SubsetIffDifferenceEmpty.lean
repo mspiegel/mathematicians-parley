@@ -28,8 +28,8 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
     have s1 : ∀ t ∈ A \ B, t ∈ (∅ : Set α) := by
       intro t hK1
       -- 1.1. def:difference u := t, Y := A, Z := B, from K1
-      have s1_1a : t ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).1
-      have s1_1b : ¬ t ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).2
+      have s1_1a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).1
+      have s1_1b : ¬ t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mp hK1).2
       -- 1.2. mun:in-subset X := A, Y := B, u := t, from D1, 1.1
       have s1_2 : t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 s1_1a)
       exact absurd s1_2 s1_1b

@@ -1,6 +1,7 @@
 module
 
 public import ArithTactics
+public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
@@ -29,6 +30,7 @@ theorem a_part_of_a_set :
   -- 4. mun:singleton-subset a := 1, X := {1, 2}, from 3
   have s4 : ({(1 : ℤ)} : Set ℤ) ⊆ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (a := (1 : ℤ)) s3)
   -- 5. def:powerset, from 4
-  first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (S := ({(1 : ℤ)} : Set ℤ)))).mpr s4 | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (S := ({(1 : ℤ)} : Set ℤ)))).mpr s4; parley_set_side)
+  have hI : ({(1 : ℤ)} : Set ℤ) ⊆ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by parley_instance (((Parley.Items.Stdlib.Sets.def_powerset (A := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (S := ({(1 : ℤ)} : Set ℤ)))).mpr s4)
+  exact hI
 
 end Parley.Tests.Notations.Sets.APartOfASet

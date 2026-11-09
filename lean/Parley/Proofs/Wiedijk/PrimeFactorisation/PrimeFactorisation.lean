@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Functions
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
@@ -81,10 +82,12 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.7. obtain p: thm:prime-factor, from 1.6
       have r203_1 : m > 1 := by parley_order
       obtain ⟨p, s1_7a, ⟨s1_7b, s1_7c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := m) (by parley_set_side) r203_1)
-      have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c
+      have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := by
+        have hI : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := by parley_instance (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c)
+        exact hI
       obtain ⟨r, hD2_pos, hD2⟩ := hD2_kind
       -- 1.8. def:prime, from 1.7
-      have s1_8 : p > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_set_side))).mp s1_7b).1
+      have s1_8 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_set_side))).mp s1_7b).1
       -- 1.9. algebra, from D2
       have s1_9 : m = p * r := by qify at *; linear_combination (norm := parley_field) (-(p : ℚ)) * hD2
       -- 1.10. inequalities, from 1.8
@@ -142,9 +145,9 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         have s1_18_10 : m = p := by parley_subst_at hC2 s1_9
         -- 1.18.11. calculation
         have s1_18_11 : m = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
-          calc m = p := by parley_set_side
-            _ = e 1 := by parley_set_side
-            _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ))).symm
+          calc m = p := by exact s1_18_10
+            _ = e 1 := by exact s1_18_9
+            _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ))).symm
         -- 1.18.12. exhibit, from 1.18.6, 1.18.8, 1.18.11
         have s1_18_12 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨(1 : ℤ), by parley_set_side, e, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
         -- 1.18.13. D1, from 1.18.12

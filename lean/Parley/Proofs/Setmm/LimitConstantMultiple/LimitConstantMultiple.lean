@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
@@ -35,7 +36,9 @@ set_option maxHeartbeats 400000 in
 theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℤ => (C * x n : ℝ)) Filter.atTop (nhds (C * L)) := by
   -- 1. mun:abs-nonneg x := C
-  have s1 : abs C ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ)))
+  have s1 : abs C ≥ 0 := by
+    have hI : 0 ≤ abs C := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ))))
+    exact hI
   -- 2. inequalities, from 1
   have s2 : abs C + 1 > 0 := by parley_order
   -- 3. inequalities
@@ -49,7 +52,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
     -- 4.2. membership
     have r37_1 : 2 * (abs C + 1) ≠ 0 := by parley_side
     -- 4.3. def:tends-to, from H4
-    have s4_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH4
+    have s4_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH4
     -- 4.4. instantiate ε := ε/(2·(|C| + 1)) in line 4.3, from 4.1, 4.2
     have s4_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε / (2 * (abs C + 1))) := by exact (s4_3 (ε / (2 * (abs C + 1))) (by parley_side))
     -- 4.5. obtain N from line 4.4

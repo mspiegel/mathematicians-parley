@@ -26,7 +26,7 @@ theorem powerset_split_disjoint {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ 
     -- 1.1. mun:in-union-singleton
     have s1_1 : a ∈ S ∪ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_in_union_singleton (Y := S) (a := a))
     -- 1.2. def:powerset S := S ∪ {a}, from S1
-    have s1_2 : S ∪ ({a} : Set α) ⊆ X \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.def_powerset (A := X \ ({a} : Set α)) (S := S ∪ ({a} : Set α)))).mp hS1
+    have s1_2 : S ∪ ({a} : Set α) ⊆ X \ ({a} : Set α) := by exact ((Parley.Items.Stdlib.Sets.def_powerset (A := X \ ({a} : Set α)) (S := S ∪ ({a} : Set α)))).mp hS1
     -- 1.3. mun:subset-of-difference, from 1.2
     have s1_3 : ¬ a ∈ S ∪ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := X) (Y := S ∪ ({a} : Set α)) (a := a) s1_2)
     exact s1_3 s1_1

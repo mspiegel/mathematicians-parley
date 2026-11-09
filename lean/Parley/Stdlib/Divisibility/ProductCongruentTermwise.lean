@@ -55,17 +55,17 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       have s3_3 : (1 : ℤ) ≡ (1 : ℤ) [ZMOD n] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := (1 : ℤ)) (b := (1 : ℤ)))).mpr s3_2
       -- 3.4. substitute
       have s3_4 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by
-        have c1 : 1 = (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) := (Parley.Items.Stdlib.Sums.mun_product_empty (X := X) (t := t)).symm
+        have c1 : 1 = (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := X) (t := t)).symm
         have row1 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by parley_subst_at c1 s3_3
         exact row1
       -- 3.5. substitute
-      have c1 : 1 = (∏ᶠ x ∈ (∅ : Set α), (u x : ℤ)) := (Parley.Items.Stdlib.Sums.mun_product_empty (X := X) (t := u)).symm
+      have c1 : 1 = (∏ᶠ x ∈ (∅ : Set α), (u x : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := X) (t := u)).symm
       have row1 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (∏ᶠ x ∈ (∅ : Set α), (u x : ℤ)) [ZMOD n] := by parley_subst_at c1 s3_4
       exact row1
     · intro Y hK hIH
       intro a hK2
       -- 3.6. def:difference u := a, Y := X, Z := Y, from K2
-      have s3_6 : a ∈ X ∧ ¬ a ∈ Y := ((Parley.Items.Stdlib.Sets.def_difference (Y := X) (Z := Y) (u := a))).mp hK2
+      have s3_6 : a ∈ X ∧ ¬ a ∈ Y := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := X) (Z := Y) (u := a))).mp hK2
       -- 3.7. mun:finite-part, from H2, K
       have s3_7 : Y.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := Y) hH2 hK)
       -- 3.8. instantiate Z := Y in line 1, from K
@@ -73,11 +73,11 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       -- 3.10. mun:function-value f := t, D := X, E := ℤ, x := a, from 3.6
       -- 3.11. mun:function-value f := u, D := X, E := ℤ, x := a, from 3.6
       -- 3.12. def:congruent-mod a := ∏(x ∈ Y) t(x), b := ∏(x ∈ Y) u(x), from IH, 3.8, 3.9
-      have s3_12 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ)) := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := ∏ᶠ x ∈ Y, (t x : ℤ)) (b := ∏ᶠ x ∈ Y, (u x : ℤ)))).mp hIH
+      have s3_12 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ)) := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := ∏ᶠ x ∈ Y, (t x : ℤ)) (b := ∏ᶠ x ∈ Y, (u x : ℤ)))).mp hIH
       -- 3.13. instantiate x := a in H6, from 3.6
       have s3_13 : t a ≡ u a [ZMOD n] := by exact (hH6 a (by parley_set_side))
       -- 3.14. def:congruent-mod a := t(a), b := u(a), from 3.10, 3.11, 3.13
-      have s3_14 : n ∣ t a - u a := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := t a) (b := u a))).mp s3_13
+      have s3_14 : n ∣ t a - u a := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := t a) (b := u a))).mp s3_13
       -- 3.15. mun:divides-combination e := n, a := ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x), b := t(a) − u(a), x := t(a), y := ∏(x ∈ Y) u(x), from 3.8, 3.9, 3.10, 3.11, 3.12, 3.14
       have s3_15 : n ∣ ((∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ))) * t a + (t a - u a) * (∏ᶠ x ∈ Y, (u x : ℤ)) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := n) (a := (∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ))) (b := t a - u a) (x := t a) (y := ∏ᶠ x ∈ Y, (u x : ℤ)) s3_12 s3_14)
       -- 3.16. substitute

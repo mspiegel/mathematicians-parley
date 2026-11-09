@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SubstTactics
@@ -41,7 +42,9 @@ set_option maxHeartbeats 400000 in
 theorem a_over_n_tends_to_zero (A : ℝ) :
     Filter.Tendsto (fun n : ℤ => (A / (n : ℝ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. mun:abs-nonneg x := A
-  have s1 : abs A ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ)))
+  have s1 : abs A ≥ 0 := by
+    have hI : 0 ≤ abs A := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ))))
+    exact hI
   -- 2. inequalities, from 1
   have s2 : abs A + 1 > 0 := by parley_order
   -- 3. inequalities
@@ -65,7 +68,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       -- 5.4.1. mun:reciprocal-order x := N, y := n, from A2
       have r57_1 : N > 0 := by parley_order
       have r57_2 : n > 0 := by parley_order
-      have s5_4_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s5_4_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
       -- 5.4.2. transitivity, from 5.4.1, 5.3
       have r62_1 : 2 * (abs A + 1) ≠ 0 := by parley_side
       have s5_4_2 : 1 / (n : ℝ) < ε / (2 * (abs A + 1)) := by parley_order
@@ -76,7 +79,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       have s5_4_4 : 1 / (n : ℚ) ≥ 0 := by parley_order
       -- 5.4.5. substitute
       have s5_4_5 : abs (1 / (n : ℝ)) < ε / (2 * (abs A + 1)) := by
-        have c1 : 1 / (n : ℚ) = abs (1 / (n : ℚ)) := ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (n : ℚ))) s5_4_4).symm
+        have c1 : 1 / (n : ℚ) = abs (1 / (n : ℚ)) := by exact ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (n : ℚ))) s5_4_4).symm
         have c1_w : 1 / (n : ℝ) = abs (1 / (n : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
         have row1 : abs (1 / (n : ℝ)) < ε / (2 * (abs A + 1)) := by first | parley_put_at c1_w s5_4_2 | parley_put_at c1 s5_4_2 | parley_subst_at c1_w s5_4_2 | parley_subst_at c1 s5_4_2
         exact row1

@@ -40,7 +40,9 @@ and not inferred inside one.
   the Parley number system the item takes it in, by its own hypothesis
   `x ∈ S`, and the narrowest the page says its value is in once
   (`citing::within`). For `mun:abs-nonneg x := C` with C real: x in ℂ, from
-  ℝ.
+  ℝ. A letter that stands for a set, given a number system as its value,
+  `X := ℕ` or `D := ℝ`, records that system as the set it is
+  (`ItemLetter::value_set`).
 - `Cited::facings`: for each conclusion a citation takes, whether the item's
   equation, read at the citation's values, meets the claim's equation
   straight or turned round.
@@ -77,9 +79,10 @@ and not inferred inside one.
   pair as `written`.
 - `define_links`: for each calculation row citing a define, and each step
   whose reason is defines it names, how the two sides of its equation meet
-  once the defines are written out. Lean closes it by `simp only [hD]`,
-  adding `push_cast; norm_num` where that meeting or Lean's casts leave
-  more.
+  once the defines are written out, or that they do not meet and arithmetic
+  is left (`None`). A claim "for all x ∈ S, A = B" is read at its body.
+  Lean closes it by `simp only [hD]`, adding `push_cast; norm_num` where
+  that meeting, arithmetic left, or Lean's casts ask more.
 - `links`: the relation each line a `transitivity` step cites gives its
   chain. Metamath reads it; Lean writes the chain by linear arithmetic.
 

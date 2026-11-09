@@ -47,7 +47,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
   -- 2. mun:difference-subset
   have s2 : (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.Ioo a b : Set ℝ)) (Y := ({u} : Set ℝ)))
   -- 3. mun:unequal-cases x := v, y := u, from H5
-  have s3 : v < u ∨ u < v := ((Parley.Items.Stdlib.Numbers.mun_unequal_cases (x := v) (y := u))).mp hH5
+  have s3 : v < u ∨ u < v := by exact ((Parley.Items.Stdlib.Numbers.mun_unequal_cases (x := v) (y := u))).mp hH5
   -- 4. cases, from 3
   have s4a_all : G u ≠ G v ∧ (∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ) := by
     rcases s3 with hC1 | hC2
@@ -61,7 +61,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have s4_3 : ¬ u ∈ (Set.Ioo v u : Set ℝ) := by
         intro hS1
         -- 4.3.1. def:open-interval a := v, b := u, x := u, from S1
-        have s4_3_1 : u < u := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := v) (b := u))).mp hS1).2
+        have s4_3_1 : u < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := v) (b := u))).mp hS1).2
         -- 4.3.2. inequalities
         have s4_3_2 : ¬ u < u := by parley_set_side
         exact s4_3_2 s4_3_1
@@ -86,17 +86,17 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have r186_9 : (deriv G) ξ ≠ 0 := by exact (hH12 ξ (by parley_set_side))
       have s4_10 : (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by linear_combination (norm := parley_field) s4_8b
       -- 4.11. def:open-interval a := v, b := u, x := ξ, from 4.8
-      have s4_11a : v < ξ := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).1.2
-      have s4_11b : ξ < u := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).2
+      have s4_11a : v < ξ := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).1.2
+      have s4_11b : ξ < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).2
       -- 4.12. inequalities
       have s4_12 : -(ξ - u) < -(v - u) := by parley_order
       -- 4.13. calculation
       have r208_1 : ξ - u < 0 := by parley_set_side
       have r208_2 : v - u < 0 := by parley_set_side
       have s4_13 : abs (ξ - u) < abs (v - u) := by
-        calc abs (ξ - u) = -(ξ - u) := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := ξ - u)) (by parley_set_side)
-          _ < -(v - u) := by parley_set_side
-          _ = abs (v - u) := ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := v - u)) (by parley_set_side)).symm
+        calc abs (ξ - u) = -(ξ - u) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := ξ - u)) (by parley_set_side)
+          _ < -(v - u) := by exact s4_12
+          _ = abs (v - u) := by exact ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := v - u)) (by parley_set_side)).symm
       -- 4.14. exhibit, from 4.9, 4.10, 4.13
       have s4_14 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_9, ⟨s4_13, s4_10⟩⟩
       -- 4.15. join 4.7, 4.14
@@ -113,7 +113,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have s4_18 : ¬ u ∈ (Set.Ioo u v : Set ℝ) := by
         intro hS2
         -- 4.18.1. def:open-interval a := u, b := v, x := u, from S2
-        have s4_18_1 : u < u := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := u) (b := v))).mp hS2).1.2
+        have s4_18_1 : u < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := u) (b := v))).mp hS2).1.2
         -- 4.18.2. inequalities
         have s4_18_2 : ¬ u < u := by parley_set_side
         exact s4_18_2 s4_18_1
@@ -131,8 +131,8 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.23. mun:in-subset, from 4.19, 4.22
       have s4_23 : ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo u v : Set ℝ)) (Y := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (u := ξ) s4_19 s4_22a)
       -- 4.24. def:open-interval a := u, b := v, x := ξ, from 4.22
-      have s4_24a : u < ξ := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := u) (b := v))).mp s4_22a).1.2
-      have s4_24b : ξ < v := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := u) (b := v))).mp s4_22a).2
+      have s4_24a : u < ξ := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := u) (b := v))).mp s4_22a).1.2
+      have s4_24b : ξ < v := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := u) (b := v))).mp s4_22a).2
       -- 4.25. inequalities
       have s4_25 : ξ - u > 0 := by parley_order
       -- 4.26. inequalities
@@ -143,9 +143,9 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have r281_1 : ξ - u ≥ 0 := by parley_set_side
       have r281_2 : v - u ≥ 0 := by parley_set_side
       have s4_28 : abs (ξ - u) < abs (v - u) := by
-        calc abs (ξ - u) = ξ - u := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ξ - u)) (by parley_set_side)
-          _ < v - u := by parley_set_side
-          _ = abs (v - u) := ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := v - u)) (by parley_set_side)).symm
+        calc abs (ξ - u) = ξ - u := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ξ - u)) (by parley_set_side)
+          _ < v - u := by exact s4_27
+          _ = abs (v - u) := by exact ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := v - u)) (by parley_set_side)).symm
       -- 4.29. exhibit, from 4.22, 4.23, 4.28
       have s4_29 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_23, ⟨s4_28, s4_22b⟩⟩
       -- 4.30. join 4.21, 4.29

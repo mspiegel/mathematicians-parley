@@ -37,7 +37,7 @@ theorem limit_at_most (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n :
   -- 2. inequalities
   have s2 : L - B > 0 := by parley_order
   -- 3. def:tends-to, from H3
-  have s3 : ∀ ε : ℝ, ε > 0 → (∃ M : ℤ, 0 < M ∧ (∀ n : ℤ, 0 < n → n ≥ M → abs (x n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH3
+  have s3 : ∀ ε : ℝ, ε > 0 → (∃ M : ℤ, 0 < M ∧ (∀ n : ℤ, 0 < n → n ≥ M → abs (x n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH3
   -- 4. instantiate ε := L − B in line 3, from 2
   have s4 : ∃ M : ℤ, 0 < M ∧ (∀ n : ℤ, 0 < n → n ≥ M → abs (x n - L) < L - B) := by exact (s3 (L - B) (by parley_side))
   -- 5. obtain M from line 4
@@ -52,7 +52,7 @@ theorem limit_at_most (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n :
   have s9 : x (M + N) ≤ B := by exact (hH6 (M + N) (by parley_side) (by parley_side))
   -- 10. membership, from H1
   -- 11. mun:abs-difference-lt x := x(M + N), c := L, δ := L − B, from 8, 10
-  have s11 : L - (L - B) < x (M + N) ∧ x (M + N) < L + (L - B) := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (M + N)) (c := L) (δ := L - B))).mp s8
+  have s11 : L - (L - B) < x (M + N) ∧ x (M + N) < L + (L - B) := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (M + N)) (c := L) (δ := L - B))).mp s8
   -- 12. inequalities, from 10, 11
   have s12 : L - (L - B) < x (M + N) := by parley_order
   -- 13. substitute

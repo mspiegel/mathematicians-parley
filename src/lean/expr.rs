@@ -1059,7 +1059,7 @@ impl Writer<'_> {
     /// The base and exponent of a power whose exponent is no natural number
     /// as Lean computes one and is not said once in ℕ₀: a negative, an
     /// integer letter, or n − 1 of n ∈ ℕ. None for any other node.
-    fn integer_power<'n>(&self, node: &'n Node) -> Option<&'n [Node; 2]> {
+    pub fn integer_power<'n>(&self, node: &'n Node) -> Option<&'n [Node; 2]> {
         if node.notation() != crate::notations::POWER {
             return None;
         }

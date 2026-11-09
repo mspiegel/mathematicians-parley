@@ -829,7 +829,7 @@ impl Term {
     ) -> Term {
         let mut named = std::collections::BTreeSet::new();
         for v in values {
-            v.letters_into(&mut named);
+            v.free_letters_into(&mut Vec::new(), &mut named);
         }
         let mut out = self.clone();
         if named.is_empty() {
@@ -839,6 +839,64 @@ impl Term {
         self.letters_into(&mut used);
         out.clear_binders(&named, &mut used);
         out
+    }
+
+    /// The letters free in the term: those no binder inside it binds where
+    /// they stand, `bound` naming the binders already passed.
+    fn free_letters_into(
+        &self,
+        bound: &mut Vec<String>,
+        out: &mut std::collections::BTreeSet<String>,
+    ) {
+        let enter = |bound: &mut Vec<String>, letters: &[&String]| {
+            bound.extend(letters.iter().map(|l| (*l).clone()));
+            letters.len()
+        };
+        let scoped: (Vec<&Term>, Vec<&Term>, Vec<&String>) = match &self.kind {
+            TermKind::Letter(l) => {
+                if !bound.contains(l) {
+                    out.insert(l.clone());
+                }
+                return;
+            }
+            TermKind::Quantified {
+                letter,
+                guard,
+                body,
+                ..
+            } => {
+                let mut inside = vec![&**body];
+                inside.extend(guard.as_deref());
+                (Vec::new(), inside, vec![letter])
+            }
+            TermKind::Bound {
+                letter, form, body, ..
+            } => (form.over(), vec![&**body], vec![letter]),
+            TermKind::Lambda { letters, body } => {
+                (Vec::new(), vec![&**body], letters.iter().collect())
+            }
+            TermKind::DependentIf {
+                proof,
+                cond,
+                yes,
+                no,
+            } => (vec![&**cond], vec![&**yes, &**no], vec![proof]),
+            _ => {
+                for c in self.children() {
+                    c.free_letters_into(bound, out);
+                }
+                return;
+            }
+        };
+        let (outside, inside, letters) = scoped;
+        for t in outside {
+            t.free_letters_into(bound, out);
+        }
+        let added = enter(bound, &letters);
+        for t in inside {
+            t.free_letters_into(bound, out);
+        }
+        bound.truncate(bound.len() - added);
     }
 
     /// Every letter the term names, free or bound.

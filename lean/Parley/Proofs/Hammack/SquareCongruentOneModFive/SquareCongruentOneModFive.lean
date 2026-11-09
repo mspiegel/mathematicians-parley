@@ -27,7 +27,7 @@ namespace Parley.Proofs.Hammack.SquareCongruentOneModFive.SquareCongruentOneModF
 theorem square_congruent_one_mod_five (a : ℤ) (hH2 : a ≡ (1 : ℤ) [ZMOD (5 : ℤ)]) :
     a ^ 2 ≡ (1 : ℤ) [ZMOD (5 : ℤ)] := by
   -- 1. def:congruent-mod, from H2
-  have s1 : (5 : ℤ) ∣ a - 1 := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := (1 : ℤ)))).mp hH2
+  have s1 : (5 : ℤ) ∣ a - 1 := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := (1 : ℤ)))).mp hH2
   -- 2. mun:divides-multiple e := 5, a := a − 1, x := a + 1, from 1
   have s2 : (5 : ℤ) ∣ (a - 1) * (a + 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1)
   -- 3. substitute

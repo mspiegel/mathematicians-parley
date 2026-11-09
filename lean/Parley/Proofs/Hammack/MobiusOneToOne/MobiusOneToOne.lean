@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -32,9 +33,13 @@ theorem mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     intro t hK2
     intro hA1
     -- 1.1. mun:remove-member u := s, Y := ℝ, a := 2, from K1
-    have s1_1 : s ≠ 2 := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := s))).mp hK1).2
+    have s1_1 : s ≠ 2 := by
+      have hI : s ≠ 2 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := s))).mp hK1).2)
+      exact hI
     -- 1.2. mun:remove-member u := t, Y := ℝ, a := 2, from K2
-    have s1_2 : t ≠ 2 := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := t))).mp hK2).2
+    have s1_2 : t ≠ 2 := by
+      have hI : t ≠ 2 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := t))).mp hK2).2)
+      exact hI
     -- 1.3. calculation
     have s1_3 : (5 * s + 1) / (s - 2) = (5 * t + 1) / (t - 2) := by
       calc (5 * s + 1) / (s - 2) = f s := by exact ((hH2 s (by parley_set_side))).symm

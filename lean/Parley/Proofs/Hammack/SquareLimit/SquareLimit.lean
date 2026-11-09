@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -49,7 +48,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     intro ε
     intro hA1
     set m : ℝ := min 1 (ε / 7) with hD1
-    have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)); parley_set_side)
+    have hD1_kind : True := by trivial
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 7 := by parley_order
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/7
@@ -68,13 +67,13 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
         try push_cast at *
         exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 3)) (x := (1 : ℝ)) (y := ε / 7))).mp hA2.2
       -- 1.4.2. mun:abs-difference-lt c := 3, δ := 1, from 1.4.1
-      have s1_4_2 : 3 - 1 < x ∧ x < 3 + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (3 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
+      have s1_4_2 : 3 - 1 < x ∧ x < 3 + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (3 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
       -- 1.4.3. inequalities, from 1.4.2
       have s1_4_3 : x + 3 > 0 := by parley_order
       -- 1.4.4. inequalities
       have s1_4_4 : x + 3 ≥ 0 := by parley_order
       -- 1.4.5. def:abs x := x + 3, from 1.4.4
-      have s1_4_5 : abs (x + 3) = x + 3 := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x + 3)) s1_4_4
+      have s1_4_5 : abs (x + 3) = x + 3 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x + 3)) s1_4_4
       -- 1.4.6. inequalities, from 1.4.2
       have s1_4_6 : x + 3 < 7 := by parley_order
       -- 1.4.7. transitivity, from 1.4.3, 1.4.5
@@ -96,8 +95,8 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
         exact row1
       -- 1.4.14. calculation
       have r94_1 : ε / 7 > 0 := by parley_set_side
-      calc abs (f x - 7) = abs (x + 3) * abs (x - 3) := by parley_set_side
-        _ < abs (x + 3) * (ε / 7) := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 3)) (y := ε / 7) (c := abs (x + 3)) (by parley_set_side))).mp s1_4_1.2
+      calc abs (f x - 7) = abs (x + 3) * abs (x - 3) := by exact s1_4_13
+        _ < abs (x + 3) * (ε / 7) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 3)) (y := ε / 7) (c := abs (x + 3)) (by parley_set_side))).mp s1_4_1.2
         _ = ε / 7 * abs (x + 3) := by parley_ring
         _ ≤ ε / 7 * 7 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (x + 3)) (y := (7 : ℝ)) (c := ε / 7) (by parley_set_side) (by parley_set_side))
         _ = ε := by parley_ring

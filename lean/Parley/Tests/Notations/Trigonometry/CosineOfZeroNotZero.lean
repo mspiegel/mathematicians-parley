@@ -24,7 +24,7 @@ theorem cosine_of_zero_not_zero :
   -- 2.1. calculation
   have s2_1 : (1 : ℝ) = 0 := by
     try rify
-    calc (1 : ℝ) = Real.cos (0 : ℝ) := by parley_side
+    calc (1 : ℝ) = Real.cos (0 : ℝ) := by exact s1.symm
       _ = 0 := by parley_side
   exact absurd s2_1 (by norm_num)
 

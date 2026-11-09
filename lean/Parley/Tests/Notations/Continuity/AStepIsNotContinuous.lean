@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import OrderTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -58,14 +57,14 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have r37_1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r37_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   have r37_4 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
-  have s4_1 : ∀ c ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - c) < δ → abs (f x - f c) < ε)) := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r37_1)).mp hS
+  have s4_1 : ∀ c ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - c) < δ → abs (f x - f c) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r37_1)).mp hS
   -- 4.2. instantiate c := 1/2, ε := 1/2 in line 4.1, from 1
   have r45_1 : (0 : ℚ) < 1 / 2 := by parley_arith
   have s4_2 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - 1 / 2) < δ → abs (f x - f (1 / 2)) < 1 / 2) := by exact (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side))
   -- 4.3. obtain δ from line 4.2
   obtain ⟨δ, ⟨s4_3a, s4_3b⟩⟩ := s4_2
   set m : ℝ := min δ (1 / 2) with hD2
-  have hD2_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := δ) (y := (1 / 2 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := δ) (y := (1 / 2 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := δ) (y := (1 / 2 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := δ) (y := (1 / 2 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := δ) (y := (1 / 2 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := δ) (y := (1 / 2 : ℝ))); parley_set_side)
+  have hD2_kind : True := by trivial
   set x₁ : ℝ := 1 / 2 - m / 2 with hD3
   have hD3_kind : True := by parley_set_side
   -- 4.4. mun:lt-min z := 0, x := δ, y := 1/2, from 4.3
@@ -105,7 +104,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 4.18. arithmetic
   have s4_18 : (0 - 1 : ℤ) < 0 := by parley_arith
   -- 4.19. def:abs x := 0 − 1, from 4.18
-  have s4_19 : (abs (0 - 1) : ℤ) = -(0 - 1) := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (0 - 1 : ℤ))) s4_18
+  have s4_19 : (abs (0 - 1) : ℤ) = -(0 - 1) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (0 - 1 : ℤ))) s4_18
   -- 4.20. calculation
   have s4_20 : (-(0 - 1) : ℚ) < 1 / 2 := by
     calc (-(0 - 1) : ℚ) = abs (0 - 1) := by parley_set_side

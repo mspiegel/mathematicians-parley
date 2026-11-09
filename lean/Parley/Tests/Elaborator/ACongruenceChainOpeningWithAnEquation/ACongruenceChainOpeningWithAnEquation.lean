@@ -22,7 +22,7 @@ theorem a_congruence_chain_opening_with_an_equation (a : ℤ) (b : ℤ) (n : ℤ
   -- 1. algebra, from H5
   have s1 : a * (Classical.choose hH5 : ℤ) = (Classical.choose hH5 : ℤ) * a := by parley_ring
   -- 2. calculation
-  calc a * (Classical.choose hH5 : ℤ) = (Classical.choose hH5 : ℤ) * a := by parley_side
+  calc a * (Classical.choose hH5 : ℤ) = (Classical.choose hH5 : ℤ) * a := by exact s1
     _ ≡ b [ZMOD n] := by parley_side
     _ ≡ 1 [ZMOD n] := by parley_side
 

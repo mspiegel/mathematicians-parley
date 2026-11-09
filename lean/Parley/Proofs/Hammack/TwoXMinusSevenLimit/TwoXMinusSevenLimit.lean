@@ -46,7 +46,7 @@ theorem two_x_minus_seven_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * 
       -- 1.2.1. instantiate x := x in H2
       have s1_2_1 : f x = 2 * x - 7 := by exact (hH2 x)
       -- 1.2.2. mun:abs-difference-lt c := 8, δ := ε/2, from A2
-      have s1_2_2 : 8 - ε / 2 < x ∧ x < 8 + ε / 2 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (8 : ℝ)) (δ := ε / 2))).mp hA2.2
+      have s1_2_2 : 8 - ε / 2 < x ∧ x < 8 + ε / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (8 : ℝ)) (δ := ε / 2))).mp hA2.2
       -- 1.2.3. inequalities
       have s1_2_3 : 9 - ε < 2 * x - 7 := by parley_order
       -- 1.2.4. transitivity, from 1.2.3, 1.2.1

@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -78,7 +79,9 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     -- 8.3. calculation
     have r87_1 : 0 ≤ m - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m) (k := k) hJ)
     have s8_3 : x ^ (m - k) * x = x ^ (m + 1 - k) := by
-      calc x ^ (m - k) * x = x ^ (m - k + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); parley_side)
+      calc x ^ (m - k) * x = x ^ (m - k + 1) := by
+            have hI : x ^ (m - k + 1) = x ^ (m - k) * x := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)))
+            exact hI.symm
         _ = x ^ (m + 1 - k) := by
             have s8_2_w : (m : ℝ) - (k : ℝ) + 1 = (m : ℝ) + 1 - (k : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s8_2; push_cast at h; linear_combination (norm := parley_norm) h
             first | parley_subst s8_2_w | parley_subst s8_2
@@ -90,7 +93,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
   -- 9. inequalities
   have s9 : m < m + 1 := by parley_order
   -- 10. def:C n := m, k := m + 1, from 9
-  have s10 : (LeanBridges.Counting.choose m (m + 1) : ℤ) = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := m) (by parley_side) (k := m + 1)) s9
+  have s10 : (LeanBridges.Counting.choose m (m + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m) (by parley_side) (k := m + 1)) s9
   -- 11. algebra
   have s11 : m + 1 - (m + 1) = 0 := by parley_ring
   -- 12. calculation

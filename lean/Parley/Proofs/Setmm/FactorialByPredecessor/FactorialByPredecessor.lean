@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import SubstTactics
 public import Tactics
@@ -28,7 +29,9 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
   -- 1. mun:nat-minus-one n := N
   have s1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) (by parley_side))
   -- 2. def:nat0 n := N − 1, from 1
-  have s2 : 0 < N - 1 ∨ N - 1 = 0 := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side)
+  have s2 : 0 < N - 1 ∨ N - 1 = 0 := by
+    have hI : 0 < N - 1 ∨ N - 1 = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side))
+    exact hI
   -- 3. cases, from 2
   rcases s2 with hC1 | hC2
   · skip
@@ -50,7 +53,7 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
     -- 3.6. calculation
     calc (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_subst s3_3
       _ = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
-      _ = 1 * N := by parley_side
+      _ = 1 * N := by exact s3_5.symm
       _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by parley_subst s3_4
 
 end Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor

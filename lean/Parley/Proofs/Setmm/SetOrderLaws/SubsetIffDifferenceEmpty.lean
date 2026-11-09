@@ -40,8 +40,8 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
     have s5 : B ∪ ∅ = B ∪ A := by parley_subst_at hD2 s4
     -- 6. calculation
     have s6 : B = B ∪ A := by
-      calc B = B ∪ ∅ := (Parley.Items.Stdlib.Sets.mun_union_empty (Y := B)).symm
-        _ = B ∪ A := by parley_set_side
+      calc B = B ∪ ∅ := by exact (Parley.Items.Stdlib.Sets.mun_union_empty (Y := B)).symm
+        _ = B ∪ A := by exact s5
     -- 7. thm:subset-of-union-right
     have s7 : A ⊆ B ∪ A := by exact (Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight.subset_of_union_right (A := A) (B := B))
     -- 8. substitute B = B ∪ A (line 6) into line 7

@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SubstTactics
@@ -80,7 +81,9 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have r72_1 : 1 ≤ n := by parley_order
     have s5_4 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = 0 := by
       calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => a k * b k)) (u := (fun k : ℤ => (0 : ℝ))) (a := (1 : ℤ)) (b := n) s5_3)
-        _ = ((n : ℝ) - 1 + 1) * 0 := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ)))
+        _ = ((n : ℝ) - 1 + 1) * 0 := by
+            have hI : (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) = ((n : ℝ) - 1 + 1) * 0 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))))
+            exact hI
         _ = 0 := by parley_ring
     -- 5.5. algebra, from 5.4
     have s5_5 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = 0 := by linear_combination (norm := parley_norm) ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ))) * s5_4
@@ -122,7 +125,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
       exact row1
     -- 5.16. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = B ^ 2 := by simp (disch := omega) only [hD2]
-      _ ≤ A * C := by parley_side
+      _ ≤ A * C := by exact s5_15
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * C := by simp (disch := omega) only [hD1]
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by simp (disch := omega) only [hD3]
 

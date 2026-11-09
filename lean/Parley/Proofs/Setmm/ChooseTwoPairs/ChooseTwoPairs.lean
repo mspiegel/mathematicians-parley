@@ -33,6 +33,6 @@ theorem choose_two_pairs (n : ℤ) (hH1 : 0 ≤ n) :
     exact row1
   -- 4. calculation
   calc n + (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n := by parley_ring
-    _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by parley_side
+    _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by exact s3
 
 end Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs

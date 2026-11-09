@@ -29,6 +29,90 @@ impl TacticRef {
     }
 }
 
+/// Why a step is closed by a `first` list: what no rule decides of it, so
+/// that the step tries its ways in order. The register of lists keeps each
+/// by its reason (`tests/first_lists.rs`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ListReason {
+    /// A cited item's statement and the claim, Lean states in different
+    /// types.
+    CitedTypesApart,
+    /// The two take an exponent to ℕ (`toNat`) in different places.
+    CitedToNatApart,
+    /// The two hold casts `push_cast` does not move all of.
+    CitedCastsUnmoved,
+    /// The two, in one type with their casts moved, are apart in the atoms
+    /// the ring's laws see.
+    CitedAtomsApart,
+    /// An equation the checker records no facing of.
+    CitedFacingUnknown,
+    /// A statement other than an equation or an order, met otherwise than
+    /// as written.
+    CitedOtherShape,
+    /// A claim Lean's types make true.
+    CitedClaimTruth,
+    /// A claim that counts a set, where a calculation may take its rows in
+    /// ℕ∞.
+    CitedClaimCounts,
+    /// The claim or the item's statement the writer does not state.
+    CitedUnstated,
+    /// A line and a goal apart in casts the cast table does not settle.
+    CastsUnsettled,
+    /// A named number's equations put in: the claim as it stands, or once
+    /// worked out.
+    NamedNumbers,
+    /// A function the header lets by its value put in: the claim as it
+    /// stands, or once worked out.
+    HeaderFunction,
+    /// A power's exponent taken to ℕ by a fact in scope or an index's range.
+    NaturalPowers,
+    /// A calculation row's equation put in by rewriting or substituting.
+    RowPut,
+    /// A calculation row read off a cited line, as it stands or turned, or
+    /// a part of it.
+    RowRead,
+    /// A define's two sides met with the defines written out.
+    DefineSides,
+    /// A define by cases, whose case the cited lines show: the record says
+    /// nothing of which case holds.
+    DefineByCases,
+    /// A substitution's equation put in: at its own type, the line's, or in
+    /// ℕ, by rewriting or by substituting.
+    Substituted,
+    /// A definition read backwards, its left side said otherwise than the
+    /// claim.
+    DefinitionBackwards,
+}
+
+impl ListReason {
+    /// What the register says of it.
+    pub fn text(self) -> &'static str {
+        match self {
+            ListReason::CitedTypesApart => "cited: item and claim in different types",
+            ListReason::CitedToNatApart => "cited: toNat in different places",
+            ListReason::CitedCastsUnmoved => "cited: casts push_cast does not move",
+            ListReason::CitedAtomsApart => "cited: ring atoms apart",
+            ListReason::CitedFacingUnknown => "cited: equation with no facing recorded",
+            ListReason::CitedOtherShape => {
+                "cited: other shape, met otherwise than written"
+            }
+            ListReason::CitedClaimTruth => "cited: claim a truth of Lean's types",
+            ListReason::CitedClaimCounts => "cited: claim counts a set",
+            ListReason::CitedUnstated => "cited: claim or item not stated",
+            ListReason::CastsUnsettled => "casts the cast table does not settle",
+            ListReason::NamedNumbers => "named numbers put in",
+            ListReason::HeaderFunction => "header function put in",
+            ListReason::NaturalPowers => "exponents taken to ℕ",
+            ListReason::RowPut => "row: equation put in",
+            ListReason::RowRead => "row: read off a cited line",
+            ListReason::DefineSides => "define: sides with defines written out",
+            ListReason::DefineByCases => "define by cases: the case not recorded",
+            ListReason::Substituted => "substitute: equation put in",
+            ListReason::DefinitionBackwards => "definition read backwards",
+        }
+    }
+}
+
 /// A tactic.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Tactic {
@@ -43,8 +127,9 @@ pub enum Tactic {
     Name { name: String, term: Term },
     /// `have := t`: a term's statement put among the facts, unnamed.
     Fact(Term),
-    /// `first | a | b`: the first that closes the goal.
-    First(Vec<Tactic>),
+    /// `first | a | b`: the first that closes the goal, tried because of
+    /// `why`.
+    First { why: ListReason, ways: Vec<Tactic> },
     /// `a; b`: one after the other.
     Seq(Vec<Tactic>),
     /// `(a)`.
@@ -221,7 +306,9 @@ impl Tactic {
         while i < out.len() {
             let node = out[i];
             match node {
-                Tactic::First(ts) | Tactic::Seq(ts) => out.extend(ts.iter()),
+                Tactic::First { ways: ts, .. } | Tactic::Seq(ts) => {
+                    out.extend(ts.iter())
+                }
                 Tactic::Group(t)
                 | Tactic::Try(t)
                 | Tactic::AllGoals(t)
@@ -279,7 +366,7 @@ impl Tactic {
             | Tactic::Set { value: t, .. }
             | Tactic::Rcases { from: t, .. }
             | Tactic::Induction { using: t, .. } => t.set_side(),
-            Tactic::First(ts) | Tactic::Seq(ts) => {
+            Tactic::First { ways: ts, .. } | Tactic::Seq(ts) => {
                 for t in ts {
                     t.set_side();
                 }

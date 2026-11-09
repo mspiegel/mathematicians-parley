@@ -34,7 +34,7 @@ theorem factorial_two :
     have row1 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by parley_subst_at c1 s2
     exact row1
   -- 4. calculation
-  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by parley_side
+  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by exact s3
     _ = 2 := by norm_num
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialTwo

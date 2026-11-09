@@ -2,9 +2,9 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
+public import InstanceTactics
 public import NormTactics
 public import PowerTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -64,7 +64,9 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
   have s1 : p - 1 + 1 = p := by parley_ring
   -- 2. mun:exponent-step a := 2, m := p − 1
   have r62_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) (by parley_side))
-  have s2 : (2 ^ (p - 1 + 1) : ℚ) = 2 ^ (p - 1) * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)); parley_side)
+  have s2 : (2 ^ (p - 1 + 1) : ℚ) = 2 ^ (p - 1) * 2 := by
+    have hI : (2 ^ (p - 1 + 1) : ℚ) = 2 ^ (p - 1) * 2 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := p - 1) (by parley_side)))
+    exact hI
   -- 3. substitute (p − 1) + 1 = p (line 1) into line 2
   have s3 : (2 ^ p.toNat : ℚ) = 2 ^ (p - 1) * 2 := by
     have s1_w : (p : ℚ) - 1 + 1 = (p : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
@@ -95,7 +97,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
     have s4_6 : (2 ^ p.toNat - 1 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side) s4_5)
     -- 4.7. def:prime p := 2^p − 1, from H2
     have r95_1 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ p.toNat - 1 : ℤ)) hH2)
-    have s4_7 : (2 ^ p.toNat - 1 : ℤ) > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp hH2).1
+    have s4_7 : (2 ^ p.toNat - 1 : ℤ) > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp hH2).1
     -- 4.8. inequalities
     have s4_8 : (2 ^ p.toNat - 1 : ℤ) ≠ 1 := by parley_side
     exact s4_8 s4_6
@@ -124,7 +126,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
     exact (by
       try qify
       calc (ArithmeticFunction.sigma 1 (2 ^ (p - 1).toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) (p - 1), (2 ^ j.toNat : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) (by parley_side)); parley_side)
-        _ = (1 - 2 ^ (p - 1 + 1)) / (1 - 2) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)) | exact_mod_cast ((Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side))).symm | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); parley_int_power h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); parley_rat_of_real h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); parley_side)
+        _ = (1 - 2 ^ (p - 1 + 1)) / (1 - 2) := by (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) (by parley_side)); simp (disch := omega) only [parley_zpow_toNat] at h ⊢; exact_mod_cast h)
         _ = (1 - 2 ^ p.toNat) / (1 - 2) := by
             have s1_w : (p : ℚ) - 1 + 1 = (p : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
             first | parley_subst s1_w | parley_subst s1

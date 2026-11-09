@@ -694,7 +694,7 @@ fn renamed_bound(term: &Term, next: &mut usize) -> Term {
 
 /// The term untyped, with no bracket the writer kept and no ascription of
 /// a term to its own type, `(2 : ℝ)` of a real 2: what Lean reads alike.
-fn ascriptions_dropped(term: &Term) -> Term {
+pub fn ascriptions_dropped(term: &Term) -> Term {
     match &term.kind {
         TermKind::Paren(inner) => return ascriptions_dropped(inner),
         TermKind::Cast { inner, to } if inner.ty.as_ref() == Some(to) => {
@@ -909,101 +909,6 @@ pub fn casts_set_letter(term: &Term, values: &Values) -> bool {
             .any(|n| matches!(&n.kind, TermKind::Letter(l) if values.contains_key(l))),
         _ => false,
     })
-}
-
-/// The statement as `simp only` leaves it with the lemmas a general item
-/// taken at ℤ or at ℕ asks, and the lemmas it used. An item over any ring,
-/// or over any set, states a membership in its own general terms, where the
-/// writer states it of an integer as the integer's own fact:
-/// - a cast of a term to its own type is gone (`Int.cast_id`);
-/// - `∃ m, P m ∧ m = x` is `P x` (`exists_eq_right`), so ℕ₀ of an item
-///   over K, `∃ m : ℤ, 0 ≤ m ∧ (m : ℤ) = n` at K = ℤ, is `0 ≤ n`;
-/// - `x ∈ {y : T | P y}` is `P x` (`Set.mem_setOf_eq`), so an item's
-///   `m ∈ X` at X = ℕ, `m ∈ {n : ℤ | 0 < n}`, is `0 < m`;
-/// - `x ∈ {y ∈ X | P y}` is `x ∈ X ∧ P x` (`Set.mem_sep_iff`).
-pub fn simp_read(term: &Term) -> (Term, Vec<&'static str>) {
-    let mut used = std::collections::BTreeSet::new();
-    let stripped = ascriptions_dropped(term);
-    if stripped != *term {
-        used.insert("Int.cast_id");
-    }
-    // `simp` puts a function's argument into its body as it goes, which no
-    // lemma names: `(fun d => d ∣ m) t` is `t ∣ m`.
-    let read = beta_reduced(&simp_read_into(&beta_reduced(&stripped), &mut used));
-    (read, used.into_iter().collect())
-}
-
-fn simp_read_into(
-    term: &Term,
-    used: &mut std::collections::BTreeSet<&'static str>,
-) -> Term {
-    let mut out = term.clone();
-    for c in out.children_mut() {
-        *c = simp_read_into(c, used);
-    }
-    let prop = Some(LeanType::Prop);
-    let and = |a: Term, b: Term| match super::term::Op::of("∧") {
-        Some(op) => Term::infix(op, a, b, LeanType::Prop),
-        None => a,
-    };
-    if let TermKind::Infix { op, lhs, rhs } = &out.kind {
-        if op.symbol == "∈" {
-            match &bare(rhs).kind {
-                TermKind::Bound {
-                    form: BoundForm::SetOf,
-                    letter,
-                    body,
-                    ..
-                } => {
-                    used.insert("Set.mem_setOf_eq");
-                    return simp_read_into(&substituted(body, letter, lhs), used);
-                }
-                TermKind::Bound {
-                    form: BoundForm::SetOfMember { set },
-                    letter,
-                    body,
-                    ..
-                } => {
-                    used.insert("Set.mem_sep_iff");
-                    let member = Term {
-                        kind: TermKind::Infix {
-                            op: *op,
-                            lhs: lhs.clone(),
-                            rhs: set.clone(),
-                        },
-                        ty: prop.clone(),
-                    };
-                    return and(
-                        simp_read_into(&member, used),
-                        simp_read_into(&substituted(body, letter, lhs), used),
-                    );
-                }
-                _ => {}
-            }
-        }
-    }
-    if let TermKind::Quantified {
-        quant: super::term::Quant::Exists,
-        letter,
-        guard: Some(guard),
-        body,
-        ..
-    } = &out.kind
-    {
-        if let TermKind::Infix { op, lhs, rhs } = &bare(body).kind {
-            if op.symbol == "="
-                && matches!(&bare(lhs).kind, TermKind::Letter(l) if l == letter)
-                && !rhs
-                    .walk()
-                    .iter()
-                    .any(|t| matches!(&t.kind, TermKind::Letter(l) if l == letter))
-            {
-                used.insert("exists_eq_right");
-                return substituted(guard, letter, rhs);
-            }
-        }
-    }
-    out
 }
 
 /// Whether Lean writes the two alike, an ascription of a term to its own
@@ -1700,13 +1605,16 @@ mod tests {
     #[test]
     fn a_value_naming_a_bound_letter_is_not_captured() {
         let m = Term::letter("m", int());
+        let renamed = "∃ m' : ℤ, 0 ≤ m' ∧ m' = m";
         let put = substituted(&some_natural_is_n(), "n", &m);
-        assert_eq!(simp_read(&put).0.text(), "0 ≤ m");
+        assert_eq!(put.text(), renamed);
         let mut values = std::collections::BTreeMap::new();
         values.insert("n".to_string(), m);
-        let put = substituted_all(&some_natural_is_n(), &values);
-        assert_eq!(simp_read(&put).0.text(), "0 ≤ m");
-        assert_eq!(some_natural_is_n().substituted(&values).text(), put.text());
+        assert_eq!(
+            substituted_all(&some_natural_is_n(), &values).text(),
+            renamed
+        );
+        assert_eq!(some_natural_is_n().substituted(&values).text(), renamed);
     }
 
     #[test]

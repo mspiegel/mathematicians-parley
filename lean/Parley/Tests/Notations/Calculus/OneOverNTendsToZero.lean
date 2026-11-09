@@ -42,7 +42,7 @@ theorem one_over_n_tends_to_zero :
       -- 1.2.1. mun:reciprocal-order x := N, y := n, from A2
       have r238_1 : N > 0 := by parley_order
       have r238_2 : n > 0 := by parley_order
-      have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
       -- 1.2.2. mun:reciprocal-positive x := n
       have r243_1 : n > 0 := by parley_order
       have s1_2_2 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by parley_side))

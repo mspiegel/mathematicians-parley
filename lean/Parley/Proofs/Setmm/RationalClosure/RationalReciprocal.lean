@@ -33,7 +33,7 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
       first | parley_subst_at hS_w s1b | parley_subst_at hS s1b
     -- 2.2. calculation
     have s2_2 : A = 0 := by
-      calc A = 0 / (q : ℚ) := by parley_side
+      calc A = 0 / (q : ℚ) := by exact s2_1
         _ = 0 := by parley_ring
     -- 2.3. restate H2
     have s2_3 : A ≠ 0 := by parley_side

@@ -23,7 +23,7 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
   have s1 : ∀ u ∈ A ∪ B ∩ C, u ∈ (A ∪ B) ∩ (A ∪ C) := by
     intro u hK1
     -- 1.1. def:union, from K1
-    have s1_1 : u ∈ A ∨ u ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B ∩ C) (u := u))).mp hK1
+    have s1_1 : u ∈ A ∨ u ∈ B ∩ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B ∩ C) (u := u))).mp hK1
     -- 1.2. cases, from 1.1
     rcases s1_1 with hC1 | hC2
     · skip
@@ -37,7 +37,7 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
       exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr (by parley_set_side)
     · skip
       -- 1.2.5. def:intersection, from C2
-      have s1_2_5 : u ∈ B ∧ u ∈ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mp hC2
+      have s1_2_5 : u ∈ B ∧ u ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mp hC2
       -- 1.2.6. mun:in-union-right, from 1.2.5
       have s1_2_6 : u ∈ A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s1_2_5.1)
       -- 1.2.7. mun:in-union-right, from 1.2.5
@@ -52,11 +52,11 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
   have s3 : ∀ u ∈ (A ∪ B) ∩ (A ∪ C), u ∈ A ∪ B ∩ C := by
     intro u hK2
     -- 3.1. def:intersection, from K2
-    have s3_1 : u ∈ A ∪ B ∧ u ∈ A ∪ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mp hK2
+    have s3_1 : u ∈ A ∪ B ∧ u ∈ A ∪ C := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mp hK2
     -- 3.2. def:union, from 3.1
-    have s3_2 : u ∈ A ∨ u ∈ B := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := u))).mp s3_1.1
+    have s3_2 : u ∈ A ∨ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := u))).mp s3_1.1
     -- 3.3. def:union, from 3.1
-    have s3_3 : u ∈ A ∨ u ∈ C := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := C) (u := u))).mp s3_1.2
+    have s3_3 : u ∈ A ∨ u ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := C) (u := u))).mp s3_1.2
     -- 3.4. axi:excluded-middle P := u ∈ A
     have s3_4 : u ∈ A ∨ ¬ u ∈ A := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := u ∈ A))
     -- 3.5. cases, from 3.4

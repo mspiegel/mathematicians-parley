@@ -27,15 +27,15 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
   · skip
     intro hD1
     -- 1. def:one-to-one, from D1
-    have s1 : ∀ s ∈ A, ∀ t ∈ A, f s = f t → s = t := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp hD1).2
+    have s1 : ∀ s ∈ A, ∀ t ∈ A, f s = f t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp hD1).2
     -- 2. proof
     intro X hK1
     -- 2.1. proof
     have s2_1 : ∀ u ∈ A ∩ f ⁻¹' (f '' (A ∩ X)), u ∈ X := by
       intro u hK2
       -- 2.1.1. def:preimage Z := f[X], from K2
-      have s2_1_1a : u ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).1
-      have s2_1_1b : f u ∈ f '' (A ∩ X) := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2; parley_set_side)
+      have s2_1_1a : u ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).1
+      have s2_1_1b : f u ∈ f '' (A ∩ X) := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2
       -- 2.1.2. obtain s: def:image u := f(u), Y := X, from K1, 2.1.1
       obtain ⟨s, s2_1_2a, s2_1_2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := X) (f := f) (u := f u) (W := Set.univ) hK1 (by parley_set_side))).mp s2_1_1b
       -- 2.1.3. mun:in-subset Y := A, u := s, from K1, 2.1.2

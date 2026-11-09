@@ -40,7 +40,7 @@ theorem binomial_of_one (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.5. substitute 1 − 1 = 0 (arithmetic) into line 1.3
       have s1_5 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) := by parley_subst_at (show (1 - 1 : ℤ) = 0 by parley_side) s1_3
       -- 1.6. calculation
-      calc (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := by parley_side
+      calc (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := by exact s1_5.symm
         _ = j + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := by parley_subst hIH
         _ = j + 1 := by parley_subst s1_4
   -- 2. instantiate j := m in line 1

@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -69,7 +70,9 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.4. inequalities, from 1.3.3
       have s1_3_4 : 0 ≤ j - 1 := by parley_order
       -- 1.3.5. mun:nat0-as-int n := j − 1, from 1.3.4
-      have s1_3_5 : 0 ≤ j - 1 := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - 1))).mpr (by parley_set_side)
+      have s1_3_5 : 0 ≤ j - 1 := by
+        have hI : 0 ≤ j - 1 := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - 1))).mpr (by parley_set_side))
+        exact hI
       -- 1.3.6. algebra, from 1.1
       have s1_3_6 : (R.ncard : ℤ) = j - 1 + 1 := by linear_combination (norm := parley_norm) s1_1b
       -- 1.3.7. mun:card-remove X := R, k := j − 1, from C1, 1.3.5, 1.3.6

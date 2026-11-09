@@ -21,7 +21,7 @@ theorem one_is_not_prime :
   -- 2. contradiction
   intro hS
   -- 2.1. def:prime p := 1, from S
-  have s2_1 : (1 : ℤ) > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (1 : ℤ)) (by parley_side))).mp hS).1
+  have s2_1 : (1 : ℤ) > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (1 : ℤ)) (by parley_side))).mp hS).1
   exact s1 s2_1
 
 end Parley.Tests.Notations.Primes.OneIsNotPrime

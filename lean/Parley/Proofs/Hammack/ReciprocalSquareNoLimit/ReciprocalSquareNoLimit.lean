@@ -52,7 +52,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   obtain ⟨L, s1⟩ := hS
   -- 2. def:limit-at D := ℝ ∖ {1}, c := 1, from 1
   have r33_1 : (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(1 : ℝ)} : Set ℝ)))
-  have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) r33_1 (c := (1 : ℝ)) (L := L))).mp s1
+  have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) r33_1 (c := (1 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r37_1 : (0 : ℤ) < 1 := by parley_arith
   have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
@@ -84,7 +84,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 17. mun:remove-member u := 1 + 1/N, from 16
   have s17 : 1 + 1 / (N : ℝ) ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := 1 + 1 / (N : ℝ)))).mpr (by parley_set_side)
   -- 18. mun:reciprocal-order-strict x := 1/p, y := N, from 6, 7, 12, 14
-  have s18 : 1 / (N : ℝ) < 1 / (1 / p) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order_strict (x := 1 / p) (by parley_set_side) (y := (N : ℝ)) (by parley_set_side))).mp s12
+  have s18 : 1 / (N : ℝ) < 1 / (1 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order_strict (x := 1 / p) (by parley_set_side) (y := (N : ℝ)) (by parley_set_side))).mp s12
   -- 19. substitute
   have r94_1 : p ≠ 0 := by parley_set_side
   have s19 : 1 / (N : ℝ) < p := by
@@ -99,8 +99,8 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
     calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by
           have s20_w : 1 + 1 / (N : ℝ) - 1 = 1 / (N : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s20; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s20_w | parley_subst s20
-      _ = 1 / (N : ℝ) := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (by parley_set_side)
-      _ < p := by parley_set_side
+      _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (by parley_set_side)
+      _ < p := by exact s19
   -- 22. join 16, 21
   have s22 : 1 + 1 / (N : ℚ) ≠ 1 ∧ abs (1 + 1 / (N : ℝ) - 1) < p := by parley_set_side
   -- 23. instantiate x := 1 + 1/N in line 4, from 17, 22
@@ -121,7 +121,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
     calc f (1 + 1 / (N : ℝ)) = 1 / ((1 + 1 / (N : ℝ)) ^ 2 - 2 * (1 + 1 / (N : ℝ)) + 1) := by exact (hH2 (1 + 1 / (N : ℝ)) (by parley_set_side))
       _ = (N : ℝ) ^ 2 := by parley_ring
   -- 29. mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 23
-  have s29 : L - 1 < f (1 + 1 / (N : ℝ)) ∧ f (1 + 1 / (N : ℝ)) < L + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (1 + 1 / (N : ℝ))) (c := L) (δ := (1 : ℝ)))).mp s23
+  have s29 : L - 1 < f (1 + 1 / (N : ℝ)) ∧ f (1 + 1 / (N : ℝ)) < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (1 + 1 / (N : ℝ))) (c := L) (δ := (1 : ℝ)))).mp s23
   -- 30. substitute f(1 + 1/N) = N² (line 28) into line 29
   have s30 : (N : ℝ) ^ 2 < L + 1 := by parley_subst_at s28 s29
   -- 31. mun:multiply-le x := 1, y := N, c := N, from 9

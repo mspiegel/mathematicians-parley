@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -17,7 +18,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Insert
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -174,7 +174,8 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       intro w h_w
       try simp only [hD2] at *
       try push_cast at *
-      first | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side); parley_set_side)
+      have hI : ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2)
+      exact hI
     -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
     exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) (by parley_set_side) (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side))
   · skip
@@ -197,10 +198,11 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have s32_10_1b : ¬ ({v, w} : Set α) ∈ E := by
         try simp only [hD3] at *
         try push_cast at *
-        exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2
+        have hI : ¬ ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2)
+        exact hI
       -- 32.10.2. mun:remove-member u := w, Y := X, a := v, from 32.10.1
-      have s32_10_2a : w ∈ X := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).1
-      have s32_10_2b : ¬ w = v := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).2
+      have s32_10_2a : w ∈ X := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).1
+      have s32_10_2b : ¬ w = v := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).2
       -- 32.10.3. mun:pair-subset a := v, b := w, from 9, 32.10.2
       have s32_10_3 : ({v, w} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := X) (a := v) (b := w) s9 s32_10_2a)
       -- 32.10.4. mun:subset-transitive, from H8, 32.10.3

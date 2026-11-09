@@ -25,7 +25,7 @@ theorem multiplying_bounds (A : ℝ) (B : ℝ) (C : ℝ) (D : ℝ) (hH5 : 0 ≤ 
   -- 4. transitivity, from H5, H6
   have s4 : B > 0 := by parley_order
   -- 5. calculation
-  calc A * C ≤ B * C := by parley_side
-    _ < B * D := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := C) (y := D) (c := B) (by parley_side))).mp hH8
+  calc A * C ≤ B * C := by exact s3
+    _ < B * D := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := C) (y := D) (c := B) (by parley_side))).mp hH8
 
 end Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds

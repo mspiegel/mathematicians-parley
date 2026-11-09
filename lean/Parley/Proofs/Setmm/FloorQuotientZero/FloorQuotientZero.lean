@@ -1,8 +1,8 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import OrderTactics
-public import RealTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -13,7 +13,6 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -45,9 +44,11 @@ theorem floor_quotient_zero (A : ℤ) (hH1 : 0 ≤ A) (B : ℤ) (hH2 : 0 < B) :
   · skip
     intro hC2
     -- 3.4. mun:floor-between x := A/B, k := 0, from C2
-    have s3_4 : 0 ≤ (A : ℝ) / (B : ℝ) ∧ (A : ℝ) / (B : ℝ) < 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mp hC2 | exact (((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mp hC2).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mp hC2 | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mp hC2 | (have h := ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mp hC2; parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mp hC2; parley_side)
+    have s3_4 : 0 ≤ (A : ℝ) / (B : ℝ) ∧ (A : ℝ) / (B : ℝ) < 1 := by
+      have hI : 0 ≤ (A : ℝ) / (B : ℝ) ∧ (A : ℝ) / (B : ℝ) < 0 + 1 := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mp hC2)
+      simpa only [zero_add] using hI
     -- 3.5. mun:less-scaled x := A/B, y := 1, c := B, from H2, 3.4
-    have s3_5 : (B : ℝ) * ((A : ℝ) / (B : ℝ)) < (B : ℝ) := by linarith [((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (A : ℝ) / (B : ℝ)) (y := (1 : ℝ)) (c := (B : ℝ)) (by parley_side))).mp s3_4.2]
+    have s3_5 : (B : ℝ) * ((A : ℝ) / (B : ℝ)) < (B : ℝ) := by simpa only [mul_one] using ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (A : ℝ) / (B : ℝ)) (y := (1 : ℝ)) (c := (B : ℝ)) (by parley_side))).mp s3_4.2
     -- 3.6. transitivity, from 1, 3.5
     parley_order
 

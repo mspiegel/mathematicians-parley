@@ -24,7 +24,7 @@ theorem zero_not_in_one_to_three :
   -- 2. contradiction
   intro hS
   -- 2.1. def:range n := 3, k := 0, from S
-  have s2_1 : (0 : ℤ) < 0 := (((Parley.Items.Stdlib.Sums.def_range (k := (0 : ℤ)) (n := (3 : ℤ)))).mp hS).1
+  have s2_1 : (0 : ℤ) < 0 := by exact (((Parley.Items.Stdlib.Sums.def_range (k := (0 : ℤ)) (n := (3 : ℤ)))).mp hS).1
   exact s1 s2_1
 
 end Parley.Tests.Notations.Counting.ZeroNotInOneToThree

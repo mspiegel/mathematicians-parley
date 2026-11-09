@@ -35,7 +35,7 @@ theorem sine_squared_plus_cosine_squared (A : ℂ) :
   calc Complex.sin A ^ 2 + Complex.cos A ^ 2 = Complex.cos A * Complex.cos A - Complex.sin A * -Complex.sin A := by parley_ring
     _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin (-A) := by parley_subst s2
     _ = Complex.cos A * Complex.cos (-A) - Complex.sin A * Complex.sin (-A) := by parley_subst s1
-    _ = Complex.cos (A + -A) := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)).symm
+    _ = Complex.cos (A + -A) := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)).symm
     _ = (Real.cos (0 : ℝ) : ℂ) := by parley_subst s3
     _ = 1 := by parley_real
 

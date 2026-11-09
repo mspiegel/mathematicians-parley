@@ -43,8 +43,8 @@ theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finit
   have s6 : ∀ s ∈ A \ B, ¬ s ∈ B := by
     intro s hK
     -- 6.1. def:difference Y := A, Z := B, from K
-    have s6_1a : s ∈ A := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).1
-    have s6_1b : ¬ s ∈ B := (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).2
+    have s6_1a : s ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).1
+    have s6_1b : ¬ s ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).2
     -- 6.2. restate 6.1
     parley_set_side
   -- 7. mun:disjoint-empty Y := B, Z := A ∖ B, from 6

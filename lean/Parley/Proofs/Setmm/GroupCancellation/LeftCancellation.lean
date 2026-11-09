@@ -43,8 +43,8 @@ theorem left_cancellation {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ :
     have s7 : (1 : G) * b = g⁻¹ * (g * b) := by parley_subst_at s2 s4
     -- 8. calculation
     calc a = (1 : G) * a := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a) hH2).symm
-      _ = g⁻¹ * (g * b) := by parley_set_side
-      _ = (1 : G) * b := by parley_set_side
+      _ = g⁻¹ * (g * b) := by exact s6
+      _ = (1 : G) * b := by exact s7.symm
       _ = b := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := b) hH3)
   · skip
     intro hD2

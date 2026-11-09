@@ -50,7 +50,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       have s3_2 : 4 * k ^ 2 = 4 * b + 3 := by
         calc 4 * k ^ 2 = (2 * k) ^ 2 := by parley_ring
           _ = a ^ 2 := by parley_subst s3_1
-          _ = 4 * b + 3 := by parley_side
+          _ = 4 * b + 3 := by exact s1
       -- 3.3. algebra, from 3.2
       have s3_3 : 1 = 2 * (2 * k ^ 2 - 2 * b - 1) := by linear_combination (norm := parley_norm) (-1) * s3_2
       -- 3.4. def:even n := 1, from 3.3
@@ -62,7 +62,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       have s3_6 : 4 * k ^ 2 + 4 * k + 1 = 4 * b + 3 := by
         calc 4 * k ^ 2 + 4 * k + 1 = (2 * k + 1) ^ 2 := by parley_ring
           _ = a ^ 2 := by parley_subst s3_5
-          _ = 4 * b + 3 := by parley_side
+          _ = 4 * b + 3 := by exact s1
       -- 3.7. algebra, from 3.6
       have s3_7 : 1 = 2 * (k ^ 2 + k - b) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s3_6
       -- 3.8. def:even n := 1, from 3.7

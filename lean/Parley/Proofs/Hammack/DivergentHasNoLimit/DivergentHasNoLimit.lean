@@ -32,7 +32,7 @@ theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℤ
   -- 1. obtain L from S
   obtain ⟨L, s1⟩ := hS
   -- 2. def:tends-to, from 1
-  have s2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp s1
+  have s2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r22_1 : (0 : ℤ) < 1 := by parley_arith
   have s3 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < 1) := by exact (s2 (1 : ℝ) (by parley_side))
@@ -55,7 +55,7 @@ theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℤ
   -- 12. instantiate n := P + Q in line 6, from 10
   have s12 : a (P + Q) > L + 1 := by exact (s6b (P + Q) (by parley_side) (by parley_side))
   -- 13. mun:abs-difference-lt x := a(P + Q), c := L, δ := 1, from 11
-  have s13 : L - 1 < a (P + Q) ∧ a (P + Q) < L + 1 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a (P + Q)) (c := L) (δ := (1 : ℝ)))).mp s11
+  have s13 : L - 1 < a (P + Q) ∧ a (P + Q) < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a (P + Q)) (c := L) (δ := (1 : ℝ)))).mp s11
   -- 14. inequalities
   have s14 : a (P + Q) ≤ L + 1 := by parley_order
   -- 15. inequalities, from 14

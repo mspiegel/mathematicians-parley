@@ -22,12 +22,12 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
   have s1 : ∀ t ∈ 𝒫 A ∩ 𝒫 B, t ∈ 𝒫 (A ∩ B) := by
     intro t hK1
     -- 1.1. def:intersection u := t, Y := 𝒫A, Z := 𝒫B, from K1
-    have s1_1a : t ∈ 𝒫 A := (((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mp hK1).1
-    have s1_1b : t ∈ 𝒫 B := (((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mp hK1).2
+    have s1_1a : t ∈ 𝒫 A := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mp hK1).1
+    have s1_1b : t ∈ 𝒫 B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mp hK1).2
     -- 1.2. def:powerset S := t, from 1.1
-    have s1_2 : t ⊆ A := ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := t))).mp s1_1a
+    have s1_2 : t ⊆ A := by exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := t))).mp s1_1a
     -- 1.3. def:powerset S := t, A := B, from 1.1
-    have s1_3 : t ⊆ B := ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := t))).mp s1_1b
+    have s1_3 : t ⊆ B := by exact ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := t))).mp s1_1b
     -- 1.4. proof
     have s1_4 : ∀ x ∈ t, x ∈ A ∩ B := by
       intro x hK2
@@ -47,7 +47,7 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
   have s3 : ∀ t ∈ 𝒫 (A ∩ B), t ∈ 𝒫 A ∩ 𝒫 B := by
     intro t hK3
     -- 3.1. def:powerset S := t, A := A ∩ B, from K3
-    have s3_1 : t ⊆ A ∩ B := ((Parley.Items.Stdlib.Sets.def_powerset (A := A ∩ B) (S := t))).mp hK3
+    have s3_1 : t ⊆ A ∩ B := by exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A ∩ B) (S := t))).mp hK3
     -- 3.2. proof
     have s3_2 : ∀ x ∈ t, x ∈ A := by
       intro x hK4

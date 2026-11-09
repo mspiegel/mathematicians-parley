@@ -31,7 +31,7 @@ set_option maxHeartbeats 600000 in
 theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (N : ℤ) (hH3 : 0 ≤ N) (hH4 : N < P) :
     ¬ P ∣ (LeanBridges.Counting.factorial N : ℤ) := by
   -- 1. def:prime p := P, from H2
-  have s1 : P > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
+  have s1 : P > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
   -- 2. induction on k starting at 1
   have s2 : ∀ k : ℤ, 0 < k → k < P → ¬ P ∣ (LeanBridges.Counting.factorial k : ℤ) := by
     intro k h_k

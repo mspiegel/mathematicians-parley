@@ -10,7 +10,6 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -50,7 +49,7 @@ theorem integer_at_most_square (n : ℤ) :
     parley_order
   · skip
     -- 4.6. mun:integer-step m := 0, from C3
-    have s4_6 : 1 ≤ n := by linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) hC3)]
+    have s4_6 : 1 ≤ n := by simpa only [zero_add] using (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) hC3)
     -- 4.7. mun:multiply-le x := 1, y := n, c := n, from C3, 4.6
     have s4_7 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
     -- 4.8. inequalities

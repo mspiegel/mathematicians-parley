@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Tactics
@@ -37,9 +38,13 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
     intro t hK2
     intro hA1
     -- 1.1. mun:remove-member u := s, Y := ℝ, a := 1, from K1
-    have s1_1 : s ≠ 1 := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp hK1).2
+    have s1_1 : s ≠ 1 := by
+      have hI : s ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := s))).mp hK1).2)
+      exact hI
     -- 1.2. mun:remove-member u := t, Y := ℝ, a := 1, from K2
-    have s1_2 : t ≠ 1 := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp hK2).2
+    have s1_2 : t ≠ 1 := by
+      have hI : t ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp hK2).2)
+      exact hI
     -- 1.3. algebra, from 1.1
     have s1_3 : s - 1 ≠ 0 := by intro h; exact s1_1 (by linear_combination (norm := parley_norm) h)
     -- 1.4. algebra, from 1.2

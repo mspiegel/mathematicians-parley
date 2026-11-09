@@ -4,6 +4,7 @@ public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SubstTactics
@@ -37,7 +38,9 @@ set_option maxHeartbeats 400000 in
 theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = N := by
   -- 1. def:nat0 n := N
-  have s1 : 0 < N ∨ N = 0 := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side)
+  have s1 : 0 < N ∨ N = 0 := by
+    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side))
+    exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip
@@ -56,7 +59,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_6 : 0 < (LeanBridges.Counting.factorial (N - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - 1) (by parley_side))
     -- 2.7. calculation
     try qify
-    calc (LeanBridges.Counting.choose N (1 : ℤ) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * (LeanBridges.Counting.factorial (1 : ℤ) : ℚ)) := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) s2_3
+    calc (LeanBridges.Counting.choose N (1 : ℤ) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * (LeanBridges.Counting.factorial (1 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := (1 : ℤ))) s2_3
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
           have s2_4_w : (LeanBridges.Counting.factorial (1 : ℤ) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s2_4_w | parley_subst s2_4
@@ -70,7 +73,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.9. substitute N = 0 (C2) into line 2.8
     have s2_9 : N < 1 := by parley_subst_at hC2 s2_8
     -- 2.10. calculation
-    calc (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = 0 := (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) s2_9
+    calc (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) s2_9
       _ = N := by parley_side
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseOne

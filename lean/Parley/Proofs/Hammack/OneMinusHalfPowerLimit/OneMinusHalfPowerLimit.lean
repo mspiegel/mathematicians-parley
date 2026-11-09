@@ -82,11 +82,11 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.3. mun:reciprocal-order x := n, y := 2^n, from 1
       have r67_1 : n > 0 := by parley_side
       have r67_2 : (2 ^ n.toNat : ℤ) > 0 := by parley_side
-      have s2_2_3 : 1 / 2 ^ n.toNat ≤ 1 / (n : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by parley_side) (y := (2 ^ n.toNat : ℚ)) (by parley_side))).mp (by parley_side)
+      have s2_2_3 : 1 / 2 ^ n.toNat ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by parley_side) (y := (2 ^ n.toNat : ℚ)) (by parley_side))).mp (by parley_side)
       -- 2.2.4. mun:reciprocal-order x := N, y := n, from A2
       have r72_1 : N > 0 := by parley_order
       have r72_2 : n > 0 := by parley_side
-      have s2_2_4 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s2_2_4 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
       -- 2.2.5. transitivity, from 2.2.3, 2.2.4, 2.1
       have s2_2_5 : 1 / 2 ^ n.toNat < ε := by parley_order
       -- 2.2.6. inequalities

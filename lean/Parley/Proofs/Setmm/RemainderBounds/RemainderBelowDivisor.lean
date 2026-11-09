@@ -32,7 +32,7 @@ theorem remainder_below_divisor (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 1. inequalities
   have s1 : B ≠ 0 := by parley_side
   set q : ℤ := ⌊A / B⌋ with hD1
-  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)) | exact ((Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)); parley_side)
+  have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
     try simp only [hD1] at *
@@ -46,7 +46,7 @@ theorem remainder_below_divisor (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 4. calculation
   have s4 : A < B * (q : ℝ) + B := by
     calc A = B * (A / B) := by parley_ring
-      _ < B * ((q : ℝ) + 1) := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (q : ℝ) + 1) (c := B) (by parley_side))).mp s3
+      _ < B * ((q : ℝ) + 1) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (q : ℝ) + 1) (c := B) (by parley_side))).mp s3
       _ = B * (q : ℝ) + B := by parley_ring
   -- 5. inequalities
   have s5 : A - B * (q : ℝ) < B := by parley_order

@@ -62,8 +62,8 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       have s4_4 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
       -- 4.5. calculation
       have s4_5 : F 1 = 1 := by
-        calc F 1 = G 0 := by parley_side
-          _ = 1 := by parley_side
+        calc F 1 = G 0 := by exact s4_2
+          _ = 1 := by exact s4_3
       -- 4.6. instantiate k := 0 in line 3
       have s4_6 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s3 (0 : ℤ) (by parley_side))
       -- 4.7. calculation
@@ -80,7 +80,7 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
         _ = F (2 * 1) := by simp (disch := omega) only [hD2]
         _ = F (1 + 1) := by norm_num
-        _ = 1 := by parley_side
+        _ = 1 := by exact s4_7
         _ = 2 - 1 := by norm_num
         _ = F (2 * 1 + 1) - 1 := by parley_subst s4_9
     | succ m hK3 hIH2 =>

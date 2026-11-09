@@ -16,7 +16,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -66,7 +65,7 @@ theorem powers_of_nine_in_powers_of_three :
         _ = 3 ^ (2 * m) := by exact (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower.nine_power_is_three_power (m := m))
     -- 3.3. mun:power-cancel a := 3, m := 1, n := 2m, from 3.2
     have r238_1 : (3 : ℤ) > 1 := by parley_arith
-    have s3_3 : 1 = 2 * m := ((Parley.Items.Stdlib.Numbers.mun_power_cancel (a := (3 : ℚ)) (m := (1 : ℤ)) (n := 2 * m) (by parley_set_side))).mp s3_2
+    have s3_3 : 1 = 2 * m := by exact ((Parley.Items.Stdlib.Numbers.mun_power_cancel (a := (3 : ℚ)) (m := (1 : ℤ)) (n := 2 * m) (by parley_set_side))).mp s3_2
     -- 3.4. algebra, from 3.3
     have s3_4 : (m : ℚ) = 1 / 2 := by
       have s3_3_w : 1 = 2 * (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_3; push_cast at h; linear_combination (norm := parley_norm) h
@@ -76,7 +75,7 @@ theorem powers_of_nine_in_powers_of_three :
     -- 3.6. inequalities, from 3.5
     have s3_6 : 0 < m := by parley_order
     -- 3.7. mun:integer-step m := 0, n := m, from 3.6
-    have s3_7 : 1 ≤ m := by linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6)]
+    have s3_7 : 1 ≤ m := by simpa only [zero_add] using (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6)
     -- 3.8. inequalities
     have s3_8 : 2 ≤ 2 * m := by parley_order
     -- 3.9. inequalities, from 3.8

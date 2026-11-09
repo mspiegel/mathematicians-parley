@@ -1,11 +1,11 @@
 module
 
 public import OrderTactics
-public import RealTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Group.Basic
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
@@ -44,7 +44,7 @@ theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 
       -- 1.1.1. instantiate x := x in H2
       have s1_1_1 : f x = x + 2 := by exact (hH2 x)
       -- 1.1.2. mun:abs-difference-lt c := 0, δ := ε, from A2
-      have s1_1_2 : 0 - ε < x ∧ x < ε := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2); parley_set_side)
+      have s1_1_2 : 0 - ε < x ∧ x < ε := by simpa only [zero_add] using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2)
       -- 1.1.3. inequalities
       have s1_1_3 : 2 - ε < x + 2 := by parley_order
       -- 1.1.4. transitivity, from 1.1.3, 1.1.1

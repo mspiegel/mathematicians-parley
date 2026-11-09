@@ -20,7 +20,7 @@ theorem a_recursion_header_and_an_assumption (F : ℤ → ℤ) (hD1 : F 0 = (0 :
   -- 1. substitute F(1) = 2 (H1)
   have s1 : F 1 + 1 = 2 + 1 := by parley_subst hH1
   -- 2. calculation
-  calc F 1 + 1 = 2 + 1 := by parley_side
+  calc F 1 + 1 = 2 + 1 := by exact s1
     _ = 3 := by norm_num
 
 end Parley.Tests.Elaborator.ARecursionHeaderAndAnAssumption.ARecursionHeaderAndAnAssumption

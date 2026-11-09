@@ -26,7 +26,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
   have s1 : ∀ u ∈ F '' (A ∩ X), u ∈ {y ∈ B | ∃ x ∈ X, F x = y} := by
     intro u hK1
     -- 1.1. def:image X := A, Y := X, from H4, K1
-    have s1_1 : ∃ s ∈ X, u = F s := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := X) (f := F) (u := u) (W := Set.univ) hH4 (by parley_set_side))).mp hK1
+    have s1_1 : ∃ s ∈ X, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := X) (f := F) (u := u) (W := Set.univ) hH4 (by parley_set_side))).mp hK1
     -- 1.2. obtain s from line 1.1
     obtain ⟨s, s1_2a, s1_2b⟩ := s1_1
     -- 1.3. mun:in-subset, from H4, 1.2

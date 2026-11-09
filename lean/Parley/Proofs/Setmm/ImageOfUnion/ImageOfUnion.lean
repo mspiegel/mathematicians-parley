@@ -27,11 +27,11 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
   have s2 : ∀ u ∈ F '' (A ∩ (B ∪ C)), u ∈ F '' (A ∩ B) ∪ F '' (A ∩ C) := by
     intro u hK1
     -- 2.1. def:image X := A, Y := B ∪ C, from K1, 1
-    have s2_1 : ∃ s ∈ B ∪ C, u = F s := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B ∪ C) (f := F) (u := u) (W := Set.univ) s1 (by parley_set_side))).mp hK1
+    have s2_1 : ∃ s ∈ B ∪ C, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B ∪ C) (f := F) (u := u) (W := Set.univ) s1 (by parley_set_side))).mp hK1
     -- 2.2. obtain s from line 2.1
     obtain ⟨s, s2_2a, s2_2b⟩ := s2_1
     -- 2.3. def:union, from 2.2
-    have s2_3 : s ∈ B ∨ s ∈ C := ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := s))).mp s2_2a
+    have s2_3 : s ∈ B ∨ s ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := s))).mp s2_2a
     -- 2.4. cases, from 2.3
     rcases s2_3 with hC1 | hC2
     · skip
@@ -54,12 +54,12 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
   have s4 : ∀ u ∈ F '' (A ∩ B) ∪ F '' (A ∩ C), u ∈ F '' (A ∩ (B ∪ C)) := by
     intro u hK2
     -- 4.1. def:union, from K2
-    have s4_1 : u ∈ F '' (A ∩ B) ∨ u ∈ F '' (A ∩ C) := ((Parley.Items.Stdlib.Sets.def_union (Y := F '' (A ∩ B)) (Z := F '' (A ∩ C)) (u := u))).mp hK2
+    have s4_1 : u ∈ F '' (A ∩ B) ∨ u ∈ F '' (A ∩ C) := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := F '' (A ∩ B)) (Z := F '' (A ∩ C)) (u := u))).mp hK2
     -- 4.2. cases, from 4.1
     rcases s4_1 with hC3 | hC4
     · skip
       -- 4.2.1. def:image X := A, Y := B, from C3, H4
-      have s4_2_1 : ∃ s ∈ B, u = F s := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B) (f := F) (u := u) (W := Set.univ) hH4 (by parley_set_side))).mp hC3
+      have s4_2_1 : ∃ s ∈ B, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := B) (f := F) (u := u) (W := Set.univ) hH4 (by parley_set_side))).mp hC3
       -- 4.2.2. obtain s from line 4.2.1
       obtain ⟨s, s4_2_2a, s4_2_2b⟩ := s4_2_1
       -- 4.2.3. mun:in-union-left, from 4.2.2
@@ -70,7 +70,7 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
       parley_subst_at s4_2_2b s4_2_4
     · skip
       -- 4.2.6. def:image X := A, Y := C, from C4, H5
-      have s4_2_6 : ∃ s ∈ C, u = F s := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := C) (f := F) (u := u) (W := Set.univ) hH5 (by parley_set_side))).mp hC4
+      have s4_2_6 : ∃ s ∈ C, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := C) (f := F) (u := u) (W := Set.univ) hH5 (by parley_set_side))).mp hC4
       -- 4.2.7. obtain s from line 4.2.6
       obtain ⟨s, s4_2_7a, s4_2_7b⟩ := s4_2_6
       -- 4.2.8. mun:in-union-right, from 4.2.7

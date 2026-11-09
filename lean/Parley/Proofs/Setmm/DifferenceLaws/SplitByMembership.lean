@@ -23,17 +23,17 @@ theorem split_by_membership {α : Type*} (A : Set α) (B : Set α) :
   have s1 : ∀ u ∈ A ∩ B ∪ A \ B, u ∈ A := by
     intro u hK1
     -- 1.1. def:union, from K1
-    have s1_1 : u ∈ A ∩ B ∨ u ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_union (Y := A ∩ B) (Z := A \ B) (u := u))).mp hK1
+    have s1_1 : u ∈ A ∩ B ∨ u ∈ A \ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A ∩ B) (Z := A \ B) (u := u))).mp hK1
     -- 1.2. cases, from 1.1
     rcases s1_1 with hC1 | hC2
     · skip
       -- 1.2.1. def:intersection, from C1
-      have s1_2_1 : u ∈ A ∧ u ∈ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp hC1
+      have s1_2_1 : u ∈ A ∧ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp hC1
       -- 1.2.2. restate 1.2.1
       parley_set_side
     · skip
       -- 1.2.3. def:difference, from C2
-      have s1_2_3 : u ∈ A ∧ ¬ u ∈ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp hC2
+      have s1_2_3 : u ∈ A ∧ ¬ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp hC2
       -- 1.2.4. restate 1.2.3
       parley_set_side
   -- 2. def:subset, from 1

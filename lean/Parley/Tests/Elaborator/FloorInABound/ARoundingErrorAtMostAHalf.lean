@@ -29,7 +29,7 @@ theorem a_rounding_error_at_most_a_half (A : ℝ) (hH2 : (⌊A + 1 / 2⌋ : ℝ)
   -- 1. mun:floor-integer x := A + 1/2
   -- 2. membership, from 1
   -- 3. def:abs x := ⌊A + 1/2⌋ − A, from H2, 2
-  have s3 : abs ((⌊A + 1 / 2⌋ : ℝ) - A) = (⌊A + 1 / 2⌋ : ℝ) - A := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hH2
+  have s3 : abs ((⌊A + 1 / 2⌋ : ℝ) - A) = (⌊A + 1 / 2⌋ : ℝ) - A := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hH2
   -- 4. transitivity, from 3, H3
   parley_order
 

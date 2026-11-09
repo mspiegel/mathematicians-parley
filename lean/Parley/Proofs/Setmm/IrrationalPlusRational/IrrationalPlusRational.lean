@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -12,7 +13,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -31,7 +31,9 @@ set_option maxHeartbeats 400000 in
 theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (hH4 : ∃ m : ℚ, (m : ℝ) = B) :
     A + B ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x} := by
   -- 1. def:difference Y := ℝ, Z := ℚ, from H3
-  have s1 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by simpa only [Int.cast_id, Set.mem_setOf_eq] using (((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp hH3).2
+  have s1 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by
+    have hI : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp hH3).2)
+    exact hI
   -- 2. obtain p, q: def:rational x := B, from H4
   obtain ⟨p, q, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp hH4
   -- 3. contradiction
@@ -45,7 +47,7 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     have s3_3 : A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by parley_subst_at s2b s3_2
     -- 3.4. calculation
     have s3_4 : A = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by
-      calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by parley_set_side
+      calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by exact s3_3
         _ = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by parley_ring
     -- 3.5. exhibit, from 3.4
     have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, by parley_set_side, by first | exact_mod_cast s3_4 | (have h := s3_4; push_cast at h ⊢; exact h) | simpa using s3_4⟩

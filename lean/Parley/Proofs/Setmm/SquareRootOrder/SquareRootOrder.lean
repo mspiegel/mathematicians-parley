@@ -39,9 +39,9 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     have s3_1 : Real.sqrt B < Real.sqrt A := by parley_order
     -- 3.2. calculation
     have s3_2 : B < A := by
-      calc B = Real.sqrt B ^ 2 := by parley_side
-        _ < Real.sqrt A ^ 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mp s3_1
-        _ = A := by parley_side
+      calc B = Real.sqrt B ^ 2 := by exact s2b.symm
+        _ < Real.sqrt A ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mp s3_1
+        _ = A := by exact s1b
     -- 3.3. inequalities, from 3.2
     have s3_3 : ¬ A ≤ B := by parley_side
     exact s3_3 hD1
@@ -52,9 +52,9 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     have s3_4 : B < A := by parley_order
     -- 3.5. calculation
     have s3_5 : Real.sqrt B ^ 2 < Real.sqrt A ^ 2 := by
-      calc Real.sqrt B ^ 2 = B := by parley_side
-        _ < A := by parley_side
-        _ = Real.sqrt A ^ 2 := by parley_side
+      calc Real.sqrt B ^ 2 = B := by exact s2b
+        _ < A := by exact s3_4
+        _ = Real.sqrt A ^ 2 := by exact s1b.symm
     -- 3.6. mun:square-less x := √B, y := √A, from 1, 2, 3.5
     have s3_6 : Real.sqrt B < Real.sqrt A := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mpr s3_5
     -- 3.7. inequalities, from 3.6

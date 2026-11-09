@@ -52,9 +52,9 @@ theorem multiples_of_six :
   have s3 : ∀ t ∈ (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ), t ∈ (fun n : ℤ => 6 * n) '' (Set.univ : Set ℤ) := by
     intro t hK2
     -- 3.1. def:intersection u := t, from K2
-    have s3_1 : t ∈ (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) := (((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mp hK2).1
+    have s3_1 : t ∈ (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mp hK2).1
     -- 3.2. def:intersection u := t, from K2
-    have s3_2 : t ∈ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := (((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mp hK2).2
+    have s3_2 : t ∈ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mp hK2).2
     -- 3.3. obtain a: def:set-image u := t, from 3.1
     obtain ⟨a, _, s3_3⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 2 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp s3_1
     -- 3.4. obtain b: def:set-image u := t, from 3.2
@@ -73,7 +73,7 @@ theorem multiples_of_six :
       exact row1
     -- 3.8. calculation
     have s3_8 : t = 6 * (a - b) := by
-      calc t = 6 * a - 6 * b := by parley_set_side
+      calc t = 6 * a - 6 * b := by exact s3_7
         _ = 6 * (a - b) := by parley_ring
     -- 3.9. exhibit, from 3.8
     have s3_9 : ∃ n : ℤ, t = 6 * n := ⟨a - b, s3_8⟩

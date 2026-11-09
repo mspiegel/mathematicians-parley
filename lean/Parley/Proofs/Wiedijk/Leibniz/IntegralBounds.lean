@@ -2,9 +2,8 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
+public import InstanceTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -26,19 +25,12 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
-public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -64,9 +56,9 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 1. mun:interval-real
   have s1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   -- 2. D1
-  have s2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), f x = x ^ (2 * n).toNat := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), f x = x ^ (2 * n).toNat := by simp (disch := omega) only [hD1, implies_true]
   -- 3. D2
-  have s3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = x ^ (2 * n).toNat / (1 + x ^ 2) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = x ^ (2 * n).toNat / (1 + x ^ 2) := by simp (disch := omega) only [hD2, implies_true]
   -- 4. membership, from D1
   have s4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 5. membership, from D2
@@ -85,7 +77,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   have s10 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x ≥ 0 := by
     intro x hK1
     -- 10.1. def:interval a := 0, b := 1, from K1
-    have s10_1 : x ≥ 0 := (((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := (1 : ℝ)))).mp hK1).1.2
+    have s10_1 : x ≥ 0 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := (1 : ℝ)))).mp hK1).1.2
     -- 10.2. mun:power-nonneg a := x, m := 2n, from 10.1
     have s10_2 : x ^ (2 * n).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := x) (m := 2 * n) (by parley_set_side) (by parley_set_side))
     -- 10.3. mun:square-nonneg
@@ -103,7 +95,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   have s11 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x ≤ f x := by
     intro x hK2
     -- 11.1. def:interval a := 0, b := 1, from K2
-    have s11_1 : x ≥ 0 := (((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := (1 : ℝ)))).mp hK2).1.2
+    have s11_1 : x ≥ 0 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := (1 : ℝ)))).mp hK2).1.2
     -- 11.2. mun:power-nonneg a := x, m := 2n, from 11.1
     have s11_2 : x ^ (2 * n).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := x) (m := 2 * n) (by parley_set_side) (by parley_set_side))
     -- 11.3. mun:square-nonneg
@@ -130,7 +122,9 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 14. thm:integral-order a := 0, b := 1, f := g, g := f, from 6, 7, 8, 9, 11, 12
   have s14 : (∫ t in 0..1, (g t : ℝ)) ≤ (∫ t in 0..1, (f t : ℝ)) := by exact (Parley.Items.Stdlib.Calculus.thm_integral_order (f := g) (g := f) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
   -- 15. thm:power-integral m := 2n
-  have s15 : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)) | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)) | exact_mod_cast ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side))).symm | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)); parley_set_side)
+  have s15 : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by
+    have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)))
+    exact hI
   -- 16. D1
   have s16 : (∫ t in 0..1, (f t : ℝ)) = (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) := by simp (disch := omega) only [hD1]
   -- 17. D0, from D2

@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
@@ -13,7 +14,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -35,7 +35,9 @@ set_option maxHeartbeats 600000 in
 theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℤ => (c * a n : ℝ)) Filter.atTop (nhds (c * L)) := by
   -- 1. mun:abs-nonneg x := c
-  have s1 : abs c ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ)))
+  have s1 : abs c ≥ 0 := by
+    have hI : 0 ≤ abs c := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ))))
+    exact hI
   -- 2. inequalities, from 1
   have s2 : abs c + 1 > 0 := by parley_order
   -- 3. inequalities
@@ -49,7 +51,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
     -- 4.2. membership
     have r39_1 : abs c + 1 ≠ 0 := by parley_side
     -- 4.3. def:tends-to, from H4
-    have s4_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH4
+    have s4_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH4
     -- 4.4. instantiate ε := ε/(|c| + 1) in line 4.3, from 4.1, 4.2
     have s4_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε / (abs c + 1)) := by exact (s4_3 (ε / (abs c + 1)) (by parley_side))
     -- 4.5. obtain N from line 4.4
@@ -63,9 +65,11 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
       -- 4.6.3. instantiate n := n in line 4.5, from A2
       have s4_6_3 : abs (a n - L) < ε / (abs c + 1) := by exact (s4_5b n (by parley_side) (by parley_side))
       -- 4.6.4. mun:abs-nonneg x := a(n) − L, from 4.6.1
-      have s4_6_4 : abs (a n - L) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))); parley_side)
+      have s4_6_4 : abs (a n - L) ≥ 0 := by
+        have hI : 0 ≤ abs (a n - L) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))))
+        exact hI
       -- 4.6.5. mun:less-scaled x := |a(n) − L|, y := ε/(|c| + 1), c := |c| + 1, from 2, 4.6.2, 4.6.3
-      have s4_6_5 : (abs c + 1) * abs (a n - L) < (abs c + 1) * (ε / (abs c + 1)) := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (a n - L)) (y := ε / (abs c + 1)) (c := abs c + 1) (by parley_side))).mp s4_6_3
+      have s4_6_5 : (abs c + 1) * abs (a n - L) < (abs c + 1) * (ε / (abs c + 1)) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (a n - L)) (y := ε / (abs c + 1)) (c := abs c + 1) (by parley_side))).mp s4_6_3
       -- 4.6.6. algebra
       have r72_1 : abs c + 1 ≠ 0 := by parley_side
       have s4_6_6 : (abs c + 1) * (ε / (abs c + 1)) = ε := by parley_ring

@@ -21,8 +21,8 @@ theorem an_assume_line_of_several_sentences (a : ℝ) (b : ℝ) (hH3a : a = 1) (
   -- 2. substitute b = 2 (H3)
   have s2 : 1 + b = 1 + 2 := by parley_subst hH3b
   -- 3. calculation
-  calc a + b = 1 + b := by parley_side
-    _ = 1 + 2 := by parley_side
+  calc a + b = 1 + b := by exact s1
+    _ = 1 + 2 := by exact s2
     _ = 3 := by norm_num
 
 end Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnAssumeLineOfSeveralSentences

@@ -28,14 +28,14 @@ theorem sqrt_four_not_irrational :
   have s1 : Real.sqrt (4 : ℝ) = 2 := by exact Parley.Tests.Notations.Numbers.SqrtFour.sqrt_four
   -- 2. calculation
   have s2 : Real.sqrt (4 : ℝ) = 2 / 1 := by
-    calc Real.sqrt (4 : ℝ) = 2 := by parley_side
+    calc Real.sqrt (4 : ℝ) = 2 := by exact s1
       _ = 2 / 1 := by norm_num
   -- 3. def:rational x := √4, from 2
   have s3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), (1 : ℤ), by parley_side, by push_cast at s2 ⊢; exact s2⟩
   -- 4. contradiction
   intro hS
   -- 4.1. def:irrational x := √4, from S
-  have s4_1 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ)) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp hS).2
+  have s4_1 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ)) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp hS).2
   exact s4_1 s3
 
 end Parley.Tests.Notations.Numbers.SqrtFourNotIrrational

@@ -4,8 +4,8 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import PowerTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.LinearCombination
@@ -14,8 +14,6 @@ public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep
@@ -33,7 +31,7 @@ theorem five_consecutive_natural (m : ℤ) (hH1 : 0 ≤ m) :
   have s1 : (LeanBridges.Counting.choose m (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := m) (by parley_side))
   -- 2. thm:scaled-binomial-step i := 0, j := 1
   have r60_1 : (1 - 1 : ℤ) = 0 := by parley_arith
-  have s2 : 1 * (LeanBridges.Counting.choose (m + 1) (1 : ℤ) : ℤ) = (m + 1) * (LeanBridges.Counting.choose m (0 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1) | (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1) | exact_mod_cast ((Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1)).symm | (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1); parley_int_power h) | (have h := (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1); parley_side)
+  have s2 : 1 * (LeanBridges.Counting.choose (m + 1) (1 : ℤ) : ℤ) = (m + 1) * (LeanBridges.Counting.choose m (0 : ℤ) : ℤ) := by simpa only [add_zero, one_mul] using (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (0 : ℤ)) (by parley_side) (j := (1 : ℤ)) (by parley_side) r60_1)
   -- 3. thm:scaled-binomial-step i := 1, j := 2
   have r64_1 : (2 - 1 : ℤ) = 1 := by parley_arith
   have s3 : 2 * (LeanBridges.Counting.choose (m + 2) (2 : ℤ) : ℤ) = (m + 2) * (LeanBridges.Counting.choose (m + 1) (1 : ℤ) : ℤ) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) (by parley_side) (i := (1 : ℤ)) (by parley_side) (j := (2 : ℤ)) (by parley_side) r64_1)

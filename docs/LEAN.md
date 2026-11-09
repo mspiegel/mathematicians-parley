@@ -100,6 +100,19 @@ block's letter, or what it implies. A range's bound is
 itself, and `n ≠ 0` is its `.ne'`. `X ⊆ A` of `X ∈ 𝒫A` is the hypothesis as it
 stands.
 
+**A citation.** The writer writes the cited item's sentence at the
+citation's values as it writes the step's own lines: the item's tree with the
+values put in (`matching::substitute_apart`, a function or property given as
+a value applied where the sentence applies it), written by the theorem's
+writer. It states it as `have hI : … := by parley_instance (item …)` and
+closes the step's claim from `hI` as the checker met the two (`exact`,
+`.symm`, or the identities the meeting names). `parley_instance`
+(`InstanceTactics`) reads the item's Lean statement, written once over any
+ring or set, in that spelling by the simp set `parley_spelling`, whose every
+rule is one representation fact, then moves the casts of the two alike
+(`exact_mod_cast`). A fact found missing is tagged into the set, never added
+at a step.
+
 **Casts.** Where two statements are alike but for casts, the closer comes
 from the cast table (`src/lean/casts.rs`). For each operation the writer
 writes and each widening between ℕ, ℤ, ℚ, ℝ and ℂ, the table says whether

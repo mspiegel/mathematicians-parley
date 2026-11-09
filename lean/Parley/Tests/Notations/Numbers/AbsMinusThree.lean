@@ -25,9 +25,9 @@ theorem abs_minus_three :
   -- 1. arithmetic
   have s1 : (-3 : ℤ) < 0 := by parley_arith
   -- 2. def:abs x := −3, from 1
-  have s2 : (abs (-3) : ℤ) = -(-3) := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (-3 : ℤ))) s1
+  have s2 : (abs (-3) : ℤ) = -(-3) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (-3 : ℤ))) s1
   -- 3. calculation
-  calc (abs (-3) : ℤ) = -(-3) := by parley_side
+  calc (abs (-3) : ℤ) = -(-3) := by exact s2
     _ = 3 := by norm_num
 
 end Parley.Tests.Notations.Numbers.AbsMinusThree

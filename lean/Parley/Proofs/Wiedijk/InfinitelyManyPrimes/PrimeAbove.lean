@@ -35,7 +35,7 @@ theorem prime_above (n : ℤ) (hH1 : 0 < n) :
   -- 3. obtain p: thm:prime-factor m := n! + 1, from 2
   obtain ⟨p, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := (LeanBridges.Counting.factorial n : ℤ) + 1) (by parley_side) s2)
   -- 4. def:prime, from 3
-  have s4 : p > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp s3b).1
+  have s4 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp s3b).1
   -- 5. contradiction
   have s5 : p > n := by
     by_contra hS

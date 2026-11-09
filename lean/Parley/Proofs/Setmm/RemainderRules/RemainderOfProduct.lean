@@ -1,9 +1,8 @@
 module
 
 public import Divisibility
+public import InstanceTactics
 public import NormTactics
-public import PowerTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -18,9 +17,6 @@ public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -37,7 +33,7 @@ theorem remainder_of_product (A : ℝ) (B : ℤ) (M : ℝ) (hH4 : M > 0) :
   -- 1. inequalities
   have s1 : M ≠ 0 := by parley_side
   set q : ℤ := ⌊A / M⌋ with hD1
-  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)) | exact ((Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)); parley_side)
+  have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := M, from D1, H4
   have s2 : LeanBridges.Divisibility.mod A M = A - M * (q : ℝ) := by
     try simp only [hD1] at *
@@ -47,6 +43,8 @@ theorem remainder_of_product (A : ℝ) (B : ℤ) (M : ℝ) (hH4 : M > 0) :
   have s3 : LeanBridges.Divisibility.mod A M * (B : ℝ) = A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ)) := by linear_combination (norm := parley_norm) ((B : ℝ)) * s2
   -- 4. calculation
   calc LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M * (B : ℝ)) M = LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M := by parley_subst s3
-    _ = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))) | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))) | exact_mod_cast ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B)))).symm | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); parley_int_power h) | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); parley_rat_of_real h) | (have h := (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))); parley_side)
+    _ = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by
+        have hI : LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by parley_instance ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))))
+        exact hI
 
 end Parley.Proofs.Setmm.RemainderRules.RemainderOfProduct

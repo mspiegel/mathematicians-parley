@@ -56,7 +56,7 @@ theorem sqrt_two_plus_sqrt_three :
       have row1 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := by parley_subst_at c1 s4_2
       exact row1
     -- 4.4. def:irrational x := √6·2 + 5, from 3
-    have s4_4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp s3).2
+    have s4_4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp s3).2
     -- 4.5. restate 4.4
     have s4_5 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by parley_side
     exact s4_5 s4_3

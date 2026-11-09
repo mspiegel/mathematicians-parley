@@ -28,13 +28,13 @@ theorem divides_or_not_prime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (hH
   -- the theorem. contradiction
   by_contra hS
   -- 1. mun:not-either, from S
-  have s1a : ¬ b ∣ a := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := b ∣ a) (Q := ¬ Nat.Prime b.toNat))).mp hS).1
-  have s1b : ¬ ¬ Nat.Prime b.toNat := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := b ∣ a) (Q := ¬ Nat.Prime b.toNat))).mp hS).2
+  have s1a : ¬ b ∣ a := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := b ∣ a) (Q := ¬ Nat.Prime b.toNat))).mp hS).1
+  have s1b : ¬ ¬ Nat.Prime b.toNat := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := b ∣ a) (Q := ¬ Nat.Prime b.toNat))).mp hS).2
   -- 2. mun:double-negation, from 1
   have s2 : Nat.Prime b.toNat := by exact (Parley.Items.Stdlib.Reasoning.mun_double_negation (P := Nat.Prime b.toNat) s1b)
   -- 3. def:prime p := b, from 2
-  have s3a : b > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := b) (by parley_side))).mp s2).1
-  have s3b : ∀ d : ℤ, 0 < d → d ∣ b → d = 1 ∨ d = b := (((Parley.Items.Stdlib.Divisibility.def_prime (p := b) (by parley_side))).mp s2).2
+  have s3a : b > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := b) (by parley_side))).mp s2).1
+  have s3b : ∀ d : ℤ, 0 < d → d ∣ b → d = 1 ∨ d = b := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := b) (by parley_side))).mp s2).2
   -- 4. def:gcd
   have s4a : 0 < (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a) (by parley_side) (b := b) (by parley_side))
   have s4b : (Int.gcd a b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a) (by parley_side) (b := b) (by parley_side))

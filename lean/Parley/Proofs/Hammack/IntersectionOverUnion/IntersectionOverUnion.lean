@@ -22,10 +22,10 @@ theorem intersection_over_union {α : Type*} (A : Set α) (B : Set α) (C : Set 
   have s1 : ∀ t ∈ A ∩ (B ∪ C), t ∈ A ∩ B ∪ A ∩ C := by
     intro t hK1
     -- 1.1. def:intersection u := t, Y := A, Z := B ∪ C, from K1
-    have s1_1a : t ∈ A := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mp hK1).1
-    have s1_1b : t ∈ B ∪ C := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mp hK1).2
+    have s1_1a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mp hK1).1
+    have s1_1b : t ∈ B ∪ C := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mp hK1).2
     -- 1.2. def:union u := t, Y := B, Z := C, from 1.1
-    have s1_2 : t ∈ B ∨ t ∈ C := ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := t))).mp s1_1b
+    have s1_2 : t ∈ B ∨ t ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := t))).mp s1_1b
     -- 1.3. cases, from 1.2
     rcases s1_2 with hC1 | hC2
     · skip
@@ -44,21 +44,21 @@ theorem intersection_over_union {α : Type*} (A : Set α) (B : Set α) (C : Set 
   have s3 : ∀ t ∈ A ∩ B ∪ A ∩ C, t ∈ A ∩ (B ∪ C) := by
     intro t hK2
     -- 3.1. def:union u := t, Y := A ∩ B, Z := A ∩ C, from K2
-    have s3_1 : t ∈ A ∩ B ∨ t ∈ A ∩ C := ((Parley.Items.Stdlib.Sets.def_union (Y := A ∩ B) (Z := A ∩ C) (u := t))).mp hK2
+    have s3_1 : t ∈ A ∩ B ∨ t ∈ A ∩ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A ∩ B) (Z := A ∩ C) (u := t))).mp hK2
     -- 3.2. cases, from 3.1
     rcases s3_1 with hC3 | hC4
     · skip
       -- 3.2.1. def:intersection u := t, Y := A, Z := B, from C3
-      have s3_2_1a : t ∈ A := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hC3).1
-      have s3_2_1b : t ∈ B := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hC3).2
+      have s3_2_1a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hC3).1
+      have s3_2_1b : t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp hC3).2
       -- 3.2.2. mun:in-union-left u := t, Y := B, Z := C, from 3.2.1
       have s3_2_2 : t ∈ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := C) (u := t) s3_2_1b)
       -- 3.2.3. def:intersection u := t, Y := A, Z := B ∪ C, from 3.2.1, 3.2.2
       exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mpr (by parley_set_side)
     · skip
       -- 3.2.4. def:intersection u := t, Y := A, Z := C, from C4
-      have s3_2_4a : t ∈ A := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := t))).mp hC4).1
-      have s3_2_4b : t ∈ C := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := t))).mp hC4).2
+      have s3_2_4a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := t))).mp hC4).1
+      have s3_2_4b : t ∈ C := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := t))).mp hC4).2
       -- 3.2.5. mun:in-union-right u := t, Y := B, Z := C, from 3.2.4
       have s3_2_5 : t ∈ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := B) (Z := C) (u := t) s3_2_4b)
       -- 3.2.6. def:intersection u := t, Y := A, Z := B ∪ C, from 3.2.4, 3.2.5

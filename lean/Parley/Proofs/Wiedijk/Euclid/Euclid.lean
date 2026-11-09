@@ -120,7 +120,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 4.3.9. calculation
         calc (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd (b k) (b (k + 1)) : ℤ) := by parley_subst s4_3_4
           _ = (Int.gcd (b k) (a k % b k) : ℤ) := by parley_subst s4_3_5
-          _ = (Int.gcd (a k % b k) (b k) : ℤ) := by parley_side
+          _ = (Int.gcd (a k % b k) (b k) : ℤ) := by exact s4_3_8
           _ = (Int.gcd (a k) (b k) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side))
           _ = (Int.gcd M N : ℤ) := by parley_side
   -- 5. induction on k starting at 0
@@ -183,7 +183,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
     have s8_3 : ¬ b N + N ≤ N := by parley_side
     exact s8_3 s8_1
   -- 9. calculation
-  calc a N = (Int.gcd (a N) (0 : ℤ) : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := a N) (by parley_side)).symm
+  calc a N = (Int.gcd (a N) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := a N) (by parley_side)).symm
     _ = (Int.gcd (a N) (b N) : ℤ) := by parley_subst s8
     _ = (Int.gcd M N : ℤ) := by exact (s4 N (by parley_side))
 

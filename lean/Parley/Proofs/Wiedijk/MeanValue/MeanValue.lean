@@ -20,7 +20,6 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -59,9 +58,9 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   set g : ℝ → ℝ := fun x : ℝ => m * x with hD2
   set F : ℝ → ℝ := fun x : ℝ => f x + g x with hD3
   -- 5. D2
-  have s5 : ∀ x ∈ (Set.Icc a b : Set ℝ), g x = m * x := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s5 : ∀ x ∈ (Set.Icc a b : Set ℝ), g x = m * x := by simp (disch := omega) only [hD2, implies_true]
   -- 6. D3
-  have s6 : ∀ x ∈ (Set.Icc a b : Set ℝ), F x = f x + g x := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_set_side
+  have s6 : ∀ x ∈ (Set.Icc a b : Set ℝ), F x = f x + g x := by simp (disch := omega) only [hD3, implies_true]
   -- 7. membership, from D2
   have s7 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; parley_set_side
   -- 8. mun:function-into, from 7
@@ -109,14 +108,14 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 21. calculation
   have r121_1 : b - a ≠ 0 := by parley_set_side
   have s21 : F a = F b := by
-    calc F a = f a + g a := by parley_set_side
+    calc F a = f a + g a := by exact s17
       _ = f a + m * a := by parley_subst s18
       _ = f b + m * b := by
           try simp only [hD1] at *
           try push_cast at *
           parley_ring
       _ = f b + g b := by parley_subst s20
-      _ = F b := by parley_set_side
+      _ = F b := by exact s19
   -- 22. obtain c: thm:rolle f := F, from H3, 12, 15, 21
   have r132_1 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   obtain ⟨c, s22a, s22b⟩ := (Parley.Items.Stdlib.Calculus.thm_rolle (f := F) (a := a) (b := b) hH3 s12 s15 s21)

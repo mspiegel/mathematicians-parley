@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
@@ -41,7 +42,9 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
   -- 2. mun:image-within, from H1
   have s2 : x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_image_within (X := (Set.univ : Set ℤ)) (W := (Set.univ : Set ℝ)) (Y := {n : ℤ | 0 < n}) (f := x) (by parley_whole_side))
   -- 3. mun:value-in-image s := 1, from H1, 1
-  have s3 : x 1 ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
+  have s3 : x 1 ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by
+    have hI : x 1 ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by parley_instance_cast ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (1 : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)))
+    exact hI
   -- 4. proof
   have s4 : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ B := by
     intro s hK1
@@ -105,7 +108,9 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.7.2. instantiate m := N in line 9, from 10.7.1
       have s10_7_2 : x N ≤ x n := by exact ((s9 n (by parley_set_side)) N (by parley_set_side) (by parley_set_side))
       -- 10.7.3. mun:value-in-image s := n, from H1, 1
-      have s10_7_3 : x n ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
+      have s10_7_3 : x n ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by
+        have hI : x n ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by parley_instance_cast ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)))
+        exact hI
       -- 10.7.4. instantiate s := x(n) in line 8, from 10.7.3
       have s10_7_4 : x n ≤ c := by exact (s8 (x n) (by parley_set_side))
       -- 10.7.5. transitivity, from 10.5, 10.7.2

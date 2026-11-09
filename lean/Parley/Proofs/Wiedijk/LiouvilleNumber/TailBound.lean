@@ -5,6 +5,7 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -98,17 +99,19 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         exact row1
       -- 3.13. mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.12
       have r170_1 : (1 : ℤ) ≤ 2 := by parley_arith
-      have s3_13 : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) (by parley_side) s3_12); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) (by parley_side) s3_12)] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) (by parley_side) s3_12); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) (by parley_side) s3_12) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) (by parley_side) s3_12); parley_side)
+      have s3_13 : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by
+        have hI : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) (by parley_side) s3_12))
+        exact hI
       -- 3.14. mun:power-positive a := 2, m := A + j
       have r174_1 : (2 : ℤ) > 0 := by parley_arith
       have s3_14 : (2 ^ (A + j).toNat : ℤ) > 0 := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)); parley_side)
       -- 3.15. mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.5, 3.13, 3.14
-      have s3_15 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) ≤ 1 / 2 ^ (A + j).toNat := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 ^ (A + j).toNat : ℚ)) (by parley_side) (y := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by parley_side))).mp (by parley_side)
+      have s3_15 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) ≤ 1 / 2 ^ (A + j).toNat := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 ^ (A + j).toNat : ℚ)) (by parley_side) (y := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by parley_side))).mp (by parley_side)
       -- 3.16. algebra
       have s3_16 : A + j + 1 = A + (j + 1) := by parley_ring
       -- 3.17. calculation
       have s3_17 : (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + (j + 1)).toNat := by
-        calc (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + j + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := A + j) (by parley_side)).symm
+        calc (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := A + j) (by parley_side)).symm
           _ = 2 ^ (A + (j + 1)).toNat := by parley_subst s3_16
       -- 3.18. algebra
       have s3_18 : (2 / (2 ^ (A + j).toNat * 2) : ℚ) = 1 / 2 ^ (A + j).toNat := by parley_ring
@@ -120,7 +123,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       have s3_20 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := by parley_order
       -- 3.21. calculation
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (n + (j + 1)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by linear_combination (norm := parley_field) s3_7 + s3_10
-        _ ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := by first | parley_side | parley_line_toNat s3_20
+        _ ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := by exact s3_20
         _ = 2 / 2 ^ A.toNat - 2 / 2 ^ (A + (j + 1)).toNat := by linear_combination (norm := parley_field) s3_19
   -- 4. substitute A = (n + 1)! (D1) into line 3
   intro j h_j

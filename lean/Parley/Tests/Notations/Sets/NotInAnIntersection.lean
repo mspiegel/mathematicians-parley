@@ -26,14 +26,14 @@ theorem not_in_an_intersection :
   have s3 : ¬ (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by
     intro hS
     -- 3.1. def:pair x := 3, u := 1, w := 2, from S
-    have s3_1 : (3 : ℤ) = 1 ∨ (3 : ℤ) = 2 := ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (3 : ℤ)))).mp hS
+    have s3_1 : (3 : ℤ) = 1 ∨ (3 : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (3 : ℤ)))).mp hS
     -- 3.2. mun:disjunctive-syllogism, from 2, 3.1
     have s3_2 : (3 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := (3 : ℤ) = 1) (Q := (3 : ℤ) = 2) s3_1 s2)
     exact s1 s3_2
   -- 4. contradiction
   intro hS
   -- 4.1. def:intersection, from S
-  have s4_1 : (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := (((Parley.Items.Stdlib.Sets.def_intersection (Y := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (Z := ({(3 : ℤ)} : Set ℤ)) (u := (3 : ℤ)))).mp hS).1
+  have s4_1 : (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (Z := ({(3 : ℤ)} : Set ℤ)) (u := (3 : ℤ)))).mp hS).1
   exact s3 s4_1
 
 end Parley.Tests.Notations.Sets.NotInAnIntersection

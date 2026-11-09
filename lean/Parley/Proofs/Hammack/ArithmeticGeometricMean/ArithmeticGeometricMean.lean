@@ -49,7 +49,7 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5.4. inequalities
   have s5_4 : a + b ≥ 0 := by parley_order
   -- 5.5. mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.2, 5.4
-  have s5_5 : (a + b) ^ 2 < (2 * Real.sqrt (a * b)) ^ 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) (by parley_side) (by parley_side))).mp s5_1
+  have s5_5 : (a + b) ^ 2 < (2 * Real.sqrt (a * b)) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) (by parley_side) (by parley_side))).mp s5_1
   -- 5.6. substitute
   have s5_6 : (a + b) ^ 2 < 4 * (a * b) := by
     have c1 : (2 * Real.sqrt (a * b)) ^ 2 = 4 * (a * b) := by linear_combination (norm := parley_norm) (4) * s4b

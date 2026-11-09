@@ -8,13 +8,11 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/parity.proof by parley build lean. -/
@@ -36,7 +34,7 @@ theorem odd_half (N : ℤ) :
       have s1_w : (N : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
       linear_combination (norm := parley_norm) ((1) / ((2))) * s1_w
     -- 3. membership, from 2
-    exact ⟨k, by first | (push_cast; linarith [s2]) | (rw [s2]; push_cast; ring) | (rw [← s2]; push_cast; ring) | exact s2 | exact s2.symm⟩
+    exact ⟨k, by exact_mod_cast (s2).symm⟩
   · skip
     intro hD2
     -- 4. algebra

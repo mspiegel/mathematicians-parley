@@ -29,7 +29,7 @@ theorem image_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α) (h
     -- 2.1. obtain s: def:image u := y, Y := W ∪ X, from K1, 1
     obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := W ∪ X) (f := f) (u := y) (W := Set.univ) s1 (by parley_set_side))).mp hK1
     -- 2.2. def:union u := s, Y := W, Z := X, from 2.1
-    have s2_2 : s ∈ W ∨ s ∈ X := ((Parley.Items.Stdlib.Sets.def_union (Y := W) (Z := X) (u := s))).mp s2_1a
+    have s2_2 : s ∈ W ∨ s ∈ X := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := W) (Z := X) (u := s))).mp s2_1a
     -- 2.3. cases, from 2.2
     rcases s2_2 with hC1 | hC2
     · skip

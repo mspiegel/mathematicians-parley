@@ -3,10 +3,10 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -45,7 +45,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   obtain ⟨L, s1⟩ := hS
   -- 2. def:limit-at D := ℝ ∖ {0}, c := 0, from 1
   have r24_1 : (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ)))
-  have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1 | exact (((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1 | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1 | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1; parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1; parley_set_side)
+  have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by simpa only [sub_zero] using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r28_1 : (0 : ℤ) < 1 := by parley_arith
   have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
@@ -59,7 +59,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr (by parley_set_side)
   -- 8. def:abs x := p/2
   have r48_1 : p / 2 ≥ 0 := by parley_set_side
-  have s8 : abs (p / 2) = p / 2 := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := p / 2)) (by parley_set_side)
+  have s8 : abs (p / 2) = p / 2 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := p / 2)) (by parley_set_side)
   -- 9. inequalities
   have s9 : p / 2 < p := by parley_order
   -- 10. transitivity, from 8, 9
@@ -72,7 +72,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     calc f (p / 2) = abs (p / 2) / (p / 2) := by exact (hH2 (p / 2) (by parley_set_side))
       _ = 1 := by linear_combination (norm := parley_field) ((4) / ((p) * (2))) * s8
   -- 13. mun:abs-difference-lt x := f(p/2), c := L, δ := 1, from 11
-  have s13 : f (p / 2) < L + 1 := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (p / 2)) (c := L) (δ := (1 : ℝ)))).mp s11).2
+  have s13 : f (p / 2) < L + 1 := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (p / 2)) (c := L) (δ := (1 : ℝ)))).mp s11).2
   -- 14. transitivity, from 12, 13
   have s14 : 1 < L + 1 := by parley_order
   -- 15. inequalities
@@ -98,7 +98,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     calc f (-p / 2) = abs (-p / 2) / (-p / 2) := by exact (hH2 (-p / 2) (by parley_set_side))
       _ = -1 := by linear_combination (norm := parley_field) ((4) / ((-p) * (2))) * s8 + ((2) / ((-p))) * s19
   -- 23. mun:abs-difference-lt x := f((−p)/2), c := L, δ := 1, from 21
-  have s23 : L - 1 < f (-p / 2) := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (-p / 2)) (c := L) (δ := (1 : ℝ)))).mp s21).1
+  have s23 : L - 1 < f (-p / 2) := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (-p / 2)) (c := L) (δ := (1 : ℝ)))).mp s21).1
   -- 24. transitivity, from 23, 22
   have s24 : L - 1 < -1 := by parley_order
   -- 25. inequalities

@@ -19,6 +19,6 @@ theorem a_chain_going_down_by_its_reasons (a : ℝ) (hH2 : a ≥ 3) :
   have s1 : 2 * a ≥ 6 := by parley_order
   -- 2. calculation
   calc a + a = 2 * a := by parley_ring
-    _ ≥ 6 := by parley_side
+    _ ≥ 6 := by exact s1
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainGoingDownByItsReasons

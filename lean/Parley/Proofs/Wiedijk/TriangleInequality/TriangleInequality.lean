@@ -34,14 +34,14 @@ theorem triangle_inequality (a : ℝ) (b : ℝ) :
     -- 4.1. inequalities, from 2, 3
     have s4_1 : a + b ≤ abs a + abs b := by parley_order
     -- 4.2. calculation
-    calc abs (a + b) = a + b := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) hC1
-      _ ≤ abs a + abs b := by parley_side
+    calc abs (a + b) = a + b := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) hC1
+      _ ≤ abs a + abs b := by exact s4_1
   · skip
     -- 4.3. inequalities, from 2, 3
     have s4_3 : -a + -b ≤ abs a + abs b := by parley_order
     -- 4.4. calculation
-    calc abs (a + b) = -(a + b) := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := a + b)) hC2
+    calc abs (a + b) = -(a + b) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := a + b)) hC2
       _ = -a + -b := by parley_ring
-      _ ≤ abs a + abs b := by parley_side
+      _ ≤ abs a + abs b := by exact s4_3
 
 end Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality

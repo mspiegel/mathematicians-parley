@@ -40,7 +40,7 @@ theorem divisor_exceeds_root (p : ℤ) (hH1 : 0 < p) (d : ℤ) (hH2 : 0 < d) (hH
   have s2_2 : (d : ℝ) ^ 2 ≤ Real.sqrt (p : ℝ) ^ 2 := by
     calc (d : ℝ) ^ 2 = (d : ℝ) * (d : ℝ) := by parley_ring
       _ ≤ (p : ℝ) := by parley_side
-      _ = Real.sqrt (p : ℝ) ^ 2 := by parley_side
+      _ = Real.sqrt (p : ℝ) ^ 2 := by exact s1b.symm
   -- 2.3. mun:square-le x := d, y := √p, from 1, 2.2
   have r39_1 : d ≥ 0 := by parley_order
   have s2_3 : (d : ℝ) ≤ Real.sqrt (p : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (d : ℝ)) (y := Real.sqrt (p : ℝ)) (by parley_side) (by parley_side))).mpr s2_2

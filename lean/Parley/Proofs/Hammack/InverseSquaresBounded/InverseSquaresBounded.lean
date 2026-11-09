@@ -2,9 +2,8 @@ module
 
 public import AlgebraTactics
 public import Functions
-public import NormTactics
+public import InstanceTactics
 public import OrderTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -20,7 +19,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -29,8 +27,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 
@@ -53,13 +49,17 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 2.1. calculation
       have s2_1 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / 1 := by
-        calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) = 1 / 1 ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))); parley_side)
+        calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) = 1 / 1 ^ 2 := by
+              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) ^ 2 : ℚ)) = 1 / 1 ^ 2 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))))
+              exact hI
           _ ≤ 2 - 1 / 1 := by norm_num
       first | exact_mod_cast s2_1 | (have h := s2_1; push_cast at h ⊢; exact h) | simpa using s2_1
     | succ k hK hIH =>
       -- 2.2. mun:sum-extended a := 1, n := k, from 1
       have r35_1 : k ≥ 1 := by parley_side
-      have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1); parley_side)
+      have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by
+        have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (b : ℚ) ^ 2 : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / (b : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1))
+        exact hI
       -- 2.3. inequalities, from K
       have s2_3 : k + 1 > 0 := by parley_order
       -- 2.4. algebra
@@ -86,7 +86,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.12. inequalities
       have s2_12 : k * (k + 1) ≤ (k + 1) ^ 2 := by parley_order
       -- 2.13. mun:reciprocal-order x := k·(k + 1), y := (k + 1)², from 2.5, 2.8, 2.12
-      have s2_13 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / ((k : ℚ) * ((k : ℚ) + 1)) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by parley_side) (y := ((k : ℚ) + 1) ^ 2) (by parley_side))).mp (by parley_side)
+      have s2_13 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by parley_side) (y := ((k : ℚ) + 1) ^ 2) (by parley_side))).mp (by parley_side)
       -- 2.14. transitivity, from 2.13, 2.4
       have s2_14 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) := by parley_order
       -- 2.15. inequalities

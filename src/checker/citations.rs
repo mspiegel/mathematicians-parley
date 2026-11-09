@@ -391,6 +391,9 @@ fn item_letters(
             letter: *letter,
             item_system: item_system(*letter),
             value_system: narrowest(value),
+            value_set: (value.notation() == NUMBER_SYSTEMS)
+                .then(|| System::of_sign(&value.text))
+                .flatten(),
         })
         .collect()
 }

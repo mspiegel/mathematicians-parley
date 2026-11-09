@@ -1,6 +1,7 @@
 module
 
 public import ArithTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
@@ -23,7 +24,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -56,7 +56,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
   have s1 : D ⊆ (Set.univ : Set ℝ) := by
     try simp only [hD1] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ))); parley_set_side)
+    have hI : {t : ℝ | 0 < t} ⊆ (Set.univ : Set ℝ) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ))))
+    exact hI
   -- 2. proof
   have s2 : ∀ x ∈ D, True := by
     intro x hK1
@@ -64,7 +65,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s2_1 : x > 0 := by
       try simp only [hD1] at *
       try push_cast at *
-      exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2
+      have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
+      exact hI
     -- 2.2. inequalities
     have s2_2 : x ≥ 0 := by parley_order
     -- 2.3. def:sqrt, from 2.1, 2.2
@@ -85,7 +87,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s4_1 : c > 0 := by
       try simp only [hD1] at *
       try push_cast at *
-      exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2
+      have hI : 0 < c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2)
+      exact hI
     -- 4.2. inequalities
     have s4_2 : c ≥ 0 := by parley_order
     -- 4.3. def:sqrt x := c, from 4.1, 4.2
@@ -106,8 +109,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_4_5 : (0 ^ 2 : ℤ) = 0 := by parley_arith
       -- 4.4.6. calculation
       have s4_4_6 : c = 0 := by
-        calc c = Real.sqrt c ^ 2 := by parley_set_side
-          _ = 0 ^ 2 := by parley_set_side
+        calc c = Real.sqrt c ^ 2 := by exact s4_3b.symm
+          _ = 0 ^ 2 := by exact s4_4_4
           _ = 0 := by parley_set_side
       -- 4.4.7. inequalities
       have s4_4_7 : c ≤ 0 := by parley_order
@@ -115,7 +118,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_4_8 : ¬ c > 0 := by parley_set_side
       exact s4_4_8 s4_1
     -- 4.5. mun:less-scaled x := 0, y := √c, c := ε, from A1, 4.3, 4.4
-    have s4_5 : ε * 0 < ε * Real.sqrt c := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (0 : ℝ)) (y := Real.sqrt c) (c := ε) (by parley_set_side))).mp s4_4
+    have s4_5 : ε * 0 < ε * Real.sqrt c := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (0 : ℝ)) (y := Real.sqrt c) (c := ε) (by parley_set_side))).mp s4_4
     -- 4.6. membership, from 4.3
     -- 4.7. inequalities, from 4.3, 4.5
     have s4_7 : ε * Real.sqrt c > 0 := by parley_order
@@ -127,7 +130,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_8_1 : x > 0 := by
         try simp only [hD1] at *
         try push_cast at *
-        exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2
+        have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
+        exact hI
       -- 4.8.2. inequalities
       have s4_8_2 : x ≥ 0 := by parley_order
       -- 4.8.3. def:sqrt, from 4.8.1, 4.8.2
@@ -146,9 +150,11 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.11. inequalities, from 4.3, 4.8.3
       have s4_8_11 : Real.sqrt x + Real.sqrt c ≥ 0 := by parley_order
       -- 4.8.12. mun:abs-nonneg x := √x − √c, from 4.8.6
-      have s4_8_12 : abs (Real.sqrt x - Real.sqrt c) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ))); parley_set_side)
+      have s4_8_12 : abs (Real.sqrt x - Real.sqrt c) ≥ 0 := by
+        have hI : 0 ≤ abs (Real.sqrt x - Real.sqrt c) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ))))
+        exact hI
       -- 4.8.13. def:abs x := √x + √c, from 4.8.11
-      have s4_8_13 : abs (Real.sqrt x + Real.sqrt c) = Real.sqrt x + Real.sqrt c := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := Real.sqrt x + Real.sqrt c)) s4_8_11
+      have s4_8_13 : abs (Real.sqrt x + Real.sqrt c) = Real.sqrt x + Real.sqrt c := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := Real.sqrt x + Real.sqrt c)) s4_8_11
       -- 4.8.14. substitute (√x − √c)·(√x + √c) = x − c (line 4.8.10)
       have s4_8_14 : abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := by parley_subst s4_8_10
       -- 4.8.15. mun:abs-product x := √x − √c, y := √x + √c, from 4.8.6
@@ -157,9 +163,9 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_8_16 : abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by parley_subst s4_8_13
       -- 4.8.17. calculation
       have s4_8_17 : abs (x - c) = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by
-        calc abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := by parley_set_side
-          _ = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := by parley_set_side
-          _ = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by parley_set_side
+        calc abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := by exact s4_8_14
+          _ = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := by exact s4_8_15
+          _ = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by exact s4_8_16
       -- 4.8.18. mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
       have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) (by parley_set_side) (by parley_set_side))
       -- 4.8.19. algebra, from 4.3, 4.8.3

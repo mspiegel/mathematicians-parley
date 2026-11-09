@@ -1,5 +1,6 @@
 module
 
+public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -39,6 +40,7 @@ theorem a_product_reindexed_through_a_define (X : Set ℤ) (hH1 : X ⊆ (Set.uni
   -- 5. mun:subset-transitive, from H1, H5
   have s5 : U ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := U) (Y := X) (Z := (Set.univ : Set ℤ)) hH5 (by parley_whole_side))
   -- 6. mun:product-reindex, from D1, H4, 4, 5
-  exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun x : ℤ => x)) (Y := L) (Z := U) (g := g) hH4 s4)
+  have hI : (∏ᶠ z ∈ U, (z : ℤ)) = (∏ᶠ y ∈ L, (g y : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun x : ℤ => x)) (Y := L) (Z := U) (g := g) hH4 s4))
+  exact hI
 
 end Parley.Tests.Elaborator.AProductReindexedThroughADefine.AProductReindexedThroughADefine

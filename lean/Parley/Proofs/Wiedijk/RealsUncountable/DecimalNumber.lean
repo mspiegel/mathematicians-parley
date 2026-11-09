@@ -2,10 +2,10 @@ module
 
 public import AlgebraTactics
 public import Functions
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -28,7 +28,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -38,7 +37,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
@@ -116,12 +114,12 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 3.20. calculation
     have s3_20 : L k ≤ L (k + 1) := by
       calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
-        _ ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by first | parley_set_side | parley_line_toNat s3_18
+        _ ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by exact s3_18
         _ = L (k + 1) := by simp (disch := omega) only [hD5]
     -- 3.21. calculation
     have s3_21 : U (k + 1) ≤ U k := by
       calc U (k + 1) = ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat := by simp (disch := omega) only [hD6]
-        _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by first | parley_set_side | parley_line_toNat s3_19
+        _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by exact s3_19
         _ = U k := by simp (disch := omega) only [hD6]
     -- 3.22. join 3.20, 3.21
     have s3_22 : L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := by parley_set_side
@@ -200,7 +198,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     · skip
       -- 6.4.1. mun:nat0-as-int
       have r405_1 : 0 ≤ k - j := by parley_set_side
-      have s6_4_1 : 0 ≤ k - j := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k - j))).mpr (by parley_set_side)
+      have s6_4_1 : 0 ≤ k - j := by
+        have hI : 0 ≤ k - j := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k - j))).mpr (by parley_set_side))
+        exact hI
       -- 6.4.2. instantiate g := k − j, p := j in line 5, from 6.4.1
       have s6_4_2 : L j ≤ L (j + (k - j)) ∧ U (j + (k - j)) ≤ U j := by exact (s5 (k - j) (by parley_set_side) j (by parley_set_side))
       -- 6.4.3. substitute
@@ -219,7 +219,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have s6_4_7 : 0 ≤ j - k := by parley_order
       -- 6.4.8. mun:nat0-as-int
       have r436_1 : 0 ≤ j - k := by parley_set_side
-      have s6_4_8 : 0 ≤ j - k := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - k))).mpr (by parley_set_side)
+      have s6_4_8 : 0 ≤ j - k := by
+        have hI : 0 ≤ j - k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - k))).mpr (by parley_set_side))
+        exact hI
       -- 6.4.9. instantiate g := j − k, p := k in line 5, from 6.4.8
       have s6_4_9 : L k ≤ L (k + (j - k)) ∧ U (k + (j - k)) ≤ U k := by exact (s5 (j - k) (by parley_set_side) k (by parley_set_side))
       -- 6.4.10. substitute
@@ -235,14 +237,16 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
   have s7 : S ⊆ (Set.univ : Set ℝ) := by
     try simp only [hD4] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))); parley_set_side)
+    have hI : {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} ⊆ (Set.univ : Set ℝ) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))))
+    exact hI
   -- 8. proof
   have s8 : ∀ k : ℤ, 0 ≤ k → (L k : ℝ) ∈ S := by
     intro k hK8
     -- 8.1. D5
     have s8_1 : L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
     -- 8.2. def:set-builder u := L(k), from D4, 8.1
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := (L k : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := (L k : ℝ)))).mpr (by parley_set_side); parley_set_side)
+    have hI : (L k : ℝ) ∈ {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := (L k : ℝ)))).mpr (by parley_set_side))
+    exact hI
   -- 9. instantiate k := 0 in line 8
   have s9 : (L 0 : ℝ) ∈ S := by exact (s8 (0 : ℤ) (by parley_set_side))
   -- 10. proof
@@ -336,7 +340,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have s16_20 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) := by parley_set_side
     -- 16.21. mun:nat0-as-int
     have r607_2 : 0 ≤ d n := by parley_set_side
-    have s16_21 : 0 ≤ d n := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := d n))).mpr (by parley_set_side)
+    have s16_21 : 0 ≤ d n := by
+      have hI : 0 ≤ d n := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := d n))).mpr (by parley_set_side))
+      exact hI
     -- 16.22. membership, from 16.21
     -- 16.23. axi:excluded-middle P := ⌊10^n·c⌋ ≤ N(n)
     have s16_23 : ⌊10 ^ n.toNat * c⌋ ≤ N n ∨ ¬ ⌊10 ^ n.toNat * c⌋ ≤ N n := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := ⌊10 ^ n.toNat * c⌋ ≤ N n))
@@ -355,7 +361,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have r642_1 : 0 ≤ d n := by parley_set_side
       have r642_2 : d n < 10 := by have := (hH2 n (by parley_set_side)); parley_order
       have s16_24_5 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n := by
-        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) := by first | parley_set_side | parley_line_toNat s16_20
+        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) := by exact s16_20
           _ = d n := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := ⌊10 ^ n.toNat * c⌋) (m := (10 : ℤ)) (by parley_set_side) (r := d n) (by parley_set_side) r642_2)).mpr s16_24_4
       -- 16.24.6. mun:or-left, from 16.24.5
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n) (Q := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) s16_24_5)
@@ -375,9 +381,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have s16_24_11 : (d n + 1) % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by parley_set_side
       -- 16.24.12. calculation
       have s16_24_12 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by
-        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by first | parley_set_side | parley_line_toNat s16_24_10
+        calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by exact s16_24_10
           _ = (d n + 1) % (10 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := d n + 1) (m := (10 : ℤ)) (by parley_set_side) (q := N (n - 1)))
-          _ = (d n + 1) % (10 : ℤ) := by parley_set_side
+          _ = (d n + 1) % (10 : ℤ) := by exact s16_24_11
       -- 16.24.13. mun:or-right, from 16.24.12
       exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n) (Q := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) s16_24_12)
   -- 17. exhibit, from 16

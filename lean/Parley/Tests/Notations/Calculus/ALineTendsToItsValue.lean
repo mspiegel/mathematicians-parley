@@ -46,7 +46,7 @@ theorem a_line_tends_to_its_value (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = 2 
       -- 1.2.1. instantiate x := x in H2
       have s1_2_1 : g x = 2 * x + 1 := by exact (hH2 x)
       -- 1.2.2. mun:abs-difference-lt c := 1, δ := ε/2, from A2
-      have s1_2_2 : 1 - ε / 2 < x ∧ x < 1 + ε / 2 := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := ε / 2))).mp hA2.2
+      have s1_2_2 : 1 - ε / 2 < x ∧ x < 1 + ε / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := ε / 2))).mp hA2.2
       -- 1.2.3. inequalities, from 1.2.2
       have s1_2_3 : 1 - ε / 2 < x := by parley_order
       -- 1.2.4. inequalities, from 1.2.2

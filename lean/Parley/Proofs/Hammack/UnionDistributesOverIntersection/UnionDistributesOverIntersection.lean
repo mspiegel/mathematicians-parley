@@ -23,7 +23,7 @@ theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set �
   have s1 : ∀ t ∈ A ∪ B ∩ C, t ∈ (A ∪ B) ∩ (A ∪ C) := by
     intro t hK1
     -- 1.1. def:union u := t, Y := A, Z := B ∩ C, from K1
-    have s1_1 : t ∈ A ∨ t ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B ∩ C) (u := t))).mp hK1
+    have s1_1 : t ∈ A ∨ t ∈ B ∩ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B ∩ C) (u := t))).mp hK1
     -- 1.2. cases, from 1.1
     rcases s1_1 with hC1 | hC2
     · skip
@@ -35,8 +35,8 @@ theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set �
       exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mpr (by parley_set_side)
     · skip
       -- 1.2.4. def:intersection u := t, Y := B, Z := C, from C2
-      have s1_2_4a : t ∈ B := (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp hC2).1
-      have s1_2_4b : t ∈ C := (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp hC2).2
+      have s1_2_4a : t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp hC2).1
+      have s1_2_4b : t ∈ C := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp hC2).2
       -- 1.2.5. mun:in-union-right u := t, Y := A, Z := B, from 1.2.4
       have s1_2_5 : t ∈ A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := t) s1_2_4a)
       -- 1.2.6. mun:in-union-right u := t, Y := A, Z := C, from 1.2.4
@@ -49,12 +49,12 @@ theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set �
   have s3 : ∀ t ∈ (A ∪ B) ∩ (A ∪ C), t ∈ A ∪ B ∩ C := by
     intro t hK2
     -- 3.1. def:intersection u := t, Y := A ∪ B, Z := A ∪ C, from K2
-    have s3_1a : t ∈ A ∪ B := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mp hK2).1
-    have s3_1b : t ∈ A ∪ C := (((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mp hK2).2
+    have s3_1a : t ∈ A ∪ B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mp hK2).1
+    have s3_1b : t ∈ A ∪ C := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mp hK2).2
     -- 3.2. def:union u := t, Y := A, Z := B, from 3.1
-    have s3_2 : t ∈ A ∨ t ∈ B := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := t))).mp s3_1a
+    have s3_2 : t ∈ A ∨ t ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := t))).mp s3_1a
     -- 3.3. def:union u := t, Y := A, Z := C, from 3.1
-    have s3_3 : t ∈ A ∨ t ∈ C := ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := C) (u := t))).mp s3_1b
+    have s3_3 : t ∈ A ∨ t ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := C) (u := t))).mp s3_1b
     -- 3.4. axi:excluded-middle P := t ∈ A
     have s3_4 : t ∈ A ∨ ¬ t ∈ A := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t ∈ A))
     -- 3.5. cases, from 3.4

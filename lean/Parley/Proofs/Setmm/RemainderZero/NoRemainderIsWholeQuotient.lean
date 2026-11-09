@@ -6,7 +6,6 @@ public import NormTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
-public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Field.Basic
@@ -15,15 +14,12 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
-public import Mathlib.Data.Rat.Init
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
-public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -40,7 +36,7 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 1. inequalities
   have s1 : B ≠ 0 := by parley_side
   set q : ℤ := ⌊A / B⌋ with hD1
-  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)) | exact ((Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / B)); parley_side)
+  have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
     try simp only [hD1] at *
@@ -56,16 +52,16 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     have r33_1 : B ≠ 0 := by parley_side
     have s3_2 : A / B = (q : ℝ) := by linear_combination (norm := parley_field) ((1) / ((B))) * s3_1
     -- 3.3. membership, from 3.2
-    exact ⟨q, by first | (push_cast; linarith [s3_2]) | (rw [s3_2]; push_cast; ring) | (rw [← s3_2]; push_cast; ring) | exact s3_2 | exact s3_2.symm⟩
+    exact ⟨q, by exact_mod_cast (s3_2).symm⟩
   · skip
     intro hC2
     -- 3.4. calculation
     have s3_4 : (q : ℝ) = A / B := by
       calc (q : ℝ) = (⌊A / B⌋ : ℝ) := by simp (disch := omega) only [hD1]
-        _ = A / B := by rw [← (by first | exact_mod_cast Classical.choose_spec hC2 | (have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec hC2); push_cast at h; exact h) : ((Classical.choose hC2 : ℤ) : ℝ) = A / B)]; (first | linear_combination (norm := parley_norm) (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))) | exact_mod_cast ((Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2)))).symm | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); parley_int_power h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); parley_side))
+        _ = A / B := by rw [← (by exact_mod_cast Classical.choose_spec hC2 : ((Classical.choose hC2 : ℤ) : ℝ) = A / B)]; (first | linear_combination (norm := parley_norm) (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))) | exact_mod_cast ((Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2)))).symm | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); parley_int_power h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))); parley_side))
     -- 3.5. calculation
     have r48_1 : B ≠ 0 := by parley_side
-    calc LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by parley_side
+    calc LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by exact s2
       _ = 0 := by linear_combination (norm := parley_field) (-B) * s3_4
 
 end Parley.Proofs.Setmm.RemainderZero.NoRemainderIsWholeQuotient

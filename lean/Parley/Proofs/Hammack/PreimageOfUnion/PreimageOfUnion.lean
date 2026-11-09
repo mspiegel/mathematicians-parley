@@ -24,10 +24,10 @@ theorem preimage_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α)
   have s1 : ∀ u ∈ A ∩ f ⁻¹' (Y ∪ Z), u ∈ A ∩ f ⁻¹' Y ∪ A ∩ f ⁻¹' Z := by
     intro u hK1
     -- 1.1. def:preimage Z := Y ∪ Z, from K1
-    have s1_1a : u ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).1
-    have s1_1b : f u ∈ Y ∪ Z := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).2; parley_set_side)
+    have s1_1a : u ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).1
+    have s1_1b : f u ∈ Y ∪ Z := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK1).2
     -- 1.2. def:union u := f(u), from 1.1
-    have s1_2 : f u ∈ Y ∨ f u ∈ Z := ((Parley.Items.Stdlib.Sets.def_union (Y := Y) (Z := Z) (u := f u))).mp s1_1b
+    have s1_2 : f u ∈ Y ∨ f u ∈ Z := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := Y) (Z := Z) (u := f u))).mp s1_1b
     -- 1.3. cases, from 1.2
     rcases s1_2 with hC1 | hC2
     · skip
@@ -46,21 +46,21 @@ theorem preimage_of_union {α : Type*} (A : Set α) (B : Set α) (f : α → α)
   have s3 : ∀ u ∈ A ∩ f ⁻¹' Y ∪ A ∩ f ⁻¹' Z, u ∈ A ∩ f ⁻¹' (Y ∪ Z) := by
     intro u hK2
     -- 3.1. def:union Y := f⁻¹[Y], Z := f⁻¹[Z], from K2
-    have s3_1 : u ∈ A ∩ f ⁻¹' Y ∨ u ∈ A ∩ f ⁻¹' Z := ((Parley.Items.Stdlib.Sets.def_union (Y := A ∩ f ⁻¹' Y) (Z := A ∩ f ⁻¹' Z) (u := u))).mp hK2
+    have s3_1 : u ∈ A ∩ f ⁻¹' Y ∨ u ∈ A ∩ f ⁻¹' Z := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A ∩ f ⁻¹' Y) (Z := A ∩ f ⁻¹' Z) (u := u))).mp hK2
     -- 3.2. cases, from 3.1
     rcases s3_1 with hC3 | hC4
     · skip
       -- 3.2.1. def:preimage Z := Y, from C3
-      have s3_2_1a : u ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).1
-      have s3_2_1b : f u ∈ Y := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).2; parley_set_side)
+      have s3_2_1a : u ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).1
+      have s3_2_1b : f u ∈ Y := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC3).2
       -- 3.2.2. mun:in-union-left u := f(u), from 3.2.1
       have s3_2_2 : f u ∈ Y ∪ Z := by exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := Y) (Z := Z) (u := f u) s3_2_1b)
       -- 3.2.3. def:preimage Z := Y ∪ Z, from 3.2.1, 3.2.2
       exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∪ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
     · skip
       -- 3.2.4. def:preimage, from C4
-      have s3_2_4a : u ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).1
-      have s3_2_4b : f u ∈ Z := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).2; parley_set_side)
+      have s3_2_4a : u ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).1
+      have s3_2_4b : f u ∈ Z := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hC4).2
       -- 3.2.5. mun:in-union-right u := f(u), from 3.2.4
       have s3_2_5 : f u ∈ Y ∪ Z := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := Y) (Z := Z) (u := f u) s3_2_4b)
       -- 3.2.6. def:preimage Z := Y ∪ Z, from 3.2.4, 3.2.5

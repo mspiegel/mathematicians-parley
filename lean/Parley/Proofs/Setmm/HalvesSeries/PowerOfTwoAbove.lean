@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import OrderTactics
-public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -43,9 +42,9 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. inequalities, from IH, 1.2
       have s1_3 : k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by parley_order
       -- 1.4. calculation
-      calc k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by first | parley_side | parley_line_toNat s1_3
+      calc k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by exact s1_3
         _ = 2 ^ k.toNat * 2 := by parley_ring
-        _ = 2 ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)).symm
+        _ = 2 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)).symm
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))
 

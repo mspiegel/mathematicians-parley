@@ -54,7 +54,7 @@ theorem sum_of_eight_i_minus_five (n : ℤ) (hH1 : 0 < n) :
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (8 * j - 5 : ℤ)) + (8 * (k + 1) - 5) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 8 * j - 5)) (a := (1 : ℤ)) (n := k) r27_1)
           _ = S k + (8 * (k + 1) - 5) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
-      calc S (k + 1) = S k + (8 * (k + 1) - 5) := by parley_side
+      calc S (k + 1) = S k + (8 * (k + 1) - 5) := by exact s1_2
         _ = 4 * k ^ 2 - k + (8 * (k + 1) - 5) := by parley_subst hIH
         _ = 4 * (k + 1) ^ 2 - (k + 1) := by parley_ring
   -- 2. calculation

@@ -49,8 +49,8 @@ theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y
     -- 5.3. obtain w: mun:card-nonempty X := Y ∖ {v}, k := 0, from 5.2
     obtain ⟨w, s5_3, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := Y \ ({v} : Set α)) (k := (0 : ℤ)) (by parley_set_side) (by parley_set_side))
     -- 5.4. mun:remove-member u := w, a := v, from 5.3
-    have s5_4a : w ∈ Y := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).1
-    have s5_4b : ¬ w = v := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).2
+    have s5_4a : w ∈ Y := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).1
+    have s5_4b : ¬ w = v := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).2
     -- 5.5. mun:in-subset, from 3, 5.3
     have s5_5 : w ∈ W := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y \ ({v} : Set α)) (Y := W) (u := w) s3 s5_3)
     -- 5.6. mun:card-two a := v, b := w, from C1, H4, 5.4

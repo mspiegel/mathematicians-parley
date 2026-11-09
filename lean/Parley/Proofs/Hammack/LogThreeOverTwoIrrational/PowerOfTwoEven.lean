@@ -1,8 +1,8 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -21,8 +21,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -38,7 +36,9 @@ theorem power_of_two_even (n : ℤ) (hH1 : 0 < n) :
   -- 1. mun:nat-minus-one
   have s1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side))
   -- 2. mun:exponent-step a := 2, m := n − 1, from 1
-  have s2 : (2 ^ (n - 1 + 1) : ℚ) = 2 ^ (n - 1) * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)); parley_side)
+  have s2 : (2 ^ (n - 1 + 1) : ℚ) = 2 ^ (n - 1) * 2 := by
+    have hI : (2 ^ (n - 1 + 1) : ℚ) = 2 ^ (n - 1) * 2 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) (by parley_side)))
+    exact hI
   -- 3. substitute
   have s3 : (2 ^ n.toNat : ℚ) = 2 ^ (n - 1) * 2 := by
     have c1 : n - 1 + 1 = n := by parley_ring

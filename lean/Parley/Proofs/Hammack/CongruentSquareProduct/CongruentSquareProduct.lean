@@ -28,7 +28,7 @@ namespace Parley.Proofs.Hammack.CongruentSquareProduct.CongruentSquareProduct
 theorem congruent_square_product (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a ≡ b [ZMOD n]) :
     a ^ 2 ≡ a * b [ZMOD n] := by
   -- 1. def:congruent-mod, from H4
-  have s1 : n ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
+  have s1 : n ∣ a - b := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
   -- 2. mun:divides-multiple e := n, a := a − b, x := a, from 1
   have s2 : n ∣ (a - b) * a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := a) s1)
   -- 3. substitute

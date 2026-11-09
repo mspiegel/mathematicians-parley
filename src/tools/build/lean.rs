@@ -40,12 +40,19 @@ use crate::source::Disk;
 /// written by hand: the module importing them all.
 pub const LIBRARY: &str = "LeanBridges";
 
+/// Each `first` list the build writes, a line each: its file, its step and
+/// why it is a list (`doc::ListReason`).
+pub const LISTS: &str = "lean/first-lists.tsv";
+
 /// What a Lean build makes: each file's path and text, the theorems left
 /// out and why, and what could not be written.
 #[derive(Default)]
 pub struct Made {
     /// Each file, by its path from the root of the tree.
     pub files: IndexMap<String, String>,
+    /// Each file's `first` lists, by its path: the step each stands in and
+    /// why it is a list (`Declaration::lists`).
+    pub lists: IndexMap<String, Vec<(String, crate::lean::doc::ListReason)>>,
     /// The modules each file imports, by its path, as its header writes
     /// them.
     pub imports: IndexMap<String, Vec<String>>,
@@ -301,6 +308,10 @@ pub fn make(
             text.push_str("\n\n");
         }
         text.push_str(&format!("end {module}\n"));
+        made.lists.insert(
+            path_of_module(module),
+            decls.iter().flat_map(Declaration::lists).collect(),
+        );
         made.files.insert(path_of_module(module), text);
         made.imports.insert(path_of_module(module), imports);
     }
@@ -437,6 +448,7 @@ pub fn make(
         if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
             made.statements.insert(s.decl.clone(), s.arithmetic.clone());
         }
+        made.lists.insert(path.clone(), decl.lists());
         made.files.insert(path.clone(), text);
         made.imports.insert(path, imports);
         written.push(module);
@@ -602,6 +614,18 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
                 failed = true;
             }
         }
+    }
+    // Why each `first` list is one, for the register of lists
+    // (`tests/first_lists.rs`).
+    let mut lists = String::new();
+    for (path, found) in &made.lists {
+        for (step, why) in found {
+            lists += &format!("{path}\t{step}\t{}\n", why.text());
+        }
+    }
+    if let Err(problem) = write_changed(root, LISTS, &lists) {
+        said.complained += &format!("{problem}\n");
+        failed = true;
     }
     for path in generated_in_tree(root) {
         if !made.files.contains_key(&path) {

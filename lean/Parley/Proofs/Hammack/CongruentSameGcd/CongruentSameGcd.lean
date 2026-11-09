@@ -25,7 +25,7 @@ namespace Parley.Proofs.Hammack.CongruentSameGcd.CongruentSameGcd
 theorem congruent_same_gcd (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a ≡ b [ZMOD n]) :
     (Int.gcd a n : ℤ) = (Int.gcd b n : ℤ) := by
   -- 1. def:congruent-mod, from H4
-  have s1 : n ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
+  have s1 : n ∣ a - b := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp hH4
   -- 2. obtain k: def:divides d := n, n := a − b, from 1
   obtain ⟨k, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := a - b))).mp s1
   -- 3. algebra, from 2

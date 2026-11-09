@@ -23,8 +23,8 @@ theorem an_opening_assume_of_several_sentences (a : ℝ) (b : ℝ) :
   -- 1.2. substitute b = 2 (K1)
   have s1_2 : 1 + b = 1 + 2 := by parley_subst hK1.2
   -- 1.3. calculation
-  calc a + b = 1 + b := by parley_side
-    _ = 1 + 2 := by parley_side
+  calc a + b = 1 + b := by exact s1_1
+    _ = 1 + 2 := by exact s1_2
     _ = 3 := by norm_num
 
 end Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnOpeningAssumeOfSeveralSentences

@@ -46,7 +46,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
       try push_cast at hK1
       try have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.2.1. def:range n := 1, k := m, from K1
-      have s1_2_1 : 0 < m ∧ m ≤ 1 := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp hK1
+      have s1_2_1 : 0 < m ∧ m ≤ 1 := by exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp hK1
       -- 1.2.2. inequalities, from 1.2.1
       have s1_2_2 : m ≤ 1 := by parley_order
       -- 1.2.3. inequalities, from K1
@@ -66,7 +66,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
     obtain ⟨C, s1_4⟩ := hIH
     -- 1.5. mun:abs-real x := x(K + 1)
     set E : ℝ := max C (abs (x (K + 1))) with hD
-    have hD_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_max_real (x := C) (y := abs (x (K + 1)))) | exact ((Parley.Items.Stdlib.Numbers.mun_max_real (x := C) (y := abs (x (K + 1))))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_max_real (x := C) (y := abs (x (K + 1)))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_max_real (x := C) (y := abs (x (K + 1)))) | (have h := (Parley.Items.Stdlib.Numbers.mun_max_real (x := C) (y := abs (x (K + 1)))); parley_side)
+    have hD_kind : True := by trivial
     -- 1.6. mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
     have s1_6 : C ≤ E := by
       try simp only [hD] at *
@@ -83,9 +83,9 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
       try push_cast at hK2
       try have hK2_bounds := Finset.mem_Icc.mp hK2
       -- 1.8.1. def:range n := K + 1, k := m, from K2
-      have s1_8_1 : 0 < m ∧ m ≤ K + 1 := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K + 1))).mp hK2
+      have s1_8_1 : 0 < m ∧ m ≤ K + 1 := by exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K + 1))).mp hK2
       -- 1.8.2. mun:le-cases x := m, y := K + 1, from 1.8.1
-      have s1_8_2 : m < K + 1 ∨ m = K + 1 := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := m) (y := K + 1))).mp s1_8_1.2
+      have s1_8_2 : m < K + 1 ∨ m = K + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := m) (y := K + 1))).mp s1_8_1.2
       -- 1.8.3. mun:abs-real x := x(m), from H1
       -- 1.8.4. cases, from 1.8.2
       rcases s1_8_2 with hC1 | hC2

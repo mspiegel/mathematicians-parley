@@ -43,7 +43,7 @@ theorem divisibility_by_three (n : ℤ) (hH1 : 0 ≤ n) (d : ℤ → ℤ) :
     -- 1.1. thm:ten-power-congruent
     have s1_1 : (10 ^ k.toNat : ℤ) ≡ (1 : ℤ) [ZMOD (3 : ℤ)] := by exact (Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent.ten_power_congruent (k := k) (by parley_side))
     -- 1.2. def:congruent-mod, from 1.1
-    have s1_2 : (3 : ℤ) ∣ (10 ^ k.toNat - 1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := (10 ^ k.toNat : ℤ)) (b := (1 : ℤ)))).mp s1_1
+    have s1_2 : (3 : ℤ) ∣ (10 ^ k.toNat - 1 : ℤ) := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := (10 ^ k.toNat : ℤ)) (b := (1 : ℤ)))).mp s1_1
     -- 1.3. mun:divides-multiple e := 3, a := 10^k − 1, x := d(k), from H2, 1.2
     have s1_3 : (3 : ℤ) ∣ (10 ^ k.toNat - 1) * d k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (10 ^ k.toNat - 1 : ℤ)) (x := d k) s1_2)
     -- 1.4. substitute

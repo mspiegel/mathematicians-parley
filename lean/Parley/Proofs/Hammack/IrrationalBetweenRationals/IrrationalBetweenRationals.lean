@@ -48,13 +48,13 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   have s3 : 0 ^ 2 < Real.sqrt (2 : ℝ) ^ 2 := by
     calc (0 ^ 2 : ℝ) = 0 := by norm_num
       _ < 2 := by norm_num
-      _ = Real.sqrt (2 : ℝ) ^ 2 := by parley_side
+      _ = Real.sqrt (2 : ℝ) ^ 2 := by exact s1b.symm
   -- 4. mun:square-less x := 0, y := √2, from 1, 3
   have r33_1 : (0 : ℤ) ≥ 0 := by parley_arith
   have s4 : 0 < Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))).mpr s3
   -- 5. calculation
   have s5 : Real.sqrt (2 : ℝ) ^ 2 < 2 ^ 2 := by
-    calc Real.sqrt (2 : ℝ) ^ 2 = 2 := by parley_side
+    calc Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact s1b
       _ < 2 ^ 2 := by norm_num
   -- 6. mun:square-less x := √2, y := 2, from 1, 5
   have r42_1 : (2 : ℤ) ≥ 0 := by parley_arith
@@ -65,7 +65,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 8. calculation
   have r50_1 : (1 / 2 : ℚ) > 0 := by parley_arith
   have s8 : 1 / 2 * Real.sqrt (2 : ℝ) < 1 := by
-    calc 1 / 2 * Real.sqrt (2 : ℝ) < 1 / 2 * 2 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := (1 / 2 : ℝ)) (by parley_side))).mp s6
+    calc 1 / 2 * Real.sqrt (2 : ℝ) < 1 / 2 * 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := (1 / 2 : ℝ)) (by parley_side))).mp s6
       _ = 1 := by norm_num
   -- 9. inequalities
   have s9 : 0 < s - r := by parley_order
@@ -78,7 +78,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 12. transitivity, from 11, D1
   have s12 : (r : ℝ) < u := by parley_order
   -- 13. mun:less-scaled x := (1/2)·√2, y := 1, c := s − r, from 8, 9
-  have s13 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) < ((s : ℝ) - (r : ℝ)) * 1 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := 1 / 2 * Real.sqrt (2 : ℝ)) (y := (1 : ℝ)) (c := (s : ℝ) - (r : ℝ)) (by parley_side))).mp s8
+  have s13 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) < ((s : ℝ) - (r : ℝ)) * 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := 1 / 2 * Real.sqrt (2 : ℝ)) (y := (1 : ℝ)) (c := (s : ℝ) - (r : ℝ)) (by parley_side))).mp s8
   -- 14. inequalities
   have s14 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) < (r : ℝ) + ((s : ℝ) - (r : ℝ)) := by parley_order
   -- 15. algebra
@@ -140,7 +140,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.17. def:rational x := √2, from 17.16
     have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by first | exact_mod_cast s17_16 | (have h := s17_16; push_cast at h ⊢; exact h) | simpa using s17_16⟩
     -- 17.18. def:irrational x := √2, from 2
-    have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp s2).2
+    have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp s2).2
     exact s17_18 s17_17
   -- 18. def:irrational x := u, from 17
   have s18 : Irrational u := ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr (by parley_side)

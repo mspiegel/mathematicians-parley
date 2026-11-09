@@ -68,11 +68,11 @@ theorem integral_of_arctan_derivative :
   -- 1. mun:interval-real
   have s1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   -- 2. D1
-  have s2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = x ^ (2 * 0) / (1 + x ^ 2) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = x ^ (2 * 0) / (1 + x ^ 2) := by simp (disch := omega) only [hD1, implies_true]
   -- 3. D2
-  have s3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), F x = Real.arctan x := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), F x = Real.arctan x := by simp (disch := omega) only [hD2, implies_true]
   -- 4. mun:arctan-real, from D2
-  have s4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; (first | exact (Parley.Items.Stdlib.Trigonometry.mun_arctan_real (x := x)) | exact ((Parley.Items.Stdlib.Trigonometry.mun_arctan_real (x := x))).symm | simpa using (Parley.Items.Stdlib.Trigonometry.mun_arctan_real (x := x)) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.mun_arctan_real (x := x)) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_arctan_real (x := x)); parley_set_side))
+  have s4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; (trivial)
   -- 5. mun:function-into, from 4
   have s5 : Set.MapsTo F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 6. proof
@@ -112,7 +112,7 @@ theorem integral_of_arctan_derivative :
     -- 12.4. calculation
     calc (deriv F) x = 1 / (1 + x ^ 2) := by first | exact (s11 x (by parley_set_side)) | exact ((s11 x (by parley_set_side))).symm | parley_set_side
       _ = x ^ (2 * 0) / (1 + x ^ 2) := by parley_subst s12_2
-      _ = g x := by parley_set_side
+      _ = g x := by exact s12_3
   -- 13. arithmetic
   have s13 : (0 : ℤ) < 1 := by parley_arith
   -- 14. def:interval a := 0, b := 1, x := 0
@@ -132,16 +132,16 @@ theorem integral_of_arctan_derivative :
   have s18 : F 0 = Real.arctan (0 : ℝ) := by simp (disch := omega) only [hD2]
   -- 19. calculation
   have s19 : F 1 = Real.pi / 4 := by
-    calc F 1 = Real.arctan (1 : ℝ) := by parley_set_side
-      _ = Real.pi / 4 := by parley_set_side
+    calc F 1 = Real.arctan (1 : ℝ) := by exact s17
+      _ = Real.pi / 4 := by exact s16b
   -- 20. calculation
   have s20 : F 0 = 0 := by
-    calc F 0 = Real.arctan (0 : ℝ) := by parley_set_side
-      _ = 0 := by parley_set_side
+    calc F 0 = Real.arctan (0 : ℝ) := by exact s18
+      _ = 0 := by exact s16a
   -- 21. D0, from D1
   have s21 : (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by simp (disch := omega) only [hD1]
   -- 22. calculation
-  calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by parley_set_side
+  calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by exact s21
     _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := g) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
     _ = Real.pi / 4 - F 0 := by parley_subst s19
     _ = Real.pi / 4 := by parley_subst s20

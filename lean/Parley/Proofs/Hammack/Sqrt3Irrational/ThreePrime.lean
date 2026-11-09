@@ -40,7 +40,7 @@ theorem three_prime :
     -- 2.2. inequalities, from K
     have s2_2 : 1 ≤ d := by parley_order
     -- 2.3. mun:le-cases x := 1, y := d, from 2.2
-    have s2_3 : 1 < d ∨ 1 = d := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp s2_2
+    have s2_3 : 1 < d ∨ 1 = d := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp s2_2
     -- 2.4. cases, from 2.3
     rcases s2_3 with hC1 | hC2
     · skip
@@ -49,7 +49,7 @@ theorem three_prime :
       -- 2.4.2. inequalities, from 2.4.1
       have s2_4_2 : 2 ≤ d := by parley_order
       -- 2.4.3. mun:le-cases x := 2, y := d, from 2.4.2
-      have s2_4_3 : 2 < d ∨ 2 = d := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp s2_4_2
+      have s2_4_3 : 2 < d ∨ 2 = d := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp s2_4_2
       -- 2.4.4. cases, from 2.4.3
       rcases s2_4_3 with hC3 | hC4
       · skip

@@ -26,7 +26,7 @@ theorem powerset_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) :
   have s1 : ∀ V ∈ 𝒫 X, V ∈ 𝒫 (X \ ({a} : Set α)) ∪ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := by
     intro V hK1
     -- 1.1. def:powerset S := V, from K1
-    have s1_1 : V ⊆ X := ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := V))).mp hK1
+    have s1_1 : V ⊆ X := by exact ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := V))).mp hK1
     -- 1.2. axi:excluded-middle P := a ∈ V
     have s1_2 : a ∈ V ∨ ¬ a ∈ V := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a ∈ V))
     -- 1.3. cases, from 1.2
@@ -62,7 +62,7 @@ theorem powerset_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) :
   have s5 : ∀ S ∈ 𝒫 (X \ ({a} : Set α)), S ∪ ({a} : Set α) ∈ 𝒫 X := by
     intro S hK2
     -- 5.1. def:powerset, from K2
-    have s5_1 : S ⊆ X \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.def_powerset (A := X \ ({a} : Set α)) (S := S))).mp hK2
+    have s5_1 : S ⊆ X \ ({a} : Set α) := by exact ((Parley.Items.Stdlib.Sets.def_powerset (A := X \ ({a} : Set α)) (S := S))).mp hK2
     -- 5.2. mun:subset-transitive, from 3, 5.1
     have s5_2 : S ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := X \ ({a} : Set α)) (Z := X) s5_1 s3)
     -- 5.3. mun:singleton-subset, from H2

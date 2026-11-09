@@ -26,7 +26,7 @@ theorem congruent_mod_ten (a : ℤ) (b : ℤ) :
   · skip
     intro hD1
     -- 1. def:congruent-mod, from D1
-    have s1 : (10 : ℤ) ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (10 : ℤ)) (a := a) (b := b))).mp hD1
+    have s1 : (10 : ℤ) ∣ a - b := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (10 : ℤ)) (a := a) (b := b))).mp hD1
     -- 2. obtain k: def:divides, from 1
     obtain ⟨k, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (10 : ℤ)) (n := a - b))).mp s1
     -- 3. algebra, from 2
@@ -47,9 +47,9 @@ theorem congruent_mod_ten (a : ℤ) (b : ℤ) :
   · skip
     intro hD2
     -- 10. def:congruent-mod, from D2
-    have s10 : (2 : ℤ) ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (2 : ℤ)) (a := a) (b := b))).mp hD2.1
+    have s10 : (2 : ℤ) ∣ a - b := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (2 : ℤ)) (a := a) (b := b))).mp hD2.1
     -- 11. def:congruent-mod, from D2
-    have s11 : (5 : ℤ) ∣ a - b := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := b))).mp hD2.2
+    have s11 : (5 : ℤ) ∣ a - b := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a) (b := b))).mp hD2.2
     -- 12. obtain s: def:divides, from 10
     obtain ⟨s, s12⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a - b))).mp s10
     -- 13. obtain t: def:divides, from 11

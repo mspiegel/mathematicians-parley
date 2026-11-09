@@ -44,8 +44,8 @@ theorem sqrt_of_product (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
       _ = a * b := by parley_subst s2b
   -- 7. calculation
   have s7 : Real.sqrt (a * b) ^ 2 = (Real.sqrt a * Real.sqrt b) ^ 2 := by
-    calc Real.sqrt (a * b) ^ 2 = a * b := by parley_side
-      _ = (Real.sqrt a * Real.sqrt b) ^ 2 := by parley_side
+    calc Real.sqrt (a * b) ^ 2 = a * b := by exact s4b
+      _ = (Real.sqrt a * Real.sqrt b) ^ 2 := by exact s6.symm
   -- 8. mun:square-equal x := √(a·b), y := √a·√b, from 1, 2, 4, 5, 7
   exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (a * b)) (y := Real.sqrt a * Real.sqrt b) (by parley_side) (by parley_side))).mp s7
 

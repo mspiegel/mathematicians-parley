@@ -22,9 +22,9 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
   · skip
     intro hD1
     -- 1. def:subset X := A, Y := B, from D1
-    have s1 : ∀ t ∈ A, t ∈ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mp hD1.1
+    have s1 : ∀ t ∈ A, t ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mp hD1.1
     -- 2. def:subset X := A, Y := C, from D1
-    have s2 : ∀ t ∈ A, t ∈ C := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mp hD1.2
+    have s2 : ∀ t ∈ A, t ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mp hD1.2
     -- 3. proof
     have s3 : ∀ t ∈ A, t ∈ B ∩ C := by
       intro t hK
@@ -35,7 +35,7 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
   · skip
     intro hD2
     -- 5. def:subset X := A, Y := B ∩ C, from D2
-    have s5 : ∀ t ∈ A, t ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mp hD2
+    have s5 : ∀ t ∈ A, t ∈ B ∩ C := by exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mp hD2
     -- 6. proof
     have s6 : ∀ t ∈ A, t ∈ B := by
       intro t hK

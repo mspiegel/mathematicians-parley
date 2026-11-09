@@ -64,7 +64,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       -- 3.6.5. inspection
       have s3_6_5 : (1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
       -- 3.6.6. substitute
-      have c1 : 1 = a := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := a) (by parley_set_side) s3_6_4).symm
+      have c1 : 1 = a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := a) (by parley_set_side) s3_6_4).symm
       have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_subst_at c1 s3_6_5
       exact row1
     · skip

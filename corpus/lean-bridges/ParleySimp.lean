@@ -22,4 +22,9 @@ public section
 /-- The definitions the tactics see through, where a module tags them. -/
 register_simp_attr parley_unfold
 
+/-- The facts that join an item's Lean statement, written once over any ring
+or set, to the step's spelling of it at a citation's values, each one
+representation fact (`InstanceTactics`). -/
+register_simp_attr parley_spelling
+
 end

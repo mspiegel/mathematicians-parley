@@ -1,8 +1,7 @@
 module
 
-public import NormTactics
+public import InstanceTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
@@ -14,15 +13,12 @@ public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne
@@ -44,9 +40,13 @@ theorem sign_of_odd (n : ℤ) (hH1 : 0 < n) (hH2 : Odd n) :
   -- 4. inequalities
   have s4 : k ≥ 0 := by parley_order
   -- 5. mun:nat0-as-int n := k, from 4
-  have s5 : 0 ≤ k := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k))).mpr (by parley_side)
+  have s5 : 0 ≤ k := by
+    have hI : 0 ≤ k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k))).mpr (by parley_side))
+    exact hI
   -- 6. thm:odd-power-of-minus-one, from 5
-  have s6 : ((-1) ^ (2 * k + 1) : ℚ) = -1 := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)) | exact_mod_cast ((Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side))).symm | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); parley_int_power h) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); parley_side)
+  have s6 : ((-1) ^ (2 * k + 1) : ℚ) = -1 := by
+    have hI : ((-1) ^ (2 * k + 1) : ℚ) = -1 := by parley_instance_cast ((Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)))
+    exact hI
   -- 7. substitute 2·k + 1 = n (line 1) into line 6
   parley_subst_at s1 s6
 

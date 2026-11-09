@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SubstTactics
@@ -41,13 +42,17 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     intro d hK
     intro hC
     by_contra hS
-    have hD1_kind : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) / (d : ℚ) := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := p) (by parley_side) (d := d) (by parley_side))).mp hC
+    have hD1_kind : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) / (d : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := p) (by parley_side) (d := d) (by parley_side))).mp hC
     obtain ⟨e, hD1_pos, hD1⟩ := hD1_kind
     -- 1.1. algebra, from D1
     have s1_1 : p = d * e := by qify at *; linear_combination (norm := parley_field) (-(d : ℚ)) * hD1
     -- 1.2. mun:not-either P := d = 1, Q := d = p, from S
-    have s1_2a : d ≠ 1 := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).1
-    have s1_2b : d ≠ p := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).2
+    have s1_2a : d ≠ 1 := by
+      have hI : d ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).1)
+      exact hI
+    have s1_2b : d ≠ p := by
+      have hI : d ≠ p := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).2)
+      exact hI
     -- 1.3. inequalities, from K, 1.2
     have s1_3 : 1 < d := by parley_order
     -- 1.4. mun:integer-step m := 1, n := d, from 1.3

@@ -61,7 +61,7 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
     · intro Y hK hIH
       intro a hK2
       -- 1.5. def:difference u := a, Y := X, Z := Y, from K2
-      have s1_5 : a ∈ X ∧ ¬ a ∈ Y := ((Parley.Items.Stdlib.Sets.def_difference (Y := X) (Z := Y) (u := a))).mp hK2
+      have s1_5 : a ∈ X ∧ ¬ a ∈ Y := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := X) (Z := Y) (u := a))).mp hK2
       -- 1.6. mun:finite-part, from H2, K
       have s1_6 : Y.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := Y) hH2 hK)
       -- 1.7. mun:product-add-one, from K, 1.5, 1.6

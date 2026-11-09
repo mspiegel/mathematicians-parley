@@ -30,7 +30,7 @@ theorem subset_of_a_union_with_a_disjoint_set {α : Type*} (A : Set α) (B : Set
       -- 1.2. mun:in-subset X := A, Y := B ∪ C, u := t, from D1, K1
       have s1_2 : t ∈ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B ∪ C) (u := t) hD1 hK1)
       -- 1.3. def:union u := t, Y := B, Z := C, from 1.2
-      have s1_3 : t ∈ B ∨ t ∈ C := ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := t))).mp s1_2
+      have s1_3 : t ∈ B ∨ t ∈ C := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := t))).mp s1_2
       -- 1.4. cases, from 1.3
       rcases s1_3 with hC1 | hC2
       · skip

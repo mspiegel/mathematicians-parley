@@ -44,8 +44,8 @@ theorem sqrt_of_sum_bound (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
   have s7 : a + b ≤ a + b + 2 * (Real.sqrt a * Real.sqrt b) := by parley_order
   -- 8. calculation
   have s8 : Real.sqrt (a + b) ^ 2 ≤ (Real.sqrt a + Real.sqrt b) ^ 2 := by
-    calc Real.sqrt (a + b) ^ 2 = a + b := by parley_side
-      _ ≤ a + b + 2 * (Real.sqrt a * Real.sqrt b) := by parley_side
+    calc Real.sqrt (a + b) ^ 2 = a + b := by exact s4b
+      _ ≤ a + b + 2 * (Real.sqrt a * Real.sqrt b) := by exact s7
       _ = (Real.sqrt a + Real.sqrt b) ^ 2 := by linear_combination (norm := parley_norm) (-1) * s1b + (-1) * s2b
   -- 9. mun:square-le x := √(a + b), y := √a + √b, from 1, 2, 4, 5, 8
   exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (a + b)) (y := Real.sqrt a + Real.sqrt b) (by parley_side) (by parley_side))).mpr s8

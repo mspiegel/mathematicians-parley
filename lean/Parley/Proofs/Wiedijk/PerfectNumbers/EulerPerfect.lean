@@ -2,15 +2,14 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -51,7 +50,6 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -78,7 +76,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have s2_1 : n = 2 ^ 0 * m := by parley_subst_at hS1 s1d
     -- 2.2. calculation
     have s2_2 : n = m := by
-      calc n = 2 ^ 0 * m := by parley_side
+      calc n = 2 ^ 0 * m := by exact s2_1
         _ = m := by parley_ring
     -- 2.3. substitute n = m (line 2.2) into line 1
     have s2_3 : Odd n := by parley_subst_at s2_2 s1c
@@ -143,8 +141,12 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have r407_2 : (2 : ℤ) ≠ 1 := by parley_arith
   have s14 : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) = 2 ^ p.toNat - 1 := by
     try qify
-    calc (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)); parley_side)
-      _ = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)) | exact_mod_cast ((Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side))).symm | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); parley_int_power h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); parley_rat_of_real h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)); parley_side)
+    calc (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by
+          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by parley_instance_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) (by parley_side)))
+          exact hI
+      _ = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by
+          have hI : (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by parley_instance_real ((Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) (by parley_side)))
+          exact hI
       _ = 2 ^ p.toNat - 1 := by
           try simp only [hD2] at *
           try push_cast at *
@@ -152,9 +154,11 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   -- 15. calculation
   have s15 : (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = 2 ^ p.toNat * m := by
     calc (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by parley_subst s14
-      _ = (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13)).symm | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13); parley_side)
+      _ = (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) := by
+          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by parley_instance ((Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (by parley_side) (n := m) (by parley_side) s13))
+          exact hI.symm
       _ = (ArithmeticFunction.sigma 1 n.toNat : ℤ) := by parley_subst s1d
-      _ = 2 * n := ((Parley.Items.Stdlib.Divisibility.def_perfect (n := n) (by parley_side))).mp hH3
+      _ = 2 * n := by exact ((Parley.Items.Stdlib.Divisibility.def_perfect (n := n) (by parley_side))).mp hH3
       _ = 2 ^ p.toNat * m := by linear_combination (norm := parley_norm) (2) * s1d + (-m) * s8
   -- 16. mun:sigma-nat n := m
   have s16 : 0 < (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_sigma_nat (n := m) (by parley_side))
@@ -164,7 +168,9 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s18 : (2 ^ p.toNat - 1 : ℤ) ∣ m * 2 ^ p.toNat := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ p.toNat - 1 : ℤ)) (n := m * 2 ^ p.toNat))).mpr ⟨(ArithmeticFunction.sigma 1 m.toNat : ℤ), s17⟩
   -- 19. thm:coprime-divides x := m, c := 2^p, n := 2^p − 1, from 7, 11, 18
   have s19 : (2 ^ p.toNat - 1 : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := m) (c := (2 ^ p.toNat : ℤ)) (n := (2 ^ p.toNat - 1 : ℤ)) (by parley_side) s18 s11)
-  have hD3_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (2 ^ p.toNat - 1) := by first | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19 | exact (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19).symm | simpa using ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19 | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19 | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19; simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19; parley_side)
+  have hD3_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (2 ^ p.toNat - 1) := by
+    have hI : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (2 ^ p.toNat - 1) := by parley_instance (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_side) (d := (2 ^ p.toNat - 1 : ℤ)) (by parley_side))).mp s19)
+    exact hI
   obtain ⟨c, hD3_pos, hD3⟩ := hD3_kind
   -- 20. algebra, from D3
   have r440_1 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by parley_side
@@ -214,8 +220,12 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     intro hA1
     by_contra hS4
     -- 26.1. mun:not-either P := d = 1, Q := d = m, from S4
-    have s26_1a : d ≠ 1 := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).1
-    have s26_1b : d ≠ m := (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).2
+    have s26_1a : d ≠ 1 := by
+      have hI : d ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).1)
+      exact hI
+    have s26_1b : d ≠ m := by
+      have hI : d ≠ m := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).2)
+      exact hI
     -- 26.2. mun:divides-le e := d, from A1
     have s26_2 : d ≤ m := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := m) (by parley_side) hA1)
     -- 26.3. inequalities, from K1, 26.1

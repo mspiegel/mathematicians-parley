@@ -39,7 +39,7 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
   -- 5. algebra, from H3
   have s5 : (a - b) * (a ^ 2 + a * b + b ^ 2) = 0 := by linear_combination (norm := parley_norm) hH3
   -- 6. mun:zero-product x := a − b, y := a² + a·b + b², from 5
-  have s6 : a - b = 0 ∨ a ^ 2 + a * b + b ^ 2 = 0 := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp s5
+  have s6 : a - b = 0 ∨ a ^ 2 + a * b + b ^ 2 = 0 := by exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp s5
   -- 7. cases, from 6
   have s7 : a ^ 2 + a * b + b ^ 2 = 0 := by
     rcases s6 with hC1 | hC2

@@ -47,8 +47,8 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     -- 2.1. obtain s: def:image u := y, Y := [−3, 5], from K1, 1
     obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (u := y) (W := Set.univ) (by parley_whole_side) (by parley_whole_side))).mp hK1
     -- 2.2. def:interval a := −3, b := 5, x := s, from 2.1
-    have s2_2a : -3 ≤ s := (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).1.2
-    have s2_2b : s ≤ 5 := (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).2
+    have s2_2a : -3 ≤ s := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).1.2
+    have s2_2b : s ≤ 5 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).2
     -- 2.3. calculation
     have s2_3 : y = s ^ 2 + 3 := by
       calc y = f s := by parley_set_side
@@ -59,8 +59,8 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s2_5 : s ^ 2 + 3 ≥ 3 := by parley_order
     -- 2.6. calculation
     have s2_6 : y ≥ 3 := by
-      calc y = s ^ 2 + 3 := by parley_set_side
-        _ ≥ 3 := by parley_set_side
+      calc y = s ^ 2 + 3 := by exact s2_3
+        _ ≥ 3 := by exact s2_5
     -- 2.7. inequalities
     have s2_7 : s + 3 ≥ 0 := by parley_order
     -- 2.8. inequalities
@@ -73,9 +73,9 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s2_11 : 2 * s + 18 ≤ 28 := by parley_order
     -- 2.12. calculation
     have s2_12 : y ≤ 28 := by
-      calc y = s ^ 2 + 3 := by parley_set_side
-        _ ≤ 2 * s + 18 := by parley_set_side
-        _ ≤ 28 := by parley_set_side
+      calc y = s ^ 2 + 3 := by exact s2_3
+        _ ≤ 2 * s + 18 := by exact s2_10
+        _ ≤ 28 := by exact s2_11
     -- 2.13. membership, from 2.3
     -- 2.14. def:interval a := 3, b := 28, x := y, from 2.6, 2.12, 2.13
     exact ((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mpr (by parley_set_side)
@@ -85,8 +85,8 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
   have s4 : ∀ y ∈ (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ), y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by
     intro y hK2
     -- 4.1. def:interval a := 3, b := 28, x := y, from K2
-    have s4_1a : 3 ≤ y := (((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mp hK2).1.2
-    have s4_1b : y ≤ 28 := (((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mp hK2).2
+    have s4_1a : 3 ≤ y := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mp hK2).1.2
+    have s4_1b : y ≤ 28 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mp hK2).2
     -- 4.2. inequalities
     have s4_2 : y - 3 ≥ 0 := by parley_order
     -- 4.3. def:sqrt x := y − 3, from 4.2
@@ -96,8 +96,8 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s4_4 : y - 3 ≤ 25 := by parley_order
     -- 4.5. calculation
     have s4_5 : Real.sqrt (y - 3) ^ 2 ≤ 5 ^ 2 := by
-      calc Real.sqrt (y - 3) ^ 2 = y - 3 := by parley_set_side
-        _ ≤ 25 := by parley_set_side
+      calc Real.sqrt (y - 3) ^ 2 = y - 3 := by exact s4_3b
+        _ ≤ 25 := by exact s4_4
         _ = 5 ^ 2 := by norm_num
     -- 4.6. mun:square-le x := √(y − 3), y := 5, from 4.3, 4.5
     have r121_1 : (0 : ℤ) ≤ 5 := by parley_arith

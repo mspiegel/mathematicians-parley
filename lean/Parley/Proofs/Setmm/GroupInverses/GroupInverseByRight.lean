@@ -35,7 +35,7 @@ theorem group_inverse_by_right {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.u
     intro hD2
     -- 3.2. calculation
     have s3_2 : a * a⁻¹ = a * b := by
-      calc a * a⁻¹ = (1 : G) := by parley_set_side
+      calc a * a⁻¹ = (1 : G) := by exact s2
         _ = a * b := by parley_set_side
     -- 3.3. thm:group-cancel a := a⁻¹, g := a, from H2, H3, 1, 3.2
     exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a⁻¹) (b := b) (g := a) s1 hH3 hH2 s3_2)

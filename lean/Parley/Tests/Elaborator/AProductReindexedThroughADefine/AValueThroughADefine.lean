@@ -27,6 +27,6 @@ theorem a_value_through_a_define (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)
   -- 2. mun:subset-transitive, from H1, H4
   have s2 : U ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := U) (Y := X) (Z := (Set.univ : Set ℤ)) hH4 (by parley_whole_side))
   -- 3. mun:in-subset, from D1, 1, 2
-  intro x h_x; (first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)); parley_set_side))
+  intro x h_x; (trivial)
 
 end Parley.Tests.Elaborator.AProductReindexedThroughADefine.AValueThroughADefine

@@ -28,7 +28,7 @@ theorem floor_of_minus_half_not_zero :
   intro hS
   -- 2.1. calculation
   have s2_1 : (-1 : ℤ) = 0 := by
-    calc (-1 : ℤ) = ⌊(-(1 / 2) : ℝ)⌋ := by parley_side
+    calc (-1 : ℤ) = ⌊(-(1 / 2) : ℝ)⌋ := by exact s1.symm
       _ = 0 := by parley_side
   exact absurd s2_1 (by norm_num)
 

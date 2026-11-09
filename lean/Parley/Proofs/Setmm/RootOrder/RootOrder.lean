@@ -44,7 +44,7 @@ theorem root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     -- 3.3. mun:square-less x := √A, y := √B, from D2
     have r38_3 : Real.sqrt A ≥ 0 := by parley_side
     have r38_4 : Real.sqrt B ≥ 0 := by parley_side
-    have s3_3 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mp hD2
+    have s3_3 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mp hD2
     -- 3.4. transitivity, from 1, 3.3, 2
     parley_order
 

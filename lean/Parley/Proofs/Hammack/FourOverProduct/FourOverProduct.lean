@@ -27,7 +27,7 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   -- 1. inequalities
   have s1 : 0 < 4 - x := by parley_order
   -- 2. mun:less-scaled x := 0, y := 4 − x, c := x, from H2, 1
-  have s2 : x * 0 < x * (4 - x) := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (0 : ℝ)) (y := 4 - x) (c := x) (by parley_side))).mp s1
+  have s2 : x * 0 < x * (4 - x) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (0 : ℝ)) (y := 4 - x) (c := x) (by parley_side))).mp s1
   -- 3. inequalities, from 2
   have s3 : 0 < x * (4 - x) := by parley_order
   -- 4. mun:square-nonneg x := x − 2

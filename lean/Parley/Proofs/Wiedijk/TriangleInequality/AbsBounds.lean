@@ -27,7 +27,7 @@ theorem abs_bounds (x : ℝ) :
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. def:abs, from C1
-      have s2_1 : abs x = x := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) hC1
+      have s2_1 : abs x = x := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) hC1
       -- 2.2. inequalities
       have s2_2 : x ≤ abs x := by parley_order
       -- 2.3. inequalities
@@ -40,7 +40,7 @@ theorem abs_bounds (x : ℝ) :
       exact ⟨s2_5a, s2_5b⟩
     · skip
       -- 2.6. def:abs, from C2
-      have s2_6 : abs x = -x := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) hC2
+      have s2_6 : abs x = -x := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) hC2
       -- 2.7. inequalities
       have s2_7 : -x ≤ abs x := by parley_order
       -- 2.8. inequalities

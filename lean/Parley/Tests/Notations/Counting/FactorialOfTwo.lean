@@ -32,7 +32,7 @@ theorem factorial_of_two :
   -- 5. substitute 1 + 1 = 2 (line 4) into line 3
   have s5 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by first | parley_subst_at s4 s3 | (have e_nat : 1 + 1 = 2 := by exact_mod_cast s4; parley_subst_at e_nat s3)
   -- 6. calculation
-  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by parley_side
+  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by exact s5
     _ = 2 := by norm_num
 
 end Parley.Tests.Notations.Counting.FactorialOfTwo
