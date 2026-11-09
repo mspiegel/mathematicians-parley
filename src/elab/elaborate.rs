@@ -1796,50 +1796,6 @@ impl<'a> Elaborator<'a> {
         just.values.read_wanted_by(&reader, self.g, letters)
     }
 
-    /// How many conditions the universal `said`, at the values written for
-    /// the names it quantifies, asks before it concludes `term`: none where
-    /// the instance is the claim, and each thing it asks before the claim
-    /// is what it gives otherwise. None where it does not conclude it.
-    fn conditions_to(
-        &mut self,
-        said: &Rpn,
-        values: &IndexMap<String, Rpn>,
-        term: &Rpn,
-    ) -> Option<usize> {
-        let mut whole = self.to_term(said);
-        while rules::INSTANCES
-            .iter()
-            .any(|(k, _)| Some(*k) == whole.label())
-        {
-            let (body, variable) =
-                (whole.children()[0].clone(), whole.children()[1].clone());
-            let letter = self.rpn(&variable).to_string();
-            let named = self
-                .written_as
-                .get(&letter)
-                .cloned()
-                .unwrap_or(letter.clone());
-            let Some(at) = values.get(&named) else {
-                break;
-            };
-            let mark = t!(letter, "cv");
-            whole = self.restated(&body, &mark, at);
-        }
-        let wanted = self.fact_key(term);
-        let mut asked = 0;
-        loop {
-            let reached = self.rpn(&whole);
-            if reached == *term || self.fact_key(&reached) == wanted {
-                return Some(asked);
-            }
-            if whole.label() != Some("wi") {
-                return None;
-            }
-            whole = whole.children()[1].clone();
-            asked += 1;
-        }
-    }
-
     /// A universal used at one term: `instantiate s := a in line 10` takes a
     /// line claiming something of every s and claims it of one of them.
     fn instantiate(
@@ -1878,99 +1834,43 @@ impl<'a> Elaborator<'a> {
             .into_iter()
             .filter(|p| matches!(self.to_term(p).label(), Some("wral") | Some("wal")))
             .collect();
-        // The universal is the one binding the name the step instantiates.
         let pairs = self.instantiated_nodes(&step.just)?;
-        let bound: BTreeSet<Option<String>> = pairs
-            .iter()
-            .map(|v| {
-                self.bound_as
-                    .get(&v.name)
-                    .cloned()
-                    .or_else(|| self.b.flabel.get(&v.name).map(|f| f.to_string()))
-            })
-            .collect();
-        let binding: Vec<&Rpn> = universals
-            .iter()
-            .filter(|p| {
-                bound.contains(&Some(
-                    self.rpn(&self.to_term(p).children()[1]).to_string(),
-                ))
-            })
-            .collect();
-        let candidates: Vec<&Rpn> = if binding.is_empty() {
-            universals.iter().collect()
-        } else {
-            binding
-        };
-        // A line of several universals over the same name, as an induction
-        // hypothesis of two halves is, gives the claim from the one whose
-        // instance concludes it asking the fewest conditions, as the checker
-        // takes it (`check_instance_claimed`).
-        let mut values: IndexMap<String, Rpn> = IndexMap::new();
-        for v in &pairs {
-            values.insert(v.name.clone(), self.term(&v.value)?);
-        }
         // The sentence, or the part of one, the checker instantiated
-        // (`CheckedTheorem::instantiated`): where it recorded one, that is
-        // the universal, and a record naming no universal of the line is a
-        // defect.
-        let at = self
+        // (`CheckedTheorem::instantiated`), which the checker records of
+        // every instantiate it accepts.
+        let Some(at) = self
             .checked
             .instantiated
             .get(&step.just.line)
-            .map(|r| r.at.clone());
-        let recorded = match at {
-            Some(at) => {
-                // The line as elaborated may bind another letter than the
-                // sentence read afresh: one claim with its bound variable
-                // renamed (`renaming`).
-                let s = self.recorded_statement(&at)?;
-                let mut found = None;
-                for p in &universals {
-                    let same = *p == s
-                        || self
-                            .renaming(&self.to_term(&s), &self.to_term(p))?
-                            .is_some();
-                    if same {
-                        found = Some(p.clone());
-                        break;
-                    }
-                }
-                match found {
-                    Some(p) => Some(p),
-                    None => {
-                        return Err(self.defect(
-                            step.line,
-                            format!(
-                                "the checker instantiated {} of {where_}, which says no for all there",
-                                at.line
-                            ),
-                        ))
-                    }
-                }
-            }
-            None => None,
+            .map(|r| r.at.clone())
+        else {
+            return Err(self.defect(
+                step.line,
+                format!("the checker recorded no instance of {where_} on this line"),
+            ));
         };
-        let mut fewest: Option<(usize, &Rpn)> = None;
-        for p in &candidates {
-            let Some(asked) = self.conditions_to(p, &values, term) else {
-                continue;
-            };
-            if fewest.is_none_or(|(least, _)| asked < least) {
-                fewest = Some((asked, p));
+        // The line as elaborated may bind another letter than the sentence
+        // read afresh: one claim with its bound variable renamed
+        // (`renaming`), a set.mm question.
+        let recorded = self.recorded_statement(&at)?;
+        let mut found = None;
+        for p in &universals {
+            let same = *p == recorded
+                || self
+                    .renaming(&self.to_term(&recorded), &self.to_term(p))?
+                    .is_some();
+            if same {
+                found = Some(p.clone());
+                break;
             }
         }
-        let said = match recorded {
-            Some(p) => Some(p),
-            None => fewest
-                .map(|(_, p)| p)
-                .or(candidates.first().copied())
-                .cloned(),
-        };
-        let Some(said) = said else {
-            return Err(self.unreached(
+        let Some(said) = found else {
+            return Err(self.defect(
                 step.line,
-                format!("{where_} claims nothing of every such name"),
+                format!(
+                    "the checker instantiated {} of {where_}, which says no for all there",
+                    at.line
+                ),
             ));
         };
         let mut proof = self
