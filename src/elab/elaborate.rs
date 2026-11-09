@@ -1542,6 +1542,10 @@ impl<'a> Elaborator<'a> {
         };
         let labels = self.cited_labels(step, record)?;
         let seed = self.filling(step, record)?;
+        // The facts the checker recorded as supplying the item's hypotheses,
+        // which discharge the lemma's antecedents that are those hypotheses.
+        let given = self.recorded_hypotheses(step, record, scope, facts)?;
+        let kept = self.hypotheses_given.replace(given);
         for label in &labels {
             let found = self.apply_lemma(
                 label,
@@ -1551,11 +1555,20 @@ impl<'a> Elaborator<'a> {
                 Some(step),
                 true,
                 Some(&seed),
-            )?;
+            );
+            let found = match found {
+                Ok(f) => f,
+                Err(e) => {
+                    self.hypotheses_given = kept;
+                    return Err(e);
+                }
+            };
             if !found.is_declined() {
+                self.hypotheses_given = kept;
                 return Ok(found);
             }
         }
+        self.hypotheses_given = kept;
         let assembled =
             self.by_lemmas(&labels, goal, scope, facts, step, Some(&seed))?;
         if !assembled.is_declined() {
@@ -2898,6 +2911,47 @@ impl<'a> Elaborator<'a> {
     /// of it read at a block's letter.
     fn recorded_statement(&mut self, at: &FirstAt) -> Checked<Rpn> {
         self.term(&at.written)
+    }
+
+    /// Each hypothesis of the step's citation of `item`, in set.mm at the
+    /// citation's values, with the proof of the fact the checker recorded
+    /// as supplying it (`Cited::supplied`, `recorded_fact`): the fact as it
+    /// stands where it is the hypothesis, and carried by `same` where the
+    /// line says it otherwise. A hypothesis the record gives no line for,
+    /// said once or unstated, is not among them.
+    pub(super) fn recorded_hypotheses(
+        &mut self,
+        step: &Step,
+        item: &'a Record,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Facts> {
+        let given = Facts::new();
+        let Some(cited) = self.citation_read(step).cloned() else {
+            return Ok(given);
+        };
+        let binding = self.matched_here(step, item)?;
+        let library = self.item_library();
+        let lines = self.lines.clone();
+        for supplied in &cited.supplied {
+            let Some((said, proof)) =
+                self.recorded_fact(step, &supplied.by, scope, facts, &lines)?
+            else {
+                continue;
+            };
+            let node = filled(&supplied.want, &binding, &library.ctx);
+            let wanted = self.term(&node)?;
+            if said == wanted {
+                self.know(&given, wanted, proof);
+                continue;
+            }
+            let (from, to) = (self.to_term(&said), self.to_term(&wanted));
+            if let Built(alike) = self.same(&from, &to, scope, facts, Some(step))? {
+                let carried = pf!(self.b; scope, said, wanted, proof, alike, "mpbid");
+                self.know(&given, wanted, carried);
+            }
+        }
+        Ok(given)
     }
 
     /// The fact the checker recorded as supplied by `by`, as the line says

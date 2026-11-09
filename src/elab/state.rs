@@ -392,6 +392,12 @@ pub struct Elaborator<'a> {
     pub said_back: Option<Vec<String>>,
     /// What the proof being built may rest on.
     pub resting: Option<BTreeSet<String>>,
+    /// While a record's lemma is applied for a step citing it, each
+    /// hypothesis of the record, in set.mm at the citation's values, with the
+    /// proof of the fact the checker recorded as supplying it
+    /// (`recorded_hypotheses`): what an antecedent that is one of them is
+    /// discharged by.
+    pub hypotheses_given: Option<super::Facts>,
     /// How many searches for a divisor's `≠ 0` enclose this point. That a
     /// divisor is not zero is the page's to say, so no membership said once
     /// is offered on the way to it (`introduced_membership`, `not_zero`).
@@ -577,6 +583,7 @@ impl<'a> Elaborator<'a> {
             adding_only: false,
             said_back: None,
             resting: None,
+            hypotheses_given: None,
             beyond_once: 0,
             sorts: BTreeSet::new(),
             let_lines: BTreeSet::new(),

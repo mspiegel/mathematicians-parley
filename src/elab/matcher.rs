@@ -8048,8 +8048,18 @@ impl<'a> Elaborator<'a> {
                 .parts(&asks_rpn)
                 .iter()
                 .any(|p| self.to_term(p).label() == Some("wrex"));
+            // A hypothesis of the cited record, by the fact the checker
+            // recorded as supplying it (`hypotheses_given`).
+            let recorded = match self.hypotheses_given.clone() {
+                Some(given) if where_ == *scope => {
+                    self.held(&given, &asks_rpn, &where_)?
+                }
+                _ => None,
+            };
             let mut under = if is_scope {
                 Built(pf!(self.b; where_, "id"))
+            } else if let Some(p) = recorded {
+                Built(p)
             } else if instanced && step.is_some() {
                 let lines = self.lines.clone();
                 self.settle(&asks, &where_, &known, 3, step, Some(&lines))?
