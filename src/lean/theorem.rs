@@ -18,7 +18,7 @@ use super::names::{line_name, snake};
 use super::statement::{binders, introduces, Asked, Binder};
 use super::templates::Templates;
 use crate::checker::record::{
-    Cited, Contradicted, FirstAt, Negating, Supplied, SuppliedBy, Supposed,
+    Cited, Contradicted, Facing, FirstAt, Negating, Supplied, SuppliedBy, Supposed,
 };
 use crate::checker::{CheckedCorpus, CheckedTheorem};
 use crate::citing::Way;
@@ -297,30 +297,6 @@ fn cast_texts(term: &Printed) -> Vec<String> {
 
 /// The `toNat`s a statement as Lean writes it takes, each by its text, in
 /// order.
-/// Whether the equation `item` faces the equation `claim` turned round:
-/// false where a side of the one is alike the same side of the other as
-/// `norm_cast` leaves them (`casts::norm_cast_form`), true where it is
-/// alike the other side and not its own; None where no side is alike
-/// either.
-fn facing(item: &Printed, claim: &Printed) -> Option<bool> {
-    use super::casts::norm_cast_form;
-    use super::doc::forms::alike;
-    let sides = |t: &Printed| match &norm_cast_form(t).kind {
-        super::doc::TermKind::Infix { lhs, rhs, .. } => {
-            Some(((**lhs).clone(), (**rhs).clone()))
-        }
-        _ => None,
-    };
-    let ((il, ir), (cl, cr)) = (sides(item)?, sides(claim)?);
-    if alike(&il, &cl) || alike(&ir, &cr) {
-        return Some(false);
-    }
-    if alike(&il, &cr) || alike(&ir, &cl) {
-        return Some(true);
-    }
-    None
-}
-
 fn to_nat_texts(term: &Printed) -> Vec<String> {
     term.walk()
         .into_iter()
@@ -5218,7 +5194,7 @@ impl<'a> Proof<'a> {
         claim: Option<&Printed>,
         term: Printed,
         says: Option<&Printed>,
-        turned: bool,
+        facing: Option<Facing>,
     ) -> super::doc::Proof {
         // A claim Lean's types make true says nothing a term is met with; one
         // in another type than the term's is not known to be its; and one
@@ -5290,17 +5266,13 @@ impl<'a> Proof<'a> {
             let same_to_nat = to_nat_texts(says) == to_nat_texts(claim);
             match node.notation() {
                 EQUALITY if one_type && of_numbers && pushed && same_to_nat => {
-                    // Which way the item faces the claim, where one side of
-                    // each is alike the other's as `norm_cast` leaves them;
-                    // where neither is, the facing is not known and the step
-                    // keeps its ways.
-                    let Some(turned) = facing(says, claim).or(turned.then_some(true))
-                    else {
-                        return close(&self.writer, node, term);
-                    };
-                    let facing = match turned {
-                        true => super::tactics::symm(term),
-                        false => term,
+                    // Which way the item faces the claim, as the checker met
+                    // them (`Cited::facings`); where it records none, the
+                    // step keeps its ways.
+                    let facing = match facing {
+                        Some(Facing::Straight) => term,
+                        Some(Facing::Turned) => super::tactics::symm(term),
+                        None => return close(&self.writer, node, term),
                     };
                     return super::doc::Proof::By(super::tactics::linear_combination(
                         facing,
@@ -8852,7 +8824,13 @@ impl<'a> Proof<'a> {
             _ if !counted.is_empty() => counts_converted(&term, &counted, turned),
             _ if agrees => Proof::By(Tactic::Exact(term)),
             Some(witness) => Proof::By(Tactic::Exact(witness)),
-            None => self.closer(node, claim_lean.as_ref(), term, says.as_ref(), turned),
+            None => self.closer(
+                node,
+                claim_lean.as_ref(),
+                term,
+                says.as_ref(),
+                cited.facings.get(k).copied().flatten(),
+            ),
         };
         Route::Built(haves_then(written_out(&defines), closed))
     }

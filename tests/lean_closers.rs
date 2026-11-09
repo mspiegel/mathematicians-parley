@@ -81,9 +81,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean",
         step: "12",
-        holds: "first |",
-        list: true,
-        why: "an item's equation whose sides are alike neither of the claim's, ∏ i beside ∏ k: which way it faces is not known, and linear_combination needs it",
+        holds: ".symm",
+        list: false,
+        why: "an item's equation the checker met turned round, ∏ i beside ∏ k (Cited::facings): linear_combination of its symm",
     },
     Site {
         file: "lean/Parley/Proofs/Setmm/ConstantFunctionContinuous/ConstantFunctionContinuous.lean",

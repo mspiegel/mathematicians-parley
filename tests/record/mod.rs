@@ -222,14 +222,24 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         })
         .collect();
     letters.sort();
+    let facings: Vec<&str> = cited
+        .facings
+        .iter()
+        .map(|f| match f {
+            Some(parley::checker::record::Facing::Straight) => "straight",
+            Some(parley::checker::record::Facing::Turned) => "turned",
+            None => "none",
+        })
+        .collect();
     format!(
-        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}",
+        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}",
         cited.item,
         cited.group,
         binding.join(", "),
         concluded.join(", "),
         supplied.join(", "),
         letters.join(", "),
+        facings.join(", "),
     )
 }
 

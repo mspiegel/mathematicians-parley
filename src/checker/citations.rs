@@ -12,7 +12,7 @@ use super::library::{
     SaidFrom, Search,
 };
 use super::record::{
-    Cited, Exhibit, FirstAt, Instantiated, ItemLetter, ObtainedPart, Supplied,
+    Cited, Exhibit, Facing, FirstAt, Instantiated, ItemLetter, ObtainedPart, Supplied,
     SuppliedBy,
 };
 use super::structure::letters_in_scope;
@@ -268,6 +268,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     );
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
+    let facings = facings(&groups, taken, &parts.claims, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -276,10 +277,52 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         firsts,
         supplied,
         item_letters,
+        facings,
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
     })
+}
+
+/// For each sentence `taken` concludes, which way the item's equation read
+/// at the binding faces the claim's sentence it gives, the claim's
+/// sentences by their place (`record::Cited::facings`). Sides are compared
+/// as `Known::alike_how` compares, bound letters renamed and spellings
+/// read alike.
+fn facings(
+    groups: &[Group],
+    taken: &Taken,
+    claims: &[Node],
+    known: &Known,
+    library: &Library,
+) -> Vec<Option<Facing>> {
+    let group = &groups[taken.group];
+    taken
+        .concluded
+        .iter()
+        .enumerate()
+        .map(|(k, c)| {
+            let said = group.gives.get(c.sentence)?;
+            let read = readings(said, library)
+                .into_iter()
+                .find(|r| r.way == c.way)?;
+            let item = filled(&read.claimed, &taken.binding, &library.ctx);
+            let claim = claims.get(k)?;
+            if item.notation() != EQUALITY || claim.notation() != EQUALITY {
+                return None;
+            }
+            let (il, ir) = (&item.children[0], &item.children[1]);
+            let (cl, cr) = (&claim.children[0], &claim.children[1]);
+            let meets = |a: &Node, b: &Node| known.alike_how(a, b).is_some();
+            if meets(il, cl) || meets(ir, cr) {
+                Some(Facing::Straight)
+            } else if meets(il, cr) || meets(ir, cl) {
+                Some(Facing::Turned)
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 /// For each letter of the group a citation takes that the binding gives a
@@ -478,6 +521,7 @@ pub fn cited_requires(
     );
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
+    let facings = facings(&groups, &taken, &parts.claims, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -486,6 +530,7 @@ pub fn cited_requires(
         firsts,
         supplied,
         item_letters,
+        facings,
         binding: taken.binding,
         bound: taken.bound,
         written: parts.seed,

@@ -274,9 +274,7 @@
 1	lean/Parley/Proofs/Setmm/LimitLemmas/ScaledSmall.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/LimitNegative/LimitNegative.lean	2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/NicomachusRow/NicomachusRow.lean	1	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Setmm/NicomachusRow/NicomachusRow.lean	2.6	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/OddNumbersSum/OddNumbersSum.lean	2	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Setmm/OddNumbersSum/OddNumbersSum.lean	3.4	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/OneToOneValues/OneToOneValues.lean	2	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/Parity/HalfOrNextHalf.lean	2.3	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/Parity/HalfOrNextHalf.lean	2.7	a step no reasoned rule settles yet
@@ -537,7 +535,6 @@
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeFactorisation.lean	1.7	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeFactorisation.lean	2	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	10	a step no reasoned rule settles yet
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	12	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	3.2	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	4.2.1	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	4.2.4	a substitution whose equation's type in the row no rule settles yet
@@ -601,11 +598,9 @@
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	12.2	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	12.3	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	12.6	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	15	an item citation whose Lean types no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	16	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	17.2	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	2	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	21	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	4	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Wilson/PairedProduct.lean	8.2	an instance no reasoned rule settles yet
@@ -656,7 +651,6 @@
 3	lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCongruentTermwise.lean	3.13	an instance no reasoned rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCongruentTermwise.lean	4	an instance no reasoned rule settles yet
-1	lean/Parley/Stdlib/Divisibility/ProductCoprime.lean	2.12	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCoprime.lean	2.7	an instance no reasoned rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCoprime.lean	3	an instance no reasoned rule settles yet
 2	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.12	a substitution whose equation's type in the row no rule settles yet
@@ -699,7 +693,6 @@
 1	lean/Parley/Tests/Elaborator/APhraseDefined/SixIsTriangular.lean	2	a step no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/APhraseImported/TenIsTriangular.lean	2	a step no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/AProductOfADefineSaidOnce/AProductOfADefineInTheHeader.lean	2	a step no reasoned rule settles yet
-1	lean/Parley/Tests/Elaborator/AProductReindexedThroughADefine/AProductReindexedThroughADefine.lean	6	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/AProductReindexedThroughADefine/AValueThroughADefine.lean	3	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/ASetImageFromAnEquation/ASetImageFromAnEquation.lean	1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Tests/Elaborator/ASineLessACosineInTheSecondQuadrant/ASineLessACosineInTheSecondQuadrant.lean	11	an item citation whose Lean types no reasoned rule settles yet

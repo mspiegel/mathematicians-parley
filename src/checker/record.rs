@@ -464,10 +464,26 @@ pub struct Cited {
     /// Each item letter the binding gives a value, with the number system
     /// the item takes it in and its value's (`citations::item_letters`).
     pub item_letters: Vec<ItemLetter>,
+    /// For each of `concluded`, where the sentence read at the binding and
+    /// the claim's sentence it gives are both equations, which way the one
+    /// faces the other (`citations::facings`); None where either is no
+    /// equation, or no side of the one is alike a side of the other.
+    pub facings: Vec<Option<Facing>>,
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
     pub written: Binding,
+}
+
+/// Which way an item's equation, read at a citation's values, faces the
+/// claim's: `P(j+1) = P(j)·h(j+1)` faces `P(j)·h(j+1) = P(j+1)` turned.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Facing {
+    /// A side of the one is alike the same side of the other.
+    Straight,
+    /// A side of the one is alike the other side of the other, and neither
+    /// is alike its own.
+    Turned,
 }
 
 /// A contradiction's supposition as the checker relates it to what the
