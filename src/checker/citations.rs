@@ -12,7 +12,8 @@ use super::library::{
     SaidFrom, Search,
 };
 use super::record::{
-    Cited, Exhibit, FirstAt, Instantiated, ObtainedPart, Supplied, SuppliedBy,
+    Cited, Exhibit, FirstAt, Instantiated, ItemLetter, ObtainedPart, Supplied,
+    SuppliedBy,
 };
 use super::structure::letters_in_scope;
 use super::Report;
@@ -265,6 +266,8 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         known,
         library,
     );
+    let item_letters =
+        item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     Some(Cited {
         item,
         group: taken.group,
@@ -272,10 +275,81 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         concluded: across_groups(taken, before),
         firsts,
         supplied,
+        item_letters,
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
     })
+}
+
+/// For each letter of the group a citation takes that the binding gives a
+/// value, the number system the item takes it in, by the group's own
+/// hypothesis `x ∈ S`, and the narrowest the page says its value is in
+/// once (`citing::within`), by its letters' introducing lines and the
+/// memberships the step's facts state (`record::ItemLetter`).
+fn item_letters(
+    group: &Group,
+    binding: &Binding,
+    step: &Step,
+    parts: &Parts,
+    known: &Known,
+) -> Vec<ItemLetter> {
+    let letters = super::library::introduced(known, step);
+    let item_system = |letter: Symbol| {
+        group.wants.iter().find_map(|(_, want)| {
+            match (want.notation(), want.children.as_slice()) {
+                (MEMBERSHIP, [x, set])
+                    if x.is_name()
+                        && x.text == letter
+                        && set.notation() == NUMBER_SYSTEMS =>
+                {
+                    System::of_sign(&set.text)
+                }
+                _ => None,
+            }
+        })
+    };
+    let stated = |term: &Node, system: System| {
+        parts
+            .facts
+            .iter()
+            .any(|f| match (f.notation(), f.children.as_slice()) {
+                (MEMBERSHIP, [t, set]) => {
+                    set.notation() == NUMBER_SYSTEMS
+                        && System::of_sign(&set.text) == Some(system)
+                        && known.alike(t, term)
+                }
+                _ => false,
+            })
+    };
+    let narrowest = |value: &Node| {
+        [
+            System::N,
+            System::N0,
+            System::Z,
+            System::Q,
+            System::R,
+            System::C,
+        ]
+        .into_iter()
+        .find(|s| {
+            crate::citing::within(
+                value,
+                *s,
+                &letters,
+                &|d| crate::citing::nonzero_said_once(d, &letters),
+                &stated,
+            )
+        })
+    };
+    binding
+        .iter()
+        .map(|(letter, value)| ItemLetter {
+            letter: *letter,
+            item_system: item_system(*letter),
+            value_system: narrowest(value),
+        })
+        .collect()
 }
 
 /// The binding with each value that is the rule of a define the step cites
@@ -402,6 +476,8 @@ pub fn cited_requires(
         known,
         library,
     );
+    let item_letters =
+        item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     Some(Cited {
         item,
         group: taken.group,
@@ -409,6 +485,7 @@ pub fn cited_requires(
         concluded: across_groups(&taken, before),
         firsts,
         supplied,
+        item_letters,
         binding: taken.binding,
         bound: taken.bound,
         written: parts.seed,

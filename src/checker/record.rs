@@ -461,6 +461,9 @@ pub struct Cited {
     /// the group's order: the fact the search took for it (`supplier`),
     /// and where that fact stands.
     pub supplied: Vec<Supplied>,
+    /// Each item letter the binding gives a value, with the number system
+    /// the item takes it in and its value's (`citations::item_letters`).
+    pub item_letters: Vec<ItemLetter>,
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
@@ -575,6 +578,22 @@ pub struct Instantiated {
     pub conditions: usize,
     /// How what is left meets the claim (`Known::alike_how`).
     pub meeting: crate::matching::Meeting,
+}
+
+/// One letter of a cited item the citation gives a value, with the number
+/// systems the page puts the two in (`Cited::item_letters`): for
+/// `mun:abs-nonneg x := C` with C real, x is taken in ℂ by the item's
+/// `x ∈ ℂ`, and C is in ℝ.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ItemLetter {
+    /// The item's letter, as the binding names it.
+    pub letter: crate::formula::symbol::Symbol,
+    /// The number system the item takes it in, by its own hypothesis
+    /// `x ∈ S`; None where it asks it in none.
+    pub item_system: Option<crate::rules::System>,
+    /// The narrowest number system the page says its value is in once;
+    /// None for a value in none, a set or a function.
+    pub value_system: Option<crate::rules::System>,
 }
 
 /// What one sentence of an exhibit's claim shows, a "there is".

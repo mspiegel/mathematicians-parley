@@ -101,16 +101,68 @@ pub fn printed_but(
             .map_or_else(|| format!("line {line}"), |s| format!("step {}", s.number));
         for (i, value) in values.iter().enumerate() {
             let shown = match value {
-                Some(at) => at
-                    .values
-                    .iter()
-                    .map(|(letter, v)| format!("{letter} := {}", g.print(v)))
-                    .collect::<Vec<_>>()
-                    .join(", "),
+                Some(at) => {
+                    let values = at
+                        .values
+                        .iter()
+                        .map(|(letter, v)| format!("{letter} := {}", g.print(v)))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    let by: Vec<String> =
+                        at.shown.iter().map(|s| supplier(&s.by)).collect();
+                    format!("{values}; facts by {}", by.join(", "))
+                }
                 None => "no value".to_string(),
             };
             writeln!(out, "{at} exhibits in sentence {i} {shown}").unwrap();
         }
+    }
+    // Where a justification stands: a step's own, or a row or requires line
+    // inside one, by the step.
+    let reason_at = |line: usize| {
+        thm.steps
+            .iter()
+            .find(|s| s.just.line == line)
+            .map(|s| format!("step {}", s.number))
+            .or_else(|| {
+                thm.steps
+                    .iter()
+                    .find(|s| s.requires.iter().any(|r| r.line == line))
+                    .map(|_| requires_at(thm, line))
+            })
+            .unwrap_or_else(|| {
+                let owner = thm
+                    .steps
+                    .iter()
+                    .rev()
+                    .find(|s| s.just.line < line)
+                    .map_or("the theorem".to_string(), |s| {
+                        format!("step {}", s.number)
+                    });
+                format!("a row of {owner}")
+            })
+    };
+    for (line, inst) in &record.instantiated {
+        writeln!(
+            out,
+            "{} instantiates {}, {} conditions taken off",
+            reason_at(*line),
+            place(&inst.at),
+            inst.conditions
+        )
+        .unwrap();
+    }
+    for (line, at) in &record.link_places {
+        writeln!(out, "{} links from {}", reason_at(*line), place(at)).unwrap();
+    }
+    for (i, parts) in &record.obtained_parts {
+        let pairs: Vec<String> = parts
+            .iter()
+            .map(|p| {
+                format!("sentence {} part {} is part {}", p.sentence, p.part, p.owed)
+            })
+            .collect();
+        writeln!(out, "step {} obtains {}", number(*i), pairs.join(", ")).unwrap();
     }
     out
 }
@@ -150,30 +202,63 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         .iter()
         .map(|c| format!("{} {:?}", c.sentence, c.way))
         .collect();
-    let firsts: Vec<String> = cited
-        .firsts
-        .iter()
-        .map(|f| {
-            let mut at = f.line.clone();
-            if let Some(s) = f.sentence {
-                write!(at, " sentence {s}").unwrap();
-            }
-            if let Some(p) = f.part {
-                write!(at, " part {p}").unwrap();
-            }
-            at
-        })
-        .collect();
+    let firsts: Vec<String> = cited.firsts.iter().map(place).collect();
     let from = if firsts.is_empty() {
         "no line".to_string()
     } else {
         firsts.join(", ")
     };
+    let supplied: Vec<String> =
+        cited.supplied.iter().map(|s| supplier(&s.by)).collect();
+    // Each letter's number systems, the item's then its value's, in no
+    // order.
+    let mut letters: Vec<String> = cited
+        .item_letters
+        .iter()
+        .map(|l| {
+            let item = l.item_system.map_or("none", |s| s.label());
+            let value = l.value_system.map_or("none", |s| s.label());
+            format!("{} {item} from {value}", l.letter)
+        })
+        .collect();
+    letters.sort();
     format!(
-        "cites {} group {}; {}; concludes {}; from {from}",
+        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}",
         cited.item,
         cited.group,
         binding.join(", "),
         concluded.join(", "),
+        supplied.join(", "),
+        letters.join(", "),
     )
+}
+
+/// Where a fact stands in a line, by its sentence and part, and the rule
+/// where the line implies it (`record::FirstAt`).
+pub fn place(f: &parley::checker::record::FirstAt) -> String {
+    let mut at = f.line.clone();
+    if let Some(s) = f.sentence {
+        write!(at, " sentence {s}").unwrap();
+    }
+    if let Some(p) = f.part {
+        write!(at, " part {p}").unwrap();
+    }
+    if let Some(rule) = f.implied {
+        write!(at, " implied by {rule:?}").unwrap();
+    }
+    at
+}
+
+/// What supplies a hypothesis (`record::SuppliedBy`).
+fn supplier(by: &parley::checker::record::SuppliedBy) -> String {
+    use parley::checker::record::SuppliedBy;
+    match by {
+        SuppliedBy::Line(at) => place(at),
+        SuppliedBy::SaidOnce(at) => format!("once {}", place(at)),
+        SuppliedBy::Requires { line, implied } => match implied {
+            Some(rule) => format!("requires {} implied by {rule:?}", line + 1),
+            None => format!("requires {}", line + 1),
+        },
+        SuppliedBy::Unstated => "unstated".to_string(),
+    }
 }

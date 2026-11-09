@@ -13,20 +13,21 @@ block of 6: 6.1, 6.2, 6.3
   the block owes there is N ∈ ℕ with (for all n ∈ ℕ, N ≤ n → |Σ(k = 1 to n) 1 / T(k) − 2| < ε)
 block of 6.2: 6.2.1, 6.2.2, 6.2.3, 6.2.4, 6.2.5, 6.2.6, 6.2.7, 6.2.8, 6.2.9, 6.2.10
   the block owes |Σ(k = 1 to n) 1 / T(k) − 2| < ε
-step 6.1 cites stdlib/numbers/archimedean group 0; x := ε / 2; concludes ; from no line
-step 6.2.2 cites stdlib/numbers/reciprocal-order group 0; x := N, y := n + 1; concludes 0 Forward; from 6.2.1 sentence 0
-step 6.2.3 cites stdlib/numbers/reciprocal-positive group 0; x := n + 1; concludes 0 AsWritten; from no line
-step 6.2.10 cites stdlib/numbers/abs-difference-lt group 0; c := 2, x := Σ(k = 1 to n) 1 / T(k), δ := ε; concludes 0 Backward; from 6.2.6 sentence 0, 6.2.9 sentence 0
-step 7 cites stdlib/calculus/tends-to group 0; L := 2, x := property-of(Σ(k = 1 to n) 1 / T(k)), bound N := N, n := n, ε := ε; concludes 0 Backward; from 6 sentence 0
-step 8 cites stdlib/calculus/series-sum group 0; L := 2, t := property-of(1 / T(k)), bound k := k, n := n; concludes 0 AsWritten; from no line
-requires line on line 57 cites stdlib/sums/sum-termwise group 0; a := 1, b := n, t := property-of(1 / T(k)), u := property-of(2 / k − 2 / (k + 1)), bound k := k; concludes 0 AsWritten; from no line
-requires line on line 58 cites stdlib/sums/sum-telescopes group 0; a := 1, b := n, t := property-of(2 / k); concludes 0 AsWritten; from no line
-requires line 1 of step 6.2.10 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
-requires line 1 of step 7 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
+step 6.1 cites stdlib/numbers/archimedean group 0; x := ε / 2; concludes ; from no line; supplied by unstated, requires 1; letters x cr from cr
+step 6.2.2 cites stdlib/numbers/reciprocal-order group 0; x := N, y := n + 1; concludes 0 Forward; from 6.2.1 sentence 0; supplied by once 6.1 sentence 0 implied by WiderSystem, requires 1, unstated, requires 2; letters x cr from cn, y cr from cn
+step 6.2.3 cites stdlib/numbers/reciprocal-positive group 0; x := n + 1; concludes 0 AsWritten; from no line; supplied by unstated, requires 1; letters x cr from cn
+step 6.2.10 cites stdlib/numbers/abs-difference-lt group 0; c := 2, x := Σ(k = 1 to n) 1 / T(k), δ := ε; concludes 0 Backward; from 6.2.6 sentence 0, 6.2.9 sentence 0; supplied by requires 1, unstated, once K6 sentence 0; letters c cr from cn, x cr from cr, δ cr from cr
+step 7 cites stdlib/calculus/tends-to group 0; L := 2, x := property-of(Σ(k = 1 to n) 1 / T(k)), bound N := N, n := n, ε := ε; concludes 0 Backward; from 6 sentence 0; supplied by unstated; letters L cr from cn, x none from none
+step 8 cites stdlib/calculus/series-sum group 0; L := 2, t := property-of(1 / T(k)), bound k := k, n := n; concludes 0 AsWritten; from no line; supplied by unstated, 7 sentence 0; letters L cr from cn, t none from none
+requires line on line 57 cites stdlib/sums/sum-termwise group 0; a := 1, b := n, t := property-of(1 / T(k)), u := property-of(2 / k − 2 / (k + 1)), bound k := k; concludes 0 AsWritten; from no line; supplied by unstated, once K5 sentence 0 implied by WiderSystem, 1 sentence 0; letters a cz from cn, b cz from cn, t none from none, u none from none
+requires line on line 58 cites stdlib/sums/sum-telescopes group 0; a := 1, b := n, t := property-of(2 / k); concludes 0 AsWritten; from no line; supplied by unstated, once K5 sentence 0 implied by WiderSystem, requires 1; letters a cz from cn, b cz from cn, t none from none
+requires line 1 of step 6.2.10 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line; supplied by unstated, once K7 sentence 0 implied by WiderSystem; letters a cz from cn, b cz from cn, t none from none
+requires line 1 of step 7 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line; supplied by unstated, unstated; letters a cz from cn, b cz from cn, t none from none
 step 6.2.4 chains 1 / (n + 1) ≤ 1 / N | 1 / N < ε / 2
 step 6.2.6 chains 2 − ε < 2 − 2 / (n + 1) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
 step 6.2.9 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) | 2 − 2 / (n + 1) < 2 + ε
-step 6.3 exhibits in sentence 0 N := N
+step 6.3 exhibits in sentence 0 N := N; facts by once 6.1 sentence 0, 6.2 sentence 0
+step 6.1 obtains sentence 1 part 0 is part 0
 read 11: ℕ  as  number-systems:ℕ  a set
 read 14: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement
 read 19: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement

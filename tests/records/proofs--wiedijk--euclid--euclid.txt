@@ -18,37 +18,43 @@ block of 5.4: 5.4.1, 5.4.2, 5.4.3, 5.4.4, 5.4.5, 5.4.6, 5.4.7, 5.4.8, 5.4.9, 5.4
   part 0 owes b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
   part 1 owes b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
 block of 8: 8.1, 8.2, 8.3
-step 3.4 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line
-step 3.5.8 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line
-step 3.5.9 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
-step 4.2 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line
-step 4.3.6 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line
-step 4.3.7 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line
-step 4.3.8 cites stdlib/divisibility/gcd-commutes group 0; a := b(k), b := a(k) mod b(k); concludes 0 AsWritten; from no line
-step 5.2 cites stdlib/reasoning/or-left group 0; P := b(0) ≤ N, Q := b(0) = 0; concludes 0 AsWritten; from no line
-step 5.3 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line
-step 5.4.2 cites stdlib/reasoning/or-right group 0; P := b(k + 1) + (k + 1) ≤ N, Q := b(k + 1) = 0; concludes 0 AsWritten; from no line
-step 5.4.4 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line
-step 5.4.5 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line
-step 5.4.6 cites stdlib/divisibility/mod-less group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
-step 5.4.7 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
-step 5.4.10 cites stdlib/numbers/integer-step group 0; m := b(k + 1), n := b(k); concludes 0 AsWritten; from no line
-step 5.4.11 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(k) + k ≤ N, Q := b(k) = 0; concludes 0 AsWritten; from no line
-step 5.4.14 cites stdlib/reasoning/or-left group 0; P := b(k + 1) + (k + 1) ≤ N, Q := b(k + 1) = 0; concludes 0 AsWritten; from no line
-step 8.1 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(N) + N ≤ N, Q := b(N) = 0; concludes 0 AsWritten; from no line
-step 8.2 cites stdlib/numbers/nat0-nonzero group 0; m := b(N); concludes 0 AsWritten; from no line
-requires line 1 of step 3.5.9 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line
-requires line 1 of step 4.3.8 cites stdlib/numbers/nat0-int group 0; m := b(k); concludes 0 AsWritten; from no line
-requires line 2 of step 4.3.8 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
-requires line on line 165 cites stdlib/divisibility/gcd-mod group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
-requires line 1 of step 5.4.10 cites stdlib/numbers/nat0-int group 0; m := b(k + 1); concludes 0 AsWritten; from no line
-requires line 2 of step 5.4.10 cites stdlib/numbers/nat0-int group 0; m := b(k); concludes 0 AsWritten; from no line
-requires line 1 of step 5.4.12 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line
-requires line 2 of step 5.4.12 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line
-requires line 1 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line
-requires line 2 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line
-requires line on line 269 cites stdlib/divisibility/gcd-zero group 0; n := a(N); concludes 0 AsWritten; from no line
+step 3.4 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line; supplied by ; letters P none from none
+step 3.5.8 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by IH1 sentence 0 part 1, C2 sentence 0; letters m cn0 from cn0
+step 3.5.9 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line; supplied by requires 1, 3.5.8 sentence 0; letters a cz from cz, b cn from cn
+step 4.2 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line; supplied by ; letters P none from none
+step 4.3.6 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 1, C4 sentence 0; letters m cn0 from cn0
+step 4.3.7 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 0; letters m cn0 from cn0
+step 4.3.8 cites stdlib/divisibility/gcd-commutes group 0; a := b(k), b := a(k) mod b(k); concludes 0 AsWritten; from no line; supplied by requires 1, requires 2 implied by WiderSystem; letters a cz from cz, b cz from cn0
+step 5.2 cites stdlib/reasoning/or-left group 0; P := b(0) ≤ N, Q := b(0) = 0; concludes 0 AsWritten; from no line; supplied by 5.1 sentence 0; letters P none from none, Q none from none
+step 5.3 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line; supplied by ; letters P none from none
+step 5.4.2 cites stdlib/reasoning/or-right group 0; P := b(k + 1) + (k + 1) ≤ N, Q := b(k + 1) = 0; concludes 0 AsWritten; from no line; supplied by 5.4.1 sentence 0; letters P none from none, Q none from none
+step 5.4.4 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 1, C6 sentence 0; letters m cn0 from cn0
+step 5.4.5 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 0; letters m cn0 from cn0
+step 5.4.6 cites stdlib/divisibility/mod-less group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line; supplied by 5.4.5 sentence 0, 5.4.4 sentence 0; letters a cz from cz, b cn from cn
+step 5.4.7 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line; supplied by 5.4.5 sentence 0, 5.4.4 sentence 0; letters a cz from cz, b cn from cn
+step 5.4.10 cites stdlib/numbers/integer-step group 0; m := b(k + 1), n := b(k); concludes 0 AsWritten; from no line; supplied by requires 1, requires 2, 5.4.8 sentence 0; letters m cz from cz, n cz from cz
+step 5.4.11 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(k) + k ≤ N, Q := b(k) = 0; concludes 0 AsWritten; from no line; supplied by IH3 sentence 0, C6 sentence 0; letters P none from none, Q none from none
+step 5.4.14 cites stdlib/reasoning/or-left group 0; P := b(k + 1) + (k + 1) ≤ N, Q := b(k + 1) = 0; concludes 0 AsWritten; from no line; supplied by 5.4.13 sentence 0; letters P none from none, Q none from none
+step 8.1 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(N) + N ≤ N, Q := b(N) = 0; concludes 0 AsWritten; from no line; supplied by 7 sentence 0, S sentence 0; letters P none from none, Q none from none
+step 8.2 cites stdlib/numbers/nat0-nonzero group 0; m := b(N); concludes 0 AsWritten; from no line; supplied by 6 sentence 0 part 1, S sentence 0; letters m cn0 from cn0
+requires line 1 of step 3.5.9 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line; supplied by IH1 sentence 0 part 0; letters m cn0 from cn0
+requires line 1 of step 4.3.8 cites stdlib/numbers/nat0-int group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 1; letters m cn0 from cn0
+requires line 2 of step 4.3.8 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line; supplied by 4.3.7 sentence 0, 4.3.6 sentence 0; letters a cz from cz, b cn from cn
+requires line on line 165 cites stdlib/divisibility/gcd-mod group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line; supplied by 4.3.7 sentence 0, 4.3.6 sentence 0; letters a cz from cz, b cn from cn
+requires line 1 of step 5.4.10 cites stdlib/numbers/nat0-int group 0; m := b(k + 1); concludes 0 AsWritten; from no line; supplied by 5.4.9 sentence 0; letters m cn0 from cn0
+requires line 2 of step 5.4.10 cites stdlib/numbers/nat0-int group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 1; letters m cn0 from cn0
+requires line 1 of step 5.4.12 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line; supplied by 5.4.9 sentence 0; letters m cn0 from cn0
+requires line 2 of step 5.4.12 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 1; letters m cn0 from cn0
+requires line 1 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line; supplied by 5.4.9 sentence 0; letters m cn0 from cn0
+requires line 2 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 1; letters m cn0 from cn0
+requires line on line 269 cites stdlib/divisibility/gcd-zero group 0; n := a(N); concludes 0 AsWritten; from no line; supplied by 6 sentence 0 part 0; letters n cn0 from cn0
 step 5.4.13 chains b(k + 1) + (k + 1) ≤ b(k) + k | b(k) + k ≤ N
+step 6 instantiates 3 sentence 0, 0 conditions taken off
+step 7 instantiates 5 sentence 0, 0 conditions taken off
+a row of step 9 instantiates 4 sentence 0, 0 conditions taken off
+a row of step 4.3.3 links from IH2 sentence 0
+a row of step 4.3.9 links from 4.3.8 sentence 0
+a row of step 4.3.9 links from IH2 sentence 0
 read 16: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
 read 21: M ∈ ℕ₀  as  membership:∈(name:M, number-systems:ℕ₀)  a statement
 read 22: N ∈ ℕ₀  as  membership:∈(name:N, number-systems:ℕ₀)  a statement
