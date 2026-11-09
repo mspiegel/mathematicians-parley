@@ -79,20 +79,35 @@ struct LineSentence {
     /// checker counts a cited line's sentences (`FirstAt::sentence`).
     at: usize,
     node: Node,
-    name: String,
+    /// The Lean name the sentence is proved under, a hypothesis or a
+    /// `have`; None for one proved as a projection of another's, a sentence
+    /// of a line that says several.
+    name: Option<String>,
+    /// The term that proves it: its name, or the projection, `hA1.2.1`.
+    proof: Printed,
 }
 
 impl LineSentence {
-    /// A line's one sentence.
-    fn only(node: Node, name: String) -> LineSentence {
-        LineSentence { at: 0, node, name }
+    /// A sentence proved under the name `name`.
+    fn named(at: usize, node: Node, name: String) -> LineSentence {
+        LineSentence {
+            at,
+            node,
+            proof: super::tactics::hyp(&name),
+            name: Some(name),
+        }
     }
 
-    /// The sentence with the term that proves it, its name.
+    /// A line's one sentence.
+    fn only(node: Node, name: String) -> LineSentence {
+        LineSentence::named(0, node, name)
+    }
+
+    /// The sentence with the term that proves it.
     fn cited(&self) -> super::algebra::Cited {
         super::algebra::Cited {
             node: self.node.clone(),
-            proof: super::tactics::hyp(&self.name),
+            proof: self.proof.clone(),
         }
     }
 }
@@ -1002,16 +1017,8 @@ fn projected(term: Printed, path: &[&str]) -> Printed {
         })
 }
 
-/// The projection that takes sentence `i` of `n` joined by `∧`, which
-/// chains to the right: `.1`, `.2.1`, …, and the last `.2.2…`.
-fn projection(i: usize, n: usize) -> String {
-    projection_path(i, n)
-        .iter()
-        .map(|field| format!(".{field}"))
-        .collect()
-}
-
-/// `projection` as the fields taken in turn: `["2", "1"]` for `.2.1`.
+/// The fields that take sentence `i` of `n` joined by `∧`, which chains to
+/// the right: `["1"]`, `["2", "1"]`, …, and the last `["2", "2", …]`.
 fn projection_path(i: usize, n: usize) -> Vec<&'static str> {
     if n == 1 {
         return Vec::new();
@@ -1074,7 +1081,7 @@ fn hypothesis_sentences(
                 } else {
                     format!("{base}{}", (b'a' + k as u8) as char)
                 };
-                LineSentence { at, node, name }
+                LineSentence::named(at, node, name)
             })
             .collect();
         out.push((label, said));
@@ -1808,7 +1815,9 @@ fn statement(
             false => &mut written_below,
         };
         for s in s {
-            into.push((defined_out(&s.node, rec, writer), s.name.clone()));
+            if let Some(name) = &s.name {
+                into.push((defined_out(&s.node, rec, writer), name.clone()));
+            }
         }
     }
     let first = match binders(writer, &asked_of(&written_above), &[]) {
@@ -1885,7 +1894,9 @@ struct Proof<'a> {
     /// The proof's lines in order, each with what it was written for.
     lines: Vec<ProofLine>,
     /// The Lean names of each line the page can cite, by the reference
-    /// that cites it: a step's number or a label.
+    /// that cites it: a step's number or a label. A line said as
+    /// projections of one hypothesis, an `assume` of several sentences, is
+    /// named by that hypothesis.
     named: IndexMap<String, Vec<String>>,
     /// What each line the page can cite says, sentence by sentence, with
     /// the Lean name of each sentence's proof, by the reference that cites
@@ -2140,9 +2151,9 @@ pub fn theorem(
     for (label, said) in hypothesis_sentences(thm, rec) {
         let said: Vec<LineSentence> = said
             .into_iter()
-            .filter(|s| bound.contains(s.name.as_str()))
+            .filter(|s| s.name.as_deref().is_some_and(|n| bound.contains(n)))
             .collect();
-        let names: Vec<String> = said.iter().map(|s| s.name.clone()).collect();
+        let names: Vec<String> = said.iter().filter_map(|s| s.name.clone()).collect();
         proof.named.insert(label.clone(), names);
         proof.trees.insert(label, said);
     }
@@ -2357,10 +2368,8 @@ impl<'a> Proof<'a> {
         claimed
             .iter()
             .zip(names)
-            .map(|((at, node, _), name)| LineSentence {
-                at: *at,
-                node: node.clone(),
-                name: name.clone(),
+            .map(|((at, node, _), name)| {
+                LineSentence::named(*at, node.clone(), name.clone())
             })
             .collect()
     }
@@ -6752,7 +6761,7 @@ impl<'a> Proof<'a> {
                     Some(CitedDefine {
                         name: name.clone(),
                         value: value.clone(),
-                        proof: line.name.clone(),
+                        proof: line.name.clone()?,
                         param: None,
                     })
                 }
@@ -7019,13 +7028,13 @@ impl<'a> Proof<'a> {
             self.at_recorded_letter(&cited, &claim.names())
                 .map_or_else(|| node.clone(), |at| at.node)
         };
-        let candidates: Vec<(&Node, &String)> = just
+        let candidates: Vec<(&Node, &Printed)> = just
             .into
             .as_ref()
             .and_then(|place| self.trees.get(place.named()))
             .map(|t| {
-                let t: Vec<(&Node, &String)> =
-                    t.iter().map(|s| (&s.node, &s.name)).collect();
+                let t: Vec<(&Node, &Printed)> =
+                    t.iter().map(|s| (&s.node, &s.proof)).collect();
                 let turned: Vec<_> = t
                     .iter()
                     .copied()
@@ -7084,7 +7093,7 @@ impl<'a> Proof<'a> {
                             BridgeModule::PowerTactics,
                         )),
                         args: [
-                            t::hyp(name),
+                            (*name).clone(),
                             t::bracket(w.clone()),
                             super::tactics::by_term(shows),
                         ]
@@ -7106,7 +7115,7 @@ impl<'a> Proof<'a> {
             let read = self.at_recorded_letter(
                 &super::algebra::Cited {
                     node: line.clone(),
-                    proof: t::hyp(name),
+                    proof: name.clone(),
                 },
                 &claim.names(),
             );
@@ -7136,7 +7145,7 @@ impl<'a> Proof<'a> {
                 }
                 continue;
             }
-            match self.widened(line, &t::hyp(name), claim, writer) {
+            match self.widened(line, name, claim, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
                     into.push(w.name);
@@ -7792,7 +7801,7 @@ impl<'a> Proof<'a> {
                             self.at_recorded_letter(
                                 &super::algebra::Cited {
                                     node: s.node.clone(),
-                                    proof: super::tactics::hyp(&s.name),
+                                    proof: s.proof.clone(),
                                 },
                                 &names,
                             )
@@ -7845,7 +7854,7 @@ impl<'a> Proof<'a> {
         let mut out = Vec::new();
         for r in refs {
             for s in self.trees.get(r).into_iter().flatten() {
-                conjuncts(&s.node, super::tactics::hyp(&s.name), &mut out);
+                conjuncts(&s.node, s.proof.clone(), &mut out);
             }
         }
         out
@@ -9243,7 +9252,7 @@ impl<'a> Proof<'a> {
                 continue;
             }
             for s in lines {
-                conjuncts(&s.node, super::tactics::hyp(&s.name), &mut parts);
+                conjuncts(&s.node, s.proof.clone(), &mut parts);
             }
         }
         parts.iter().rev().find_map(|c| {
@@ -10589,7 +10598,11 @@ impl<'a> Proof<'a> {
                         .map(|(k, node)| LineSentence {
                             at: k,
                             node: node.clone(),
-                            name: format!("{label}{}", projection(k, n)),
+                            name: None,
+                            proof: fields(
+                                super::tactics::hyp(&label),
+                                &projection_path(k, n),
+                            ),
                         })
                         .collect();
                     self.trees.insert(o.label.clone(), said);
