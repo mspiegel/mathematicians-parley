@@ -28,7 +28,7 @@ theorem a_named_value_of_a_function (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (k
   set x : ℝ := a k with hD1
   have hD1_kind : True := by parley_side
   -- 1. mun:square-nonneg
-  have s1 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
+  have s1 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 2. calculation
   calc a k ^ 2 = x ^ 2 := by simp (disch := omega) only [hD1]
     _ ≥ 0 := by parley_side

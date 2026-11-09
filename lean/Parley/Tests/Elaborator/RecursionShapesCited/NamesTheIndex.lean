@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Tests.Elaborator.RecursionShapesCited.NamesTheIndex
 
-theorem names_the_index (T : ℤ → ℤ) (hD1 : T 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → T (k + 1) = T k + (k + 1)) :
+theorem names_the_index (T : ℤ → ℤ) (hD1 : T 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → T (k + 1) = T k + (k + 1))) :
     T 1 = 1 := by
   -- 1. D1
   have s1 : T 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith

@@ -19,6 +19,6 @@ theorem two_witnesses_from_an_and {α : Type*} (V : Set α) (b : α) (hH2 : b �
   -- 1. mun:remove-member u := a, Y := V, a := b, from H3
   have s1 : a ∈ V ∧ ¬ a = b := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp hH3
   -- 2. exhibit, from H2, 1
-  exact ⟨b, by parley_set_side, a, by parley_set_side, by parley_set_side⟩
+  exact ⟨b, hH2, a, s1.1, Ne.symm s1.2⟩
 
 end Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesFromAnAnd

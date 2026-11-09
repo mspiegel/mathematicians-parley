@@ -20,7 +20,7 @@ namespace Parley.Proofs.Setmm.AverageAtMostAnEnd.AverageAtMostAnEnd
 theorem average_at_most_an_end (A : ℝ) (B : ℝ) :
     ((A + B) / 2 ≤ A ∨ (A + B) / 2 ≤ B) := by
   -- 1. mun:nonneg-or-neg x := B − A
-  have s1 : B - A ≥ 0 ∨ B - A < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := B - A))
+  have s1 : B - A ≥ 0 ∨ B - A < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := B - A))
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip

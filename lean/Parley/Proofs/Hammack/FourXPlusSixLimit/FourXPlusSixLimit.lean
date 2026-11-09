@@ -17,6 +17,8 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -30,7 +32,7 @@ namespace Parley.Proofs.Hammack.FourXPlusSixLimit.FourXPlusSixLimit
 
 set_option maxHeartbeats 400000 in
 theorem four_x_plus_six_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x + 6) :
-    Filter.Tendsto f (nhdsWithin (-1) ((Set.univ : Set ℝ) \ {(-1)})) (nhds 2) := by
+    Filter.Tendsto f (nhdsWithin (-1) ((Set.univ : Set ℝ) \ {-1})) (nhds 2) := by
   -- 1. proof
   have s1 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ -1 ∧ abs (x - -1) < δ → abs (f x - 2) < ε)) := by
     intro ε

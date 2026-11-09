@@ -41,10 +41,10 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
       -- 1.3. algebra
       have s1_3 : a + (k + 1) = a + k + 1 := by parley_ring
       -- 1.4. mun:exponent-step a := 2, m := k
-      have s1_4 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
+      have s1_4 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
       -- 1.5. calculation
       calc (2 ^ (a + (k + 1)).toNat : ℤ) = 2 ^ (a + k + 1).toNat := by parley_subst s1_3
-        _ = 2 ^ (a + k).toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := a + k) (by parley_side))
+        _ = 2 ^ (a + k).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := a + k) (by parley_side))
         _ = 2 ^ a.toNat * 2 ^ k.toNat * 2 := by parley_subst hIH
         _ = 2 ^ a.toNat * (2 ^ k.toNat * 2) := by parley_ring
         _ = 2 ^ a.toNat * 2 ^ (k + 1).toNat := by parley_subst s1_4

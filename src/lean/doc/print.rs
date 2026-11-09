@@ -5,7 +5,10 @@
 //! (`Term::at`), as `Printed::at` brackets the writer's text.
 
 use super::tactic::{Location, Pattern, Proof, Tactic, TacticArg};
-use super::term::{Arg, CountForm, LeanType, Piece, Quant, Term, TermKind};
+use super::term::{
+    Arg, BoundForm, Brackets, CountForm, LeanType, PostfixMark, PrefixMark, Quant,
+    Term, TermKind,
+};
 use crate::lean::expr::{bracketed, things_name, APP, GENERAL, MAX};
 
 impl LeanType {
@@ -32,13 +35,27 @@ impl Term {
     /// The precedence of the term's outermost operator.
     pub fn prec(&self) -> u32 {
         match &self.kind {
-            TermKind::Notation { prec, .. } => *prec,
             TermKind::By(_) => 0,
             TermKind::App { .. } => APP,
             TermKind::Infix { op, .. } => op.prec,
             TermKind::ModEq { .. } => 50,
             TermKind::Neg(_) => 75,
             TermKind::Quantified { .. } => 0,
+            TermKind::Lambda { .. }
+            | TermKind::DependentIf { .. }
+            | TermKind::Show { .. } => 0,
+            // Mathlib's `𝒫` binds at 100.
+            TermKind::Prefix { .. } => 100,
+            TermKind::Listed { .. }
+            | TermKind::Ascribed { .. }
+            | TermKind::Postfix { .. }
+            | TermKind::Section { .. } => MAX,
+            TermKind::Bound { form, .. } => match form {
+                BoundForm::BigOp { .. }
+                | BoundForm::Integral { .. }
+                | BoundForm::Union { .. } => 10,
+                BoundForm::SetOf | BoundForm::SetOfMember { .. } => MAX,
+            },
             TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -119,8 +136,25 @@ impl Term {
                 letter_ty,
                 guard,
                 body,
+                bounded,
             } => {
                 let ty = letter_ty.text();
+                // `∀ x ∈ S, body`: the guard `x ∈ S` written as the binder's.
+                if let (true, Some(g), Quant::ForAll | Quant::Exists) =
+                    (bounded, guard, quant)
+                {
+                    if let TermKind::Infix { rhs: set, .. } = &g.kind {
+                        let mark = match quant {
+                            Quant::Exists => "∃",
+                            _ => "∀",
+                        };
+                        return format!(
+                            "{mark} {letter} ∈ {}, {}",
+                            set.at(51),
+                            body.text()
+                        );
+                    }
+                }
                 match (quant, guard) {
                     (Quant::Exists, None) => {
                         format!("∃ {letter} : {ty}, {}", body.text())
@@ -140,13 +174,83 @@ impl Term {
                 }
             }
             TermKind::Paren(inner) => format!("({})", inner.text()),
-            TermKind::Notation { pieces, .. } => pieces
-                .iter()
-                .map(|p| match p {
-                    Piece::Text(t) => t.clone(),
-                    Piece::Term { term, need } => term.at(*need),
-                })
-                .collect(),
+            TermKind::Bound {
+                form,
+                letter,
+                letter_ty,
+                body,
+            } => match form {
+                // Mathlib reads a big operator's body at 67.
+                BoundForm::BigOp {
+                    product,
+                    finite,
+                    set,
+                    need,
+                } => {
+                    let mark = match product {
+                        true => "∏",
+                        false => "∑",
+                    };
+                    let finite = if *finite { "ᶠ" } else { "" };
+                    format!(
+                        "{mark}{finite} {letter} ∈ {}, {}",
+                        set.at(*need),
+                        body.at(67)
+                    )
+                }
+                BoundForm::Integral { from, to } => format!(
+                    "∫ {letter} in {}..{}, {}",
+                    from.at(MAX),
+                    to.at(MAX),
+                    body.at(67)
+                ),
+                BoundForm::SetOf => {
+                    format!("{{{letter} : {} | {}}}", letter_ty.text(), body.at(0))
+                }
+                BoundForm::SetOfMember { set } => {
+                    format!("{{{letter} ∈ {} | {}}}", set.at(0), body.at(0))
+                }
+                BoundForm::Union { set } => {
+                    format!("⋃ {letter} ∈ {}, {}", set.at(MAX), body.at(67))
+                }
+            },
+            TermKind::Lambda { letters, body } => {
+                format!("fun {} => {}", letters.join(" "), body.text())
+            }
+            TermKind::Listed { brackets, items } => {
+                let (open, close) = match brackets {
+                    Brackets::Angle => ("⟨", "⟩"),
+                    Brackets::Brace => ("{", "}"),
+                };
+                let items: Vec<String> = items.iter().map(|i| i.at(0)).collect();
+                format!("{open}{}{close}", items.join(", "))
+            }
+            TermKind::Show { says, proof } => {
+                format!("show {} {}", says.at(0), proof.at(0))
+            }
+            TermKind::Ascribed { proof, says } => {
+                format!("({} : {})", proof.at(0), says.at(0))
+            }
+            TermKind::Prefix { mark, inner } => match mark {
+                PrefixMark::Powerset => format!("𝒫 {}", inner.at(MAX)),
+            },
+            TermKind::Postfix { mark, inner } => match mark {
+                PostfixMark::Inverse => format!("{}⁻¹", inner.at(MAX)),
+            },
+            TermKind::Section { op, left } => {
+                format!("({} {} ·)", left.at(op.needs().0), op.symbol)
+            }
+            TermKind::DependentIf {
+                proof,
+                cond,
+                yes,
+                no,
+            } => format!(
+                "if {proof} : {} then {} else {}",
+                cond.text(),
+                yes.at(MAX),
+                no.at(MAX)
+            ),
         }
     }
 }
@@ -404,6 +508,7 @@ mod tests {
                 letter_ty: LeanType::Num(Num::Nat),
                 guard: None,
                 body: Box::new(claim),
+                bounded: false,
             },
             LeanType::Prop,
         );

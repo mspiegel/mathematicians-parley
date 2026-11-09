@@ -20,7 +20,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -67,11 +66,11 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       have s2_4 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by parley_ring
       -- 2.5. mun:square-positive x := k + 1
       have r45_1 : k + 1 ≠ 0 := by parley_side
-      have s2_5 : (k + 1) ^ 2 > 0 := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := k + 1) (by parley_side))
+      have s2_5 : (k + 1) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := k + 1) (by parley_side))
       -- 2.6. mun:product-nonneg x := k, y := k + 1
       have r49_1 : k ≥ 0 := by parley_order
       have r49_2 : k + 1 ≥ 0 := by parley_side
-      have s2_6 : k * (k + 1) ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := k) (y := k + 1) (by parley_side) (by parley_side))
+      have s2_6 : k * (k + 1) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := k) (y := k + 1) (by parley_side) (by parley_side))
       -- 2.7. mun:product-nonzero x := k, y := k + 1
       have r54_1 : k ≠ 0 := by parley_side
       have r54_2 : k + 1 ≠ 0 := by parley_side
@@ -98,6 +97,6 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       have s2_17 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_order
       first | exact_mod_cast s2_17 | (have h := s2_17; push_cast at h ⊢; exact h) | simpa using s2_17
   -- 3. instantiate k := n in line 2
-  first | linarith [(s2 n (by parley_side))] | (have h := (s2 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)
+  exact (s2 n (by parley_side))
 
 end Parley.Proofs.Hammack.InverseSquaresBounded.InverseSquaresBounded

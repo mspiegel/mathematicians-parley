@@ -82,7 +82,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       have s1_3_10 : R \ ({a} : Set α) ∪ ({a} : Set α) ∈ W := by
         try simp only [hD4] at *
         try push_cast at *
-        first | exact (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := V) (s := R \ ({a} : Set α)) (a := a) s1_3_9) | exact ((Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := V) (s := R \ ({a} : Set α)) (a := a) s1_3_9)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := V) (s := R \ ({a} : Set α)) (a := a) s1_3_9) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := V) (s := R \ ({a} : Set α)) (a := a) s1_3_9) | (have h := (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := V) (s := R \ ({a} : Set α)) (a := a) s1_3_9); parley_set_side)
+        exact (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := V) (s := R \ ({a} : Set α)) (a := a) s1_3_9)
       -- 1.3.11. substitute
       have s1_3_11 : R ∈ W := by
         have c1 : R \ ({a} : Set α) ∪ ({a} : Set α) = R := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := R) (a := a) hC1)
@@ -151,7 +151,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
   have s7 : W ⊆ F := by
     try simp only [hD4] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := V) (Z := F) (a := a) s6) | exact ((Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := V) (Z := F) (a := a) s6)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := V) (Z := F) (a := a) s6) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := V) (Z := F) (a := a) s6) | (have h := (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := V) (Z := F) (a := a) s6); parley_set_side)
+    exact (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := V) (Z := F) (a := a) s6)
   -- 8. mun:union-subset, from 5, 7
   have s8 : U ∪ W ⊆ F := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := U) (Y := W) (Z := F) s5 s7)
   -- 9. mun:subset-antisymmetric, from D1, D2, D3, D4, 2, 8

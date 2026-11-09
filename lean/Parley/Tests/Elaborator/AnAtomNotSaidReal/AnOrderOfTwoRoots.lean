@@ -24,10 +24,10 @@ namespace Parley.Tests.Elaborator.AnAtomNotSaidReal.AnOrderOfTwoRoots
 theorem an_order_of_two_roots (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) (hH5 : ¬ Real.sqrt A ≤ Real.sqrt B) :
     Real.sqrt B < Real.sqrt A := by
   -- 1. def:sqrt x := A, from H3
-  have s1a : Real.sqrt A ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := A) hH3)
+  have s1a : Real.sqrt A ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := A) hH3)
   have s1b : Real.sqrt A ^ 2 = A := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH3)
   -- 2. def:sqrt x := B, from H4
-  have s2a : Real.sqrt B ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := B) hH4)
+  have s2a : Real.sqrt B ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := B) hH4)
   have s2b : Real.sqrt B ^ 2 = B := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4)
   -- 3. inequalities, from H5
   parley_order

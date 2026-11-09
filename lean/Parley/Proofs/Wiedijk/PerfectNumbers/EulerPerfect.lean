@@ -99,7 +99,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s6 : (2 ^ p.toNat - 1 : ℤ) > 1 := by parley_order
   -- 7. mun:pos-int-nat
   have r359_1 : (0 : ℤ) < 2 ^ p.toNat - 1 := by parley_order
-  have s7 : (0 : ℤ) < 2 ^ p.toNat - 1 := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ p.toNat - 1 : ℤ)) r359_1)
+  have s7 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ p.toNat - 1 : ℤ)) r359_1)
   -- 8. mun:exponent-step a := 2, m := k, from D2
   have s8 : (2 ^ p.toNat : ℤ) = 2 ^ k.toNat * 2 := by
     try simp only [hD2] at *
@@ -111,14 +111,14 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 9.1. mun:divides-self n := 2
     have s9_1 : (2 : ℤ) ∣ (2 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (2 : ℤ)))
     -- 9.2. mun:divides-multiple e := 2, a := 2, x := 2^k, from 9.1
-    have s9_2 : (2 : ℤ) ∣ (2 * 2 ^ k.toNat : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (2 : ℤ)) (a := (2 : ℤ)) (x := (2 ^ k.toNat : ℤ)) s9_1)
+    have s9_2 : (2 : ℤ) ∣ (2 * 2 ^ k.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (2 : ℤ)) (a := (2 : ℤ)) (x := (2 ^ k.toNat : ℤ)) s9_1)
     -- 9.3. substitute
     have s9_3 : (2 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by
       have c1 : (2 * 2 ^ k.toNat : ℤ) = 2 ^ p.toNat := by linear_combination (norm := parley_norm) (-1) * s8
       have row1 : (2 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by parley_subst_at c1 s9_2
       exact row1
     -- 9.4. mun:divides-difference d := 2, a := 2^p, b := 2^p − 1, from S2, 9.3
-    have s9_4 : (2 : ℤ) ∣ (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (2 : ℤ)) (a := (2 ^ p.toNat : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) s9_3 hS2)
+    have s9_4 : (2 : ℤ) ∣ (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (2 : ℤ)) (a := (2 ^ p.toNat : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) s9_3 hS2)
     -- 9.5. substitute
     have s9_5 : (2 : ℤ) ∣ (1 : ℤ) := by
       have c1 : (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) = 1 := by parley_ring
@@ -131,13 +131,13 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have r392_1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
   have s10 : (Int.gcd (2 : ℤ) (2 ^ p.toNat - 1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by parley_side) r392_1 (a := (2 ^ p.toNat - 1 : ℤ)) s9)
   -- 11. mun:coprime-power a := 2, b := 2^p − 1, k := p, from 10
-  have s11 : (Int.gcd (2 ^ p.toNat : ℤ) (2 ^ p.toNat - 1 : ℤ) : ℤ) = 1 := (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) (k := p) (by parley_side) s10)
+  have s11 : (Int.gcd (2 ^ p.toNat : ℤ) (2 ^ p.toNat - 1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) (k := p) (by parley_side) s10)
   -- 12. mun:prime-coprime p := 2, a := m
   have r399_1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
   have r399_2 : ¬ (2 : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_not_divisible (n := m) s1c)
   have s12 : (Int.gcd (2 : ℤ) m : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by parley_side) r399_1 (a := m) r399_2)
   -- 13. mun:coprime-power a := 2, b := m, from 12
-  have s13 : (Int.gcd (2 ^ k.toNat : ℤ) m : ℤ) = 1 := (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := m) (k := k) (by parley_side) s12)
+  have s13 : (Int.gcd (2 ^ k.toNat : ℤ) m : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := m) (k := k) (by parley_side) s12)
   -- 14. calculation
   have r407_1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
   have r407_2 : (2 : ℤ) ≠ 1 := by parley_arith
@@ -168,7 +168,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   obtain ⟨c, hD3_pos, hD3⟩ := hD3_kind
   -- 20. algebra, from D3
   have r440_1 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by parley_side
-  have s20 : m = (2 ^ p.toNat - 1) * c := by qify at *; linear_combination (norm := parley_field) (-2 ^ p.toNat + 1) * hD3
+  have s20 : m = (2 ^ p.toNat - 1) * c := by qify at *; linear_combination (norm := parley_field) (-(2 ^ p.toNat) + 1) * hD3
   -- 21. algebra, from 15, 20
   have s21 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) * (2 ^ p.toNat - 1) = 2 ^ p.toNat * c * (2 ^ p.toNat - 1) := by linear_combination (norm := parley_norm) s15 + (2 ^ p.toNat) * s20
   -- 22. calculation

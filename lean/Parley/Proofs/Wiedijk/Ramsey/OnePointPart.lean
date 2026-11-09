@@ -55,6 +55,6 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
   -- 8. D1, from 6, 7
   have s8 : 1 ≤ (({v} : Set α).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G) := by parley_set_side
   -- 9. exhibit, from 4, 8
-  exact ⟨({v} : Set α), by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+  exact ⟨({v} : Set α), s4, ⟨by parley_set_side, by parley_set_side⟩⟩
 
 end Parley.Proofs.Wiedijk.Ramsey.OnePointPart

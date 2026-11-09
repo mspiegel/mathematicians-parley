@@ -39,7 +39,7 @@ theorem derivative_arctan (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (V : 
     (∀ x ∈ V, E ∈ nhds x ∧ DifferentiableAt ℝ h x) ∧ (∀ y ∈ V, (deriv h) y = 1 / (1 + y ^ 2)) := by
   -- 1. thm:trigonometry-derivative-arctan D := E, U := V, g := h, from H1, H2, H3, H5
   have s1a : ∀ x ∈ V, E ∈ nhds x ∧ DifferentiableAt ℝ h x := by exact (Parley.Items.Stdlib.Trigonometry.thm_derivative_arctan_1 (g := h) (D := E) (U := V) hH1 hH2 hH3 hH5)
-  have s1b : ∀ y ∈ V, (deriv h) y = 1 / (1 + y ^ 2) := (Parley.Items.Stdlib.Trigonometry.thm_derivative_arctan_2 (g := h) (D := E) (U := V) hH1 hH2 hH3 hH5)
+  have s1b : ∀ y ∈ V, (deriv h) y = 1 / (1 + y ^ 2) := by exact (Parley.Items.Stdlib.Trigonometry.thm_derivative_arctan_2 (g := h) (D := E) (U := V) hH1 hH2 hH3 hH5)
   exact ⟨s1a, s1b⟩
 
 end Parley.Tests.Stdlib.Trigonometry.DerivativeArctan

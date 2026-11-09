@@ -2,9 +2,7 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import SubstTactics
@@ -17,17 +15,16 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -68,11 +65,11 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 10. transitivity, from 8, 9
   have s10 : abs (p / 2) < p := by parley_order
   -- 11. instantiate x := p/2 in line 4, from 6, 7, 10
-  have s11 : abs (f (p / 2) - L) < 1 := by first | linarith [(s4b (p / 2) (by parley_set_side) (by parley_set_side))] | (have h := (s4b (p / 2) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (p / 2) (by parley_set_side) (by parley_set_side)) | (have h := (s4b (p / 2) (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s11 : abs (f (p / 2) - L) < 1 := by exact (s4b (p / 2) (by parley_set_side) (by parley_set_side))
   -- 12. calculation
   have r65_1 : p / 2 ≠ 0 := by parley_set_side
   have s12 : f (p / 2) = 1 := by
-    calc f (p / 2) = abs (p / 2) / (p / 2) := by first | linear_combination (norm := parley_norm) (hH2 (p / 2) (by parley_set_side)) | (have h := (hH2 (p / 2) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 (p / 2) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 (p / 2) (by parley_set_side)) | exact_mod_cast ((hH2 (p / 2) (by parley_set_side))).symm | (have h := (hH2 (p / 2) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (p / 2) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (p / 2) (by parley_set_side)); parley_int_power h) | (have h := (hH2 (p / 2) (by parley_set_side)); parley_set_side)
+    calc f (p / 2) = abs (p / 2) / (p / 2) := by exact (hH2 (p / 2) (by parley_set_side))
       _ = 1 := by linear_combination (norm := parley_field) ((4) / ((p) * (2))) * s8
   -- 13. mun:abs-difference-lt x := f(p/2), c := L, δ := 1, from 11
   have s13 : f (p / 2) < L + 1 := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (p / 2)) (c := L) (δ := (1 : ℝ)))).mp s11).2
@@ -94,11 +91,11 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 20. transitivity, from 19, 8, 9
   have s20 : abs (-p / 2) < p := by parley_order
   -- 21. instantiate x := (−p)/2 in line 4, from 16, 17, 20
-  have s21 : abs (f (-p / 2) - L) < 1 := by first | linarith [(s4b (-p / 2) (by parley_set_side) (by parley_set_side))] | (have h := (s4b (-p / 2) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (-p / 2) (by parley_set_side) (by parley_set_side)) | (have h := (s4b (-p / 2) (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s21 : abs (f (-p / 2) - L) < 1 := by exact (s4b (-p / 2) (by parley_set_side) (by parley_set_side))
   -- 22. calculation
   have r106_1 : -p / 2 ≠ 0 := by parley_set_side
   have s22 : f (-p / 2) = -1 := by
-    calc f (-p / 2) = abs (-p / 2) / (-p / 2) := by first | linear_combination (norm := parley_norm) (hH2 (-p / 2) (by parley_set_side)) | (have h := (hH2 (-p / 2) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 (-p / 2) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 (-p / 2) (by parley_set_side)) | exact_mod_cast ((hH2 (-p / 2) (by parley_set_side))).symm | (have h := (hH2 (-p / 2) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (-p / 2) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (-p / 2) (by parley_set_side)); parley_int_power h) | (have h := (hH2 (-p / 2) (by parley_set_side)); parley_set_side)
+    calc f (-p / 2) = abs (-p / 2) / (-p / 2) := by exact (hH2 (-p / 2) (by parley_set_side))
       _ = -1 := by linear_combination (norm := parley_field) ((4) / ((-p) * (2))) * s8 + ((2) / ((-p))) * s19
   -- 23. mun:abs-difference-lt x := f((−p)/2), c := L, δ := 1, from 21
   have s23 : L - 1 < f (-p / 2) := (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (-p / 2)) (c := L) (δ := (1 : ℝ)))).mp s21).1

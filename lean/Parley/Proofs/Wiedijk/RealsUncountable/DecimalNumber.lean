@@ -57,7 +57,7 @@ namespace Parley.Proofs.Wiedijk.RealsUncountable.DecimalNumber
 set_option maxHeartbeats 2600000 in
 theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n ∧ d n ≤ 9) :
     (∃ x : ℝ, ∀ n : ℤ, 0 < n → ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = d n ∨ ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) := by
-  obtain ⟨N, hD3⟩ : ∃ N : ℤ → ℤ, N 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → N (k + 1) = 10 * N k + d (k + 1) := LeanBridges.Functions.recursion_exists _ (fun k v => 10 * v + d (k + 1))
+  obtain ⟨N, hD3⟩ : ∃ N : ℤ → ℤ, N 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → N (k + 1) = 10 * N k + d (k + 1)) := LeanBridges.Functions.recursion_exists _ (fun k v => 10 * v + d (k + 1))
   set S : Set ℝ := {y : ℝ | ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat} with hD4
   set L : ℤ → ℚ := fun k : ℤ => (N k : ℚ) / 10 ^ k.toNat with hD5
   set U : ℤ → ℚ := fun k : ℤ => ((N k : ℚ) + 1) / 10 ^ k.toNat with hD6
@@ -88,9 +88,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 3.9. join 3.5, 3.8
     have s3_9 : 10 * N k ≤ N (k + 1) ∧ N (k + 1) + 1 ≤ 10 * (N k + 1) := by parley_set_side
     -- 3.10. mun:power-nat a := 10, m := k + 1
-    have s3_10 : (0 : ℤ) < 10 ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (10 : ℤ)) (by parley_set_side) (m := k + 1) (by parley_set_side))
+    have s3_10 : (0 : ℤ) < 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (10 : ℤ)) (by parley_set_side) (m := k + 1) (by parley_set_side))
     -- 3.11. mun:exponent-step a := 10, m := k
-    have s3_11 : (10 ^ (k + 1).toNat : ℤ) = 10 ^ k.toNat * 10 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := k) (by parley_set_side))
+    have s3_11 : (10 ^ (k + 1).toNat : ℤ) = 10 ^ k.toNat * 10 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := k) (by parley_set_side))
     -- 3.12. algebra
     have s3_12 : (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / (10 ^ k.toNat * 10) := by parley_ring
     -- 3.13. substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.12
@@ -105,10 +105,10 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       first | parley_subst_at s3_11_w s3_14 | parley_subst_at s3_11 s3_14 | (have e_nat : 10 ^ (k + 1).toNat = 10 ^ k.toNat * 10 := by exact_mod_cast s3_11; parley_subst_at e_nat s3_14)
     -- 3.16. mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.9
     have r256_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
-    have s3_16 : 10 * (N k : ℚ) / 10 ^ (k + 1).toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_divide_le (x := 10 * (N k : ℚ)) (y := (N (k + 1) : ℚ)) (c := (10 ^ (k + 1).toNat : ℚ)) (by parley_set_side) (by parley_set_side))
+    have s3_16 : 10 * (N k : ℚ) / 10 ^ (k + 1).toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := 10 * (N k : ℚ)) (y := (N (k + 1) : ℚ)) (c := (10 ^ (k + 1).toNat : ℚ)) (by parley_set_side) (by parley_set_side))
     -- 3.17. mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.9
     have r262_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
-    have s3_17 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N (k + 1) : ℚ) + 1) (y := 10 * ((N k : ℚ) + 1)) (c := (10 ^ (k + 1).toNat : ℚ)) (by parley_set_side) (by parley_set_side))
+    have s3_17 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N (k + 1) : ℚ) + 1) (y := 10 * ((N k : ℚ) + 1)) (c := (10 ^ (k + 1).toNat : ℚ)) (by parley_set_side) (by parley_set_side))
     -- 3.18. substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.13) into line 3.16
     have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by parley_subst_at s3_13 s3_16
     -- 3.19. substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.15) into line 3.17
@@ -130,7 +130,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
   have s4 : ∀ k : ℤ, 0 ≤ k → (True ∧ True) ∧ L k ≤ U k := by
     intro k hK2
     -- 4.1. mun:power-nat a := 10, m := k
-    have s4_1 : (0 : ℤ) < 10 ^ k.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (10 : ℤ)) (by parley_set_side) (m := k) (by parley_set_side))
+    have s4_1 : (0 : ℤ) < 10 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (10 : ℤ)) (by parley_set_side) (m := k) (by parley_set_side))
     -- 4.2. membership, from D5, 2
     -- 4.3. membership, from D6, 2
     -- 4.4. inequalities
@@ -139,7 +139,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have r307_2 : (10 ^ k.toNat : ℤ) > 0 := by parley_order
     have s4_5 : L k ≤ U k := by
       calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
-        _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N k : ℚ)) (y := (N k : ℚ) + 1) (c := (10 ^ k.toNat : ℚ)) (by parley_set_side) (by parley_set_side))
+        _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N k : ℚ)) (y := (N k : ℚ) + 1) (c := (10 ^ k.toNat : ℚ)) (by parley_set_side) (by parley_set_side))
         _ = U k := by simp (disch := omega) only [hD6]
     -- 4.6. join 4.2, 4.3, 4.5
     have s4_6 : L k ≤ U k := by parley_set_side
@@ -264,7 +264,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 10.2. def:upper-bound, from 10.1
     parley_set_side
   -- 11. instantiate k := 0 in line 10
-  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; first | linarith [(s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side))] | (have h := (s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side)) | (have h := (s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side)); parley_set_side)
+  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; exact (s10 (0 : ℤ) (by parley_set_side) s (by parley_set_side))
   -- 12. obtain c: axi:completeness, from 7, 9, 11
   obtain ⟨c, s12⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s7 (by parley_set_side) (by parley_set_side))
   -- 13. def:least-upper-bound, from 12
@@ -276,7 +276,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
   have s15 : ∀ k : ℤ, 0 ≤ k → (L k : ℝ) ≤ c ∧ c ≤ (U k : ℝ) := by
     intro k hK5
     -- 15.1. instantiate y := L(k) in line 14, from 8
-    have s15_1 : (L k : ℝ) ≤ c := by first | linarith [(s14 (L k : ℝ) (by parley_set_side))] | (have h := (s14 (L k : ℝ) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s14 (L k : ℝ) (by parley_set_side)) | (have h := (s14 (L k : ℝ) (by parley_set_side)); parley_set_side)
+    have s15_1 : (L k : ℝ) ≤ c := by exact (s14 (L k : ℝ) (by parley_set_side))
     -- 15.2. instantiate u := U(k) in line 13, from 10
     have s15_2 : c ≤ (U k : ℝ) := by exact (s13b (U k : ℝ) (by parley_set_side))
     -- 15.3. join 15.1, 15.2
@@ -298,7 +298,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.4. instantiate k := n − 1 in line 2, from 16.1
     -- 16.5. membership, from 16.3, 16.4
     -- 16.6. mun:power-nat a := 10, m := n
-    have s16_6 : (0 : ℤ) < 10 ^ n.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (10 : ℤ)) (by parley_set_side) (m := n) (by parley_set_side))
+    have s16_6 : (0 : ℤ) < 10 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (10 : ℤ)) (by parley_set_side) (m := n) (by parley_set_side))
     -- 16.7. instantiate k := n in line 15
     have s16_7 : (L n : ℝ) ≤ c ∧ c ≤ (U n : ℝ) := by exact (s15 n (by parley_set_side))
     -- 16.8. mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from D5, 16.7
@@ -376,7 +376,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 16.24.12. calculation
       have s16_24_12 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by
         calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by first | parley_set_side | parley_line_toNat s16_24_10
-          _ = (d n + 1) % (10 : ℤ) := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := d n + 1) (m := (10 : ℤ)) (by parley_set_side) (q := N (n - 1)))
+          _ = (d n + 1) % (10 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := d n + 1) (m := (10 : ℤ)) (by parley_set_side) (q := N (n - 1)))
           _ = (d n + 1) % (10 : ℤ) := by parley_set_side
       -- 16.24.13. mun:or-right, from 16.24.12
       exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n) (Q := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) s16_24_12)

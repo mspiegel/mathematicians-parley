@@ -54,7 +54,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 2.5.1. mun:in-subset X := Y, Y := B, u := y, from K1, K4
       have s2_5_1 : y ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4)
       -- 2.5.2. instantiate y := y in line 1, from 2.5.1
-      have s2_5_2 : ∃ x ∈ A, y = f x := by first | exact (s1 y (by parley_set_side)) | exact ((s1 y (by parley_set_side))).symm | simpa using (s1 y (by parley_set_side)) | exact_mod_cast (s1 y (by parley_set_side)) | (have h := (s1 y (by parley_set_side)); parley_set_side)
+      have s2_5_2 : ∃ x ∈ A, y = f x := by exact (s1 y (by parley_set_side))
       -- 2.5.3. obtain x from line 2.5.2
       obtain ⟨x, s2_5_3a, s2_5_3b⟩ := s2_5_2
       -- 2.5.4. substitute y = f(x) (line 2.5.3) into K4
@@ -80,7 +80,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       have s3_2 : y ∈ ({y} : Set α) := ((Parley.Items.Stdlib.Sets.def_singleton (a := y) (x := y))).mpr (by parley_set_side)
       -- 3.3. substitute
       have s3_3 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by
-        have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by first | exact ((hD2 ({y} : Set α) (by parley_set_side))).symm | exact (((hD2 ({y} : Set α) (by parley_set_side))).symm).symm | simpa using ((hD2 ({y} : Set α) (by parley_set_side))).symm | exact_mod_cast ((hD2 ({y} : Set α) (by parley_set_side))).symm | (have h := ((hD2 ({y} : Set α) (by parley_set_side))).symm; parley_set_side)
+        have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by exact ((hD2 ({y} : Set α) (by parley_set_side))).symm
         have row1 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by parley_subst_at c1 s3_2
         exact row1
       -- 3.4. proof
@@ -95,7 +95,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 3.7. def:preimage u := s, Z := {y}, from 3.6
       have s3_7 : s ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := ({y} : Set α)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_6a).1
       -- 3.8. exhibit, from 3.6, 3.7
-      exact ⟨s, by parley_set_side, by parley_set_side⟩
+      exact ⟨s, s3_7, s3_6b⟩
     -- 4. def:onto, from H3, 3
     exact ((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mpr (by parley_set_side)
 

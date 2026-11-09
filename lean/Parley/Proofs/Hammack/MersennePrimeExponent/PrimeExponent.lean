@@ -41,7 +41,7 @@ set_option maxHeartbeats 1000000 in
 theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1 : ℤ).toNat) :
     Nat.Prime n.toNat := by
   -- 1. mun:prime-nat p := 2^n − 1, from H2
-  have s1 : (0 : ℤ) < 2 ^ n.toNat - 1 := (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ n.toNat - 1 : ℤ)) hH2)
+  have s1 : (0 : ℤ) < 2 ^ n.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ n.toNat - 1 : ℤ)) hH2)
   -- 2. def:prime p := 2^n − 1, from H2, 1
   have s2a : (2 ^ n.toNat - 1 : ℤ) > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).1
   have s2b : ∀ c : ℤ, 0 < c → c ∣ (2 ^ n.toNat - 1 : ℤ) → c = 1 ∨ c = 2 ^ n.toNat - 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).2
@@ -76,7 +76,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       have s4_3_1 : e ≤ 0 := by parley_order
       -- 4.3.2. mun:multiply-le x := e, y := 0, c := d, from 4.3.1
       have r219_1 : d > 0 := by parley_order
-      have s4_3_2 : d * e ≤ d * 0 := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := e) (y := (0 : ℤ)) (c := d) (by parley_side) (by parley_side))
+      have s4_3_2 : d * e ≤ d * 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := e) (y := (0 : ℤ)) (c := d) (by parley_side) (by parley_side))
       -- 4.3.3. substitute n = d·e (line 4.2) into line 4.3.2
       have s4_3_3 : n ≤ d * 0 := by parley_subst_at s4_2 s4_3_2
       -- 4.3.4. substitute
@@ -99,10 +99,10 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       exact s4_1b s4_5_2
     -- 4.6. mun:integer-step m := 1, n := e
     have r247_1 : 1 < e := by parley_order
-    have s4_6 : 1 + 1 ≤ e := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := e) r247_1)
+    have s4_6 : 1 + 1 ≤ e := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := e) r247_1)
     -- 4.7. mun:integer-step m := 1, n := d
     have r251_1 : 1 < d := by parley_order
-    have s4_7 : 1 + 1 ≤ d := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) r251_1)
+    have s4_7 : 1 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) r251_1)
     -- 4.8. obtain q: thm:power-multiple-quotient m := e, from 4.4
     obtain ⟨q, s4_8a, ⟨s4_8b, s4_8c⟩⟩ := (Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient.power_multiple_quotient (d := d) (by parley_side) (m := e) (by parley_side))
     -- 4.9. calculation
@@ -124,7 +124,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     have s4_14 : (2 ^ d.toNat - 1 : ℤ) ≥ 2 := by parley_order
     -- 4.15. mun:pos-int-nat m := 2^d − 1
     have r283_1 : (0 : ℤ) < 2 ^ d.toNat - 1 := by parley_order
-    have s4_15 : (0 : ℤ) < 2 ^ d.toNat - 1 := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ d.toNat - 1 : ℤ)) r283_1)
+    have s4_15 : (0 : ℤ) < 2 ^ d.toNat - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ d.toNat - 1 : ℤ)) r283_1)
     -- 4.16. instantiate c := 2^d − 1 in line 2, from 4.15
     have s4_16 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) → (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by exact (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side))
     -- 4.17. mun:modus-ponens, from 4.10, 4.16
@@ -147,7 +147,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         have s4_18_5 : 2 ≤ q := by parley_order
         -- 4.18.6. mun:multiply-le x := 2, y := q, c := 2^d − 1, from 4.18.5
         have r321_1 : (2 ^ d.toNat - 1 : ℤ) > 0 := by parley_order
-        have s4_18_6 : (2 ^ d.toNat - 1) * 2 ≤ (2 ^ d.toNat - 1) * q := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := q) (c := (2 ^ d.toNat - 1 : ℤ)) (by parley_side) (by parley_side))
+        have s4_18_6 : (2 ^ d.toNat - 1) * 2 ≤ (2 ^ d.toNat - 1) * q := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := q) (c := (2 ^ d.toNat - 1 : ℤ)) (by parley_side) (by parley_side))
         -- 4.18.7. calculation
         have s4_18_7 : 2 ^ d.toNat - 1 = (2 ^ d.toNat - 1) * q := by
           calc (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by parley_side

@@ -40,7 +40,7 @@ theorem size_zero_one_or_more {α : Type*} (M : Set α) (hH2 : M.Finite) :
   -- 2.4. inequalities, from 2.3
   have s2_4 : 1 ≤ (M.ncard : ℤ) := by parley_count_int; (parley_order)
   -- 2.5. mun:le-cases x := 1, y := |M|
-  have s2_5 : 1 ≤ (M.ncard : ℤ) ↔ 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by first | exact (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ))) | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ))); parley_set_side)
+  have s2_5 : 1 ≤ (M.ncard : ℤ) ↔ 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ)))
   -- 2.6. mun:iff-from-left P := 1 ≤ |M|, Q := 1 < |M| or 1 = |M|, from 2.4, 2.5
   have s2_6 : 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := 1 ≤ (M.ncard : ℤ)) (Q := 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ)) (by parley_set_side) (by parley_set_side))
   -- 2.7. mun:disjunctive-syllogism-left, from 2.1, 2.6

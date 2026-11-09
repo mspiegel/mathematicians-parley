@@ -63,7 +63,7 @@ theorem power_at_most_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) (h
         parley_order
       · skip
         -- 1.6.5. mun:multiply-le x := a^m, y := 1, c := a, from C3, IH
-        have s1_6_5 : a * a ^ m.toNat ≤ a * 1 := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m.toNat) (y := (1 : ℝ)) (c := a) (by parley_side) (by parley_side))
+        have s1_6_5 : a * a ^ m.toNat ≤ a * 1 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m.toNat) (y := (1 : ℝ)) (c := a) (by parley_side) (by parley_side))
         -- 1.6.6. inequalities
         have s1_6_6 : a * a ^ m.toNat ≤ a := by parley_order
         -- 1.6.7. transitivity, from 1.3, 1.4, 1.6.6, H4

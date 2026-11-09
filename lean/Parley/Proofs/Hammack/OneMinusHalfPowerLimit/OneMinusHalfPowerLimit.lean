@@ -30,6 +30,8 @@ public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 
@@ -53,7 +55,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 2, m := k
-      have s1_2 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
+      have s1_2 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
       -- 1.3. inequalities, from K
       have s1_3 : k + 1 ≤ 2 * k := by parley_order
       -- 1.4. inequalities
@@ -92,7 +94,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.7. transitivity, from 2.2.6, H2
       have s2_2_7 : 1 - ε < a n := by have := (hH2 n (by parley_side)); parley_order
       -- 2.2.8. mun:reciprocal-positive x := 2^n, from 2.2.2
-      have s2_2_8 : (1 / 2 ^ n.toNat : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by parley_side))
+      have s2_2_8 : (1 / 2 ^ n.toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by parley_side))
       -- 2.2.9. inequalities
       have s2_2_9 : (1 - 1 / 2 ^ n.toNat : ℚ) < 1 := by parley_order
       -- 2.2.10. inequalities

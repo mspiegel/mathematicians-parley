@@ -50,6 +50,8 @@ public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -68,7 +70,7 @@ theorem leibniz :
   -- 1. membership
   have r738_1 : ∀ k : ℤ, 0 ≤ k → 0 < 2 * k + 1 := by intro k h_k; (exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * k) (by parley_side)))
   -- 2. thm:series-remainder
-  have s2 : ∀ n : ℤ, 0 ≤ n → Real.pi / 4 - (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := Parley.Proofs.Wiedijk.Leibniz.SeriesRemainder.series_remainder
+  have s2 : ∀ n : ℤ, 0 ≤ n → Real.pi / 4 - (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact Parley.Proofs.Wiedijk.Leibniz.SeriesRemainder.series_remainder
   -- 3. proof
   have s3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) < ε)) := by
     intro ε
@@ -85,11 +87,11 @@ theorem leibniz :
       have s3_2_2 : (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4 = -((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by linear_combination (norm := parley_norm) ((-16) / ((4) * (4))) * s3_2_1
       -- 3.2.3. calculation
       have s3_2_3 : (abs (-1) : ℤ) = 1 := by
-        calc (abs (-1) : ℤ) = abs 1 := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := (1 : ℤ)))
+        calc (abs (-1) : ℤ) = abs 1 := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := (1 : ℤ)))
           _ = 1 := by exact Parley.Items.Stdlib.Numbers.mun_abs_one
       -- 3.2.4. calculation
       have s3_2_4 : (abs ((-1) ^ (n + 1).toNat) : ℤ) = 1 := by
-        calc (abs ((-1) ^ (n + 1).toNat) : ℤ) = abs (-1) ^ (n + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_abs_power (x := (-1 : ℤ)) (n := n + 1) (by parley_side))
+        calc (abs ((-1) ^ (n + 1).toNat) : ℤ) = abs (-1) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_abs_power (x := (-1 : ℤ)) (n := n + 1) (by parley_side))
           _ = 1 ^ (n + 1).toNat := by parley_subst s3_2_3
           _ = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); parley_side)
       -- 3.2.5. thm:integral-bounds n := n + 1
@@ -103,7 +105,7 @@ theorem leibniz :
       have s3_2_8 : abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
         calc abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = abs (-((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))) := by parley_subst s3_2_2
           _ = abs ((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))))
-          _ = abs ((-1) ^ (n + 1).toNat) * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := (Parley.Items.Stdlib.Numbers.mun_abs_product (x := ((-1) ^ (n + 1).toNat : ℝ)) (y := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))
+          _ = abs ((-1) ^ (n + 1).toNat) * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := ((-1) ^ (n + 1).toNat : ℝ)) (y := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))
           _ = 1 * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
               have s3_2_4_w : (abs ((-1) ^ (n + 1).toNat) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3_2_4; push_cast at h; linear_combination (norm := parley_norm) h
               first | parley_subst s3_2_4_w | parley_subst s3_2_4

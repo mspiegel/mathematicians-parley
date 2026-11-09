@@ -44,7 +44,7 @@ theorem sqrt2_irrational :
     Irrational (Real.sqrt (2 : ℝ)) := by
   -- 1. def:sqrt x := 2
   have r104_1 : (2 : ℤ) ≥ 0 := by parley_arith
-  have s1 : Real.sqrt (2 : ℝ) ^ 2 = 2 := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))
+  have s1 : Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := by
     intro hS

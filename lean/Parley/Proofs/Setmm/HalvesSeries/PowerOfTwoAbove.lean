@@ -39,7 +39,7 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k
-      have s1_2 : (0 : ℤ) < 2 ^ k.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k) (by parley_side))
+      have s1_2 : (0 : ℤ) < 2 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k) (by parley_side))
       -- 1.3. inequalities, from IH, 1.2
       have s1_3 : k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by parley_order
       -- 1.4. calculation

@@ -18,6 +18,8 @@ public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded
 

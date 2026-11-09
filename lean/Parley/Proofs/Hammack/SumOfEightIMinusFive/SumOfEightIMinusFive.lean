@@ -44,14 +44,14 @@ theorem sum_of_eight_i_minus_five (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 1.1. calculation
       calc S 1 = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (8 * j - 5 : ℤ)) := by simp (disch := omega) only [hD1]
-        _ = 8 * 1 - 5 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 8 * j - 5)) (a := (1 : ℤ)))
+        _ = 8 * 1 - 5 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 8 * j - 5)) (a := (1 : ℤ)))
         _ = 4 * 1 ^ 2 - 1 := by norm_num
     | succ k hK hIH =>
       -- 1.2. calculation
       have r27_1 : k ≥ 1 := by parley_side
       have s1_2 : S (k + 1) = S k + (8 * (k + 1) - 5) := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (8 * j - 5 : ℤ)) := by simp (disch := omega) only [hD1]
-          _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (8 * j - 5 : ℤ)) + (8 * (k + 1) - 5) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 8 * j - 5)) (a := (1 : ℤ)) (n := k) r27_1)
+          _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (8 * j - 5 : ℤ)) + (8 * (k + 1) - 5) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 8 * j - 5)) (a := (1 : ℤ)) (n := k) r27_1)
           _ = S k + (8 * (k + 1) - 5) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
       calc S (k + 1) = S k + (8 * (k + 1) - 5) := by parley_side

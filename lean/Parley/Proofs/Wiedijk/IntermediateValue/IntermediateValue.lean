@@ -23,6 +23,8 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets
@@ -48,7 +50,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have s3 : S ⊆ (Set.Icc a b : Set ℝ) := by
     try simp only [hD1] at *
     try push_cast at *
-    first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ))); parley_set_side)
+    exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)))
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   -- 5. mun:subset-transitive X := S, Y := [a, b], Z := ℝ, from 3, 4
@@ -73,7 +75,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   -- 10. def:upper-bound, from 9
   have s10 : ∀ s ∈ S, s ≤ c := by parley_set_side
   -- 11. instantiate s := a in line 10, from 2
-  have s11 : a ≤ c := by first | linarith [(s10 a (by parley_set_side))] | (have h := (s10 a (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 a (by parley_set_side)) | (have h := (s10 a (by parley_set_side)); parley_set_side)
+  have s11 : a ≤ c := by exact (s10 a (by parley_set_side))
   -- 12. instantiate u := b in line 9, from 7
   have s12 : c ≤ b := by exact (s9b b (by parley_set_side))
   -- 13. def:interval x := c, from 11, 12
@@ -106,7 +108,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.3. inequalities
       have s16_3 : -f c > 0 := by parley_order
       -- 16.4. instantiate c′ := c, ε := −f(c) in line 15, from H4, 13, 16.3
-      have s16_4 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c) < δ → abs (f x - f c) < -f c) := by first | exact (s15 c (by parley_set_side) (-f c) (by parley_set_side)) | exact ((s15 c (by parley_set_side) (-f c) (by parley_set_side))).symm | simpa using (s15 c (by parley_set_side) (-f c) (by parley_set_side)) | exact_mod_cast (s15 c (by parley_set_side) (-f c) (by parley_set_side)) | (have h := (s15 c (by parley_set_side) (-f c) (by parley_set_side)); parley_set_side)
+      have s16_4 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c) < δ → abs (f x - f c) < -f c) := by exact (s15 c (by parley_set_side) (-f c) (by parley_set_side))
       -- 16.5. obtain δ from line 16.4
       obtain ⟨δ, ⟨s16_5a, s16_5b⟩⟩ := s16_4
       set x₁ : ℝ := min b (c + δ / 2) with hD2
@@ -147,7 +149,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.19. mun:abs-difference-lt x := x₁, from 16.17, 16.18
       have s16_19 : abs (x₁ - c) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := δ))).mpr (by parley_set_side)
       -- 16.20. instantiate x := x₁ in line 16.5, from 16.15, 16.19
-      have s16_20 : abs (f x₁ - f c) < -f c := by first | linarith [(s16_5b x₁ (by parley_set_side) (by parley_set_side))] | (have h := (s16_5b x₁ (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s16_5b x₁ (by parley_set_side) (by parley_set_side)) | (have h := (s16_5b x₁ (by parley_set_side) (by parley_set_side)); parley_set_side)
+      have s16_20 : abs (f x₁ - f c) < -f c := by exact (s16_5b x₁ (by parley_set_side) (by parley_set_side))
       -- 16.21. thm:abs-bounds x := f(x₁) − f(c)
       have s16_21 : f x₁ - f c ≤ abs (f x₁ - f c) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f x₁ - f c)).1
       -- 16.22. transitivity, from 16.21, 16.20
@@ -157,7 +159,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.24. def:set-builder u := x₁, from D1, 16.15, 16.23
       have s16_24 : x₁ ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := x₁))).mpr (by parley_set_side)
       -- 16.25. instantiate s := x₁ in line 10, from 16.24
-      have s16_25 : x₁ ≤ c := by first | linarith [(s10 x₁ (by parley_set_side))] | (have h := (s10 x₁ (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 x₁ (by parley_set_side)) | (have h := (s10 x₁ (by parley_set_side)); parley_set_side)
+      have s16_25 : x₁ ≤ c := by exact (s10 x₁ (by parley_set_side))
       -- 16.26. inequalities, from 16.8
       have s16_26 : ¬ x₁ ≤ c := by parley_set_side
       exact absurd s16_25 s16_26
@@ -165,7 +167,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       exact hC2
     · skip
       -- 16.27. instantiate c′ := c, ε := f(c) in line 15, from C3, H4, 13
-      have s16_27 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c) < δ → abs (f x - f c) < f c) := by first | exact (s15 c (by parley_set_side) (f c) (by parley_set_side)) | exact ((s15 c (by parley_set_side) (f c) (by parley_set_side))).symm | simpa using (s15 c (by parley_set_side) (f c) (by parley_set_side)) | exact_mod_cast (s15 c (by parley_set_side) (f c) (by parley_set_side)) | (have h := (s15 c (by parley_set_side) (f c) (by parley_set_side)); parley_set_side)
+      have s16_27 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c) < δ → abs (f x - f c) < f c) := by exact (s15 c (by parley_set_side) (f c) (by parley_set_side))
       -- 16.28. obtain δ from line 16.27
       obtain ⟨δ, ⟨s16_28a, s16_28b⟩⟩ := s16_27
       -- 16.29. proof
@@ -189,7 +191,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         -- 16.29.5. mun:abs-difference-lt x := s, from 16.29.3, 16.29.4
         have s16_29_5 : abs (s - c) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := s) (c := c) (δ := δ))).mpr (by parley_set_side)
         -- 16.29.6. instantiate x := s in line 16.28, from 16.29.1, 16.29.5
-        have s16_29_6 : abs (f s - f c) < f c := by first | linarith [(s16_28b s (by parley_set_side) (by parley_set_side))] | (have h := (s16_28b s (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s16_28b s (by parley_set_side) (by parley_set_side)) | (have h := (s16_28b s (by parley_set_side) (by parley_set_side)); parley_set_side)
+        have s16_29_6 : abs (f s - f c) < f c := by exact (s16_28b s (by parley_set_side) (by parley_set_side))
         -- 16.29.7. thm:abs-bounds x := f(s) − f(c)
         have s16_29_7 : -(f s - f c) ≤ abs (f s - f c) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f s - f c)).2
         -- 16.29.8. transitivity, from 16.29.7, 16.29.6
@@ -209,6 +211,6 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       have s16_33 : ¬ c ≤ c - δ := by parley_set_side
       exact absurd s16_31 s16_33
   -- 17. exhibit, from 13, 16
-  exact ⟨c, by parley_set_side, by parley_set_side⟩
+  exact ⟨c, s13, s16⟩
 
 end Parley.Proofs.Wiedijk.IntermediateValue.IntermediateValue

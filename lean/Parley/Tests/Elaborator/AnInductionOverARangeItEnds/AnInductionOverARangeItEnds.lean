@@ -11,7 +11,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -36,7 +35,7 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
       try push_cast at hK1
       try have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
-      have s1_1_1 : 1 ≤ j := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
+      have s1_1_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.1.2. inequalities, from 1.1.1
       parley_order
     | succ N hK2 hIH =>
@@ -45,10 +44,10 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
       try push_cast at hK3
       try have hK3_bounds := Finset.mem_Icc.mp hK3
       -- 1.2.1. mun:range-bounds a := 1, b := N + 1, k := j, from K3
-      have s1_2_1 : 1 ≤ j := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
+      have s1_2_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.2.2. inequalities, from 1.2.1
       parley_order
   -- 2. instantiate N := n in line 1
-  intro j h_j; first | linarith [(s1 n (by parley_side) j (by parley_side))] | (have h := (s1 n (by parley_side) j (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side) j (by parley_side)) | (have h := (s1 n (by parley_side) j (by parley_side)); parley_side)
+  intro j h_j; exact (s1 n (by parley_side) j (by parley_side))
 
 end Parley.Tests.Elaborator.AnInductionOverARangeItEnds.AnInductionOverARangeItEnds

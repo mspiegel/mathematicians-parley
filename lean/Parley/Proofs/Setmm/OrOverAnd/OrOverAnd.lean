@@ -46,7 +46,7 @@ theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
     -- 3. restate D2
     have s3 : a = 0 ∨ c = 0 := by parley_side
     -- 4. axi:excluded-middle P := a = 0
-    have s4 : a = 0 ∨ a ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a = 0))
+    have s4 : a = 0 ∨ a ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a = 0))
     -- 5. cases, from 4
     rcases s4 with hC3 | hC4
     · skip

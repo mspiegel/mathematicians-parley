@@ -34,10 +34,10 @@ set_option maxHeartbeats 400000 in
 theorem nine_power_is_three_power (m : ℤ) :
     (9 ^ m : ℚ) = 3 ^ (2 * m) := by
   -- 1. mun:nonneg-or-neg x := m
-  have s1 : m ≥ 0 ∨ m < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m))
+  have s1 : m ≥ 0 ∨ m < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m))
   -- 2. mun:exponent-sum-integer a := 3, n := m
   have r109_1 : (3 : ℤ) ≠ 0 := by parley_arith
-  have s2 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m))
+  have s2 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m))
   -- 3. substitute
   have s3 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by
     have c1 : m + m = 2 * m := by parley_ring
@@ -67,20 +67,20 @@ theorem nine_power_is_three_power (m : ℤ) :
       have r150_1 : (3 : ℤ) > 0 := by parley_arith
       -- 4.8. mun:power-positive a := 9
       have r154_1 : (0 : ℤ) < 9 := by parley_arith
-      have s4_8 : (9 ^ m : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (9 : ℚ)) (m := m) (by parley_side))
+      have s4_8 : (9 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (9 : ℚ)) (m := m) (by parley_side))
       -- 4.9. mun:power-positive a := 3
       have r158_1 : (0 : ℤ) < 3 := by parley_arith
-      have s4_9 : (3 ^ m : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := m) (by parley_side))
+      have s4_9 : (3 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := m) (by parley_side))
       -- 4.10. substitute
       have r162_1 : (9 : ℤ) ≠ 0 := by parley_arith
       have s4_10 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by
-        have c1 : (9 ^ (-m) : ℚ) = 1 / 9 ^ m := (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (9 : ℚ)) (by parley_side) (m := m))
+        have c1 : (9 ^ (-m) : ℚ) = 1 / 9 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (9 : ℚ)) (by parley_side) (m := m))
         have row1 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by parley_subst_at c1 s4_5
         exact row1
       -- 4.11. substitute
       have r168_1 : (3 : ℤ) ≠ 0 := by parley_arith
       have s4_11 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by
-        have c1 : (3 ^ (-m) : ℚ) = 1 / 3 ^ m := (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (3 : ℚ)) (by parley_side) (m := m))
+        have c1 : (3 ^ (-m) : ℚ) = 1 / 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (3 : ℚ)) (by parley_side) (m := m))
         have row1 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by parley_subst_at c1 s4_10
         exact row1
       -- 4.12. inequalities
@@ -90,7 +90,7 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.14. algebra, from 4.6, 4.7, 4.11
       have r186_1 : (9 ^ m : ℚ) ≠ 0 := by parley_side
       have r186_2 : (3 ^ m : ℚ) ≠ 0 := by parley_side
-      linear_combination (norm := parley_field) (-(3 ^ m) ^ 2 * 9 ^ m) * s4_11
+      linear_combination (norm := parley_field) (-((3 ^ m) ^ 2 * 9 ^ m)) * s4_11
   -- 5. thm:positive-power-is-real a := 3
   have r191_1 : (3 : ℤ) > 0 := by parley_arith
   -- 6. algebra, from 3, 4, 5

@@ -28,7 +28,7 @@ theorem choose_two_three :
   have s1 : ¬ (3 : ℤ) ∈ Finset.Icc (0 : ℤ) (2 : ℤ) := by
     intro hS
     -- 1.1. mun:range-bounds a := 0, b := 2, k := 3, from S
-    have s1_1 : (3 : ℤ) ≤ 2 := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (0 : ℤ)) (b := (2 : ℤ)) (k := (3 : ℤ)) hS)
+    have s1_1 : (3 : ℤ) ≤ 2 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (0 : ℤ)) (b := (2 : ℤ)) (k := (3 : ℤ)) hS)
     -- 1.2. arithmetic
     have s1_2 : ¬ (3 : ℤ) ≤ 2 := by parley_arith
     exact s1_2 s1_1

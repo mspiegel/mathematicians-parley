@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedOnFrom
 
-theorem counted_on_from (M : ℤ) (hH1 : 0 ≤ M) (F : ℤ → ℤ) (hD1 : F 0 = M ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) :
+theorem counted_on_from (M : ℤ) (hH1 : 0 ≤ M) (F : ℤ → ℤ) (hD1 : F 0 = M ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) :
     F 1 = M + 1 := by
   -- 1. D1
   have s1 : F 0 = M := by have h := hD1.1; (try ring_nf at h ⊢); linarith

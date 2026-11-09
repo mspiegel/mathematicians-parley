@@ -34,7 +34,7 @@ theorem prefix_unchanged (T : Set ℤ) (i : ℤ) (p : ℤ) (hH4 : i < p) :
     have s1_2 : ¬ p ≤ i := by parley_set_side
     exact s1_2 s1_1
   -- 2. mun:singleton-outside a := p, Y := {1, …, i}, from 1
-  have s2 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) = ∅ := by first | exact (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side)); parley_set_side)
+  have s2 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side))
   -- 3. calculation
   have s3 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := by
     calc (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T ∪ (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T) (Z := ({p} : Set ℤ)))
@@ -47,7 +47,7 @@ theorem prefix_unchanged (T : Set ℤ) (i : ℤ) (p : ℤ) (hH4 : i < p) :
   -- 6. calculation
   have s6 : (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by
     calc (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = ((Set.Icc (1 : ℤ) i : Set ℤ) \ T) \ ({p} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_by_union (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T) (Z := ({p} : Set ℤ)))
-      _ = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by first | exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (a := p) s5) | exact ((Parley.Items.Stdlib.Sets.mun_difference_absent (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (a := p) s5)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (a := p) s5) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (a := p) s5) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (a := p) s5); parley_set_side)
+      _ = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (a := p) s5)
   -- 7. join 3, 6
   have s7a : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := by parley_set_side
   have s7b : (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by parley_set_side

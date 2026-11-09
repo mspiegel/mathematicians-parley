@@ -36,7 +36,7 @@ theorem three_prime :
     intro d hK
     intro hH
     -- 2.1. mun:divides-le e := d, m := 3, from H
-    have s2_1 : d ≤ 3 := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := (3 : ℤ)) (by parley_side) hH)
+    have s2_1 : d ≤ 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := (3 : ℤ)) (by parley_side) hH)
     -- 2.2. inequalities, from K
     have s2_2 : 1 ≤ d := by parley_order
     -- 2.3. mun:le-cases x := 1, y := d, from 2.2
@@ -45,7 +45,7 @@ theorem three_prime :
     rcases s2_3 with hC1 | hC2
     · skip
       -- 2.4.1. mun:integer-step m := 1, n := d, from C1
-      have s2_4_1 : 1 + 1 ≤ d := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) hC1)
+      have s2_4_1 : 1 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) hC1)
       -- 2.4.2. inequalities, from 2.4.1
       have s2_4_2 : 2 ≤ d := by parley_order
       -- 2.4.3. mun:le-cases x := 2, y := d, from 2.4.2
@@ -54,7 +54,7 @@ theorem three_prime :
       rcases s2_4_3 with hC3 | hC4
       · skip
         -- 2.4.4.1. mun:integer-step m := 2, n := d, from C3
-        have s2_4_4_1 : 2 + 1 ≤ d := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := d) hC3)
+        have s2_4_4_1 : 2 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := d) hC3)
         -- 2.4.4.2. inequalities, from 2.4.4.1
         have s2_4_4_2 : 3 ≤ d := by parley_order
         -- 2.4.4.3. antisymmetry, from 2.1, 2.4.4.2

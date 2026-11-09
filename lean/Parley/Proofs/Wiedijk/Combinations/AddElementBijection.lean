@@ -58,6 +58,6 @@ theorem add_element_bijection {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈
   -- 2. mun:image-of-injection, from D1, 1
   try simp only [hD1] at *
   try push_cast at *
-  first | exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) (by parley_set_side)); parley_set_side)
+  exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) (by parley_set_side))
 
 end Parley.Proofs.Wiedijk.Combinations.AddElementBijection

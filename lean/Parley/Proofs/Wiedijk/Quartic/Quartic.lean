@@ -75,7 +75,7 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
       _ = y ^ 4 + P * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by parley_subst hH7
       _ = y ^ 4 + P * y ^ 2 + Q * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by parley_subst hH9
       _ = y ^ 4 + P * y ^ 2 + Q * y + R := by parley_subst hH11
-      _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * (y ^ 2 - 2 * S * y + 2 * S ^ 2 + P / 2 + Q / 4 / S) := by linear_combination (norm := parley_field) ((-64 * S ^ 4 - 16 * M * S ^ 2 - 32 * P * S ^ 2 - 8 * M * P - 4 * M ^ 2 - 4 * P ^ 2 + 16 * R) / ((64 * S ^ 2))) * hH25 + ((-4) / ((64 * S ^ 2))) * s6
+      _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * (y ^ 2 - 2 * S * y + 2 * S ^ 2 + P / 2 + Q / 4 / S) := by linear_combination (norm := parley_field) ((-(64 * S ^ 4) - 16 * M * S ^ 2 - 32 * P * S ^ 2 - 8 * M * P - 4 * M ^ 2 - 4 * P ^ 2 + 16 * R) / ((64 * S ^ 2))) * hH25 + ((-4) / ((64 * S ^ 2))) * s6
       _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * v := by parley_subst s8
       _ = u * v := by parley_subst s7
   -- 10. both directions
@@ -171,7 +171,7 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           -- 10.4.1.4. algebra, from D2, 10.4.1.3
           try simp only [hD2] at *
           try push_cast at *
-          linear_combination (norm := parley_norm) (-I * v + S * v + v * y) * s10_4_1_3
+          linear_combination (norm := parley_norm) (-(I * v) + S * v + v * y) * s10_4_1_3
       · skip
         -- 10.4.2. cases, from C10
         rcases hC10 with hC11 | hC12
@@ -194,7 +194,7 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           -- 10.4.2.4. algebra, from D3, 10.4.2.3
           try simp only [hD3] at *
           try push_cast at *
-          linear_combination (norm := parley_norm) (-J * u - S * u + u * y) * s10_4_2_3
+          linear_combination (norm := parley_norm) (-(J * u) - S * u + u * y) * s10_4_2_3
     -- 10.5. calculation
     calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by parley_side
       _ = 0 := by parley_side

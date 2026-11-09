@@ -80,7 +80,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
       have s2_2_8 : ¬ k + 1 < P := by parley_side
       exact s2_2_8 hA
   -- 3. axi:excluded-middle P := N = 0
-  have s3 : N = 0 ∨ N ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := N = 0))
+  have s3 : N = 0 ∨ N ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := N = 0))
   -- 4. cases, from 3
   rcases s3 with hC3 | hC4
   · skip

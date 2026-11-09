@@ -56,7 +56,7 @@ theorem sum_of_binomials_along_a_diagonal (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (h
       have r31_1 : m ≥ 0 := by parley_side
       have s1_2 : S (m + 1) = S m + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) := by
         calc S (m + 1) = (∑ j ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (n + j) j : ℤ) : ℤ)) := by simp (disch := omega) only [hD1]
-          _ = (∑ j ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (n + j) j : ℤ) : ℤ)) + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (LeanBridges.Counting.choose (n + j) j : ℤ))) (a := (0 : ℤ)) (n := m) r31_1)
+          _ = (∑ j ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (n + j) j : ℤ) : ℤ)) + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (LeanBridges.Counting.choose (n + j) j : ℤ))) (a := (0 : ℤ)) (n := m) r31_1)
           _ = S m + (LeanBridges.Counting.choose (n + (m + 1)) (m + 1) : ℤ) := by simp (disch := omega) only [hD1]
       -- 1.3. algebra
       have s1_3 : n + (m + 1) = n + m + 1 := by parley_ring

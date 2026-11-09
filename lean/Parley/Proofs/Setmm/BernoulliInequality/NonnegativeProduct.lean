@@ -34,7 +34,7 @@ theorem nonnegative_product (x : ℝ) (y : ℝ) (hH3 : 0 ≤ x) (hH4 : 0 ≤ y) 
     parley_order
   · skip
     -- 2.4. mun:multiply-le x := 0, c := x, from C3, H4
-    have s2_4 : x * 0 ≤ x * y := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := y) (c := x) (by parley_side) (by parley_side))
+    have s2_4 : x * 0 ≤ x * y := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := y) (c := x) (by parley_side) (by parley_side))
     -- 2.5. inequalities, from 2.4
     parley_order
 

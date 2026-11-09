@@ -37,7 +37,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
   -- 4. inequalities
   have s4 : 0 ≤ abs A := by parley_order
   -- 5. mun:nonneg-or-neg x := A
-  have s5 : A ≥ 0 ∨ A < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))
+  have s5 : A ≥ 0 ∨ A < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))
   -- 6. both directions
   constructor
   · skip

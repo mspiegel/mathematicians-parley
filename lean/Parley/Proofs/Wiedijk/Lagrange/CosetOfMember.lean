@@ -51,7 +51,7 @@ theorem coset_of_member {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (a :
   -- 9. mun:in-subset, from H4, 8
   have s9 : x ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (a * ·) '' (H : Set G)) (Y := (Set.univ : Set G)) (u := x) s8 hH4)
   -- 10. def:coset u := a, g := x, from H2, 4, 7, 9
-  have s10 : a ∈ (x * ·) '' (H : Set G) := ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := x) (u := a) (H := H) hH2 s9)).mpr ⟨h⁻¹, by parley_set_side, by parley_set_side⟩
+  have s10 : a ∈ (x * ·) '' (H : Set G) := ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := x) (u := a) (H := H) hH2 s9)).mpr ⟨h⁻¹, by parley_set_side, s7⟩
   -- 11. thm:coset-inclusion, from H2, H3, H4
   have s11 : (x * ·) '' (H : Set G) ⊆ (a * ·) '' (H : Set G) := by exact (Parley.Proofs.Wiedijk.Lagrange.CosetInclusion.coset_inclusion (G := G) (H := H) hH2 (a := a) hH3 (x := x) hH4)
   -- 12. thm:coset-inclusion a := x, x := a, from H2, 9, 10

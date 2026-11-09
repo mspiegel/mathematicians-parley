@@ -20,7 +20,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -46,17 +45,17 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
   have s1 : ∀ t : ℝ, t ^ 2 * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) + 2 * t * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) + (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) ≥ 0 := by
     intro t
     -- 1.1. mun:square-nonneg x := a(k)·t + b(k)
-    have s1_1 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → (a k * t + b k) ^ 2 ≥ 0 := by intro k h_k; exact ((Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a k * t + b k)))
+    have s1_1 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → (a k * t + b k) ^ 2 ≥ 0 := by intro k h_k; (exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a k * t + b k)))
     -- 1.2. mun:sum-nonneg a := 1, b := n, from 1.1
-    have s1_2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((a k * t + b k) ^ 2 : ℝ)) ≥ 0 := (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => (a k * t + b k) ^ 2)) (a := (1 : ℤ)) (b := n) s1_1)
+    have s1_2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((a k * t + b k) ^ 2 : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => (a k * t + b k) ^ 2)) (a := (1 : ℤ)) (b := n) s1_1)
     -- 1.3. substitute
     have c1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((a k * t + b k) ^ 2 : ℝ)) = t ^ 2 * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) + 2 * t * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) + (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by parley_ring
     have row1 : t ^ 2 * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) + 2 * t * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) + (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) ≥ 0 := by parley_subst_at c1 s1_2
     exact row1
   -- 2. mun:square-nonneg x := a(k), from H2
-  have s2 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ^ 2 ≥ 0 := by intro k h_k; exact ((Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a k)))
+  have s2 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ^ 2 ≥ 0 := by intro k h_k; (exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a k)))
   -- 3. mun:sum-nonneg a := 1, b := n, from 2
-  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) ≥ 0 := (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) s2)
+  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) s2)
   -- 4. axi:trichotomy x := Σ(k = 1 to n) a(k)²
   have s4 : ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) < 0 ∨ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) = 0) ∨ 0 < (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)))
   -- 5. cases, from 4
@@ -67,7 +66,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     exact absurd hC1 s5_1
   · skip
     -- 5.2. mun:sum-zero-terms a := 1, b := n, from C2, 2
-    have s5_2 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ^ 2 = 0 := (Parley.Items.Stdlib.Sums.mun_sum_zero_terms (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) s2 (by parley_side))
+    have s5_2 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ^ 2 = 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_zero_terms (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) s2 (by parley_side))
     -- 5.3. proof
     have s5_3 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k * b k = 0 := by
       intro k hK4
@@ -80,7 +79,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     -- 5.4. calculation
     have r72_1 : 1 ≤ n := by parley_order
     have s5_4 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = 0 := by
-      calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) := (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => a k * b k)) (u := (fun k : ℤ => (0 : ℝ))) (a := (1 : ℤ)) (b := n) s5_3)
+      calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => a k * b k)) (u := (fun k : ℤ => (0 : ℝ))) (a := (1 : ℤ)) (b := n) s5_3)
         _ = ((n : ℝ) - 1 + 1) * 0 := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ)))
         _ = 0 := by parley_ring
     -- 5.5. algebra, from 5.4
@@ -102,7 +101,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have s5_9 : A > 0 := by parley_order
     -- 5.10. instantiate t := −B/A in line 1, from D1, D2, D3
     have r112_1 : A > 0 := by parley_order
-    have s5_10 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C ≥ 0 := by linarith [(s1 (-(B / A)))]
+    have s5_10 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C ≥ 0 := by exact (s1 (-(B / A)))
     -- 5.11. algebra
     have r116_1 : A ≠ 0 := by parley_side
     have s5_11 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C = C - B ^ 2 / A := by parley_ring

@@ -110,7 +110,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
   have s3 : ∀ y : ℤ, ∃ x : ℤ, 0 < x ∧ y = f x := by
     intro y
     -- 3.1. mun:nonneg-or-neg x := −y
-    have s3_1 : -y ≥ 0 ∨ -y < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := -y))
+    have s3_1 : -y ≥ 0 ∨ -y < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := -y))
     -- 3.2. cases, from 3.1
     rcases s3_1 with hC7 | hC8
     · skip

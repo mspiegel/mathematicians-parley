@@ -32,7 +32,7 @@ theorem square_mod_three (n : ℤ) :
   -- 1. mun:mod-natural a := n, b := 3
   have s1 : 0 ≤ n % (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := n) (b := (3 : ℤ)) (by parley_side))
   -- 2. mun:mod-less a := n, b := 3
-  have s2 : n % (3 : ℤ) < 3 := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := n) (b := (3 : ℤ)) (by parley_side))
+  have s2 : n % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := n) (b := (3 : ℤ)) (by parley_side))
   -- 3. thm:residue-mod-three r := n mod 3, from 1, 2
   have s3 : (n % (3 : ℤ) = 0 ∨ n % (3 : ℤ) = 1) ∨ n % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := n % (3 : ℤ)) (by parley_side) s2)
   -- 4. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 1, 2

@@ -94,7 +94,7 @@ theorem two_elements {α : Type*} (V : Set α) :
     -- 10. mun:subset-antisymmetric X := V, Y := {a, b}, from 8, 9
     have s10 : V = ({a, b} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9)
     -- 11. exhibit, from 2, 5, 10
-    exact ⟨b, by parley_set_side, a, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+    exact ⟨b, s2, a, s5a, ⟨by parley_set_side, by parley_set_side⟩⟩
   · skip
     intro hC6
     -- 12. obtain c, d from C6

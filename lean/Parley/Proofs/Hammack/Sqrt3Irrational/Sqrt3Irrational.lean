@@ -42,7 +42,7 @@ theorem sqrt3_irrational :
     Irrational (Real.sqrt (3 : ℝ)) := by
   -- 1. def:sqrt x := 3
   have r139_1 : (3 : ℤ) ≥ 0 := by parley_arith
-  have s1 : Real.sqrt (3 : ℝ) ^ 2 = 3 := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by parley_side))
+  have s1 : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by parley_side))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (3 : ℝ)) := by
     intro hS

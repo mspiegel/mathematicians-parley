@@ -61,7 +61,7 @@ theorem ptolemy (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (hH5 : a + b + c + d = R
     _ = Real.sin a * Real.sin b + Real.sin c * (Real.sin (a + b) * Real.cos c + Real.cos (a + b) * Real.sin c) := by parley_subst s4
     _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + Real.cos (a + b) * Real.sin c) := by parley_subst s5
     _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + (Real.cos a * Real.cos b - Real.sin a * Real.sin b) * Real.sin c) := by parley_subst s6
-    _ = (Real.sin b * Real.cos c + Real.cos b * Real.sin c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by linear_combination (norm := parley_norm) (-Real.sin a * Real.sin b) * s9
+    _ = (Real.sin b * Real.cos c + Real.cos b * Real.sin c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by linear_combination (norm := parley_norm) (-(Real.sin a * Real.sin b)) * s9
     _ = Real.sin (b + c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by parley_subst s7
     _ = Real.sin (b + c) * Real.sin (a + c) := by parley_subst s8
 

@@ -44,7 +44,7 @@ theorem sqrt6_irrational :
     Irrational (Real.sqrt (6 : ℝ)) := by
   -- 1. def:sqrt x := 6
   have r14_1 : (6 : ℤ) ≥ 0 := by parley_arith
-  have s1 : Real.sqrt (6 : ℝ) ^ 2 = 6 := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (6 : ℝ)) (by parley_side))
+  have s1 : Real.sqrt (6 : ℝ) ^ 2 = 6 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (6 : ℝ)) (by parley_side))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ)) := by
     intro hS

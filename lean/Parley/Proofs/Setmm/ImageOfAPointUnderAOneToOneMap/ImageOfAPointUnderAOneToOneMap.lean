@@ -32,7 +32,7 @@ theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : S
     -- 2.2. mun:in-subset X := Y, Y := A, u := s, from H5, 2.1
     have s2_2 : s ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) hH5 s2_1a)
     -- 2.3. instantiate s := X, t := s in line 1, from H4, 2.1, 2.2
-    have s2_3 : X = s := by first | exact (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)) | exact ((s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side))).symm | simpa using (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)) | exact_mod_cast (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)) | (have h := (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)); parley_set_side)
+    have s2_3 : X = s := by exact (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side))
     -- 2.4. substitute X = s (line 2.3) into line 2.1
     parley_subst_at s2_3 s2_1a
   · skip

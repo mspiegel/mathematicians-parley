@@ -46,7 +46,7 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
     have r66_1 : 2 ≤ n + 1 + j + 1 := by parley_order
     have r66_2 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) ≥ 0 := by parley_order
     calc (LeanBridges.Counting.factorial (n + 1) : ℤ) + (j + 1) ≤ 2 * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by parley_side
-      _ ≤ (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := (2 : ℤ)) (y := n + 1 + j + 1) (c := (LeanBridges.Counting.factorial (n + 1 + j) : ℤ)) (by parley_side) (by parley_side))
+      _ ≤ (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := (2 : ℤ)) (y := n + 1 + j + 1) (c := (LeanBridges.Counting.factorial (n + 1 + j) : ℤ)) (by parley_side) (by parley_side))
       _ = (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) := by parley_side
       _ = (LeanBridges.Counting.factorial (n + 1 + j + 1) : ℤ) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n + 1 + j) (by parley_side)).symm
       _ = (LeanBridges.Counting.factorial (n + 1 + (j + 1)) : ℤ) := by parley_subst s2

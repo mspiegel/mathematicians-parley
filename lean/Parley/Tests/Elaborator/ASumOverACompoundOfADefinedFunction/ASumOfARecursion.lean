@@ -23,7 +23,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ASumOverACompoundOfADefinedFunction.ASumOfARecursion
 
-theorem a_sum_of_a_recursion (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) (hH1 : True) :
+theorem a_sum_of_a_recursion (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) (hH1 : True) :
     (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (F j : ℤ)) = F 1 := by
   -- 1. mun:sum-single a := 1
   exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := F) (a := (1 : ℤ)))

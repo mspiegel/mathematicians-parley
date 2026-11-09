@@ -2,8 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -16,12 +14,9 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
@@ -43,7 +38,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
   -- 1. mun:card-zero, from H3
   have s1 : X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side))
   -- 2. axi:excluded-middle P := j = 0
-  have s2 : j = 0 ∨ j ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0))
+  have s2 : j = 0 ∨ j ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0))
   -- 3. cases, from 2
   have s3 : (F.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by
     rcases s2 with hC1 | hC2
@@ -73,12 +68,12 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       -- 3.5. def:subset, from 3.4
       have s3_5 : F ⊆ ({∅} : Set (Set α)) := ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := ({∅} : Set (Set α))))).mpr s3_4
       -- 3.6. mun:singleton-subset, from 3.3
-      have s3_6 : ({∅} : Set (Set α)) ⊆ F := by first | exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side)); parley_set_side)
+      have s3_6 : ({∅} : Set (Set α)) ⊆ F := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side))
       -- 3.7. mun:subset-antisymmetric, from 3.5, 3.6
       have s3_7 : F = ({∅} : Set (Set α)) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F) (Y := ({∅} : Set (Set α))) s3_5 s3_6)
       -- 3.8. calculation
       calc (F.ncard : ℤ) = (({∅} : Set (Set α)).ncard : ℤ) := by parley_subst s3_7
-        _ = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)))) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))); parley_set_side)
+        _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)))
         _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_set_side)).symm
         _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by parley_subst hC1
     · skip
@@ -104,9 +99,9 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       have s3_11 : ¬ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ) := by
         intro hS2
         -- 3.11.1. mun:range-bounds a := 0, b := 0, k := j, from S2
-        have s3_11_1 : j ≤ 0 := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (0 : ℤ)) (b := (0 : ℤ)) (k := j) hS2)
+        have s3_11_1 : j ≤ 0 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (0 : ℤ)) (b := (0 : ℤ)) (k := j) hS2)
         -- 3.11.2. mun:range-bounds a := 0, b := 0, k := j, from S2
-        have s3_11_2 : 0 ≤ j := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (0 : ℤ)) (b := (0 : ℤ)) (k := j) hS2)
+        have s3_11_2 : 0 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (0 : ℤ)) (b := (0 : ℤ)) (k := j) hS2)
         -- 3.11.3. antisymmetry, from 3.11.1, 3.11.2
         have s3_11_3 : j = 0 := by parley_set_side
         -- 3.11.4. restate C2

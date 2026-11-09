@@ -543,7 +543,7 @@ fn numeral(term: &Term) -> bool {
 /// `over`, outermost first; an operation the table does not know stops a
 /// cast below it.
 fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
-    use super::doc::{Arg, LeanType, Piece, TermKind};
+    use super::doc::{Arg, LeanType, TermKind};
     let num = |t: &Term| match &t.ty {
         Some(LeanType::Num(n)) => Some(*n),
         _ => None,
@@ -667,17 +667,18 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
                     }
                 })
         }
-        TermKind::Notation { pieces, .. } => {
-            let at = match pieces.first() {
-                Some(Piece::Text(t)) if t.starts_with('∑') => Some(CastOp::Sum),
-                Some(Piece::Text(t)) if t.starts_with('∏') => Some(CastOp::Prod),
+        TermKind::Bound { form, .. } => {
+            let at = match form {
+                super::doc::BoundForm::BigOp { product: false, .. } => {
+                    Some(CastOp::Sum)
+                }
+                super::doc::BoundForm::BigOp { product: true, .. } => {
+                    Some(CastOp::Prod)
+                }
                 _ => None,
             };
             let below = under(at);
-            pieces.iter().all(|p| match p {
-                Piece::Term { term, .. } => moves_all(term, &below, by),
-                Piece::Text(_) => true,
-            })
+            term.children().iter().all(|c| moves_all(c, &below, by))
         }
         _ => term
             .children()

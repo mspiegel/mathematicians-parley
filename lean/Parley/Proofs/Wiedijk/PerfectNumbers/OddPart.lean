@@ -54,9 +54,9 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       try push_cast at hK1
       try have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
-      have s1_1 : 1 ≤ j := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
+      have s1_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.2. mun:range-bounds a := 1, b := 0, k := j, from K1
-      have s1_2 : j ≤ 0 := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
+      have s1_2 : j ≤ 0 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.3. inequalities, from 1.1
       have s1_3 : ¬ j ≤ 0 := by parley_side
       exact absurd s1_2 s1_3
@@ -65,7 +65,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       try push_cast at hK3
       try have hK3_bounds := Finset.mem_Icc.mp hK3
       -- 1.4. mun:range-bounds a := 1, b := N + 1, k := j, from K3
-      have s1_4 : 1 ≤ j := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
+      have s1_4 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.5. mun:range-bounds a := 1, b := N + 1, k := j, from K3
       have s1_5 : j ≤ N + 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.6. mun:even-or-odd n := j
@@ -102,7 +102,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.12. obtain k, m from line 1.7.11
           obtain ⟨k, s1_7_12a, m, s1_7_12b, ⟨s1_7_12c, s1_7_12d⟩⟩ := s1_7_11
           -- 1.7.13. mun:exponent-step a := 2, m := k
-          have s1_7_13 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
+          have s1_7_13 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
           -- 1.7.14. algebra, from 1.7.1, 1.7.12, 1.7.13
           have s1_7_14 : j = 2 ^ (k + 1).toNat * m := by linear_combination (norm := parley_norm) s1_7_1 + (2) * s1_7_12d + (-m) * s1_7_13
           -- 1.7.15. exhibit, from 1.7.12, 1.7.14
@@ -115,7 +115,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       -- 1.8. D1, from 1.7
       parley_side
   -- 2. instantiate N := n in line 1
-  have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; first | exact (s1 n (by parley_side) j (by parley_side)) | exact ((s1 n (by parley_side) j (by parley_side))).symm | simpa using (s1 n (by parley_side) j (by parley_side)) | exact_mod_cast (s1 n (by parley_side) j (by parley_side)) | (have h := (s1 n (by parley_side) j (by parley_side)); parley_side)
+  have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; exact (s1 n (by parley_side) j (by parley_side))
   -- 3. def:range-between k := n, a := 1, b := n
   have r260_1 : 1 ≤ n := by parley_order
   have r260_2 : n ≤ n := by parley_order

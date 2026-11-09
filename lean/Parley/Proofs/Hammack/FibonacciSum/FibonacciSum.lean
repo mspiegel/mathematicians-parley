@@ -36,7 +36,7 @@ public section
 namespace Parley.Proofs.Hammack.FibonacciSum.FibonacciSum
 
 set_option maxHeartbeats 600000 in
-theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
+theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F k : ℤ)) = F (n + 2) - 1 := by
   -- 1. thm:fibonacci-natural
   have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
@@ -53,7 +53,7 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.1. proof
       -- what this block shows, Lean's types give
       -- 4.2. mun:sum-single a := 1
-      have s4_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (F j : ℤ)) = F 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := F) (a := (1 : ℤ)))
+      have s4_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (F j : ℤ)) = F 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := F) (a := (1 : ℤ)))
       -- 4.3. D1
       have s4_3 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 4.4. D1
@@ -81,7 +81,7 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- what this block shows, Lean's types give
       -- 4.13. mun:sum-extended a := 1, n := m
       have r87_1 : m ≥ 1 := by parley_side
-      have s4_13 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (F j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (F j : ℤ)) + F (m + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := F) (a := (1 : ℤ)) (n := m) r87_1)
+      have s4_13 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (F j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (F j : ℤ)) + F (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := F) (a := (1 : ℤ)) (n := m) r87_1)
       -- 4.14. instantiate k := m + 1 in line 3
       have s4_14 : F (m + 1 + 2) = F (m + 1) + F (m + 1 + 1) := by exact (s3 (m + 1) (by parley_side))
       -- 4.15. substitute
@@ -94,6 +94,6 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.18. algebra, from IH2, 4.13, 4.15
       linear_combination (norm := parley_norm) hIH2 + s4_13 + (-1) * s4_15
   -- 5. instantiate m := n in line 4
-  linear_combination (norm := parley_norm) (s4 n (by parley_side))
+  exact (s4 n (by parley_side))
 
 end Parley.Proofs.Hammack.FibonacciSum.FibonacciSum

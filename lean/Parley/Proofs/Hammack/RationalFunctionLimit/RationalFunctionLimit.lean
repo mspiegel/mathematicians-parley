@@ -24,6 +24,8 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 
@@ -52,7 +54,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_2 : n ≥ 1 := by parley_order
       -- 1.2.3. mun:square-positive x := n
       have r40_1 : n ≠ 0 := by parley_side
-      have s1_2_3 : n ^ 2 > 0 := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := n) (by parley_side))
+      have s1_2_3 : n ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := n) (by parley_side))
       -- 1.2.4. inequalities
       have s1_2_4 : 4 * n ^ 2 > 0 := by parley_order
       -- 1.2.5. inequalities, from 1.2.4
@@ -60,7 +62,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.6. inequalities
       have s1_2_6 : 8 * n ^ 2 + 4 > 0 := by parley_order
       -- 1.2.7. mun:product-positive x := n, y := 8n² + 4, from 1.2.1, 1.2.6
-      have s1_2_7 : n * (8 * n ^ 2 + 4) > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := n) (y := 8 * n ^ 2 + 4) (by parley_side) (by parley_side))
+      have s1_2_7 : n * (8 * n ^ 2 + 4) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := n) (y := 8 * n ^ 2 + 4) (by parley_side) (by parley_side))
       -- 1.2.8. algebra, from H2
       have s1_2_8 : a n - 5 / 4 = (2 * (n : ℝ) - 3) / (8 * (n : ℝ) ^ 2 + 4) := by linear_combination (norm := parley_field) ((4) / ((4))) * (hH2 n (by parley_side))
       -- 1.2.9. algebra
@@ -72,7 +74,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.12. inequalities, from 1.2.10, 1.2.11
       have s1_2_12 : 6 * n ^ 2 + 3 * n + 4 > 0 := by parley_order
       -- 1.2.13. mun:quotient-positive x := 6n² + 3n + 4, y := n·(8n² + 4), from 1.2.7, 1.2.12
-      have s1_2_13 : (6 * (n : ℚ) ^ 2 + 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := 6 * (n : ℚ) ^ 2 + 3 * (n : ℚ) + 4) (y := (n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) (by parley_side) (by parley_side))
+      have s1_2_13 : (6 * (n : ℚ) ^ 2 + 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := 6 * (n : ℚ) ^ 2 + 3 * (n : ℚ) + 4) (y := (n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) (by parley_side) (by parley_side))
       -- 1.2.14. transitivity, from 1.2.13, 1.2.9
       have s1_2_14 : 0 < 1 / (n : ℚ) - (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) := by parley_order
       -- 1.2.15. inequalities
@@ -81,7 +83,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_16 : 1 / (n : ℚ) + (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) = (10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) := by parley_ring
       -- 1.2.17. mun:multiply-le x := 1, y := n, c := n, from 1.2.2
       have r95_1 : n > 0 := by parley_side
-      have s1_2_17 : n * 1 ≤ n * n := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
+      have s1_2_17 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
       -- 1.2.18. algebra
       have s1_2_18 : n * n = n ^ 2 := by parley_ring
       -- 1.2.19. transitivity, from 1.2.17, 1.2.18
@@ -94,7 +96,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_22 : 0 < 10 * n ^ 2 - 3 * n := by parley_order
       -- 1.2.23. mun:quotient-positive x := 10n² − 3n + 4, y := n·(8n² + 4), from 1.2.7
       have r122_1 : 10 * n ^ 2 - 3 * n + 4 > 0 := by parley_order
-      have s1_2_23 : (10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := 10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) (y := (n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) (by parley_side) (by parley_side))
+      have s1_2_23 : (10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := 10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) (y := (n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) (by parley_side) (by parley_side))
       -- 1.2.24. transitivity, from 1.2.23, 1.2.16
       have s1_2_24 : 0 < 1 / (n : ℚ) + (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) := by parley_order
       -- 1.2.25. inequalities

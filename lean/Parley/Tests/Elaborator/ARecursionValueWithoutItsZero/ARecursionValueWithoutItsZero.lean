@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ARecursionValueWithoutItsZero.ARecursionValueWithoutItsZero
 
-theorem a_recursion_value_without_its_zero (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 2) :
+theorem a_recursion_value_without_its_zero (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 2)) :
     F (0 + 1) = 2 := by
   -- 1. D1
   have s1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith

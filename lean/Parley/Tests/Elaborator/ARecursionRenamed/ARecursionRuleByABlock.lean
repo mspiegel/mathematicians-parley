@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ARecursionRenamed.ARecursionRuleByABlock
 
-theorem a_recursion_rule_by_a_block (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) :
+theorem a_recursion_rule_by_a_block (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) :
     (∀ n : ℤ, 0 ≤ n → F (n + 1) = F n + 1) := by
   -- 1. proof
   intro n hK1

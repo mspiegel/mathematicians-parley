@@ -30,7 +30,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k
   -- the theorem. contradiction
   by_contra (hS : b ≠ 0)
   -- 1. mun:square-positive x := b, from S
-  have s1 : b ^ 2 > 0 := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := b) (by parley_side))
+  have s1 : b ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := b) (by parley_side))
   -- 2. mun:pos-int-nat m := b², from 1
   have s2 : 0 < b ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := b ^ 2) s1)
   -- 3. mun:divides-self n := b

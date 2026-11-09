@@ -51,7 +51,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     -- 1.3. inequalities, from K, 1.2
     have s1_3 : 1 < d := by parley_order
     -- 1.4. mun:integer-step m := 1, n := d, from 1.3
-    have s1_4 : 1 + 1 ≤ d := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) s1_3)
+    have s1_4 : 1 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) s1_3)
     -- 1.5. inequalities, from 1.4
     have s1_5 : 2 ≤ d := by parley_order
     -- 1.6. contradiction
@@ -63,11 +63,11 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     -- 1.7. inequalities, from D1, 1.6
     have s1_7 : 1 < e := by parley_order
     -- 1.8. mun:integer-step m := 1, n := e, from 1.7
-    have s1_8 : 1 + 1 ≤ e := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := e) s1_7)
+    have s1_8 : 1 + 1 ≤ e := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := e) s1_7)
     -- 1.9. inequalities, from 1.8
     have s1_9 : 2 ≤ e := by parley_order
     -- 1.10. mun:nonneg-or-neg x := e − d
-    have s1_10 : e - d ≥ 0 ∨ e - d < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := e - d))
+    have s1_10 : e - d ≥ 0 ∨ e - d < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := e - d))
     -- 1.11. cases, from 1.10
     have s1_11 : d = p := by
       rcases s1_10 with hC1 | hC2

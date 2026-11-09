@@ -23,7 +23,7 @@ namespace Parley.Tests.Elaborator.ASquareInADivisorSaidNonzero.ARequiresLineAtAn
 theorem a_requires_line_at_an_interval_member :
     (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True) := by
   -- 1. membership
-  have r25_1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), x ^ 2 ≥ 0 := by intro x h_x; exact ((Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)))
+  have r25_1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), x ^ 2 ≥ 0 := by intro x h_x; (exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)))
   have r25_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), 1 + x ^ 2 > 0 := by intro x h_x; (parley_order)
   intro x h_x; parley_set_side
 

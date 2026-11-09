@@ -33,7 +33,7 @@ theorem a_product_of_a_define_said_once (p : ℤ) (hH1 : 0 < p) :
     (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ) {n : ℤ | 0 < n} ∧ p = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (f i : ℤ))) := by
   set e : ℤ → ℤ := fun i : ℤ => p with hD1
   -- 1. mun:product-single a := 1, t := e
-  have s1 : (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ)))
+  have s1 : (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ)))
   -- 2. D1
   have r15_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
   have s2 : e 1 = p := by simp (disch := omega) only [hD1]

@@ -30,7 +30,7 @@ theorem no_integer_combination :
   have r20_1 : (30 : ℤ) = 3 * 10 := by parley_arith
   have s3 : (3 : ℤ) ∣ (30 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (30 : ℤ)))).mpr ⟨(10 : ℤ), by parley_side⟩
   -- 4. mun:divides-combination e := 3, a := 21, b := 30, x := a, y := b, from 2, 3
-  have s4 : (3 : ℤ) ∣ 21 * a + 30 * b := (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (3 : ℤ)) (a := (21 : ℤ)) (b := (30 : ℤ)) (x := a) (y := b) s2 s3)
+  have s4 : (3 : ℤ) ∣ 21 * a + 30 * b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (3 : ℤ)) (a := (21 : ℤ)) (b := (30 : ℤ)) (x := a) (y := b) s2 s3)
   -- 5. substitute 21a + 30b = 1 (line 1) into line 4
   have s5 : (3 : ℤ) ∣ (1 : ℤ) := by parley_subst_at s1 s4
   -- 6. mun:divides-one d := 3, from 5

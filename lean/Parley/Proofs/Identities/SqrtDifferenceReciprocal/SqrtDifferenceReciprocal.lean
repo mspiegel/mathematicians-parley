@@ -30,10 +30,10 @@ theorem sqrt_difference_reciprocal (x : ℝ) (hH2 : x ≥ 0) :
   -- 1. inequalities, from H2
   have s1 : x + 1 ≥ 0 := by parley_order
   -- 2. def:sqrt x := x + 1, from 1
-  have s2a : Real.sqrt (x + 1) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x + 1) s1)
+  have s2a : Real.sqrt (x + 1) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x + 1) s1)
   have s2b : Real.sqrt (x + 1) ^ 2 = x + 1 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x + 1) s1)
   -- 3. def:sqrt, from H2
-  have s3a : Real.sqrt x ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) hH2)
+  have s3a : Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) hH2)
   have s3b : Real.sqrt x ^ 2 = x := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x) hH2)
   -- 4. inequalities
   have s4 : x < x + 1 := by parley_order

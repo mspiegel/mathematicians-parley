@@ -37,6 +37,6 @@ theorem choose_three_of_a_triple (n : ℤ) (hH1 : 0 ≤ n) :
   -- 3. thm:binomial-of-two m := n
   have s3 : 2 * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = n * (n - 1) := by exact (Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo.binomial_of_two (m := n) (by parley_side))
   -- 4. algebra, from 1, 2, 3
-  qify at *; linear_combination (norm := parley_norm) ((1 / 6 : ℚ)) * s1 + (-(1 / 2 : ℚ)) * s2 + (-3 * (n : ℚ)) * s3
+  qify at *; linear_combination (norm := parley_norm) ((1 / 6 : ℚ)) * s1 + (-(1 / 2 : ℚ)) * s2 + (-(3 * (n : ℚ))) * s3
 
 end Parley.Proofs.Hammack.ChooseThreeOfATriple.ChooseThreeOfATriple

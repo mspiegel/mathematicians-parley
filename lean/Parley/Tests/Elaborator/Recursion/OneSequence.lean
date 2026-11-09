@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Tests.Elaborator.Recursion.OneSequence
 
-theorem one_sequence (c : ℤ → ℤ) (hD1 : c 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → c (k + 1) = 2 * c k) :
+theorem one_sequence (c : ℤ → ℤ) (hD1 : c 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → c (k + 1) = 2 * c k)) :
     c (0 + 1) = 2 := by
   -- 1. D1
   have s1 : c 0 = 1 := by have h := hD1.1; (try ring_nf at h ⊢); linarith

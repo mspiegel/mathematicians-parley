@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne
 
-theorem counted_to_one (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) :
+theorem counted_to_one (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) :
     F 1 = 1 := by
   -- 1. D1
   have s1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith

@@ -1,8 +1,6 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -21,15 +19,12 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
@@ -85,7 +80,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   have s10 : ∀ t ∈ (Set.Ioo a b : Set ℝ), True := by
     intro t hK3
     -- 10.1. axi:excluded-middle
-    have s10_1 : t = c ∨ t ≠ c := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))
+    have s10_1 : t = c ∨ t ≠ c := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))
     -- 10.2. cases, from 10.1
     -- what this block shows, Lean's types give
     exact trivial
@@ -95,7 +90,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   have s12 : ∀ t ∈ (Set.Ioo a b : Set ℝ), True := by
     intro t hK4
     -- 12.1. axi:excluded-middle
-    have s12_1 : t = c ∨ t ≠ c := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))
+    have s12_1 : t = c ∨ t ≠ c := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = c))
     -- 12.2. cases, from 12.1
     -- what this block shows, Lean's types give
     exact trivial
@@ -111,13 +106,13 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   have r440_1 : IsOpen (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := a) (b := b))
   have s16 : IsOpen ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) := by exact (Parley.Items.Stdlib.Calculus.mun_open_without_point (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 r440_1 hH3)
   -- 17. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, from H6, 1, 2, 3, 4, 8, 11, 16
-  have s17 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ F y := (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s8 hH6)
+  have s17 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ F y := by exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s8 hH6)
   -- 18. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, from H6, 1, 2, 3, 4, 8, 11, 16
-  have s18 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv F) t = (deriv f) t := (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s8 hH6)
+  have s18 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv F) t = (deriv f) t := by exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := f) (F := F) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s8 hH6)
   -- 19. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := g, F := G, from H7, 1, 2, 3, 4, 9, 13, 16
-  have s19 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ G y := (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s9 hH7)
+  have s19 : ∀ y ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds y ∧ DifferentiableAt ℝ G y := by exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_1 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s9 hH7)
   -- 20. mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := g, F := G, from H7, 1, 2, 3, 4, 9, 13, 16
-  have s20 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv G) t = (deriv g) t := (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s9 hH7)
+  have s20 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv G) t = (deriv g) t := by exact (Parley.Items.Stdlib.Calculus.mun_derivative_local_2 (f := g) (F := G) (D := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (E := (Set.Ioo a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) s3 s1 s4 s2 s16 s9 hH7)
   -- 21. proof
   have s21 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv G) t ≠ 0 := by
     intro t hK5
@@ -149,13 +144,13 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
     have row2 : F x / G x = (deriv F) ξ / (deriv G) ξ := by parley_subst_at c2 row1
     exact row2
   -- 30. instantiate t := x in line 8, from H11
-  have s30 : F x = f x := by first | linear_combination (norm := parley_norm) (s8 x (by parley_set_side)) | (have h := (s8 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s8 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s8 x (by parley_set_side)) | exact_mod_cast ((s8 x (by parley_set_side))).symm | (have h := (s8 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s8 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s8 x (by parley_set_side)); parley_int_power h) | (have h := (s8 x (by parley_set_side)); parley_set_side)
+  have s30 : F x = f x := by exact (s8 x (by parley_set_side))
   -- 31. instantiate t := x in line 9, from H11
-  have s31 : G x = g x := by first | linear_combination (norm := parley_norm) (s9 x (by parley_set_side)) | (have h := (s9 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s9 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s9 x (by parley_set_side)) | exact_mod_cast ((s9 x (by parley_set_side))).symm | (have h := (s9 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s9 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s9 x (by parley_set_side)); parley_int_power h) | (have h := (s9 x (by parley_set_side)); parley_set_side)
+  have s31 : G x = g x := by exact (s9 x (by parley_set_side))
   -- 32. instantiate t := ξ in line 18, from 27
-  have s32 : (deriv F) ξ = (deriv f) ξ := by first | linear_combination (norm := parley_norm) (s18 ξ (by parley_set_side)) | (have h := (s18 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s18 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s18 ξ (by parley_set_side)) | exact_mod_cast ((s18 ξ (by parley_set_side))).symm | (have h := (s18 ξ (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s18 ξ (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s18 ξ (by parley_set_side)); parley_int_power h) | (have h := (s18 ξ (by parley_set_side)); parley_set_side)
+  have s32 : (deriv F) ξ = (deriv f) ξ := by exact (s18 ξ (by parley_set_side))
   -- 33. instantiate t := ξ in line 20, from 27
-  have s33 : (deriv G) ξ = (deriv g) ξ := by first | linear_combination (norm := parley_norm) (s20 ξ (by parley_set_side)) | (have h := (s20 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s20 ξ (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s20 ξ (by parley_set_side)) | exact_mod_cast ((s20 ξ (by parley_set_side))).symm | (have h := (s20 ξ (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s20 ξ (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s20 ξ (by parley_set_side)); parley_int_power h) | (have h := (s20 ξ (by parley_set_side)); parley_set_side)
+  have s33 : (deriv G) ξ = (deriv g) ξ := by exact (s20 ξ (by parley_set_side))
   -- 34. substitute F(x) = f(x) (line 30) into line 29
   have s34 : f x / G x = (deriv F) ξ / (deriv G) ξ := by parley_subst_at s30 s29
   -- 35. substitute G(x) = g(x) (line 31) into line 34
@@ -167,7 +162,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 38. restate 27
   have s38 : abs (ξ - c) < abs (x - c) := by parley_set_side
   -- 39. exhibit, from 27, 37, 38
-  have s39 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ := ⟨ξ, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+  have s39 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ := ⟨ξ, s27a, ⟨s27b.1, s37⟩⟩
   -- 40. substitute G(x) = g(x) (line 31) into line 26
   have s40 : g x ≠ 0 := by parley_subst_at s31 s26
   -- 41. join 39, 40

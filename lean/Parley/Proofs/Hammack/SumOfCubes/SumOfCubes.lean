@@ -57,7 +57,7 @@ theorem sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
       have r27_1 : k ≥ 1 := by parley_side
       have s1_2 : S (k + 1) = S k + (k + 1) ^ 3 := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (j ^ 3 : ℤ)) := by simp (disch := omega) only [hD1]
-          _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (j ^ 3 : ℤ)) + (k + 1) ^ 3 := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j ^ 3)) (a := (1 : ℤ)) (n := k) r27_1)
+          _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (j ^ 3 : ℤ)) + (k + 1) ^ 3 := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j ^ 3)) (a := (1 : ℤ)) (n := k) r27_1)
           _ = S k + (k + 1) ^ 3 := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
       have s1_3 : (S (k + 1) : ℚ) = ((k : ℚ) + 1) ^ 2 * ((k : ℚ) + 1 + 1) ^ 2 / 4 := by

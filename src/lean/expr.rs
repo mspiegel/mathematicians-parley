@@ -10,7 +10,7 @@
 
 use indexmap::IndexMap;
 
-use super::doc::{LeanType, Piece};
+use super::doc::LeanType;
 use super::templates::{Num, Slot, Template, Templates};
 use crate::citing::bounds::{self, SaidBounds};
 use crate::formula::{Grammar, Node};
@@ -635,6 +635,15 @@ impl<'a> Writer<'a> {
     }
 }
 
+/// The term bracketed as an argument is, unless it binds as tightly:
+/// `(Set.Icc a b)`, `A`.
+pub fn as_argument(term: Printed) -> Printed {
+    match term.prec() < MAX {
+        true => super::tactics::bracket(term),
+        false => term,
+    }
+}
+
 /// The integers from a to b as a finite set: `Finset.Icc a b`.
 pub fn icc(from: Printed, to: Printed) -> Printed {
     Printed::applied(
@@ -676,6 +685,7 @@ pub fn witnessed(
             letter_ty: ty,
             guard: guard.map(Box::new),
             body: Box::new(said),
+            bounded: false,
         },
         LeanType::Prop,
     )
@@ -684,28 +694,38 @@ pub fn witnessed(
 /// An anonymous constructor, `⟨a, b⟩`: an "and" of proofs, or a witness and
 /// its proof.
 pub fn anonymous(parts: Vec<Printed>) -> Printed {
-    let mut pieces = vec![Piece::text("⟨")];
-    for (i, p) in parts.into_iter().enumerate() {
-        if i > 0 {
-            pieces.push(Piece::text(", "));
-        }
-        pieces.push(Piece::term(p, 0));
-    }
-    pieces.push(Piece::text("⟩"));
-    Printed::notation(pieces, MAX, LeanType::Prop)
+    Printed::of(
+        super::doc::TermKind::Listed {
+            brackets: super::doc::Brackets::Angle,
+            items: parts,
+        },
+        LeanType::Prop,
+    )
 }
 
 /// A set listed by its members, `{a, b}`.
 pub fn listed_set(members: Vec<Printed>, ty: LeanType) -> Printed {
-    let mut pieces = vec![Piece::text("{")];
-    for (i, m) in members.into_iter().enumerate() {
-        if i > 0 {
-            pieces.push(Piece::text(", "));
-        }
-        pieces.push(Piece::term(m, 0));
-    }
-    pieces.push(Piece::text("}"));
-    Printed::notation(pieces, MAX, ty)
+    Printed::of(
+        super::doc::TermKind::Listed {
+            brackets: super::doc::Brackets::Brace,
+            items: members,
+        },
+        ty,
+    )
+}
+
+/// The parts joined by `op`, which groups to the right, `a ∧ b ∧ c`: each
+/// bracketed where it binds more loosely than `need`. None of no parts.
+pub fn joined(op: super::doc::Op, parts: Vec<Printed>, need: u32) -> Option<Printed> {
+    let wrap = |p: Printed| match p.prec() < need {
+        true => super::tactics::bracket(p),
+        false => p,
+    };
+    let mut parts = parts.into_iter().rev();
+    let last = wrap(parts.next()?);
+    Some(parts.fold(last, |rest, p| {
+        Printed::infix(op, wrap(p), rest, LeanType::Prop)
+    }))
 }
 
 /// Two propositions joined by "and".
@@ -1012,20 +1032,14 @@ impl Writer<'_> {
             e,
             LeanType::Prop,
         );
-        let shown = Printed::notation(
-            vec![
-                Piece::text("show "),
-                Piece::term(at_least_0, 0),
-                Piece::text(" "),
-                Piece::term(
-                    t::by_term(Proof::By(t::bridge(
-                        super::doc::bridges::BridgeTactic::Side,
-                        vec![],
-                    ))),
-                    0,
-                ),
-            ],
-            0,
+        let shown = Printed::of(
+            super::doc::TermKind::Show {
+                says: Box::new(at_least_0),
+                proof: Box::new(t::by_term(Proof::By(t::bridge(
+                    super::doc::bridges::BridgeTactic::Side,
+                    vec![],
+                )))),
+            },
             LeanType::Prop,
         );
         let nonneg = Printed::applied(
@@ -1398,39 +1412,34 @@ impl Writer<'_> {
         // Over a range, the integers between its ends, `∑ k ∈ Finset.Icc a
         // b`; over a set, Mathlib's sum over the members of a finite set,
         // `∑ᶠ x ∈ S`, which is the page's where the set is finite.
-        let symbol = if is_product(node) { "∏" } else { "∑" };
+        let product = is_product(node);
         let index = super::names::letter(&s.index.text);
-        let (lead, over) = match s.over {
+        let Some(index_ty) = s.inner.letters.get(s.index.text.as_str()) else {
+            return Route::no("a sum whose index has no type");
+        };
+        let index_ty = index_ty.lean_type();
+        // (whether over a finite set, what it runs over, the precedence that
+        // stands at)
+        let (finite, set, need) = match s.over {
             Over::Range { from, to } => {
                 match (
                     self.number_fixed(from, Num::Int),
                     self.number_fixed(to, Num::Int),
                 ) {
-                    (Route::Built(f), Route::Built(t)) => {
-                        (format!("{symbol} {index} ∈ "), Piece::term(icc(f, t), 0))
-                    }
+                    (Route::Built(f), Route::Built(t)) => (false, icc(f, t), 0),
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         return Route::Declined(d)
                     }
                 }
             }
             // ∅ takes the index's type, which Lean cannot read from it.
-            Over::Set(set) if &*set.notation_name() == "empty-set" => {
-                match s.inner.letters.get(s.index.text.as_str()) {
-                    Some(ty) => (
-                        format!("{symbol}ᶠ {index} ∈ "),
-                        Piece::term(
-                            empty_of_type(LeanType::Set(Box::new(ty.lean_type()))),
-                            0,
-                        ),
-                    ),
-                    None => return Route::no("a sum over ∅ whose index has no type"),
-                }
-            }
+            Over::Set(set) if &*set.notation_name() == "empty-set" => (
+                true,
+                empty_of_type(LeanType::Set(Box::new(index_ty.clone()))),
+                0,
+            ),
             Over::Set(set) => match self.set_term(set) {
-                Route::Built(p) => {
-                    (format!("{symbol}ᶠ {index} ∈ "), Piece::term(p, MAX))
-                }
+                Route::Built(p) => (true, p, MAX),
                 Route::Declined(d) => return Route::Declined(d),
             },
         };
@@ -1442,16 +1451,18 @@ impl Writer<'_> {
         // Σ(k = 1 to 3) 5 or 1/2^(j + 1), gives Lean nothing else to read
         // its type from, and Lean would take it in ℕ.
         let term = Printed::cast(term, self.num_type(at));
-        // Mathlib reads the body at 67, so `∑ k ∈ s, k + 1` would be the
-        // sum of k, plus 1; a body below that is bracketed.
-        Route::Built(Printed::notation(
-            vec![
-                Piece::text(lead),
-                over,
-                Piece::text(", "),
-                Piece::term(term, 67),
-            ],
-            10,
+        Route::Built(Printed::of(
+            super::doc::TermKind::Bound {
+                form: super::doc::BoundForm::BigOp {
+                    product,
+                    finite,
+                    set: Box::new(set),
+                    need,
+                },
+                letter: index,
+                letter_ty: index_ty,
+                body: Box::new(term),
+            },
             self.num_type(at),
         ))
     }
@@ -1497,32 +1508,41 @@ impl Writer<'_> {
             };
         let body = Printed::cast(body, self.num_type(at));
         let int = LeanType::Num(Num::Int);
-        let partial = Printed::notation(
-            vec![
-                Piece::text(format!("∑ {} ∈ ", super::names::letter(&index.text))),
-                Piece::term(icc(start, Printed::letter(upper, int.clone())), 0),
-                Piece::text(", "),
-                Piece::term(body, 67),
-            ],
-            10,
+        let partial = Printed::of(
+            super::doc::TermKind::Bound {
+                form: super::doc::BoundForm::BigOp {
+                    product: false,
+                    finite: false,
+                    set: Box::new(icc(start, Printed::letter(upper, int.clone()))),
+                    need: 0,
+                },
+                letter: super::names::letter(&index.text),
+                letter_ty: int.clone(),
+                body: Box::new(body),
+            },
             self.num_type(at),
         );
-        Route::Built(Printed::notation(
+        let sums = Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: super::doc::Quant::Fun,
+                letter: upper.to_string(),
+                letter_ty: int.clone(),
+                guard: None,
+                body: Box::new(partial),
+                bounded: false,
+            },
+            LeanType::Fun {
+                from: Box::new(int),
+                to: Box::new(self.num_type(at)),
+            },
+        );
+        Route::Built(Printed::applied(
+            "Filter.limUnder",
+            super::doc::Source::Mathlib,
             vec![
-                Piece::term(
-                    Printed::head("Filter.limUnder", super::doc::Source::Mathlib),
-                    0,
-                ),
-                Piece::text(" "),
-                Piece::term(
-                    Printed::head("Filter.atTop", super::doc::Source::Mathlib),
-                    0,
-                ),
-                Piece::text(format!(" (fun {upper} : ℤ => ")),
-                Piece::term(partial, 0),
-                Piece::text(")"),
+                Printed::head("Filter.atTop", super::doc::Source::Mathlib),
+                sums,
             ],
-            APP,
             self.num_type(at),
         ))
     }
@@ -1557,16 +1577,16 @@ impl Writer<'_> {
         };
         let real = LeanType::Num(Num::Real);
         let body = Printed::cast(body, real.clone());
-        Route::Built(Printed::notation(
-            vec![
-                Piece::text(format!("∫ {} in ", super::names::letter(&letter.text))),
-                Piece::term(a, MAX),
-                Piece::text(".."),
-                Piece::term(b, MAX),
-                Piece::text(", "),
-                Piece::term(body, 67),
-            ],
-            10,
+        Route::Built(Printed::of(
+            super::doc::TermKind::Bound {
+                form: super::doc::BoundForm::Integral {
+                    from: Box::new(a),
+                    to: Box::new(b),
+                },
+                letter: super::names::letter(&letter.text),
+                letter_ty: real.clone(),
+                body: Box::new(body),
+            },
             real,
         ))
     }
@@ -1599,21 +1619,27 @@ impl Writer<'_> {
             }
         };
         let mathlib = || super::doc::Source::Mathlib;
-        Route::Built(Printed::notation(
-            vec![
-                Piece::term(Printed::head("Filter.Tendsto", mathlib()), 0),
-                Piece::text(format!(
-                    " (fun {} : ℤ => ",
-                    super::names::letter(&letter.text)
-                )),
-                Piece::term(Printed::cast(body, self.num_type(at)), 0),
-                Piece::text(") "),
-                Piece::term(Printed::head("Filter.atTop", mathlib()), 0),
-                Piece::text(" (nhds "),
-                Piece::term(l, MAX),
-                Piece::text(")"),
-            ],
-            1000,
+        // Filter.Tendsto (fun n : ℤ => x n) Filter.atTop (nhds L).
+        let int = LeanType::Num(Num::Int);
+        let sequence = Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: super::doc::Quant::Fun,
+                letter: super::names::letter(&letter.text),
+                letter_ty: int.clone(),
+                guard: None,
+                body: Box::new(Printed::cast(body, self.num_type(at))),
+                bounded: false,
+            },
+            LeanType::Fun {
+                from: Box::new(int),
+                to: Box::new(self.num_type(at)),
+            },
+        );
+        let near = Printed::applied("nhds", mathlib(), vec![l], LeanType::Prop);
+        Route::Built(Printed::applied(
+            "Filter.Tendsto",
+            mathlib(),
+            vec![sequence, Printed::head("Filter.atTop", mathlib()), near],
             LeanType::Prop,
         ))
     }
@@ -1647,22 +1673,25 @@ impl Writer<'_> {
             }
         };
         let mathlib = || super::doc::Source::Mathlib;
-        Route::Built(Printed::notation(
-            vec![
-                Piece::term(Printed::head("Filter.Tendsto", mathlib()), 0),
-                Piece::text(format!(" {} (", super::names::letter(&f.text))),
-                Piece::term(Printed::head("nhdsWithin", mathlib()), 0),
-                Piece::text(" "),
-                Piece::term(c.clone(), MAX),
-                Piece::text(" ("),
-                Piece::term(domain, MAX),
-                Piece::text(" \\ {"),
-                Piece::term(c, MAX),
-                Piece::text("})) (nhds "),
-                Piece::term(l, MAX),
-                Piece::text(")"),
-            ],
-            1000,
+        // Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds L).
+        let Some(set) = domain.ty.clone() else {
+            return Route::no("a limit over a domain with no Lean type");
+        };
+        let without = match relation_of(
+            "\\",
+            as_argument(domain),
+            listed_set(vec![c.clone()], set),
+        ) {
+            Route::Built(w) => w,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let within =
+            Printed::applied("nhdsWithin", mathlib(), vec![c, without], LeanType::Prop);
+        let near = Printed::applied("nhds", mathlib(), vec![l], LeanType::Prop);
+        Route::Built(Printed::applied(
+            "Filter.Tendsto",
+            mathlib(),
+            vec![self.function_letter(&f.text), within, near],
             LeanType::Prop,
         ))
     }
@@ -1704,6 +1733,7 @@ impl Writer<'_> {
                         letter_ty: map,
                         guard: None,
                         body: Box::new(bij),
+                        bounded: false,
                     },
                     LeanType::Prop,
                 ))
@@ -1771,15 +1801,10 @@ impl Writer<'_> {
                 );
                 // The domain stands bracketed as an argument does, as a
                 // map's domain is written everywhere it is named.
-                let inside = Printed::notation(
-                    vec![
-                        Piece::term(domain, MAX),
-                        Piece::text(" ∈ "),
-                        Piece::term(near, 51),
-                    ],
-                    50,
-                    LeanType::Prop,
-                );
+                let inside = match relation_of("∈", as_argument(domain), near) {
+                    Route::Built(i) => i,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
                 match conjunction(inside, at) {
                     Route::Built(c) => c,
                     Route::Declined(d) => return Route::Declined(d),
@@ -1787,14 +1812,20 @@ impl Writer<'_> {
             }
             false => at,
         };
-        Route::Built(Printed::notation(
-            vec![
-                Piece::text(format!("∀ {x} ∈ ")),
-                Piece::term(u, MAX),
-                Piece::text(", "),
-                Piece::term(said, 0),
-            ],
-            0,
+        let member = Printed::letter(x, real.clone());
+        let guard = match relation_of("∈", member, as_argument(u)) {
+            Route::Built(g) => g,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        Route::Built(Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: super::doc::Quant::ForAll,
+                letter: x.to_string(),
+                letter_ty: real,
+                guard: Some(Box::new(guard)),
+                body: Box::new(said),
+                bounded: true,
+            },
             LeanType::Prop,
         ))
     }
@@ -1814,18 +1845,10 @@ impl Writer<'_> {
             return Route::no(format!("{} is no function into ℝ", f.text));
         }
         match self.numbers_at(set, Num::Real) {
-            Route::Built(s) => Route::Built(Printed::notation(
-                vec![
-                    Piece::term(
-                        Printed::head(predicate, super::doc::Source::Mathlib),
-                        0,
-                    ),
-                    Piece::text(" "),
-                    Piece::term(self.function_letter(&f.text), MAX),
-                    Piece::text(" "),
-                    Piece::term(s, MAX),
-                ],
-                1000,
+            Route::Built(s) => Route::Built(Printed::applied(
+                predicate,
+                super::doc::Source::Mathlib,
+                vec![self.function_letter(&f.text), s],
                 LeanType::Prop,
             )),
             Route::Declined(d) => Route::Declined(d),
@@ -1894,14 +1917,16 @@ impl Writer<'_> {
                 declined => return declined,
             };
             // Lean reads no negation after `^`, so `a ^ -m` is written
-            // `a ^ (-m)`.
-            return Route::Built(Printed::notation(
-                vec![
-                    Piece::term(base, 76),
-                    Piece::text(" ^ "),
-                    Piece::term(exponent, 76),
-                ],
-                75,
+            // `a ^ (-m)`: an exponent that binds less tightly than `^` is
+            // bracketed.
+            let exponent = match exponent.prec() < 76 {
+                true => super::tactics::bracket(exponent),
+                false => exponent,
+            };
+            return Route::Built(Printed::infix(
+                super::doc::Op::POWER,
+                base,
+                exponent,
                 self.num_type(at),
             ));
         }
@@ -2246,24 +2271,31 @@ impl Writer<'_> {
         if let ("there-is-some", [letter, set]) =
             (&*node.notation_name(), node.children.as_slice())
         {
-            if self.set_members(set).is_none() {
+            let Some(members) = self.set_members(set) else {
                 return Route::no("there is some member of a set with no Lean type");
-            }
-            return self.set_term(set).map(|s| {
-                Printed::notation(
-                    vec![
-                        Piece::text(format!(
-                            "∃ {} ∈ ",
-                            super::names::letter(&letter.text)
-                        )),
-                        Piece::term(s, 51),
-                        Piece::text(", "),
-                        Piece::term(Printed::truth(), 0),
-                    ],
-                    0,
-                    LeanType::Prop,
-                )
-            });
+            };
+            let s = match self.set_term(set) {
+                Route::Built(s) => s,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            let name = super::names::letter(&letter.text);
+            let ty = members.letter().lean_type();
+            let guard =
+                match relation_of("∈", Printed::letter(name.clone(), ty.clone()), s) {
+                    Route::Built(g) => g,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+            return Route::Built(Printed::of(
+                super::doc::TermKind::Quantified {
+                    quant: super::doc::Quant::Exists,
+                    letter: name,
+                    letter_ty: ty,
+                    guard: Some(Box::new(guard)),
+                    body: Box::new(Printed::truth()),
+                    bounded: true,
+                },
+                LeanType::Prop,
+            ));
         }
         // A relation between sets, A ⊆ B or A = B.
         if &*node.notation_name() == "subset" {
@@ -2346,17 +2378,17 @@ impl Writer<'_> {
             }
             THERE_IS | FOR_ALL => self.quantified(node),
             crate::notations::COMMA_CONJUNCTION => {
-                let mut pieces = Vec::new();
+                let mut parts = Vec::new();
                 for (i, c) in node.children.iter().enumerate() {
-                    if i > 0 {
-                        pieces.push(Piece::text(" ∧ "));
-                    }
                     match self.knowing(&node.children[..i]).formula(c) {
-                        Route::Built(p) => pieces.push(Piece::term(p, 36)),
+                        Route::Built(p) => parts.push(p),
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
-                Route::Built(Printed::notation(pieces, 35, LeanType::Prop))
+                match joined(super::doc::Op::AND, parts, 36) {
+                    Some(all) => Route::Built(all),
+                    None => Route::no("a conjunction of no parts"),
+                }
             }
             _ => {
                 let template = match self.template(node) {
@@ -2425,6 +2457,7 @@ impl Writer<'_> {
                 letter_ty: LeanType::Num(whole),
                 guard: Some(Box::new(said)),
                 body: Box::new(body),
+                bounded: false,
             },
             LeanType::Prop,
         )))
@@ -2916,6 +2949,7 @@ impl Writer<'_> {
                 letter_ty: self.num_type(ty),
                 guard,
                 body: Box::new(body),
+                bounded: false,
             },
             super::doc::LeanType::Prop,
         ))
@@ -2990,6 +3024,7 @@ impl Writer<'_> {
                 letter_ty: lean_type,
                 guard: Some(Box::new(maps)),
                 body: Box::new(body),
+                bounded: false,
             },
             super::doc::LeanType::Prop,
         ))

@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence
 
-theorem fibonacci_recurrence (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
+theorem fibonacci_recurrence (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1)) := by
   -- 1. proof
   intro k hK1

@@ -39,9 +39,9 @@ set_option maxHeartbeats 600000 in
 theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n : ℤ) (hH3 : 0 < n) (t : α → ℤ) (hH4 : Set.MapsTo t X (Set.univ : Set ℤ)) (u : α → ℤ) (hH5 : Set.MapsTo u X (Set.univ : Set ℤ)) (hH6 : ∀ x ∈ X, t x ≡ u x [ZMOD n]) :
     (∏ᶠ x ∈ X, (t x : ℤ)) ≡ (∏ᶠ x ∈ X, (u x : ℤ)) [ZMOD n] := by
   -- 1. mun:product-integer-terms, from H2
-  have s1 : ∀ Z ∈ 𝒫 X, True := (Parley.Items.Stdlib.Sums.mun_product_integer_terms (t := t) (X := X) hH2)
+  have s1 : ∀ Z ∈ 𝒫 X, True := by exact (Parley.Items.Stdlib.Sums.mun_product_integer_terms (t := t) (X := X) hH2)
   -- 2. mun:product-integer-terms t := u, from H2
-  have s2 : ∀ Z ∈ 𝒫 X, True := (Parley.Items.Stdlib.Sums.mun_product_integer_terms (t := u) (X := X) hH2)
+  have s2 : ∀ Z ∈ 𝒫 X, True := by exact (Parley.Items.Stdlib.Sums.mun_product_integer_terms (t := u) (X := X) hH2)
   -- 3. induction on Y starting at ∅
   have r691_1 : X.Finite := by parley_set_side
   have s3 : ∀ Y ∈ 𝒫 X, (∏ᶠ x ∈ Y, (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) [ZMOD n] := by
@@ -75,7 +75,7 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       -- 3.12. def:congruent-mod a := ∏(x ∈ Y) t(x), b := ∏(x ∈ Y) u(x), from IH, 3.8, 3.9
       have s3_12 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ)) := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := ∏ᶠ x ∈ Y, (t x : ℤ)) (b := ∏ᶠ x ∈ Y, (u x : ℤ)))).mp hIH
       -- 3.13. instantiate x := a in H6, from 3.6
-      have s3_13 : t a ≡ u a [ZMOD n] := by first | exact (hH6 a (by parley_set_side)) | exact ((hH6 a (by parley_set_side))).symm | simpa using (hH6 a (by parley_set_side)) | exact_mod_cast (hH6 a (by parley_set_side)) | (have h := (hH6 a (by parley_set_side)); parley_set_side)
+      have s3_13 : t a ≡ u a [ZMOD n] := by exact (hH6 a (by parley_set_side))
       -- 3.14. def:congruent-mod a := t(a), b := u(a), from 3.10, 3.11, 3.13
       have s3_14 : n ∣ t a - u a := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := t a) (b := u a))).mp s3_13
       -- 3.15. mun:divides-combination e := n, a := ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x), b := t(a) − u(a), x := t(a), y := ∏(x ∈ Y) u(x), from 3.8, 3.9, 3.10, 3.11, 3.12, 3.14
@@ -98,6 +98,6 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       exact row1
   -- 4. instantiate Y := X in line 3
   have r776_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  first | exact (s3 X (by parley_set_side)) | exact ((s3 X (by parley_set_side))).symm | simpa using (s3 X (by parley_set_side)) | exact_mod_cast (s3 X (by parley_set_side)) | (have h := (s3 X (by parley_set_side)); parley_set_side)
+  exact (s3 X (by parley_set_side))
 
 end Parley.Stdlib.Divisibility.ProductCongruentTermwise

@@ -22,7 +22,7 @@ theorem odd_prime_above_two (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (h
   -- 1. def:prime p := P, from H2
   have s1 : P > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
   -- 2. mun:integer-step m := 1, n := P, from 1
-  have s2 : 1 + 1 ≤ P := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) s1)
+  have s2 : 1 + 1 ≤ P := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) s1)
   -- 3. inequalities, from H3, 2
   parley_order
 

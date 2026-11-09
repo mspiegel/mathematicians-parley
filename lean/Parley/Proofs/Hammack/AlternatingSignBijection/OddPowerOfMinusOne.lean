@@ -28,7 +28,7 @@ theorem odd_power_of_minus_one (k : ℤ) (hH1 : 0 ≤ k) :
   -- 1. thm:even-power-of-minus-one
   have s1 : ((-1) ^ (2 * k).toNat : ℤ) = 1 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne.even_power_of_minus_one (k := k) (by parley_side))
   -- 2. calculation
-  calc ((-1) ^ (2 * k + 1).toNat : ℤ) = (-1) ^ (2 * k).toNat * -1 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := 2 * k) (by parley_side))
+  calc ((-1) ^ (2 * k + 1).toNat : ℤ) = (-1) ^ (2 * k).toNat * -1 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := 2 * k) (by parley_side))
     _ = 1 * -1 := by parley_subst s1
     _ = -1 := by norm_num
 

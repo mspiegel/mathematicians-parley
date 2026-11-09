@@ -32,7 +32,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
   -- 1. mun:mod-natural b := 3
   have s1 : 0 ≤ a % (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by parley_side))
   -- 2. mun:mod-less b := 3
-  have s2 : a % (3 : ℤ) < 3 := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side))
+  have s2 : a % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side))
   -- 3. thm:residue-mod-three r := a mod 3, from 1, 2
   have s3 : (a % (3 : ℤ) = 0 ∨ a % (3 : ℤ) = 1) ∨ a % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := a % (3 : ℤ)) (by parley_side) s2)
   -- 4. obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1, 2

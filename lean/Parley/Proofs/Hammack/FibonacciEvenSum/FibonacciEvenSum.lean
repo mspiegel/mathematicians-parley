@@ -37,7 +37,7 @@ public section
 namespace Parley.Proofs.Hammack.FibonacciEvenSum.FibonacciEvenSum
 
 set_option maxHeartbeats 600000 in
-theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
+theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F (2 * k) : ℤ)) = F (2 * n + 1) - 1 := by
   -- 1. thm:fibonacci-natural
   have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
@@ -77,7 +77,7 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
         calc F (2 * 1 + 1) = F (1 + 2) := by norm_num
           _ = 2 := by linear_combination (norm := parley_norm) s4_5 + s4_7 + s4_8
       -- 4.10. calculation
-      calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
+      calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
         _ = F (2 * 1) := by simp (disch := omega) only [hD2]
         _ = F (1 + 1) := by norm_num
         _ = 1 := by parley_side
@@ -104,11 +104,11 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       -- 4.17. instantiate k := 2(m + 1) in line 2
       -- 4.18. calculation
       have r122_1 : m ≥ 1 := by parley_side
-      calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r122_1)
+      calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r122_1)
         _ = F (2 * m + 1) - 1 + q (m + 1) := by parley_subst hIH2
         _ = F (2 * m + 1) - 1 + F (2 * (m + 1)) := by parley_subst s4_12
         _ = F (2 * (m + 1) + 1) - 1 := by linear_combination (norm := parley_norm) (-1) * s4_15
   -- 5. instantiate m := n in line 4, from D2
-  linear_combination (norm := parley_norm) (s4 n (by parley_side))
+  exact (s4 n (by parley_side))
 
 end Parley.Proofs.Hammack.FibonacciEvenSum.FibonacciEvenSum

@@ -35,7 +35,7 @@ set_option maxHeartbeats 400000 in
 theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k ∈ Finset.Icc (2 : ℤ) n) :
     ¬ Nat.Prime ((LeanBridges.Counting.factorial n : ℤ) + k).toNat := by
   -- 1. mun:range-bounds a := 2, b := n, from H2
-  have s1a : 2 ≤ k := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := n) (k := k) hH2)
+  have s1a : 2 ≤ k := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := n) (k := k) hH2)
   have s1b : k ≤ n := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := n) (k := k) hH2)
   -- 2. inequalities, from 1
   have s2 : 0 < k := by parley_order

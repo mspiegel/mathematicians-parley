@@ -25,7 +25,7 @@ namespace Parley.Proofs.Setmm.PrimeDivisorInRange.PrimeDivisorInRange
 theorem prime_divisor_in_range (N : ℤ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Finset.Icc (2 : ℤ) N) :
     (∃ p : ℤ, 0 < p ∧ ((Nat.Prime p.toNat ∧ p ≤ N) ∧ p ∣ I)) := by
   -- 1. mun:range-bounds a := 2, b := N, k := I, from H2
-  have s1 : 2 ≤ I := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2)
+  have s1 : 2 ≤ I := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N) (k := I) hH2)
   -- 2. mun:range-bounds a := 2, b := N, k := I, from H2
   have s2 : I ≤ N := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2)
   -- 3. inequalities, from 1

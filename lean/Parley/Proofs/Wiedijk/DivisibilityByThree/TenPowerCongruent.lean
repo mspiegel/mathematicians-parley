@@ -43,10 +43,10 @@ theorem ten_power_congruent (k : ℤ) (hH1 : 0 ≤ k) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ m hK hIH =>
       -- 1.2. mun:exponent-step a := 10
-      have s1_2 : (10 ^ (m + 1).toNat : ℤ) = 10 ^ m.toNat * 10 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m) (by parley_side))
+      have s1_2 : (10 ^ (m + 1).toNat : ℤ) = 10 ^ m.toNat * 10 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m) (by parley_side))
       -- 1.3. calculation
       calc (10 ^ (m + 1).toNat : ℤ) = 10 ^ m.toNat * 10 := by first | parley_side | parley_line_toNat s1_2
-        _ ≡ 1 * 10 [ZMOD (3 : ℤ)] := (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m.toNat : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := (3 : ℤ)) (by parley_side) hIH)
+        _ ≡ 1 * 10 [ZMOD (3 : ℤ)] := by exact (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m.toNat : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := (3 : ℤ)) (by parley_side) hIH)
         _ ≡ 10 [ZMOD (3 : ℤ)] := by norm_num
         _ ≡ 1 [ZMOD (3 : ℤ)] := by norm_num
   -- 2. instantiate m := k in line 1

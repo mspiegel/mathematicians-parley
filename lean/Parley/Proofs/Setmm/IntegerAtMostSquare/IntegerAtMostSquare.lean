@@ -31,7 +31,7 @@ theorem integer_at_most_square (n : ℤ) :
   -- 1. axi:trichotomy x := n
   have s1 : (n < 0 ∨ n = 0) ∨ 0 < n := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n))
   -- 2. mun:square-nonneg x := n
-  have s2 : n ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
+  have s2 : n ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
   -- 3. algebra
   have s3 : n ^ 2 = n * n := by parley_ring
   -- 4. cases, from 1
@@ -52,7 +52,7 @@ theorem integer_at_most_square (n : ℤ) :
     -- 4.6. mun:integer-step m := 0, from C3
     have s4_6 : 1 ≤ n := by linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) hC3)]
     -- 4.7. mun:multiply-le x := 1, y := n, c := n, from C3, 4.6
-    have s4_7 : n * 1 ≤ n * n := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
+    have s4_7 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
     -- 4.8. inequalities
     parley_order
 

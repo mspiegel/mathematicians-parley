@@ -28,7 +28,7 @@ theorem square_root_positive (a : ℝ) (hH2 : 0 < a) :
     0 < Real.sqrt a := by
   -- 1. def:sqrt x := a
   have r10_1 : 0 ≤ a := by parley_side
-  have s1a : Real.sqrt a ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) r10_1)
+  have s1a : Real.sqrt a ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) r10_1)
   have s1b : Real.sqrt a ^ 2 = a := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := a) r10_1)
   -- 2. contradiction
   by_contra hS

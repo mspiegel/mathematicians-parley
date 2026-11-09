@@ -17,9 +17,9 @@ namespace Parley.Proofs.Identities.ExpIsIncreasing.ExpIsIncreasing
 theorem exp_is_increasing (a : ℝ) (b : ℝ) (hH3 : a < b) :
     Real.exp a < Real.exp b := by
   -- 1. mun:exp-positive x := a
-  have s1 : Real.exp a > 0 := (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := a))
+  have s1 : Real.exp a > 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := a))
   -- 2. mun:exp-positive x := b
-  have s2 : Real.exp b > 0 := (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := b))
+  have s2 : Real.exp b > 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_positive (x := b))
   -- 3. calculation
   have s3 : Real.log (Real.exp a) < Real.log (Real.exp b) := by
     calc Real.log (Real.exp a) = a := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := a))

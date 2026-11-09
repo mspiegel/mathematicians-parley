@@ -31,7 +31,7 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   -- 3. inequalities, from 2
   have s3 : 0 < x * (4 - x) := by parley_order
   -- 4. mun:square-nonneg x := x − 2
-  have s4 : (x - 2) ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x - 2))
+  have s4 : (x - 2) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x - 2))
   -- 5. algebra
   have s5 : (x - 2) ^ 2 = 4 - x * (4 - x) := by parley_ring
   -- 6. transitivity, from 4, 5
@@ -39,7 +39,7 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   -- 7. inequalities
   have s7 : x * (4 - x) ≤ 4 := by parley_order
   -- 8. mun:divide-le x := x·(4 − x), y := 4, c := x·(4 − x), from 3, 7
-  have s8 : x * (4 - x) / (x * (4 - x)) ≤ 4 / (x * (4 - x)) := (Parley.Items.Stdlib.Numbers.mun_divide_le (x := x * (4 - x)) (y := (4 : ℝ)) (c := x * (4 - x)) (by parley_side) (by parley_side))
+  have s8 : x * (4 - x) / (x * (4 - x)) ≤ 4 / (x * (4 - x)) := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := x * (4 - x)) (y := (4 : ℝ)) (c := x * (4 - x)) (by parley_side) (by parley_side))
   -- 9. algebra
   have r42_1 : 0 ≠ x * (4 - x) := by parley_side
   have s9 : x * (4 - x) / (x * (4 - x)) = 1 := by parley_ring

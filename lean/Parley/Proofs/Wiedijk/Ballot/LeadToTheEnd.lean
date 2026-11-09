@@ -43,7 +43,7 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
     try push_cast at hK1
     try have hK1_bounds := Finset.mem_Icc.mp hK1
     -- 2.1. axi:excluded-middle P := i = m + n
-    have s2_1 : i = m + n ∨ i ≠ m + n := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := i = m + n))
+    have s2_1 : i = m + n ∨ i ≠ m + n := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := i = m + n))
     -- 2.2. cases, from 2.1
     rcases s2_1 with hC1 | hC2
     · skip
@@ -59,7 +59,7 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       parley_subst_at hC1 s2_2_2
     · skip
       -- 2.2.4. mun:range-bounds a := 1, b := m + n, k := i, from K1
-      have s2_2_4a : 1 ≤ i := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + n) (k := i) hK1)
+      have s2_2_4a : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + n) (k := i) hK1)
       have s2_2_4b : i ≤ m + n := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m + n) (k := i) hK1)
       -- 2.2.5. inequalities, from C2, 2.2.4
       have s2_2_5 : i < m + n := by parley_order

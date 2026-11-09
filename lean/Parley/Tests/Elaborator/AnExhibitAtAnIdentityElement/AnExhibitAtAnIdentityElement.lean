@@ -19,8 +19,8 @@ namespace Parley.Tests.Elaborator.AnExhibitAtAnIdentityElement.AnExhibitAtAnIden
 theorem an_exhibit_at_an_identity_element (b : ℂ) (T : ℂ) (x : ℂ) (hH4 : x = b + T) :
     (∃ r ∈ ({(1 : ℤ), (2 : ℤ), (3 : ℤ)} : Set ℤ), x = b + (r : ℂ) * T) := by
   -- 1. mun:triple-members
-  have s1 : (1 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ), (3 : ℤ)} : Set ℤ) := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (1 : ℤ)) (v := (2 : ℤ)) (w := (3 : ℤ)))
+  have s1 : (1 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ), (3 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (1 : ℤ)) (v := (2 : ℤ)) (w := (3 : ℤ)))
   -- 2. exhibit, from H4, 1
-  exact ⟨(1 : ℤ), by parley_set_side, by parley_set_side⟩
+  exact ⟨(1 : ℤ), s1, by parley_set_side⟩
 
 end Parley.Tests.Elaborator.AnExhibitAtAnIdentityElement.AnExhibitAtAnIdentityElement

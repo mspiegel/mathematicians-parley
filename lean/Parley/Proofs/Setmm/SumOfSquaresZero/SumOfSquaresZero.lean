@@ -35,9 +35,9 @@ theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
   · skip
     intro hD2
     -- 2. mun:square-nonneg x := A
-    have s2 : A ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A))
+    have s2 : A ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A))
     -- 3. mun:square-nonneg x := B
-    have s3 : B ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := B))
+    have s3 : B ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := B))
     -- 4. inequalities
     have s4 : A ^ 2 + B ^ 2 ≤ 0 := by parley_order
     -- 5. inequalities

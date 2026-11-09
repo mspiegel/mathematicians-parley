@@ -31,19 +31,19 @@ theorem multiples_of_six :
   have s1 : ∀ t ∈ (fun n : ℤ => 6 * n) '' (Set.univ : Set ℤ), t ∈ (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := by
     intro t hK1
     -- 1.1. obtain m: def:set-image u := t, from K1
-    obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 6 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp (by parley_set_side)
+    obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 6 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp hK1
     -- 1.2. algebra, from 1.1
     have s1_2 : t = 2 * (3 * m) := by linear_combination (norm := parley_norm) s1_1
     -- 1.3. exhibit, from 1.2
     have s1_3 : ∃ n : ℤ, t = 2 * n := ⟨3 * m, s1_2⟩
     -- 1.4. def:set-image u := t, from 1.3
-    have s1_4 : t ∈ (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 2 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 2 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+    have s1_4 : t ∈ (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 2 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side)
     -- 1.5. algebra, from 1.1
     have s1_5 : t = 3 * (2 * m) := by linear_combination (norm := parley_norm) s1_1
     -- 1.6. exhibit, from 1.5
     have s1_6 : ∃ n : ℤ, t = 3 * n := ⟨2 * m, s1_5⟩
     -- 1.7. def:set-image u := t, from 1.6
-    have s1_7 : t ∈ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+    have s1_7 : t ∈ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side)
     -- 1.8. def:intersection u := t, from 1.4, 1.7
     exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side)
   -- 2. def:subset, from 1
@@ -56,9 +56,9 @@ theorem multiples_of_six :
     -- 3.2. def:intersection u := t, from K2
     have s3_2 : t ∈ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := (((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ)) (Z := (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (u := t))).mp hK2).2
     -- 3.3. obtain a: def:set-image u := t, from 3.1
-    obtain ⟨a, _, s3_3⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 2 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp (by parley_set_side)
+    obtain ⟨a, _, s3_3⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 2 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp s3_1
     -- 3.4. obtain b: def:set-image u := t, from 3.2
-    obtain ⟨b, _, s3_4⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp (by parley_set_side)
+    obtain ⟨b, _, s3_4⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp s3_2
     -- 3.5. algebra
     have s3_5 : t = 3 * t - 2 * t := by parley_ring
     -- 3.6. substitute
@@ -78,7 +78,7 @@ theorem multiples_of_six :
     -- 3.9. exhibit, from 3.8
     have s3_9 : ∃ n : ℤ, t = 6 * n := ⟨a - b, s3_8⟩
     -- 3.10. def:set-image u := t, from 3.9
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 6 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 6 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 6 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side)
   -- 4. def:subset, from 3
   have s4 : (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => 6 * n) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => 6 * n) '' (Set.univ : Set ℤ)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

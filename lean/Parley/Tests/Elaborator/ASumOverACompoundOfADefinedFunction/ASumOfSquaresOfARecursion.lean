@@ -28,7 +28,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ASumOverACompoundOfADefinedFunction.ASumOfSquaresOfARecursion
 
-theorem a_sum_of_squares_of_a_recursion (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) (hH1 : True) :
+theorem a_sum_of_squares_of_a_recursion (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) (hH1 : True) :
     (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (F j ^ 2 : ℤ)) = F 1 ^ 2 := by
   -- 1. mun:sum-single a := 1, from H1
   exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => F j ^ 2)) (a := (1 : ℤ)))

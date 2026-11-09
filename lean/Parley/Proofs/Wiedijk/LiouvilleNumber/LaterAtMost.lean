@@ -59,7 +59,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   -- 2.2. mun:power-real a := 2, m := (n + 1)! + (i − n), from 2.1
   -- 2.3. mun:power-positive a := 2, m := (n + 1)! + (i − n)
   have r318_1 : (2 : ℤ) > 0 := by parley_arith
-  have s2_3 : (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (by parley_side))
+  have s2_3 : (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (by parley_side))
   set g : ℝ := (2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ) with hD1
   have hD1_kind : True := by parley_side
   -- 2.4. instantiate j := i − n in line 1, from 2.1

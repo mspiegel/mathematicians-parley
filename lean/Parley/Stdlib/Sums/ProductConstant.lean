@@ -47,7 +47,7 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
     refine LeanBridges.Sets.subset_induction (by parley_finite) ?_ ?_
     · skip
       -- 1.1. mun:product-empty
-      have s1_1 : (∏ᶠ x ∈ (∅ : Set α), (c : ℝ)) = 1 := (Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : α => c)))
+      have s1_1 : (∏ᶠ x ∈ (∅ : Set α), (c : ℝ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : α => c)))
       -- 1.2. algebra
       have s1_2 : c ^ 0 = 1 := by parley_ring
       -- 1.3. substitute
@@ -65,7 +65,7 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       -- 1.6. mun:finite-part, from H2, K
       have s1_6 : Y.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := Y) hH2 hK)
       -- 1.7. mun:product-add-one, from K, 1.5, 1.6
-      have s1_7 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = (∏ᶠ x ∈ Y, (c : ℝ)) * c := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := (fun x : α => c)) (X := X) (Y := Y) (a := a) (by parley_set_side) s1_6 s1_5.1 s1_5.2)
+      have s1_7 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = (∏ᶠ x ∈ Y, (c : ℝ)) * c := by exact (Parley.Items.Stdlib.Sums.mun_product_add_one (t := (fun x : α => c)) (X := X) (Y := Y) (a := a) (by parley_set_side) s1_6 s1_5.1 s1_5.2)
       -- 1.8. mun:card-nat0 X := Y, from 1.6
       have s1_8 : 0 ≤ (Y.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := Y) s1_6)
       -- 1.9. mun:exponent-step a := c, m := |Y|, from 1.8
@@ -81,6 +81,6 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       exact row1
   -- 2. instantiate Y := X in line 1
   have r124_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  first | linear_combination (norm := parley_norm) (s1 X (by parley_set_side)) | (have h := (s1 X (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 X (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (s1 X (by parley_set_side))) | exact_mod_cast (s1 X (by parley_set_side)) | exact_mod_cast ((s1 X (by parley_set_side))).symm | (have h := (s1 X (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 X (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 X (by parley_set_side)); parley_int_power h) | (have h := (s1 X (by parley_set_side)); parley_set_side)
+  exact (s1 X (by parley_set_side))
 
 end Parley.Stdlib.Sums.ProductConstant

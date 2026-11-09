@@ -75,9 +75,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Hammack/FibonacciSum/FibonacciSum.lean",
         step: "5",
-        holds: "linear_combination",
+        holds: "exact",
         list: false,
-        why: "an instance equation of numbers whose casts push_cast moves, in the claim's type: linear_combination, whose parley_norm checks push_cast; ring1",
+        why: "an instance Lean takes as the claim, its terms one with the claim's in one type (forms::one_term_once_set): exact",
     },
     Site {
         file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
@@ -110,9 +110,16 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Setmm/ConstantFunctionContinuous/ConstantFunctionContinuous.lean",
         step: "1.1.1.1",
+        holds: "exact",
+        list: false,
+        why: "an instance of a for all over a set, ∀ x ∈ U, which the writer reads as a binder: Lean takes it as the claim, exact",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean",
+        step: "2.4",
         holds: "first |",
         list: true,
-        why: "an instance Lean states otherwise than the claim, by no fact a closer rests on: the ways tried in order",
+        why: "an instance whose sum runs to n + (i − n) beside the claim's i, arithmetic inside an atom: the ways tried in order",
     },
 ];
 

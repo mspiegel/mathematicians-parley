@@ -21,7 +21,7 @@ namespace Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality
 theorem triangle_inequality (a : ℝ) (b : ℝ) :
     abs (a + b) ≤ abs a + abs b := by
   -- 1. mun:nonneg-or-neg x := a + b
-  have s1 : a + b ≥ 0 ∨ a + b < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b))
+  have s1 : a + b ≥ 0 ∨ a + b < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b))
   -- 2. thm:abs-bounds x := a
   have s2a : a ≤ abs a := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).1
   have s2b : -a ≤ abs a := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := a)).2

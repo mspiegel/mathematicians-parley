@@ -33,9 +33,9 @@ theorem square_order (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B ≥ 0) :
     -- 3. inequalities
     have s3 : A - B ≥ 0 := by parley_order
     -- 4. mun:product-nonneg x := A − B, y := B, from H4, 3
-    have s4 : (A - B) * B ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side))
+    have s4 : (A - B) * B ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side))
     -- 5. mun:product-nonneg x := A − B, y := A, from H3, 3
-    have s5 : (A - B) * A ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side))
+    have s5 : (A - B) * A ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side))
     -- 6. inequalities
     have s6 : A * B - B * B ≥ 0 := by parley_order
     -- 7. inequalities

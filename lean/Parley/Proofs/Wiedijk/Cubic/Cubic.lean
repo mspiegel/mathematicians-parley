@@ -89,7 +89,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
   have s10 : v * w = y ^ 2 - (T + M / T) * y + T ^ 2 - M + M ^ 2 / T ^ 2 := by
     try simp only [hD1, hD2, hD5, hD6] at *
     try push_cast at *
-    linear_combination (norm := parley_field) (((Real.sqrt (3 : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 * T ^ 4 - T ^ 4 - 4 * M * T * y + 4 * M * T ^ 2 + 4 * M ^ 2) / ((-4 * (Real.sqrt (3 : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 * T ^ 2 + 4 * T ^ 2))) * s4
+    linear_combination (norm := parley_field) (((Real.sqrt (3 : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 * T ^ 4 - T ^ 4 - 4 * M * T * y + 4 * M * T ^ 2 + 4 * M ^ 2) / ((-(4 * (Real.sqrt (3 : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 * T ^ 2) + 4 * T ^ 2))) * s4
   -- 11. calculation
   have s11 : y ^ 3 - 3 * M * y + N = u * (v * w) := by
     calc y ^ 3 - 3 * M * y + N = u * (y ^ 2 - (T + M / T) * y + T ^ 2 - M + M ^ 2 / T ^ 2) := by
@@ -104,7 +104,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
     -- 12.1. calculation
     have s12_1 : u * (v * w) = 0 := by
       calc u * (v * w) = y ^ 3 - 3 * M * y + N := by parley_set_side
-        _ = 0 := by linear_combination (norm := parley_field) (27 * a ^ 2) * hA1 + (-27 * a ^ 2) * s9
+        _ = 0 := by linear_combination (norm := parley_field) (27 * a ^ 2) * hA1 + (-(27 * a ^ 2)) * s9
     -- 12.2. mun:zero-product x := u, y := v·w, from 12.1
     have s12_2 : u = 0 ∨ v * w = 0 := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v * w))).mp s12_1
     -- 12.3. cases, from 12.2
@@ -116,9 +116,9 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         try push_cast at *
         linear_combination (norm := parley_field) ((T) / ((3 * T * a))) * hC1
       -- 12.3.2. mun:triple-members
-      have s12_3_2 : (1 : ℂ) ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (1 : ℂ)) (v := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2))
+      have s12_3_2 : (1 : ℂ) ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by exact (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (1 : ℂ)) (v := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2))
       -- 12.3.3. exhibit, from 12.3.1, 12.3.2
-      exact ⟨(1 : ℂ), by parley_set_side, by parley_set_side⟩
+      exact ⟨(1 : ℂ), s12_3_2, by simpa only [one_mul] using s12_3_1⟩
     · skip
       -- 12.3.4. mun:zero-product x := v, y := w, from C2
       have s12_3_4 : v = 0 ∨ w = 0 := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := v) (y := w))).mp hC2
@@ -133,17 +133,17 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         -- 12.3.5.2. mun:triple-members
         have s12_3_5_2 : (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by first | exact (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)) | exact ((Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)) | (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); parley_set_side)
         -- 12.3.5.3. exhibit, from 12.3.5.1, 12.3.5.2
-        exact ⟨(-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, by parley_set_side, by parley_set_side⟩
+        exact ⟨(-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, s12_3_5_2, s12_3_5_1⟩
       · skip
         -- 12.3.5.4. algebra, from C4, D2, D3, D6, H6, H15, 1, 7
         have s12_3_5_4 : x = -((b + (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by
           try simp only [hD2, hD3, hD6] at *
           try push_cast at *
-          linear_combination (norm := parley_field) ((-4 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T - 4 * T) / ((-6 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T * a - 6 * T * a) * (2))) * hC4
+          linear_combination (norm := parley_field) ((-(4 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T) - 4 * T) / ((-(6 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T * a) - 6 * T * a) * (2))) * hC4
         -- 12.3.5.5. mun:triple-members
         have s12_3_5_5 : (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by first | exact (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)) | exact ((Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)) | (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); parley_set_side)
         -- 12.3.5.6. exhibit, from 12.3.5.4, 12.3.5.5
-        exact ⟨(-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, by parley_set_side, by parley_set_side⟩
+        exact ⟨(-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, s12_3_5_5, s12_3_5_4⟩
   · skip
     intro hA2
     -- 12.4. obtain r from A2

@@ -26,7 +26,7 @@ theorem factorial_of_four :
   -- 1. thm:factorial-of-two
   have s1 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 2 := by exact Parley.Tests.Notations.Counting.FactorialOfTwo.factorial_of_two
   -- 2. def:factorial n := 2
-  have s2 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) * (2 + 1) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side))
+  have s2 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) * (2 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side))
   -- 3. substitute 2! = 2 (line 1) into line 2
   have s3 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = 2 * (2 + 1) := by first | parley_subst_at s1 s2 | (have e_nat : LeanBridges.Counting.factorial (2 : ℤ) = 2 := by exact_mod_cast s1; parley_subst_at e_nat s2)
   -- 4. arithmetic
@@ -38,7 +38,7 @@ theorem factorial_of_four :
     calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by parley_side
       _ = 6 := by norm_num
   -- 7. def:factorial n := 3
-  have s7 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) * (3 + 1) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (3 : ℤ)) (by parley_side))
+  have s7 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) * (3 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (3 : ℤ)) (by parley_side))
   -- 8. substitute 3! = 6 (line 6) into line 7
   have s8 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = 6 * (3 + 1) := by first | parley_subst_at s6 s7 | (have e_nat : LeanBridges.Counting.factorial (3 : ℤ) = 6 := by exact_mod_cast s6; parley_subst_at e_nat s7)
   -- 9. arithmetic

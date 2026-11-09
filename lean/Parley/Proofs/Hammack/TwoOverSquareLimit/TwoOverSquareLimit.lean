@@ -24,6 +24,8 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 
@@ -54,7 +56,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       have s1_3_2 : n ≥ 1 := by parley_order
       -- 1.3.3. mun:multiply-le x := 1, y := n, c := n, from 1.3.2
       have r41_1 : n > 0 := by parley_side
-      have s1_3_3 : n * 1 ≤ n * n := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
+      have s1_3_3 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
       -- 1.3.4. algebra
       have s1_3_4 : n * n = n ^ 2 := by parley_ring
       -- 1.3.5. transitivity, from 1.3.3, 1.3.4
@@ -80,7 +82,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.13. transitivity, from 1.3.12, 1.3.9, 1.3.10, 1.3.11
       have s1_3_13 : a n - 5 < ε := by parley_order
       -- 1.3.14. mun:reciprocal-positive x := n², from 1.3.6
-      have s1_3_14 : 1 / (n : ℚ) ^ 2 > 0 := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) ^ 2) (by parley_side))
+      have s1_3_14 : 1 / (n : ℚ) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) ^ 2) (by parley_side))
       -- 1.3.15. inequalities
       have s1_3_15 : 2 * (1 / (n : ℚ) ^ 2) > 0 := by parley_order
       -- 1.3.16. transitivity, from 1.3.15, 1.3.12

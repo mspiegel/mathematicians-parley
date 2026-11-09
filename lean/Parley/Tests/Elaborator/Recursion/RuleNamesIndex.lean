@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Tests.Elaborator.Recursion.RuleNamesIndex
 
-theorem rule_names_index (s : ℤ → ℤ) (hD1 : s 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → s (k + 1) = s k + k) :
+theorem rule_names_index (s : ℤ → ℤ) (hD1 : s 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → s (k + 1) = s k + k)) :
     (s 0 = 0 ∧ s (1 + 1) = s 1 + 1) := by
   -- 1. D1
   have s1 : s 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith

@@ -10,13 +10,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Insert
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
-public import Mathlib.Tactic.Tauto
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sets
 
@@ -29,7 +27,7 @@ namespace Parley.Tests.Notations.Sets.ARepeatCountsOnce
 theorem a_repeat_counts_once :
     (({(1 : ℤ), (2 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by
   -- 1. mun:listed-repeat a := 1, b := 2
-  have s1 : ({(1 : ℤ), (2 : ℤ), (2 : ℤ)} : Set ℤ) = ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by first | exact (Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ))) | exact ((Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ))) | (have h := (Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ))); ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto) | (have h := (Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ))); parley_set_side)
+  have s1 : ({(1 : ℤ), (2 : ℤ), (2 : ℤ)} : Set ℤ) = ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_listed_repeat (a := (1 : ℤ)) (b := (2 : ℤ)))
   -- 2. arithmetic
   have s2 : (1 : ℤ) ≠ 2 := by parley_arith
   -- 3. mun:card-pair-distinct u := 1, w := 2, from 2

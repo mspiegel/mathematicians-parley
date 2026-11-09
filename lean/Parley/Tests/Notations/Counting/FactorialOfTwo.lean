@@ -24,7 +24,7 @@ theorem factorial_of_two :
   -- 1. def:factorial
   have s1 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
   -- 2. def:factorial n := 1
-  have s2 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by parley_side))
+  have s2 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by parley_side))
   -- 3. substitute 1! = 1 (line 1) into line 2
   have s3 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = 1 * (1 + 1) := by first | parley_subst_at s1 s2 | (have e_nat : LeanBridges.Counting.factorial (1 : ℤ) = 1 := by exact_mod_cast s1; parley_subst_at e_nat s2)
   -- 4. arithmetic

@@ -43,7 +43,7 @@ theorem add_element_disjoint {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈ 
     have s1_3 : ¬ a ∈ T ∪ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_not_in_subset (Y := T ∪ ({a} : Set α)) (Z := Y) (a := a) hH2 s1_2)
     exact s1_3 s1_1
   -- 2. mun:added-elements-are-new Y := V, from 1
-  have s2 : ∀ u ∈ (fun T : Set α => T ∪ ({a} : Set α)) '' V, ¬ u ∈ U := by first | exact (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := V) (Z := U) (a := a) s1) | exact ((Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := V) (Z := U) (a := a) s1)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := V) (Z := U) (a := a) s1) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := V) (Z := U) (a := a) s1) | (have h := (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := V) (Z := U) (a := a) s1); parley_set_side)
+  have s2 : ∀ u ∈ (fun T : Set α => T ∪ ({a} : Set α)) '' V, ¬ u ∈ U := by exact (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := V) (Z := U) (a := a) s1)
   -- 3. mun:disjoint-empty, from D1, D2, 2
   try simp only [hD1, hD2] at *
   try push_cast at *

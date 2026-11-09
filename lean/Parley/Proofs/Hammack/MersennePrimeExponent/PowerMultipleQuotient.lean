@@ -63,7 +63,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       have s1_9 : (2 ^ d.toNat : ℤ) ≥ 1 := by parley_order
       -- 1.10. mun:multiply-le x := 1, y := 2^d, c := q, from 1.9
       have r134_1 : q > 0 := by parley_order
-      have s1_10 : q * 1 ≤ q * 2 ^ d.toNat := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side))
+      have s1_10 : q * 1 ≤ q * 2 ^ d.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) (by parley_side) (by parley_side))
       -- 1.11. algebra
       have s1_11 : q * 2 ^ d.toNat = 2 ^ d.toNat * q := by parley_ring
       -- 1.12. inequalities

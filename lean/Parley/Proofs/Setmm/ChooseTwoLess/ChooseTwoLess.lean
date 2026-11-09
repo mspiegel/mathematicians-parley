@@ -60,7 +60,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
       -- 2.3.4. algebra
       have s2_3_4 : N + 1 - (N - 1) = 2 := by parley_ring
       -- 2.3.5. def:factorial n := 1
-      have s2_3_5 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by parley_side))
+      have s2_3_5 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by parley_side))
       -- 2.3.6. substitute 1 + 1 = 2 (arithmetic) into line 2.3.5
       have s2_3_6 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * 2 := by parley_subst_at (show (1 + 1 : ℤ) = 2 by parley_side) s2_3_5
       -- 2.3.7. substitute

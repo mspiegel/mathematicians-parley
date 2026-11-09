@@ -26,6 +26,8 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
@@ -58,7 +60,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       have s1_3_2 : n * 2 ^ n.toNat ≤ 4 * (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Proofs.Hammack.TwoPowerOverFactorial.FactorialBeatsPower.factorial_beats_power (n := n) (by parley_side))
       -- 1.3.3. mun:product-positive x := n, y := n!, from 1.3.1
       have r128_1 : n > 0 := by parley_order
-      have s1_3_3 : n * (LeanBridges.Counting.factorial n : ℤ) > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := n) (y := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (by parley_side))
+      have s1_3_3 : n * (LeanBridges.Counting.factorial n : ℤ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := n) (y := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (by parley_side))
       -- 1.3.4. calculation
       have s1_3_4 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) ≤ 4 / (n : ℚ) := by
         calc 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) = (n : ℚ) * 2 ^ n.toNat / ((n : ℚ) * (LeanBridges.Counting.factorial n : ℚ)) := by parley_ring
@@ -73,10 +75,10 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.7. inequalities
       have s1_3_7 : 4 / (N : ℝ) < ε := by parley_order
       -- 1.3.8. mun:power-nat a := 2, m := n
-      have s1_3_8 : (0 : ℤ) < 2 ^ n.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := n) (by parley_side))
+      have s1_3_8 : (0 : ℤ) < 2 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := n) (by parley_side))
       -- 1.3.9. mun:quotient-positive x := 2^n, y := n!, from 1.3.1
       have r156_1 : (2 ^ n.toNat : ℤ) > 0 := by parley_order
-      have s1_3_9 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 ^ n.toNat : ℚ)) (y := (LeanBridges.Counting.factorial n : ℚ)) (by parley_side) (by parley_side))
+      have s1_3_9 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 ^ n.toNat : ℚ)) (y := (LeanBridges.Counting.factorial n : ℚ)) (by parley_side) (by parley_side))
       -- 1.3.10. transitivity, from 1.3.9, H2
       have s1_3_10 : 0 < a n := by have := (hH2 n (by parley_side)); parley_order
       -- 1.3.11. inequalities

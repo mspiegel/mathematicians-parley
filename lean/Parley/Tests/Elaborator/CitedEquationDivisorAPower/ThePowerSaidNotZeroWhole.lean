@@ -24,7 +24,7 @@ namespace Parley.Tests.Elaborator.CitedEquationDivisorAPower.ThePowerSaidNotZero
 theorem the_power_said_not_zero_whole (t : ℝ) (F : ℝ) (hH3 : t ≠ 0) (hH4 : F = 1 / t ^ 2) :
     F * t ^ 2 = 1 := by
   -- 1. mun:square-positive x := t, from H3
-  have s1 : t ^ 2 > 0 := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := t) (by parley_side))
+  have s1 : t ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := t) (by parley_side))
   -- 2. algebra, from H4
   have r42_1 : t ^ 2 ≠ 0 := by parley_side
   linear_combination (norm := parley_field) (t ^ 2) * hH4

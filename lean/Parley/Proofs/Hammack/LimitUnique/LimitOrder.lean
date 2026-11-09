@@ -18,6 +18,8 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets

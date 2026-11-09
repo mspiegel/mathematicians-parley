@@ -38,7 +38,7 @@ set_option maxHeartbeats 800000 in
 theorem five_consecutive_divisible (n : ℤ) :
     (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
   -- 1. mun:nonneg-or-neg x := n − 1
-  have s1 : n - 1 ≥ 0 ∨ n - 1 < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := n - 1))
+  have s1 : n - 1 ≥ 0 ∨ n - 1 < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := n - 1))
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip
@@ -56,14 +56,14 @@ theorem five_consecutive_divisible (n : ℤ) :
     exact row1
   · skip
     -- 2.6. mun:nonneg-or-neg x := n + 4
-    have s2_6 : n + 4 ≥ 0 ∨ n + 4 < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := n + 4))
+    have s2_6 : n + 4 ≥ 0 ∨ n + 4 < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := n + 4))
     -- 2.7. cases, from 2.6
     rcases s2_6 with hC3 | hC9
     · skip
       -- 2.7.1. inequalities, from C2
       have s2_7_1 : n < 1 := by parley_order
       -- 2.7.2. mun:integer-step m := n, n := 1, from 2.7.1
-      have s2_7_2 : n + 1 ≤ 1 := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) s2_7_1)
+      have s2_7_2 : n + 1 ≤ 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) s2_7_1)
       -- 2.7.3. inequalities, from 2.7.2
       have s2_7_3 : n + 4 ≤ 4 := by parley_order
       -- 2.7.4. def:range-between k := n + 4, a := 0, b := 4, from C3, 2.7.3
@@ -99,7 +99,7 @@ theorem five_consecutive_divisible (n : ℤ) :
         exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := n * (n + 1) * (n + 2) * (n + 3) * (n + 4)))).mpr ⟨(0 : ℤ), s2_7_6_9⟩
     · skip
       -- 2.7.7. mun:integer-step m := n + 4, n := 0, from C9
-      have s2_7_7 : n + 4 + 1 ≤ 0 := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) hC9)
+      have s2_7_7 : n + 4 + 1 ≤ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) hC9)
       -- 2.7.8. inequalities
       have s2_7_8 : 1 ≤ -n - 4 := by parley_order
       -- 2.7.9. inequalities, from 2.7.8
@@ -117,7 +117,7 @@ theorem five_consecutive_divisible (n : ℤ) :
         try push_cast at *
         exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := k - 1) (by parley_side))
       -- 2.7.12. mun:divides-multiple e := 120, a := P, x := −1, from 2.7.11
-      have s2_7_12 : (120 : ℤ) ∣ P * -1 := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11)
+      have s2_7_12 : (120 : ℤ) ∣ P * -1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11)
       -- 2.7.13. algebra, from D1, D2
       have s2_7_13 : P * -1 = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
         try simp only [hD1, hD2] at *

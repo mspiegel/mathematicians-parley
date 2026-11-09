@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import SubstTactics
@@ -23,7 +22,6 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Filter.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -31,11 +29,11 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets
@@ -65,7 +63,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   have s5 : p ≠ 0 := by parley_set_side
   -- 6. mun:quotient-positive x := 2, y := p, from 4
   have r44_1 : (2 : ℤ) > 0 := by parley_arith
-  have s6 : 2 / p > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side))
+  have s6 : 2 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side))
   -- 7. obtain m: thm:archimedean-natural x := 2/p, from 5
   obtain ⟨m, s7a, s7b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / p))
   -- 8. inequalities
@@ -117,9 +115,9 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.13. transitivity, from 10.11, 10.12
     have s10_13 : abs t < p := by parley_order
     -- 10.14. instantiate x := t in line 4, from 10.9, 10.10, 10.13
-    have s10_14 : abs (f t - L) < 1 := by first | linarith [(s4b t (by parley_set_side) (by parley_set_side))] | (have h := (s4b t (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b t (by parley_set_side) (by parley_set_side)) | (have h := (s4b t (by parley_set_side) (by parley_set_side)); parley_set_side)
+    have s10_14 : abs (f t - L) < 1 := by exact (s4b t (by parley_set_side) (by parley_set_side))
     -- 10.15. instantiate x := t in H2, from 10.10
-    have s10_15 : f t = 1 / t ^ 2 := by first | linear_combination (norm := parley_norm) (hH2 t (by parley_set_side)) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 t (by parley_set_side)) | exact_mod_cast ((hH2 t (by parley_set_side))).symm | (have h := (hH2 t (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); parley_int_power h) | (have h := (hH2 t (by parley_set_side)); parley_set_side)
+    have s10_15 : f t = 1 / t ^ 2 := by exact (hH2 t (by parley_set_side))
     -- 10.16. algebra, from D1
     have s10_16 : t * (j : ℝ) = 1 := by
       try simp only [hD1] at *

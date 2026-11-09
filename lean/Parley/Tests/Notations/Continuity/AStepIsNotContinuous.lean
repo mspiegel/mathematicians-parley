@@ -20,7 +20,6 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Order.Lattice
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -30,6 +29,8 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -60,7 +61,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have s4_1 : ∀ c ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - c) < δ → abs (f x - f c) < ε)) := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r37_1)).mp hS
   -- 4.2. instantiate c := 1/2, ε := 1/2 in line 4.1, from 1
   have r45_1 : (0 : ℚ) < 1 / 2 := by parley_arith
-  have s4_2 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - 1 / 2) < δ → abs (f x - f (1 / 2)) < 1 / 2) := by first | exact (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side)) | exact ((s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side))).symm | simpa using (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side)) | exact_mod_cast (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side)) | (have h := (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side)); parley_rat_of_real h) | (have h := (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side)); parley_set_side)
+  have s4_2 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - 1 / 2) < δ → abs (f x - f (1 / 2)) < 1 / 2) := by exact (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side))
   -- 4.3. obtain δ from line 4.2
   obtain ⟨δ, ⟨s4_3a, s4_3b⟩⟩ := s4_2
   set m : ℝ := min δ (1 / 2) with hD2
@@ -71,8 +72,8 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have r62_1 : (0 : ℚ) < 1 / 2 := by parley_arith
   have s4_4 : 0 < min δ (1 / 2) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr (by parley_set_side)
   -- 4.5. mun:min-le x := δ, y := 1/2
-  have s4_5a : min δ (1 / 2) ≤ δ := (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := δ) (y := (1 / 2 : ℝ)))
-  have s4_5b : min δ (1 / 2) ≤ 1 / 2 := (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := δ) (y := (1 / 2 : ℝ)))
+  have s4_5a : min δ (1 / 2) ≤ δ := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := δ) (y := (1 / 2 : ℝ)))
+  have s4_5b : min δ (1 / 2) ≤ 1 / 2 := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := δ) (y := (1 / 2 : ℝ)))
   -- 4.6. inequalities
   have s4_6 : 0 < min δ (1 / 2) / 2 := by parley_order
   -- 4.7. inequalities
@@ -94,7 +95,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have r106_2 : x₁ < 1 / 2 + δ := by parley_order
   have s4_13 : abs (x₁ - 1 / 2) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / 2 - m / 2) (c := (1 / 2 : ℝ)) (δ := δ))).mpr (by parley_set_side)
   -- 4.14. instantiate x := x₁ in line 4.3, from 4.11, 4.13
-  have s4_14 : abs (f x₁ - f (1 / 2)) < 1 / 2 := by first | linarith [(s4_3b x₁ (by parley_set_side) (by parley_set_side))] | (have h := (s4_3b x₁ (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4_3b x₁ (by parley_set_side) (by parley_set_side)) | (have h := (s4_3b x₁ (by parley_set_side) (by parley_set_side)); parley_set_side)
+  have s4_14 : abs (f x₁ - f (1 / 2)) < 1 / 2 := by exact (s4_3b x₁ (by parley_set_side) (by parley_set_side))
   -- 4.15. D1, from 4.8, 4.11
   have s4_15 : f x₁ = 0 := by (try simp only [hD1]); first | done | parley_set_side
   -- 4.16. substitute f(x₁) = 0 (line 4.15) into line 4.14

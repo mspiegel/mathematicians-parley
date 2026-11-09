@@ -58,11 +58,11 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
     | base =>
       intro hC1
       -- 1.1. thm:first-terms m := 1, from C1, H3
-      have s1_1 : ∀ k : ℤ, k ∈ Finset.Icc 1 1 → a k ≥ 0 := (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) (by parley_side) (a := a) (by parley_side) (m := (1 : ℤ)) hC1).2
+      have s1_1 : ∀ k : ℤ, k ∈ Finset.Icc 1 1 → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) (by parley_side) (a := a) (by parley_side) (m := (1 : ℤ)) hC1).2
       -- 1.2. mun:product-single a := 1, from 1.1
-      have s1_2 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = a 1 := (Parley.Items.Stdlib.Sums.mun_product_single (t := a) (a := (1 : ℤ)))
+      have s1_2 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = a 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := a) (a := (1 : ℤ)))
       -- 1.3. mun:sum-single a := 1, from 1.1
-      have s1_3 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = a 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := a) (a := (1 : ℤ)))
+      have s1_3 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = a 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := a) (a := (1 : ℤ)))
       -- 1.4. transitivity, from 1.2, 1.3
       have s1_4 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) := by parley_side
       -- 1.5. inequalities
@@ -97,14 +97,14 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
         try push_cast at *
         linear_combination (norm := parley_field) s1_12
       -- 1.14. mun:sum-nonneg a := 1, b := j, from 1.8
-      have s1_14 : (∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) ≥ 0 := (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := j) s1_8)
+      have s1_14 : (∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := j) s1_8)
       -- 1.15. mun:quotient-nonneg, from D2, K1, 1.14
       have s1_15 : A ≥ 0 := by
         try simp only [hD2] at *
         try push_cast at *
         exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := (j : ℝ)) (by parley_side) (by parley_side))
       -- 1.16. mun:sum-nonneg a := 1, b := j + 1, from 1.9
-      have s1_16 : (∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≥ 0 := (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := j + 1) s1_9)
+      have s1_16 : (∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := j + 1) s1_9)
       -- 1.17. mun:quotient-nonneg, from D3, 1.16
       have r146_2 : 0 < j + 1 := by parley_order
       have s1_17 : B ≥ 0 := by
@@ -136,7 +136,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.5. mun:power-positive, from C3
           have s1_19_5 : A ^ j.toNat > 0 := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); parley_side)
           -- 1.19.6. mun:product-positive, from C3, 1.19.5
-          have s1_19_6 : A ^ j.toNat * A > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := A ^ j.toNat) (y := A) (by parley_side) (by parley_side))
+          have s1_19_6 : A ^ j.toNat * A > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := A ^ j.toNat) (y := A) (by parley_side) (by parley_side))
           -- 1.19.7. algebra, from D4
           have r185_1 : 0 ≠ A := by parley_side
           have s1_19_7 : A * r = B := by
@@ -148,7 +148,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.9. mun:exponent-step
           have s1_19_9 : A ^ (j + 1).toNat = A ^ j.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := j) (by parley_side))
           -- 1.19.10. calculation
-          calc A ^ j.toNat * x = A ^ j.toNat * A * (1 + (r - 1) * ((j : ℝ) + 1)) := by linear_combination (norm := parley_norm) (-A ^ j.toNat) * s1_19_8
+          calc A ^ j.toNat * x = A ^ j.toNat * A * (1 + (r - 1) * ((j : ℝ) + 1)) := by linear_combination (norm := parley_norm) (-(A ^ j.toNat)) * s1_19_8
             _ ≤ A ^ j.toNat * A * r ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 + (r - 1) * ((j : ℝ) + 1)) (y := r ^ (j + 1).toNat) (c := A ^ j.toNat * A) (by parley_side) (by parley_side))
             _ = A ^ (j + 1).toNat * r ^ (j + 1).toNat := by parley_subst s1_19_9
             _ = (A * r) ^ (j + 1).toNat := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)).symm
@@ -163,7 +163,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
             have s1_19_12_w : (0 ^ j.toNat : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_19_12; push_cast at h; linear_combination (norm := parley_norm) h
             linear_combination (norm := parley_norm) s1_19_11 + (x) * s1_19_12_w
           -- 1.19.14. mun:power-nonneg, from 1.17
-          have s1_19_14 : B ^ (j + 1).toNat ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := B) (m := j + 1) (by parley_side) (by parley_side))
+          have s1_19_14 : B ^ (j + 1).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := B) (m := j + 1) (by parley_side) (by parley_side))
           -- 1.19.15. transitivity, from 1.19.13, 1.19.14
           parley_order
       -- 1.20. calculation

@@ -26,9 +26,9 @@ namespace Parley.Proofs.Identities.SqrtOfSquare.SqrtOfSquare
 theorem sqrt_of_square (x : ℝ) :
     Real.sqrt (x ^ 2) = abs x := by
   -- 1. mun:square-nonneg
-  have s1 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
+  have s1 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 2. def:sqrt x := x², from 1
-  have s2a : Real.sqrt (x ^ 2) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x ^ 2) s1)
+  have s2a : Real.sqrt (x ^ 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x ^ 2) s1)
   have s2b : Real.sqrt (x ^ 2) ^ 2 = x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x ^ 2) s1)
   -- 3. mun:abs-nonneg
   have s3 : abs x ≥ 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ)))

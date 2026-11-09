@@ -27,8 +27,8 @@ theorem a_square_root_by_algebra (a : ℝ) :
     Real.sqrt (2 : ℝ) * Real.sqrt (2 : ℝ) * a = 2 * a := by
   -- 1. def:sqrt x := 2
   have r11_1 : (2 : ℤ) ≥ 0 := by parley_arith
-  have s1a : Real.sqrt (2 : ℝ) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side))
-  have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))
+  have s1a : Real.sqrt (2 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side))
+  have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))
   -- 2. algebra, from 1
   linear_combination (norm := parley_norm) (a) * s1b
 

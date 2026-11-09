@@ -1,7 +1,5 @@
 module
 
-public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -15,14 +13,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Tests.Notations.Sums.AProductScaled
 
@@ -35,6 +30,6 @@ namespace Parley.Tests.Notations.Sums.AProductScaledCited
 theorem a_product_scaled_cited (Y : Set ℤ) (hH1 : Y ⊆ (Set.univ : Set ℤ)) (hH2 : Y.Finite) :
     (∏ᶠ k ∈ Y, (k * 3 : ℤ)) = 3 ^ Y.ncard * (∏ᶠ k ∈ Y, (k : ℤ)) := by
   -- 1. thm:a-product-scaled X := Y, from H1, H2
-  first | linear_combination (norm := parley_norm) (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2) | (have h := (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2)) | exact_mod_cast (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2) | exact_mod_cast ((Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2)).symm | (have h := (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2); parley_int_power h) | (have h := (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2); parley_set_side)
+  exact (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2)
 
 end Parley.Tests.Notations.Sums.AProductScaledCited

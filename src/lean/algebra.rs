@@ -14,9 +14,7 @@ use indexmap::IndexMap;
 use num_traits::{One, Signed};
 
 use super::doc::bridges::BridgeTactic;
-use super::doc::{
-    Arg, LeanType, Location, Op, Piece, Proof, Tactic, TacticArg, TermKind,
-};
+use super::doc::{Arg, LeanType, Location, Op, Proof, Tactic, TacticArg, TermKind};
 use super::expr::{Printed, Writer};
 use super::tactics as t;
 use super::templates::Num;
@@ -408,11 +406,7 @@ fn poly_term(
             .unwrap_or_else(|| Printed::numeral("1", ty.clone()));
         out = Some(match (out, negative) {
             (None, false) => body,
-            (None, true) => Printed::notation(
-                vec![Piece::text("-"), Piece::term(body, 0)],
-                75,
-                ty.clone(),
-            ),
+            (None, true) => Printed::of(TermKind::Neg(Box::new(body)), ty.clone()),
             (Some(sum), false) => Printed::infix(Op::PLUS, sum, body, ty.clone()),
             (Some(sum), true) => Printed::infix(Op::MINUS, sum, body, ty.clone()),
         });

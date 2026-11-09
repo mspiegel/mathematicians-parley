@@ -17,7 +17,7 @@ namespace Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween
 theorem four_times_between (j : ℤ) (r : ℤ) (hH3 : r > 0) (hH4 : r < 4) :
     4 * j ≠ r := by
   -- 1. mun:nonneg-or-neg x := j − 1
-  have s1 : j - 1 ≥ 0 ∨ j - 1 < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1))
+  have s1 : j - 1 ≥ 0 ∨ j - 1 < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1))
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip
@@ -31,7 +31,7 @@ theorem four_times_between (j : ℤ) (r : ℤ) (hH3 : r > 0) (hH4 : r < 4) :
     -- 2.4. inequalities, from C2
     have s2_4 : j < 1 := by parley_order
     -- 2.5. mun:integer-step m := j, n := 1, from 2.4
-    have s2_5 : j + 1 ≤ 1 := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) s2_4)
+    have s2_5 : j + 1 ≤ 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) s2_4)
     -- 2.6. inequalities
     have s2_6 : 4 * j ≤ 0 := by parley_order
     -- 2.7. transitivity, from 2.6, H3

@@ -34,9 +34,9 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 2. inequalities
   have s2 : b ≥ 0 := by parley_order
   -- 3. mun:product-nonneg x := a, y := b, from 1, 2
-  have s3 : a * b ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side))
+  have s3 : a * b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side))
   -- 4. def:sqrt x := a·b, from 3
-  have s4a : Real.sqrt (a * b) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a * b) s3)
+  have s4a : Real.sqrt (a * b) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a * b) s3)
   have s4b : Real.sqrt (a * b) ^ 2 = a * b := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := a * b) s3)
   -- 5. contradiction
   by_contra hS
@@ -58,7 +58,7 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5.7. algebra
   have s5_7 : (a - b) ^ 2 = (a + b) ^ 2 - 4 * (a * b) := by parley_ring
   -- 5.8. mun:square-nonneg x := a − b
-  have s5_8 : (a - b) ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b))
+  have s5_8 : (a - b) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b))
   -- 5.9. inequalities
   have s5_9 : (a + b) ^ 2 - 4 * (a * b) < 0 := by parley_order
   -- 5.10. transitivity, from 5.7, 5.9

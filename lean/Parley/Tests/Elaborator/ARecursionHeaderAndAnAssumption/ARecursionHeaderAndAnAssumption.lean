@@ -15,7 +15,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ARecursionHeaderAndAnAssumption.ARecursionHeaderAndAnAssumption
 
-theorem a_recursion_header_and_an_assumption (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) (hH1 : F 1 = 2) :
+theorem a_recursion_header_and_an_assumption (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) (hH1 : F 1 = 2) :
     F 1 + 1 = 3 := by
   -- 1. substitute F(1) = 2 (H1)
   have s1 : F 1 + 1 = 2 + 1 := by parley_subst hH1

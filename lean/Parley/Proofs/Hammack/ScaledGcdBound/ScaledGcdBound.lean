@@ -46,7 +46,7 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
   -- 9. thm:divides-gcd d := c·gcd(a, b), a := c·a, b := c·b, from 7, 8
   have s9 : c * (Int.gcd a b : ℤ) ∣ (Int.gcd (c * a) (c * b) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := c * (Int.gcd a b : ℤ)) (a := c * a) (b := c * b) s7 s8)
   -- 10. mun:nonneg-or-neg x := c
-  have s10 : c ≥ 0 ∨ c < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c))
+  have s10 : c ≥ 0 ∨ c < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := c))
   -- 11. cases, from 10
   rcases s10 with hC1 | hC2
   · skip

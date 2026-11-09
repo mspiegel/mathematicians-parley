@@ -37,7 +37,7 @@ theorem abs_difference_of_abs (A : ℝ) (B : ℝ) :
   -- 5. substitute |B − A| = |A − B| (line 4) into line 2
   have s5 : abs B - abs A ≤ abs (A - B) := by parley_subst_at s4 s2
   -- 6. mun:nonneg-or-neg x := |A| − |B|
-  have s6 : abs A - abs B ≥ 0 ∨ abs A - abs B < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B))
+  have s6 : abs A - abs B ≥ 0 ∨ abs A - abs B < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B))
   -- 7. cases, from 6
   rcases s6 with hC1 | hC2
   · skip

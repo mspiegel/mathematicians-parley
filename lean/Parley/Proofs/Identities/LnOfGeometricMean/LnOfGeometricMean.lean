@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -19,8 +18,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Logarithms
 public import Parley.Items.Stdlib.Numbers
 
@@ -33,10 +30,10 @@ namespace Parley.Proofs.Identities.LnOfGeometricMean.LnOfGeometricMean
 theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     Real.log (Real.sqrt (x * y)) = (Real.log x + Real.log y) / 2 := by
   -- 1. mun:product-positive, from H3, H4
-  have s1 : x * y > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side))
+  have s1 : x * y > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side))
   -- 2. def:sqrt x := x·y
   have r21_1 : x * y ≥ 0 := by parley_side
-  have s2a : Real.sqrt (x * y) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x * y) r21_1)
+  have s2a : Real.sqrt (x * y) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x * y) r21_1)
   have s2b : Real.sqrt (x * y) ^ 2 = x * y := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x * y) r21_1)
   -- 3. substitute
   have s3 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by
@@ -44,12 +41,12 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by parley_subst_at c1 s1
     exact row1
   -- 4. mun:factor-positive a := √(x·y), b := √(x·y), from 2, 3
-  have s4 : Real.sqrt (x * y) > 0 := (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) (by parley_side) (by parley_side))
+  have s4 : Real.sqrt (x * y) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) (by parley_side) (by parley_side))
   -- 5. restate 2
   have s5 : Real.sqrt (x * y) ^ 2 = x * y := by parley_side
   -- 6. calculation
   have s6 : 2 * Real.log (Real.sqrt (x * y)) = Real.log x + Real.log y := by
-    calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4) | exact_mod_cast ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4)).symm | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4); parley_int_power h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4); parley_side)
+    calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4).symm
       _ = Real.log (x * y) := by parley_subst s5
       _ = Real.log x + Real.log y := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) hH3 hH4)
   -- 7. algebra, from 6

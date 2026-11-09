@@ -30,7 +30,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   -- 3. inequalities
   have s3 : K - abs C ≥ 0 := by parley_order
   -- 4. mun:product-nonneg x := K − |C|, y := |u|, from 1, 3
-  have s4 : (K - abs C) * abs u ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side))
+  have s4 : (K - abs C) * abs u ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side))
   -- 5. substitute
   have s5 : K * abs u - abs C * abs u ≥ 0 := by
     have c1 : (K - abs C) * abs u = K * abs u - abs C * abs u := by parley_ring

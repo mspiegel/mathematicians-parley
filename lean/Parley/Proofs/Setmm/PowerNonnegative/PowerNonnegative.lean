@@ -63,7 +63,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
         parley_order
       · skip
         -- 1.6.5. mun:multiply-le x := 0, y := a^m, c := a, from C3, IH
-        have s1_6_5 : a * 0 ≤ a * a ^ m.toNat := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m.toNat) (c := a) (by parley_side) (by parley_side))
+        have s1_6_5 : a * 0 ≤ a * a ^ m.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m.toNat) (c := a) (by parley_side) (by parley_side))
         -- 1.6.6. inequalities
         have s1_6_6 : 0 ≤ a ^ m.toNat * a := by parley_order
         -- 1.6.7. transitivity, from 1.6.6, 1.4

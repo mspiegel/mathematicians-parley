@@ -23,7 +23,7 @@ namespace Parley.Proofs.Setmm.SmallFactorials.FactorialFour
 theorem factorial_four :
     (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 24 := by
   -- 1. def:factorial n := 3
-  have s1 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) * (3 + 1) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (3 : ℤ)) (by parley_side))
+  have s1 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) * (3 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (3 : ℤ)) (by parley_side))
   -- 2. substitute
   have s2 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = 6 * (3 + 1) := by
     have c1 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 6 := by exact Parley.Proofs.Setmm.SmallFactorials.FactorialThree.factorial_three

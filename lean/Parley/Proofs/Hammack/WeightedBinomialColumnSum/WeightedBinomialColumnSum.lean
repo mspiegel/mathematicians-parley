@@ -58,7 +58,7 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
     | succ j hK hIH =>
       -- 1.5. mun:sum-extended a := 0, n := j
       have r35_1 : j ≥ 0 := by parley_side
-      have s1_5 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) j, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) + (j + 1) * (LeanBridges.Counting.choose (m + (j + 1)) m : ℤ) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ)) (n := j) r35_1)
+      have s1_5 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) j, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) + (j + 1) * (LeanBridges.Counting.choose (m + (j + 1)) m : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ)) (n := j) r35_1)
       -- 1.6. substitute
       have s1_6 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) j, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) + (j + 1) * (LeanBridges.Counting.choose (m + j + 1) m : ℤ) := by
         have c1 : m + (j + 1) = m + j + 1 := by parley_ring

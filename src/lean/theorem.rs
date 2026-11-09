@@ -250,7 +250,7 @@ impl Proved {
 /// `0 < j → P` and then P, and an "if", `A → B` to B. None where the goal
 /// has fewer binders.
 fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
-    use super::doc::{LeanType, Op, Piece, TermKind};
+    use super::doc::{LeanType, Op, TermKind};
     let mut goal = goal.clone();
     let mut left = names;
     while left > 0 {
@@ -267,18 +267,6 @@ fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
                 ..
             } => Printed::infix(Op::of("→")?, *guard, *body, LeanType::Prop),
             TermKind::Quantified { body, .. } => *body,
-            // `∀ X ∈ S, P`, Lean's bounded "for all": its letter and its
-            // membership are taken together.
-            TermKind::Notation { pieces, .. }
-                if left > 0
-                    && matches!(pieces.first(), Some(Piece::Text(t)) if t.starts_with("∀ ") && t.ends_with(" ∈ ")) =>
-            {
-                left -= 1;
-                match pieces.last() {
-                    Some(Piece::Term { term, .. }) => (**term).clone(),
-                    _ => return None,
-                }
-            }
             _ => return None,
         };
     }
@@ -586,42 +574,14 @@ fn identity_lemma(d: &crate::matching::Dropped) -> Option<&'static str> {
 }
 
 /// The two sides of an "and", as Lean writes it: `a ∧ b`, bracketed or
-/// not, or several sentences joined by ` ∧ `, the first and the rest.
+/// not; of several sentences, which group to the right, the first and the
+/// rest.
 fn and_sides(term: &Printed) -> Option<(Printed, Printed)> {
-    use super::doc::{Op, Piece, TermKind};
+    use super::doc::{Op, TermKind};
     match &term.kind {
         TermKind::Paren(inner) => and_sides(inner),
         TermKind::Infix { op, lhs, rhs } if *op == Op::AND => {
             Some(((**lhs).clone(), (**rhs).clone()))
-        }
-        TermKind::Notation { pieces, prec } => {
-            let joined = pieces
-                .iter()
-                .skip(1)
-                .step_by(2)
-                .all(|p| matches!(p, Piece::Text(t) if t == " ∧ "));
-            let terms: Vec<Printed> = pieces
-                .iter()
-                .step_by(2)
-                .filter_map(|p| match p {
-                    Piece::Term { term, .. } => Some((**term).clone()),
-                    Piece::Text(_) => None,
-                })
-                .collect();
-            if !joined || terms.len() < 2 || terms.len() * 2 - 1 != pieces.len() {
-                return None;
-            }
-            let rest = match terms.len() {
-                2 => terms[1].clone(),
-                _ => Printed {
-                    kind: TermKind::Notation {
-                        pieces: pieces[2..].to_vec(),
-                        prec: *prec,
-                    },
-                    ty: term.ty.clone(),
-                },
-            };
-            Some((terms[0].clone(), rest))
         }
         _ => None,
     }
@@ -780,7 +740,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
             binders: stated.binders.clone(),
             says: c.says,
             prop: c.prop,
-            part: projection(i, n),
+            part: projection_path(i, n),
             arithmetic: arithmetic.clone(),
             general: None,
             domains: writer.domains.clone(),
@@ -834,7 +794,7 @@ fn leaf_path(node: &Node, i: usize) -> Option<Vec<&'static str>> {
 /// A recursion's rules as one hypothesis: its starts, then for every k
 /// from 0 its steps, `F 0 = a ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = b`.
 fn rules_said(k: &str, starts: Vec<Printed>, steps: Vec<Printed>) -> Printed {
-    use super::doc::{LeanType, Op, Piece};
+    use super::doc::{LeanType, Op};
     let int = LeanType::Num(super::templates::Num::Int);
     let from_0 = Printed::infix(
         Op::AT_MOST,
@@ -849,21 +809,15 @@ fn rules_said(k: &str, starts: Vec<Printed>, steps: Vec<Printed>) -> Printed {
             letter_ty: int,
             guard: Some(Box::new(from_0)),
             body: Box::new(conjunction(steps).unwrap_or_else(Printed::truth)),
+            bounded: false,
         },
         LeanType::Prop,
     );
-    let Some(starts) = conjunction(starts) else {
-        return every;
-    };
-    Printed::notation(
-        vec![
-            Piece::term(starts, 0),
-            Piece::text(" ∧ "),
-            Piece::term(every, 0),
-        ],
-        0,
-        LeanType::Prop,
-    )
+    // One chain to the right, the starts and then the steps' "for all",
+    // `F 0 = a ∧ G 0 = b ∧ ∀ k : ℤ, …`, whose projections take each.
+    let mut parts = starts;
+    parts.push(every);
+    conjunction(parts).unwrap_or_else(Printed::truth)
 }
 
 /// The parts joined by `∧`, which chains to the right; None of no parts.
@@ -885,6 +839,7 @@ fn lambda(letter: &str, ty: super::doc::LeanType, body: Printed) -> Printed {
             letter_ty: ty.clone(),
             guard: None,
             body: Box::new(body),
+            bounded: false,
         },
         LeanType::Fun {
             from: Box::new(ty),
@@ -1384,7 +1339,7 @@ fn header_function(
     );
     let guard = match whole_type {
         true => Route::Built(None),
-        false => writer.formula(&member).map(|p| Some(p.text())),
+        false => writer.formula(&member).map(Some),
     };
     // The value is read where x is in the domain: √x of x ∈ {y ∈ ℝ : y >
     // 0} the real square root.
@@ -1447,7 +1402,35 @@ fn header_function(
     }
     let f = super::names::letter(&def.name);
     let x = super::names::letter(&param.name);
-    let guard = guard.map_or(String::new(), |g| format!("{g} → "));
+    // ∀ x : T, guard → f x = value.
+    let takes_ty = takes.letter().lean_type();
+    let applied = Printed {
+        kind: super::doc::TermKind::App {
+            head: Box::new(Printed::letter(f.clone(), ty.lean_type())),
+            args: vec![super::doc::Arg::Explicit(Printed::letter(
+                x.clone(),
+                takes_ty.clone(),
+            ))],
+            explicit: false,
+        },
+        ty: value.ty.clone(),
+    };
+    let says = Printed::of(
+        super::doc::TermKind::Quantified {
+            quant: super::doc::Quant::ForAll,
+            letter: x,
+            letter_ty: takes_ty,
+            guard: guard.map(Box::new),
+            body: Box::new(Printed::infix(
+                super::doc::Op::EQUALS,
+                applied,
+                value,
+                super::doc::LeanType::Prop,
+            )),
+            bounded: false,
+        },
+        super::doc::LeanType::Prop,
+    );
     Route::Built(vec![
         Binder::Letter {
             name: f.clone(),
@@ -1457,17 +1440,7 @@ fn header_function(
         },
         Binder::Fact {
             name: line_name(&d.label),
-            says: super::expr::Printed::notation(
-                vec![
-                    super::doc::Piece::text(format!(
-                        "∀ {x} : {}, {guard}{f} {x} = ",
-                        takes.lean()
-                    )),
-                    super::doc::Piece::term(value, 51),
-                ],
-                0,
-                super::doc::LeanType::Prop,
-            ),
+            says,
             line: None,
         },
     ])
@@ -2301,15 +2274,8 @@ pub fn theorem(
 /// The sentences of a statement as one, joined by `∧`, each bracketed
 /// where it binds more loosely: what a theorem of several says.
 fn all_of(props: &[&Printed]) -> Printed {
-    use super::doc::Piece;
-    let mut pieces = Vec::new();
-    for (i, p) in props.iter().enumerate() {
-        if i > 0 {
-            pieces.push(Piece::text(" ∧ "));
-        }
-        pieces.push(Piece::term((*p).clone(), 36));
-    }
-    Printed::notation(pieces, 0, super::doc::LeanType::Prop)
+    let parts = props.iter().map(|p| (*p).clone()).collect();
+    super::expr::joined(super::doc::Op::AND, parts, 36).unwrap_or_else(Printed::truth)
 }
 
 /// What proves a claim: a justification, and what the checker read of the
@@ -3163,7 +3129,7 @@ impl<'a> Proof<'a> {
         i: usize,
         facts: &[super::algebra::Cited],
     ) -> Vec<super::algebra::Cited> {
-        use super::doc::{Piece, Proof};
+        use super::doc::Proof;
         use super::tactics as t;
         use crate::checker::record::ShownBy;
         let ctx = self.sources.ctx;
@@ -3253,17 +3219,7 @@ impl<'a> Proof<'a> {
             let Route::Built(says) = self.writer.formula(&node) else {
                 continue;
             };
-            let proof = Printed::notation(
-                vec![
-                    Piece::text("("),
-                    Piece::term(proved, 0),
-                    Piece::text(" : "),
-                    Piece::term(says, 0),
-                    Piece::text(")"),
-                ],
-                super::expr::MAX,
-                super::doc::LeanType::Prop,
-            );
+            let proof = ascribed(proved, says);
             out.push(super::algebra::Cited { node, proof });
         }
         out
@@ -3643,6 +3599,7 @@ impl<'a> Proof<'a> {
                             value,
                             LeanType::Prop,
                         )),
+                        bounded: false,
                     },
                     LeanType::Prop,
                 );
@@ -4560,32 +4517,94 @@ impl<'a> Proof<'a> {
         let k = super::names::letter(&r.index);
         let v = super::names::letter(&previous);
         let label = line_name(&line.label);
-        use super::doc::Piece;
-        let rules = Printed::notation(
-            vec![
-                Piece::text(format!("∃ {f} : ℤ → {}, {f} 0 = ", to.lean())),
-                Piece::term(start, 51),
-                Piece::text(format!(" ∧ ∀ {k} : ℤ, 0 ≤ {k} → {f} ({k} + 1) = ")),
-                Piece::term(step, 51),
-            ],
-            0,
-            super::doc::LeanType::Prop,
+        // ∃ f : ℤ → T, f 0 = start ∧ ∀ k : ℤ, 0 ≤ k → f (k + 1) = step.
+        use super::doc::{LeanType, Op, Quant, TermKind};
+        let int = LeanType::Num(super::templates::Num::Int);
+        let value = LeanType::Num(to);
+        let function = LeanType::Fun {
+            from: Box::new(int.clone()),
+            to: Box::new(value.clone()),
+        };
+        let k_letter = || Printed::letter(k.clone(), int.clone());
+        let f_at = |at: Printed| {
+            Printed::of(
+                TermKind::App {
+                    head: Box::new(Printed::letter(f.clone(), function.clone())),
+                    args: vec![super::doc::Arg::Explicit(at)],
+                    explicit: false,
+                },
+                value.clone(),
+            )
+        };
+        let equal =
+            |a: Printed, b: Printed| Printed::infix(Op::EQUALS, a, b, LeanType::Prop);
+        let Some(and) = Op::of("∧") else {
+            return Route::no("no ∧ among the writer's operators");
+        };
+        let Some(le) = Op::of("≤") else {
+            return Route::no("no ≤ among the writer's operators");
+        };
+        let Some(plus) = Op::of("+") else {
+            return Route::no("no + among the writer's operators");
+        };
+        let next = Printed::infix(
+            plus,
+            k_letter(),
+            Printed::numeral("1", int.clone()),
+            int.clone(),
         );
-        let exists = Printed::notation(
-            vec![
-                Piece::term(
-                    super::tactics::bridge_lemma(
-                        "LeanBridges.Functions.recursion_exists",
-                        BridgeModule::Functions,
-                    ),
-                    0,
-                ),
-                Piece::text(format!(" _ (fun {k} {v} => ")),
-                Piece::term(by_previous, 0),
-                Piece::text(")"),
-            ],
-            super::expr::APP,
-            super::doc::LeanType::Prop,
+        let every = Printed::of(
+            TermKind::Quantified {
+                quant: Quant::ForAll,
+                letter: k.clone(),
+                letter_ty: int.clone(),
+                guard: Some(Box::new(Printed::infix(
+                    le,
+                    Printed::numeral("0", int.clone()),
+                    k_letter(),
+                    LeanType::Prop,
+                ))),
+                body: Box::new(equal(f_at(next), step)),
+                bounded: false,
+            },
+            LeanType::Prop,
+        );
+        let both = Printed::infix(
+            and,
+            equal(f_at(Printed::numeral("0", int.clone())), start),
+            every,
+            LeanType::Prop,
+        );
+        let rules = Printed::of(
+            TermKind::Quantified {
+                quant: Quant::Exists,
+                letter: f.clone(),
+                letter_ty: function,
+                guard: None,
+                body: Box::new(both),
+                bounded: false,
+            },
+            LeanType::Prop,
+        );
+        let exists = Printed::of(
+            TermKind::App {
+                head: Box::new(super::tactics::bridge_lemma(
+                    "LeanBridges.Functions.recursion_exists",
+                    BridgeModule::Functions,
+                )),
+                args: vec![
+                    super::doc::Arg::Explicit(Printed::of(
+                        TermKind::Elided,
+                        LeanType::Prop,
+                    )),
+                    super::doc::Arg::Explicit(untyped_lambda(
+                        &[k.as_str(), v.as_str()],
+                        by_previous,
+                    )),
+                ],
+                explicit: false,
+            },
+            LeanType::Prop,
         );
         self.push_at(
             depth,
@@ -5750,7 +5769,7 @@ impl<'a> Proof<'a> {
         body: Node,
         depth: usize,
     ) -> Route<()> {
-        use super::doc::{Piece, Proof, Quant, TermKind};
+        use super::doc::{Proof, Quant, TermKind};
         use super::tactics as t;
         let Some(param) = def.params.first() else {
             return Route::no("a kinded function of no argument");
@@ -5770,6 +5789,7 @@ impl<'a> Proof<'a> {
             letter_ty,
             guard,
             body: each,
+            ..
         } = &says.kind
         else {
             return Route::no("a kinded function whose fact Lean states as no for all");
@@ -5813,6 +5833,7 @@ impl<'a> Proof<'a> {
                 letter_ty: letter_ty.clone(),
                 guard: Some(guard.clone()),
                 body: Box::new(equal),
+                bounded: false,
             },
             super::doc::LeanType::Prop,
         );
@@ -5820,15 +5841,13 @@ impl<'a> Proof<'a> {
         // ⟨fun a => if h : a ∈ X then (hD1_kind a h).choose else 0, fun a h
         // => by simp only [h, ↓reduceDIte]; exact (hD1_kind a h).choose_spec⟩.
         let at_member = || applied_to(applied_to(t::hyp(&kind), a()), h());
-        let pick = Printed::notation(
-            vec![
-                Piece::text("if h : "),
-                Piece::term((**guard).clone(), 0),
-                Piece::text(" then "),
-                Piece::term(projected(at_member(), &["choose"]), super::expr::MAX),
-                Piece::text(" else 0"),
-            ],
-            0,
+        let pick = Printed::of(
+            TermKind::DependentIf {
+                proof: "h".to_string(),
+                cond: guard.clone(),
+                yes: Box::new(projected(at_member(), &["choose"])),
+                no: Box::new(Printed::numeral("0", super::doc::LeanType::Num(int))),
+            },
             super::doc::LeanType::Num(int),
         );
         // The function applied is reduced and its `if` taken by h together,
@@ -6092,6 +6111,7 @@ impl<'a> Proof<'a> {
                 letter_ty: LetterType::Number(from).lean_type(),
                 guard: None,
                 body: Box::new(value),
+                bounded: false,
             },
             ty: Some(function.clone()),
         };
@@ -6375,6 +6395,20 @@ impl<'a> Proof<'a> {
         else {
             return Route::no("an instantiate of no line");
         };
+        // The claim as the step's `have` states it (`claimed_all`): a claim
+        // of numerals alone in the type of the lines it is reached from.
+        let stated = self
+            .thm
+            .steps
+            .iter()
+            .find(|s| s.just.line == just.line)
+            .and_then(|step| self.claimed_all(step).built())
+            .and_then(|all| all.into_iter().find(|(_, n, _)| n.same(node)))
+            .map(|(_, _, printed)| printed);
+        let claim = match stated {
+            Some(printed) => Route::Built(printed),
+            None => writer.formula(node),
+        };
         // The sentence, or the part of one, of the line the checker found
         // the instance in (`CheckedTheorem::instantiated`).
         let Some(recorded) = self.rec.instantiated.get(&just.line) else {
@@ -6395,7 +6429,7 @@ impl<'a> Proof<'a> {
         if at_letter && just.values.is_empty() {
             let instance = self.writer.formula(&part.node);
             return Route::Built(
-                self.instance_closed(node, part.proof, instance, recorded),
+                self.instance_closed(node, claim, part.proof, instance, recorded),
             );
         }
         let part = &part;
@@ -6534,13 +6568,15 @@ impl<'a> Proof<'a> {
         };
         Route::Built(self.instance_closed(
             node,
+            claim,
             super::tactics::bracket(applied),
             instance,
             recorded,
         ))
     }
 
-    /// The proof of the claim `node` from `proof`, an instance of a line that
+    /// The proof of the claim `node`, which Lean states as `claim`, from
+    /// `proof`, an instance of a line that
     /// Lean states as `instance`, by how the checker met the instance with
     /// the claim (`Instantiated::meeting`). Where Lean's statements of the
     /// two differ otherwise, the instance, turned where the checker turned
@@ -6553,15 +6589,34 @@ impl<'a> Proof<'a> {
     fn instance_closed(
         &self,
         node: &Node,
+        claim: Route<Printed>,
         proof: Printed,
         instance: Route<Printed>,
         recorded: &crate::checker::record::Instantiated,
     ) -> super::doc::Proof {
         use super::doc::forms;
-        let lean = match (&instance, self.writer.formula(node)) {
+        let lean = match (&instance, claim.clone()) {
             (Route::Built(says), Route::Built(wanted)) => Some((says.clone(), wanted)),
             _ => None,
         };
+        // An instance Lean takes as the claim, once turned where the checker
+        // turned it: a function applied worked out, a bound letter renamed, a
+        // `set` letter read as its value, the types the same
+        // (`forms::one_term_once_set`). `exact` checks just that.
+        if let Some((says, wanted)) = &lean {
+            let turned = recorded.meeting.turned;
+            let facing = match turned {
+                true => forms::turned_statement(says),
+                false => says.clone(),
+            };
+            if forms::one_term_once_set(&facing, wanted, &self.set_values()) {
+                let proof = match turned {
+                    true => super::tactics::symm(super::tactics::bracket(proof)),
+                    false => proof,
+                };
+                return super::doc::Proof::By(Tactic::Exact(proof));
+            }
+        }
         // The field the instance is worked in beyond the claim's, ℝ for a
         // claim in ℚ, the wider of them where it names several.
         let wider_field = lean.as_ref().and_then(|(says, wanted)| {
@@ -6571,7 +6626,7 @@ impl<'a> Proof<'a> {
                 .filter(|n| !claimed.contains(n))
                 .max()
         });
-        let met = match (instance, self.writer.formula(node)) {
+        let met = match (instance, claim) {
             // Lean's statement of the instance is the claim's as Lean
             // writes both, once turned where the checker turned it, or
             // apart only in casts the writer placed; or the checker dropped
@@ -6585,7 +6640,14 @@ impl<'a> Proof<'a> {
                     false => says.clone(),
                 };
                 let values = self.set_values();
-                let lean_alike = forms::written_alike(&lean_says, &wanted)
+                // Alike as written is alike in one type: `1 ≤ 1/2` in ℝ and
+                // in ℚ are written alike and are two statements.
+                let two_types = matches!(
+                    (forms::relation_type(&lean_says), forms::relation_type(&wanted)),
+                    (Some(x), Some(y)) if x != y
+                );
+                let lean_alike = (forms::written_alike(&lean_says, &wanted)
+                    && !two_types)
                     || forms::casts_differ(&lean_says, &wanted, &values).is_some();
                 match lean_alike || !met.identities.is_empty() {
                     true => self.met_proof(proof.clone(), &says, &wanted, met),
@@ -6654,8 +6716,8 @@ impl<'a> Proof<'a> {
         // instance once pushed in and put by the ring's laws,
         // `linear_combination`, whose `parley_norm` checks
         // `push_cast; ring1`; an order with the same casts as the instance
-        // is it over the same atoms, `linarith`; any claim Lean writes as
-        // the instance is it, `exact`. Any other keeps the ways it tries.
+        // is it over the same atoms, `linarith`. Any other keeps the ways it
+        // tries.
         let Some((says, wanted)) = lean else {
             return close(&self.writer, node, proof);
         };
@@ -6667,14 +6729,12 @@ impl<'a> Proof<'a> {
         let pushed = super::casts::push_cast_moves_all_in_sides(&says)
             && super::casts::push_cast_moves_all_in_sides(&wanted);
         let same_casts = cast_texts(&says) == cast_texts(&wanted);
-        let alike = super::doc::forms::written_alike(&says, &wanted);
         let atoms = same_ring_atoms(&says, &wanted, &self.set_values());
         super::doc::Proof::By(match node.notation() {
             EQUALITY if of_numbers && pushed && atoms => t::linear_combination(proof),
             ORDER if same_casts && atoms => {
                 t::call("linarith", vec![t::rules(vec![proof])])
             }
-            _ if alike => Tactic::Exact(proof),
             _ => return close(&self.writer, node, proof),
         })
     }
@@ -8568,17 +8628,7 @@ impl<'a> Proof<'a> {
                 ty: Some(super::doc::LeanType::Prop),
             }
         };
-        let term = match sentence.part.is_empty() {
-            true => head,
-            false => super::expr::Printed::notation(
-                vec![
-                    super::doc::Piece::term(head, 0),
-                    super::doc::Piece::text(sentence.part.clone()),
-                ],
-                super::expr::MAX,
-                super::doc::LeanType::Prop,
-            ),
-        };
+        let term = fields(head, &sentence.part);
         let statement = sentence.prop.substituted(&given);
         let statement = match general {
             Some(at) => statement.with_general(super::doc::LeanType::Num(at)),
@@ -8710,9 +8760,12 @@ impl<'a> Proof<'a> {
         // back and closed by the equation's `symm`.
         let mut turned = false;
         // An item whose statement, its letters given, Lean writes as it
-        // writes the line closes the line by `exact` alone. Two that are
-        // alike but for casts are not enough: an item over any ring given
-        // ℤ writes `n ^ (2 : ℤ)`, which ℤ has no power for.
+        // writes the line, up to what Lean takes as one term (a function
+        // applied worked out, a bound letter renamed, a `set` letter read
+        // as its value, `forms::alike_once_set`), closes the line by
+        // `exact` alone. Two that are alike but for casts are not enough:
+        // an item over any ring given ℤ writes `n ^ (2 : ℤ)`, which ℤ has
+        // no power for, and the comparison keeps casts.
         let mut agrees = false;
         if concluded.way == Way::AsWritten {
             // A row of a calculation is written in the calculation's type
@@ -8758,7 +8811,11 @@ impl<'a> Proof<'a> {
                     && !turned
                     && counted.is_empty()
                     && !claim.is_truth()
-                    && instance.statement.text() == claim.text();
+                    && forms::one_term_once_set(
+                        &instance.statement,
+                        &claim,
+                        &self.set_values(),
+                    );
                 for d in found {
                     self.forms.borrow_mut().push(FormNote {
                         page_line: reason.just.line,
@@ -8849,7 +8906,7 @@ impl<'a> Proof<'a> {
                 let values = self.set_values();
                 let as_claimed = match (&left, &claim_lean) {
                     (Some(left), Some(claim)) => {
-                        super::doc::forms::alike_once_set(left, claim, &values)
+                        super::doc::forms::one_term_once_set(left, claim, &values)
                     }
                     _ => false,
                 };
@@ -9107,6 +9164,7 @@ impl<'a> Proof<'a> {
                     written,
                     LeanType::Prop,
                 )),
+                bounded: false,
             },
             LeanType::Prop,
         );
@@ -9630,7 +9688,7 @@ impl<'a> Proof<'a> {
         spec: Printed,
         term: &Node,
     ) -> Option<Printed> {
-        use super::doc::{LeanType, Piece};
+        use super::doc::LeanType;
         use super::templates::Num;
         let value = self.writer.number_fixed(term, Num::Real).built()?;
         let chosen = line.chosen(Num::Int);
@@ -9644,17 +9702,7 @@ impl<'a> Proof<'a> {
             LeanType::Prop,
         );
         let proof = super::tactics::by_term(cast_carried(spec));
-        Some(Printed::notation(
-            vec![
-                Piece::text("("),
-                Piece::term(proof, 0),
-                Piece::text(" : "),
-                Piece::term(says, 0),
-                Piece::text(")"),
-            ],
-            super::expr::MAX,
-            LeanType::Prop,
-        ))
+        Some(ascribed(proof, says))
     }
 
     /// A step that owns a block: its claim proved by the block's steps,
@@ -9691,17 +9739,12 @@ impl<'a> Proof<'a> {
         let (whole, prop) = match claim {
             [(_, prop)] => (names[0].clone(), prop.clone()),
             _ => {
-                let mut pieces = Vec::new();
-                for (i, (_, p)) in claim.iter().enumerate() {
-                    if i > 0 {
-                        pieces.push(super::doc::Piece::text(" ∧ "));
-                    }
-                    pieces.push(super::doc::Piece::term(p.clone(), 36));
-                }
-                (
-                    format!("{}_all", names[0]),
-                    Printed::notation(pieces, 35, super::doc::LeanType::Prop),
-                )
+                let parts = claim.iter().map(|(_, p)| p.clone()).collect();
+                let Some(all) = super::expr::joined(super::doc::Op::AND, parts, 36)
+                else {
+                    return Route::no("a claim of no sentences");
+                };
+                (format!("{}_all", names[0]), all)
             }
         };
         let Some(block_at) = self.rec.blocks.iter().position(|b| b.owner == i) else {
@@ -10591,7 +10634,7 @@ impl<'a> Proof<'a> {
         depth: usize,
     ) -> Route<()> {
         use super::doc::forms::{self, Meets};
-        use super::doc::{LeanType, Piece};
+        use super::doc::LeanType;
         let Some(supposition) = self.rec.supposed.get(&line) else {
             return Route::no("a supposition the checker relates to no claim");
         };
@@ -10639,18 +10682,8 @@ impl<'a> Proof<'a> {
                 );
             }
             Some(Meets::Unfolded) => {
-                let ascribed = Printed::notation(
-                    vec![
-                        Piece::text("("),
-                        Piece::term(super::tactics::hyp(label), 0),
-                        Piece::text(" : "),
-                        Piece::term(says, 0),
-                        Piece::text(")"),
-                    ],
-                    super::expr::MAX,
-                    LeanType::Prop,
-                );
-                self.push_at(depth, opening(ascribed), line, spot.clone());
+                let given = ascribed(super::tactics::hyp(label), says);
+                self.push_at(depth, opening(given), line, spot.clone());
             }
             Some(Meets::Turned { negated }) => {
                 let given_name = format!("h_{label}");
@@ -10929,15 +10962,12 @@ fn or_pattern(
 
 /// The cases as one "or", each bracketed: `(a) ∨ (b) ∨ (c)`.
 fn cases_said(cases: Vec<Printed>) -> Printed {
-    use super::doc::Piece;
-    let mut pieces = Vec::new();
-    for (i, case) in cases.into_iter().enumerate() {
-        if i > 0 {
-            pieces.push(Piece::text(" ∨ "));
-        }
-        pieces.push(Piece::term(super::tactics::bracket(case), 0));
+    let bracketed = cases.into_iter().map(super::tactics::bracket).collect();
+    match super::doc::Op::of("∨").and_then(|or| super::expr::joined(or, bracketed, 0))
+    {
+        Some(all) => all,
+        None => Printed::truth(),
     }
-    Printed::notation(pieces, 30, super::doc::LeanType::Prop)
 }
 
 /// The cases named in turn, read from the right: `a | b | c`.
@@ -11415,10 +11445,15 @@ fn finite_by_making(set: &Node) -> Option<Printed> {
             super::doc::LeanType::Prop,
         )
     };
-    let first_part = Printed::notation(
-        vec![super::doc::Piece::text("fun _ h => h.1")],
-        0,
-        super::doc::LeanType::Prop,
+    let first_part = untyped_lambda(
+        &["_", "h"],
+        Printed {
+            kind: super::doc::TermKind::Field {
+                inner: Box::new(super::tactics::hyp("h")),
+                field: "1".to_string(),
+            },
+            ty: Some(super::doc::LeanType::Prop),
+        },
     );
     let part_of = |whole: Printed| {
         applied_to(
@@ -11557,15 +11592,22 @@ fn things_of_type(ty: &super::doc::LeanType) -> Vec<usize> {
 
 /// `show s by t`: a term saying s, proved by t.
 fn shown(says: Printed, proof: super::doc::Proof) -> Printed {
-    use super::doc::Piece;
-    Printed::notation(
-        vec![
-            Piece::text("show "),
-            Piece::term(says, 0),
-            Piece::text(" "),
-            Piece::term(super::tactics::by_term(proof), 0),
-        ],
-        0,
+    Printed::of(
+        super::doc::TermKind::Show {
+            says: Box::new(says),
+            proof: Box::new(super::tactics::by_term(proof)),
+        },
+        super::doc::LeanType::Prop,
+    )
+}
+
+/// `(proof : says)`: a proof given the statement it is taken as.
+fn ascribed(proof: Printed, says: Printed) -> Printed {
+    Printed::of(
+        super::doc::TermKind::Ascribed {
+            proof: Box::new(proof),
+            says: Box::new(says),
+        },
         super::doc::LeanType::Prop,
     )
 }
@@ -11826,12 +11868,11 @@ fn cast_carried(equation: Printed) -> super::doc::Proof {
 /// from where it stands, as the proof part of `⟨…⟩` takes them.
 fn untyped_lambda(letters: &[&str], body: Printed) -> Printed {
     let ty = body.ty.clone().unwrap_or(super::doc::LeanType::Prop);
-    Printed::notation(
-        vec![
-            super::doc::Piece::text(format!("fun {} => ", letters.join(" "))),
-            super::doc::Piece::term(body, 0),
-        ],
-        0,
+    Printed::of(
+        super::doc::TermKind::Lambda {
+            letters: letters.iter().map(|l| l.to_string()).collect(),
+            body: Box::new(body),
+        },
         ty,
     )
 }

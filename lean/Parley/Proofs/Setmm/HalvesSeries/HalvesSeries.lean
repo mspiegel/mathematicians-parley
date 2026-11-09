@@ -44,6 +44,8 @@ public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -74,11 +76,11 @@ theorem halves_series :
     | succ m hK2 hIH =>
       -- 2.2. mun:sum-extended a := 1, n := m, from 1
       have r73_1 : m ≥ 1 := by parley_order
-      have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) m, (1 / 2 ^ k.toNat : ℚ)) + 1 / 2 ^ (m + 1).toNat := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => (1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ)) (n := m) r73_1)
+      have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) m, (1 / 2 ^ k.toNat : ℚ)) + 1 / 2 ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => (1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ)) (n := m) r73_1)
       -- 2.3. substitute Σ(k = 1 to m) 1/2^k = 1 − 1/2^m (IH) into line 2.2
       have s2_3 : (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ m.toNat + 1 / 2 ^ (m + 1).toNat := by parley_subst_at hIH s2_2
       -- 2.4. mun:exponent-step a := 2
-      have s2_4 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (by parley_side))
+      have s2_4 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (by parley_side))
       -- 2.5. substitute 2^(m + 1) = 2^m·2 (line 2.4)
       have s2_5 : (1 / 2 ^ (m + 1).toNat : ℚ) = 1 / (2 ^ m.toNat * 2) := by
         have s2_4_w : (2 ^ (m + 1).toNat : ℚ) = 2 ^ m.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
@@ -99,7 +101,7 @@ theorem halves_series :
       intro n hK4
       intro hA2
       -- 3.2.1. mun:power-nat a := 2, m := n
-      have s3_2_1 : (0 : ℤ) < 2 ^ n.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := n) (by parley_side))
+      have s3_2_1 : (0 : ℤ) < 2 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := n) (by parley_side))
       -- 3.2.2. thm:power-of-two-above
       have s3_2_2 : n ≤ 2 ^ n.toNat := by exact (Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove.power_of_two_above (n := n) (by parley_side))
       -- 3.2.3. transitivity, from A2, 3.2.2
@@ -112,7 +114,7 @@ theorem halves_series :
       have s3_2_5 : 1 / 2 ^ n.toNat < ε := by parley_order
       -- 3.2.6. mun:reciprocal-positive x := 2^n
       have r123_1 : (2 ^ n.toNat : ℤ) > 0 := by parley_order
-      have s3_2_6 : (1 / 2 ^ n.toNat : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by parley_side))
+      have s3_2_6 : (1 / 2 ^ n.toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by parley_side))
       -- 3.2.7. inequalities
       have s3_2_7 : 1 - ε < 1 - 1 / 2 ^ n.toNat := by parley_order
       -- 3.2.8. inequalities
@@ -126,7 +128,7 @@ theorem halves_series :
       -- 3.2.12. mun:abs-difference-lt x := 1 − 1/2^n, c := 1, δ := ε, from 3.2.11
       have s3_2_12 : abs (1 - 1 / 2 ^ n.toNat - 1) < ε := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (1 - 1 / 2 ^ n.toNat : ℝ)) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side)
       -- 3.2.13. substitute
-      have c1 : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℚ)) := by exact (s2 n (by parley_side)).symm
+      have c1 : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℚ)) := by exact ((s2 n (by parley_side))).symm
       have c1_w : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
       have row1 : abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) - 1) < ε := by first | parley_put_at c1_w s3_2_12 | parley_put_at c1 s3_2_12 | parley_subst_at c1_w s3_2_12 | parley_subst_at c1 s3_2_12
       exact row1

@@ -30,7 +30,7 @@ theorem divisor_exceeds_root (p : ℤ) (hH1 : 0 < p) (d : ℤ) (hH2 : 0 < d) (hH
     p < d * d := by
   -- 1. def:sqrt x := p
   have r22_1 : p ≥ 0 := by parley_order
-  have s1a : Real.sqrt (p : ℝ) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (p : ℝ)) (by parley_side))
+  have s1a : Real.sqrt (p : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (p : ℝ)) (by parley_side))
   have s1b : Real.sqrt (p : ℝ) ^ 2 = (p : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (p : ℝ)) (by parley_side))
   -- 2. contradiction
   by_contra hS

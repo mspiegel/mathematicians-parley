@@ -39,7 +39,7 @@ theorem cubic_plus_multiple_of_three (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.2. mun:divides-self n := 3
       have s1_2 : (3 : ℤ) ∣ (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (3 : ℤ)))
       -- 1.3. mun:divides-multiple e := 3, a := 3, x := k² + k + 2, from 1.2
-      have s1_3 : (3 : ℤ) ∣ 3 * (k ^ 2 + k + 2) := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (3 : ℤ)) (x := k ^ 2 + k + 2) s1_2)
+      have s1_3 : (3 : ℤ) ∣ 3 * (k ^ 2 + k + 2) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (3 : ℤ)) (x := k ^ 2 + k + 2) s1_2)
       -- 1.4. mun:divides-sum d := 3, a := k³ + 5k + 6, b := 3·(k² + k + 2), from IH, 1.3
       have s1_4 : (3 : ℤ) ∣ k ^ 3 + 5 * k + 6 + 3 * (k ^ 2 + k + 2) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := k ^ 3 + 5 * k + 6) (b := 3 * (k ^ 2 + k + 2)) hIH s1_3)
       -- 1.5. substitute

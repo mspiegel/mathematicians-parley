@@ -52,7 +52,7 @@ theorem square_plus_two_not_divisible_by_four (n : ℤ) :
       -- 3.4. thm:four-times-between j := m − k², r := 2
       have r38_1 : (2 : ℤ) > 0 := by parley_arith
       have r38_2 : (2 : ℤ) < 4 := by parley_arith
-      have s3_4 : 4 * (m - k ^ 2) ≠ 2 := (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2) (r := (2 : ℤ)) (by parley_side) r38_2)
+      have s3_4 : 4 * (m - k ^ 2) ≠ 2 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2) (r := (2 : ℤ)) (by parley_side) r38_2)
       exact absurd s3_3 s3_4
     · skip
       -- 3.5. obtain k: def:odd, from C2
@@ -64,7 +64,7 @@ theorem square_plus_two_not_divisible_by_four (n : ℤ) :
       -- 3.8. thm:four-times-between j := m − k² − k, r := 3
       have r55_1 : (3 : ℤ) > 0 := by parley_arith
       have r55_2 : (3 : ℤ) < 4 := by parley_arith
-      have s3_8 : 4 * (m - k ^ 2 - k) ≠ 3 := (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 - k) (r := (3 : ℤ)) (by parley_side) r55_2)
+      have s3_8 : 4 * (m - k ^ 2 - k) ≠ 3 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 - k) (r := (3 : ℤ)) (by parley_side) r55_2)
       exact absurd s3_7 s3_8
   -- 4. restate 3
   have s4 : n ^ 2 + 2 ≠ 4 * m := by parley_side

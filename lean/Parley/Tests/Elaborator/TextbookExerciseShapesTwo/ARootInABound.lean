@@ -24,7 +24,7 @@ namespace Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ARootInABound
 theorem a_root_in_a_bound (a : ℝ) (hH2 : a ≥ 0) (hH3 : ¬ a ≥ 2 * Real.sqrt a) :
     a < 2 * Real.sqrt a := by
   -- 1. def:sqrt x := a, from H2
-  have s1a : Real.sqrt a ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) hH2)
+  have s1a : Real.sqrt a ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a) hH2)
   have s1b : Real.sqrt a ^ 2 = a := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := a) hH2)
   -- 2. inequalities, from H3, 1
   parley_order

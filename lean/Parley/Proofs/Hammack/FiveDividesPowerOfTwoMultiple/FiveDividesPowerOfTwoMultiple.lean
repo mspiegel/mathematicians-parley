@@ -48,7 +48,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       intro c
       intro hA
       -- 1.4. mun:exponent-step a := 2, m := k
-      have s1_4 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
+      have s1_4 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
       -- 1.5. algebra, from 1.4
       have s1_5 : 2 ^ (k + 1).toNat * c = 2 ^ k.toNat * (2 * c) := by linear_combination (norm := parley_norm) (c) * s1_4
       -- 1.6. substitute 2^(k + 1)·c = 2^k·(2·c) (line 1.5) into A

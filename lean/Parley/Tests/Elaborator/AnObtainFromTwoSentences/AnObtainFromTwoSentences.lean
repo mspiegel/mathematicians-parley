@@ -21,6 +21,6 @@ theorem an_obtain_from_two_sentences {α : Type*} (A : Set α) (u : α) (hH2 : u
   -- 2. obtain x from line 1
   obtain ⟨x, s2a, s2b⟩ := s1b
   -- 3. exhibit, from 2
-  exact ⟨x, by parley_set_side, by parley_set_side⟩
+  exact ⟨x, s2a, s2b⟩
 
 end Parley.Tests.Elaborator.AnObtainFromTwoSentences.AnObtainFromTwoSentences

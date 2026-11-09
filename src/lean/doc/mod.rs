@@ -16,5 +16,6 @@ pub mod term;
 
 pub use tactic::{Location, Pattern, Proof, Rule, Tactic, TacticArg, TacticRef};
 pub use term::{
-    Arg, Assoc, ConstRef, CountForm, LeanType, Op, Piece, Quant, Source, Term, TermKind,
+    Arg, Assoc, BoundForm, Brackets, ConstRef, CountForm, LeanType, Op, PostfixMark,
+    PrefixMark, Quant, Source, Term, TermKind,
 };

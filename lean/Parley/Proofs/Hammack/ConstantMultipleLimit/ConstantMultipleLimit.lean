@@ -20,6 +20,8 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 
@@ -43,7 +45,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
     intro ε
     intro hA1
     -- 4.1. mun:quotient-positive x := ε, y := |c| + 1, from A1, 2
-    have s4_1 : ε / (abs c + 1) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := abs c + 1) (by parley_side) (by parley_side))
+    have s4_1 : ε / (abs c + 1) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := abs c + 1) (by parley_side) (by parley_side))
     -- 4.2. membership
     have r39_1 : abs c + 1 ≠ 0 := by parley_side
     -- 4.3. def:tends-to, from H4

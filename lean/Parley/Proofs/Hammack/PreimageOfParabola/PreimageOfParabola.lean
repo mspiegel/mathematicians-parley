@@ -54,7 +54,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       calc u ^ 2 + 3 = f u := by parley_set_side
         _ ≤ 19 := by parley_set_side
     -- 1.6. mun:nonneg-or-neg x := u, from 1.1
-    have s1_6 : u ≥ 0 ∨ u < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := u))
+    have s1_6 : u ≥ 0 ∨ u < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := u))
     -- 1.7. cases, from 1.6
     rcases s1_6 with hC1 | hC2
     · skip

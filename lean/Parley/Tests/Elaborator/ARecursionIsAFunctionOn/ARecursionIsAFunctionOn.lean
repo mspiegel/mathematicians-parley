@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ARecursionIsAFunctionOn.ARecursionIsAFunctionOn
 
-theorem a_recursion_is_a_function_on (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) (hH1 : True) :
+theorem a_recursion_is_a_function_on (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) (hH1 : True) :
     True := by
   -- 1. mun:function-into, from H1
   exact trivial

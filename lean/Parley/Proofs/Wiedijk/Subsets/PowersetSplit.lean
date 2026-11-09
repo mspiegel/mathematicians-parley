@@ -37,7 +37,7 @@ theorem powerset_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) :
       -- 1.3.2. def:powerset S := V ∖ {a}, from 1.3.1
       have s1_3_2 : V \ ({a} : Set α) ∈ 𝒫 (X \ ({a} : Set α)) := ((Parley.Items.Stdlib.Sets.def_powerset (A := X \ ({a} : Set α)) (S := V \ ({a} : Set α)))).mpr s1_3_1
       -- 1.3.3. mun:added-element-in-image Y := 𝒫(X ∖ {a}), s := V ∖ {a}, from 1.3.2
-      have s1_3_3 : V \ ({a} : Set α) ∪ ({a} : Set α) ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := by first | exact (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := 𝒫 (X \ ({a} : Set α))) (s := V \ ({a} : Set α)) (a := a) s1_3_2) | exact ((Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := 𝒫 (X \ ({a} : Set α))) (s := V \ ({a} : Set α)) (a := a) s1_3_2)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := 𝒫 (X \ ({a} : Set α))) (s := V \ ({a} : Set α)) (a := a) s1_3_2) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := 𝒫 (X \ ({a} : Set α))) (s := V \ ({a} : Set α)) (a := a) s1_3_2) | (have h := (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := 𝒫 (X \ ({a} : Set α))) (s := V \ ({a} : Set α)) (a := a) s1_3_2); parley_set_side)
+      have s1_3_3 : V \ ({a} : Set α) ∪ ({a} : Set α) ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := by exact (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := 𝒫 (X \ ({a} : Set α))) (s := V \ ({a} : Set α)) (a := a) s1_3_2)
       -- 1.3.4. substitute
       have s1_3_4 : V ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := by
         have c1 : V \ ({a} : Set α) ∪ ({a} : Set α) = V := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := V) (a := a) hC1)
@@ -72,7 +72,7 @@ theorem powerset_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) :
     -- 5.5. def:powerset S := S ∪ {a}, from 5.4
     exact ((Parley.Items.Stdlib.Sets.def_powerset (A := X) (S := S ∪ ({a} : Set α)))).mpr s5_4
   -- 6. mun:added-elements-stay-inside Y := 𝒫(X ∖ {a}), Z := 𝒫X, from 5
-  have s6 : (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) ⊆ 𝒫 X := by first | exact (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 X) (a := a) s5) | exact ((Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 X) (a := a) s5)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 X) (a := a) s5) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 X) (a := a) s5) | (have h := (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 X) (a := a) s5); parley_set_side)
+  have s6 : (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) ⊆ 𝒫 X := by exact (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 X) (a := a) s5)
   -- 7. mun:union-subset, from 4, 6
   have s7 : 𝒫 (X \ ({a} : Set α)) ∪ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) ⊆ 𝒫 X := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := 𝒫 (X \ ({a} : Set α))) (Y := (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α)))) (Z := 𝒫 X) s4 s6)
   -- 8. mun:subset-antisymmetric, from 2, 7

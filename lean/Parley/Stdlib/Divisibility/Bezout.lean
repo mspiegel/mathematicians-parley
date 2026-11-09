@@ -8,7 +8,6 @@ public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -46,7 +45,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 5. def:subset, from 3
   have s5 : ∀ t ∈ S, 0 < t := by first | exact ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | exact (((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3).symm | simpa using ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3 | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3; parley_set_side)
   -- 6. instantiate t := d in line 5, from 4
-  have s6 : 0 < d := by first | exact (s5 d (by parley_set_side)) | exact ((s5 d (by parley_set_side))).symm | simpa using (s5 d (by parley_set_side)) | exact_mod_cast (s5 d (by parley_set_side)) | (have h := (s5 d (by parley_set_side)); parley_set_side)
+  have s6 : 0 < d := by exact (s5 d (by parley_set_side))
   -- 7. obtain x₀, y₀: def:set-builder u := d, from D1, 4
   obtain ⟨_, x₀, y₀, s7⟩ := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := d))).mp (by parley_set_side)
   -- 8. proof
@@ -57,7 +56,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     -- 8.1. def:set-builder u := a·x + b·y, from D1, K3
     have s8_1 : a * x + b * y ∈ S := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr (by parley_set_side); parley_set_side)
     -- 8.2. instantiate s := a·x + b·y in line 4, from 8.1
-    first | linarith [(s4b (a * x + b * y) (by parley_set_side))] | (have h := (s4b (a * x + b * y) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b (a * x + b * y) (by parley_set_side)) | (have h := (s4b (a * x + b * y) (by parley_set_side)); parley_set_side)
+    exact (s4b (a * x + b * y) (by parley_set_side))
   -- 9. algebra
   have s9 : a = a * 1 + b * 0 := by parley_ring
   -- 10. thm:least-combination-divides c := a, u := 1, v := 0, from 6, 7, 8, 9

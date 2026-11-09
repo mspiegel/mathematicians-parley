@@ -38,7 +38,7 @@ theorem two_power_bound (d : ℤ) (hH1 : 0 < d) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ m hK hIH =>
       -- 1.2. mun:exponent-step a := 2
-      have s1_2 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (by parley_side))
+      have s1_2 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (by parley_side))
       -- 1.3. inequalities
       have s1_3 : 2 ^ m.toNat * 2 ≥ (m + 1) * 2 := by parley_order
       -- 1.4. inequalities, from K

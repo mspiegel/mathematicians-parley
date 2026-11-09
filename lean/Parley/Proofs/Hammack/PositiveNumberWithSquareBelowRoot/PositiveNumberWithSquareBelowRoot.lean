@@ -29,8 +29,8 @@ theorem positive_number_with_square_below_root :
     (∃ x : ℝ, x > 0 ∧ x ^ 2 < Real.sqrt x) := by
   -- 1. def:sqrt x := 1/4
   have r10_1 : (1 / 4 : ℚ) ≥ 0 := by parley_arith
-  have s1a : Real.sqrt (1 / 4 : ℝ) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (1 / 4 : ℝ)) (by parley_side))
-  have s1b : Real.sqrt (1 / 4 : ℝ) ^ 2 = 1 / 4 := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (1 / 4 : ℝ)) (by parley_side))
+  have s1a : Real.sqrt (1 / 4 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (1 / 4 : ℝ)) (by parley_side))
+  have s1b : Real.sqrt (1 / 4 : ℝ) ^ 2 = 1 / 4 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (1 / 4 : ℝ)) (by parley_side))
   -- 2. arithmetic
   have s2 : ((1 / 16) ^ 2 : ℚ) < 1 / 4 := by parley_arith
   -- 3. substitute (√(1/4))² = 1/4 (line 1) into line 2

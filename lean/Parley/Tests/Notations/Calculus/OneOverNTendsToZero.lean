@@ -15,6 +15,8 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 
@@ -43,7 +45,7 @@ theorem one_over_n_tends_to_zero :
       have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
       -- 1.2.2. mun:reciprocal-positive x := n
       have r243_1 : n > 0 := by parley_order
-      have s1_2_2 : 1 / (n : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by parley_side))
+      have s1_2_2 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by parley_side))
       -- 1.2.3. inequalities
       have s1_2_3 : 0 - ε < 0 := by parley_order
       -- 1.2.4. transitivity, from 1.2.3, 1.2.2

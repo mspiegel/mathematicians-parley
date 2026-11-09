@@ -63,7 +63,7 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
       -- 1.3. calculation
       have s1_3 : (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by
         calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) := by parley_side
-          _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => a ^ j.toNat)) (n := k) (by parley_side))
+          _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => a ^ j.toNat)) (n := k) (by parley_side))
           _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by parley_side
       -- 1.4. mun:exponent-step m := k + 1
       have s1_4 : a ^ (k + 1 + 1).toNat = a ^ (k + 1).toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := k + 1) (by parley_side))

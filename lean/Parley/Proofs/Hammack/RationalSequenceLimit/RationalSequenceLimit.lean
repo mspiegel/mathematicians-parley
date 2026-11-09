@@ -18,6 +18,8 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 
@@ -63,7 +65,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have r68_2 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_10 : a n - 2 / 3 = 5 * (1 / (9 * (n : ℝ) - 3)) := by linear_combination (norm := parley_field) ((3) / ((3))) * (hH2 n (by parley_side))
       -- 1.2.11. mun:reciprocal-positive x := 9n − 3, from 1.2.8
-      have s1_2_11 : 1 / (9 * (n : ℚ) - 3) > 0 := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by parley_side))
+      have s1_2_11 : 1 / (9 * (n : ℚ) - 3) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by parley_side))
       -- 1.2.12. inequalities
       have r76_1 : 9 * n - 3 ≠ 0 := by parley_side
       have s1_2_12 : 5 * (1 / (9 * (n : ℚ) - 3)) > 0 := by parley_order

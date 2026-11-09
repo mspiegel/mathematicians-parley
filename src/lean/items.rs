@@ -28,8 +28,9 @@ pub struct Sentence {
     /// The sentence in Lean.
     pub prop: super::expr::Printed,
     /// Where the item is a corpus theorem whose statement holds several
-    /// sentences joined, the projection that takes this one, `.2.1`.
-    pub part: String,
+    /// sentences joined, the fields that take this one, `["2", "1"]` for
+    /// `.2.1`.
+    pub part: Vec<&'static str>,
     /// The arithmetic the page writes in the whole of the declaration's
     /// statement, what it asks included, which the gate's read-back
     /// compares with what Lean elaborated (`readback`).
@@ -1270,7 +1271,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 binders,
                 says: says.clone(),
                 prop,
-                part: String::new(),
+                part: Vec::new(),
                 arithmetic,
                 general: kind,
                 domains: w.domains.clone(),

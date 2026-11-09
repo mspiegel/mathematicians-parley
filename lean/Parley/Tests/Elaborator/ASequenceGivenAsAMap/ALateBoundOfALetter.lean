@@ -8,6 +8,8 @@ public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 
 /-! Written from tests/elaborator/a-sequence-given-as-a-map.proof by parley build lean. -/

@@ -36,13 +36,13 @@ theorem power_of_two_at_least_four (m : ℤ) (hH1 : 0 < m) :
       parley_arith
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k + 1
-      have s1_2 : (0 : ℤ) < 2 ^ (k + 1).toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k + 1) (by parley_side))
+      have s1_2 : (0 : ℤ) < 2 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k + 1) (by parley_side))
       -- 1.3. inequalities, from 1.2
       have s1_3 : (2 ^ (k + 1).toNat : ℤ) ≥ 0 := by parley_order
       -- 1.4. inequalities, from IH, 1.3
       have s1_4 : (2 ^ (k + 1).toNat + 2 ^ (k + 1).toNat : ℤ) ≥ 4 := by parley_order
       -- 1.5. calculation
-      calc (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (by parley_side))
+      calc (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (by parley_side))
         _ = 2 ^ (k + 1).toNat + 2 ^ (k + 1).toNat := by parley_ring
         _ ≥ 4 := by first | parley_side | parley_line_toNat s1_4
   -- 2. instantiate k := m in line 1

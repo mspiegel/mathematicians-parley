@@ -31,7 +31,7 @@ theorem powerset_split_disjoint {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ 
     have s1_3 : ¬ a ∈ S ∪ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := X) (Y := S ∪ ({a} : Set α)) (a := a) s1_2)
     exact s1_3 s1_1
   -- 2. mun:added-elements-are-new Y := 𝒫(X ∖ {a}), from 1
-  have s2 : ∀ V ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))), ¬ V ∈ 𝒫 (X \ ({a} : Set α)) := by first | exact (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 (X \ ({a} : Set α))) (a := a) s1) | exact ((Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 (X \ ({a} : Set α))) (a := a) s1)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 (X \ ({a} : Set α))) (a := a) s1) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 (X \ ({a} : Set α))) (a := a) s1) | (have h := (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 (X \ ({a} : Set α))) (a := a) s1); parley_set_side)
+  have s2 : ∀ V ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))), ¬ V ∈ 𝒫 (X \ ({a} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_added_elements_are_new (Y := 𝒫 (X \ ({a} : Set α))) (Z := 𝒫 (X \ ({a} : Set α))) (a := a) s1)
   -- 3. mun:disjoint-empty, from 2
   exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := 𝒫 (X \ ({a} : Set α))) (Z := (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α)))) s2)
 

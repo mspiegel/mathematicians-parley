@@ -39,7 +39,7 @@ theorem whole_number_by_size (A : ℝ) :
   · skip
     intro hD2
     -- 3. mun:nonneg-or-neg x := A
-    have s3 : A ≥ 0 ∨ A < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))
+    have s3 : A ≥ 0 ∨ A < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))
     -- 4. cases, from 3
     rcases s3 with hC1 | hC2
     · skip

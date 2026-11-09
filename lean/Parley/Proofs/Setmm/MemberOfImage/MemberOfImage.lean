@@ -26,7 +26,7 @@ theorem member_of_image {α : Type*} (A : Set α) (B : Set α) (y : α) (F : α 
     -- 1. obtain x: def:image u := y, from D1, H4
     obtain ⟨x, s1a, s1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := X) (f := F) (u := y) (W := Set.univ) hH4 (by parley_set_side))).mp hD1
     -- 2. exhibit, from 1
-    exact ⟨x, by parley_set_side, by parley_set_side⟩
+    exact ⟨x, s1a, s1b.symm⟩
   · skip
     intro hD2
     -- 3. obtain x from D2

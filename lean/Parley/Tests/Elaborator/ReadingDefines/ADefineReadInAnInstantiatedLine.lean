@@ -3,7 +3,6 @@ module
 public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
@@ -21,6 +20,6 @@ theorem a_define_read_in_an_instantiated_line (a : ℝ) (hH2 : ∀ x : ℝ, x + 
   -- 1. substitute e = a + 1 (D1) into H2
   have s1 : ∀ x : ℝ, x + e > x := by intro x; parley_subst_at hD1 hH2
   -- 2. instantiate x := 2 in line 1, from D1
-  first | linarith [(s1 (2 : ℝ))] | (have h := (s1 (2 : ℝ)); push_cast at h; linarith) | exact_mod_cast (s1 (2 : ℝ)) | (have h := (s1 (2 : ℝ)); parley_side)
+  exact (s1 (2 : ℝ))
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnInstantiatedLine

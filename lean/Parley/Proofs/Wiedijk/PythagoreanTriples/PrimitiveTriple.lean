@@ -130,7 +130,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have r287_1 : (2 : ℤ) ≠ 0 := by parley_arith
   have s22 : b = s - t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := b) (b := s - t) (c := (2 : ℤ)) (by parley_side) (by parley_side))
   -- 23. mun:square-positive x := a, from H1
-  have s23 : a ^ 2 > 0 := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a) (by parley_side))
+  have s23 : a ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a) (by parley_side))
   -- 24. inequalities
   have s24 : b ^ 2 < a ^ 2 + b ^ 2 := by parley_order
   -- 25. transitivity, from 24, H4

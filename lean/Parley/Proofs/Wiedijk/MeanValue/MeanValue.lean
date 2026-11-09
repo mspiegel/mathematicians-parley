@@ -1,9 +1,7 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -26,8 +24,6 @@ public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
@@ -125,11 +121,11 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have r132_1 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   obtain ⟨c, s22a, s22b⟩ := (Parley.Items.Stdlib.Calculus.thm_rolle (f := F) (a := a) (b := b) hH3 s12 s15 s21)
   -- 23. instantiate x := c in line 14, from 22
-  have s23 : (deriv g) c = m := by first | linear_combination (norm := parley_norm) (s14 c (by parley_set_side)) | (have h := (s14 c (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s14 c (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s14 c (by parley_set_side)) | exact_mod_cast ((s14 c (by parley_set_side))).symm | (have h := (s14 c (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s14 c (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s14 c (by parley_set_side)); parley_int_power h) | (have h := (s14 c (by parley_set_side)); parley_set_side)
+  have s23 : (deriv g) c = m := by exact (s14 c (by parley_set_side))
   -- 24. calculation
   have s24 : (deriv f) c + m = 0 := by
     calc (deriv f) c + m = (deriv f) c + (deriv g) c := by parley_subst s23
-      _ = (deriv F) c := by first | linear_combination (norm := parley_norm) ((s16 c (by parley_set_side))).symm | (have h := ((s16 c (by parley_set_side))).symm; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := ((s16 c (by parley_set_side))).symm; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast ((s16 c (by parley_set_side))).symm | exact_mod_cast (((s16 c (by parley_set_side))).symm).symm | (have h := ((s16 c (by parley_set_side))).symm; rify; linear_combination (norm := parley_norm) h) | (have h := ((s16 c (by parley_set_side))).symm; qify; linear_combination (norm := parley_norm) h) | (have h := ((s16 c (by parley_set_side))).symm; parley_int_power h) | (have h := ((s16 c (by parley_set_side))).symm; parley_set_side)
+      _ = (deriv F) c := by exact ((s16 c (by parley_set_side))).symm
       _ = 0 := by parley_set_side
   -- 25. algebra, from D1, 24
   have r145_1 : b - a ≠ 0 := by parley_set_side
@@ -138,6 +134,6 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
     try push_cast at *
     linear_combination (norm := parley_field) s24
   -- 26. exhibit, from 22, 25
-  exact ⟨c, by parley_set_side, by parley_set_side⟩
+  exact ⟨c, s22a, s25⟩
 
 end Parley.Proofs.Wiedijk.MeanValue.MeanValue

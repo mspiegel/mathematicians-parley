@@ -35,7 +35,7 @@ set_option maxHeartbeats 400000 in
 theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Icc (1 : ℤ) (m + 1)) :
     k * (LeanBridges.Counting.choose (m + 1) k : ℤ) = (m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ) := by
   -- 1. mun:range-bounds a := 1, b := m + 1, from H2
-  have s1a : 1 ≤ k := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + 1) (k := k) hH2)
+  have s1a : 1 ≤ k := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + 1) (k := k) hH2)
   have s1b : k ≤ m + 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m + 1) (k := k) hH2)
   -- 2. inequalities, from 1
   have s2a : k > 0 := by parley_order

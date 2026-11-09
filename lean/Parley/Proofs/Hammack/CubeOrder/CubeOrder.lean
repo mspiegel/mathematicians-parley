@@ -33,9 +33,9 @@ theorem cube_order (x : ℝ) (y : ℝ) (hH3 : x ^ 3 < y ^ 3) :
   -- 2. inequalities
   have s2 : x - y ≥ 0 := by parley_order
   -- 3. mun:square-nonneg x := x + y/2
-  have s3 : (x + y / 2) ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x + y / 2))
+  have s3 : (x + y / 2) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x + y / 2))
   -- 4. mun:square-nonneg x := y
-  have s4 : y ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := y))
+  have s4 : y ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := y))
   -- 5. inequalities
   have s5 : 3 * y ^ 2 / 4 ≥ 0 := by parley_order
   -- 6. inequalities, from 3, 5
@@ -45,7 +45,7 @@ theorem cube_order (x : ℝ) (y : ℝ) (hH3 : x ^ 3 < y ^ 3) :
   -- 8. transitivity, from 7, 6
   have s8 : x ^ 2 + x * y + y ^ 2 ≥ 0 := by parley_order
   -- 9. mun:product-nonneg x := x − y, y := x² + x·y + y², from 2, 8
-  have s9 : (x - y) * (x ^ 2 + x * y + y ^ 2) ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x - y) (y := x ^ 2 + x * y + y ^ 2) (by parley_side) (by parley_side))
+  have s9 : (x - y) * (x ^ 2 + x * y + y ^ 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x - y) (y := x ^ 2 + x * y + y ^ 2) (by parley_side) (by parley_side))
   -- 10. algebra
   have s10 : x ^ 3 - y ^ 3 = (x - y) * (x ^ 2 + x * y + y ^ 2) := by parley_ring
   -- 11. transitivity, from 10, 9

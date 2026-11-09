@@ -7,7 +7,7 @@
 //! another. Any other parting, a sentence the item says otherwise than the
 //! line, is no question of form and is not reported.
 
-use super::term::{Arg, CountForm, LeanType, Piece, Term, TermKind};
+use super::term::{Arg, BoundForm, CountForm, LeanType, Term, TermKind};
 use crate::lean::templates::Num;
 
 /// One place two statements write a term in different forms.
@@ -305,31 +305,19 @@ fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
     );
     match &inner.kind {
         TermKind::Paren(x) | TermKind::Cast { inner: x, .. } => cast_down(x, to, widen),
-        // A sum or product over a Finset, onto its body (`Nat.cast_sum`,
-        // `Int.cast_prod`): the last of its terms.
-        // An integer power, `x ^ m` with m in ℤ, onto its base
-        // (`Rat.cast_zpow`).
-        TermKind::Notation { pieces, prec } if matches!(pieces.as_slice(), [Piece::Term { .. }, Piece::Text(t), Piece::Term { .. }] if t == " ^ ") =>
-        {
-            let mut pieces = pieces.clone();
-            if let Some(Piece::Term { term, .. }) = pieces.first_mut() {
-                **term = cast(term);
-            }
-            at(TermKind::Notation {
-                pieces,
-                prec: *prec,
-            })
-        }
-        TermKind::Notation { pieces, prec } if over_finset(pieces) => {
-            let mut pieces = pieces.clone();
-            if let Some(Piece::Term { term, .. }) = pieces.last_mut() {
-                **term = cast(term);
-            }
-            at(TermKind::Notation {
-                pieces,
-                prec: *prec,
-            })
-        }
+        // A sum or product over a Finset, `∑ k ∈ s, t`, which a cast passes
+        // into; `∑ᶠ` over a set is not.
+        TermKind::Bound {
+            form: form @ BoundForm::BigOp { finite: false, .. },
+            letter,
+            letter_ty,
+            body,
+        } => at(TermKind::Bound {
+            form: form.clone(),
+            letter: letter.clone(),
+            letter_ty: letter_ty.clone(),
+            body: Box::new(cast(body)),
+        }),
         TermKind::App {
             head,
             args,
@@ -392,12 +380,6 @@ fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
         TermKind::Neg(x) if !natural => at(TermKind::Neg(Box::new(cast(x)))),
         _ => cast(inner),
     }
-}
-
-/// Whether a notation is a sum or product over a Finset, `∑ k ∈ s, t`,
-/// which a cast passes into; `∑ᶠ` over a set is not.
-fn over_finset(pieces: &[Piece]) -> bool {
-    matches!(pieces.first(), Some(Piece::Text(t)) if t.starts_with("∑ ") || t.starts_with("∏ "))
 }
 
 /// The term with brackets no precedence asks for taken off, and a type
@@ -646,6 +628,7 @@ fn renamed_bound(term: &Term, next: &mut usize) -> Term {
             letter_ty,
             guard,
             body,
+            ..
         } => {
             let new = fresh(next);
             let as_new = Term {
@@ -664,58 +647,37 @@ fn renamed_bound(term: &Term, next: &mut usize) -> Term {
                     letter_ty: letter_ty.clone(),
                     guard,
                     body,
+                    // Compared as the one term Lean reads either way.
+                    bounded: false,
                 },
                 ty: term.ty.clone(),
             }
         }
-        TermKind::Notation { pieces, prec } => {
-            let bound = match pieces.first() {
-                Some(Piece::Text(t)) => notation_binder(t),
-                _ => None,
-            };
-            let Some(letter) = bound else {
-                let mut out = term.clone();
-                for c in out.children_mut() {
-                    *c = renamed_bound(c, next);
-                }
-                return out;
-            };
+        // What the letter runs over is outside its scope, and renamed as it
+        // stands; the body is renamed with the letter.
+        TermKind::Bound {
+            form,
+            letter,
+            letter_ty,
+            body,
+        } => {
+            let mut form = form.clone();
+            for o in form.over_mut() {
+                *o = renamed_bound(o, next);
+            }
             let new = fresh(next);
             let as_new = Term {
                 kind: TermKind::Letter(new.clone()),
                 ty: None,
             };
-            // The letter is bound in what follows the text that opens the
-            // body, `, ` of a sum or `|` of a set-builder: the range before
-            // it, `Finset.Icc 1 (k + 1)`, is outside its scope.
-            let mut in_scope = false;
-            let mut out = Vec::new();
-            for (i, p) in pieces.iter().enumerate() {
-                out.push(match p {
-                    Piece::Text(t) => {
-                        in_scope = in_scope || t.contains(',') || t.contains('|');
-                        match i {
-                            0 => Piece::Text(t.replacen(&letter, &new, 1)),
-                            _ => Piece::Text(t.clone()),
-                        }
-                    }
-                    Piece::Term { term, need } => {
-                        let term = match in_scope {
-                            true => substituted(term, &letter, &as_new),
-                            false => (**term).clone(),
-                        };
-                        Piece::Term {
-                            term: Box::new(renamed_bound(&term, next)),
-                            need: *need,
-                        }
-                    }
-                });
-            }
-            let pieces = out;
+            let body =
+                Box::new(renamed_bound(&substituted(body, letter, &as_new), next));
             Term {
-                kind: TermKind::Notation {
-                    pieces,
-                    prec: *prec,
+                kind: TermKind::Bound {
+                    form,
+                    letter: new,
+                    letter_ty: letter_ty.clone(),
+                    body,
                 },
                 ty: term.ty.clone(),
             }
@@ -728,31 +690,6 @@ fn renamed_bound(term: &Term, next: &mut usize) -> Term {
             out
         }
     }
-}
-
-/// The letter a notation binds where its text opens with a binder's mark
-/// and the letter, `∑ j ∈ `, `∫ t in `, `{n : ℤ | `; None for another.
-fn notation_binder(text: &str) -> Option<String> {
-    let text = text.trim_start();
-    let rest = match text.strip_prefix('{') {
-        Some(rest) => rest,
-        None => {
-            let (mark, rest) = text.split_once(' ')?;
-            if !matches!(mark, "∑" | "∏" | "∑ᶠ" | "∏ᶠ" | "∫" | "∀" | "∃" | "∃!")
-            {
-                return None;
-            }
-            rest
-        }
-    };
-    let letter: String = rest
-        .chars()
-        .take_while(|c| c.is_alphanumeric() || *c == '_' || *c == '\'')
-        .collect();
-    let after = rest[letter.len()..].trim_start();
-    let binds =
-        after.starts_with('∈') || after.starts_with(':') || after.starts_with("in ");
-    (!letter.is_empty() && binds).then_some(letter)
 }
 
 /// The term untyped, with no bracket the writer kept and no ascription of
@@ -915,11 +852,51 @@ pub fn turned_statement(term: &Term) -> Term {
 
 /// Whether Lean writes the two alike once each letter a `set` names is read
 /// as its value, applied where it is a function, and bound letters renamed.
+/// Types are not compared, a bound letter's among them
+/// (`one_term_once_set` compares them).
 pub fn alike_once_set(a: &Term, b: &Term, values: &Values) -> bool {
     let valued = |t: &Term| {
         renamed_bound(&unfolded(&reduced(&with_values(t, values, 8))), &mut 0).untyped()
     };
     valued(a) == valued(b)
+}
+
+/// Whether Lean takes the two as one term: `alike_once_set`, and each
+/// numeral and letter of the one in the type of the other's in its place,
+/// which definitional equality asks and `alike_once_set` does not look at:
+/// `|(0 : ℤ)| = 0` and `|(0 : ℝ)| = 0` are written alike and are two. A
+/// type Lean fills in where an item is cited, its α, agrees with any.
+pub fn one_term_once_set(a: &Term, b: &Term, values: &Values) -> bool {
+    if !alike_once_set(a, b, values) {
+        return false;
+    }
+    // A relation between terms of one type and one of another, `1 ≤ 1/2`
+    // in ℝ beside it in ℚ, whatever the leaves carry.
+    if let (Some(x), Some(y)) = (relation_type(a), relation_type(b)) {
+        if x != y && x.fixed() && y.fixed() {
+            return false;
+        }
+    }
+    let leaves = |t: &Term| -> Vec<Option<LeanType>> {
+        renamed_bound(&unfolded(&reduced(&with_values(t, values, 8))), &mut 0)
+            .walk()
+            .into_iter()
+            .filter_map(|n| match &n.kind {
+                TermKind::Numeral(_) | TermKind::Letter(_) => Some(n.ty.clone()),
+                // A bound letter's type, `∀ y : ℝ`.
+                TermKind::Quantified { letter_ty, .. } => Some(Some(letter_ty.clone())),
+                _ => None,
+            })
+            .collect()
+    };
+    let (one, other) = (leaves(a), leaves(b));
+    one.len() == other.len()
+        && one.iter().zip(&other).all(|(x, y)| match (x, y) {
+            // A type Lean fills in where the item is cited, an item's
+            // α or K (`LeanType::fixed`), takes the other's.
+            (Some(x), Some(y)) => x == y || !x.fixed() || !y.fixed(),
+            _ => true,
+        })
 }
 
 /// Whether Lean casts a letter a `set` names, or a term with one in it, to
@@ -1045,6 +1022,47 @@ pub fn substituted(term: &Term, letter: &str, value: &Term) -> Term {
         TermKind::Quantified { letter: bound, .. } if bound == letter => {
             return term.clone()
         }
+        TermKind::Lambda { letters, .. } if letters.iter().any(|l| l == letter) => {
+            return term.clone()
+        }
+        // The proof an `if` names: put in its condition only.
+        TermKind::DependentIf {
+            proof,
+            cond,
+            yes,
+            no,
+        } if proof == letter => {
+            return Term {
+                kind: TermKind::DependentIf {
+                    proof: proof.clone(),
+                    cond: Box::new(substituted(cond, letter, value)),
+                    yes: yes.clone(),
+                    no: no.clone(),
+                },
+                ty: term.ty.clone(),
+            };
+        }
+        // The letter bound here: put in what it runs over only.
+        TermKind::Bound {
+            form,
+            letter: bound,
+            letter_ty,
+            body,
+        } if bound == letter => {
+            let mut form = form.clone();
+            for o in form.over_mut() {
+                *o = substituted(o, letter, value);
+            }
+            return Term {
+                kind: TermKind::Bound {
+                    form,
+                    letter: bound.clone(),
+                    letter_ty: letter_ty.clone(),
+                    body: body.clone(),
+                },
+                ty: term.ty.clone(),
+            };
+        }
         _ => {}
     }
     let mut out = term.clone();
@@ -1073,6 +1091,51 @@ pub fn substituted_all(
             let mut out = term.clone();
             for c in out.children_mut() {
                 *c = substituted_all(c, &inner);
+            }
+            return out;
+        }
+        TermKind::Lambda { letters, body } => {
+            let mut inner = values.clone();
+            for l in letters {
+                inner.remove(l);
+            }
+            return Term {
+                kind: TermKind::Lambda {
+                    letters: letters.clone(),
+                    body: Box::new(substituted_all(body, &inner)),
+                },
+                ty: term.ty.clone(),
+            };
+        }
+        TermKind::DependentIf {
+            proof,
+            cond,
+            yes,
+            no,
+        } => {
+            let mut inner = values.clone();
+            inner.remove(proof);
+            return Term {
+                kind: TermKind::DependentIf {
+                    proof: proof.clone(),
+                    cond: Box::new(substituted_all(cond, values)),
+                    yes: Box::new(substituted_all(yes, &inner)),
+                    no: Box::new(substituted_all(no, &inner)),
+                },
+                ty: term.ty.clone(),
+            };
+        }
+        // What the letter runs over takes every value; its body all but the
+        // letter's.
+        TermKind::Bound { letter, .. } if values.contains_key(letter) => {
+            let mut inner = values.clone();
+            inner.remove(letter);
+            let mut out = term.clone();
+            if let TermKind::Bound { form, body, .. } = &mut out.kind {
+                for o in form.over_mut() {
+                    *o = substituted_all(o, values);
+                }
+                **body = substituted_all(body, &inner);
             }
             return out;
         }
@@ -1323,13 +1386,6 @@ fn children(term: &Term) -> Vec<&Term> {
                 Arg::Named { value, .. } => value,
             })
             .collect(),
-        TermKind::Notation { pieces, .. } => pieces
-            .iter()
-            .filter_map(|p| match p {
-                Piece::Term { term, .. } => Some(&**term),
-                Piece::Text(_) => None,
-            })
-            .collect(),
         _ => term.children(),
     }
 }
@@ -1452,5 +1508,127 @@ mod tests {
             &none
         )
         .is_empty());
+    }
+
+    fn int() -> LeanType {
+        LeanType::Num(Num::Int)
+    }
+
+    /// `∑ k ∈ Finset.Icc 1 k, f k`: the k of the range is the one outside,
+    /// the k of the body the one the sum binds.
+    fn sum_over_k() -> Term {
+        let k = || Term::letter("k", int());
+        let range = Term::applied(
+            "Finset.Icc",
+            super::super::term::Source::Mathlib,
+            vec![Term::numeral("1", int()), k()],
+            LeanType::Set(Box::new(int())),
+        );
+        let body = Term::of(
+            TermKind::App {
+                head: Box::new(Term::letter("f", int())),
+                args: vec![Arg::Explicit(k())],
+                explicit: false,
+            },
+            int(),
+        );
+        Term::of(
+            TermKind::Bound {
+                form: BoundForm::BigOp {
+                    product: false,
+                    finite: false,
+                    set: Box::new(range),
+                    need: 0,
+                },
+                letter: "k".to_string(),
+                letter_ty: int(),
+                body: Box::new(body),
+            },
+            int(),
+        )
+    }
+
+    #[test]
+    fn a_sum_prints_as_lean_writes_it() {
+        assert_eq!(sum_over_k().text(), "∑ k ∈ Finset.Icc 1 k, f k");
+    }
+
+    #[test]
+    fn a_value_for_a_bound_letter_reaches_only_what_it_runs_over() {
+        let n = Term::letter("n", int());
+        assert_eq!(
+            substituted(&sum_over_k(), "k", &n).text(),
+            "∑ k ∈ Finset.Icc 1 n, f k"
+        );
+        let mut values = std::collections::BTreeMap::new();
+        values.insert("k".to_string(), n);
+        assert_eq!(
+            substituted_all(&sum_over_k(), &values).text(),
+            "∑ k ∈ Finset.Icc 1 n, f k"
+        );
+    }
+
+    #[test]
+    fn sums_apart_only_in_their_bound_letter_are_alike() {
+        let renamed = Term::of(
+            TermKind::Bound {
+                form: BoundForm::BigOp {
+                    product: false,
+                    finite: false,
+                    set: Box::new(Term::applied(
+                        "Finset.Icc",
+                        super::super::term::Source::Mathlib,
+                        vec![Term::numeral("1", int()), Term::letter("k", int())],
+                        LeanType::Set(Box::new(int())),
+                    )),
+                    need: 0,
+                },
+                letter: "j".to_string(),
+                letter_ty: int(),
+                body: Box::new(Term::of(
+                    TermKind::App {
+                        head: Box::new(Term::letter("f", int())),
+                        args: vec![Arg::Explicit(Term::letter("j", int()))],
+                        explicit: false,
+                    },
+                    int(),
+                )),
+            },
+            int(),
+        );
+        assert!(alike_once_set(&sum_over_k(), &renamed, &Values::new()));
+    }
+
+    #[test]
+    fn a_function_keeps_its_own_letters() {
+        let lambda = Term::of(
+            TermKind::Lambda {
+                letters: vec!["a".to_string(), "h".to_string()],
+                body: Box::new(Term::letter("h", LeanType::Prop)),
+            },
+            LeanType::Prop,
+        );
+        let other = Term::letter("q", LeanType::Prop);
+        assert_eq!(substituted(&lambda, "h", &other).text(), "fun a h => h");
+        assert_eq!(substituted(&lambda, "a", &other).text(), "fun a h => h");
+    }
+
+    #[test]
+    fn an_if_keeps_its_proof_in_its_branches() {
+        let cond = Term::letter("c", LeanType::Prop);
+        let pick = Term::of(
+            TermKind::DependentIf {
+                proof: "h".to_string(),
+                cond: Box::new(cond),
+                yes: Box::new(Term::letter("h", int())),
+                no: Box::new(Term::numeral("0", int())),
+            },
+            int(),
+        );
+        let other = Term::letter("q", int());
+        assert_eq!(
+            substituted(&pick, "h", &other).text(),
+            "if h : c then h else 0"
+        );
     }
 }

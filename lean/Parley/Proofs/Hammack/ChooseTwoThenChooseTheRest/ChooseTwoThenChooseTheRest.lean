@@ -57,9 +57,9 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 10. def:range-between k := k − 2, a := 0, b := n − 2, from 5, 6
   have s10 : k - 2 ∈ Finset.Icc (0 : ℤ) (n - 2) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 2) (a := (0 : ℤ)) (b := n - 2))).mpr (by parley_side)
   -- 11. mun:range-difference a := 0, k := 2, from 7
-  have s11 : 0 ≤ n - 2 := (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := n) (k := (2 : ℤ)) s7)
+  have s11 : 0 ≤ n - 2 := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := n) (k := (2 : ℤ)) s7)
   -- 12. mun:range-difference a := 0, n := k, k := 2, from 8
-  have s12 : 0 ≤ k - 2 := (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := k) (k := (2 : ℤ)) s8)
+  have s12 : 0 ≤ k - 2 := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := k) (k := (2 : ℤ)) s8)
   -- 13. mun:range-difference a := 0, from 9
   have s13 : 0 ≤ n - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := n) (k := k) s9)
   -- 14. def:C k := 2, from 7

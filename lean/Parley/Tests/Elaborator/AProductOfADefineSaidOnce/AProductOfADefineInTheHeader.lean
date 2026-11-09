@@ -4,7 +4,6 @@ public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
-public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -26,7 +25,7 @@ namespace Parley.Tests.Elaborator.AProductOfADefineSaidOnce.AProductOfADefineInT
 theorem a_product_of_a_define_in_the_header (p : ℤ) (hH1 : 0 < p) (e : ℤ → ℤ) (hD1 : ∀ i : ℤ, i ∈ Finset.Icc (1 : ℤ) (1 : ℤ) → e i = p) :
     (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = p := by
   -- 1. mun:product-single a := 1, t := e
-  have s1 : (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ)))
+  have s1 : (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ)))
   -- 2. D1
   have r44_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_side
   have s2 : e 1 = p := by (try simp only [hD1]); first | done | parley_side

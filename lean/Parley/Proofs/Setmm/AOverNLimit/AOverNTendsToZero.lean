@@ -25,6 +25,8 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.LimitLemmas.ScaledSmall
@@ -53,7 +55,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
     -- 5.1. membership
     have r42_1 : 2 * (abs A + 1) ≠ 0 := by parley_side
     -- 5.2. mun:quotient-positive x := ε, y := 2·(|A| + 1), from A1, 3
-    have s5_2 : ε / (2 * (abs A + 1)) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs A + 1)) (by parley_side) (by parley_side))
+    have s5_2 : ε / (2 * (abs A + 1)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs A + 1)) (by parley_side) (by parley_side))
     -- 5.3. obtain N: thm:archimedean x := ε/(2·(|A| + 1)), from 5.1, 5.2
     obtain ⟨N, s5_3a, s5_3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε / (2 * (abs A + 1))) s5_2)
     -- 5.4. proof
@@ -69,7 +71,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       have s5_4_2 : 1 / (n : ℝ) < ε / (2 * (abs A + 1)) := by parley_order
       -- 5.4.3. mun:reciprocal-positive x := n
       have r66_1 : n > 0 := by parley_order
-      have s5_4_3 : 1 / (n : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by parley_side))
+      have s5_4_3 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by parley_side))
       -- 5.4.4. inequalities
       have s5_4_4 : 1 / (n : ℚ) ≥ 0 := by parley_order
       -- 5.4.5. substitute

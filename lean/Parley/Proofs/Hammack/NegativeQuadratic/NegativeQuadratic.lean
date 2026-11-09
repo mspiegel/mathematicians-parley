@@ -26,7 +26,7 @@ theorem negative_quadratic (x : ℝ) (hH2 : x ^ 2 + 5 * x < 0) :
   -- 1. inequalities, from S
   have s1 : x ≥ 0 := by parley_order
   -- 2. mun:square-nonneg
-  have s2 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
+  have s2 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 3. inequalities
   have s3 : 5 * x ≥ 0 := by parley_order
   -- 4. inequalities, from 2, 3

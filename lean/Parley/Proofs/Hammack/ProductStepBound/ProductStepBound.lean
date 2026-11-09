@@ -33,7 +33,7 @@ theorem product_step_bound (t : ℝ) (p : ℝ) (hH3 : 0 < t) (hH4 : t ≤ 1 / 4)
   -- 6. inequalities
   have s6 : t ≥ 0 := by parley_order
   -- 7. mun:product-nonneg x := t, y := 1/4 − t, from 5, 6
-  have s7 : t * (1 / 4 - t) ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := t) (y := 1 / 4 - t) (by parley_side) (by parley_side))
+  have s7 : t * (1 / 4 - t) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := t) (y := 1 / 4 - t) (by parley_side) (by parley_side))
   -- 8. inequalities
   have s8 : 1 / 4 + t / 2 + t * (1 / 4 - t) ≥ 1 / 4 + t / 2 := by parley_order
   -- 9. algebra

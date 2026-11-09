@@ -22,6 +22,8 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall
@@ -63,13 +65,13 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     -- 9.2. inequalities
     have s9_2 : 2 * s ≠ 0 := by parley_side
     -- 9.3. mun:quotient-positive x := ε, y := 2·s, from A1, 9.1
-    have s9_3 : ε / (2 * s) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * s) (by parley_side) (by parley_side))
+    have s9_3 : ε / (2 * s) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * s) (by parley_side) (by parley_side))
     -- 9.4. inequalities
     have s9_4 : 2 * t > 0 := by parley_order
     -- 9.5. inequalities
     have s9_5 : 2 * t ≠ 0 := by parley_side
     -- 9.6. mun:quotient-positive x := ε, y := 2·t, from A1, 9.4
-    have s9_6 : ε / (2 * t) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side))
+    have s9_6 : ε / (2 * t) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side))
     -- 9.7. mun:quotient-real x := ε, y := 2·t, from 9.5
     set m : ℝ := min 1 (ε / (2 * t)) with hD3
     have hD3_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))); parley_side)

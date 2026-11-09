@@ -29,9 +29,9 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
   by_contra (hS : a ≠ b)
   -- 1. mun:square-positive x := a − b
   have r19_1 : a - b ≠ 0 := by parley_side
-  have s1 : (a - b) ^ 2 > 0 := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a - b) (by parley_side))
+  have s1 : (a - b) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a - b) (by parley_side))
   -- 2. mun:square-nonneg x := a + b
-  have s2 : (a + b) ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b))
+  have s2 : (a + b) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b))
   -- 3. inequalities
   have s3 : 3 * (a + b) ^ 2 ≥ 0 := by parley_order
   -- 4. inequalities, from 1, 3

@@ -40,8 +40,8 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. def:sqrt x := 2
   have r20_1 : (2 : ℤ) ≥ 0 := by parley_arith
-  have s1a : Real.sqrt (2 : ℝ) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side))
-  have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))
+  have s1a : Real.sqrt (2 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side))
+  have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))
   -- 2. thm:sqrt2-irrational
   have s2 : Irrational (Real.sqrt (2 : ℝ)) := by exact Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational
   -- 3. calculation
@@ -61,7 +61,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   have s6 : Real.sqrt (2 : ℝ) < 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (by parley_side) (by parley_side))).mpr s5
   -- 7. mun:product-positive x := 1/2, y := √2, from 4
   have r46_1 : (1 / 2 : ℚ) > 0 := by parley_arith
-  have s7 : 0 < 1 / 2 * Real.sqrt (2 : ℝ) := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (1 / 2 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))
+  have s7 : 0 < 1 / 2 * Real.sqrt (2 : ℝ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (1 / 2 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))
   -- 8. calculation
   have r50_1 : (1 / 2 : ℚ) > 0 := by parley_arith
   have s8 : 1 / 2 * Real.sqrt (2 : ℝ) < 1 := by
@@ -72,7 +72,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   set u : ℝ := (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) with hD1
   have hD1_kind : True := by parley_side
   -- 10. mun:product-positive x := s − r, y := (1/2)·√2, from 7, 9
-  have s10 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))
+  have s10 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))
   -- 11. inequalities
   have s11 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > (r : ℝ) := by parley_order
   -- 12. transitivity, from 11, D1
@@ -101,9 +101,9 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.6. transitivity, from 17.4, 17.5
     have s17_6 : s - r = (c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ) := by parley_side
     -- 17.7. mun:product-positive x := q, y := d, from 17.2, 17.3
-    have s17_7 : q * d > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) (by parley_side) (by parley_side))
+    have s17_7 : q * d > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) (by parley_side) (by parley_side))
     -- 17.8. mun:product-positive x := s − r, y := q·d, from 9, 17.7
-    have s17_8 : (s - r) * ((q : ℚ) * (d : ℚ)) > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side))
+    have s17_8 : (s - r) * ((q : ℚ) * (d : ℚ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side))
     -- 17.9. substitute s − r = c/d − p/q (line 17.6) into line 17.8
     have s17_9 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) > 0 := by parley_subst_at s17_6 s17_8
     -- 17.10. algebra
@@ -130,7 +130,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
       have row3 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_put_at c3_w row2 | parley_put_at c3 row2 | parley_subst_at c3_w row2 | parley_subst_at c3 row2
       exact row3
     -- 17.14. algebra, from 17.13
-    have s17_14 : (b : ℝ) * ((c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ)) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by linear_combination (norm := parley_field) (-2 * (b : ℝ) * (d : ℝ) * (q : ℝ)) * s17_13
+    have s17_14 : (b : ℝ) * ((c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ)) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by linear_combination (norm := parley_field) (-(2 * (b : ℝ) * (d : ℝ) * (q : ℝ))) * s17_13
     -- 17.15. substitute c·q − p·d = m (D2) into line 17.14
     have s17_15 : (b : ℝ) * (m : ℝ) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by
       have hD2_w : (m : ℝ) = (c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) hD2; push_cast at h; linear_combination (norm := parley_norm) h

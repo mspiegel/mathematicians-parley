@@ -37,7 +37,7 @@ theorem a_square_is_not_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x ^ 2) 
   -- 1.4. D1
   have s1_4 : f x = x ^ 2 := by (try simp only [hD1]); first | done | parley_set_side
   -- 1.5. mun:square-nonneg
-  have s1_5 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
+  have s1_5 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 1.6. calculation
   have s1_6 : -1 = x ^ 2 := by
     calc (-1 : ℝ) = f x := by parley_set_side

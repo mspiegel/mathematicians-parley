@@ -29,6 +29,8 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets
@@ -98,7 +100,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
       calc abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := by parley_set_side
         _ < abs (4 * x + 4) * (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 1)) (y := ε / 12) (c := abs (4 * x + 4)) (by parley_set_side))).mp s1_4_1.2
         _ = ε / 12 * abs (4 * x + 4) := by parley_ring
-        _ ≤ ε / 12 * 12 := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (4 * x + 4)) (y := (12 : ℝ)) (c := ε / 12) (by parley_set_side) (by parley_set_side))
+        _ ≤ ε / 12 * 12 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (4 * x + 4)) (y := (12 : ℝ)) (c := ε / 12) (by parley_set_side) (by parley_set_side))
         _ = ε := by parley_ring
     -- 1.5. exhibit, from 1.3, 1.4
     exact ⟨m, ⟨s1_3, s1_4⟩⟩

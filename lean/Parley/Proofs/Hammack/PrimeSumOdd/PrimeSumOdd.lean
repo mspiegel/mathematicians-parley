@@ -39,7 +39,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
   -- 1. def:prime, from H3
   have s1 : p > 1 := (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp hH3).1
   -- 2. mun:integer-step m := 1, n := p, from 1
-  have s2 : 1 + 1 ≤ p := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := p) s1)
+  have s2 : 1 + 1 ≤ p := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := p) s1)
   -- 3. transitivity, from 2, H5
   have s3 : 1 + 1 < q := by parley_order
   -- 4. def:prime p := q, from H4

@@ -195,8 +195,12 @@ impl Op {
             "/" => return Some(Op::DIVIDE),
             "%" => ("%", 70, Assoc::Left),
             "∩" => ("∩", 70, Assoc::Left),
-            "\\" => ("\\", 70, Assoc::Left),
+            // Lean declares `\` `infix:70`: `A \ B \ C` does not parse.
+            "\\" => ("\\", 70, Assoc::Neither),
             "^" => ("^", 75, Assoc::Right),
+            // `f '' s` and `f ⁻¹' s`, Mathlib's image and preimage of a set.
+            "''" => ("''", 80, Assoc::Left),
+            "⁻¹'" => ("⁻¹'", 80, Assoc::Left),
             "∘" => return Some(Op::COMPOSE),
             _ => return None,
         };
@@ -233,6 +237,75 @@ pub enum Quant {
     ForAll,
     Exists,
     Fun,
+}
+
+/// A notation that binds one letter over a body (`TermKind::Bound`), with
+/// what the letter runs over, which stands outside its scope.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum BoundForm {
+    /// `∑ k ∈ set, body` or `∏ k ∈ set, body`, and over a finite set `∑ᶠ`,
+    /// `∏ᶠ`; `need` is the precedence `set` stands at.
+    BigOp {
+        product: bool,
+        finite: bool,
+        set: Box<Term>,
+        need: u32,
+    },
+    /// `∫ x in from..to, body`.
+    Integral { from: Box<Term>, to: Box<Term> },
+    /// `{x : T | body}`.
+    SetOf,
+    /// `{x ∈ set | body}`.
+    SetOfMember { set: Box<Term> },
+    /// `⋃ x ∈ set, body`.
+    Union { set: Box<Term> },
+}
+
+impl BoundForm {
+    /// What the letter runs over.
+    pub fn over(&self) -> Vec<&Term> {
+        match self {
+            BoundForm::BigOp { set, .. }
+            | BoundForm::SetOfMember { set }
+            | BoundForm::Union { set } => vec![&**set],
+            BoundForm::Integral { from, to } => vec![&**from, &**to],
+            BoundForm::SetOf => Vec::new(),
+        }
+    }
+
+    /// What the letter runs over, to change in place.
+    pub fn over_mut(&mut self) -> Vec<&mut Term> {
+        match self {
+            BoundForm::BigOp { set, .. }
+            | BoundForm::SetOfMember { set }
+            | BoundForm::Union { set } => vec![&mut **set],
+            BoundForm::Integral { from, to } => vec![&mut **from, &mut **to],
+            BoundForm::SetOf => Vec::new(),
+        }
+    }
+}
+
+/// The brackets a list of terms stands between (`TermKind::Listed`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Brackets {
+    /// `⟨a, b⟩`.
+    Angle,
+    /// `{a, b}`.
+    Brace,
+}
+
+/// A mark Lean writes before a term (`TermKind::Prefix`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PrefixMark {
+    /// `𝒫 X`, the subsets of X.
+    Powerset,
+}
+
+/// A mark Lean writes after a term (`TermKind::Postfix`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PostfixMark {
+    /// `g⁻¹`, the inverse.
+    Inverse,
 }
 
 /// An argument a function or a declaration is applied to.
@@ -325,40 +398,56 @@ pub enum TermKind {
         letter_ty: LeanType,
         guard: Option<Box<Term>>,
         body: Box<Term>,
+        /// Written `∀ x ∈ S, body` and `∃ x ∈ S, body`: the guard is
+        /// `x ∈ S`, which Lean reads as `∀ x, x ∈ S → body` and
+        /// `∃ x, x ∈ S ∧ body`, one term either way.
+        bounded: bool,
+    },
+    /// A notation binding one letter over a body (`BoundForm`): a sum or
+    /// product, an integral, a set-builder. What the letter runs over, a
+    /// range, a set or an integral's two ends, is the form's and stands
+    /// outside its scope; the body inside.
+    Bound {
+        form: BoundForm,
+        letter: String,
+        letter_ty: LeanType,
+        body: Box<Term>,
+    },
+    /// Terms listed between brackets: an anonymous constructor `⟨a, b⟩`, or
+    /// a set listed by its members `{a, b}`.
+    Listed {
+        brackets: Brackets,
+        items: Vec<Term>,
+    },
+    /// `show says proof`: a term saying `says`, proved by `proof`.
+    Show { says: Box<Term>, proof: Box<Term> },
+    /// `(proof : says)`: a proof given the statement it is taken as.
+    Ascribed { proof: Box<Term>, says: Box<Term> },
+    /// A mark before a term, `𝒫 X`.
+    Prefix { mark: PrefixMark, inner: Box<Term> },
+    /// A mark after a term, `g⁻¹`.
+    Postfix { mark: PostfixMark, inner: Box<Term> },
+    /// `(g * ·)`: the function the operator makes of its left side.
+    Section { op: Op, left: Box<Term> },
+    /// `fun a h => body`: a function of these letters, whose types Lean
+    /// finds from where it stands, as the proof part of `⟨…⟩` takes them.
+    Lambda {
+        letters: Vec<String>,
+        body: Box<Term>,
+    },
+    /// `if h : cond then yes else no`: `proof` names the proof of `cond` in
+    /// `yes` and `no`.
+    DependentIf {
+        proof: String,
+        cond: Box<Term>,
+        yes: Box<Term>,
+        no: Box<Term>,
     },
     /// A bracket no precedence asks for, kept where the writer writes one.
     Paren(Box<Term>),
     /// A proof standing as a term, `by t`, as the proof part of `⟨w, by t⟩`
     /// or an argument `(by parley_side)`.
     By(Box<super::tactic::Proof>),
-    /// A Lean notation: its fixed text around terms, `∑ k ∈ Finset.Icc a
-    /// b, f k`, each term standing where it needs a precedence at least,
-    /// and the precedence of the whole.
-    Notation { pieces: Vec<Piece>, prec: u32 },
-}
-
-/// A piece of a notation.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Piece {
-    /// Text the notation writes itself: its marks and the letters it binds.
-    Text(String),
-    /// A term, bracketed unless it binds at least as tightly as `need`.
-    Term { term: Box<Term>, need: u32 },
-}
-
-impl Piece {
-    /// Fixed text.
-    pub fn text(text: impl Into<String>) -> Piece {
-        Piece::Text(text.into())
-    }
-
-    /// A term standing where it needs `need`.
-    pub fn term(term: Term, need: u32) -> Piece {
-        Piece::Term {
-            term: Box::new(term),
-            need,
-        }
-    }
 }
 
 impl Term {
@@ -391,11 +480,6 @@ impl Term {
     /// Whether the term is `True`.
     pub fn is_truth(&self) -> bool {
         matches!(&self.kind, TermKind::Const(c) if c.name == "True")
-    }
-
-    /// A notation of these pieces, binding as tightly as `prec`.
-    pub fn notation(pieces: Vec<Piece>, prec: u32, ty: LeanType) -> Term {
-        Term::of(TermKind::Notation { pieces, prec }, ty)
     }
 
     /// A constant, standing alone.
@@ -514,13 +598,20 @@ impl Term {
                 out.push(body);
                 out
             }
-            TermKind::Notation { pieces, .. } => pieces
-                .iter()
-                .filter_map(|p| match p {
-                    Piece::Term { term, .. } => Some(&**term),
-                    Piece::Text(_) => None,
-                })
-                .collect(),
+            TermKind::Bound { form, body, .. } => {
+                let mut out = form.over();
+                out.push(body);
+                out
+            }
+            TermKind::Lambda { body, .. } => vec![&**body],
+            TermKind::Listed { items, .. } => items.iter().collect(),
+            TermKind::Show { says, proof } => vec![&**says, &**proof],
+            TermKind::Ascribed { proof, says } => vec![&**proof, &**says],
+            TermKind::Prefix { inner, .. } | TermKind::Postfix { inner, .. } => {
+                vec![&**inner]
+            }
+            TermKind::Section { left, .. } => vec![&**left],
+            TermKind::DependentIf { cond, yes, no, .. } => vec![&**cond, &**yes, &**no],
         }
     }
 
@@ -560,13 +651,22 @@ impl Term {
                 out.push(body);
                 out
             }
-            TermKind::Notation { pieces, .. } => pieces
-                .iter_mut()
-                .filter_map(|p| match p {
-                    Piece::Term { term, .. } => Some(&mut **term),
-                    Piece::Text(_) => None,
-                })
-                .collect(),
+            TermKind::Bound { form, body, .. } => {
+                let mut out = form.over_mut();
+                out.push(body);
+                out
+            }
+            TermKind::Lambda { body, .. } => vec![&mut **body],
+            TermKind::Listed { items, .. } => items.iter_mut().collect(),
+            TermKind::Show { says, proof } => vec![&mut **says, &mut **proof],
+            TermKind::Ascribed { proof, says } => vec![&mut **proof, &mut **says],
+            TermKind::Prefix { inner, .. } | TermKind::Postfix { inner, .. } => {
+                vec![&mut **inner]
+            }
+            TermKind::Section { left, .. } => vec![&mut **left],
+            TermKind::DependentIf { cond, yes, no, .. } => {
+                vec![&mut **cond, &mut **yes, &mut **no]
+            }
         }
     }
 
@@ -700,10 +800,7 @@ impl Term {
             TermKind::Count { form, .. } => *form == CountForm::Extended,
             TermKind::Cast { to, .. } => to.has_set(),
             TermKind::Quantified { letter_ty, .. } => letter_ty.has_set(),
-            TermKind::Notation { pieces, .. } => pieces.iter().any(|p| match p {
-                Piece::Text(t) => t.contains("Set ") || t.contains("Set."),
-                Piece::Term { .. } => false,
-            }),
+            TermKind::Bound { letter_ty, .. } => letter_ty.has_set(),
             _ => false,
         }
     }
@@ -734,6 +831,44 @@ impl Term {
                 self.substitute_children(&inner);
                 return;
             }
+        }
+        // A function's letters are its own in its body.
+        if let TermKind::Lambda { letters, body } = &mut self.kind {
+            let mut inner = given.clone();
+            for l in letters.iter() {
+                inner.remove(l.as_str());
+            }
+            body.substitute(&inner);
+            return;
+        }
+        // The proof an `if` names is its own in its branches.
+        if let TermKind::DependentIf {
+            proof,
+            cond,
+            yes,
+            no,
+        } = &mut self.kind
+        {
+            cond.substitute(given);
+            let mut inner = given.clone();
+            inner.remove(proof.as_str());
+            yes.substitute(&inner);
+            no.substitute(&inner);
+            return;
+        }
+        // What a bound letter runs over is outside its scope, its body
+        // inside.
+        if let TermKind::Bound {
+            letter, form, body, ..
+        } = &mut self.kind
+        {
+            for o in form.over_mut() {
+                o.substitute(given);
+            }
+            let mut inner = given.clone();
+            inner.remove(letter.as_str());
+            body.substitute(&inner);
+            return;
         }
         self.substitute_children(given);
     }
@@ -782,12 +917,27 @@ impl Term {
                 }
                 body.substitute(given);
             }
-            TermKind::Notation { pieces, .. } => {
-                for p in pieces {
-                    if let Piece::Term { term, .. } = p {
-                        term.substitute(given);
-                    }
+            TermKind::Bound { form, body, .. } => {
+                for o in form.over_mut() {
+                    o.substitute(given);
                 }
+                body.substitute(given);
+            }
+            TermKind::Lambda { body, .. } => body.substitute(given),
+            TermKind::Listed { .. }
+            | TermKind::Show { .. }
+            | TermKind::Ascribed { .. }
+            | TermKind::Prefix { .. }
+            | TermKind::Postfix { .. }
+            | TermKind::Section { .. } => {
+                for c in self.children_mut() {
+                    c.substitute(given);
+                }
+            }
+            TermKind::DependentIf { cond, yes, no, .. } => {
+                cond.substitute(given);
+                yes.substitute(given);
+                no.substitute(given);
             }
         }
     }
@@ -824,18 +974,6 @@ impl Term {
             TermKind::Neg(t) => TermKind::Neg(Box::new(t.instantiate(args)?)),
             TermKind::ToNat(t) => TermKind::ToNat(Box::new(t.instantiate(args)?)),
             TermKind::Paren(t) => TermKind::Paren(Box::new(t.instantiate(args)?)),
-            TermKind::Notation { pieces, prec } => TermKind::Notation {
-                pieces: pieces
-                    .iter()
-                    .map(|p| match p {
-                        Piece::Text(t) => Some(Piece::Text(t.clone())),
-                        Piece::Term { term, need } => {
-                            Some(Piece::term(term.instantiate(args)?, *need))
-                        }
-                    })
-                    .collect::<Option<Vec<Piece>>>()?,
-                prec: *prec,
-            },
             TermKind::Cast { inner, to } => TermKind::Cast {
                 inner: Box::new(inner.instantiate(args)?),
                 to: to.clone(),
@@ -864,6 +1002,7 @@ impl Term {
                 letter_ty,
                 guard,
                 body,
+                bounded,
             } => TermKind::Quantified {
                 quant: *quant,
                 letter: letter.clone(),
@@ -873,6 +1012,85 @@ impl Term {
                     None => None,
                 },
                 body: Box::new(body.instantiate(args)?),
+                bounded: *bounded,
+            },
+            TermKind::Bound {
+                form,
+                letter,
+                letter_ty,
+                body,
+            } => {
+                let filled = |t: &Term| t.instantiate(args).map(Box::new);
+                let form = match form {
+                    BoundForm::BigOp {
+                        product,
+                        finite,
+                        set,
+                        need,
+                    } => BoundForm::BigOp {
+                        product: *product,
+                        finite: *finite,
+                        set: filled(set)?,
+                        need: *need,
+                    },
+                    BoundForm::Integral { from, to } => BoundForm::Integral {
+                        from: filled(from)?,
+                        to: filled(to)?,
+                    },
+                    BoundForm::SetOf => BoundForm::SetOf,
+                    BoundForm::SetOfMember { set } => {
+                        BoundForm::SetOfMember { set: filled(set)? }
+                    }
+                    BoundForm::Union { set } => BoundForm::Union { set: filled(set)? },
+                };
+                TermKind::Bound {
+                    form,
+                    letter: letter.clone(),
+                    letter_ty: letter_ty.clone(),
+                    body: Box::new(body.instantiate(args)?),
+                }
+            }
+            TermKind::Lambda { letters, body } => TermKind::Lambda {
+                letters: letters.clone(),
+                body: Box::new(body.instantiate(args)?),
+            },
+            TermKind::Listed { brackets, items } => TermKind::Listed {
+                brackets: *brackets,
+                items: items
+                    .iter()
+                    .map(|i| i.instantiate(args))
+                    .collect::<Option<Vec<Term>>>()?,
+            },
+            TermKind::Show { says, proof } => TermKind::Show {
+                says: Box::new(says.instantiate(args)?),
+                proof: Box::new(proof.instantiate(args)?),
+            },
+            TermKind::Ascribed { proof, says } => TermKind::Ascribed {
+                proof: Box::new(proof.instantiate(args)?),
+                says: Box::new(says.instantiate(args)?),
+            },
+            TermKind::Prefix { mark, inner } => TermKind::Prefix {
+                mark: *mark,
+                inner: Box::new(inner.instantiate(args)?),
+            },
+            TermKind::Postfix { mark, inner } => TermKind::Postfix {
+                mark: *mark,
+                inner: Box::new(inner.instantiate(args)?),
+            },
+            TermKind::Section { op, left } => TermKind::Section {
+                op: *op,
+                left: Box::new(left.instantiate(args)?),
+            },
+            TermKind::DependentIf {
+                proof,
+                cond,
+                yes,
+                no,
+            } => TermKind::DependentIf {
+                proof: proof.clone(),
+                cond: Box::new(cond.instantiate(args)?),
+                yes: Box::new(yes.instantiate(args)?),
+                no: Box::new(no.instantiate(args)?),
             },
         };
         Some(Term {
@@ -931,12 +1149,27 @@ impl Term {
                 }
                 body.set_general(at);
             }
-            TermKind::Notation { pieces, .. } => {
-                for p in pieces {
-                    if let Piece::Term { term, .. } = p {
-                        term.set_general(at);
-                    }
+            TermKind::Bound { form, body, .. } => {
+                for o in form.over_mut() {
+                    o.set_general(at);
                 }
+                body.set_general(at);
+            }
+            TermKind::Lambda { body, .. } => body.set_general(at),
+            TermKind::Listed { .. }
+            | TermKind::Show { .. }
+            | TermKind::Ascribed { .. }
+            | TermKind::Prefix { .. }
+            | TermKind::Postfix { .. }
+            | TermKind::Section { .. } => {
+                for c in self.children_mut() {
+                    c.set_general(at);
+                }
+            }
+            TermKind::DependentIf { cond, yes, no, .. } => {
+                cond.set_general(at);
+                yes.set_general(at);
+                no.set_general(at);
             }
             TermKind::By(_)
             | TermKind::Letter(_)
@@ -979,8 +1212,9 @@ impl Term {
         self.constants().iter().any(|c| c.name == name)
     }
 
-    /// The same tree with no node's type kept: two terms Lean writes alike
-    /// compare equal whatever types the writer knew of their parts.
+    /// The same tree with no node's type kept, a bound letter's among them:
+    /// two terms Lean writes alike compare equal whatever types the writer
+    /// knew of their parts.
     pub fn untyped(&self) -> Term {
         let mut out = self.clone();
         out.clear_types();
@@ -989,6 +1223,11 @@ impl Term {
 
     fn clear_types(&mut self) {
         self.ty = None;
+        if let TermKind::Quantified { letter_ty, .. }
+        | TermKind::Bound { letter_ty, .. } = &mut self.kind
+        {
+            *letter_ty = LeanType::General;
+        }
         for c in self.children_mut() {
             c.clear_types();
         }

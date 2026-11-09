@@ -65,7 +65,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
     try push_cast at *
     exact (Parley.Items.Stdlib.Sums.mun_product_range_nonneg (t := a) (a := (1 : ℤ)) (b := n) hH3)
   -- 3. mun:sum-nonneg a := 1, b := n, from H3
-  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≥ 0 := (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := n) hH3)
+  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := n) hH3)
   -- 4. mun:quotient-nonneg, from D2, H1, 3
   have s4 : M ≥ 0 := by
     try simp only [hD2] at *

@@ -66,7 +66,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
         have s4_3_2 : ¬ u < u := by parley_set_side
         exact s4_3_2 s4_3_1
       -- 4.4. mun:subset-into-difference a := u, X := (a, b), Y := (v, u), from 4.2, 4.3
-      have s4_4 : (Set.Ioo v u : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo v u : Set ℝ)) (a := u) s4_2 s4_3)
+      have s4_4 : (Set.Ioo v u : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo v u : Set ℝ)) (a := u) s4_2 s4_3)
       -- 4.5. thm:cauchy-quotient E := (a, b), U := (a, b) ∖ {u}, p := v, q := u, from C1, H10, H11, H12, 1, 2, 4.1, 4.4
       have r164_1 : ContinuousOn F (Set.Icc v u : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := F) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc v u : Set ℝ)) s1 s4_1 hH8)
       have r164_2 : ContinuousOn G (Set.Icc v u : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := G) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc v u : Set ℝ)) s1 s4_1 hH9)
@@ -83,7 +83,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.10. algebra, from 4.8
       have r186_5 : G u - G v ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) (-1) * h)
       have r186_6 : G v - G u ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) h)
-      have r186_9 : (deriv G) ξ ≠ 0 := by first | exact (hH12 ξ (by parley_set_side)) | exact ((hH12 ξ (by parley_set_side))).symm | simpa using (hH12 ξ (by parley_set_side)) | exact_mod_cast (hH12 ξ (by parley_set_side)) | (have h := (hH12 ξ (by parley_set_side)); parley_set_side)
+      have r186_9 : (deriv G) ξ ≠ 0 := by exact (hH12 ξ (by parley_set_side))
       have s4_10 : (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by linear_combination (norm := parley_field) s4_8b
       -- 4.11. def:open-interval a := v, b := u, x := ξ, from 4.8
       have s4_11a : v < ξ := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).1.2
@@ -98,7 +98,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
           _ < -(v - u) := by parley_set_side
           _ = abs (v - u) := ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := v - u)) (by parley_set_side)).symm
       -- 4.14. exhibit, from 4.9, 4.10, 4.13
-      have s4_14 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+      have s4_14 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_9, ⟨s4_13, s4_10⟩⟩
       -- 4.15. join 4.7, 4.14
       have s4_15a : G u ≠ G v := by parley_set_side
       have s4_15b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by parley_set_side
@@ -118,7 +118,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
         have s4_18_2 : ¬ u < u := by parley_set_side
         exact s4_18_2 s4_18_1
       -- 4.19. mun:subset-into-difference a := u, X := (a, b), Y := (u, v), from 4.17, 4.18
-      have s4_19 : (Set.Ioo u v : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo u v : Set ℝ)) (a := u) s4_17 s4_18)
+      have s4_19 : (Set.Ioo u v : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo u v : Set ℝ)) (a := u) s4_17 s4_18)
       -- 4.20. thm:cauchy-quotient E := (a, b), U := (a, b) ∖ {u}, p := u, q := v, from C2, H10, H11, H12, 1, 2, 4.16, 4.19
       have r246_1 : ContinuousOn F (Set.Icc u v : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := F) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc u v : Set ℝ)) s1 s4_16 hH8)
       have r246_2 : ContinuousOn G (Set.Icc u v : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := G) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc u v : Set ℝ)) s1 s4_16 hH9)
@@ -147,7 +147,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
           _ < v - u := by parley_set_side
           _ = abs (v - u) := ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := v - u)) (by parley_set_side)).symm
       -- 4.29. exhibit, from 4.22, 4.23, 4.28
-      have s4_29 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+      have s4_29 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_23, ⟨s4_28, s4_22b⟩⟩
       -- 4.30. join 4.21, 4.29
       have s4_30a : G u ≠ G v := by parley_set_side
       have s4_30b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by parley_set_side

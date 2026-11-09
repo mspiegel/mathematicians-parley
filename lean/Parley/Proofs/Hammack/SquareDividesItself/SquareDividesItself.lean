@@ -35,7 +35,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
   -- 1. obtain k: def:divides d := a², n := a, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a ^ 2) (n := a))).mp hH2
   -- 2. axi:excluded-middle P := a = 0
-  have s2 : a = 0 ∨ a ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a = 0))
+  have s2 : a = 0 ∨ a ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a = 0))
   -- 3. cases, from 2
   rcases s2 with hC1 | hC2
   · skip
@@ -47,9 +47,9 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
     -- 3.3. algebra, from 1
     have s3_3 : a * k * a = 1 * a := by linear_combination (norm := parley_norm) (-1) * s1
     -- 3.4. mun:multiply-cancel a := a·k, b := 1, c := a, from C2, 3.3
-    have s3_4 : a * k = 1 := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := a * k) (b := (1 : ℤ)) (c := a) (by parley_set_side) (by parley_set_side))
+    have s3_4 : a * k = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := a * k) (b := (1 : ℤ)) (c := a) (by parley_set_side) (by parley_set_side))
     -- 3.5. mun:nonneg-or-neg x := a
-    have s3_5 : a ≥ 0 ∨ a < 0 := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a))
+    have s3_5 : a ≥ 0 ∨ a < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a))
     -- 3.6. cases, from 3.5
     rcases s3_5 with hC3 | hC4
     · skip

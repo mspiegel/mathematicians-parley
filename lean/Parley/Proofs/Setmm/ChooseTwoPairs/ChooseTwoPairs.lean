@@ -23,7 +23,7 @@ namespace Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs
 theorem choose_two_pairs (n : ℤ) (hH1 : 0 ≤ n) :
     n + (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by
   -- 1. thm:pascal k := 2
-  have s1 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := (Parley.Items.Stdlib.Counting.thm_pascal (n := n) (by parley_side) (k := (2 : ℤ)))
+  have s1 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := n) (by parley_side) (k := (2 : ℤ)))
   -- 2. substitute 2 − 1 = 1 (arithmetic) into line 1
   have s2 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by parley_subst_at (show (2 - 1 : ℤ) = 1 by parley_side) s1
   -- 3. substitute

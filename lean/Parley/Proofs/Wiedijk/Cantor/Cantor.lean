@@ -48,6 +48,6 @@ theorem cantor {α : Type*} (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f
     have s2_3 : x ∈ B := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mpr (by parley_set_side)
     exact s2_1 s2_3
   -- 3. exhibit, from 1, 2
-  exact ⟨B, by parley_set_side, by parley_set_side⟩
+  exact ⟨B, s1, s2⟩
 
 end Parley.Proofs.Wiedijk.Cantor.Cantor

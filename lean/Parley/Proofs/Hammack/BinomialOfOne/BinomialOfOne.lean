@@ -34,7 +34,7 @@ theorem binomial_of_one (m : ℤ) (hH1 : 0 ≤ m) :
       exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) s1_1
     | succ j hK hIH =>
       -- 1.3. thm:pascal n := j, k := 1
-      have s1_3 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) := (Parley.Items.Stdlib.Counting.thm_pascal (n := j) (by parley_side) (k := (1 : ℤ)))
+      have s1_3 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) (by parley_side) (k := (1 : ℤ)))
       -- 1.4. mun:binomial-zero-index n := j
       have s1_4 : (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := j) (by parley_side))
       -- 1.5. substitute 1 − 1 = 0 (arithmetic) into line 1.3

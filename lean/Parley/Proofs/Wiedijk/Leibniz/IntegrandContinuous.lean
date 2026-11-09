@@ -1,9 +1,7 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -18,18 +16,17 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -85,7 +82,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
   have s18 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), v x ≠ 0 := by
     intro x hK1
     -- 18.1. mun:square-nonneg
-    have s18_1 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
+    have s18_1 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 18.2. inequalities, from 18.1
     have s18_2 : 1 + x ^ 2 > 0 := by parley_order
     -- 18.3. inequalities
@@ -98,7 +95,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
   have s19 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = u x / v x := by
     intro x hK2
     -- 19.1. instantiate x := x in H3, from D1, D4, K2
-    first | linear_combination (norm := parley_norm) (hH3 x (by parley_set_side)) | (have h := (hH3 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH3 x (by parley_set_side)) | exact_mod_cast ((hH3 x (by parley_set_side))).symm | (have h := (hH3 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH3 x (by parley_set_side)); parley_int_power h) | (have h := (hH3 x (by parley_set_side)); parley_set_side)
+    exact (hH3 x (by parley_set_side))
   -- 20. thm:continuous-quotient D := [0, 1], F := g, f := u, g := v, from 1, 7, 13, 14, 17, 18, 19
   exact (Parley.Items.Stdlib.Calculus.thm_continuous_quotient (F := g) (f := u) (g := v) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 s18 s19 s14 s17)
 

@@ -21,6 +21,8 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -45,7 +47,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
   -- 4. mun:first-terms-bounded
   have s4 : ∀ K : ℤ, 0 < K → (∃ C : ℝ, ∀ m : ℤ, m ∈ Finset.Icc 1 K → abs (x m) ≤ C) := by exact (Parley.Items.Stdlib.Calculus.mun_first_terms_bounded (x := x))
   -- 5. instantiate K := N in line 4
-  have s5 : ∃ C : ℝ, ∀ i : ℤ, i ∈ Finset.Icc 1 N → abs (x i) ≤ C := by first | exact (s4 N (by parley_side)) | exact ((s4 N (by parley_side))).symm | simpa using (s4 N (by parley_side)) | exact_mod_cast (s4 N (by parley_side)) | (have h := (s4 N (by parley_side)); parley_side)
+  have s5 : ∃ C : ℝ, ∀ i : ℤ, i ∈ Finset.Icc 1 N → abs (x i) ≤ C := by exact (s4 N (by parley_side))
   -- 6. obtain C from line 5
   obtain ⟨C, s6⟩ := s5
   -- 7. membership

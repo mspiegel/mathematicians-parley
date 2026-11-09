@@ -37,7 +37,7 @@ namespace Parley.Proofs.Wiedijk.Ballot.TieCount
 theorem tie_count (m : ℤ) (hH1 : 0 ≤ m) :
     ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + m) = (m - m) * (LeanBridges.Counting.choose (m + m) m : ℤ) := by
   -- 1. axi:excluded-middle P := m = 0
-  have s1 : m = 0 ∨ m ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0))
+  have s1 : m = 0 ∨ m ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := m = 0))
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip

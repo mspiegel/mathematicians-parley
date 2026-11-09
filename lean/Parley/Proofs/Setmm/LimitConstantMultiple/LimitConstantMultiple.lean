@@ -19,6 +19,8 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.LimitLemmas.ScaledSmall
@@ -43,7 +45,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
     intro ε
     intro hA1
     -- 4.1. mun:quotient-positive x := ε, y := 2·(|C| + 1), from A1, 3
-    have s4_1 : ε / (2 * (abs C + 1)) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs C + 1)) (by parley_side) (by parley_side))
+    have s4_1 : ε / (2 * (abs C + 1)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs C + 1)) (by parley_side) (by parley_side))
     -- 4.2. membership
     have r37_1 : 2 * (abs C + 1) ≠ 0 := by parley_side
     -- 4.3. def:tends-to, from H4

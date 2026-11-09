@@ -39,11 +39,11 @@ theorem nine_power_from_zero (n : ℤ) (hH1 : 0 ≤ n) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 9, m := k
-      have s1_2 : (9 ^ (k + 1).toNat : ℤ) = 9 ^ k.toNat * 9 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k) (by parley_side))
+      have s1_2 : (9 ^ (k + 1).toNat : ℤ) = 9 ^ k.toNat * 9 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k) (by parley_side))
       -- 1.3. mun:exponent-step a := 3, m := k
-      have s1_3 : (3 ^ (k + 1).toNat : ℤ) = 3 ^ k.toNat * 3 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k) (by parley_side))
+      have s1_3 : (3 ^ (k + 1).toNat : ℤ) = 3 ^ k.toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k) (by parley_side))
       -- 1.4. algebra, from IH, 1.2, 1.3
-      linear_combination (norm := parley_norm) (9) * hIH + s1_2 + (-3 ^ (k + 1).toNat - 3 * 3 ^ k.toNat) * s1_3
+      linear_combination (norm := parley_norm) (9) * hIH + s1_2 + (-(3 ^ (k + 1).toNat) - 3 * 3 ^ k.toNat) * s1_3
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))
 

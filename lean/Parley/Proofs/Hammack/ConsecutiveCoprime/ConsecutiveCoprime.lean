@@ -24,7 +24,7 @@ namespace Parley.Proofs.Hammack.ConsecutiveCoprime.ConsecutiveCoprime
 theorem consecutive_coprime (n : ℤ) (hH1 : 0 ≤ n) :
     (Int.gcd n (n + 1) : ℤ) = 1 := by
   -- 1. axi:excluded-middle P := n = 0
-  have s1 : n = 0 ∨ n ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := n = 0))
+  have s1 : n = 0 ∨ n ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := n = 0))
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip

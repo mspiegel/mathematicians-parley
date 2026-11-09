@@ -30,7 +30,7 @@ namespace Parley.Proofs.Hammack.OddAndQuarticCoprime.OddAndQuarticCoprime
 theorem odd_and_quartic_coprime (n : ℤ) :
     (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) = 1 := by
   -- 1. mun:square-nonneg x := n
-  have s1 : n ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
+  have s1 : n ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
   -- 2. inequalities
   have s2 : 4 * n ^ 2 + 1 ≥ 1 := by parley_order
   -- 3. mun:pos-int-nat m := 4n² + 1
@@ -50,7 +50,7 @@ theorem odd_and_quartic_coprime (n : ℤ) :
     have row1 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (2 : ℤ) := by parley_subst_at c1 s6
     exact row1
   -- 8. mun:divides-combination e := gcd(2n + 1, 4n² + 1), a := 2n + 1, b := 2, x := 1, y := −n, from 4, 7
-  have s8 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (2 * n + 1) * 1 + 2 * -n := (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ)) (a := 2 * n + 1) (b := (2 : ℤ)) (x := (1 : ℤ)) (y := -n) s4b s7)
+  have s8 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (2 * n + 1) * 1 + 2 * -n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ)) (a := 2 * n + 1) (b := (2 : ℤ)) (x := (1 : ℤ)) (y := -n) s4b s7)
   -- 9. substitute
   have s9 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (1 : ℤ) := by
     have c1 : (2 * n + 1) * 1 + 2 * -n = 1 := by parley_ring

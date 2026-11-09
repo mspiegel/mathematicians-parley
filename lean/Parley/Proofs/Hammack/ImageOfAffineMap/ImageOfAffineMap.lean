@@ -40,14 +40,14 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     -- 2.4. exhibit, from 2.3
     have s2_4 : ∃ k : ℤ, y = 4 * k + 1 := ⟨s + 1, s2_3⟩
     -- 2.5. def:set-image u := y, from 2.4
-    first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side)
   -- 3. def:subset, from 2
   have s3 : f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) ⊆ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))) (Y := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)))).mpr s2
   -- 4. proof
   have s4 : ∀ y ∈ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ), y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by
     intro y hK2
     -- 4.1. obtain m: def:set-image u := y, from K2
-    obtain ⟨m, _, s4_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mp (by parley_set_side)
+    obtain ⟨m, _, s4_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mp hK2
     -- 4.2. instantiate x := m − 1 in H2
     have s4_2 : f (m - 1) = 4 * (m - 1) + 5 := by exact (hH2 (m - 1))
     -- 4.3. mun:value-in-image Y := ℤ, s := m − 1, from 1

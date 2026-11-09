@@ -32,7 +32,7 @@ theorem compose_rational_and_line (f : ℝ → ℝ) (g : ℝ → ℝ) (hH3 : ∀
   intro x
   -- 1.1. mun:function-value
   -- 1.2. mun:square-nonneg
-  have s1_2 : x ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
+  have s1_2 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 1.3. inequalities, from 1.2
   have s1_3 : x ^ 2 + 1 > 0 := by parley_order
   -- 1.4. calculation

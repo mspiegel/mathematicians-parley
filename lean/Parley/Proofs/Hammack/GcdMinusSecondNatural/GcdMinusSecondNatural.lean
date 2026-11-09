@@ -22,7 +22,7 @@ namespace Parley.Proofs.Hammack.GcdMinusSecondNatural.GcdMinusSecondNatural
 theorem gcd_minus_second_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     (Int.gcd a b : ℤ) = (Int.gcd (a - b) b : ℤ) := by
   -- 1. mun:mod-multiple r := a, m := b, q := −1
-  have s1 : (-1 * b + a) % b = a % b := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := a) (m := b) (by parley_side) (q := (-1 : ℤ)))
+  have s1 : (-1 * b + a) % b = a % b := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := a) (m := b) (by parley_side) (q := (-1 : ℤ)))
   -- 2. substitute
   have s2 : (a - b) % b = a % b := by
     have c1 : -1 * b + a = a - b := by parley_ring

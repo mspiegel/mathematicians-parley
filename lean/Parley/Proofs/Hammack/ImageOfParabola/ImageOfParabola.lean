@@ -54,7 +54,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
       calc y = f s := by parley_set_side
         _ = s ^ 2 + 3 := by exact (hH2 s)
     -- 2.4. mun:square-nonneg x := s
-    have s2_4 : s ^ 2 ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := s))
+    have s2_4 : s ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := s))
     -- 2.5. inequalities
     have s2_5 : s ^ 2 + 3 ≥ 3 := by parley_order
     -- 2.6. calculation
@@ -66,7 +66,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     -- 2.8. inequalities
     have s2_8 : 5 - s ≥ 0 := by parley_order
     -- 2.9. mun:product-nonneg x := s + 3, y := 5 − s, from 2.7, 2.8
-    have s2_9 : (s + 3) * (5 - s) ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := s + 3) (y := 5 - s) (by parley_set_side) (by parley_set_side))
+    have s2_9 : (s + 3) * (5 - s) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := s + 3) (y := 5 - s) (by parley_set_side) (by parley_set_side))
     -- 2.10. inequalities
     have s2_10 : s ^ 2 + 3 ≤ 2 * s + 18 := by parley_order
     -- 2.11. inequalities
@@ -90,7 +90,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     -- 4.2. inequalities
     have s4_2 : y - 3 ≥ 0 := by parley_order
     -- 4.3. def:sqrt x := y − 3, from 4.2
-    have s4_3a : Real.sqrt (y - 3) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := y - 3) s4_2)
+    have s4_3a : Real.sqrt (y - 3) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := y - 3) s4_2)
     have s4_3b : Real.sqrt (y - 3) ^ 2 = y - 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := y - 3) s4_2)
     -- 4.4. inequalities
     have s4_4 : y - 3 ≤ 25 := by parley_order

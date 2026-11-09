@@ -63,7 +63,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
       -- 2.3.5. substitute N − 2 = (N − 1) − 1 (line 2.3.4)
       have s2_3_5 : (LeanBridges.Counting.factorial (N - 2) : ℤ) = (LeanBridges.Counting.factorial (N - 1 - 1) : ℤ) := by parley_subst s2_3_4
       -- 2.3.6. def:factorial n := 1
-      have s2_3_6 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by parley_side))
+      have s2_3_6 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by parley_side))
       -- 2.3.7. substitute 1 + 1 = 2 (arithmetic) into line 2.3.6
       have s2_3_7 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * 2 := by parley_subst_at (show (1 + 1 : ℤ) = 2 by parley_side) s2_3_6
       -- 2.3.8. substitute

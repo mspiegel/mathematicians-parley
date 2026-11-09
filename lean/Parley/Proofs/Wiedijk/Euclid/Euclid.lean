@@ -28,7 +28,7 @@ public section
 namespace Parley.Proofs.Wiedijk.Euclid.Euclid
 
 set_option maxHeartbeats 1200000 in
-theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → ℤ) (b : ℤ → ℤ) (hD1 : a 0 = M ∧ b 0 = N ∧ ∀ k : ℤ, 0 ≤ k → a (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) (a k) (b k) ∧ b (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) 0 (a k % b k)) :
+theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → ℤ) (b : ℤ → ℤ) (hD1 : a 0 = M ∧ b 0 = N ∧ (∀ k : ℤ, 0 ≤ k → a (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) (a k) (b k) ∧ b (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) 0 (a k % b k))) :
     a N = (Int.gcd M N : ℤ) := by
   -- 1. D1
   have s1 : a 0 = M := by have h := hD1.1; (try ring_nf at h ⊢); linarith
@@ -49,7 +49,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
       exact ⟨(s3_3).1, (s3_3).2⟩
     | succ k hK1 hIH1 =>
       -- 3.4. axi:excluded-middle P := b(k) = 0
-      have s3_4 : b k = 0 ∨ b k ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := b k = 0))
+      have s3_4 : b k = 0 ∨ b k ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := b k = 0))
       -- 3.5. cases, from 3.4
       have s3_5 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := by
         rcases s3_4 with hC1 | hC2
@@ -93,7 +93,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         _ = (Int.gcd M N : ℤ) := by parley_subst s2
     | succ k hK2 hIH2 =>
       -- 4.2. axi:excluded-middle P := b(k) = 0
-      have s4_2 : b k = 0 ∨ b k ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := b k = 0))
+      have s4_2 : b k = 0 ∨ b k ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := b k = 0))
       -- 4.3. cases, from 4.2
       rcases s4_2 with hC3 | hC4
       · skip
@@ -136,7 +136,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
       simpa only [add_zero] using s5_2
     | succ k hK3 hIH3 =>
       -- 5.3. axi:excluded-middle P := b(k) = 0
-      have s5_3 : b k = 0 ∨ b k ≠ 0 := (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := b k = 0))
+      have s5_3 : b k = 0 ∨ b k ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := b k = 0))
       -- 5.4. cases, from 5.3
       rcases s5_3 with hC5 | hC6
       · skip

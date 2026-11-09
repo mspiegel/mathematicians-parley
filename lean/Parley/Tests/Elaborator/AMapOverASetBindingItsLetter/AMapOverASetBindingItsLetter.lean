@@ -35,6 +35,8 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.UniformSpace.Defs
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -66,7 +68,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     -- 2.2. inequalities
     have s2_2 : x ≥ 0 := by parley_order
     -- 2.3. def:sqrt, from 2.1, 2.2
-    have s2_3a : Real.sqrt x ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) s2_2)
+    have s2_3a : Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) s2_2)
     have s2_3b : Real.sqrt x ^ 2 = x := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x) s2_2)
     -- 2.4. D2, from K1
     have s2_4 : g x = Real.sqrt x := by (try simp only [hD2]); first | done | parley_set_side
@@ -87,7 +89,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     -- 4.2. inequalities
     have s4_2 : c ≥ 0 := by parley_order
     -- 4.3. def:sqrt x := c, from 4.1, 4.2
-    have s4_3a : Real.sqrt c ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := c) s4_2)
+    have s4_3a : Real.sqrt c ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := c) s4_2)
     have s4_3b : Real.sqrt c ^ 2 = c := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := c) s4_2)
     -- 4.4. contradiction
     have s4_4 : Real.sqrt c > 0 := by
@@ -129,7 +131,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.2. inequalities
       have s4_8_2 : x ≥ 0 := by parley_order
       -- 4.8.3. def:sqrt, from 4.8.1, 4.8.2
-      have s4_8_3a : Real.sqrt x ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) s4_8_2)
+      have s4_8_3a : Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) s4_8_2)
       have s4_8_3b : Real.sqrt x ^ 2 = x := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x) s4_8_2)
       -- 4.8.4. membership, from 4.1, 4.8.1
       -- 4.8.5. mun:abs-real x := x − c, from 4.8.4
@@ -159,7 +161,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
           _ = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := by parley_set_side
           _ = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by parley_set_side
       -- 4.8.18. mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
-      have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) (by parley_set_side) (by parley_set_side))
+      have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) (by parley_set_side) (by parley_set_side))
       -- 4.8.19. algebra, from 4.3, 4.8.3
       have s4_8_19 : abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linear_combination (norm := parley_norm) 0
       -- 4.8.20. transitivity, from 4.8.17, 4.8.19

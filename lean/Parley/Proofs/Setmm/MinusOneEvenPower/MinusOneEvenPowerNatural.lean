@@ -40,12 +40,12 @@ theorem minus_one_even_power_natural (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_2 : 2 * (k + 1) = 2 * k + 1 + 1 := by parley_ring
       -- 1.3. calculation
       have s1_3 : ((-1) ^ (2 * k + 1).toNat : ℤ) = -1 := by
-        calc ((-1) ^ (2 * k + 1).toNat : ℤ) = (-1) ^ (2 * k).toNat * -1 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := 2 * k) (by parley_side))
+        calc ((-1) ^ (2 * k + 1).toNat : ℤ) = (-1) ^ (2 * k).toNat * -1 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := 2 * k) (by parley_side))
           _ = 1 * -1 := by parley_subst hIH
           _ = -1 := by norm_num
       -- 1.4. calculation
       calc ((-1) ^ (2 * (k + 1)).toNat : ℤ) = (-1) ^ (2 * k + 1 + 1).toNat := by parley_subst s1_2
-        _ = (-1) ^ (2 * k + 1).toNat * -1 := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := 2 * k + 1) (by parley_side))
+        _ = (-1) ^ (2 * k + 1).toNat * -1 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := 2 * k + 1) (by parley_side))
         _ = -1 * -1 := by parley_subst s1_3
         _ = 1 := by norm_num
   -- 2. instantiate k := n in line 1

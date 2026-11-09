@@ -11,7 +11,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Data.Set.Insert
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -68,14 +67,14 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
       rcases s4_6_1 with hC2 | hC3
       · skip
         -- 4.6.2.1. instantiate Y := Y in line 4.1, from C2, K2
-        first | exact (s4_1.2 Y (by parley_set_side) (by parley_set_side)) | exact ((s4_1.2 Y (by parley_set_side) (by parley_set_side))).symm | simpa using (s4_1.2 Y (by parley_set_side) (by parley_set_side)) | exact_mod_cast (s4_1.2 Y (by parley_set_side) (by parley_set_side)) | (have h := (s4_1.2 Y (by parley_set_side) (by parley_set_side)); parley_set_side)
+        exact (s4_1.2 Y (by parley_set_side) (by parley_set_side))
       · skip
         -- 4.6.2.2. obtain w from C3
         obtain ⟨w, s4_6_2_2a, s4_6_2_2b⟩ := hC3
         -- 4.6.2.3. mun:in-subset, from H10, 4.6.2.2
         have s4_6_2_3 : w ∈ N := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := W) (Y := N) (u := w) hH10 s4_6_2_2a)
         -- 4.6.2.4. instantiate w := w in H9, from 4.6.2.3
-        have s4_6_2_4 : ({v, w} : Set α) ∈ E := by first | exact (hH9 w (by parley_set_side)) | exact ((hH9 w (by parley_set_side))).symm | simpa using (hH9 w (by parley_set_side)) | exact_mod_cast (hH9 w (by parley_set_side)) | (have h := (hH9 w (by parley_set_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (hH9 w (by parley_set_side)); parley_set_side)
+        have s4_6_2_4 : ({v, w} : Set α) ∈ E := by exact (hH9 w (by parley_set_side))
         -- 4.6.2.5. substitute Y = {v, w} (line 4.6.2.2) into line 4.6.2.4
         parley_subst_at s4_6_2_2b s4_6_2_4
     -- 4.7. mun:singleton-subset, from H7
@@ -87,11 +86,11 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 4.10. mun:or-left, from 4.9
     have s4_10 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F)) (by parley_set_side))
     -- 4.11. exhibit, from 4.8, 4.10
-    exact ⟨W ∪ ({v} : Set α), by parley_set_side, by parley_set_side⟩
+    exact ⟨W ∪ ({v} : Set α), s4_8, by parley_set_side⟩
   · skip
     -- 4.12. mun:or-right, from C4
     have s4_12 : k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) (by parley_set_side))
     -- 4.13. exhibit, from 3, 4.12
-    exact ⟨W, by parley_set_side, by parley_set_side⟩
+    exact ⟨W, s3, by parley_set_side⟩
 
 end Parley.Proofs.Wiedijk.Ramsey.GrowByOne

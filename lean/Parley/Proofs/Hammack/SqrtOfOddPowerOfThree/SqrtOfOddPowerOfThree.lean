@@ -60,9 +60,9 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s6 : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = 3 ^ m := by
     have whole1 : ((3 : ℚ) : ℚ) ^ (m).toNat = (3 ^ m : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg s5]
     refine ⟨(((3 : ℤ) ^ (m).toNat) : ℤ), ?_, by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring)⟩
-    exact ((Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by parley_side) (m := m) (by parley_side)))
+    (exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by parley_side) (m := m) (by parley_side)))
   -- 7. mun:power-nat a := 3, m := k
-  have s7 : (0 : ℤ) < 3 ^ k.toNat := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by parley_side) (m := k) (by parley_side))
+  have s7 : (0 : ℤ) < 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by parley_side) (m := k) (by parley_side))
   -- 8. algebra, from 1
   have s8 : k = m + m + 1 := by linear_combination (norm := parley_norm) s1
   -- 9. mun:exponent-sum a := 3, n := m, from 5
@@ -77,20 +77,20 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
       _ = 3 ^ m * 3 ^ m * 3 := by parley_subst s9
   -- 11. def:sqrt x := 3
   have r57_1 : (3 : ℤ) ≥ 0 := by parley_arith
-  have s11a : Real.sqrt (3 : ℝ) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by parley_side))
-  have s11b : Real.sqrt (3 : ℝ) ^ 2 = 3 := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by parley_side))
+  have s11a : Real.sqrt (3 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by parley_side))
+  have s11b : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by parley_side))
   -- 12. def:sqrt x := 3^k
   have r61_1 : (0 : ℤ) ≤ 3 ^ k.toNat := by parley_order
-  have s12a : Real.sqrt (3 ^ k.toNat : ℝ) ≥ 0 := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 ^ k.toNat : ℝ)) (by parley_side))
-  have s12b : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 ^ k.toNat : ℝ)) (by parley_side))
+  have s12a : Real.sqrt (3 ^ k.toNat : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 ^ k.toNat : ℝ)) (by parley_side))
+  have s12b : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 ^ k.toNat : ℝ)) (by parley_side))
   -- 13. mun:product-nonneg x := √3, y := 3^m, from 6, 11
   have r65_1 : (0 : ℚ) ≤ 3 ^ m := by parley_order
-  have s13 : Real.sqrt (3 : ℝ) * 3 ^ m ≥ 0 := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt (3 : ℝ)) (y := (3 ^ m : ℝ)) (by parley_side) (by parley_side))
+  have s13 : Real.sqrt (3 : ℝ) * 3 ^ m ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt (3 : ℝ)) (y := (3 ^ m : ℝ)) (by parley_side) (by parley_side))
   -- 14. calculation
   have s14 : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by
     calc Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := by first | parley_side | parley_line_toNat s12a | parley_line_toNat s12b
       _ = 3 ^ m * 3 ^ m * 3 := by first | parley_side | parley_line_toNat s10
-      _ = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by linear_combination (norm := parley_norm) (-(3 ^ m) ^ 2) * s11b
+      _ = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by linear_combination (norm := parley_norm) (-((3 ^ m) ^ 2)) * s11b
   -- 15. thm:sqrt3-irrational
   have s15 : Irrational (Real.sqrt (3 : ℝ)) := by exact Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational.sqrt3_irrational
   -- 16. thm:irrational-product A := √3, B := 3^m, from 6, 15

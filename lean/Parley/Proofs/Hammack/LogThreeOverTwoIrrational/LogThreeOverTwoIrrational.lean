@@ -56,7 +56,7 @@ theorem log_three_over_two_irrational :
   -- 1. mun:quotient-positive x := ln(3), y := ln(2)
   have r90_1 : Real.log (3 : ℝ) > 0 := by parley_real
   have r90_2 : Real.log (2 : ℝ) > 0 := by parley_real
-  have s1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := Real.log (3 : ℝ)) (y := Real.log (2 : ℝ)) (by parley_side) (by parley_side))
+  have s1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := Real.log (3 : ℝ)) (y := Real.log (2 : ℝ)) (by parley_side) (by parley_side))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.log (3 : ℝ) / Real.log (2 : ℝ)) := by
     intro hS
@@ -64,7 +64,7 @@ theorem log_three_over_two_irrational :
     obtain ⟨p, q, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mp hS
     -- 2.2. mun:product-positive x := ln(3)/ln(2), y := q, from 1, 2.1
     have r102_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
-    have s2_2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) > 0 := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) (by parley_side) (by parley_side))
+    have s2_2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) (by parley_side) (by parley_side))
     -- 2.3. substitute
     have r106_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_3 : p > 0 := by
@@ -86,20 +86,20 @@ theorem log_three_over_two_irrational :
     have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); parley_side)
     -- 2.7. mun:power-positive a := 2, m := p
     have r128_1 : (2 : ℤ) > 0 := by parley_arith
-    have s2_7 : (2 ^ p : ℚ) > 0 := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by parley_side))
+    have s2_7 : (2 ^ p : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by parley_side))
     -- 2.8. calculation
     have s2_8 : (3 ^ q.toNat : ℚ) = 2 ^ p := by
       try rify
       calc (3 ^ q.toNat : ℝ) = Real.exp (Real.log (3 ^ q.toNat : ℝ)) := (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (3 ^ q.toNat : ℝ)) (by parley_side)).symm
         _ = Real.exp (Real.log (2 ^ p : ℝ)) := by parley_subst s2_5
-        _ = 2 ^ p := (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (2 ^ p : ℝ)) (by parley_side))
+        _ = 2 ^ p := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (2 ^ p : ℝ)) (by parley_side))
     -- 2.9. thm:power-of-three-odd n := q
     have s2_9 : Odd (3 ^ q.toNat : ℤ) := by exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd.power_of_three_odd (n := q) (by parley_side))
     -- 2.10. thm:power-of-two-even n := p, from 2.4
     have s2_10 : ∃ m : ℤ, (m : ℚ) = (2 ^ p : ℚ) ∧ Even m := by
       have whole1 : ((2 : ℚ) : ℚ) ^ (p).toNat = (2 ^ p : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s2_4)]
       refine ⟨(((2 : ℤ) ^ (p).toNat) : ℤ), by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring), ?_⟩
-      exact ((Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven.power_of_two_even (n := p) (by parley_side)))
+      (exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven.power_of_two_even (n := p) (by parley_side)))
     -- 2.11. substitute 2^p = 3^q (line 2.8) into line 2.10
     have s2_11 : Even (3 ^ q.toNat : ℤ) := by first | parley_subst_at s2_8 s2_10 | exact parley_witness_at s2_10 ((3 ^ q.toNat : ℤ)) (by push_cast; linear_combination (norm := parley_norm) s2_8) | exact parley_witness_at s2_10 ((3 ^ q.toNat : ℤ)) (by push_cast; linear_combination (norm := parley_norm) -s2_8)
     -- 2.12. mun:odd-not-even n := 3^q, from 2.9
