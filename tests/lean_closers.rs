@@ -15,7 +15,8 @@ struct Site {
     step: &'static str,
     /// Text the step's proof holds: the tactic the rule chose.
     holds: &'static str,
-    /// Whether the step keeps a `first` list, as one no rule decides does.
+    /// Whether the line holding it is a `first` list, as one no rule
+    /// decides is.
     list: bool,
     /// The rule, and why it holds or does not here.
     why: &'static str,
@@ -72,11 +73,18 @@ const SITES: &[Site] = &[
         why: "an instance order with the claim's casts, over the same atoms: linarith",
     },
     Site {
-        file: "lean/Parley/Proofs/Setmm/EmptySum/EmptySum.lean",
-        step: "2",
+        file: "lean/Parley/Proofs/Hammack/SumOfCubes/SumOfCubes.lean",
+        step: "1.1",
         holds: "linear_combination",
         list: false,
-        why: "an item's equation of numbers in the claim's type, casts push_cast moves, facing known: linear_combination",
+        why: "a calculation row citing an item's equation in the row's type, (fun j => (j : ℚ) ^ 3) 1 beside 1 ^ 3: casts push_cast moves within each side, the same atoms, facing known: linear_combination",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/EmptySum/EmptySum.lean",
+        step: "2",
+        holds: "first |",
+        list: true,
+        why: "an item's equation whose atoms differ inside, ∑ over Icc (0 + 1) 0 beside Icc 1 0, which ring1 does not work in: no one tactic",
     },
     Site {
         file: "lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean",
@@ -136,8 +144,11 @@ fn each_closer_rule_decides_where_its_fact_holds() {
             .take_while(|l| !l.trim_start().starts_with(&inner))
             .collect();
         let body = own.join("\n");
-        let listed = body.contains("first |");
-        if !body.contains(site.holds) || listed != site.list {
+        // The line the rule wrote, and whether it is a list: a block's
+        // close after it is another line's.
+        let line = own.iter().find(|l| l.contains(site.holds));
+        let listed = line.is_some_and(|l| l.contains("first |"));
+        if line.is_none() || listed != site.list {
             wrong.push(format!(
                 "{} step {}: {}\n  wanted {} {}; the step reads:\n{}",
                 site.file,

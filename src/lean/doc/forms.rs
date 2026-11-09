@@ -560,6 +560,13 @@ fn casts_alike(
     Some(Meets::Casts { through, lift })
 }
 
+/// The term as `simp` reads it, each function written by its rule applied
+/// taken as its body at the value (`reduced`): what `push_cast` and
+/// `norm_cast`, both `simp` sets, see.
+pub fn beta_reduced(term: &Term) -> Term {
+    reduced(term)
+}
+
 /// The term with each function written by its rule applied, `(fun k => b) t`,
 /// as its body at `t`, and each application of an application taken as
 /// one, `(f a) b` as `f a b`: as Lean reduces both.

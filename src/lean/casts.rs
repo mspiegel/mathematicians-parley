@@ -441,7 +441,26 @@ pub fn norm_cast_moves_all(term: &Term) -> bool {
 /// numerals, as `norm_cast_moves_all` asks of `norm_cast`: the casts of two
 /// statements alike but for them are then pushed in alike, and what is left
 /// between them is the ring's, which `parley_norm`'s `push_cast; ring1`
-/// checks.
+/// checks. Of a relation, within each side: `push_cast` moves the casts
+/// inside each side and never through the relation, which the table says it
+/// does not, and the closers it serves compare the sides so pushed:
+/// `linear_combination` takes their difference, `a - b - (c - d) = 0`, and
+/// `push_cast at h ⊢; exact h` the two relations side by side.
+pub fn push_cast_moves_all_in_sides(term: &Term) -> bool {
+    use super::doc::TermKind;
+    match &term.kind {
+        TermKind::Paren(inner) => push_cast_moves_all_in_sides(inner),
+        TermKind::Infix { op, lhs, rhs }
+            if matches!(op.symbol, "=" | "≠" | "<" | ">" | "≤" | "≥") =>
+        {
+            push_cast_moves_all(lhs) && push_cast_moves_all(rhs)
+        }
+        _ => push_cast_moves_all(term),
+    }
+}
+
+/// Whether `push_cast` moves every cast of `term` to its letters and
+/// numerals, by the cast table, through every operation above each.
 pub fn push_cast_moves_all(term: &Term) -> bool {
     moves_all(term, &[], Mover::PushCast)
 }
@@ -543,6 +562,13 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
                 && inner.ty.as_ref().is_none_or(|t| t == to) =>
         {
             true
+        }
+        // A letter of a general item's type α ascribed the type the item
+        // is taken at, `(x : ℤ)`: Lean has x in ℤ already, and no cast.
+        TermKind::Cast { inner, .. }
+            if matches!(inner.ty, Some(LeanType::Things(_))) =>
+        {
+            moves_all(inner, over, by)
         }
         TermKind::Cast { inner, to } => {
             let (Some(from), LeanType::Num(to)) = (num(inner), to) else {

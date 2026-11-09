@@ -147,10 +147,13 @@ fn cast_proved(
     says: &Printed,
     wanted: &Printed,
 ) -> Option<Proved> {
-    use super::casts::{norm_cast_moves_all, push_cast_moves_all};
+    use super::casts::{norm_cast_moves_all, push_cast_moves_all_in_sides};
     let by = if norm_cast_moves_all(says) && norm_cast_moves_all(wanted) {
         CastsBy::NormCast
-    } else if !apart.lift && push_cast_moves_all(says) && push_cast_moves_all(wanted) {
+    } else if !apart.lift
+        && push_cast_moves_all_in_sides(says)
+        && push_cast_moves_all_in_sides(wanted)
+    {
         CastsBy::PushCast
     } else {
         return Some(Proved::Ways { line });
@@ -280,6 +283,63 @@ fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
         };
     }
     Some(goal)
+}
+
+/// The atoms `ring1` and `linarith` read a statement over: each greatest
+/// part that is no sum, difference, product, quotient, negation, numeral,
+/// cast or power to a natural exponent, as `push_cast` leaves the casts
+/// (`casts::norm_cast_form`). `ring` normalises only the arithmetic between
+/// atoms, and an atom is compared as it is written, so
+/// `choose (m + 1 - 0) 1` and `choose (m + 1) 1` are two. The exponent of a
+/// power is an atom unless it is a numeral.
+fn ring_atoms(term: &Printed, out: &mut Vec<Printed>) {
+    use super::doc::TermKind;
+    match &term.kind {
+        TermKind::Numeral(_) => {}
+        // An instance's conditions met stand as `True` beside its statement,
+        // `True ∧ L p ≤ U p`, whose parts `linarith` takes apart.
+        _ if term.is_truth() => {}
+        TermKind::Cast { inner, .. }
+        | TermKind::Paren(inner)
+        | TermKind::Neg(inner) => ring_atoms(inner, out),
+        TermKind::Infix { op, lhs, rhs }
+            if matches!(
+                op.symbol,
+                "+" | "-" | "*" | "/" | "=" | "≠" | "<" | ">" | "≤" | "≥" | "∧"
+            ) =>
+        {
+            ring_atoms(lhs, out);
+            ring_atoms(rhs, out);
+        }
+        TermKind::Infix { op, lhs, rhs } if op.symbol == "^" => {
+            ring_atoms(lhs, out);
+            if !matches!(super::casts::norm_cast_form(rhs).kind, TermKind::Numeral(_)) {
+                out.push(super::casts::norm_cast_form(rhs));
+            }
+        }
+        _ => out.push(super::casts::norm_cast_form(term)),
+    }
+}
+
+/// Whether the two statements are over the same atoms (`ring_atoms`), each
+/// of the one alike one of the other with the `set` letters read as their
+/// values and bound letters renamed (`forms::alike_once_set`), as Lean
+/// takes them.
+fn same_ring_atoms(
+    one: &Printed,
+    other: &Printed,
+    values: &super::doc::forms::Values,
+) -> bool {
+    let (mut a, mut b) = (Vec::new(), Vec::new());
+    ring_atoms(one, &mut a);
+    ring_atoms(other, &mut b);
+    let within = |xs: &[Printed], ys: &[Printed]| {
+        xs.iter().all(|x| {
+            ys.iter()
+                .any(|y| super::doc::forms::alike_once_set(x, y, values))
+        })
+    };
+    within(&a, &b) && within(&b, &a)
 }
 
 /// The casts a statement as Lean writes it takes, each by its text, a cast
@@ -5260,12 +5320,20 @@ impl<'a> Proof<'a> {
             // writer put on one side only, `2 ^ (n.toNat - 1)` beside
             // `2 ^ (n - 1)`, is another atom to `ring1` and to `linarith`,
             // and no cast moves it.
+            // The item's statement as `simp` reads it, its functions given
+            // as rules applied, `(fun k => 1 / k) 1` as `1 / 1`
+            // (`forms::beta_reduced`): `push_cast` and the `norm_num` of
+            // `parley_norm` both read it so.
+            let reduced = super::doc::forms::beta_reduced(says);
             let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
-            let pushed = super::casts::push_cast_moves_all(says)
-                && super::casts::push_cast_moves_all(claim);
-            let same_to_nat = to_nat_texts(says) == to_nat_texts(claim);
+            let pushed = super::casts::push_cast_moves_all_in_sides(&reduced)
+                && super::casts::push_cast_moves_all_in_sides(claim);
+            let same_to_nat = to_nat_texts(&reduced) == to_nat_texts(claim);
+            let atoms = same_ring_atoms(&reduced, claim, &values);
             match node.notation() {
-                EQUALITY if one_type && of_numbers && pushed && same_to_nat => {
+                EQUALITY
+                    if one_type && of_numbers && pushed && same_to_nat && atoms =>
+                {
                     // Which way the item faces the claim, as the checker met
                     // them (`Cited::facings`); where it records none, the
                     // step keeps its ways.
@@ -5281,7 +5349,8 @@ impl<'a> Proof<'a> {
                 ORDER
                     if one_type
                         && same_to_nat
-                        && cast_texts(says) == cast_texts(claim) =>
+                        && atoms
+                        && cast_texts(&reduced) == cast_texts(claim) =>
                 {
                     return super::doc::Proof::By(super::tactics::call(
                         "linarith",
@@ -6582,13 +6651,16 @@ impl<'a> Proof<'a> {
             false => says,
         };
         let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
-        let pushed = super::casts::push_cast_moves_all(&says)
-            && super::casts::push_cast_moves_all(&wanted);
+        let pushed = super::casts::push_cast_moves_all_in_sides(&says)
+            && super::casts::push_cast_moves_all_in_sides(&wanted);
         let same_casts = cast_texts(&says) == cast_texts(&wanted);
         let alike = super::doc::forms::written_alike(&says, &wanted);
+        let atoms = same_ring_atoms(&says, &wanted, &self.set_values());
         super::doc::Proof::By(match node.notation() {
-            EQUALITY if of_numbers && pushed => t::linear_combination(proof),
-            ORDER if same_casts => t::call("linarith", vec![t::rules(vec![proof])]),
+            EQUALITY if of_numbers && pushed && atoms => t::linear_combination(proof),
+            ORDER if same_casts && atoms => {
+                t::call("linarith", vec![t::rules(vec![proof])])
+            }
             _ if alike => Tactic::Exact(proof),
             _ => return close(&self.writer, node, proof),
         })
