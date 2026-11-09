@@ -68,9 +68,9 @@ namespace Parley.Proofs.Wiedijk.Leibniz.PowerIntegral
 set_option maxHeartbeats 800000 in
 theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     (∫ t in 0..1, (t ^ m.toNat : ℝ)) = 1 / ((m : ℝ) + 1) := by
-  set p : ℝ → ℝ := fun x => x ^ m.toNat with hD1
-  set q : ℝ → ℝ := fun x => x ^ (m + 1).toNat with hD2
-  set F : ℝ → ℝ := fun x => 1 / ((m : ℝ) + 1) * q x with hD3
+  set p : ℝ → ℝ := fun x : ℝ => x ^ m.toNat with hD1
+  set q : ℝ → ℝ := fun x : ℝ => x ^ (m + 1).toNat with hD2
+  set F : ℝ → ℝ := fun x : ℝ => 1 / ((m : ℝ) + 1) * q x with hD3
   -- 1. mun:nat0-successor k := m
   have s1 : 0 < m + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := m) (by parley_set_side))
   -- 2. mun:interval-real
@@ -169,7 +169,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
           first | parley_subst s26_w | parley_subst s26
   -- 31. calculation
   have r193_1 : m + 1 ≠ 0 := by parley_set_side
-  calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD1
+  calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by simp (disch := omega) only [hD1]
     _ = F 1 - F 0 := (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
     _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := by parley_subst s29
     _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := by parley_subst s30

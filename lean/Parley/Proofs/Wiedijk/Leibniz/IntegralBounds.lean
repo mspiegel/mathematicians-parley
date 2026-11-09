@@ -57,8 +57,8 @@ namespace Parley.Proofs.Wiedijk.Leibniz.IntegralBounds
 set_option maxHeartbeats 800000 in
 theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     True ∧ (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 ∧ (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * (n : ℝ) + 1) := by
-  set f : ℝ → ℝ := fun x => x ^ (2 * n).toNat with hD1
-  set g : ℝ → ℝ := fun x => x ^ (2 * n).toNat / (1 + x ^ 2) with hD2
+  set f : ℝ → ℝ := fun x : ℝ => x ^ (2 * n).toNat with hD1
+  set g : ℝ → ℝ := fun x : ℝ => x ^ (2 * n).toNat / (1 + x ^ 2) with hD2
   -- 1. mun:interval-real
   have s1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   -- 2. D1

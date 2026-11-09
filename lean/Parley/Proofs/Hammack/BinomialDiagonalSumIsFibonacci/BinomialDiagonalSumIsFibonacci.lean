@@ -48,7 +48,7 @@ namespace Parley.Proofs.Hammack.BinomialDiagonalSumIsFibonacci.BinomialDiagonalS
 set_option maxHeartbeats 800000 in
 theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
     (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = F (n + 1) := by
-  set S : ℤ → ℤ := fun m => ∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ) with hD2
+  set S : ℤ → ℤ := fun m : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ) with hD2
   -- 1. thm:fibonacci-natural
   have s1 : ∀ i : ℤ, 0 ≤ i → 0 ≤ F i ∧ 0 ≤ G i := (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
   -- 2. induction on j starting at 0

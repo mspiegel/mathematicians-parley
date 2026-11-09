@@ -42,7 +42,7 @@ namespace Parley.Proofs.Hammack.SumOfCubes.SumOfCubes
 
 theorem sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) ^ 3 : ℚ)) = (n : ℚ) ^ 2 * ((n : ℚ) + 1) ^ 2 / 4 := by
-  set S : ℤ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j ^ 3 : ℤ) with hD1
+  set S : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j ^ 3 : ℤ) with hD1
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℤ, 0 < k → (S k : ℚ) = (k : ℚ) ^ 2 * ((k : ℚ) + 1) ^ 2 / 4 := by
     intro k h_k

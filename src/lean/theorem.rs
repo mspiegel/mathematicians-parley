@@ -6000,17 +6000,19 @@ impl<'a> Proof<'a> {
         let name = super::names::letter(&def.name);
         let label = line_name(&line.label);
         let function = LetterType::Function { from, to }.lean_type();
-        let lambda = Printed::notation(
-            vec![
-                super::doc::Piece::text(format!(
-                    "fun {} => ",
-                    super::names::letter(&param.name)
-                )),
-                super::doc::Piece::term(value, 0),
-            ],
-            0,
-            function.clone(),
-        );
+        // A lambda term, which the writer's comparisons apply where the
+        // letter stands applied, as `simp only [hD]` does
+        // (`forms::alike_once_set`).
+        let lambda = Printed {
+            kind: super::doc::TermKind::Quantified {
+                quant: super::doc::term::Quant::Fun,
+                letter: super::names::letter(&param.name),
+                letter_ty: LetterType::Number(from).lean_type(),
+                guard: None,
+                body: Box::new(value),
+            },
+            ty: Some(function.clone()),
+        };
         self.push_at(
             depth,
             Tactic::Set {
@@ -7595,8 +7597,24 @@ impl<'a> Proof<'a> {
                     // define's equation, and then the work its meeting leaves,
                     // or the casts Lean writes on the row.
                     let met = self.rec.define_links.get(&line.line);
+                    // Two sides Lean writes alike once each `set` letter is
+                    // read as its value: `simp only [hD]` puts the values in
+                    // and closes the `x = x` left, whatever `toNat` or names
+                    // the row writes.
+                    let values = self.set_values();
+                    let alike_set = super::doc::forms::alike_once_set(
+                        &printed[k],
+                        &printed[k + 1],
+                        &values,
+                    );
                     let by_define =
                         match (define, met, self.named_specs.is_empty(), to_nat) {
+                            (Some(h), _, _, _) if alike_set => {
+                                Some(super::doc::Proof::By(unfolded_by(
+                                    std::slice::from_ref(h),
+                                    true,
+                                )))
+                            }
                             (Some(h), Some(met), true, false) => {
                                 let cast =
                                     self.unfolds_to_casts(&printed[k], &printed[k + 1]);

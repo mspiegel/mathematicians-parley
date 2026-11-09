@@ -39,7 +39,7 @@ namespace Parley.Proofs.Hammack.WeightedSumIsABinomial.WeightedSumIsABinomial
 set_option maxHeartbeats 400000 in
 theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (k * (n - k + 1) : ℤ)) = (LeanBridges.Counting.choose (n + 2) (3 : ℤ) : ℤ) := by
-  set T : ℤ → ℤ := fun m => ∑ i ∈ Finset.Icc (1 : ℤ) m, (i * (m - i + 1) : ℤ) with hD1
+  set T : ℤ → ℤ := fun m : ℤ => ∑ i ∈ Finset.Icc (1 : ℤ) m, (i * (m - i + 1) : ℤ) with hD1
   -- 1. induction on j starting at 1
   have s1 : ∀ j : ℤ, 0 < j → T j = (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) := by
     intro j h_j

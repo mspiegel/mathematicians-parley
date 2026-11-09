@@ -35,7 +35,7 @@ namespace Parley.Proofs.Hammack.SumOfEightIMinusFive.SumOfEightIMinusFive
 
 theorem sum_of_eight_i_minus_five (n : ℤ) (hH1 : 0 < n) :
     (∑ i ∈ Finset.Icc (1 : ℤ) n, (8 * i - 5 : ℤ)) = 4 * n ^ 2 - n := by
-  set S : ℤ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) m, (8 * j - 5 : ℤ) with hD1
+  set S : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (8 * j - 5 : ℤ) with hD1
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℤ, 0 < k → S k = 4 * k ^ 2 - k := by
     intro k h_k

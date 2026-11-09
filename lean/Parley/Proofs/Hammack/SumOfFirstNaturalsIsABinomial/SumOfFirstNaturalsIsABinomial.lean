@@ -36,7 +36,7 @@ namespace Parley.Proofs.Hammack.SumOfFirstNaturalsIsABinomial.SumOfFirstNaturals
 set_option maxHeartbeats 400000 in
 theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by
-  set S : ℤ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j : ℤ) with hD1
+  set S : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j : ℤ) with hD1
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℤ, 0 < k → S k = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) := by
     intro k h_k

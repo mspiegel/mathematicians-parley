@@ -43,10 +43,10 @@ namespace Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous
 set_option maxHeartbeats 600000 in
 theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ)) (hH3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = x ^ (2 * n).toNat / (1 + x ^ 2)) :
     ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
-  set u : ℝ → ℝ := fun x => x ^ (2 * n).toNat with hD1
-  set o : ℝ → ℝ := fun x => (1 : ℝ) with hD2
-  set s : ℝ → ℝ := fun x => x ^ 2 with hD3
-  set v : ℝ → ℝ := fun x => 1 + x ^ 2 with hD4
+  set u : ℝ → ℝ := fun x : ℝ => x ^ (2 * n).toNat with hD1
+  set o : ℝ → ℝ := fun x : ℝ => (1 : ℝ) with hD2
+  set s : ℝ → ℝ := fun x : ℝ => x ^ 2 with hD3
+  set v : ℝ → ℝ := fun x : ℝ => 1 + x ^ 2 with hD4
   -- 1. mun:interval-real
   have s1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   -- 2. D1

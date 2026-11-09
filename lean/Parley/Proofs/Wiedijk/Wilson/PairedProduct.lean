@@ -96,9 +96,9 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s8_8 : ¬ f x < f (f x) := by parley_set_side
     -- 8.9. def:set-builder u := f(x), from D2, H4, 8.1, 8.8
     first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr (by parley_set_side); parley_set_side)
-  set g : ℤ → ℤ := fun x => f x with hD3
+  set g : ℤ → ℤ := fun x : ℤ => f x with hD3
   -- 9. mun:function-into, from D3, 8
-  have s9 : Set.MapsTo g L U := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := L) (Y := U) (by parley_set_side) (by parley_set_side))
+  have s9 : Set.MapsTo g L U := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := L) (Y := U) (by parley_set_side) s8)
   -- 10. proof
   have s10 : ∀ s ∈ L, ∀ t ∈ L, g s = g t → s = t := by
     intro s hK2
@@ -160,7 +160,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   -- 14. def:one-to-one-onto, from 11, 13
   have s14 : Set.MapsTo g L U ∧ Set.InjOn g L ∧ Set.SurjOn g L U := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side)
   -- 15. mun:product-reindex, from D3, 5, 7, 14
-  have s15 : (∏ᶠ x ∈ U, (x : ℤ)) = (∏ᶠ x ∈ L, (f x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun x : ℤ => x)) (Y := L) (Z := U) (g := g) s5 s14)
+  have s15 : (∏ᶠ x ∈ U, (x : ℤ)) = (∏ᶠ x ∈ L, (f x : ℤ)) := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun x : ℤ => x)) (Y := L) (Z := U) (g := g) s5 s14)
   -- 16. mun:int-real m := f(x)
   have r223_1 : ∀ x ∈ L, True := by intro x h_x; (first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)); parley_set_side))
   have s16 : ∀ x ∈ L, True := by intro x h_x; (first | exact (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)) | exact ((Parley.Items.Stdlib.Numbers.mun_int_real (m := f x))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)); parley_set_side))

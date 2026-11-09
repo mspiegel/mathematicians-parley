@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -11,7 +10,6 @@ public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -29,9 +27,9 @@ namespace Parley.Tests.Elaborator.AProductReindexedThroughADefine.AProductReinde
 
 theorem a_product_reindexed_through_a_define (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (f : ℤ → ℤ) (hH2 : Set.MapsTo f X X) (L : Set ℤ) (hH3 : L ⊆ X) (hH4 : L.Finite) (U : Set ℤ) (hH5 : U ⊆ X) (hH6 : ∀ x ∈ L, f x ∈ U) (hH7 : ∀ s ∈ L, ∀ t ∈ L, f s = f t → s = t) (hH8 : ∀ u ∈ U, ∃ x ∈ L, u = f x) :
     (∏ᶠ x ∈ U, (x : ℤ)) = (∏ᶠ x ∈ L, (f x : ℤ)) := by
-  set g : ℤ → ℤ := fun x => f x with hD1
+  set g : ℤ → ℤ := fun x : ℤ => f x with hD1
   -- 1. mun:function-into, from D1, H6
-  have s1 : Set.MapsTo g L U := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := L) (Y := U) (by parley_set_side) (by parley_set_side))
+  have s1 : Set.MapsTo g L U := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := L) (Y := U) (by parley_set_side) hH6)
   -- 2. def:one-to-one, from D1, H7, 1
   have s2 : Set.MapsTo g L U ∧ Set.InjOn g L := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := L) (Y := U) (f := g) (by parley_set_side))).mpr (by parley_set_side)
   -- 3. def:onto, from D1, H8, 1
@@ -41,6 +39,6 @@ theorem a_product_reindexed_through_a_define (X : Set ℤ) (hH1 : X ⊆ (Set.uni
   -- 5. mun:subset-transitive, from H1, H5
   have s5 : U ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := U) (Y := X) (Z := (Set.univ : Set ℤ)) hH5 (by parley_whole_side))
   -- 6. mun:product-reindex, from D1, H4, 4, 5
-  linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun x : ℤ => x)) (Y := L) (Z := U) (g := g) hH4 s4)
+  exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun x : ℤ => x)) (Y := L) (Z := U) (g := g) hH4 s4)
 
 end Parley.Tests.Elaborator.AProductReindexedThroughADefine.AProductReindexedThroughADefine

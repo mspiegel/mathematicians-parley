@@ -63,8 +63,8 @@ namespace Parley.Proofs.Wiedijk.Leibniz.IntegralOfArctanDerivative
 set_option maxHeartbeats 600000 in
 theorem integral_of_arctan_derivative :
     (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = Real.pi / 4 := by
-  set g : ℝ → ℝ := fun x => x ^ (2 * 0) / (1 + x ^ 2) with hD1
-  set F : ℝ → ℝ := fun x => Real.arctan x with hD2
+  set g : ℝ → ℝ := fun x : ℝ => x ^ (2 * 0) / (1 + x ^ 2) with hD1
+  set F : ℝ → ℝ := fun x : ℝ => Real.arctan x with hD2
   -- 1. mun:interval-real
   have s1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   -- 2. D1

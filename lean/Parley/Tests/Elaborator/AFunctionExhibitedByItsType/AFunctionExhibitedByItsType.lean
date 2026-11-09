@@ -26,7 +26,7 @@ namespace Parley.Tests.Elaborator.AFunctionExhibitedByItsType.AFunctionExhibited
 
 theorem a_function_exhibited_by_its_type (n : ℤ) (hH1 : 0 < n) :
     (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) n : Set ℤ) {n : ℤ | 0 < n} ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 n → f i = 1)) := by
-  set g : ℤ → ℤ := fun i => (1 : ℤ) with hD1
+  set g : ℤ → ℤ := fun i : ℤ => (1 : ℤ) with hD1
   -- 1. D1
   have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → g i = 1 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
   -- 2. membership, from D1

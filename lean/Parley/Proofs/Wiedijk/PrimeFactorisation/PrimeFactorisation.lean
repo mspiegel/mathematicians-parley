@@ -122,7 +122,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.5. substitute m = p·r (line 1.9) into line 1.18.4
         parley_subst_at s1_9 s1_18_4
       · skip
-        set e : ℤ → ℤ := fun i => p with hD3
+        set e : ℤ → ℤ := fun i : ℤ => p with hD3
         -- 1.18.6. proof
         have s1_18_6 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → Nat.Prime (e i).toNat := by
           intro i hK4

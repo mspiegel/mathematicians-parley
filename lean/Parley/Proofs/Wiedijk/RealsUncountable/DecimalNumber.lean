@@ -59,8 +59,8 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     (∃ x : ℝ, ∀ n : ℤ, 0 < n → ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = d n ∨ ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) := by
   obtain ⟨N, hD3⟩ : ∃ N : ℤ → ℤ, N 0 = (0 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → N (k + 1) = 10 * N k + d (k + 1) := LeanBridges.Functions.recursion_exists _ (fun k v => 10 * v + d (k + 1))
   set S : Set ℝ := {y : ℝ | ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat} with hD4
-  set L : ℤ → ℚ := fun k => (N k : ℚ) / 10 ^ k.toNat with hD5
-  set U : ℤ → ℚ := fun k => ((N k : ℚ) + 1) / 10 ^ k.toNat with hD6
+  set L : ℤ → ℚ := fun k : ℤ => (N k : ℚ) / 10 ^ k.toNat with hD5
+  set U : ℤ → ℚ := fun k : ℤ => ((N k : ℚ) + 1) / 10 ^ k.toNat with hD6
   -- 1. D3
   have s1 : N 0 = 0 := by have h := hD3.1; (try ring_nf at h ⊢); linarith
   -- 2. induction on k starting at 0
@@ -115,14 +115,14 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have s3_19 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by parley_subst_at s3_15 s3_17
     -- 3.20. calculation
     have s3_20 : L k ≤ L (k + 1) := by
-      calc L k = (N k : ℚ) / 10 ^ k.toNat := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD5
+      calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
         _ ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by first | parley_set_side | parley_line_toNat s3_18
-        _ = L (k + 1) := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD5
+        _ = L (k + 1) := by simp (disch := omega) only [hD5]
     -- 3.21. calculation
     have s3_21 : U (k + 1) ≤ U k := by
-      calc U (k + 1) = ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat := by first | (simp (disch := omega) only [hD6]; done) | (simp (disch := omega) only [hD6]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD6
+      calc U (k + 1) = ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat := by simp (disch := omega) only [hD6]
         _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by first | parley_set_side | parley_line_toNat s3_19
-        _ = U k := by first | (simp (disch := omega) only [hD6]; done) | (simp (disch := omega) only [hD6]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD6
+        _ = U k := by simp (disch := omega) only [hD6]
     -- 3.22. join 3.20, 3.21
     have s3_22 : L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := by parley_set_side
     exact ⟨(s3_22).1, (s3_22).2⟩
@@ -138,9 +138,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 4.5. calculation
     have r307_2 : (10 ^ k.toNat : ℤ) > 0 := by parley_order
     have s4_5 : L k ≤ U k := by
-      calc L k = (N k : ℚ) / 10 ^ k.toNat := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD5
+      calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
         _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N k : ℚ)) (y := (N k : ℚ) + 1) (c := (10 ^ k.toNat : ℚ)) (by parley_set_side) (by parley_set_side))
-        _ = U k := by first | (simp (disch := omega) only [hD6]; done) | (simp (disch := omega) only [hD6]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD6
+        _ = U k := by simp (disch := omega) only [hD6]
     -- 4.6. join 4.2, 4.3, 4.5
     have s4_6 : L k ≤ U k := by parley_set_side
     exact ⟨⟨trivial, trivial⟩, s4_6⟩

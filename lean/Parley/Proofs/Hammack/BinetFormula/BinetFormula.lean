@@ -21,7 +21,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -108,7 +107,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
   have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by exact (s4 n (by parley_side))
   -- 6. calculation
   calc (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | parley_side | parley_line_toNat s5
-    _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD2
-    _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD3]; done) | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD3
+    _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD2]
+    _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD3]
 
 end Parley.Proofs.Hammack.BinetFormula.BinetFormula

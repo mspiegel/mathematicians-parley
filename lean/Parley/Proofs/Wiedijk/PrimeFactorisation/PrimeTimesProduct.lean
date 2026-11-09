@@ -49,7 +49,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   have s1 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by parley_set_side
   -- 2. obtain j, g from line 1
   obtain ⟨j, s2a, g, s2b, ⟨s2c, s2d⟩⟩ := s1
-  set h : ℤ → ℤ := fun i => @ite _ (i ≤ j) (Classical.propDecidable (i ≤ j)) (g i) p with hD2
+  set h : ℤ → ℤ := fun i : ℤ => @ite _ (i ≤ j) (Classical.propDecidable (i ≤ j)) (g i) p with hD2
   -- 3. proof
   have s3 : ∀ i : ℤ, i ∈ Finset.Icc 1 j → h i = g i := by
     intro i hK1
@@ -113,7 +113,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   have s6 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (1 : ℤ) (j + 1) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
   -- 7. mun:product-termwise a := 1, b := j, t := h, u := g, from 3
   have r128_1 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by parley_set_side
-  have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) (by exact_mod_cast s3) (by parley_set_side) (by parley_set_side))
+  have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) s3 (by parley_set_side) (by parley_set_side))
   -- 8. inequalities
   have s8 : ¬ j + 1 ≤ j := by parley_set_side
   -- 9. def:range-between k := j + 1, a := 1, b := j + 1

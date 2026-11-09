@@ -35,7 +35,7 @@ namespace Parley.Proofs.Wiedijk.RealsUncountable.SequenceMissesReal
 set_option maxHeartbeats 600000 in
 theorem sequence_misses_real (f : ℤ → ℝ) :
     (∃ x : ℝ, ∀ n : ℤ, 0 < n → f n ≠ x) := by
-  set e : ℤ → ℤ := fun n => (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) with hD7
+  set e : ℤ → ℤ := fun n : ℤ => (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) with hD7
   -- 1. proof
   -- what this block shows, Lean's types give
   -- 2. proof

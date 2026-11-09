@@ -39,7 +39,7 @@ namespace Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum
 set_option maxHeartbeats 400000 in
 theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
     (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = N ^ 2 := by
-  set S : ℤ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) m, (2 * j - 1 : ℤ) with hD1
+  set S : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (2 * j - 1 : ℤ) with hD1
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℤ, 0 < k → S k = k ^ 2 := by
     intro k h_k

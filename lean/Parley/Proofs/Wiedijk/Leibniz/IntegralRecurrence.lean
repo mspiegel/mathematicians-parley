@@ -58,9 +58,9 @@ namespace Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence
 set_option maxHeartbeats 600000 in
 theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
     (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) := by
-  set f : ℝ → ℝ := fun x => x ^ (2 * n).toNat with hD1
-  set g : ℝ → ℝ := fun x => x ^ (2 * n).toNat / (1 + x ^ 2) with hD2
-  set h : ℝ → ℝ := fun x => x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) with hD3
+  set f : ℝ → ℝ := fun x : ℝ => x ^ (2 * n).toNat with hD1
+  set g : ℝ → ℝ := fun x : ℝ => x ^ (2 * n).toNat / (1 + x ^ 2) with hD2
+  set h : ℝ → ℝ := fun x : ℝ => x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) with hD3
   -- 1. proof
   have s1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), h x = f x - g x := by
     intro x hK1

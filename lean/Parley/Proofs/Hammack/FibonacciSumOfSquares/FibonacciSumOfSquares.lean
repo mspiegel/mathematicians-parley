@@ -47,7 +47,7 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
   have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
   -- 2. proof
   -- what this block shows, Lean's types give
-  set q : ℤ → ℤ := fun j => F j ^ 2 with hD2
+  set q : ℤ → ℤ := fun j : ℤ => F j ^ 2 with hD2
   -- 3. thm:fibonacci-recurrence
   have s3 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side))
   -- 4. induction on m starting at 1
@@ -59,7 +59,7 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
       -- 4.1. proof
       -- what this block shows, Lean's types give
       -- 4.2. mun:sum-single a := 1
-      have s4_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
+      have s4_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
       -- 4.3. D1
       have s4_3 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 4.4. D1
@@ -85,7 +85,7 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
       -- what this block shows, Lean's types give
       -- 4.11. mun:sum-extended a := 1, n := m
       have r90_1 : m ≥ 1 := by parley_side
-      have s4_11 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r90_1)
+      have s4_11 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r90_1)
       -- 4.12. instantiate k := m in line 3
       have s4_12 : F (m + 2) = F m + F (m + 1) := by exact (s3 m (by parley_side))
       -- 4.13. instantiate k := m in line 2

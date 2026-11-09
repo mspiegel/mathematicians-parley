@@ -52,7 +52,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
     have s3_1 : 0 < 2 * k - 1 := by parley_order
     -- 3.2. mun:pos-int-nat m := 2k − 1, from 3.1
     exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1)
-  set q : ℤ → ℤ := fun k => F (2 * k - 1) with hD2
+  set q : ℤ → ℤ := fun k : ℤ => F (2 * k - 1) with hD2
   -- 4. thm:fibonacci-recurrence
   have s4 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side))
   -- 5. induction on m starting at 1
@@ -80,7 +80,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         calc F (1 + 1) = F 2 := by norm_num
           _ = 1 := by linear_combination (norm := parley_norm) s5_4 + s5_5 + s5_6
       -- 5.8. calculation
-      calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
+      calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
         _ = F (2 * 1 - 1) := by simp (disch := omega) only [hD2]
         _ = F 1 := by norm_num
         _ = 1 := by parley_side
@@ -105,7 +105,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         exact row1
       -- 5.14. calculation
       have r125_1 : m ≥ 1 := by parley_side
-      calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1)
+      calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1)
         _ = F (2 * m) + q (m + 1) := by parley_subst hIH2
         _ = F (2 * m) + F (2 * m + 1) := by parley_subst s5_11
         _ = F (2 * (m + 1)) := by parley_side

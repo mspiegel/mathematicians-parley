@@ -60,8 +60,8 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   set m : ℝ := (f a - f b) / (b - a) with hD1
   have hD1_kind : True := by parley_set_side
-  set g : ℝ → ℝ := fun x => m * x with hD2
-  set F : ℝ → ℝ := fun x => f x + g x with hD3
+  set g : ℝ → ℝ := fun x : ℝ => m * x with hD2
+  set F : ℝ → ℝ := fun x : ℝ => f x + g x with hD3
   -- 5. D2
   have s5 : ∀ x ∈ (Set.Icc a b : Set ℝ), g x = m * x := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 6. D3

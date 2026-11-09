@@ -42,7 +42,7 @@ namespace Parley.Proofs.Hammack.SumOfSquares.SumOfSquares
 
 theorem sum_of_squares (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) ^ 2 : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) * (2 * (n : ℚ) + 1) / 6 := by
-  set S : ℤ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j ^ 2 : ℤ) with hD1
+  set S : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j ^ 2 : ℤ) with hD1
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℤ, 0 < k → (S k : ℚ) = (k : ℚ) * ((k : ℚ) + 1) * (2 * (k : ℚ) + 1) / 6 := by
     intro k h_k

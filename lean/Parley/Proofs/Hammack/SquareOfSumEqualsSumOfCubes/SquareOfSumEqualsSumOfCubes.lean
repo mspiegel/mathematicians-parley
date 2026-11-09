@@ -43,7 +43,7 @@ namespace Parley.Proofs.Hammack.SquareOfSumEqualsSumOfCubes.SquareOfSumEqualsSum
 
 theorem square_of_sum_equals_sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) ^ 2 = (∑ k ∈ Finset.Icc (1 : ℤ) n, (k ^ 3 : ℤ)) := by
-  set C : ℤ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j ^ 3 : ℤ) with hD1
+  set C : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j ^ 3 : ℤ) with hD1
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℤ, 0 < k → (C k : ℚ) = ((k : ℚ) * ((k : ℚ) + 1) / 2) ^ 2 := by
     intro k h_k
