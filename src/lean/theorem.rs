@@ -5099,10 +5099,16 @@ impl<'a> Proof<'a> {
     }
 
     /// Whether the two sides of an equation, as Lean writes them, are left
-    /// apart in casts once the defines' equations are put in: they are not
-    /// alike with each letter a `set` names read as its value, and Lean
-    /// casts such a letter, `(S 1 : ℚ)` of an S in ℤ beside a sum of
-    /// rationals, whose value's casts are then to push in.
+    /// apart in casts once the defines' equations are put in, which
+    /// `push_cast` then moves in. `simp only [hD]` puts each `set` letter's
+    /// value where the letter stood, and closes a goal that is then `x = x`
+    /// itself: where the two sides are alike with each such letter read as
+    /// its value (`forms::alike_once_set`), nothing is left. Where Lean
+    /// casts such a letter to a type its value is not in, `(S 1 : ℚ)` of an
+    /// S in ℤ, the cast stands around the value once it is put in, to be
+    /// pushed into it. A define no `set` names, a header's function, is put
+    /// in by its own equation, `(f a : ℝ) = …`, which states the claim's
+    /// side as the claim casts it, and leaves no cast.
     fn unfolds_to_casts(&self, one: &Printed, other: &Printed) -> bool {
         use super::doc::forms;
         let values = self.set_values();
@@ -11395,9 +11401,11 @@ fn shown(says: Printed, proof: super::doc::Proof) -> Printed {
 }
 
 /// Whether the two sides of an equation a define makes true, met as the
-/// checker met them with the define written out, are then the same term:
-/// bound letters may be renamed, which `simp` takes as they are, and
-/// nothing else taken.
+/// checker met them with the define written out, are then the same term,
+/// which `simp only [hD]` closes by reflexivity: bound letters may be
+/// renamed, which are the same term to Lean, and nothing else taken. An
+/// identity element dropped or a respelling is arithmetic left for
+/// `norm_num`.
 fn unfolds_alone(met: &crate::matching::Meeting) -> bool {
     met.identities.is_empty() && !met.respelled && !met.turned && !met.permuted
 }
