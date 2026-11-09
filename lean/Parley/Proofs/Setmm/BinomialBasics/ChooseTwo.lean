@@ -40,14 +40,14 @@ set_option maxHeartbeats 600000 in
 theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = (N : ℚ) * ((N : ℚ) - 1) / 2 := by
   -- 1. def:nat0 n := N
-  have s1 : 0 < N ∨ N = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side); parley_side)
+  have s1 : 0 < N ∨ N = 0 := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side)
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. mun:nat-minus-one n := N, from C1
     have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) (by parley_side))
     -- 2.2. def:nat0 n := N − 1, from 2.1
-    have s2_2 : 0 < N - 1 ∨ N - 1 = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side); parley_side)
+    have s2_2 : 0 < N - 1 ∨ N - 1 = 0 := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side)
     -- 2.3. cases, from 2.2
     rcases s2_2 with hC3 | hC4
     · skip

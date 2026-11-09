@@ -28,7 +28,7 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
   -- 1. mun:nat-minus-one n := N
   have s1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) (by parley_side))
   -- 2. def:nat0 n := N − 1, from 1
-  have s2 : 0 < N - 1 ∨ N - 1 = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side); parley_side)
+  have s2 : 0 < N - 1 ∨ N - 1 = 0 := by simpa only [Int.cast_id, exists_eq_right] using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side)
   -- 3. cases, from 2
   rcases s2 with hC1 | hC2
   · skip

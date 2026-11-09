@@ -38,6 +38,13 @@ const SITES: &[Site] = &[
         why: "a citation the writer's comparison does not meet, ‖(x : ℂ)‖ beside |x|, whose forms as norm_cast leaves them are alike: exact_mod_cast",
     },
     Site {
+        file: "lean/Parley/Proofs/Setmm/ChooseOneLess/ChooseOneLess.lean",
+        step: "1",
+        holds: "simpa only [Int.cast_id, exists_eq_right]",
+        list: false,
+        why: "a definition over any ring taken at ℤ, ∃ m : ℤ, 0 < m ∧ (m : ℤ) = N beside the writer's 0 < N: Int.cast_id and exists_eq_right",
+    },
+    Site {
         file: "lean/Parley/Tests/Notations/Powers/EToARealPower.lean",
         step: "1",
         holds: "first |",

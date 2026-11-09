@@ -5308,6 +5308,19 @@ impl<'a> Proof<'a> {
             if by_norm_cast && formed {
                 return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
             }
+            // An item over any ring taken at ℤ says a membership of ℕ or ℕ₀
+            // as `∃ m : ℤ, 0 < m ∧ (m : ℤ) = n`, where the writer says it of
+            // an integer as `0 < n`: `Int.cast_id` and `exists_eq_right`
+            // take the one to the other (`forms::exists_eq_dropped`).
+            let dropped = super::doc::forms::exists_eq_dropped(says);
+            if super::doc::forms::written_alike(&dropped, claim)
+                && !super::doc::forms::written_alike(says, claim)
+            {
+                return super::doc::Proof::By(super::tactics::simpa_only(
+                    vec!["Int.cast_id", "exists_eq_right"],
+                    term,
+                ));
+            }
             // The checker met the item's conclusion at its values with the
             // claim, so in one type the two differ only in spelling and
             // casts: an equation of numbers whose casts `push_cast` all moves

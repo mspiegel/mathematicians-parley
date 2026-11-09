@@ -220,19 +220,13 @@
 1	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseAll.lean	5	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseComplement.lean	2.9	a calculation row no reasoned rule settles yet
 2	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseNextRow.lean	6	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseOne.lean	1	a definition read where Lean states it otherwise than the claim
 2	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseOne.lean	2.7	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	1	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	2.2	a definition read where Lean states it otherwise than the claim
 3	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	2.3.13	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	2.3.16	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean	2.6	a calculation row no reasoned rule settles yet
 3	lean/Parley/Proofs/Setmm/BinomialCoefficientsSum/BinomialCoefficientsSum.lean	1.2	an item citation whose Lean types no reasoned rule settles yet
 4	lean/Parley/Proofs/Setmm/BinomialCoefficientsSum/BinomialCoefficientsSum.lean	3	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/ChooseOneLess/ChooseOneLess.lean	1	a definition read where Lean states it otherwise than the claim
 2	lean/Parley/Proofs/Setmm/ChooseOneLess/ChooseOneLess.lean	2.6	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	1	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.2	a definition read where Lean states it otherwise than the claim
 2	lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.3.11	a calculation row no reasoned rule settles yet
 2	lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.3.12	a calculation row no reasoned rule settles yet
 3	lean/Parley/Proofs/Setmm/ChooseTwoLess/ChooseTwoLess.lean	2.6	a calculation row no reasoned rule settles yet
@@ -244,7 +238,6 @@
 1	lean/Parley/Proofs/Setmm/DisjointWithinDifference/DisjointWithinDifference.lean	4.1	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/EmptySum/EmptySum.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/EqualValues/EqualValues.lean	2.1	an instance no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/FactorialByPredecessor/FactorialByPredecessor.lean	2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/FloorBasics/TwiceFloorOfHalf.lean	the statement	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/FloorBelowNonInteger/FloorBelowNonInteger.lean	3.1	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Setmm/FloorQuotientZero/FloorQuotientZero.lean	3.4	an item citation whose Lean types no reasoned rule settles yet
@@ -271,9 +264,7 @@
 1	lean/Parley/Proofs/Setmm/LimitConstantMultiple/LimitConstantMultiple.lean	5	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/LimitLemmas/ScaledSmall.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/LimitNegative/LimitNegative.lean	2	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Setmm/NicomachusRow/NicomachusRow.lean	1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/NicomachusRow/NicomachusRow.lean	2.6	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/OddNumbersSum/OddNumbersSum.lean	2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/OddNumbersSum/OddNumbersSum.lean	3.4	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/OneToOneValues/OneToOneValues.lean	2	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/Parity/HalfOrNextHalf.lean	2.3	a step no reasoned rule settles yet

@@ -934,6 +934,44 @@ pub fn casts_set_letter(term: &Term, values: &Values) -> bool {
     })
 }
 
+/// The statement as `simp only [Int.cast_id, exists_eq_right]` leaves it:
+/// a cast of a term to its own type gone (`Int.cast_id`), and each
+/// `∃ m, P m ∧ m = x` read as `P x` (`exists_eq_right`). An item over any
+/// ring writes membership of ℕ as `∃ m : ℤ, 0 < m ∧ (m : K) = n`, which at
+/// K = ℤ this takes to `0 < n`, as the writer writes it of an integer.
+pub fn exists_eq_dropped(term: &Term) -> Term {
+    let stripped = ascriptions_dropped(term);
+    exists_eq_right(&stripped)
+}
+
+fn exists_eq_right(term: &Term) -> Term {
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = exists_eq_right(c);
+    }
+    if let TermKind::Quantified {
+        quant: super::term::Quant::Exists,
+        letter,
+        guard: Some(guard),
+        body,
+        ..
+    } = &out.kind
+    {
+        if let TermKind::Infix { op, lhs, rhs } = &bare(body).kind {
+            if op.symbol == "="
+                && matches!(&bare(lhs).kind, TermKind::Letter(l) if l == letter)
+                && !rhs
+                    .walk()
+                    .iter()
+                    .any(|t| matches!(&t.kind, TermKind::Letter(l) if l == letter))
+            {
+                return substituted(guard, letter, rhs);
+            }
+        }
+    }
+    out
+}
+
 /// Whether Lean writes the two alike, an ascription of a term to its own
 /// type and the writer's brackets aside.
 pub fn written_alike(a: &Term, b: &Term) -> bool {
