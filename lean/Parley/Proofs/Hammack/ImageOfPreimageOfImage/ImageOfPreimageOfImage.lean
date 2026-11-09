@@ -36,7 +36,7 @@ theorem image_of_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f : �
     obtain ⟨s, s3_1a, s3_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A ∩ f ⁻¹' (f '' (A ∩ X))) (f := f) (u := y) (W := Set.univ) s2 (by parley_set_side))).mp hK2
     -- 3.2. def:preimage u := s, Z := f[X], from 3.1
     have s3_2a : s ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_1a).1
-    have s3_2b : f s ∈ f '' (A ∩ X) := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_1a).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_1a).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_1a).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_1a).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_1a).2; parley_set_side)
+    have s3_2b : f s ∈ f '' (A ∩ X) := by simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_1a).2
     -- 3.3. substitute y = f(s) (line 3.1) into line 3.2
     parley_subst_at s3_1b s3_2b
   -- 4. def:subset, from 3

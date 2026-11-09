@@ -232,6 +232,29 @@ fn to_nat_texts(term: &Printed) -> Vec<String> {
         .collect()
 }
 
+/// Whether a statement as Lean writes it takes a sum or a product, `∑ k ∈ …`.
+fn has_big_operator(term: &Printed) -> bool {
+    use super::doc::{Piece, TermKind};
+    term.walk().iter().any(|t| match &t.kind {
+        TermKind::Notation { pieces, .. } => matches!(
+            pieces.first(),
+            Some(Piece::Text(text)) if text.starts_with('∑') || text.starts_with('∏')
+        ),
+        _ => false,
+    })
+}
+
+/// The fields a statement as Lean writes it is worked in, ℚ, ℝ or ℂ, of
+/// its number types (`number_types`): an exponent's ℕ or an index's ℤ
+/// beside them says nothing of the field.
+fn fields_of(term: &Printed) -> std::collections::BTreeSet<super::templates::Num> {
+    use super::templates::Num;
+    number_types(term)
+        .into_iter()
+        .filter(|n| matches!(n, Num::Rat | Num::Real | Num::Complex))
+        .collect()
+}
+
 /// The number types a statement as Lean writes it names: those of its
 /// terms, and those it casts to.
 fn number_types(term: &Printed) -> std::collections::BTreeSet<super::templates::Num> {
@@ -5103,20 +5126,42 @@ impl<'a> Proof<'a> {
         // in another type than the term's is not known to be its; and one
         // that counts a set stands where a calculation of counts may take
         // its rows in ℕ∞, which the claim as read does not show.
-        let claim = claim.filter(|c| {
-            !c.is_truth()
-                && !item_counts(c)
-                && says.is_some_and(|s| super::doc::forms::relation_types_agree(s, c))
-        });
+        let claim = claim.filter(|c| !c.is_truth() && !item_counts(c));
         if let (Some(claim), Some(says)) = (claim, says) {
+            let agree = super::doc::forms::relation_types_agree(says, claim);
+            // An item taken in a wider field than the claim's, ℚ for a claim
+            // of integers: no simplifying takes the one to the other.
+            // A sum or a product is simplified term by term under its binder,
+            // the item's otherwise than the goal's, 1/↑k^2 against (↑x^2)⁻¹.
+            let within = fields_of(says).is_subset(&fields_of(claim))
+                && !has_big_operator(says)
+                && !has_big_operator(claim);
+            let same_text = says.untyped().text() == claim.untyped().text();
             match self.proof_meeting(term.clone(), says, claim) {
-                Some(Proved::Term(t)) => return super::doc::Proof::Term(t),
+                Some(Proved::Term(t)) if agree => return super::doc::Proof::Term(t),
                 // An item's statement carries the types the writer gives its
-                // letters, and its functions given by their rules, not
-                // what Lean elaborates where it is cited: a rewrite the two
-                // differ by, of casts or of identity elements, is no fact a
-                // tactic is known to take the one to the other by.
-                Some(Proved::Cast { .. } | Proved::Simplified { .. }) | None => {}
+                // letters, not what Lean elaborates where it is cited: where
+                // the two are written alike but for those types, or apart only
+                // in casts, in no wider field than the claim's, both are
+                // simplified alike, `simpa using`.
+                Some(Proved::Term(_)) if within && same_text => {
+                    return super::doc::Proof::By(super::tactics::call(
+                        "simpa",
+                        vec![TacticArg::Using(term)],
+                    ))
+                }
+                Some(Proved::Cast { .. }) if within => {
+                    return super::doc::Proof::By(super::tactics::call(
+                        "simpa",
+                        vec![TacticArg::Using(term)],
+                    ))
+                }
+                // Identity elements dropped are no fact a tactic is known to
+                // take the one to the other by at the types Lean elaborates.
+                Some(
+                    Proved::Term(_) | Proved::Cast { .. } | Proved::Simplified { .. },
+                )
+                | None => {}
             }
         }
         close(&self.writer, node, term)
@@ -6306,22 +6351,11 @@ impl<'a> Proof<'a> {
             (Route::Built(says), Route::Built(wanted)) => Some((says.clone(), wanted)),
             _ => None,
         };
-        // A field the instance is worked in that the claim is not, ℝ for a
-        // claim in ℚ: an exponent's ℕ or an index's ℤ beside it says
-        // nothing of the field.
-        let fields =
-            |t: &Printed| -> std::collections::BTreeSet<super::templates::Num> {
-                use super::templates::Num;
-                number_types(t)
-                    .into_iter()
-                    .filter(|n| matches!(n, Num::Rat | Num::Real | Num::Complex))
-                    .collect()
-            };
-        // The field the instance is worked in beyond the claim's, the wider
-        // of them where it names several.
+        // The field the instance is worked in beyond the claim's, ℝ for a
+        // claim in ℚ, the wider of them where it names several.
         let wider_field = lean.as_ref().and_then(|(says, wanted)| {
-            let claimed = fields(wanted);
-            fields(says)
+            let claimed = fields_of(wanted);
+            fields_of(says)
                 .into_iter()
                 .filter(|n| !claimed.contains(n))
                 .max()

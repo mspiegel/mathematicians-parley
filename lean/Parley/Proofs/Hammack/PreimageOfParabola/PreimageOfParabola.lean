@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import OrderTactics
-public import RealTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -39,7 +38,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
   have s1 : ∀ u ∈ (Set.univ : Set ℝ) ∩ f ⁻¹' (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ), u ∈ (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) ∪ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ) := by
     intro u hK1
     -- 1.1. def:preimage Z := [12, 19], from K1
-    have s1_1 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2; parley_rat_of_real h) | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2; parley_set_side)
+    have s1_1 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := by simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2
     -- 1.2. def:interval a := 12, b := 19, x := f(u), from 1.1
     have s1_2a : 12 ≤ f u := (((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mp s1_1).1.2
     have s1_2b : f u ≤ 19 := (((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mp s1_1).2

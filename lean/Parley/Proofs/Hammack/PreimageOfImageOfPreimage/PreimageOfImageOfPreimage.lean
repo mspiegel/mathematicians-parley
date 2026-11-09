@@ -33,12 +33,12 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     intro u hK2
     -- 3.1. def:preimage Z := f[f⁻¹[Y]], from K2
     have s3_1a : u ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).1
-    have s3_1b : f u ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2; parley_set_side)
+    have s3_1b : f u ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK2).2
     -- 3.2. obtain s: def:image u := f(u), Y := f⁻¹[Y], from 2, 3.1
     obtain ⟨s, s3_2a, s3_2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (u := f u) (W := Set.univ) s2 (by parley_set_side))).mp s3_1b
     -- 3.3. def:preimage u := s, Z := Y, from 3.2
     have s3_3a : s ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_2a).1
-    have s3_3b : f s ∈ Y := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_2a).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_2a).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_2a).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_2a).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_2a).2; parley_set_side)
+    have s3_3b : f s ∈ Y := by simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mp s3_2a).2
     -- 3.4. substitute f(u) = f(s) (line 3.2) into line 3.3
     have s3_4 : f u ∈ Y := by parley_subst_at s3_2b s3_3b
     -- 3.5. def:preimage Z := Y, from 3.1, 3.4
@@ -50,7 +50,7 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     intro u hK3
     -- 5.1. def:preimage Z := Y, from K3
     have s5_1a : u ∈ A := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK3).1
-    have s5_1b : f u ∈ Y := by first | exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK3).2 | exact ((((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK3).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK3).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK3).2 | (have h := (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK3).2; parley_set_side)
+    have s5_1b : f u ∈ Y := by simpa using (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp hK3).2
     -- 5.2. mun:value-in-image Y := f⁻¹[Y], from K3, 2
     have s5_2 : f u ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := u) (W := Set.univ) s2 hK3 (by parley_set_side))
     -- 5.3. def:preimage Z := f[f⁻¹[Y]], from 5.1, 5.2
