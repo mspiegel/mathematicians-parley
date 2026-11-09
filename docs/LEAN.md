@@ -77,16 +77,23 @@ described under "Sets and functions", and any other difference fails the
 build. An item that Lean writes exactly as it writes the line closes the step
 by `exact` alone.
 
-The same comparison (`forms::meets`) decides how a line proves a statement
-elsewhere: a hypothesis of a cited item, the side a reading of a definition
-starts from, what a block owes at its end. It finds the two alike, or alike
-once read as Lean reads them (`a ≠ b` as `¬ a = b`, `a ≥ b` as `b ≤ a`, a
-letter `set` names as its value, bound letters renamed, a rule applied to its
-argument), or one the other turned round, or alike once identity elements are
-dropped or casts pushed down. Each answer is one tactic: the line as it is, its
-`.symm`, `simpa only [add_zero, …] using` it, or `push_cast at h ⊢; exact h`.
+How a line proves a statement elsewhere comes from the record. A block's last
+step meets what it owes, a supposition what it denies, a contradicting step
+its line, and an instance its claim, in the way the checker found them alike.
+Each meeting gives one tactic: the line itself, its `.symm` or `Ne.symm`, or
+`simpa only [add_zero, …] using` it. The writer decides only what comes from
+its own choice of casts and `toNat`. Two statements apart only there close by
+`exact_mod_cast`, or by `simpa using` where neither type is narrower.
+
+A cited fact is found where the checker placed it (`FirstAt`). That place is a
+sentence by its place on the page, a part of it, a "for all" read at the
+block's letter, or what it implies. A range's bound is
+`(Finset.mem_Icc.mp h).1` or `.2`. `0 < n` of `n ∈ ℕ` is the hypothesis
+itself, and `n ≠ 0` is its `.ne'`. `X ⊆ A` of `X ∈ 𝒫A` is the hypothesis as it
+stands.
+
 Where an item's statement meets the claim only after casts or identity
-elements, the step keeps its alternatives: the statement as printed carries
+elements, the step keeps its alternatives. The statement as printed carries
 the types the writer gives the item's letters, not those Lean infers where it
 is cited.
 
@@ -273,9 +280,9 @@ them, as Mathlib's own proofs do.
 | method | Lean |
 |---|---|
 | a citation | the item's theorem at the citation's values, each hypothesis by the line the checker found it supplied by (`Cited::supplied`), `parley_side` where none states it; `.mp` from the line the reading starts from, `.mpr` with the witnesses' facts by the lines that say them |
-| obtain | `obtain ⟨k, …⟩ :=` the item's or the line's "there is"; a part Lean states otherwise than the page's sentence is obtained under a name of its own and stated after as the page says it |
-| exhibit | `⟨w, h⟩`, each fact of the values by the line the step names that says it, or a line in scope; `parley_side` where none does |
-| instantiate | the line at the values given, a letter given none at the block's letter |
+| obtain | `obtain ⟨k, …⟩ :=` the item's or the line's "there is"; a part the checker met otherwise than as written, or that Lean casts otherwise, is obtained under a name of its own and stated after as the page says it |
+| exhibit | `⟨w, h⟩`, each fact of the values by the line the checker found it stated by (`Exhibit::shown`); `parley_side` where none does |
+| instantiate | the sentence the checker instantiated, at the values given, a letter given none at the block's letter, its conditions taken off; closed by the instance's meeting with the claim, or, where Lean states the two otherwise, by `linear_combination`, `linarith` or `exact`, and `parley_side` where the instance is in a field the claim is not |
 | algebra | `ring`; from cited lines, `linear_combination` with the multipliers the method's decision finds |
 | arithmetic, real arithmetic | `parley_arith` |
 | inequalities, transitivity, antisymmetry, rows | linear arithmetic, `parley_side` |
@@ -292,13 +299,19 @@ A requires line is a `have` proved by its own reason, and a define is
 `set m : ℝ := … with D1`. A define the statement is read with is written out
 in Lean's statement and named again by `set` at the head of the proof.
 
+A step or a calculation row a define proves is `simp only [hD]`, with
+`push_cast; norm_num` after it where the checker met the two sides otherwise
+than as written, or where Lean casts a set's letter and the sides are not
+alike once it is read as its value. A definition read backwards is
+`(…).mpr w` alone where Lean states its left side as it writes the claim.
+
 ## How a block ends
 
 A block, a part of one, or the theorem ends on its last step. Where that step
 says what is owed as Lean writes both, its proof is the goal's: its `have`
 goes, a term proves the goal by `exact`, and a block's tactics stand in its
-place. Where the two differ in a way `forms::meets` takes one to the other,
-the step's name closes it by that one tactic, `⟨a, b⟩` for what is owed as an
+place. Where the checker met them otherwise than as written (`ends_met`),
+the step's name closes it by the one tactic that meeting gives, `⟨a, b⟩` for what is owed as an
 "and" of its sentences and `trivial` for a part Lean's types make true. What a
 block owes is the record's (`Owed::written`). An induction's part owes the
 motive Lean makes at the start or at k + 1, the cast of the letter a cast of

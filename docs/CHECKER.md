@@ -29,15 +29,44 @@ and not inferred inside one.
   letters stands for. Both backends apply the item from this and do not match
   it again.
 - `Cited::supplied`: for each hypothesis of the group a citation takes, in
-  the group's order, where the fact the search took for it stands: a line the
-  citation names, a sentence or part of one, with the fact as the page writes
-  it; one of the step's requires lines; or no line, a membership said once.
-  Lean names that line as the item's argument.
+  the group's order, where the fact stands (`SuppliedBy`). It is one of: a
+  line the citation names, a sentence or part of one, or what one implies
+  (`Line`); one of the step's requires lines above the citing line, or what
+  it implies (`Requires`); the `let` or `obtain` line that introduces a
+  letter, for a membership said once (`SaidOnce`); or no line (`Unstated`).
+  A hypothesis the citation's values make true is still placed where a line
+  states it. Lean names that line as the item's argument.
 - `Cited::firsts`: the line, or the sentence of one, a reading of a
   definition starts from, with the fact as the page writes it
   (`FirstAt::written`). Metamath unfolds the definition from it; Lean gives
   it to `.mp`, and to `.mpr` for the witnesses' facts.
-- `exhibited`: the values each `exhibit` step shows. Both read it.
+- `FirstAt`: where a fact stands in a line. Its sentence is counted by its
+  place among the sentences the line writes, from 0. Past those come the
+  line's "for all" sentences read at a block's letter, in order. Its part is
+  counted among the sentence's parts joined by "and". Where the line implies
+  the fact rather than writing it, `implied` names the rule
+  (`citing::Implication`). The rules are a range's bound, `k ≤ n` of
+  `k ∈ {1, …, n}`; what ℕ or ℕ₀ says of a term, `n > 0` of `n ∈ ℕ`; a subset
+  written as a power-set membership; and the others `implied_by` gives.
+- `exhibited`: for each `exhibit` step, the values of each "there is" it
+  shows, and where each fact it asks of them stands, placed as a citation's
+  hypotheses are (`Exhibit::shown`). Both backends read the values; Lean
+  also reads where the facts stand.
+- `obtained_parts`: how each obtain step's sentences after its memberships
+  are the parts of the "there is" it obtains from, and how each pair meets
+  (`ObtainedPart`). Lean restates a part the checker met otherwise than as
+  written.
+- `instantiated`: for each instantiation, a step's, a calculation row's or a
+  requires line's, three facts (`Instantiated`). The first is the sentence
+  of the line instantiated (`FirstAt`). The second is how many conditions
+  are taken off on the way to the claim. The third is how what is left meets
+  the claim. Lean instantiates that sentence and closes the step by that
+  meeting.
+- `define_links`: for each calculation row citing a define, and each step
+  whose reason is defines it names, how the two sides of its equation meet
+  once the defines are written out. Lean closes it by `simp only [hD]`,
+  adding `push_cast; norm_num` where that meeting or Lean's casts leave
+  more.
 - `links`: the relation each line a `transitivity` step cites gives its
   chain. Metamath reads it; Lean writes the chain by linear arithmetic.
 
@@ -48,14 +77,20 @@ and not inferred inside one.
   and the same as the page writes it, the block's `let` and `assume` lines
   taken off (`written`). Metamath reads `ends`; Lean closes each part on
   `written`.
+- `ends_met`: how each step that ends a block or the proof meets what it
+  owes (`matching::Meeting`). The step may be turned round, have parts in
+  another order or identity elements dropped, have bound letters renamed,
+  or be respelled. Lean closes the block by the one tactic that meeting
+  gives.
 - `supposed`: how each contradiction's supposition stands to what it shows,
   by the line of the `suppose`: the claim negated, or the thing the claim
-  negates, with what it is set against as written. Lean opens the block by
-  `by_contra` or by `intro` from it.
+  negates, with what it is set against as written, and how the two meet.
+  Lean opens the block by `by_contra` or by `intro` from it, turned where
+  they meet turned.
 - `contradicted`: for each step written `contradicting N` that ends a block
-  or a case, the line N, what of it the step opposes as the page writes it,
-  and which of the two says the other negated. Lean closes the block on the
-  pair.
+  or a case, where in line N the thing the step opposes stands (`FirstAt`).
+  It also gives which of the two says the other negated, and how they meet.
+  Lean closes the block on the pair.
 
 ## Facts about terms
 
