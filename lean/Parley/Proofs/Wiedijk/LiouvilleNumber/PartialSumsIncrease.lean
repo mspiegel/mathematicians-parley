@@ -7,7 +7,6 @@ public import FactorialTactics
 public import Functions
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -33,8 +32,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumReal
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep
@@ -72,7 +69,7 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
     -- 2.8. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by parley_side
       _ ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by parley_side
-      _ = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)) | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)) | exact_mod_cast ((Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side))).symm | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)); parley_int_power h) | (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)); parley_side)
+      _ = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) (by parley_side)).symm
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) (n + (j + 1)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by
           have s2_7_w : (n : ℚ) + (j : ℚ) + 1 = (n : ℚ) + ((j : ℚ) + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_7; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s2_7_w | parley_subst s2_7

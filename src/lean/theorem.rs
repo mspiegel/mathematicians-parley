@@ -297,6 +297,30 @@ fn cast_texts(term: &Printed) -> Vec<String> {
 
 /// The `toNat`s a statement as Lean writes it takes, each by its text, in
 /// order.
+/// Whether the equation `item` faces the equation `claim` turned round:
+/// false where a side of the one is alike the same side of the other as
+/// `norm_cast` leaves them (`casts::norm_cast_form`), true where it is
+/// alike the other side and not its own; None where no side is alike
+/// either.
+fn facing(item: &Printed, claim: &Printed) -> Option<bool> {
+    use super::casts::norm_cast_form;
+    use super::doc::forms::alike;
+    let sides = |t: &Printed| match &norm_cast_form(t).kind {
+        super::doc::TermKind::Infix { lhs, rhs, .. } => {
+            Some(((**lhs).clone(), (**rhs).clone()))
+        }
+        _ => None,
+    };
+    let ((il, ir), (cl, cr)) = (sides(item)?, sides(claim)?);
+    if alike(&il, &cl) || alike(&ir, &cr) {
+        return Some(false);
+    }
+    if alike(&il, &cr) || alike(&ir, &cl) {
+        return Some(true);
+    }
+    None
+}
+
 fn to_nat_texts(term: &Printed) -> Vec<String> {
     term.walk()
         .into_iter()
@@ -5194,6 +5218,7 @@ impl<'a> Proof<'a> {
         claim: Option<&Printed>,
         term: Printed,
         says: Option<&Printed>,
+        turned: bool,
     ) -> super::doc::Proof {
         // A claim Lean's types make true says nothing a term is met with; one
         // in another type than the term's is not known to be its; and one
@@ -5246,6 +5271,52 @@ impl<'a> Proof<'a> {
             );
             if by_norm_cast && formed {
                 return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
+            }
+            // The checker met the item's conclusion at its values with the
+            // claim, so in one type the two differ only in spelling and
+            // casts: an equation of numbers whose casts `push_cast` all moves
+            // is the item's once pushed in and put by the ring's laws,
+            // `linear_combination`, whose `parley_norm` checks
+            // `push_cast; ring1`; an order with the item's casts is it over
+            // the same atoms, `linarith`. `linear_combination e` checks that
+            // the claim's left side less its right, less e's, is 0, so an e
+            // Lean states turned round is given as `e.symm`. A `toNat` the
+            // writer put on one side only, `2 ^ (n.toNat - 1)` beside
+            // `2 ^ (n - 1)`, is another atom to `ring1` and to `linarith`,
+            // and no cast moves it.
+            let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
+            let pushed = super::casts::push_cast_moves_all(says)
+                && super::casts::push_cast_moves_all(claim);
+            let same_to_nat = to_nat_texts(says) == to_nat_texts(claim);
+            match node.notation() {
+                EQUALITY if one_type && of_numbers && pushed && same_to_nat => {
+                    // Which way the item faces the claim, where one side of
+                    // each is alike the other's as `norm_cast` leaves them;
+                    // where neither is, the facing is not known and the step
+                    // keeps its ways.
+                    let Some(turned) = facing(says, claim).or(turned.then_some(true))
+                    else {
+                        return close(&self.writer, node, term);
+                    };
+                    let facing = match turned {
+                        true => super::tactics::symm(term),
+                        false => term,
+                    };
+                    return super::doc::Proof::By(super::tactics::linear_combination(
+                        facing,
+                    ));
+                }
+                ORDER
+                    if one_type
+                        && same_to_nat
+                        && cast_texts(says) == cast_texts(claim) =>
+                {
+                    return super::doc::Proof::By(super::tactics::call(
+                        "linarith",
+                        vec![super::tactics::rules(vec![term])],
+                    ))
+                }
+                _ => {}
             }
         }
         close(&self.writer, node, term)
@@ -8781,7 +8852,7 @@ impl<'a> Proof<'a> {
             _ if !counted.is_empty() => counts_converted(&term, &counted, turned),
             _ if agrees => Proof::By(Tactic::Exact(term)),
             Some(witness) => Proof::By(Tactic::Exact(witness)),
-            None => self.closer(node, claim_lean.as_ref(), term, says.as_ref()),
+            None => self.closer(node, claim_lean.as_ref(), term, says.as_ref(), turned),
         };
         Route::Built(haves_then(written_out(&defines), closed))
     }

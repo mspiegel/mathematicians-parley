@@ -36,8 +36,6 @@ public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -154,7 +152,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           calc A ^ j.toNat * x = A ^ j.toNat * A * (1 + (r - 1) * ((j : ℝ) + 1)) := by linear_combination (norm := parley_norm) (-A ^ j.toNat) * s1_19_8
             _ ≤ A ^ j.toNat * A * r ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 + (r - 1) * ((j : ℝ) + 1)) (y := r ^ (j + 1).toNat) (c := A ^ j.toNat * A) (by parley_side) (by parley_side))
             _ = A ^ (j + 1).toNat * r ^ (j + 1).toNat := by parley_subst s1_19_9
-            _ = (A * r) ^ (j + 1).toNat := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)); parley_side)
+            _ = (A * r) ^ (j + 1).toNat := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)).symm
             _ = B ^ (j + 1).toNat := by parley_subst s1_19_7
         · skip
           -- 1.19.11. substitute 0 = A (C4)

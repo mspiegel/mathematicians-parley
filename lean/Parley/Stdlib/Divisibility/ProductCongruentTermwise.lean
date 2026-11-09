@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import Sets
 public import SubstTactics
@@ -22,8 +21,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
@@ -92,11 +89,11 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       have s3_17 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := (∏ᶠ x ∈ Y, (t x : ℤ)) * t a) (b := (∏ᶠ x ∈ Y, (u x : ℤ)) * u a))).mpr s3_16
       -- 3.18. substitute
       have s3_18 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by
-        have c1 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); parley_set_side)
+        have c1 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2).symm
         have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by parley_subst_at c1 s3_17
         exact row1
       -- 3.19. substitute
-      have c1 : (∏ᶠ x ∈ Y, (u x : ℤ)) * u a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2)).symm | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2); parley_set_side)
+      have c1 : (∏ᶠ x ∈ Y, (u x : ℤ)) * u a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2).symm
       have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) [ZMOD n] := by parley_subst_at c1 s3_18
       exact row1
   -- 4. instantiate Y := X in line 3

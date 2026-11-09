@@ -76,7 +76,7 @@ theorem powers_of_nine_in_powers_of_three :
     -- 3.6. inequalities, from 3.5
     have s3_6 : 0 < m := by parley_order
     -- 3.7. mun:integer-step m := 0, n := m, from 3.6
-    have s3_7 : 1 ≤ m := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6); parley_set_side)
+    have s3_7 : 1 ≤ m := by linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6)]
     -- 3.8. inequalities
     have s3_8 : 2 ≤ 2 * m := by parley_order
     -- 3.9. inequalities, from 3.8

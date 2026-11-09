@@ -72,6 +72,20 @@ const SITES: &[Site] = &[
         why: "an instance order with the claim's casts, over the same atoms: linarith",
     },
     Site {
+        file: "lean/Parley/Proofs/Setmm/EmptySum/EmptySum.lean",
+        step: "2",
+        holds: "linear_combination",
+        list: false,
+        why: "an item's equation of numbers in the claim's type, casts push_cast moves, facing known: linear_combination",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean",
+        step: "12",
+        holds: "first |",
+        list: true,
+        why: "an item's equation whose sides are alike neither of the claim's, ∏ i beside ∏ k: which way it faces is not known, and linear_combination needs it",
+    },
+    Site {
         file: "lean/Parley/Proofs/Setmm/ConstantFunctionContinuous/ConstantFunctionContinuous.lean",
         step: "1.1.1.1",
         holds: "first |",

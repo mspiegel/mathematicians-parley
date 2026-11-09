@@ -100,7 +100,6 @@
 1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/NinePowerIsThreePower.lean	4.4	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/NinePowerIsThreePower.lean	4.5	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/PowersOfNineInPowersOfThree.lean	1.4	a definition read where Lean states it otherwise than the claim
-1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/PowersOfNineInPowersOfThree.lean	3.7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/PowersOfNineInPowersOfThree.lean	4.3	a definition read where Lean states it otherwise than the claim
 3	lean/Parley/Proofs/Hammack/OneMinusHalfPowerLimit/OneMinusHalfPowerLimit.lean	2.2.2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Hammack/OneToOnePreimageOfImage/OneToOnePreimageOfImage.lean	2.1.1	a definition read where Lean states it otherwise than the claim
@@ -246,13 +245,11 @@
 1	lean/Parley/Proofs/Setmm/ConstantMapIsNotOneToOne/ConstantMapIsNotOneToOne.lean	4.2	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/ConstantSequenceLimit/ConstantSequenceLimit.lean	1.1.2	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/DisjointWithinDifference/DisjointWithinDifference.lean	4.1	an instance no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/EmptySum/EmptySum.lean	2	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/EqualValues/EqualValues.lean	2.1	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/FactorialByPredecessor/FactorialByPredecessor.lean	2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/FloorBasics/TwiceFloorOfHalf.lean	the statement	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/FloorBelowNonInteger/FloorBelowNonInteger.lean	3.1	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Setmm/FloorQuotientZero/FloorQuotientZero.lean	3.4	an item citation whose Lean types no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/FloorQuotientZero/FloorQuotientZero.lean	3.5	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/FunctionIntoEmpty/EmptyDomain.lean	1.1	an item citation whose Lean types no reasoned rule settles yet
 3	lean/Parley/Proofs/Setmm/HalvesSeries/HalvesSeries.lean	2.1	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/HalvesSeries/HalvesSeries.lean	2.5	a substitution whose equation's type in the row no rule settles yet
@@ -265,7 +262,6 @@
 1	lean/Parley/Proofs/Setmm/ImageAsASelection/ImageAsASelection.lean	1.7	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/ImageAsASelection/ImageAsASelection.lean	3.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/ImageOfAPointUnderAOneToOneMap/ImageOfAPointUnderAOneToOneMap.lean	2.3	an instance no reasoned rule settles yet
-1	lean/Parley/Proofs/Setmm/IntegerAtMostSquare/IntegerAtMostSquare.lean	4.6	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/IntegerUnderTwiceHalfFloor/IntegerUnderTwiceHalfFloor.lean	the statement	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Setmm/IrrationalPlusRational/IrrationalPlusRational.lean	1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Setmm/IrrationalPlusRational/IrrationalPlusRational.lean	3.5	a step no reasoned rule settles yet
@@ -326,7 +322,6 @@
 1	lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	4	an item citation whose Lean types no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	5	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	the statement	a step no reasoned rule settles yet
-3	lean/Parley/Proofs/Wiedijk/AmGm/AmGmPower.lean	1.19.10	a calculation row no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/AmGm/AmGmPower.lean	1.19.5	an item citation whose Lean types no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/AmGm/AmGmPower.lean	1.20	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	2.1	a definition read where Lean states it otherwise than the claim
@@ -388,7 +383,6 @@
 3	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	23	an item citation whose Lean types no reasoned rule settles yet
 7	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	26	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	27.4	a calculation row no reasoned rule settles yet
-1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	30	a calculation row no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	8.3	a calculation row no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/Cantor/Cantor.lean	2.1.1	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/Cantor/Cantor.lean	2.3	a definition read where Lean states it otherwise than the claim
@@ -448,7 +442,6 @@
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.24	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.25	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.27	an instance no reasoned rule settles yet
-1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.29.2	a definition read where Lean states it otherwise than the claim
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.29.6	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.4	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/IntermediateValue/IntermediateValue.lean	16.5	a step no reasoned rule settles yet
@@ -505,7 +498,7 @@
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean	2.4	an instance no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean	2.5	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.3	an item citation whose Lean types no reasoned rule settles yet
-2	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.8	a calculation row no reasoned rule settles yet
+1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.8	a calculation row no reasoned rule settles yet
 2	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/ScaledSumInteger.lean	10	a step no reasoned rule settles yet
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/ScaledSumInteger.lean	4	a step no reasoned rule settles yet
 3	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/ScaledSumInteger.lean	7	a calculation row no reasoned rule settles yet
@@ -662,11 +655,8 @@
 1	lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.5	a substitution whose equation's type in the row no rule settles yet
 3	lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.7	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCongruentTermwise.lean	3.13	an instance no reasoned rule settles yet
-1	lean/Parley/Stdlib/Divisibility/ProductCongruentTermwise.lean	3.18	a substitution whose equation's type in the row no rule settles yet
-1	lean/Parley/Stdlib/Divisibility/ProductCongruentTermwise.lean	3.19	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCongruentTermwise.lean	4	an instance no reasoned rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCoprime.lean	2.12	a substitution whose equation's type in the row no rule settles yet
-1	lean/Parley/Stdlib/Divisibility/ProductCoprime.lean	2.4	a substitution whose equation's type in the row no rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCoprime.lean	2.7	an instance no reasoned rule settles yet
 1	lean/Parley/Stdlib/Divisibility/ProductCoprime.lean	3	an instance no reasoned rule settles yet
 2	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.12	a substitution whose equation's type in the row no rule settles yet
@@ -674,7 +664,6 @@
 1	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.9	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Stdlib/Sums/ProductConstant.lean	2	an instance no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/AChainShowingItsWork/AChainLineCitingAnItem.lean	1	a calculation row no reasoned rule settles yet
-1	lean/Parley/Tests/Elaborator/ACitedConclusionWithoutItsZero/DoubledSuccessorAtZero.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/ACitedLineNarrowsALetter/ACitedLineNarrowsALetter.lean	1	an item citation whose Lean types no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/AConjunctOfACitedLine/AConditionFromAConjunct.lean	2	an instance no reasoned rule settles yet
 1	lean/Parley/Tests/Elaborator/ADefineAtEveryMemberOfARange/ADefineAtEveryMemberOfARange.lean	1	a step no reasoned rule settles yet
