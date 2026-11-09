@@ -222,6 +222,36 @@ fn goal_after_intros(goal: &Printed, names: usize) -> Option<Printed> {
     Some(goal)
 }
 
+/// The `toNat`s a statement as Lean writes it takes, each by its text, in
+/// order.
+fn to_nat_texts(term: &Printed) -> Vec<String> {
+    term.walk()
+        .into_iter()
+        .filter(|t| matches!(t.kind, super::doc::TermKind::ToNat(_)))
+        .map(|t| t.untyped().text())
+        .collect()
+}
+
+/// The number types a statement as Lean writes it names: those of its
+/// terms, and those it casts to.
+fn number_types(term: &Printed) -> std::collections::BTreeSet<super::templates::Num> {
+    use super::doc::{LeanType, TermKind};
+    let mut out = std::collections::BTreeSet::new();
+    for t in term.walk() {
+        if let Some(LeanType::Num(n)) = &t.ty {
+            out.insert(*n);
+        }
+        if let TermKind::Cast {
+            to: LeanType::Num(n),
+            ..
+        } = &t.kind
+        {
+            out.insert(*n);
+        }
+    }
+    out
+}
+
 /// What Lean's statement of a "for all" line, `line`, says once each of its
 /// leading letters is given its value of `given` in order, a guard's proof
 /// after a value that has one, and then `conditions` of its conditions'
@@ -6256,8 +6286,14 @@ impl<'a> Proof<'a> {
 
     /// The proof of the claim `node` from `proof`, an instance of a line that
     /// Lean states as `instance`, by how the checker met the instance with
-    /// the claim (`Instantiated::meeting`); where that meeting gives no one
-    /// tactic, the ways tried in order (`close`).
+    /// the claim (`Instantiated::meeting`). Where Lean's statements of the
+    /// two differ otherwise, the instance, turned where the checker turned
+    /// it, is taken down to the claim's field where it is in a wider one,
+    /// `parley_rat_of_real` of ℝ for a claim in ℚ and `parley_of_complex` of
+    /// ℂ; and otherwise reaches the claim by the claim's own closer, as a
+    /// line of the proof is typed as its claims are: `linear_combination`
+    /// for an equation of numbers, `linarith` for an order, `exact` for any
+    /// other claim.
     fn instance_closed(
         &self,
         node: &Node,
@@ -6266,6 +6302,30 @@ impl<'a> Proof<'a> {
         recorded: &crate::checker::record::Instantiated,
     ) -> super::doc::Proof {
         use super::doc::forms;
+        let lean = match (&instance, self.writer.formula(node)) {
+            (Route::Built(says), Route::Built(wanted)) => Some((says.clone(), wanted)),
+            _ => None,
+        };
+        // A field the instance is worked in that the claim is not, ℝ for a
+        // claim in ℚ: an exponent's ℕ or an index's ℤ beside it says
+        // nothing of the field.
+        let fields =
+            |t: &Printed| -> std::collections::BTreeSet<super::templates::Num> {
+                use super::templates::Num;
+                number_types(t)
+                    .into_iter()
+                    .filter(|n| matches!(n, Num::Rat | Num::Real | Num::Complex))
+                    .collect()
+            };
+        // The field the instance is worked in beyond the claim's, the wider
+        // of them where it names several.
+        let wider_field = lean.as_ref().and_then(|(says, wanted)| {
+            let claimed = fields(wanted);
+            fields(says)
+                .into_iter()
+                .filter(|n| !claimed.contains(n))
+                .max()
+        });
         let met = match (instance, self.writer.formula(node)) {
             // Lean's statement of the instance is the claim's as Lean
             // writes both, once turned where the checker turned it, or
@@ -6289,10 +6349,66 @@ impl<'a> Proof<'a> {
             }
             _ => None,
         };
-        match met {
-            Some(proved) => super::doc::Proof::By(proved.closer()),
-            None => close(&self.writer, node, proof),
+        if let Some(proved) = met {
+            return super::doc::Proof::By(proved.closer());
         }
+        use super::tactics as t;
+        use super::templates::Num;
+        // The instance turned round where the checker turned it.
+        let proof = match recorded.meeting.turned {
+            true => t::symm(t::bracket(proof)),
+            false => proof,
+        };
+        // An instance in a wider field than the claim's, taken down to it by
+        // the writer's own conversion.
+        let down = match wider_field {
+            Some(Num::Complex) => Some(BridgeTactic::OfComplex),
+            Some(Num::Real) => Some(BridgeTactic::RatOfReal),
+            _ => None,
+        };
+        if let Some(bridge) = down {
+            return super::doc::Proof::By(t::on_h(
+                &proof,
+                vec![t::bridge(bridge, vec![TacticArg::Term(t::hyp("h"))])],
+            ));
+        }
+        // An instance the writer states with an exponent's `toNat` the claim
+        // does not have, (↑a + b).toNat beside the claim's own: both read
+        // in natural powers, `parley_zpow_toNat`.
+        let to_nat = lean
+            .as_ref()
+            .is_some_and(|(says, wanted)| to_nat_texts(says) != to_nat_texts(wanted));
+        if to_nat {
+            let close = match node.notation() {
+                ORDER => t::call("linarith", vec![]),
+                _ => t::exact_mod_cast(t::hyp("h")),
+            };
+            return super::doc::Proof::By(t::on_h(
+                &proof,
+                vec![
+                    t::simp_only(
+                        false,
+                        Some(Tactic::First(vec![
+                            t::call("omega", vec![]),
+                            t::call("positivity", vec![]),
+                            t::call("nlinarith", vec![]),
+                        ])),
+                        vec![t::forwards(t::bridge_lemma(
+                            "parley_zpow_toNat",
+                            BridgeModule::PowerTactics,
+                        ))],
+                        Some(t::at_h(true)),
+                    ),
+                    close,
+                ],
+            ));
+        }
+        let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
+        super::doc::Proof::By(match node.notation() {
+            EQUALITY if of_numbers => t::linear_combination(proof),
+            ORDER => t::call("linarith", vec![t::rules(vec![proof])]),
+            _ => Tactic::Exact(proof),
+        })
     }
 
     /// The defines among the lines a step cites, each as its equation says

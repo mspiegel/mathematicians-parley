@@ -39,7 +39,7 @@ theorem one_over_n_does_not_tend_to_one :
   have s2_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℝ) - 1) < ε)) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => 1 / (n : ℝ))) (L := (1 : ℝ)))).mp hS
   -- 2.2. instantiate ε := 1/2 in line 2.1
   have r296_1 : (0 : ℚ) < 1 / 2 := by parley_arith
-  have s2_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℚ) - 1) < 1 / 2) := by first | exact (s2_1 (1 / 2 : ℝ) (by parley_side)) | exact ((s2_1 (1 / 2 : ℝ) (by parley_side))).symm | simpa using (s2_1 (1 / 2 : ℝ) (by parley_side)) | exact_mod_cast (s2_1 (1 / 2 : ℝ) (by parley_side)) | (have h := (s2_1 (1 / 2 : ℝ) (by parley_side)); parley_rat_of_real h) | (have h := (s2_1 (1 / 2 : ℝ) (by parley_side)); parley_side)
+  have s2_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℚ) - 1) < 1 / 2) := by (have h := (s2_1 (1 / 2 : ℝ) (by parley_side)); parley_rat_of_real h)
   -- 2.3. obtain N from line 2.2
   obtain ⟨N, s2_3a, s2_3b⟩ := s2_2
   -- 2.4. instantiate n := N + 1 in line 2.3

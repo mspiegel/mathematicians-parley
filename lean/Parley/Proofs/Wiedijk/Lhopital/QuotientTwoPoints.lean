@@ -83,7 +83,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.10. algebra, from 4.8
       have r186_5 : G u - G v ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) (-1) * h)
       have r186_6 : G v - G u ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) h)
-      have r186_9 : (deriv G) ξ ≠ 0 := by first | exact (hH12 ξ (by parley_set_side)) | exact ((hH12 ξ (by parley_set_side))).symm | simpa using (hH12 ξ (by parley_set_side)) | exact_mod_cast (hH12 ξ (by parley_set_side)) | (have h := (hH12 ξ (by parley_set_side)); parley_set_side)
+      have r186_9 : (deriv G) ξ ≠ 0 := by exact (hH12 ξ (by parley_set_side))
       have s4_10 : (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by linear_combination (norm := parley_field) s4_8b
       -- 4.11. def:open-interval a := v, b := u, x := ξ, from 4.8
       have s4_11a : v < ξ := (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).1.2

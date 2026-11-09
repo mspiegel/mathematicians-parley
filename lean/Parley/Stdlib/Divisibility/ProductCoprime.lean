@@ -65,7 +65,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       -- 2.6. mun:finite-part, from H2, K
       have s2_6 : Y.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := Y) hH2 hK)
       -- 2.7. instantiate y := a in H4, from 2.5
-      have s2_7 : (Int.gcd a n : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (hH4 a (by parley_set_side)) | (have h := (hH4 a (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH4 a (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH4 a (by parley_set_side)) | exact_mod_cast ((hH4 a (by parley_set_side))).symm | (have h := (hH4 a (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH4 a (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH4 a (by parley_set_side)); parley_int_power h) | (have h := (hH4 a (by parley_set_side)); parley_set_side)
+      have s2_7 : (Int.gcd a n : ℤ) = 1 := by linear_combination (norm := parley_norm) (hH4 a (by parley_set_side))
       -- 2.8. mun:subset-transitive X := Y, Y := X, Z := ℤ, from H1, K
       have s2_8 : Y ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := Y) (Y := X) (Z := (Set.univ : Set ℤ)) hK (by parley_whole_side))
       -- 2.9. mun:product-integer X := Y, from 2.6, 2.8
@@ -78,6 +78,6 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       exact row1
   -- 3. instantiate Y := X in line 2
   have r668_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  first | linear_combination (norm := parley_norm) (s2 X (by parley_set_side)) | (have h := (s2 X (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s2 X (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s2 X (by parley_set_side)) | exact_mod_cast ((s2 X (by parley_set_side))).symm | (have h := (s2 X (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s2 X (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s2 X (by parley_set_side)); parley_int_power h) | (have h := (s2 X (by parley_set_side)); parley_set_side)
+  linear_combination (norm := parley_norm) (s2 X (by parley_set_side))
 
 end Parley.Stdlib.Divisibility.ProductCoprime

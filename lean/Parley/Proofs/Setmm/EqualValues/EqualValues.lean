@@ -25,7 +25,7 @@ theorem equal_values {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3
   · skip
     intro hD1
     -- 2.1. instantiate s := C, t := D in line 1, from D1, H4, H5
-    first | exact (s1 C (by parley_set_side) D (by parley_set_side) (by parley_set_side)) | exact ((s1 C (by parley_set_side) D (by parley_set_side) (by parley_set_side))).symm | simpa using (s1 C (by parley_set_side) D (by parley_set_side) (by parley_set_side)) | exact_mod_cast (s1 C (by parley_set_side) D (by parley_set_side) (by parley_set_side)) | (have h := (s1 C (by parley_set_side) D (by parley_set_side) (by parley_set_side)); parley_set_side)
+    exact (s1 C (by parley_set_side) D (by parley_set_side) (by parley_set_side))
   · skip
     intro hD2
     -- 2.2. substitute C = D (D2)

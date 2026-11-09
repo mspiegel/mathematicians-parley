@@ -83,6 +83,6 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
             have s2_4_w : (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) = (LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
             first | parley_subst s2_4_w | parley_subst s2_4
   -- 3. instantiate k := n in line 2
-  first | linear_combination (norm := parley_norm) (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s2 n (by parley_side)) | exact_mod_cast ((s2 n (by parley_side))).symm | (have h := (s2 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); parley_int_power h) | (have h := (s2 n (by parley_side)); parley_side)
+  linear_combination (norm := parley_norm) (s2 n (by parley_side))
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.SumOfFactorialQuotients

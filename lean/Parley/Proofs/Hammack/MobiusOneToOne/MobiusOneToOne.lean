@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import PowerTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -17,8 +16,6 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
 
@@ -41,9 +38,9 @@ theorem mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     have s1_2 : t ≠ 2 := (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := t))).mp hK2).2
     -- 1.3. calculation
     have s1_3 : (5 * s + 1) / (s - 2) = (5 * t + 1) / (t - 2) := by
-      calc (5 * s + 1) / (s - 2) = f s := by first | linear_combination (norm := parley_norm) (hH2 s (by parley_set_side)) | (have h := (hH2 s (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 s (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 s (by parley_set_side)) | exact_mod_cast ((hH2 s (by parley_set_side))).symm | (have h := (hH2 s (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 s (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 s (by parley_set_side)); parley_int_power h) | (have h := (hH2 s (by parley_set_side)); parley_set_side)
+      calc (5 * s + 1) / (s - 2) = f s := by linear_combination (norm := parley_norm) ((hH2 s (by parley_set_side))).symm
         _ = f t := by parley_set_side
-        _ = (5 * t + 1) / (t - 2) := by first | linear_combination (norm := parley_norm) (hH2 t (by parley_set_side)) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 t (by parley_set_side)) | exact_mod_cast ((hH2 t (by parley_set_side))).symm | (have h := (hH2 t (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); parley_int_power h) | (have h := (hH2 t (by parley_set_side)); parley_set_side)
+        _ = (5 * t + 1) / (t - 2) := by linear_combination (norm := parley_norm) (hH2 t (by parley_set_side))
     -- 1.4. algebra, from 1.3
     have r29_1 : s - 2 ≠ 0 := by parley_set_side
     have r29_2 : t - 2 ≠ 0 := by parley_set_side

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import NormTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import SubstTactics
@@ -17,8 +16,6 @@ public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
 
@@ -48,7 +45,7 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
   -- 4.4. calculation
   have s4_4 : y = (5 * x + 1) / (x - 2) := by
     calc y = f x := by parley_set_side
-      _ = (5 * x + 1) / (x - 2) := by first | linear_combination (norm := parley_norm) (hH2 x (by parley_set_side)) | (have h := (hH2 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 x (by parley_set_side)) | exact_mod_cast ((hH2 x (by parley_set_side))).symm | (have h := (hH2 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x (by parley_set_side)); parley_int_power h) | (have h := (hH2 x (by parley_set_side)); parley_set_side)
+      _ = (5 * x + 1) / (x - 2) := by linear_combination (norm := parley_norm) (hH2 x (by parley_set_side))
   -- 4.5. mun:inverse-value g := f, y := x, from 1, 4.2
   have s4_5 : (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) (f x) = x := by first | exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a) | exact ((Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a); parley_set_side)
   -- 4.6. substitute y = f(x) (line 4.2) into line 4.5

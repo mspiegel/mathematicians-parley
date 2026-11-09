@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import SubstTactics
@@ -31,8 +30,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -117,9 +114,9 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.13. transitivity, from 10.11, 10.12
     have s10_13 : abs t < p := by parley_order
     -- 10.14. instantiate x := t in line 4, from 10.9, 10.10, 10.13
-    have s10_14 : abs (f t - L) < 1 := by first | linarith [(s4b t (by parley_set_side) (by parley_set_side))] | (have h := (s4b t (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s4b t (by parley_set_side) (by parley_set_side)) | (have h := (s4b t (by parley_set_side) (by parley_set_side)); parley_set_side)
+    have s10_14 : abs (f t - L) < 1 := by linarith [(s4b t (by parley_set_side) (by parley_set_side))]
     -- 10.15. instantiate x := t in H2, from 10.10
-    have s10_15 : f t = 1 / t ^ 2 := by first | linear_combination (norm := parley_norm) (hH2 t (by parley_set_side)) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 t (by parley_set_side)) | exact_mod_cast ((hH2 t (by parley_set_side))).symm | (have h := (hH2 t (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 t (by parley_set_side)); parley_int_power h) | (have h := (hH2 t (by parley_set_side)); parley_set_side)
+    have s10_15 : f t = 1 / t ^ 2 := by linear_combination (norm := parley_norm) (hH2 t (by parley_set_side))
     -- 10.16. algebra, from D1
     have s10_16 : t * (j : ℝ) = 1 := by
       try simp only [hD1] at *

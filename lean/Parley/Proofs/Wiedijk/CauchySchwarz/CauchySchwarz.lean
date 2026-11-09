@@ -106,7 +106,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have s5_9 : A > 0 := by parley_order
     -- 5.10. instantiate t := −B/A in line 1, from D1, D2, D3
     have r112_1 : A > 0 := by parley_order
-    have s5_10 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C ≥ 0 := by first | linarith [(s1 (-(B / A)))] | (have h := (s1 (-(B / A))); push_cast at h; linarith) | exact_mod_cast (s1 (-(B / A))) | (have h := (s1 (-(B / A))); parley_side)
+    have s5_10 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C ≥ 0 := by linarith [(s1 (-(B / A)))]
     -- 5.11. algebra
     have r116_1 : A ≠ 0 := by parley_side
     have s5_11 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C = C - B ^ 2 / A := by parley_ring

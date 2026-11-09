@@ -2,8 +2,6 @@ module
 
 public import ArithTactics
 public import NormTactics
-public import PowerTactics
-public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -37,8 +35,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
 public import Mathlib.Topology.Defs.Filter
@@ -76,9 +72,9 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
     -- 5.1. mun:in-subset, from K1, 3
     have s5_1 : x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (u := x) s3 hK1)
     -- 5.2. instantiate x := x in H2, from 5.1
-    have s5_2 : f x = 2 * x := by first | linear_combination (norm := parley_norm) (hH2 x (by parley_set_side)) | (have h := (hH2 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 x (by parley_set_side)) | exact_mod_cast ((hH2 x (by parley_set_side))).symm | (have h := (hH2 x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 x (by parley_set_side)); parley_int_power h) | (have h := (hH2 x (by parley_set_side)); parley_set_side)
+    have s5_2 : f x = 2 * x := by linear_combination (norm := parley_norm) (hH2 x (by parley_set_side))
     -- 5.3. instantiate x := x in line 4, from K1
-    have s5_3 : (deriv F) x = 2 * x := by first | linear_combination (norm := parley_norm) (s4b x (by parley_set_side)) | (have h := (s4b x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s4b x (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s4b x (by parley_set_side)) | exact_mod_cast ((s4b x (by parley_set_side))).symm | (have h := (s4b x (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s4b x (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s4b x (by parley_set_side)); parley_int_power h) | (have h := (s4b x (by parley_set_side)); parley_set_side)
+    have s5_3 : (deriv F) x = 2 * x := by linear_combination (norm := parley_norm) (s4b x (by parley_set_side))
     -- 5.4. calculation
     calc (deriv F) x = 2 * x := by parley_set_side
       _ = f x := by parley_set_side
@@ -94,9 +90,9 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
   have r63_2 : (0 : ℤ) ≤ 1 := by parley_arith
   have s8 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
   -- 9. instantiate x := 1 in H4, from 7
-  have s9 : F 1 = 1 ^ 2 := by first | linear_combination (norm := parley_norm) (hH4 (1 : ℝ) (by parley_set_side)) | (have h := (hH4 (1 : ℝ) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH4 (1 : ℝ) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH4 (1 : ℝ) (by parley_set_side)) | exact_mod_cast ((hH4 (1 : ℝ) (by parley_set_side))).symm | (have h := (hH4 (1 : ℝ) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH4 (1 : ℝ) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH4 (1 : ℝ) (by parley_set_side)); parley_int_power h) | (have h := (hH4 (1 : ℝ) (by parley_set_side)); parley_rat_of_real h) | (have h := (hH4 (1 : ℝ) (by parley_set_side)); parley_set_side)
+  have s9 : F 1 = 1 ^ 2 := by linear_combination (norm := parley_norm) (hH4 (1 : ℝ) (by parley_set_side))
   -- 10. instantiate x := 0 in H4, from 8
-  have s10 : F 0 = 0 ^ 2 := by first | linear_combination (norm := parley_norm) (hH4 (0 : ℝ) (by parley_set_side)) | (have h := (hH4 (0 : ℝ) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH4 (0 : ℝ) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH4 (0 : ℝ) (by parley_set_side)) | exact_mod_cast ((hH4 (0 : ℝ) (by parley_set_side))).symm | (have h := (hH4 (0 : ℝ) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH4 (0 : ℝ) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH4 (0 : ℝ) (by parley_set_side)); parley_int_power h) | (have h := (hH4 (0 : ℝ) (by parley_set_side)); parley_rat_of_real h) | (have h := (hH4 (0 : ℝ) (by parley_set_side)); parley_set_side)
+  have s10 : F 0 = 0 ^ 2 := by linear_combination (norm := parley_norm) (hH4 (0 : ℝ) (by parley_set_side))
   -- 11. substitute F(1) = 1² (line 9) into line 6
   have s11 : (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - F 0 := by parley_subst_at s9 s6
   -- 12. substitute F(0) = 0² (line 10) into line 11
