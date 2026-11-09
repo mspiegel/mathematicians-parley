@@ -36,6 +36,11 @@ and not inferred inside one.
   letter, for a membership said once (`SaidOnce`); or no line (`Unstated`).
   A hypothesis the citation's values make true is still placed where a line
   states it. Lean names that line as the item's argument.
+- `Cited::item_letters`: for each letter of a cited item the binding fills,
+  the Parley number system the item takes it in, by its own hypothesis
+  `x ∈ S`, and the narrowest the page says its value is in once
+  (`citing::within`). For `mun:abs-nonneg x := C` with C real: x in ℂ, from
+  ℝ.
 - `Cited::firsts`: the line, or the sentence of one, a reading of a
   definition starts from, with the fact as the page writes it
   (`FirstAt::written`). Metamath unfolds the definition from it; Lean gives
@@ -62,6 +67,8 @@ and not inferred inside one.
   are taken off on the way to the claim. The third is how what is left meets
   the claim. Lean instantiates that sentence and closes the step by that
   meeting.
+- `link_places`: for each link of a calculation that cites a line, where in
+  the line the link stands (`FirstAt`), by the link's line.
 - `define_links`: for each calculation row citing a define, and each step
   whose reason is defines it names, how the two sides of its equation meet
   once the defines are written out. Lean closes it by `simp only [hD]`,

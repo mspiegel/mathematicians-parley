@@ -92,10 +92,23 @@ block's letter, or what it implies. A range's bound is
 itself, and `n ≠ 0` is its `.ne'`. `X ⊆ A` of `X ∈ 𝒫A` is the hypothesis as it
 stands.
 
-Where an item's statement meets the claim only after casts or identity
-elements, the step keeps its alternatives. The statement as printed carries
-the types the writer gives the item's letters, not those Lean infers where it
-is cited.
+**Casts.** Where two statements are alike but for casts, the closer comes
+from the cast table (`src/lean/casts.rs`). For each operation the writer
+writes and each widening between ℕ, ℤ, ℚ, ℝ and ℂ, the table says whether
+`push_cast` moves a cast through the operation and whether `norm_cast` does.
+`parley build lean` writes `lean/Parley/Tests/CastTable.lean` from it, with
+an example for each entry, so `lake build` holds every entry true.
+
+The closer is chosen as follows:
+- `exact_mod_cast` where `norm_cast` moves every cast in both statements and
+  they are stated in one type;
+- `push_cast at h ⊢; exact h` where only `push_cast` moves them all and the
+  line is in no narrower type;
+- otherwise the step keeps its ways.
+
+A step no rule decides keeps its `first |` list, and `tests/first_lists.txt`
+keeps each such list with its reason. `tests/lean_closers.rs` names a step
+where each rule decides and one where its fact does not hold.
 
 ## Which theorems are in
 
