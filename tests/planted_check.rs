@@ -9,7 +9,7 @@
 //! another's edit. The clean corpus is checked whole; a case checks the
 //! theorems its edits can reach (`checker::run_edited`), against the clean
 //! corpus as read once (`checker::Clean`). The cases run side by side
-//! (`threads::in_order`), and are reported in the order they are written.
+//! (`threads::in_order_slots`), and are reported in the order they are written.
 //!
 //! Every message the checker writes out where it reports it is said by some
 //! case, so that a check no case reaches is found: one that had stopped
@@ -20,7 +20,11 @@ use std::path::Path;
 
 use parley::checker::Clean;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order;
+use parley::threads::in_order_slots;
+
+/// The threads the cases are shared among: the slots nextest gives this
+/// binary's tests (`threads-required` in `.config/nextest.toml`).
+const SLOTS: usize = 8;
 
 /// A file that defines a function outside its theorems, for the cases below
 /// that import it, use it, or define its name again.
@@ -805,7 +809,8 @@ fn the_checker_catches_every_planted_defect() {
         base.printed
     );
     let cases = cases();
-    let results = in_order(
+    let results = in_order_slots(
+        SLOTS,
         &cases,
         || clean_read(&clean),
         |read, case| outcome(case, &clean, read),
@@ -850,7 +855,8 @@ fn the_checker_catches_every_planted_defect() {
 fn a_clean_reading_kept_reports_what_a_fresh_one_does() {
     let clean = clean();
     let cases = cases();
-    let differ = in_order(
+    let differ = in_order_slots(
+        SLOTS,
         &cases,
         || clean_read(&clean),
         |read, case| kept_unlike_fresh(case, &clean, read),

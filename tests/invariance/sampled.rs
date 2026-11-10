@@ -27,7 +27,9 @@ use parley::elab::elaborate::Options;
 use parley::elab::Library;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order;
+use parley::threads::in_order_slots;
+
+use super::SLOTS;
 use parley::tools::build::{checked_in, library, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
@@ -503,7 +505,8 @@ fn a_proof_means_what_it_says_in_any_mix_of_spellings() {
             .expect("set.mm is found: say where it is with SET_MM"),
     )
     .expect("set.mm reads");
-    let results: Vec<Option<Broken>> = in_order(
+    let results: Vec<Option<Broken>> = in_order_slots(
+        SLOTS,
         &samples,
         || Library::new(Arc::clone(&read)),
         |lib, sample| reduced(&all, &clean, lib, &libraries, sample),

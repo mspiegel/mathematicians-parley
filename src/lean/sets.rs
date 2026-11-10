@@ -13,6 +13,7 @@ use super::expr::{
     Members, Printed, System, Writer,
 };
 use super::templates::Num;
+use crate::citing::bounds;
 use crate::citing::finite::{is_finite, SaidFinite};
 use crate::formula::Node;
 use crate::notations::NUMBER_SYSTEMS;
@@ -59,7 +60,7 @@ fn count_of(set: Printed, form: CountForm) -> Printed {
 /// writer takes in ℕ∞.
 pub fn counts_in_extended(
     grammar: &crate::formula::Grammar,
-    finite: &std::collections::BTreeSet<String>,
+    finite: &crate::citing::finite::FiniteSets,
     node: &Node,
 ) -> bool {
     node.walk().iter().any(|n| {
@@ -815,10 +816,6 @@ impl Writer<'_> {
             .letters
             .insert(letter.text.to_string(), members.letter());
         inner.wholes.shift_remove(&*letter.text);
-        // The condition is a sentence of its own, written as it is wherever
-        // it stands: |d| = m − 1 of {d ⊆ X : |d| = m − 1} is one Lean
-        // sentence whether or not the relation around the set counts in ℕ∞.
-        inner.in_extended = false;
         // A member of ℕ, ℕ₀ or a range from 0 or 1 is in that system, as a
         // letter a line puts there is.
         let system = match super::expr::system_of(set) {
@@ -1103,51 +1100,16 @@ impl Writer<'_> {
     /// Whether a term counts, somewhere, a set no line says is finite, |A|
     /// or |A| + 1: a count in ℕ∞.
     pub fn counts(&self, node: &Node) -> bool {
-        if self.in_extended {
-            return node
-                .walk()
-                .iter()
-                .any(|n| &*n.notation_name() == "cardinality");
-        }
         counts_in_extended(self.grammar, &self.finite, node)
     }
 
     /// Whether a relation that counts a set is one ℕ∞ says as the page
-    /// does: each side made of counts, whole numerals and natural letters
-    /// by + and ·, k ≤ |W| or |X| = |Y| + 1. Such a relation counts in ℕ∞
-    /// whatever the theorem knows of the sets, as set.mm's ♯ does. A
-    /// relation that computes with a count, |A| − |B| = 1 or |S| = j of an
-    /// integer j, counts a finite set as a natural number: the page has
-    /// shown the count is one (`card-nat0`) before computing with it.
+    /// does (`citing::finite::said_in_extended`), its letters in ℕ or ℕ₀
+    /// those the page puts there (written `↑m.toNat` there, `count_term`).
     pub fn said_in_extended(&self, node: &Node) -> bool {
-        let counted = node
-            .walk()
-            .iter()
-            .any(|m| &*m.notation_name() == "cardinality");
-        counted && node.children.iter().all(|c| self.natural_beside_count(c))
-    }
-
-    /// Whether a term is a natural number as ℕ∞ holds one: counts, whole
-    /// numerals, letters the page puts in ℕ or ℕ₀ (written `↑m.toNat`
-    /// there, `count_term`), and their sums and products.
-    fn natural_beside_count(&self, node: &Node) -> bool {
-        if &*node.notation_name() == "cardinality" {
-            return true;
-        }
-        match node.notation() {
-            crate::notations::NUMERAL => !node.text.contains('.'),
-            crate::notations::NAME => {
-                matches!(
-                    self.letters.get(node.text.as_str()),
-                    Some(LetterType::Number(Num::Nat))
-                ) || self.wholes.contains_key(&*node.text)
-            }
-            _ => {
-                matches!(&*node.notation_name(), "additive" | "multiplicative")
-                    && matches!(&*node.spelling().text(), "+" | "·")
-                    && node.children.iter().all(|c| self.natural_beside_count(c))
-            }
-        }
+        crate::citing::finite::said_in_extended(node, &|l| {
+            bounds::BoundsAsk::natural_letter(self, l)
+        })
     }
 
     /// The sets the checker records finite are the ones this writer counts
@@ -1158,14 +1120,14 @@ impl Writer<'_> {
     }
 
     /// The writer a hypothesis is written with: one counting as finite only
-    /// what the other hypotheses make finite, since a line cannot vouch for
-    /// itself. `|X| = 0` written with `X.ncard` would hold of every
-    /// infinite X too, and say less than the page; `X.encard = 0` says X is
-    /// finite. None where the line makes no set finite.
+    /// what the other hypotheses make finite, where the line may not vouch
+    /// for itself. `|X| = m` written with `X.ncard` would hold of every
+    /// infinite X too where m is 0; `X.encard = m` says X has m elements.
+    /// None where the line vouches for every set it makes finite.
     pub fn without_line(&self, line: &Node) -> Option<Writer<'_>> {
         let only = self.finite_only_by.get(&self.grammar.print(line))?;
         let mut out = self.with_letters(self.letters.clone());
-        out.finite.retain(|s| !only.contains(s));
+        out.finite.retain(|s, _| !only.contains(s));
         Some(out)
     }
 
@@ -1176,7 +1138,6 @@ impl Writer<'_> {
             return None;
         };
         let finite = &*node.notation_name() == "cardinality"
-            && !self.in_extended
             && is_finite(self.grammar, &self.finite, set);
         // ∅ counted is told it is a set of things, which nothing else in
         // |∅| = 0 gives Lean.
@@ -1284,7 +1245,9 @@ impl Writer<'_> {
             _ => return None,
         };
         if node.notation() != crate::notations::EQUALITY
-            || self.natural_beside_count(number)
+            || crate::citing::finite::natural_beside_count(number, &|l| {
+                bounds::BoundsAsk::natural_letter(self, l)
+            })
         {
             return None;
         }
@@ -1632,15 +1595,14 @@ impl Writer<'_> {
             .letters
             .insert(letter.text.to_string(), members.letter());
         // The letter bound here is a set of its own, whatever a set of its
-        // name outside is: finite where its binder makes it so, a part of
-        // a finite set, W of `W ∈ 𝒫 X` with X finite, and not otherwise.
+        // name outside is: finite where its binder makes it so
+        // (`citing::finite::bound_over`), and not otherwise.
         let name = self.grammar.print(letter);
         inner.finite.remove(&name);
-        if let ("powerset", [whole]) = (&*set.notation_name(), set.children.as_slice())
+        if let Some(why) =
+            crate::citing::finite::bound_over(self.grammar, &self.finite, set)
         {
-            if is_finite(self.grammar, &self.finite, whole) {
-                inner.finite.insert(name);
-            }
+            inner.finite.insert(name, why);
         }
         let body = match inner.formula(body) {
             Route::Built(p) => p,

@@ -9,7 +9,8 @@
 #                                   branch: the same with the gate and the
 #                                   slowest tests left out.
 #
-# Three lanes run side by side:
+# Three lanes run one after another, each with the whole of one budget of
+# threads, PRECOMMIT_THREADS (8 where it is not set):
 #
 #   debug:    cargo clippy                           (target/debug)
 #   release:  cargo build --release, then parley build metamath and
@@ -17,9 +18,16 @@
 #             (parley check in its place with --branch)
 #   test:     cargo nextest run --release            (target/release)
 #
+# Every step is held to the budget: cargo compiles with that many jobs, and
+# parley runs on that many threads. Lanes side by side would each take the
+# whole of it. In the test lane nextest runs that many tests side by side,
+# each on one thread (PARLEY_THREADS=1), so that the two do not multiply;
+# a test that shares its cases out itself runs on as many threads as
+# nextest gives it slots (`threads::in_order_slots`, `.config/nextest.toml`).
+#
 # With --branch the gate gives way to `parley check`, and the test lane
-# leaves out invariance's sweep, planted_elaborate, planted_gate and
-# coverage.
+# leaves out invariance's sweep, planted_elaborate, planted_gate, coverage
+# and build_failures.
 # What the branch level still holds is formatting, lints, every artifact
 # built and kernel-checked as it is built (and committed, below), the
 # checker over the corpus, and the remaining tests, the planted checks among
@@ -29,27 +37,21 @@
 # full level runs all of them, so a branch is run at it before it is merged.
 #
 # The tests elaborate proofs and load set.mm, and run several times faster
-# built with optimisations. nextest runs the test binaries side by side,
-# where cargo test runs them one after another; each binary that reads
-# set.mm holds one test, so set.mm is read no more often than with cargo
-# test. With nothing to compile the script takes 98s with cargo test and
-# 53s with nextest, the two heavy tests counted as several slots each
-# (`.config/nextest.toml`). It is installed with
-# `cargo install cargo-nextest --locked`. nextest does not run doc tests,
-# and the crate has none. The release and test lanes share a build
-# directory, whose lock cargo holds while it compiles: one lane compiles the
-# library and the other waits for it, then uses it. parley build and the gate
-# run the binary without cargo, beside the tests. The release profile keeps
-# overflow checks for the tests.
+# built with optimisations. nextest runs the tests of every binary in one
+# pool, where cargo test runs the binaries one after another; each binary
+# that reads set.mm holds one test, so set.mm is read no more often than with
+# cargo test. It is installed with `cargo install cargo-nextest --locked`.
+# nextest does not run doc tests, and the crate has none. The release and
+# test lanes share a build directory, so the tests use the library the
+# release lane compiled. The release profile keeps overflow checks for the
+# tests.
 #
-# Formatting is checked first; it takes a moment and needs no build. While
-# the lanes run, a line says when each step starts and how it ends, with how
-# long it took. Each lane's full output is kept in a log and printed once
-# both are done, lane by lane, so the report reads in order however the two
-# interleaved.
+# Formatting is checked first; it takes a moment and needs no build. A line
+# says when each step starts and how it ends, with how long it took. Each
+# lane's full output is kept in a log and printed once every lane is done.
 #
 # The tests read the built files, and parley build rewrites any that are out
-# of date. If it changes one, the tests may have read the old one, so that is
+# of date. A file it changes is one the commit would leave out, so that is
 # reported as a failure: rebuilt artifacts are to be committed, and the
 # script run again.
 #
@@ -71,9 +73,12 @@ esac
 
 # The tests the branch level leaves out, the slowest: invariance's sweep of
 # every change at every line (its sampled mixes, at the fixed seed, stay),
-# three binaries, and the test that checks every planted case twice,
+# four binaries, and the test that checks every planted case twice,
 # against the clean corpus read once and read afresh.
-slow='(binary(invariance) & not test(in_any_mix_of_spellings)) | binary(planted_elaborate) | binary(planted_gate) | binary(coverage) | test(=a_clean_reading_kept_reports_what_a_fresh_one_does)'
+slow='(binary(invariance) & not test(in_any_mix_of_spellings)) | binary(planted_elaborate) | binary(planted_gate) | binary(coverage) | binary(build_failures) | test(=a_clean_reading_kept_reports_what_a_fresh_one_does)'
+
+threads=${PRECOMMIT_THREADS:-8}
+export CARGO_BUILD_JOBS=$threads
 
 logs=$(mktemp -d)
 trap 'rm -rf "$logs"' EXIT
@@ -107,7 +112,7 @@ echo "[start] cargo fmt --check ok"
 
 # The build's report is kept apart as well, to see whether it changed files.
 parley_build() {
-    ./target/release/parley build metamath >"$logs/build.out"
+    PARLEY_THREADS=$threads ./target/release/parley build metamath >"$logs/build.out"
     local status=$?
     cat "$logs/build.out"
     return $status
@@ -115,7 +120,7 @@ parley_build() {
 
 # The Lean build only writes files, and needs no Lean installed.
 parley_build_lean() {
-    ./target/release/parley build lean >"$logs/build-lean.out"
+    PARLEY_THREADS=$threads ./target/release/parley build lean >"$logs/build-lean.out"
     local status=$?
     tail -n 3 "$logs/build-lean.out"
     return $status
@@ -130,32 +135,33 @@ release_lane() {
     step release "parley build metamath" parley_build || return 1
     step release "parley build lean" parley_build_lean || return 1
     if [ -n "$branch" ]; then
-        step release "parley check" ./target/release/parley check || return 1
+        step release "parley check" \
+            env PARLEY_THREADS="$threads" ./target/release/parley check || return 1
     else
-        step release "parley gate" ./target/release/parley gate || return 1
+        step release "parley gate" \
+            env PARLEY_THREADS="$threads" ./target/release/parley gate || return 1
     fi
+}
+
+# nextest runs $threads tests at once, each on one thread.
+run_tests() {
+    PARLEY_THREADS=1 cargo nextest run --release \
+        --build-jobs "$threads" --test-threads "$threads" "$@"
 }
 
 test_lane() {
     if [ -n "$branch" ]; then
         step test "cargo nextest run --release (all but the slowest)" \
-            cargo nextest run --release -E "not ($slow)" || return 1
+            run_tests -E "not ($slow)" || return 1
     else
-        step test "cargo nextest run --release" cargo nextest run --release || return 1
+        step test "cargo nextest run --release" run_tests || return 1
     fi
 }
 
-debug_lane >"$logs/debug.log" 2>&1 &
-debug=$!
-release_lane >"$logs/release.log" 2>&1 &
-release=$!
-test_lane >"$logs/test.log" 2>&1 &
-tests=$!
-
 failed=""
-wait "$debug" || failed="$failed debug-lane"
-wait "$release" || failed="$failed release-lane"
-wait "$tests" || failed="$failed test-lane"
+debug_lane >"$logs/debug.log" 2>&1 || failed="$failed debug-lane"
+release_lane >"$logs/release.log" 2>&1 || failed="$failed release-lane"
+test_lane >"$logs/test.log" 2>&1 || failed="$failed test-lane"
 
 cat "$logs/debug.log"
 cat "$logs/release.log"

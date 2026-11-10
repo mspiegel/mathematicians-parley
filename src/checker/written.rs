@@ -27,6 +27,7 @@ pub struct Phrase {
 /// None where it has none of either, and the record stands as read.
 pub fn written_out(
     checked: &CheckedCorpus,
+    ctx: &crate::matching::Context,
     thm: &Theorem,
     rec: &CheckedTheorem,
 ) -> Option<CheckedTheorem> {
@@ -139,7 +140,7 @@ pub fn written_out(
     // The sets the page makes finite, read of the page as written here: a
     // letter bound in a define written out, the c of {c ∈ 𝒫{1, …, k} : …},
     // is one the page as read does not bind.
-    written.said_finite = super::finite_of(&checked.grammar, thm, &written);
+    written.said_finite = super::finite_of(&checked.grammar, ctx, thm, &written);
     written.set_systems = super::set_systems_of(&written);
     written.element_systems = super::element_systems_of(&written);
     written.function_systems = super::function_systems_of(&written);
@@ -147,7 +148,7 @@ pub fn written_out(
 }
 
 /// Each item's groups, by its full name (`LibraryReading::groups`).
-pub type Groups = IndexMap<String, Option<std::rc::Rc<Vec<crate::citing::Group>>>>;
+pub type Groups = IndexMap<String, Option<std::sync::Arc<Vec<crate::citing::Group>>>>;
 
 /// Each phrase the library's phrase defines give, by its notation, read
 /// from the definition records' own groups, for the items that state one.
@@ -236,9 +237,22 @@ fn group_facts(
             crate::citing::number_sets::set_letter_systems(&said, &none)
         })
         .collect();
+    // A count is at least 1 by the number systems the item's own hypotheses
+    // put its letters in, k + 1 of a k ∈ ℕ₀ (`citing::introduction`), and
+    // what they bound.
+    let mut letters = crate::citing::Introduced::new();
+    for want in &wants {
+        if let Some((letter, system)) = crate::citing::introduction(want, &letters) {
+            letters.insert(letter, system);
+        }
+    }
+    let bounds = super::bounds::said_by(&wants, &none, ctx);
+    let positive = super::bounds::positive_by(&letters, &bounds, ctx);
+    let finite =
+        crate::citing::finite::said_finite(grammar, &wants, &[], &[], &positive);
     super::record::GroupFacts {
-        bounds: super::bounds::said_by(&wants, &none, ctx),
-        finite: crate::citing::finite::said_finite(grammar, &wants, &[], &[]),
+        bounds,
+        finite,
         set_systems,
     }
 }

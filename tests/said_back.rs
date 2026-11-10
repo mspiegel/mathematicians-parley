@@ -13,7 +13,11 @@ use parley::corpus::corpus;
 use parley::elab::elaborate::Options;
 use parley::elab::Library;
 use parley::source::{Disk, Memory};
-use parley::threads::in_order;
+use parley::threads::in_order_slots;
+
+/// The threads the names are shared among: the slots nextest gives this
+/// binary's test (`threads-required` in `.config/nextest.toml`).
+const SLOTS: usize = 8;
 use parley::tools::build::{library, Loaded};
 
 #[test]
@@ -37,7 +41,8 @@ fn every_claim_is_said_back_as_itself() {
             "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
         )
         .shared();
-    let said = in_order(
+    let said = in_order_slots(
+        SLOTS,
         &names,
         || {
             (

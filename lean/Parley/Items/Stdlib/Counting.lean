@@ -119,13 +119,13 @@ theorem mun_card_singleton {α : Type*} (x : α) :
     (({x} : Set α).ncard : ℤ) = 1 :=
   by simp
 
-theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℤ) (h1 : 0 ≤ k) (h2 : X.encard = (((k + 1).toNat : ℕ) : ℕ∞)) :
+theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℤ) (h1 : 0 ≤ k) (h2 : (X.ncard : ℤ) = k + 1) :
     ∃ a ∈ X, True :=
-  (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast (show (k + 1).toNat ≠ 0 by omega))).imp fun _ h => ⟨h, trivial⟩
+  (Set.nonempty_of_ncard_ne_zero (by omega)).imp fun _ h => ⟨h, trivial⟩
 
-theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℤ) (h2 : 0 ≤ k) (h3 : X.encard = (((k + 1).toNat : ℕ) : ℕ∞)) :
+theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℤ) (h2 : 0 ≤ k) (h3 : (X.ncard : ℤ) = k + 1) :
     ((X \ ({a} : Set α)).ncard : ℤ) = k :=
-  by have hX : X.Finite := Set.finite_of_encard_eq_coe h3; have hn : X.ncard = (k + 1).toNat := (by rw [← hX.cast_ncard_eq] at h3; exact_mod_cast h3); rw [Set.ncard_diff_singleton_of_mem h1, hn]; omega
+  by rw [Set.ncard_diff_singleton_of_mem h1]; omega
 
 theorem mun_card_bijection {α β : Type*} (X : Set α) (Y : Set β) (m : ℤ) (h1 : 0 ≤ m) (h2 : X.encard = ((m.toNat : ℕ) : ℕ∞)) (h3 : ∃ g : α → β, Set.BijOn g X Y) :
     Y.encard = ((m.toNat : ℕ) : ℕ∞) :=
@@ -235,7 +235,7 @@ theorem mun_card_pair_distinct {α : Type*} (u : α) (w : α) :
     ¬ u = w ↔ (({u, w} : Set α).ncard : ℤ) = 2 :=
   by constructor; (intro h; exact_mod_cast Set.ncard_pair h); (intro h huw; subst huw; simp at h)
 
-theorem mun_card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard = ((2 : ℕ) : ℕ∞)) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
+theorem mun_card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : (Y.ncard : ℤ) = 2) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
     Y = ({a, b} : Set α) :=
   LeanBridges.Counting.card_two Y a b h1 h2 h3 h4
 

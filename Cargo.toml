@@ -15,13 +15,15 @@ name = "parley"
 path = "src/main.rs"
 
 [dependencies]
+# Counts what each thread allocates, so that the Metamath build, elaborating
+# several proofs at once, can say what one proof held at its peak.
+allocation-counter = "0.8"
 annotate-snippets = "0.11"
 fancy-regex = "0.17"
 indexmap = "2"
 # 0.3.9 has the fix for a slice index out of bounds in its verifier
 # (metamath-knife #159), which 0.3.8 panics on in a debug build.
 metamath-rs = { version = "0.3.9", default-features = false }
-nix = { version = "0.30", default-features = false, features = ["resource"] }
 num-bigint = "0.4"
 num-integer = "0.1"
 num-rational = "0.4"

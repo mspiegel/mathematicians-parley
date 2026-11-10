@@ -87,7 +87,7 @@ mundane theorem card-nonempty
   note        `hashgt0elex` asks that the size be positive where the
               hypothesis says what the size is, so the size is read as
               k + 1 through that hypothesis before `nn0p1gt0` answers.
-  lean-proof  (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast (show (k + 1).toNat ≠ 0 by omega))).imp fun _ h => ⟨h, trivial⟩
+  lean-proof  (Set.nonempty_of_ncard_ne_zero (by omega)).imp fun _ h => ⟨h, trivial⟩
 
 mundane theorem card-remove
   let X be a set                                                      (H1)
@@ -98,7 +98,7 @@ mundane theorem card-remove
   metamath-proof hashdifsnp1 with V := X, N := a, Y := k
   note        `hashdifsnp1` states this item whole, hypotheses included:
               the size is given as k + 1, so nothing asks that X be finite.
-  lean-proof  by have hX : X.Finite := Set.finite_of_encard_eq_coe h3; have hn : X.ncard = (k + 1).toNat := (by rw [← hX.cast_ncard_eq] at h3; exact_mod_cast h3); rw [Set.ncard_diff_singleton_of_mem h1, hn]; omega
+  lean-proof  by rw [Set.ncard_diff_singleton_of_mem h1]; omega
 
 mundane theorem card-bijection
   let X be a set                                                      (H1)

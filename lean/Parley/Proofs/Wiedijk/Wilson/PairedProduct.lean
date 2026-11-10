@@ -40,7 +40,9 @@ set_option maxHeartbeats 1200000 in
 theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (n : ℤ) (hH3 : 0 < n) (f : ℤ → ℤ) (hH4 : Set.MapsTo f X X) (hH5 : ∀ x ∈ X, f (f x) = x) (hH6 : ∀ x ∈ X, f x ≠ x) (hH7 : ∀ x ∈ X, x * f x ≡ (1 : ℤ) [ZMOD n]) :
     (∏ᶠ x ∈ X, (x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by
   set L : Set ℤ := {x ∈ X | x < f x} with hD1
+  have hD1_finite : L.Finite := by rw [hD1]; exact (hH2).subset (fun _ h => h.1)
   set U : Set ℤ := {x ∈ X | ¬ x < f x} with hD2
+  have hD2_finite : U.Finite := by rw [hD2]; exact (hH2).subset (fun _ h => h.1)
   -- 1. mun:set-builder-split, from D1, D2
   have s1 : X = L ∪ U := by
     try simp only [hD1, hD2] at *

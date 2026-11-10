@@ -3,6 +3,7 @@
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeMap;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
 use rustc_hash::FxBuildHasher;
@@ -153,7 +154,7 @@ pub struct Grammar {
     tokens: RefCell<IndexMap<String, Rc<Vec<Token>>, FxBuildHasher>>,
     readings: RefCell<IndexMap<ReadingKey, Node, FxBuildHasher>>,
     notation_sorts: OnceCell<Rc<NotationSorts>>,
-    binders: OnceCell<Rc<IndexMap<NotationId, Binds, FxBuildHasher>>>,
+    binders: OnceCell<Arc<IndexMap<NotationId, Binds, FxBuildHasher>>>,
 }
 
 thread_local! {
@@ -226,9 +227,9 @@ impl Grammar {
     /// is bound in (`matching::binding_context`), read once: what keeps a
     /// value put into a tree apart from the tree's own letters
     /// (`matching::substitute_apart_by`).
-    pub fn binders(&self) -> Rc<IndexMap<NotationId, Binds, FxBuildHasher>> {
-        Rc::clone(self.binders.get_or_init(|| {
-            Rc::new(crate::matching::binding_context(&self.notations).0)
+    pub fn binders(&self) -> Arc<IndexMap<NotationId, Binds, FxBuildHasher>> {
+        Arc::clone(self.binders.get_or_init(|| {
+            Arc::new(crate::matching::binding_context(&self.notations).0)
         }))
     }
 
@@ -432,10 +433,10 @@ pub fn wanted_reading(g: &Grammar, node: &Node, want: &str) -> Option<Node> {
         Sort::of(&other.yields),
         node.children.clone(),
     );
-    if let Some((from, to)) = node.span() {
-        read.set_span(from, to);
-    }
-    Some(read)
+    Some(match node.span() {
+        Some((from, to)) => read.spanned(from, to),
+        None => read,
+    })
 }
 
 /// Parse one sentence.
@@ -778,10 +779,10 @@ fn folded(n: &Notation, node: Node, begin: Option<usize>, end: Option<usize>) ->
         return node;
     };
     let folded = Node::of(fold, Sort::of("formula"), vec![node]);
-    if let (Some(from), Some(to)) = (begin, end) {
-        folded.set_span(from, to);
+    match (begin, end) {
+        (Some(from), Some(to)) => folded.spanned(from, to),
+        _ => folded,
     }
-    folded
 }
 
 /// What the binders' own `sort` fields say of the names they bind, by the
@@ -1115,7 +1116,8 @@ fn bound_sorts(
         let whole = |set: &str| holds(&sort_of(set)).and_then(|s| s.full().cloned());
         let sort = match (from.and_then(whole), to.and_then(whole)) {
             (Some(a), Some(b)) => {
-                Sort::whole(Whole::Function(Rc::new(a), Rc::new(b))).unwrap_or_default()
+                Sort::whole(Whole::Function(Arc::new(a), Arc::new(b)))
+                    .unwrap_or_default()
             }
             _ => Sort::of("function"),
         };
@@ -1352,8 +1354,9 @@ impl<'a> Parser<'a> {
             self.i += 1;
             // The brackets are part of what was written, and what extends
             // the group starts at the first of them.
-            inner.set_span(tok.at, close.at + close.text.chars().count());
-            inner.set_grouped();
+            let inner = inner
+                .spanned(tok.at, close.at + close.text.chars().count())
+                .in_brackets();
             return Ok(Some(inner));
         }
         // A notation may open with a literal that is also a name, as the two
@@ -1428,7 +1431,7 @@ impl<'a> Parser<'a> {
             } else {
                 Node::numeral(&tok.text)
             };
-            leaf.set_span(tok.at, tok.at + tok.text.chars().count());
+            let leaf = leaf.spanned(tok.at, tok.at + tok.text.chars().count());
             if cands.is_empty() {
                 self.i += 1;
                 return Ok(Some(leaf));
@@ -1496,8 +1499,8 @@ impl<'a> Parser<'a> {
         } else {
             Sort::of(&n.yields)
         };
-        let node = Node::of(n.spelling(), sort, vec![inner]);
-        node.set_span(at, at + text.chars().count());
+        let node = Node::of(n.spelling(), sort, vec![inner])
+            .spanned(at, at + text.chars().count());
         Ok(Some(node))
     }
 
@@ -1839,10 +1842,10 @@ impl<'a> Parser<'a> {
                             && n.binds.as_ref().is_some_and(|b| b.held.contains(&0));
                         if bound {
                             let name = Node::name(Sort::unknown(), &left.text);
-                            if let Some((from, to)) = left.span() {
-                                name.set_span(from, to);
-                            }
-                            kids.push(name);
+                            kids.push(match left.span() {
+                                Some((from, to)) => name.spanned(from, to),
+                                None => name,
+                            });
                         } else {
                             kids.push(left.clone());
                         }
@@ -1924,7 +1927,7 @@ impl<'a> Parser<'a> {
                         });
                     };
                     let leaf = Node::numeral(&lowered(&tok.text));
-                    leaf.set_span(tok.at, tok.at + tok.text.chars().count());
+                    let leaf = leaf.spanned(tok.at, tok.at + tok.text.chars().count());
                     kids.push(leaf);
                     took.push(Some((self.i, self.i + 1)));
                     self.i += 1;
@@ -2090,10 +2093,10 @@ impl<'a> Parser<'a> {
                 Sort::of(&j.by.yields),
                 vec![first.clone(), then.clone()],
             );
-            if let (Some(a), Some(b)) = (first.span(), then.span()) {
-                joined.set_span(a.0.min(b.0), a.1.max(b.1));
-            }
-            kids[j.first - 1] = joined;
+            kids[j.first - 1] = match (first.span(), then.span()) {
+                (Some(a), Some(b)) => joined.spanned(a.0.min(b.0), a.1.max(b.1)),
+                _ => joined,
+            };
             gone = Some(j.then - 1);
         }
         if let Some(places) = &n.places {
@@ -2127,22 +2130,25 @@ impl<'a> Parser<'a> {
                     Sort::of(&n.yields),
                     vec![kids[name - 1].clone(), kids[domain - 1].clone(), body],
                 );
-                if let (Some(from), Some(to)) = (begin, end) {
-                    level.set_span(from, to);
-                }
-                body = level;
+                body = match (begin, end) {
+                    (Some(from), Some(to)) => level.spanned(from, to),
+                    _ => level,
+                };
             }
             return Ok(Some(folded(n, body, begin, end)));
         }
-        let node = Node::of(n.spelling(), yields, kids);
-        if let (Some(from), Some(to)) = (begin, end) {
-            node.set_span(from, to);
-            if let Some(at) = wrapped_at {
-                if let Some(span) = node.children[at].children[0].span() {
-                    node.children[at].set_span(span.0, span.1);
-                }
+        // A wrapped part takes the span of what it wraps, set on it before
+        // the node holding it is made.
+        if let (Some(_), Some(_), Some(at)) = (begin, end, wrapped_at) {
+            if let Some(span) = kids[at].children[0].span() {
+                kids[at] = kids[at].clone().spanned(span.0, span.1);
             }
         }
+        let node = Node::of(n.spelling(), yields, kids);
+        let node = match (begin, end) {
+            (Some(from), Some(to)) => node.spanned(from, to),
+            _ => node,
+        };
         Ok(Some(folded(n, node, begin, end)))
     }
 
@@ -2170,13 +2176,9 @@ impl<'a> Parser<'a> {
         // it, "A for all n ≥ N", the two are no one stretch of the sentence,
         // and the node has no span.
         let from = condition.span().map(|s| s.0);
-        let spanned = |node: Node, over: &Node| {
-            if let (Some(from), Some((start, to))) = (from, over.span()) {
-                if from <= start {
-                    node.set_span(from, to);
-                }
-            }
-            node
+        let spanned = |node: Node, over: &Node| match (from, over.span()) {
+            (Some(from), Some((start, to))) if from <= start => node.spanned(from, to),
+            _ => node,
         };
         if level.is_none() || !in_run(body) {
             let node = Node::of(
@@ -2268,7 +2270,7 @@ impl<'a> Parser<'a> {
             }
             self.i += 1;
             let leaf = Node::name(Sort::of("variable"), &tok.text);
-            leaf.set_span(tok.at, tok.at + tok.text.chars().count());
+            let leaf = leaf.spanned(tok.at, tok.at + tok.text.chars().count());
             return Ok(Some(leaf));
         }
         self.expression(barrier, stop)

@@ -49,7 +49,11 @@ use parley::elab::elaborate::Options;
 use parley::elab::Library;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::{in_order, in_order_on};
+use parley::threads::in_order_slots;
+
+/// The threads the cases are shared among: the slots nextest gives this
+/// binary's tests (`threads-required` in `.config/nextest.toml`).
+const SLOTS: usize = 8;
 use parley::tools::build::{library, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
@@ -659,7 +663,8 @@ fn a_wrong_proof_is_refused_and_never_verified() {
                 }
             }
         });
-        let out = in_order(
+        let out = in_order_slots(
+            SLOTS,
             &(0..shares.len()).collect::<Vec<usize>>(),
             || (),
             |_, &share| {
@@ -698,7 +703,8 @@ fn a_wrong_proof_is_refused_and_never_verified() {
     let accepted: Vec<usize> = (0..taken.len())
         .filter(|&i| checked[i].is_empty())
         .collect();
-    let built = in_order(
+    let built = in_order_slots(
+        SLOTS,
         &accepted,
         || Library::new(Arc::clone(&read)),
         |lib: &mut Library, &i| {
@@ -758,7 +764,7 @@ fn a_wrong_proof_is_refused_and_never_verified() {
             .expect("set.mm is found: say where it is with SET_MM"),
     )
     .expect("set.mm reads");
-    let verdicts = in_order_on(
+    let verdicts = in_order_slots(
         VERIFYING,
         &to_verify,
         || (),

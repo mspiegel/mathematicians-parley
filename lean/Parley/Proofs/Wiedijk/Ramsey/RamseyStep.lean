@@ -4,9 +4,7 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -19,13 +17,10 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
@@ -66,7 +61,9 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 9. obtain v: mun:nonempty-member, from 8
   obtain ⟨v, s9, _⟩ := (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := X) s8)
   set R : Set α := {w ∈ X \ ({v} : Set α) | ({v, w} : Set α) ∈ E} with hD2
+  have hD2_finite : R.Finite := by rw [hD2]; exact (((hH4).subset hH8).subset (fun _ h => h.1)).subset (fun _ h => h.1)
   set B : Set α := {w ∈ X \ ({v} : Set α) | ¬ ({v, w} : Set α) ∈ E} with hD3
+  have hD3_finite : B.Finite := by rw [hD3]; exact (((hH4).subset hH8).subset (fun _ h => h.1)).subset (fun _ h => h.1)
   -- 10. mun:set-builder-split, from D2, D3
   have s10 : X \ ({v} : Set α) = R ∪ B := by
     try simp only [hD2, hD3] at *
@@ -208,7 +205,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       -- 32.10.4. mun:subset-transitive, from H8, 32.10.3
       have s32_10_4 : ({v, w} : Set α) ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := ({v, w} : Set α)) (Y := X) (Z := V) s32_10_3 hH8)
       -- 32.10.5. mun:card-pair-distinct u := v, from 32.10.2
-      have s32_10_5 : (({v, w} : Set α).ncard : ℤ) = 2 := by first | linear_combination (norm := parley_norm) ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b) | exact_mod_cast (((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b)).symm | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); rify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); qify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); parley_int_power h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b); parley_set_side)
+      have s32_10_5 : (({v, w} : Set α).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b)
       -- 32.10.6. instantiate Y := {v, w} in H7, from 32.10.4, 32.10.5
       have s32_10_6 : ({v, w} : Set α) ∈ E ∨ ({v, w} : Set α) ∈ F := by exact (hH7 ({v, w} : Set α) (by parley_set_side) (by parley_set_side))
       -- 32.10.7. mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6

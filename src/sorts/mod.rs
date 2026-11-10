@@ -14,7 +14,7 @@
 //! names a theorem introduces, and what a `define`'s domain holds.
 
 use std::collections::BTreeSet;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::corpus::proof::{chain, visible};
 use crate::corpus::{
@@ -553,7 +553,7 @@ fn rule_sort(rule: &Rule) -> Sort {
         } else {
             Whole::Open
         };
-        Whole::Function(Rc::new(argument), Rc::new(value))
+        Whole::Function(Arc::new(argument), Arc::new(value))
     });
     Sort::whole(whole).unwrap_or_else(|| Sort::of("function"))
 }

@@ -221,9 +221,9 @@ theorem card_pair_distinct {α : Type*} (u : α) (w : α) :
   ⟨fun h => by rw [Set.encard_pair h]; rfl, fun h hu => by subst hu; simp at h⟩
 
 /-- `mun:stdlib/counting/card-two`. -/
-theorem card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard = ((2 : ℕ) : ℕ∞)) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
+theorem card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : (Y.ncard : ℤ) = 2) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
     Y = ({a, b} : Set α) :=
-  (Set.Finite.eq_of_subset_of_encard_le (s := ({a, b} : Set α)) (t := Y) (Set.toFinite _) (Set.insert_subset_iff.mpr ⟨h2, Set.singleton_subset_iff.mpr h3⟩) (by simp [h1, Set.encard_pair h4])).symm
+  (Set.eq_of_subset_of_ncard_le (Set.insert_subset_iff.mpr ⟨h2, Set.singleton_subset_iff.mpr h3⟩) (by rw [Set.ncard_pair h4]; omega) (Set.finite_of_ncard_ne_zero (by omega))).symm
 
 /-- `mun:stdlib/counting/card-positive`. -/
 theorem card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) < X.encard) :

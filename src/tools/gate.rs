@@ -47,9 +47,8 @@ use crate::said::Said;
 use crate::source::{Disk, Source};
 
 use super::build::metamath::{
-    artifacts, reached_by, verified, Artifact, Libraries, Maker,
+    artifacts, made_in_waves, reached_by, verified, Artifact, Libraries, MadeAs, Shared,
 };
-use super::build::waves;
 use super::{assumed, labels, restated, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
@@ -93,42 +92,44 @@ fn built_as(
         Err(out) => return out,
     };
     let every = artifacts(&checked.corpus);
-    let mut maker = Maker::new(source, &checked, libraries);
+    let shared = Shared::of(source, &checked, libraries);
     let all: Vec<&Artifact> = match edited {
         Some(edited) => reached_by(&every, edited),
         None => every.iter().collect(),
     };
     let mut differ = 0;
-    let waves = match waves(&all) {
-        Ok(waves) => waves,
-        Err(problem) => {
-            said.complained = format!("{problem}\n");
-            said.status = 2;
-            return said;
-        }
-    };
-    for wave in waves {
-        for artifact in wave {
-            let path = artifact.path();
-            match maker.make(artifact) {
-                Ok(made) => match source.read_text(&path) {
-                    Ok(there) if there == made => {}
-                    Ok(_) => {
-                        said.printed +=
-                            &format!("{path}  differs from what the build makes\n");
-                        differ += 1;
-                    }
-                    Err(_) => {
-                        said.printed += &format!("{path}  is not in the tree\n");
-                        differ += 1;
-                    }
-                },
-                Err(problem) => {
-                    said.printed += &format!("{path}  cannot be built: {problem}\n");
+    // Made as the build makes them (`made_in_waves`), and each compared with
+    // the file the tree holds.
+    let ordered = made_in_waves(&shared, &all, |artifact, made| {
+        let path = artifact.path();
+        match made {
+            MadeAs::Made { text, .. } => match source.read_text(&path) {
+                Ok(there) if there == *text => {}
+                Ok(_) => {
+                    said.printed +=
+                        &format!("{path}  differs from what the build makes\n");
                     differ += 1;
                 }
+                Err(_) => {
+                    said.printed += &format!("{path}  is not in the tree\n");
+                    differ += 1;
+                }
+            },
+            MadeAs::Failed(problem) => {
+                said.printed += &format!("{path}  cannot be built: {problem}\n");
+                differ += 1;
+            }
+            MadeAs::After { on } => {
+                said.printed += &format!("{path}  cannot be built: {on} was not\n");
+                differ += 1;
             }
         }
+        true
+    });
+    if let Err(problem) = ordered {
+        said.complained = format!("{problem}\n");
+        said.status = 2;
+        return said;
     }
     said.printed += &format!(
         "\n{} artifacts built, {differ} not as the tree has them\n",

@@ -6,6 +6,7 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -35,6 +36,7 @@ set_option maxHeartbeats 600000 in
 theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = ((0 : ℕ) : ℕ∞)) :
     ({S ∈ 𝒫 X | (S.ncard : ℤ) = j}.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1
+  have hD1_finite : F.Finite := by rw [hD1]; exact ((Set.finite_of_encard_eq_coe hH3).powerset).subset (fun _ h => h.1)
   -- 1. mun:card-zero, from H3
   have s1 : X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side))
   -- 2. axi:excluded-middle P := j = 0

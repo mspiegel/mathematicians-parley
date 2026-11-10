@@ -10,10 +10,16 @@ parley build metamath [<name>]
 
 run from the working tree, writes every generated file, or the one named,
 and says which changed; set.mm is where `SET_MM` says, or `./set.mm`.
-`parley build lean` writes the same proofs over Mathlib (`LEAN.md`). It reads the page through the checker first: a
-theorem the checker refuses is not built, and the build reports the
-checker's own first problem in it (`checker::refused`), so the two tools
-refuse the same text and say it the same way. What the checker decides of a
+`parley build lean` writes the same proofs over Mathlib (`LEAN.md`). Each
+build begins with the check (`checker::front`) and prints what `parley
+check` prints. A problem outside every theorem ends the build there.
+Otherwise every failure, a theorem the checker refuses or a file the build
+cannot make, is reported; what cites it is not built, and is reported as not
+built because of it; everything else is built; and the build exits 1. The
+old file of anything not built is removed, so that what is on disk is what
+the run made. The files of one wave, none of which reads another, are made
+side by side on `PARLEY_THREADS` threads, and the memory limit and the
+largest peak are each file's own, counted on its thread. What the checker decides of a
 proof's shape, the block each step stands in and where each define is in
 scope, the build is handed rather than working out again
 (`checker::record::CheckedTheorem`). A

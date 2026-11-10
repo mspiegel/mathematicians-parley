@@ -17,8 +17,14 @@ use crate::corpus::cited_items;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Covered {
     In,
-    /// Left out, and the first thing found that keeps it out.
+    /// Left out, and the first thing found that keeps it out: what the Lean
+    /// build does not cover yet.
     Out {
+        reason: String,
+    },
+    /// Not built because of a failure: the checker refuses it, or it cites
+    /// a theorem not built because of one.
+    Failed {
         reason: String,
     },
 }
@@ -377,7 +383,7 @@ fn covered(
         };
     }
     if !rec.problems.is_empty() {
-        return Covered::Out {
+        return Covered::Failed {
             reason: "the checker refuses it".to_string(),
         };
     }
@@ -712,6 +718,11 @@ fn covered(
         }
         match so_far.get(&full) {
             Some(Covered::In) => {}
+            Some(Covered::Failed { .. }) => {
+                return Covered::Failed {
+                    reason: format!("it cites {full}, which was not built"),
+                }
+            }
             _ => {
                 return Covered::Out {
                     reason: format!("{full} is not in the Lean build"),

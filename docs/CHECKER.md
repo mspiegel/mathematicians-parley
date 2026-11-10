@@ -8,6 +8,14 @@ the fact from the record or from the page's lines, never from a reading of its
 own (decision 20). A fact the record lacks is added here, for both backends,
 and not inferred inside one.
 
+`parley check` and both builds start with one run of the checker
+(`checker::front`). It reads the corpus, makes every check `parley check`
+reports, and makes the record of every theorem, the library's item facts
+and the records as the page is written out. `parley check` prints what it
+reports; a build prints the same, then builds from the record. So every
+reading a backend uses runs under `parley check`, and a build refuses
+exactly what the check refuses.
+
 ## The reading
 
 - `page`: every formula on the page, read once, which both backends write
@@ -132,9 +140,17 @@ and not inferred inside one.
   one backend proves the other can too.
 - `said_sums`: the sums each step writes that the page says are numbers
   once. Metamath proves their memberships from it.
-- `said_finite`: the sets the hypotheses, defines and bound letters make
-  finite, and for each hypothesis the sets only it does. Lean writes a count
-  by it, `ncard` or `encard` (`citing::finite::is_finite`).
+- `said_finite`: the sets the theorem's hypotheses, defines and bound
+  letters make finite, each with why (`citing::finite::FiniteBy`): a line
+  says so, a line gives its count as a number (|Y| = 2), a part of a
+  finite set by the line `B ⊆ A`, a define, or a letter
+  bound only over sets of finite sets; and, per hypothesis, the sets only it
+  makes finite, since a line giving a count that may be 0 cannot vouch for
+  itself. Whether any other set
+  is finite, and why, is `citing::finite::finite_by` over these: ∅, a listed
+  set, a range, and A ∖ B, A ∩ B, A ∪ B, 𝒫A, a set-builder or an image of
+  finite parts. Every backend asks that one function, and none decides it
+  for itself.
 - `set_systems`: the number system each set letter of numbers holds. Lean
   types the letter by it.
 - `typed`: the function types the lines in scope at each step say, which a
@@ -169,9 +185,12 @@ and not inferred inside one.
   x ≥ 1 of `x ∈ ℕ` (`citing::bounds`), read with the letters in scope.
   Lean writes a square root or a real power of a base at least 0 as a real
   one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
-- `finite_at`: the sets the lines in scope above each step say are finite
-  in words, `W is finite`, or a part of a finite set, `Y ⊆ X` or `Y ∈ 𝒫X`.
-  Lean counts such a set as a natural number from that step on.
+- `finite_at`: for each step, the sets the lines in scope make finite,
+  `W is finite`, `|W| = m`, or `B ⊆ A` of a finite A, each with why, as
+  `said_finite` keeps them. A count records whether its number is at least
+  1 by the step's bounds, which says whether its line is written
+  `W.ncard = 2` or `W.encard = m`, and so how a backend proves W finite
+  from it.
 - `element_systems`: the number system each letter the page puts in sets
   of numbers is in, the widest of them, A of `A ∈ ℝ ∖ ℚ`. Lean gives `let A
   be an element` that type.

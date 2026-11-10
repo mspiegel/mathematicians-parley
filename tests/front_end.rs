@@ -183,8 +183,8 @@ fn a_bound_letter_takes_its_sort_from_a_set_written_out() {
         .and_then(Sort::whole)
         .unwrap();
     let runs = Whole::Function(
-        Rc::new(Whole::read("number").unwrap()),
-        Rc::new(Whole::read("set of set of number").unwrap()),
+        std::sync::Arc::new(Whole::read("number").unwrap()),
+        std::sync::Arc::new(Whole::read("set of set of number").unwrap()),
     );
     let sorts: Sorts = [
         ("n".to_string(), Sort::of("number")),

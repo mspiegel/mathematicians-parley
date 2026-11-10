@@ -45,7 +45,7 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
   -- 3. induction on Y starting at ∅
   have r691_1 : X.Finite := by parley_set_side
   have s3 : ∀ Y ∈ 𝒫 X, (∏ᶠ x ∈ Y, (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) [ZMOD n] := by
-    refine LeanBridges.Sets.subset_induction (by parley_finite) ?_ ?_
+    refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
       -- 3.1. algebra
       have s3_1 : 1 - 1 = n * 0 := by parley_ring

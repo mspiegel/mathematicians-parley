@@ -44,7 +44,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
   -- 2. induction on Y starting at ∅
   have r617_1 : X.Finite := by parley_set_side
   have s2 : ∀ Y ∈ 𝒫 X, (Int.gcd (∏ᶠ x ∈ Y, (x : ℤ)) n : ℤ) = 1 := by
-    refine LeanBridges.Sets.subset_induction (by parley_finite) ?_ ?_
+    refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
       -- 2.1. mun:gcd-one a := n
       have s2_1 : (Int.gcd n (1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_one (a := n))

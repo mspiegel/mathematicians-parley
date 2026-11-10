@@ -12,7 +12,7 @@
 //! none is read the same way.
 
 use std::collections::BTreeSet;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -2163,7 +2163,7 @@ pub struct Rule {
     pub body: Node,
     /// What binds, from the grammar the body was read with
     /// (`Grammar::binders`).
-    pub binders: Rc<FxIndexMap<NotationId, Binds>>,
+    pub binders: Arc<FxIndexMap<NotationId, Binds>>,
 }
 
 /// One argument of a define, read: its name and its domain.

@@ -56,7 +56,7 @@ const IDENTIFIER_CHARACTERS: &str =
 const RELATIONS: [&str; 6] = crate::corpus::proof::CHAIN_RELATIONS;
 
 /// What a run found: every defect.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Report {
     pub problems: Vec<Problem>,
 }
@@ -128,12 +128,16 @@ pub fn run_named(source: &dyn Source, name: Option<&str>) -> Outcome {
             thm.qualified() == name || thm.module() == name.trim_end_matches(".proof")
         })
     };
-    let (report, counts, asked) = match checked_shared(source, &wanted) {
-        Ok(checked) => checked,
+    let ask = Ask {
+        wanted: &wanted,
+        pairs: PairsAsked::Yes,
+    };
+    let front = match front(source, &ask) {
+        Ok(front) => front,
         Err(out) => return out,
     };
     match name {
-        Some(name) if asked == 0 => Outcome {
+        Some(name) if front.asked == 0 => Outcome {
             printed: String::new(),
             complained: format!(
                 "no theorem or proof file {}\n",
@@ -142,82 +146,240 @@ pub fn run_named(source: &dyn Source, name: Option<&str>) -> Outcome {
             status: 2,
         },
         Some(_) => summary(
-            report,
+            front.report(),
             Counts {
-                checked: Some(asked),
-                ..counts
+                checked: Some(front.asked),
+                ..front.counts
             },
         ),
-        None => summary(report, counts),
+        None => front.said(),
     }
 }
 
-/// Each theorem `wanted` holds checked, the work shared among `threads()`
-/// workers. Each worker reads the corpus for itself, since what it reads is
-/// not shared between threads, and takes the next theorem not yet taken, so
-/// that a theorem with many lines to ask does not hold the others back.
-/// What reading the corpus finds is said once, by the first; with the
-/// counts, and how many theorems were asked.
-fn checked_shared(
-    source: &dyn Source,
-    wanted: &(dyn Fn(&Theorem) -> bool + Sync),
-) -> Result<(Report, Counts, usize), Outcome> {
+/// What `front` is asked for: which theorems, and whether a pair naming a
+/// letter for itself is asked whether it does work.
+pub struct Ask<'a> {
+    pub wanted: &'a (dyn Fn(&Theorem) -> bool + Sync),
+    pub pairs: PairsAsked,
+}
+
+/// Whether each pair naming a letter for itself, in a theorem checked
+/// clean, is asked whether the theorem holds without it
+/// (`check_pairs_needed`). The page is asked: the pair is how it is
+/// written. A theorem the tools write for themselves, a restatement citing
+/// an item (`tools::restated`), gives every letter its value on purpose,
+/// and is not.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum PairsAsked {
+    Yes,
+    No,
+}
+
+/// The corpus read, checked and recorded by one run (`front`): what
+/// `parley check` reports, and what a build builds from.
+pub struct Front {
+    /// What the check reports outside every theorem: of the files, the
+    /// records and how the corpus holds together. A theorem's own problems
+    /// are its record's (`CheckedTheorem::problems`).
+    pub outside: Report,
+    counts: Counts,
+    /// How many theorems were asked.
+    pub asked: usize,
+    pub checked: CheckedCorpus,
+}
+
+impl Front {
+    /// Every problem the check reports: those outside every theorem, and
+    /// each theorem's.
+    pub fn report(&self) -> Report {
+        let mut out = self.outside.clone();
+        for record in self.checked.theorems.values() {
+            out.problems.extend(record.problems.iter().cloned());
+        }
+        out
+    }
+
+    /// What `parley check` prints of this run, and the status it exits with.
+    pub fn said(&self) -> Outcome {
+        summary(self.report(), self.counts)
+    }
+}
+
+/// The corpus under `source` read, checked and recorded: every check
+/// `parley check` makes, and every record a build reads. `parley check`
+/// prints what it reports and a build builds from it, so the build is the
+/// check with a backend after it.
+///
+/// The theorems are shared among `threads()` workers. Each reads the corpus
+/// for itself, since what it reads is not shared between threads, and takes
+/// the next theorem not yet taken, so that a theorem with many lines to ask
+/// does not hold the others back. What reading the corpus finds is said
+/// once, by the first, which also reads the library.
+pub fn front(source: &dyn Source, ask: &Ask<'_>) -> Result<Front, Outcome> {
+    let read = read_corpus(source, &FileReads::new())?;
+    if !read.whole {
+        let counts = counts_of(&read.corpus);
+        return Err(summary(read.report, counts));
+    }
     let next = AtomicUsize::new(0);
-    let asked = AtomicUsize::new(0);
     let workers = crate::threads::threads();
     let done = std::thread::scope(|scope| {
         let running: Vec<_> = (0..workers)
-            .map(|_| scope.spawn(|| check_taken(source, wanted, &next, &asked)))
+            .map(|w| {
+                let next = &next;
+                scope.spawn(move || front_worker(source, ask, next, w == 0))
+            })
             .collect();
         running
             .into_iter()
             .map(|h| h.join().expect("no checker thread panicked"))
             .collect::<Vec<_>>()
     });
-    let mut merged: Option<(Report, Counts)> = None;
+    let mut first: Option<(Report, Counts)> = None;
+    let mut theorems = Vec::new();
+    let mut library = None;
     for worker in done {
-        let (read, counts, own) = worker?;
-        let (report, _) = merged.get_or_insert((read, counts));
-        report.problems.extend(own.problems);
+        let (report, counts, (taken, read_library)) = worker?;
+        first.get_or_insert((report, counts));
+        theorems.extend(taken);
+        library = library.or(read_library);
     }
-    let (report, counts) = merged.expect("at least one worker");
-    Ok((report, counts, asked.into_inner()))
+    let (report, counts) = first.expect("at least one worker");
+    let library = library.expect("the first worker reads the library");
+    theorems.sort_by_key(|t: &Taken| t.at);
+    finished(read.corpus, report, counts, theorems, library)
 }
 
-/// One worker of `checked_shared`: the corpus read, and each theorem it takes
-/// checked, every line of one checked clean asked whether it does work.
-fn check_taken(
+/// A theorem checked and recorded, by its place in the corpus.
+struct Taken {
+    at: usize,
+    record: CheckedTheorem,
+}
+
+/// One worker of `front`: the corpus read, each theorem it takes checked
+/// and recorded, and, where it is `first`, the library read.
+#[allow(clippy::type_complexity)]
+fn front_worker(
     source: &dyn Source,
-    wanted: &(dyn Fn(&Theorem) -> bool + Sync),
+    ask: &Ask<'_>,
     next: &AtomicUsize,
-    asked: &AtomicUsize,
-) -> Result<(Report, Counts, Report), Outcome> {
-    prepared(source, |_, c| {
-        let mut own = Report::default();
-        loop {
-            let i = next.fetch_add(1, Ordering::Relaxed);
-            let Some(thm) = c.theorems.get(i) else {
-                break;
-            };
-            if !wanted(thm) {
-                continue;
-            }
-            asked.fetch_add(1, Ordering::Relaxed);
-            check_nth(&mut own, c, i);
-        }
-        own
+    first: bool,
+) -> Result<(Report, Counts, (Vec<Taken>, Option<LibraryReading>)), Outcome> {
+    let read = read_corpus(source, &FileReads::new())?;
+    prepared_in(&read.corpus, read.report, None, |_, c| {
+        let taken = taken(c, ask, || Some(next.fetch_add(1, Ordering::Relaxed)));
+        let library = first.then(|| library_reading(c, &read.corpus.records));
+        (taken, library)
     })
 }
 
-/// Every theorem as the checker reads it, by its qualified name: its shape,
-/// its sorts and what the checker reports in it. The build is handed these
-/// and builds only a theorem with no problem, so that it refuses what the
-/// checker refuses and says it as the checker does. What the checker
-/// reports of the corpus as a whole, outside every theorem, is `run`'s to
-/// say, and so is a pair naming a letter for itself that the theorem holds
-/// without (`check_pairs_needed`): the pair is how the page is written, and
-/// a theorem the tools write for themselves, a restatement citing an item
-/// (`tools::restated`), gives every letter its value on purpose.
+/// Each theorem `next` gives that `ask` wants, checked and recorded, until
+/// `next` gives none or one past the last: the one step `front` and
+/// `Clean::run_edited` take for a theorem.
+fn taken(
+    c: &mut Checking<'_>,
+    ask: &Ask<'_>,
+    mut next: impl FnMut() -> Option<usize>,
+) -> Vec<Taken> {
+    let theorems = c.theorems;
+    let items = std::sync::Arc::new(c.library.item_readings());
+    let mut out = Vec::new();
+    while let Some(at) = next() {
+        let Some(thm) = theorems.get(at) else {
+            break;
+        };
+        if !(ask.wanted)(thm) {
+            continue;
+        }
+        let mut own = Report::default();
+        match ask.pairs {
+            PairsAsked::Yes => check_nth(&mut own, c, at),
+            PairsAsked::No => {
+                check_theorem(&mut own, c, thm, &c.known[at], &c.clashes[at])
+            }
+        }
+        out.push(Taken {
+            at,
+            record: theorem_record(c, at, &items, own),
+        });
+    }
+    out
+}
+
+/// What the checker reads of the library, which every theorem's record
+/// shares (`LibraryReading`).
+fn library_reading(c: &Checking<'_>, records: &[Record]) -> LibraryReading {
+    let groups = c.library.all_groups();
+    let phrases = written::library_phrases(records, &groups);
+    let item_facts = written::item_facts(&groups, &phrases, c.env.g, &c.library.ctx);
+    LibraryReading {
+        record_sorts: c.record_sorts.clone(),
+        cited: c.cited.clone(),
+        groups,
+        function_types: c.library.all_function_types(),
+        item_facts,
+    }
+}
+
+/// The run's corpus, its records, each written out as the page reads with
+/// its file's defines (`written::written_out`), and what the check reports
+/// outside every theorem, `outside`.
+fn finished(
+    corpus: Corpus,
+    outside: Report,
+    counts: Counts,
+    taken: Vec<Taken>,
+    library: LibraryReading,
+) -> Result<Front, Outcome> {
+    let asked = taken.len();
+    let mut theorems = IndexMap::new();
+    for t in taken {
+        theorems.insert(corpus.theorems[t.at].qualified(), t.record);
+    }
+    // The grammar the checks read with: a grammar is kept for the records it
+    // was loaded from (`Grammar::load`), and `prepared_in` loaded it.
+    let grammar = Grammar::load(&corpus.records).map_err(|p| {
+        let mut report = Report::default();
+        report.problems.push(p);
+        summary(report, counts_of(&corpus))
+    })?;
+    let mut checked = CheckedCorpus {
+        corpus,
+        grammar,
+        theorems,
+        library,
+    };
+    let ctx = crate::matching::Context::new(
+        &checked.grammar.notations,
+        &checked.corpus.records,
+    );
+    let written: Vec<(String, Box<CheckedTheorem>)> = checked
+        .corpus
+        .theorems
+        .iter()
+        .filter_map(|thm| {
+            let name = thm.qualified();
+            let rec = checked.theorems.get(&name)?;
+            let made = written::written_out(&checked, &ctx, thm, rec)?;
+            Some((name, Box::new(made)))
+        })
+        .collect();
+    for (name, made) in written {
+        if let Some(rec) = checked.theorems.get_mut(&name) {
+            rec.written = Some(made);
+        }
+    }
+    Ok(Front {
+        outside,
+        counts,
+        asked,
+        checked,
+    })
+}
+
+/// Every theorem as the checker reads it, by its qualified name, and what
+/// the checker reports of each (`front`), the pairs asked as the page is.
+/// The run's problems outside every theorem are `front`'s to give.
 pub fn checked(source: &dyn Source) -> Result<CheckedCorpus, Outcome> {
     checked_where(source, |_| true)
 }
@@ -261,6 +423,7 @@ pub fn hypothesis_lines(thm: &Theorem, record: &CheckedTheorem) -> Vec<Node> {
 /// again of the page it writes.
 pub fn finite_of(
     g: &Grammar,
+    ctx: &crate::matching::Context,
     thm: &Theorem,
     record: &CheckedTheorem,
 ) -> crate::citing::finite::SaidFinite {
@@ -270,11 +433,16 @@ pub fn finite_of(
         .filter_map(|d| define_named(d, record))
         .collect();
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
+    // A count is at least 1 by the letters the statement's header introduces
+    // and what its hypotheses bound.
+    let header = record.introduced.first().cloned().unwrap_or_default();
+    let positive = bounds::positive_by(&header, &record.statement_bounds, ctx);
     crate::citing::finite::said_finite(
         g,
         &hypothesis_lines(thm, record),
         &defines,
         &lines,
+        &positive,
     )
 }
 
@@ -358,194 +526,14 @@ fn define_named<'r>(
 /// corpus can be built without all of it.
 pub fn checked_where(
     source: &dyn Source,
-    wanted: impl Fn(&str) -> bool,
+    wanted: impl Fn(&str) -> bool + Sync,
 ) -> Result<CheckedCorpus, Outcome> {
-    let read = read_corpus(source, &FileReads::new())?;
-    if !read.whole {
-        let counts = counts_of(&read.corpus);
-        return Err(summary(read.report, counts));
-    }
-    let checked = prepared_in(&read.corpus, read.report, None, |_, c| {
-        let mut out = IndexMap::new();
-        let items = std::rc::Rc::new(c.library.item_readings());
-        for (i, thm) in c.theorems.iter().enumerate() {
-            if !wanted(&thm.qualified()) {
-                continue;
-            }
-            let mut own = Report::default();
-            check_theorem(&mut own, c, thm, &c.known[i], &c.clashes[i]);
-            let mut record = CheckedTheorem::of(thm);
-            record.sorts = c.known[i].sorts.clone();
-            record.problems = own.problems;
-            record.typed = thm
-                .steps
-                .iter()
-                .map(|step| library::typed_in_scope(&c.known[i], step))
-                .collect();
-            record.said_sums = thm
-                .steps
-                .iter()
-                .map(|step| library::sums_said_once(&c.known[i], step))
-                .collect();
-            record.introduced = thm
-                .steps
-                .iter()
-                .map(|step| library::introduced(&c.known[i], step))
-                .collect();
-            record.cited = thm
-                .steps
-                .iter()
-                .map(|step| citations::cited(step, c.library, &c.known[i]))
-                .collect();
-            record.cited_requires =
-                citations::requires_cited(thm, c.library, &c.known[i]);
-            record.links = formulas::transitivity_links(thm, &c.known[i]);
-            record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
-            record.obtained_parts =
-                citations::obtained_parts(thm, c.library, &c.known[i]);
-            record.instantiated =
-                citations::instantiations(thm, c.library, &c.known[i]);
-            record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
-            record.link_places = formulas::link_places(thm, c.library, &c.known[i]);
-            record.substituted = citations::substitutions(thm, c.library, &c.known[i]);
-            record.asserted = library::let_assertions(&c.known[i]);
-            record.opener_asserted = library::opener_assertions(&c.known[i]);
-            record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);
-            record.contradicted = formulas::contradictions(thm, c.env, &c.known[i]);
-            record.ends_met = formulas::ended_meetings(thm, &c.known[i]);
-            record.places_shown = thm
-                .steps
-                .iter()
-                .map(|step| formulas::places_at(step, &c.known[i], c.library).shown)
-                .collect();
-            record.kind_letters = library::kind_letters(&c.known[i]);
-            record.members_shown =
-                formulas::members_shown(thm, &c.known[i], &c.library.targets);
-            record.held_by_lines =
-                formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
-            let ctx = &c.library.ctx;
-            let in_scope: Vec<Vec<Node>> = thm
-                .steps
-                .iter()
-                .map(|step| c.known[i].scope_lines(step))
-                .collect();
-            record.bounds = in_scope
-                .iter()
-                .zip(&record.introduced)
-                .map(|(lines, letters)| bounds::said_by(lines, letters, ctx))
-                .collect();
-            record.finite_at = in_scope
-                .iter()
-                .map(|lines| {
-                    crate::citing::finite::finite_sets_in_words(c.env.g, lines)
-                })
-                .collect();
-            record.read_at = thm
-                .steps
-                .iter()
-                .map(|step| {
-                    let known = &c.known[i];
-                    known
-                        .scope(step)
-                        .values()
-                        .flat_map(|stated| known.letters_read_at(stated))
-                        .collect()
-                })
-                .collect();
-            // A block whose goals are a defect owes nothing here: the defect
-            // is among the record's problems (`check_block_ends`), and the
-            // build builds no theorem with one.
-            for block in &mut record.blocks {
-                let owner = &thm.steps[block.owner];
-                let owed = formulas::block_owes(owner, &c.known[i]);
-                let written = formulas::block_owes_read(
-                    owner,
-                    &c.known[i],
-                    formulas::Reading::Written,
-                )
-                .unwrap_or_default();
-                let ends = |ends: formulas::Ends| match ends {
-                    formulas::Ends::Claim(ends) => ends,
-                    formulas::Ends::Contradiction => Vec::new(),
-                };
-                let mut written: IndexMap<Option<usize>, Vec<Node>> = written
-                    .into_iter()
-                    .map(|o| (o.part, ends(o.ends)))
-                    .collect();
-                block.owes = owed
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(|o| record::Owed {
-                        part: o.part,
-                        written: written.shift_remove(&o.part).unwrap_or_default(),
-                        ends: ends(o.ends),
-                        claim: o.claim,
-                    })
-                    .collect();
-            }
-            record.page = c.known[i].page_reading();
-            let header = record.introduced.first().cloned().unwrap_or_default();
-            record.statement_bounds = bounds::said_by(
-                &hypothesis_lines(thm, &record),
-                &header,
-                &c.library.ctx,
-            );
-            record.said_finite = finite_of(c.env.g, thm, &record);
-            record.set_systems = set_systems_of(&record);
-            record.element_systems = element_systems_of(&record);
-            record.function_systems = function_systems_of(&record);
-            record.items = std::rc::Rc::clone(&items);
-            record.outside = c.known[i].outside_definitions().clone();
-            record.statement_definitions =
-                statement_definitions(thm, c.env, &c.known[i].sorts);
-            out.insert(thm.qualified(), record);
-        }
-        let groups = c.library.all_groups();
-        let phrases = written::library_phrases(&read.corpus.records, &groups);
-        let item_facts =
-            written::item_facts(&groups, &phrases, c.env.g, &c.library.ctx);
-        let library = LibraryReading {
-            record_sorts: c.record_sorts.clone(),
-            cited: c.cited.clone(),
-            groups,
-            function_types: c.library.all_function_types(),
-            item_facts,
-        };
-        (out, library)
-    });
-    let (_, _, (theorems, library)) = checked?;
-    // The grammar the checks read with: a grammar is kept for the records it
-    // was loaded from (`Grammar::load`), and `prepared_in` loaded it.
-    let grammar = Grammar::load(&read.corpus.records).map_err(|p| {
-        let mut report = Report::default();
-        report.problems.push(p);
-        summary(report, counts_of(&read.corpus))
-    })?;
-    let mut checked = CheckedCorpus {
-        corpus: read.corpus,
-        grammar,
-        theorems,
-        library,
+    let wanted = |thm: &Theorem| wanted(&thm.qualified());
+    let ask = Ask {
+        wanted: &wanted,
+        pairs: PairsAsked::Yes,
     };
-    // Each record as the page reads with its file's outside defines written
-    // out, made once the corpus is read, which it reads the phrases from.
-    let written: Vec<(String, Box<CheckedTheorem>)> = checked
-        .corpus
-        .theorems
-        .iter()
-        .filter_map(|thm| {
-            let name = thm.qualified();
-            let rec = checked.theorems.get(&name)?;
-            let made = written::written_out(&checked, thm, rec)?;
-            Some((name, Box::new(made)))
-        })
-        .collect();
-    for (name, made) in written {
-        if let Some(rec) = checked.theorems.get_mut(&name) {
-            rec.written = Some(made);
-        }
-    }
-    Ok(checked)
+    front(source, &ask).map(|f| f.checked)
 }
 
 /// How many theorems, steps, items and methods the corpus holds, which a
@@ -588,26 +576,188 @@ fn counts_of(corpus: &Corpus) -> Counts {
 /// is reported, which it answers as `run` does; whether nothing is reported
 /// is `run`'s to answer.
 pub fn run_edited(source: &dyn Source, edited: &[String]) -> Outcome {
-    let checked = prepared(source, |report, c| check_reached(report, c, edited));
-    match checked {
-        Ok((report, counts, ())) => summary(report, counts),
+    match read_corpus(source, &FileReads::new()) {
+        Ok(read) => edited_run(read, None, edited),
         Err(out) => out,
     }
 }
 
-/// Every theorem an edit to `edited` can reach, checked (`run_edited`).
-fn check_reached(report: &mut Report, c: &mut Checking<'_>, edited: &[String]) {
-    let reached = reached_from(c.scopes, edited);
-    for (i, thm) in c.theorems.iter().enumerate() {
-        if reached.contains(thm.path.as_str()) {
-            check_nth(report, c, i);
-        }
+/// The readings a clean reading keeps (`Clean`), and the files changed
+/// since, whose theorems are read again.
+struct Kept<'k> {
+    readings: &'k Readings,
+    changed: &'k [String],
+}
+
+/// `front` of the theorems an edit to `edited` can reach, in one thread,
+/// the readings `kept` holds taken as they are: the steps `front` takes for
+/// each theorem and for the library, so that what it reports is what
+/// `front` reports of those theorems.
+fn edited_run(read: Read, kept: Option<Kept<'_>>, edited: &[String]) -> Outcome {
+    let all = |_: &Theorem| true;
+    let ask = Ask {
+        wanted: &all,
+        pairs: PairsAsked::Yes,
+    };
+    let Read { corpus, report, .. } = read;
+    let checked = {
+        let reuse = kept.map(|k| Reuse {
+            readings: k.readings,
+            moved: reached_from(&corpus.scopes, k.changed),
+        });
+        prepared_in(&corpus, report, reuse.as_ref(), |_, c| {
+            let reached = reached_from(c.scopes, edited);
+            let theorems = c.theorems;
+            let mut at = (0..theorems.len())
+                .filter(|&i| reached.contains(theorems[i].path.as_str()));
+            let taken = taken(c, &ask, || at.next());
+            (taken, library_reading(c, &corpus.records))
+        })
+    };
+    let (report, counts, (taken, library)) = match checked {
+        Ok(checked) => checked,
+        Err(out) => return out,
+    };
+    match finished(corpus, report, counts, taken, library) {
+        Ok(front) => front.said(),
+        Err(out) => out,
     }
 }
 
 /// The `i`th theorem checked, and where it is checked clean, each pair it
 /// writes naming a letter for itself asked whether it does work
 /// (`check_pairs_needed`).
+/// The checker's record of theorem `i`, which `own` holds the problems of:
+/// what the backends build it from (`CheckedTheorem`). `checked` makes it
+/// for the build, and `parley check` makes it as well, so that each of its
+/// readings runs under a check of the corpus.
+fn theorem_record(
+    c: &Checking<'_>,
+    i: usize,
+    items: &std::sync::Arc<record::ItemReading>,
+    own: Report,
+) -> CheckedTheorem {
+    let thm = &c.theorems[i];
+    let mut record = CheckedTheorem::of(thm);
+    record.sorts = c.known[i].sorts.clone();
+    record.problems = own.problems;
+    record.typed = thm
+        .steps
+        .iter()
+        .map(|step| library::typed_in_scope(&c.known[i], step))
+        .collect();
+    record.said_sums = thm
+        .steps
+        .iter()
+        .map(|step| library::sums_said_once(&c.known[i], step))
+        .collect();
+    record.introduced = thm
+        .steps
+        .iter()
+        .map(|step| library::introduced(&c.known[i], step))
+        .collect();
+    record.cited = thm
+        .steps
+        .iter()
+        .map(|step| citations::cited(step, c.library, &c.known[i]))
+        .collect();
+    record.cited_requires = citations::requires_cited(thm, c.library, &c.known[i]);
+    record.links = formulas::transitivity_links(thm, &c.known[i]);
+    record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
+    record.obtained_parts = citations::obtained_parts(thm, c.library, &c.known[i]);
+    record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);
+    record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
+    record.link_places = formulas::link_places(thm, c.library, &c.known[i]);
+    record.substituted = citations::substitutions(thm, c.library, &c.known[i]);
+    record.asserted = library::let_assertions(&c.known[i]);
+    record.opener_asserted = library::opener_assertions(&c.known[i]);
+    record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);
+    record.contradicted = formulas::contradictions(thm, c.env, &c.known[i]);
+    record.ends_met = formulas::ended_meetings(thm, &c.known[i]);
+    record.places_shown = thm
+        .steps
+        .iter()
+        .map(|step| formulas::places_at(step, &c.known[i], c.library).shown)
+        .collect();
+    record.kind_letters = library::kind_letters(&c.known[i]);
+    record.members_shown =
+        formulas::members_shown(thm, &c.known[i], &c.library.targets);
+    record.held_by_lines =
+        formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
+    let ctx = &c.library.ctx;
+    let in_scope: Vec<Vec<Node>> = thm
+        .steps
+        .iter()
+        .map(|step| c.known[i].scope_lines(step))
+        .collect();
+    record.bounds = in_scope
+        .iter()
+        .zip(&record.introduced)
+        .map(|(lines, letters)| bounds::said_by(lines, letters, ctx))
+        .collect();
+    record.finite_at = in_scope
+        .iter()
+        .zip(&record.introduced)
+        .zip(&record.bounds)
+        .map(|((lines, letters), said)| {
+            let positive = bounds::positive_by(letters, said, ctx);
+            crate::citing::finite::finite_sets(c.env.g, lines, &positive)
+        })
+        .collect();
+    record.read_at = thm
+        .steps
+        .iter()
+        .map(|step| {
+            let known = &c.known[i];
+            known
+                .scope(step)
+                .values()
+                .flat_map(|stated| known.letters_read_at(stated))
+                .collect()
+        })
+        .collect();
+    // A block whose goals are a defect owes nothing here: the defect is
+    // among the record's problems (`check_block_ends`), and the build builds
+    // no theorem with one.
+    for block in &mut record.blocks {
+        let owner = &thm.steps[block.owner];
+        let owed = formulas::block_owes(owner, &c.known[i]);
+        let written =
+            formulas::block_owes_read(owner, &c.known[i], formulas::Reading::Written)
+                .unwrap_or_default();
+        let ends = |ends: formulas::Ends| match ends {
+            formulas::Ends::Claim(ends) => ends,
+            formulas::Ends::Contradiction => Vec::new(),
+        };
+        let mut written: IndexMap<Option<usize>, Vec<Node>> = written
+            .into_iter()
+            .map(|o| (o.part, ends(o.ends)))
+            .collect();
+        block.owes = owed
+            .unwrap_or_default()
+            .into_iter()
+            .map(|o| record::Owed {
+                part: o.part,
+                written: written.shift_remove(&o.part).unwrap_or_default(),
+                ends: ends(o.ends),
+                claim: o.claim,
+            })
+            .collect();
+    }
+    record.page = c.known[i].page_reading();
+    let header = record.introduced.first().cloned().unwrap_or_default();
+    record.statement_bounds =
+        bounds::said_by(&hypothesis_lines(thm, &record), &header, &c.library.ctx);
+    record.said_finite = finite_of(c.env.g, &c.library.ctx, thm, &record);
+    record.set_systems = set_systems_of(&record);
+    record.element_systems = element_systems_of(&record);
+    record.function_systems = function_systems_of(&record);
+    record.items = std::sync::Arc::clone(items);
+    record.outside = c.known[i].outside_definitions().clone();
+    record.statement_definitions = statement_definitions(thm, c.env, &c.known[i].sorts);
+    record
+}
+
 fn check_nth(report: &mut Report, c: &mut Checking<'_>, i: usize) {
     let (thm, k) = (&c.theorems[i], &c.known[i]);
     let before = report.problems.len();
@@ -666,18 +816,11 @@ impl Clean {
         // to one changes the records although no records file changed.
         let records_alike = changed.iter().all(|path| path.ends_with(".proof"))
             && phrase_records_said(&read.corpus.records) == self.phrases;
-        let reuse = records_alike.then(|| Reuse {
+        let kept = records_alike.then_some(Kept {
             readings: &self.readings,
-            moved: reached_from(&read.corpus.scopes, &changed),
+            changed: &changed,
         });
-        let checked =
-            prepared_in(&read.corpus, read.report, reuse.as_ref(), |report, c| {
-                check_reached(report, c, edited)
-            });
-        match checked {
-            Ok((report, counts, ())) => summary(report, counts),
-            Err(out) => out,
-        }
+        edited_run(read, kept, edited)
     }
 
     /// The files whose bytes differ from the clean reading's, or which one

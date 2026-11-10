@@ -106,3 +106,20 @@ pub fn said_by(lines: &[Node], letters: &Introduced, ctx: &Context) -> SaidBound
     bounds::from_lines(&ask, &lines, &mut out);
     out
 }
+
+/// Whether a number is at least 1 by the letters in scope and what the lines
+/// bound (`citing::bounds::least`): 2, n of an n ∈ ℕ, k + 1 of a k ∈ ℕ₀, or
+/// a term a line says is at least 1. What a count given as a number must be
+/// to make its set finite (`citing::finite::finite_sets`).
+pub fn positive_by<'a>(
+    letters: &Introduced,
+    said: &SaidBounds,
+    ctx: &'a Context,
+) -> impl Fn(&Node) -> bool + 'a {
+    let ask = ScopeAsk {
+        letters: letters.clone(),
+        said: said.clone(),
+        ctx,
+    };
+    move |n: &Node| bounds::least(&ask, n).is_some_and(|least| least >= 1)
+}

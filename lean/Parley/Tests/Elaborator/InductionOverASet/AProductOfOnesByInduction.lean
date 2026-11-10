@@ -29,7 +29,7 @@ theorem a_product_of_ones_by_induction {α : Type*} (X : Set α) (hH2 : X.Finite
   -- 1. induction on Y starting at ∅
   have r14_1 : X.Finite := by parley_set_side
   have s1 : ∀ Y ∈ 𝒫 X, (∏ᶠ y ∈ Y, (1 : ℤ)) = 1 := by
-    refine LeanBridges.Sets.subset_induction (by parley_finite) ?_ ?_
+    refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
       -- 1.1. mun:product-empty
       exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun y : α => (1 : ℤ))))

@@ -39,26 +39,14 @@
 1	lean/Parley/Proofs/Setmm/RationalClosure/IrrationalSum.lean	2.1	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.4	cited: item and claim in different types
 1	lean/Parley/Proofs/Setmm/SizeWithoutAPair/SizeWithoutAPair.lean	3	cited: claim counts a set
-2	lean/Parley/Proofs/Setmm/SizeZeroOneOrMore/SizeZeroOneOrMore.lean	2.1	cited: claim counts a set
-2	lean/Parley/Proofs/Setmm/SizeZeroOneOrMore/SizeZeroOneOrMore.lean	2.2	cited: claim counts a set
 1	lean/Parley/Proofs/Setmm/TwoElements/TwoElements.lean	13	cited: claim counts a set
 3	lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	5	cited: item and claim in different types; exponents taken to ℕ
-1	lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	2.1	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/AddLastPlace.lean	2.2	cited: claim counts a set
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	24	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	25	row: equation put in
-1	lean/Parley/Proofs/Wiedijk/Ballot/GoodFinite.lean	2.1	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.1	cited: claim counts a set
-2	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.2	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.4	cited: claim counts a set
-2	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.1	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.2	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.1	cited: claim counts a set
-2	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.2	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.4	cited: claim counts a set
-2	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	8.1	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	8.2	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ballot/TieAtTheEnd.lean	2.1	cited: claim counts a set
+1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.2	cited: other shape, met otherwise than written
+1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	8.1	cited: other shape, met otherwise than written
+1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.2	cited: other shape, met otherwise than written
+1	lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	8.1	cited: other shape, met otherwise than written
 4	lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	cited: ring atoms apart; exponents taken to ℕ; substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	12	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	18	row: read off a cited line
@@ -66,10 +54,7 @@
 3	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	23	cited: toNat in different places; exponents taken to ℕ
 4	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	26	cited: toNat in different places; exponents taken to ℕ; row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	8.3	substitute: equation put in
-1	lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	1.1	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	1.3.2	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	4.1	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	6.1	cited: claim counts a set
+1	lean/Parley/Proofs/Wiedijk/Combinations/ChooseSplit.lean	1.3.2	cited: item and claim in different types
 1	lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.2	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.5	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	16	substitute: equation put in
@@ -104,7 +89,6 @@
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.1	define by cases: the case not recorded
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.5	define by cases: the case not recorded
 1	lean/Parley/Proofs/Wiedijk/Ramsey/GrowByOne.lean	4.5	cited: claim counts a set
-1	lean/Parley/Proofs/Wiedijk/Ramsey/RamseyStep.lean	32.10.5	cited: claim counts a set
 2	lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean	10.1.3	row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	1.2	row: equation put in
 3	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	2	cited: casts push_cast does not move; exponents taken to ℕ
@@ -119,14 +103,12 @@
 1	lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.5	row: equation put in
 2	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.12	cited: claim counts a set; row: equation put in
 2	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.3	cited: claim counts a set; row: equation put in
-1	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.9	cited: claim counts a set
 1	lean/Parley/Tests/Elaborator/ADefineAtEveryMemberOfARange/ADefineAtEveryMemberOfARange.lean	1	header function put in
 1	lean/Parley/Tests/Elaborator/ADefineFillingACitedFunction/ADefineFillingACitedFunction.lean	1	header function put in
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	2.4	header function put in
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.8	header function put in
 1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.9	header function put in
-1	lean/Parley/Tests/Elaborator/AFamilyOfPartsByADefine/AFamilyAtZero.lean	1	cited: claim counts a set
-1	lean/Parley/Tests/Elaborator/AFamilyOfPartsByADefine/AFamilyOfPartsIsFinite.lean	2.1	cited: claim counts a set
+1	lean/Parley/Tests/Elaborator/AFamilyOfPartsByADefine/AFamilyAtZero.lean	1	cited: item and claim in different types
 1	lean/Parley/Tests/Elaborator/AForAllLineReadInABlock/AForAllLineInACalculationLink.lean	1.1	row: read off a cited line
 3	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.2	cited: item and claim in different types; exponents taken to ℕ
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.3	cited: other shape, met otherwise than written
@@ -163,7 +145,6 @@
 1	lean/Parley/Tests/Notations/Functions/AValueOfALine.lean	1	header function put in
 1	lean/Parley/Tests/Notations/Powers/ARealPowerOfARealPower.lean	1	cited: item and claim in different types
 1	lean/Parley/Tests/Notations/Powers/EToARealPower.lean	1	cited: item and claim in different types
-1	lean/Parley/Tests/Notations/Sets/ARepeatCountsOnce.lean	3	cited: claim counts a set
 1	lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	5	substitute: equation put in
 1	lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	9	substitute: equation put in
 1	lean/Parley/Tests/Notations/Trigonometry/CosineOfASumAtZero.lean	1	cited: item and claim in different types

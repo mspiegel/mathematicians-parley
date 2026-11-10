@@ -9,7 +9,7 @@
 //!
 //! The tree is read into memory once, and each case edits it through an
 //! overlay of its own. The stages over the tree as it stands run side by
-//! side, and then the cases do (`threads::in_order`), each reading set.mm
+//! side, and then the cases do (`threads::in_order_slots`), each reading set.mm
 //! as it was read once. This reads set.mm, and fails if set.mm cannot be
 //! found: a test that skipped would say green about a thing it had not
 //! looked at.
@@ -19,7 +19,11 @@ use std::path::{Path, PathBuf};
 use parley::mm::where_set_mm;
 use parley::said::Said;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::in_order;
+use parley::threads::in_order_slots;
+
+/// The threads the cases are shared among: the slots nextest gives this
+/// binary (`threads-required` in `.config/nextest.toml`).
+const SLOTS: usize = 8;
 use parley::tools::build::Libraries;
 use parley::tools::gate::{as_built, as_built_edited, verifies};
 use parley::tools::{assumed, labels, lean_gate, restated, tested};
@@ -349,12 +353,18 @@ fn the_gate_catches_every_planted_defect() {
     let cases = cases();
     // Whether every stage over the tree as it stands is green is asked before
     // anything a case says counts.
-    let unplanted: Vec<(&str, Said)> = in_order(
+    let unplanted: Vec<(&str, Said)> = in_order_slots(
+        SLOTS,
         &STAGES,
         || (),
         |_, (name, stage)| (*name, stage(&clean, &setmm)),
     );
-    let results = in_order(&cases, || (), |_, case| outcome(case, &clean, &setmm));
+    let results = in_order_slots(
+        SLOTS,
+        &cases,
+        || (),
+        |_, case| outcome(case, &clean, &setmm),
+    );
     for (name, said) in unplanted {
         assert!(
             said.green(),

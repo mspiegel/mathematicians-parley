@@ -29,7 +29,7 @@ theorem product_integer_terms {α : Type*} (X : Set α) (hH2 : X.Finite) (t : α
     (∀ Y ∈ 𝒫 X, True) := by
   -- 1. induction on Y starting at ∅
   have r34_1 : X.Finite := by parley_set_side
-  refine LeanBridges.Sets.subset_induction (by parley_finite) ?_ ?_
+  refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
   · skip
     -- 1.1. mun:product-empty
     have s1_1 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := X) (t := t))

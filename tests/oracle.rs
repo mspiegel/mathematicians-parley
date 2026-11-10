@@ -43,7 +43,11 @@ use parley::elab::Library;
 use parley::formula::grammar::Grammar;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::{in_order, in_order_on};
+use parley::threads::in_order_slots;
+
+/// The threads the cases are shared among: the slots nextest gives this
+/// binary's tests (`threads-required` in `.config/nextest.toml`).
+const SLOTS: usize = 8;
 use parley::tools::build::{library, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
@@ -309,7 +313,8 @@ fn a_decision_method_answers_as_its_oracle() {
             "set.mm is found: say where it is with SET_MM, or leave a copy at the root",
         )
         .shared();
-    let built = in_order(
+    let built = in_order_slots(
+        SLOTS,
         &asked,
         || (Library::new(Arc::clone(&read)), None::<Loaded>),
         |(lib, loaded): &mut (Library, Option<Loaded>), a| {
@@ -382,7 +387,7 @@ fn a_decision_method_answers_as_its_oracle() {
     let verdicts: Vec<(bool, String)> = if together.green() {
         files.iter().map(|_| (true, String::new())).collect()
     } else {
-        in_order_on(
+        in_order_slots(
             VERIFYING,
             &files,
             || (),

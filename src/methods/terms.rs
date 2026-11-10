@@ -100,7 +100,7 @@ pub struct Targets {
     unordered: FxIndexSet<NotationId>,
     /// What each binder holds and over what, so that a sum or an integral
     /// is one term whatever letter it binds (`letters_blind`).
-    binders: std::rc::Rc<FxIndexMap<NotationId, crate::formula::notation::Binds>>,
+    binders: std::sync::Arc<FxIndexMap<NotationId, crate::formula::notation::Binds>>,
 }
 
 /// How a node holds more children than its pattern's holes: the holes the

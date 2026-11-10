@@ -48,10 +48,34 @@ pub fn in_order_on<I: Sync, S, T: Send>(
     init: impl Fn() -> S + Sync,
     run: impl Fn(&mut S, &I) -> T + Sync,
 ) -> Vec<T> {
+    spread(most.min(threads()), items, init, run)
+}
+
+/// `in_order` on `slots` threads, whatever `PARLEY_THREADS` says: for a test
+/// that shares its cases out itself, which nextest gives that many slots
+/// (`threads-required` in `.config/nextest.toml`) while every other test
+/// runs on one thread and nextest runs them side by side.
+pub fn in_order_slots<I: Sync, S, T: Send>(
+    slots: usize,
+    items: &[I],
+    init: impl Fn() -> S + Sync,
+    run: impl Fn(&mut S, &I) -> T + Sync,
+) -> Vec<T> {
+    spread(slots, items, init, run)
+}
+
+/// `run` over every item on `n` threads, or as many as there are items, and
+/// one at least, given back in the items' order.
+fn spread<I: Sync, S, T: Send>(
+    n: usize,
+    items: &[I],
+    init: impl Fn() -> S + Sync,
+    run: impl Fn(&mut S, &I) -> T + Sync,
+) -> Vec<T> {
     let next = AtomicUsize::new(0);
     let done: Mutex<Vec<Option<T>>> = Mutex::new(items.iter().map(|_| None).collect());
     std::thread::scope(|scope| {
-        for _ in 0..most.min(threads()).min(items.len()).max(1) {
+        for _ in 0..n.min(items.len()).max(1) {
             scope.spawn(|| {
                 let mut state = init();
                 loop {

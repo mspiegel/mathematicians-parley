@@ -232,19 +232,17 @@ pub struct Writer<'a> {
     /// The sets the checker records finite, as the page prints them
     /// (`CheckedTheorem::said_finite`): a count of one, or of a set made
     /// from them as `citing::finite::is_finite` says, is a natural number,
-    /// `A.ncard`, and of any other set in ℕ∞ (`sets::count_term`).
-    pub finite: std::collections::BTreeSet<String>,
-    /// For each hypothesis that makes a set finite, as printed, the sets
-    /// only it does (`Writer::without_line`).
+    /// `A.ncard`, and of any other set in ℕ∞ (`sets::count_term`). Each
+    /// with why it is finite (`citing::finite::FiniteBy`).
+    pub finite: crate::citing::finite::FiniteSets,
+    /// For each hypothesis that makes a set finite and may not vouch for
+    /// itself, as printed, the sets only it does (`Writer::without_line`).
     pub finite_only_by:
         std::collections::BTreeMap<String, std::collections::BTreeSet<String>>,
     /// What ∅ holds where nothing in it says, as a count compared with the
     /// count of a set of those, |S| = |∅| (`relation_from`); None where it
     /// is a set of the theorem's things.
     pub empty_of: Option<Members>,
-    /// Whether every count is written in ℕ∞, `A.encard`, finite or not:
-    /// inside a relation ℕ∞ says as the page does (`formula`).
-    pub in_extended: bool,
     /// What the lines in scope say terms are at least: a real power or
     /// square root of a term at least 0 is Mathlib's real one
     /// (`Writer::principal_is_real`).
@@ -446,10 +444,9 @@ impl<'a> Writer<'a> {
             integers: Vec::new(),
             domains: IndexMap::new(),
             reals: Vec::new(),
-            finite: std::collections::BTreeSet::new(),
+            finite: crate::citing::finite::FiniteSets::new(),
             finite_only_by: std::collections::BTreeMap::new(),
             empty_of: None,
-            in_extended: false,
             bounds: SaidBounds::default(),
             whole_bounds: SaidBounds::default(),
             root_forms: Default::default(),
@@ -469,7 +466,6 @@ impl<'a> Writer<'a> {
             finite: self.finite.clone(),
             finite_only_by: self.finite_only_by.clone(),
             empty_of: self.empty_of.clone(),
-            in_extended: self.in_extended,
             bounds: self.bounds.clone(),
             whole_bounds: self.whole_bounds.clone(),
             root_forms: self.root_forms.clone(),

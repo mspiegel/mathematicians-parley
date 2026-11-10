@@ -1,8 +1,18 @@
-# The two tests that spread their work over every core count as six slots
-# each, so fewer others run beside them and parley build, which runs beside
-# the tests in scripts/precommit.sh, keeps a share of the machine. Measured
-# with nothing to compile, the script takes 64s with every test one slot,
-# 54 to 60s with four, 53 to 54s with six and 54 to 55s with eight.
+# Every test runs on one thread, and nextest runs as many side by side as it
+# has slots (scripts/precommit.sh, 8 by default). A test that shares its
+# cases out itself runs on eight threads (`SLOTS` in its binary,
+# `threads::in_order_slots`) and counts as eight slots: it has the whole
+# budget while it runs, and what runs at once is what the slots say. The
+# other tests of those binaries run on one.
 [[profile.default.overrides]]
-filter = 'binary(invariance) | binary(planted_gate)'
-threads-required = 6
+filter = '''
+    test(=a_proof_means_what_it_says_however_it_spells_it)
+    | test(=sampled::a_proof_means_what_it_says_in_any_mix_of_spellings)
+    | test(=the_gate_catches_every_planted_defect)
+    | test(=a_wrong_proof_is_refused_and_never_verified)
+    | test(=a_decision_method_answers_as_its_oracle)
+    | test(=a_clean_reading_kept_reports_what_a_fresh_one_does)
+    | test(=the_checker_catches_every_planted_defect)
+    | test(=every_claim_is_said_back_as_itself)
+'''
+threads-required = 8

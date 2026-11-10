@@ -6,7 +6,7 @@
 //! The build is handed this rather than working it out again as it walks
 //! the proof, so the two cannot read one proof two ways.
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 use indexmap::IndexMap;
 
@@ -189,7 +189,7 @@ pub struct LibraryReading {
     pub cited: IndexMap<String, CitedStatement>,
     /// Each item's groups, by its full name, a record's and a proved
     /// theorem's (`citing::Library::groups`).
-    pub groups: IndexMap<String, Option<Rc<Vec<Group>>>>,
+    pub groups: IndexMap<String, Option<Arc<Vec<Group>>>>,
     /// What each item's function-type `let` lines say, `t : {a, …, b} → ℝ`,
     /// by its full name, which its groups leave out
     /// (`citing::Library::function_types`).
@@ -221,7 +221,7 @@ pub struct CheckedTheorem {
     pub page: PageReading,
     /// Every sentence of every item the corpus may cite, read: one reading
     /// for the corpus, shared by each theorem's record.
-    pub items: std::rc::Rc<ItemReading>,
+    pub items: std::sync::Arc<ItemReading>,
     /// What each definition the theorem sees from outside it stands for,
     /// written out where it was defined (`sorts::file_definitions`).
     pub outside: Definitions,
@@ -364,10 +364,11 @@ pub struct CheckedTheorem {
     /// one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
     pub bounds: Vec<crate::citing::bounds::SaidBounds>,
     /// The sets the lines in scope at each step say are finite in words,
-    /// `W is finite` or `B ⊆ A` of a finite A, as printed, by the step's
-    /// index (`citing::finite::finite_sets_in_words`): a count of one is a
-    /// natural number from there on, as of one `said_finite` holds.
-    pub finite_at: Vec<std::collections::BTreeSet<String>>,
+    /// `W is finite` or `B ⊆ A` of a finite A, as printed, each with why,
+    /// by the step's index (`citing::finite::finite_sets_in_words`): a
+    /// count of one is a natural number from there on, as of one
+    /// `said_finite` holds.
+    pub finite_at: Vec<crate::citing::finite::FiniteSets>,
     /// The number system each letter the page's lines put in sets of
     /// numbers is in, the widest of them, A of `let A be an element` and
     /// `A ∈ ℝ ∖ ℚ` (`citing::number_sets::element_systems`): what a backend

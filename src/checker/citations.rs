@@ -954,7 +954,7 @@ pub fn searched(
     let parts = known.parts(step, library);
     let key = (
         Rc::as_ptr(&parts) as usize,
-        Rc::as_ptr(&groups) as usize,
+        std::sync::Arc::as_ptr(&groups) as usize,
         how,
     );
     if let Some(found) = known.searches.borrow().get(&key) {

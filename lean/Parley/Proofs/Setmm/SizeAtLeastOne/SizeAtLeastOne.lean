@@ -51,7 +51,7 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
   -- 3. mun:singleton-subset, from 2
   have s3 : ({a} : Set α) ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := A) (a := a) s2)
   -- 4. mun:card-subset A := {a}, B := A, from 3
-  have s4 : ((({a} : Set α).ncard : ℕ) : ℕ∞) ≤ A.encard := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3); simp only [← Set.Finite.cast_ncard_eq (show ({a} : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
+  have s4 : ((({a} : Set α).ncard : ℕ) : ℕ∞) ≤ A.encard := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3); simp only [← Set.Finite.cast_ncard_eq ((Set.toFinite _ : (({a} : Set α) : Set α).Finite))] at h ⊢; exact_mod_cast h)
   -- 5. substitute
   parley_count_after (by
     have c1 : (({a} : Set α).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a))

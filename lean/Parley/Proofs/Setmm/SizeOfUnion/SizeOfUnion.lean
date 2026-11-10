@@ -39,7 +39,7 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   -- 5. mun:card-nat0 X := B ∖ A, from 2
   have s5 : 0 ≤ ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2)
   -- 6. mun:card-subset A := B ∖ A, from 1
-  have s6 : ((B \ A).ncard : ℤ) ≤ (B.ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1); simp only [← Set.Finite.cast_ncard_eq (show (B \ A : Set α).Finite by parley_finite), ← Set.Finite.cast_ncard_eq (show (B : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
+  have s6 : ((B \ A).ncard : ℤ) ≤ (B.ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1); simp only [← Set.Finite.cast_ncard_eq ((s2 : (B \ A : Set α).Finite)), ← Set.Finite.cast_ncard_eq ((hH4 : (B : Set α).Finite))] at h ⊢; exact_mod_cast h)
   -- 7. proof
   have s7 : ∀ s ∈ B \ A, ¬ s ∈ A := by
     intro s hK

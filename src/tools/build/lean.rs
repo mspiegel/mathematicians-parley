@@ -66,6 +66,10 @@ pub struct Made {
     /// Each item or theorem in the build that could not be written, and
     /// why: a gap of the Lean writer's.
     pub gaps: IndexMap<String, String>,
+    /// Each theorem or file not built because of a failure, and why: the
+    /// checker refuses it, Lean does not read what the writer wrote of it,
+    /// or it cites one of those. Every one is found in a run.
+    pub failed: IndexMap<String, String>,
     /// Each declaration written, by its full Lean name, with the arithmetic
     /// the page writes in its statement, which the gate's read-back
     /// compares with what Lean elaborated.
@@ -299,7 +303,15 @@ pub fn make(
                 texts.join("\n\n")
             )));
         }
-        let mathlib = mathlib_of(lookups, table, &mut made)?;
+        // A module Lean does not read is not built, and nor is what cites
+        // its items; every other file is.
+        let mathlib = match mathlib_of(lookups, table, &mut made) {
+            Ok(mathlib) => mathlib,
+            Err(problem) => {
+                made.failed.insert(module.clone(), problem.to_string());
+                continue;
+            }
+        };
         let imports: Vec<String> = library.into_iter().chain(mathlib).collect();
         let mut text = header(&imports, path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
@@ -338,6 +350,10 @@ pub fn make(
                 made.left_out.insert(name, reason.clone());
                 continue;
             }
+            Some(Covered::Failed { reason }) => {
+                made.failed.insert(name, reason.clone());
+                continue;
+            }
             None => continue,
         }
         let Some(rec) = checked.theorems.get(&name) else {
@@ -366,7 +382,11 @@ pub fn make(
             }
         }
     }
-    let mut written: Vec<String> = modules.keys().cloned().collect();
+    let mut written: Vec<String> = modules
+        .keys()
+        .filter(|m| !made.failed.contains_key(*m))
+        .cloned()
+        .collect();
     // Each theorem's module, with the theorem and the modules it imports.
     let mut imported: IndexMap<String, (String, Vec<String>)> = IndexMap::new();
     for (thm, rec) in theorems {
@@ -420,7 +440,13 @@ pub fn make(
         if of_sets {
             library.insert(SET_TACTICS.to_string());
         }
-        let mathlib = mathlib_of(decl.lookups(), table, &mut made)?;
+        let mathlib = match mathlib_of(decl.lookups(), table, &mut made) {
+            Ok(mathlib) => mathlib,
+            Err(problem) => {
+                made.failed.insert(name, problem.to_string());
+                continue;
+            }
+        };
         let imports: Vec<String> =
             library.into_iter().chain(mathlib).chain(cited).collect();
         let mut text = header(&imports, &thm.path);
@@ -488,10 +514,20 @@ pub fn make(
             if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
                 made.statements.shift_remove(&s.decl);
             }
-            made.gaps.insert(
-                name,
-                format!("it cites {import}, which the Lean build cannot yet write"),
-            );
+            // Not built because of a failure, or because of a gap.
+            let failed = made.failed.contains_key(&import)
+                || imported
+                    .get(&import)
+                    .is_some_and(|(cited, _)| made.failed.contains_key(cited));
+            if failed {
+                made.failed
+                    .insert(name, format!("it cites {import}, which was not built"));
+            } else {
+                made.gaps.insert(
+                    name,
+                    format!("it cites {import}, which the Lean build cannot yet write"),
+                );
+            }
         }
     }
 
@@ -576,10 +612,9 @@ fn made_with_modules(
 /// them all; a theorem `wanted` that is not in the build is reported, with
 /// why, and nothing is written.
 pub fn run(root: &Path, wanted: Option<&str>) -> Said {
-    let mut said = Said::default();
     let source = Disk::new(root.to_path_buf());
-    let checked = match crate::checker::checked(&source) {
-        Ok(checked) => checked,
+    let (mut said, checked) = match super::checked_first(&source) {
+        Ok(first) => first,
         Err(out) => return out,
     };
     let made = match made_with_modules(root, &source, &checked) {
@@ -592,7 +627,12 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
     };
     if let Some(name) = wanted {
         if !made.files.contains_key(&path_of_module(&module_of(name))) {
-            said.complained = match made.left_out.get(name).or(made.gaps.get(name)) {
+            let why = made
+                .left_out
+                .get(name)
+                .or(made.gaps.get(name))
+                .or(made.failed.get(name));
+            said.complained = match why {
                 Some(why) => format!("{name} is not in the Lean build: {why}\n"),
                 None => format!("no theorem {name}\n"),
             };
@@ -663,6 +703,13 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
             "\nthe Lean build cannot yet write these, which the checker accepts:\n";
         for (name, why) in &made.gaps {
             said.printed += &format!("  {name}: {why}\n");
+        }
+        failed = true;
+    }
+    if !made.failed.is_empty() {
+        said.complained += "\nnot built because of a failure:\n";
+        for (name, why) in &made.failed {
+            said.complained += &format!("  {name}: {why}\n");
         }
         failed = true;
     }

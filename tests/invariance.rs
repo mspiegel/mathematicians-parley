@@ -33,7 +33,7 @@ use parley::elab::elaborate::Options;
 use parley::elab::Library;
 use parley::mm::where_set_mm;
 use parley::source::{Disk, Memory, Overlay, Source};
-use parley::threads::{in_order, in_order_on};
+use parley::threads::in_order_slots;
 use parley::tools::build::{checked_in, library, verified, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
@@ -55,6 +55,10 @@ const KNOWN: &[&str] = &[];
 
 /// How many changes' files are verified at once.
 const VERIFYING: usize = 3;
+
+/// The threads the sweep shares its changes among: the slots nextest gives
+/// this binary (`threads-required` in `.config/nextest.toml`).
+const SLOTS: usize = 8;
 
 /// How a change rewrites a proof file.
 enum Rewrite {
@@ -527,7 +531,8 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         .collect();
     let mut found: BTreeSet<String> = BTreeSet::new();
     // What the checker says of each changed corpus.
-    let checked: Vec<String> = in_order(
+    let checked: Vec<String> = in_order_slots(
+        SLOTS,
         &trees,
         || (),
         |_, done| parley::checker::run(&done.tree).printed,
@@ -620,7 +625,8 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
             .collect();
         let jobs: Vec<(usize, String)> =
             ready.iter().map(|(i, n, _)| (*i, n.clone())).collect();
-        let built = in_order(
+        let built = in_order_slots(
+            SLOTS,
             &jobs,
             || (Library::new(Arc::clone(&read)), BTreeMap::new()),
             |(lib, loaded): &mut (Library, BTreeMap<usize, Loaded>), (i, name)| {
@@ -660,7 +666,7 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
     // holds a copy of set.mm of its own.
     let to_verify: Vec<usize> =
         (0..trees.len()).filter(|&i| !made[i].is_empty()).collect();
-    let verdicts = in_order_on(
+    let verdicts = in_order_slots(
         VERIFYING,
         &to_verify,
         || (),

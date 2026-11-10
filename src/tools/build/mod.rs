@@ -16,6 +16,29 @@ pub mod metamath;
 
 pub use metamath::*;
 
+/// The check a build begins with (`checker::front`): what `parley check`
+/// prints, which is the start of what the build prints, and the corpus as
+/// read and recorded, which the backend builds from. A theorem the check
+/// refuses is a failure the backend reports with what depends on it, and
+/// the status is the check's. A problem outside every theorem has every
+/// theorem depending on it, so the build ends with the check, and that is
+/// the outcome.
+pub fn checked_first(
+    source: &dyn crate::source::Source,
+) -> Result<(crate::said::Said, crate::checker::CheckedCorpus), crate::said::Said> {
+    let all = |_: &crate::corpus::Theorem| true;
+    let ask = crate::checker::Ask {
+        wanted: &all,
+        pairs: crate::checker::PairsAsked::Yes,
+    };
+    let front = crate::checker::front(source, &ask)?;
+    let said = front.said();
+    if !front.outside.problems.is_empty() {
+        return Err(said);
+    }
+    Ok((said, front.checked))
+}
+
 /// One generated file: its name, what makes it, and the artifacts whose
 /// files it reads or imports.
 pub struct Artifact<R> {

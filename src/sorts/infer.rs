@@ -22,6 +22,7 @@
 //! after it.
 
 use std::rc::Rc;
+use std::sync::Arc;
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -318,13 +319,13 @@ pub fn sort(store: &Store, k: &SortTerm) -> Option<Sort> {
             SortTerm::Atom(Atom::Point) => Whole::Point,
             SortTerm::Atom(Atom::Formula) => Whole::Formula,
             SortTerm::Atom(Atom::GroupElement) => Whole::GroupElement,
-            SortTerm::Set(c) => Whole::Set(Rc::new(whole(store, &c))),
-            SortTerm::Property(c) => Whole::Property(Rc::new(whole(store, &c))),
+            SortTerm::Set(c) => Whole::Set(Arc::new(whole(store, &c))),
+            SortTerm::Property(c) => Whole::Property(Arc::new(whole(store, &c))),
             SortTerm::Function(a, b) => {
-                Whole::Function(Rc::new(whole(store, &a)), Rc::new(whole(store, &b)))
+                Whole::Function(Arc::new(whole(store, &a)), Arc::new(whole(store, &b)))
             }
             SortTerm::Pair(a, b) => {
-                Whole::Pair(Rc::new(whole(store, &a)), Rc::new(whole(store, &b)))
+                Whole::Pair(Arc::new(whole(store, &a)), Arc::new(whole(store, &b)))
             }
         }
     }

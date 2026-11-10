@@ -50,7 +50,8 @@ pub const DEFINITIONS: &str = "stdlib/definitions";
 /// What the library proves below the readable layer.
 pub const PROVED: &str = "stdlib/proved";
 
-/// What the process may take at its peak before the build fails. A proof is
+/// What one artifact may hold at its peak while it is made, counted on its
+/// own thread, before the build fails. A proof is
 /// built as steps that share their parts (`spell::Step`); built as text,
 /// with every shared part written out again, the intermediate value theorem
 /// took 6GB. The limit is well above what a build needs and well below that,
@@ -264,27 +265,73 @@ pub struct Maker<'a> {
     library_read: &'a LibraryReading,
 }
 
+/// What every `Maker` of a run reads, which threads share: all of the
+/// corpus as the checker read it but its grammar, which a thread loads for
+/// itself.
+pub struct Shared<'a> {
+    source: &'a dyn Source,
+    found: &'a Corpus,
+    checked: &'a IndexMap<String, CheckedTheorem>,
+    library_read: &'a LibraryReading,
+    libraries: &'a Libraries,
+}
+
+impl<'a> Shared<'a> {
+    pub fn of(
+        source: &'a dyn Source,
+        checked: &'a CheckedCorpus,
+        libraries: &'a Libraries,
+    ) -> Shared<'a> {
+        Shared {
+            source,
+            found: &checked.corpus,
+            checked: &checked.theorems,
+            library_read: &checked.library,
+            libraries,
+        }
+    }
+}
+
 impl<'a> Maker<'a> {
     pub fn new(
         source: &'a dyn Source,
         checked: &'a CheckedCorpus,
         libraries: &'a Libraries,
     ) -> Maker<'a> {
-        let found = &checked.corpus;
+        let shared = Shared::of(source, checked, libraries);
+        Maker::of(&shared, Rc::clone(&checked.grammar), IndexMap::new())
+    }
+
+    /// A maker for a thread of its own, the grammar loaded for it, which
+    /// knows what this run has made so far (`made`).
+    pub fn on_thread(
+        shared: &Shared<'a>,
+        made: IndexMap<String, String>,
+    ) -> Checked<Maker<'a>> {
+        let g = Grammar::load(&shared.found.records)?;
+        Ok(Maker::of(shared, g, made))
+    }
+
+    fn of(
+        shared: &Shared<'a>,
+        g: Rc<Grammar>,
+        made: IndexMap<String, String>,
+    ) -> Maker<'a> {
+        let found = shared.found;
         Maker {
-            source,
+            source: shared.source,
             found,
-            g: Rc::clone(&checked.grammar),
+            g,
             items: index_built(
                 &found.records,
                 &found.theorems,
                 crate::corpus::Record::metamath_provided,
             ),
-            libraries,
+            libraries: shared.libraries,
             library: None,
-            made: IndexMap::new(),
-            checked: &checked.theorems,
-            library_read: &checked.library,
+            made,
+            checked: shared.checked,
+            library_read: shared.library_read,
         }
     }
 
@@ -377,17 +424,81 @@ impl<'a> Maker<'a> {
     }
 }
 
-/// The process's peak memory so far, in bytes.
-fn peak() -> u64 {
-    use nix::sys::resource::{getrusage, UsageWho};
-    let rss = getrusage(UsageWho::RUSAGE_SELF)
-        .map_or(0, |usage| u64::try_from(usage.max_rss()).unwrap_or(0));
-    // `ru_maxrss` is in bytes on macOS and in kilobytes elsewhere.
-    if cfg!(target_os = "macos") {
-        rss
-    } else {
-        rss * 1024
+/// What making one artifact came to (`made_in_waves`).
+pub enum MadeAs {
+    /// Its text, and the most it held at once while it was made, in bytes.
+    Made { text: String, held: u64 },
+    /// It could not be made.
+    Failed(Problem),
+    /// It reads `on`, which was not made, so it was not made either.
+    After { on: String },
+}
+
+/// Every artifact of `wanted` made in the order `waves` gives: a wave's
+/// artifacts, none of which reads another, side by side, each thread with a
+/// maker of its own. An artifact that fails is not made, and nor is one that
+/// reads it; every other is. `kept` is given each artifact as it comes to
+/// something, in order, and says whether what was made is kept: one not
+/// kept, as a file the build could not write, counts as not made for those
+/// that read it. The order is the outcome where there is none.
+pub fn made_in_waves<'w>(
+    shared: &Shared<'_>,
+    wanted: &[&'w Artifact],
+    mut kept: impl FnMut(&'w Artifact, &MadeAs) -> bool,
+) -> Checked<()> {
+    // What this run has made, which a later wave's artifacts read.
+    let mut made_so_far: IndexMap<String, String> = IndexMap::new();
+    let mut not_made: BTreeSet<String> = BTreeSet::new();
+    for wave in waves(wanted)? {
+        let mut ready: Vec<&Artifact> = Vec::new();
+        for artifact in wave {
+            match artifact.needs.iter().find(|n| not_made.contains(*n)) {
+                Some(on) => {
+                    kept(artifact, &MadeAs::After { on: on.clone() });
+                    not_made.insert(artifact.name.clone());
+                }
+                None => ready.push(artifact),
+            }
+        }
+        let results = crate::threads::in_order(
+            &ready,
+            || Maker::on_thread(shared, made_so_far.clone()),
+            made_measured,
+        );
+        for (artifact, (made, held)) in ready.into_iter().zip(results) {
+            let made = match made {
+                Ok(text) => MadeAs::Made { text, held },
+                Err(problem) => MadeAs::Failed(problem),
+            };
+            let keep = kept(artifact, &made);
+            match (made, keep) {
+                (MadeAs::Made { text, .. }, true) => {
+                    made_so_far.insert(artifact.name.clone(), text);
+                }
+                _ => {
+                    not_made.insert(artifact.name.clone());
+                }
+            }
+        }
     }
+    Ok(())
+}
+
+/// An artifact made by this thread's maker, with the most it held at once
+/// while it was made, in bytes, counted on this thread alone, so that other
+/// artifacts made beside it do not count (`allocation_counter::measure`).
+fn made_measured(
+    maker: &mut Checked<Maker<'_>>,
+    artifact: &&Artifact,
+) -> (Checked<String>, u64) {
+    let maker = match maker {
+        Ok(maker) => maker,
+        Err(problem) => return (Err(problem.clone()), 0),
+    };
+    let mut made = None;
+    let held = allocation_counter::measure(|| made = Some(maker.make(artifact)));
+    let made = made.expect("measure runs what it is given");
+    (made, held.bytes_max)
 }
 
 fn gb(bytes: u64) -> f64 {
@@ -398,12 +509,11 @@ fn gb(bytes: u64) -> f64 {
 /// writing each file that changed. set.mm is where the environment or the
 /// root of the tree says (`where_set_mm`).
 pub fn run(root: &Path, wanted: Option<&str>) -> Said {
-    let mut said = Said::default();
     let source = Disk::new(root.to_path_buf());
     // The checker reads the page first, and the build builds only what it
     // accepts, from what it read.
-    let checked = match crate::checker::checked(&source) {
-        Ok(checked) => checked,
+    let (mut said, checked) = match super::checked_first(&source) {
+        Ok(first) => first,
         Err(out) => return out,
     };
     let every = artifacts(&checked.corpus);
@@ -414,7 +524,7 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
     };
     if wanted.is_empty() {
         let names: Vec<&str> = every.iter().map(|a| a.name.as_str()).collect();
-        said.printed = format!(
+        said.printed += &format!(
             "no artifact {}; there are: {}\n",
             crate::text::repr(asked.unwrap_or_default()),
             names.join(", ")
@@ -426,9 +536,9 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
     let library = match library {
         Some(path) => path,
         None if wanted.iter().any(|a| a.wants_library()) => {
-            said.printed = "set.mm not found; say where it is with SET_MM, or leave a \
-                            copy or a link at the root of the working tree\n"
-                .to_string();
+            said.printed +=
+                "set.mm not found; say where it is with SET_MM, or leave a \
+                             copy or a link at the root of the working tree\n";
             said.status = 2;
             return said;
         }
@@ -442,53 +552,50 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
             return said;
         }
     };
-    let mut maker = Maker::new(&source, &checked, &libraries);
+    let shared = Shared::of(&source, &checked, &libraries);
 
     let mut changed = 0;
     let mut marks: IndexMap<String, char> = IndexMap::new();
-    // The process's peak after each artifact. The one after which it first
-    // reached its final value is the artifact that set it.
+    // The most each artifact held at once while it was made, on its own
+    // thread (`allocation_counter::measure`).
     let mut peaks: Vec<(String, u64)> = Vec::new();
-    let mut failed = false;
-    let waves = match waves(&wanted) {
-        Ok(waves) => waves,
-        Err(problem) => {
-            said.complained = format!("{problem}\n");
-            said.status = 2;
-            return said;
+    // Each artifact made is written; the old file of one not made is
+    // removed, so that what is on disk is what this run made.
+    let ordered = made_in_waves(&shared, &wanted, |artifact, made| match made {
+        MadeAs::After { on } => {
+            said.complained +=
+                &format!("{}: not built, as {on} was not\n", artifact.name);
+            remove_old(root, artifact, &mut said);
+            false
         }
-    };
-    for wave in waves {
-        for artifact in wave {
-            let made = maker.make(artifact);
-            peaks.push((artifact.name.clone(), peak()));
-            let written = match made {
-                Ok(text) => text,
-                Err(problem) => {
-                    said.complained +=
-                        &format!("{}: failed\n{problem}\n", artifact.name);
-                    failed = true;
-                    continue;
-                }
-            };
-            match write_changed(root, &artifact.path(), &written) {
+        MadeAs::Failed(problem) => {
+            said.complained += &format!("{}: failed\n{problem}\n", artifact.name);
+            remove_old(root, artifact, &mut said);
+            false
+        }
+        MadeAs::Made { text, held } => {
+            peaks.push((artifact.name.clone(), *held));
+            match write_changed(root, &artifact.path(), text) {
                 Ok(Written::Changed) => {
                     changed += 1;
                     marks.insert(artifact.name.clone(), '*');
+                    true
                 }
                 Ok(Written::Same) => {
                     marks.insert(artifact.name.clone(), ' ');
+                    true
                 }
                 Err(problem) => {
                     said.complained += &format!("{problem}\n");
-                    failed = true;
+                    false
                 }
             }
         }
-        // The next wave reads what this one made, so a failure stops here.
-        if failed {
-            break;
-        }
+    });
+    if let Err(problem) = ordered {
+        said.complained = format!("{problem}\n");
+        said.status = 2;
+        return said;
     }
 
     for artifact in &wanted {
@@ -520,6 +627,18 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
 
     said.printed += &format!("\n{} built, {changed} changed\n", wanted.len());
     said
+}
+
+/// The file of an artifact not built this run removed, where an earlier run
+/// left one, so that no file on disk passes for one this run made.
+fn remove_old(root: &Path, artifact: &Artifact, said: &mut Said) {
+    let path = root.join(artifact.path());
+    if !path.exists() {
+        return;
+    }
+    if let Err(e) = std::fs::remove_file(&path) {
+        said.complained += &format!("{}: {e}\n", artifact.path());
+    }
 }
 
 /// The library a build reads: set.mm, where the command line, the
@@ -612,7 +731,7 @@ impl<'s> Loaded<'s> {
 /// corpus that does not read being a problem.
 pub fn checked_in(
     source: &dyn Source,
-    wanted: impl Fn(&str) -> bool,
+    wanted: impl Fn(&str) -> bool + Sync,
 ) -> Checked<CheckedCorpus> {
     crate::checker::checked_where(source, wanted).map_err(|out| {
         Problem::new(

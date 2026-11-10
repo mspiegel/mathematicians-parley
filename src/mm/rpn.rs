@@ -10,13 +10,14 @@
 use std::borrow::Cow;
 use std::fmt;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::formula::symbol::Symbol;
 
 /// Labels in reverse Polish (the module's doc says how it compares). The
 /// default is no labels.
 #[derive(Clone, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Rpn(Rc<[Symbol]>);
+pub struct Rpn(Arc<[Symbol]>);
 
 impl Rpn {
     /// The tokens of text in reverse Polish, split where it has space.
@@ -101,7 +102,7 @@ fn built(fill: impl FnOnce(&mut Vec<Symbol>)) -> Rpn {
     let mut out = BUILDING.with(std::cell::Cell::take);
     out.clear();
     fill(&mut out);
-    let made = Rpn(Rc::from(&out[..]));
+    let made = Rpn(Arc::from(&out[..]));
     BUILDING.with(|b| b.set(out));
     made
 }

@@ -1,11 +1,9 @@
 //! A parsed formula.
 
-use std::cell::{Cell, OnceCell};
 use std::collections::BTreeSet;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use super::notation_id::{LiteralId, NotationId, Spelling, NO_LITERAL};
 use super::symbol::Symbol;
@@ -26,7 +24,7 @@ use crate::notations::{LITERAL, NAME, NUMERAL, PROPERTY_OF};
 #[derive(Clone, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Sort {
     category: Option<Category>,
-    whole: Option<Rc<Whole>>,
+    whole: Option<Arc<Whole>>,
 }
 
 /// A sort's category by name. The categories the code itself names are
@@ -48,7 +46,7 @@ enum Category {
     Any,
     Variable,
     Unknown,
-    Named(Rc<str>),
+    Named(Arc<str>),
 }
 
 impl Category {
@@ -66,7 +64,7 @@ impl Category {
             "any" => Category::Any,
             "variable" => Category::Variable,
             "unknown" => Category::Unknown,
-            other => Category::Named(Rc::from(other)),
+            other => Category::Named(Arc::from(other)),
         }
     }
 
@@ -96,11 +94,11 @@ pub enum Whole {
     Point,
     Formula,
     GroupElement,
-    Set(Rc<Whole>),
-    Property(Rc<Whole>),
-    Function(Rc<Whole>, Rc<Whole>),
+    Set(Arc<Whole>),
+    Property(Arc<Whole>),
+    Function(Arc<Whole>, Arc<Whole>),
     /// A pair, of the sorts of its first and second parts.
-    Pair(Rc<Whole>, Rc<Whole>),
+    Pair(Arc<Whole>, Arc<Whole>),
     /// A sort the lines leave open.
     Open,
 }
@@ -112,23 +110,23 @@ impl Whole {
     pub fn read(text: &str) -> Option<Whole> {
         let text = str::trim(text);
         if let Some(rest) = text.strip_prefix("set of ") {
-            return Some(Whole::Set(Rc::new(Whole::read(rest)?)));
+            return Some(Whole::Set(Arc::new(Whole::read(rest)?)));
         }
         if let Some(rest) = text.strip_prefix("property of ") {
-            return Some(Whole::Property(Rc::new(Whole::read(rest)?)));
+            return Some(Whole::Property(Arc::new(Whole::read(rest)?)));
         }
         if let Some(rest) = text.strip_prefix("function from ") {
             let (from, to) = rest.split_once(" to ")?;
             return Some(Whole::Function(
-                Rc::new(Whole::read(from)?),
-                Rc::new(Whole::read(to)?),
+                Arc::new(Whole::read(from)?),
+                Arc::new(Whole::read(to)?),
             ));
         }
         if let Some(rest) = text.strip_prefix("pair of ") {
             let (first, second) = rest.split_once(" and ")?;
             return Some(Whole::Pair(
-                Rc::new(Whole::read(first)?),
-                Rc::new(Whole::read(second)?),
+                Arc::new(Whole::read(first)?),
+                Arc::new(Whole::read(second)?),
             ));
         }
         Some(match text {
@@ -186,14 +184,14 @@ impl Whole {
     /// is a set of things of an open sort. None for a name that is no
     /// category of a term.
     pub fn of_category(category: &str) -> Option<Whole> {
-        let open = || Rc::new(Whole::Open);
+        let open = || Arc::new(Whole::Open);
         Some(match category {
             "number" => Whole::Number,
             "point" => Whole::Point,
             "group-element" => Whole::GroupElement,
             "set" => Whole::Set(open()),
-            "group-set" => Whole::Set(Rc::new(Whole::GroupElement)),
-            "set-of-sets" => Whole::Set(Rc::new(Whole::Set(open()))),
+            "group-set" => Whole::Set(Arc::new(Whole::GroupElement)),
+            "set-of-sets" => Whole::Set(Arc::new(Whole::Set(open()))),
             "property" => Whole::Property(open()),
             "function" => Whole::Function(open(), open()),
             "pair" => Whole::Pair(open(), open()),
@@ -291,7 +289,7 @@ impl Sort {
         let category = whole.category()?;
         Some(Sort {
             category: Some(Category::of(category)),
-            whole: Some(Rc::new(whole)),
+            whole: Some(Arc::new(whole)),
         })
     }
 
@@ -363,17 +361,17 @@ pub struct NodeData {
     /// For a node standing in for a term the elaborator already holds, the
     /// term in reverse Polish.
     pub rpn: Option<Rpn>,
-    shape: OnceCell<String>,
+    shape: OnceLock<String>,
     /// A hash of the shape, worked out from the parts and not the text
     /// (`same_shape`).
-    shape_hash: OnceCell<u64>,
+    shape_hash: OnceLock<u64>,
     /// The characters of the sentence the parser read this node from, for
     /// a tool that restates a part of what was written; none for a node
     /// built any other way.
-    span: Cell<Option<(usize, usize)>>,
+    span: Option<(usize, usize)>,
     /// Whether the text wrote this node inside brackets, which closes it:
     /// what follows extends the group whatever its level.
-    grouped: Cell<bool>,
+    grouped: bool,
 }
 
 /// A parsed formula: a notation, the sort of what it builds, its children,
@@ -383,7 +381,7 @@ pub struct NodeData {
 /// of a property may decide what it stands for is a set of occurrences, not
 /// of shapes (`matching::binding_sites`).
 #[derive(Clone)]
-pub struct Node(Rc<NodeData>);
+pub struct Node(Arc<NodeData>);
 
 impl std::ops::Deref for Node {
     type Target = NodeData;
@@ -423,17 +421,17 @@ impl Hash for ByShape {
 
 impl Node {
     fn made(spelling: Spelling, sort: Sort, children: Vec<Node>, text: Symbol) -> Node {
-        Node(Rc::new(NodeData {
+        Node(Arc::new(NodeData {
             sort,
             children,
             text,
             notation_id: spelling.notation,
             literal_id: spelling.literal,
             rpn: None,
-            shape: OnceCell::new(),
-            shape_hash: OnceCell::new(),
-            span: Cell::new(None),
-            grouped: Cell::new(false),
+            shape: OnceLock::new(),
+            shape_hash: OnceLock::new(),
+            span: None,
+            grouped: false,
         }))
     }
 
@@ -476,17 +474,17 @@ impl Node {
     /// This node with other children: its notation, literal, text and sort
     /// kept, and nothing of where it was read or what term it stood for.
     pub fn with_children(&self, children: Vec<Node>) -> Node {
-        Node(Rc::new(NodeData {
+        Node(Arc::new(NodeData {
             sort: self.sort.clone(),
             children,
             text: self.text,
             notation_id: self.notation_id,
             literal_id: self.literal_id,
             rpn: None,
-            shape: OnceCell::new(),
-            shape_hash: OnceCell::new(),
-            span: Cell::new(None),
-            grouped: Cell::new(false),
+            shape: OnceLock::new(),
+            shape_hash: OnceLock::new(),
+            span: None,
+            grouped: false,
         }))
     }
 
@@ -508,30 +506,48 @@ impl Node {
 
     /// Whether the text wrote this node inside brackets.
     pub fn grouped(&self) -> bool {
-        self.grouped.get()
+        self.grouped
     }
 
-    /// Say that the text wrote this node inside brackets.
-    pub fn set_grouped(&self) {
-        self.grouped.set(true);
+    /// This node, said to be written inside brackets. A node does not change
+    /// once made, so this is a new node; the parser makes it before anything
+    /// holds the old one, whose identity therefore nothing has taken.
+    pub fn in_brackets(self) -> Node {
+        self.remade(self.span, true)
     }
 
     /// Where in the sentence the parser read this node from, as character
     /// offsets, end exclusive.
     pub fn span(&self) -> Option<(usize, usize)> {
-        self.span.get()
+        self.span
     }
 
-    /// Say where the parser read this node from. A span runs forwards, which
-    /// `written` relies on, so one that does not is the parser's fault and
-    /// stops it where it is made.
-    pub fn set_span(&self, from: usize, to: usize) {
+    /// This node, said to be read from `from..to`: a new node, as
+    /// `in_brackets` is. A span runs forwards, which `written` relies on, so
+    /// one that does not is the parser's fault and stops it where it is made.
+    pub fn spanned(self, from: usize, to: usize) -> Node {
         assert!(
             from <= to,
             "a span runs forwards, and {} was given {from}..{to}",
             self.notation_name()
         );
-        self.span.set(Some((from, to)));
+        self.remade(Some((from, to)), self.grouped)
+    }
+
+    /// This node with another span and bracketing, everything else kept.
+    fn remade(&self, span: Option<(usize, usize)>, grouped: bool) -> Node {
+        Node(Arc::new(NodeData {
+            sort: self.sort.clone(),
+            children: self.children.clone(),
+            text: self.text,
+            notation_id: self.notation_id,
+            literal_id: self.literal_id,
+            rpn: self.rpn.clone(),
+            shape: OnceLock::new(),
+            shape_hash: OnceLock::new(),
+            span,
+            grouped,
+        }))
     }
 
     /// The text the parser read this node from, cut from the sentence it
@@ -545,43 +561,43 @@ impl Node {
     /// text wrote nothing, as the declared set does in "for all ε > 0", so
     /// that nothing cuts text for it from a sentence it was not read from.
     pub fn unwritten(&self) -> Node {
-        Node(Rc::new(NodeData {
+        Node(Arc::new(NodeData {
             sort: self.sort.clone(),
             children: self.children.iter().map(Node::unwritten).collect(),
             text: self.text,
             notation_id: self.notation_id,
             literal_id: self.literal_id,
             rpn: self.rpn.clone(),
-            shape: OnceCell::new(),
-            shape_hash: OnceCell::new(),
-            span: Cell::new(None),
-            grouped: Cell::new(self.grouped()),
+            shape: OnceLock::new(),
+            shape_hash: OnceLock::new(),
+            span: None,
+            grouped: self.grouped,
         }))
     }
 
     /// A term already in kernel form, standing in a tree: notation
     /// `literal`, no sort, no children and no text.
     pub fn literal(rpn: &Rpn) -> Node {
-        Node(Rc::new(NodeData {
+        Node(Arc::new(NodeData {
             sort: Sort::none(),
             children: Vec::new(),
             text: Symbol::default(),
             notation_id: LITERAL,
             literal_id: NO_LITERAL,
             rpn: Some(rpn.clone()),
-            shape: OnceCell::new(),
-            shape_hash: OnceCell::new(),
-            span: Cell::new(None),
-            grouped: Cell::new(false),
+            shape: OnceLock::new(),
+            shape_hash: OnceLock::new(),
+            span: None,
+            grouped: false,
         }))
     }
 
     pub fn id(&self) -> NodeId {
-        Rc::as_ptr(&self.0) as usize
+        Arc::as_ptr(&self.0) as usize
     }
 
     pub fn same(&self, other: &Node) -> bool {
-        Rc::ptr_eq(&self.0, &other.0)
+        Arc::ptr_eq(&self.0, &other.0)
     }
 
     pub fn is_name(&self) -> bool {

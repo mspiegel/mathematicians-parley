@@ -74,8 +74,8 @@ pub fn printed_but(
             .unwrap();
         }
     }
-    for set in &record.said_finite.sets {
-        writeln!(out, "finite {set}").unwrap();
+    for (set, why) in &record.said_finite.sets {
+        writeln!(out, "finite {set}, by {why:?}").unwrap();
     }
     for (line, only) in &record.said_finite.only_by {
         let only: Vec<&str> = only.iter().map(String::as_str).collect();

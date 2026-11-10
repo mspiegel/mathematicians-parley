@@ -404,6 +404,15 @@ fn cast_texts(term: &Printed) -> Vec<String> {
         .collect()
 }
 
+/// The claim a citation is met with, as Lean prints it.
+#[derive(Clone, Copy)]
+struct StepClaim<'p> {
+    printed: &'p Printed,
+    /// Whether it is the `have` the step states, which shows the form its
+    /// counts are in; a claim printed afresh does not.
+    stated: bool,
+}
+
 /// How an item's statement at a citation's values reads as the claim where
 /// the item is stated over more than its values are in, as the record's
 /// `Cited::item_letters` say: the lemmas `simpa only` takes it by, or the
@@ -2932,22 +2941,30 @@ impl<'a> Proof<'a> {
                 ));
             };
             // A set the claim's other sentences say is finite counts as one
-            // here, as a hypothesis counts what the others make finite: W
-            // of "W is finite and |W| ≥ k". A sentence does not vouch for
-            // itself.
+            // here, W of "W is finite and |W| ≥ k", by the one reading of
+            // what lines make finite (`citing::finite::finite_sets`); and one
+            // the sentence says of itself, a count given as a number at least
+            // 1, by the step's bounds as the checker recorded them
+            // (`CheckedTheorem::bounds`). A count that may be 0 does not
+            // vouch for itself.
             let others: Vec<&Node> = sentences
                 .iter()
                 .enumerate()
                 .filter(|(i, _)| *i != at)
                 .filter_map(|(_, o)| *o)
                 .collect();
+            let positive = |n: &Node| {
+                crate::citing::bounds::least(&self.writer, n).is_some_and(|l| l >= 1)
+            };
+            let grammar = &self.sources.checked.grammar;
             let mut writer = self.writer.with_letters(self.writer.letters.clone());
-            writer
-                .finite
-                .extend(crate::citing::finite::finite_sets_in_words(
-                    &self.sources.checked.grammar,
-                    others,
-                ));
+            let by_others =
+                crate::citing::finite::finite_sets(grammar, others, &positive);
+            let by_itself =
+                crate::citing::finite::finite_sets_vouched(grammar, [node], &positive);
+            for (set, why) in by_others.into_iter().chain(by_itself) {
+                writer.finite.entry(set).or_insert(why);
+            }
             // A claim of numerals alone is written in the type of the lines
             // it is reached from, where any are cited.
             let printed = if node.names().is_empty() {
@@ -3090,7 +3107,12 @@ impl<'a> Proof<'a> {
         // hypotheses make finite is (`CheckedTheorem::finite_at`).
         self.writer.finite = self.rec.said_finite.sets.clone();
         if let Some(said) = self.rec.finite_at.get(i) {
-            self.writer.finite.extend(said.iter().cloned());
+            for (set, why) in said {
+                self.writer
+                    .finite
+                    .entry(set.clone())
+                    .or_insert_with(|| why.clone());
+            }
         }
         // The defines written above this step in its block, where the
         // checker opens them.
@@ -5904,6 +5926,18 @@ impl<'a> Proof<'a> {
     /// from `term`, which says `says` where that is known: one tactic where
     /// the two meet as Lean has them (`proof_meeting`); the alternatives of
     /// `closers` where they do not.
+    /// A part of a cited item's sentence at the citation's values, as a
+    /// tree: the values put into it, a function or property given as a value
+    /// applied where the sentence applies it.
+    fn at_values(&self, part: &Node, binding: &crate::matching::Binding) -> Node {
+        let read =
+            read_at_values(part, binding, &self.sources.checked.grammar.binders());
+        crate::matching::standard(
+            &crate::matching::substitute_apart(&read, binding, self.sources.ctx),
+            self.sources.ctx,
+        )
+    }
+
     /// A part of a cited item's sentence at the citation's values, written as
     /// the step's lines are: the values put into its tree, a function or
     /// property given as a value applied where the sentence applies it, by
@@ -5914,12 +5948,7 @@ impl<'a> Proof<'a> {
         part: &Node,
         binding: &crate::matching::Binding,
     ) -> Option<Printed> {
-        let read =
-            read_at_values(part, binding, &self.sources.checked.grammar.binders());
-        let at_values = crate::matching::standard(
-            &crate::matching::substitute_apart(&read, binding, self.sources.ctx),
-            self.sources.ctx,
-        );
+        let at_values = self.at_values(part, binding);
         match self.worked_in.get() {
             Some(at)
                 if at_values.notation() == EQUALITY
@@ -5946,16 +5975,22 @@ impl<'a> Proof<'a> {
         term: &Printed,
         said: &Printed,
         written: &Printed,
-        claim: &Printed,
+        claim: StepClaim<'_>,
     ) -> Option<super::doc::Proof> {
+        let StepClaim {
+            printed: claim,
+            stated: claim_stated,
+        } = claim;
         use super::doc::Proof;
         use super::tactics as t;
         // Not of a fact Lean's types make true, which says nothing to read;
         // nor in a step that works through numbers lines or the step name,
         // whose goal those numbers' equations rewrite before the step's
         // proof (`specs_in`), so that it is not the claim as written; nor a
-        // claim that counts a set, whose line may count in ℕ∞, which the
-        // claim as written does not show (as `closer` holds).
+        // claim that counts a set printed afresh, whose line may count in
+        // ℕ∞, which the claim so printed does not show (as `closer` holds).
+        // A claim as the step's `have` states it (`claim_stated`) shows the
+        // form its counts are in.
         let through_named =
             !self.named_specs.is_empty() || !self.said_used.borrow().is_empty();
         // An integer power under a binder is read across only where the two
@@ -5965,7 +6000,7 @@ impl<'a> Proof<'a> {
             integer_powers_under_binders(written) != integer_powers_under_binders(said);
         if written.is_truth()
             || through_named
-            || item_counts(claim)
+            || (item_counts(claim) && !claim_stated)
             || binder_powers_apart
         {
             return None;
@@ -6028,22 +6063,27 @@ impl<'a> Proof<'a> {
     fn closer(
         &self,
         node: &Node,
-        claim: Option<&Printed>,
+        claim: Option<StepClaim<'_>>,
         term: Printed,
         says: Option<&Printed>,
         facing: Option<Facing>,
         bridge: Option<CitedBridge>,
     ) -> super::doc::Proof {
+        let claim_stated = claim.is_some_and(|c| c.stated);
+        let claim = claim.map(|c| c.printed);
         // A claim Lean's types make true says nothing a term is met with; one
         // in another type than the term's is not known to be its; and one
-        // that counts a set stands where a calculation of counts may take
-        // its rows in ℕ∞, which the claim as read does not show.
+        // that counts a set, printed afresh, stands where a calculation of
+        // counts may take its rows in ℕ∞, which the claim so printed does not
+        // show. One as the step's `have` states it (`claim_stated`) shows
+        // the form its counts are in.
+        let counts_unknown = |c: &Printed| item_counts(c) && !claim_stated;
         let unstated = match claim {
             Some(c) if c.is_truth() => ListReason::CitedClaimTruth,
-            Some(c) if item_counts(c) => ListReason::CitedClaimCounts,
+            Some(c) if counts_unknown(c) => ListReason::CitedClaimCounts,
             _ => ListReason::CitedUnstated,
         };
-        let claim = claim.filter(|c| !c.is_truth() && !item_counts(c));
+        let claim = claim.filter(|c| !c.is_truth() && !counts_unknown(c));
         if let (Some(claim), Some(says)) = (claim, says) {
             let agree = super::doc::forms::relation_types_agree(says, claim);
             // Where the two are alike but for the types of their terms, or
@@ -6357,13 +6397,11 @@ impl<'a> Proof<'a> {
             at,
             Spot::Statement,
         );
-        // A set the define names that is finite by how it is made alone, U
-        // of a set-builder within 𝒫{1, …, n}, is said finite at once, with
-        // the proof how it is made gives (`finite_by_making`): Lean's
-        // tactics see the letter and not its value. One finite by what a
-        // line says is left to the tactics that have the line.
+        // A set the define names that is finite, U of a set-builder within
+        // 𝒫{1, …, n}, is said finite at once, with the proof why it is gives
+        // (`finite_proof`): Lean's tactics see the letter and not its value.
         let made_finite = match is_set {
-            true => finite_by_making(&body),
+            true => self.finite_proof(&body),
             false => None,
         };
         if let Some(made_finite) = made_finite {
@@ -7167,6 +7205,159 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// The claim sentence `node` of the step whose reason is on `line`, as
+    /// the step's `have` states it (`claimed_all`): what Lean's goal for it
+    /// is, a claim of numerals alone in the type of the lines it is reached
+    /// from, a claim of counts in the form the step writes its counts in.
+    /// None for a sentence no step's `have` states, a calculation's row.
+    fn stated_claim(&self, line: usize, node: &Node) -> Option<Printed> {
+        self.thm
+            .steps
+            .iter()
+            .find(|s| s.just.line == line)
+            .and_then(|step| self.claimed_all(step).built())
+            .and_then(|all| all.into_iter().find(|(_, n, _)| n.same(node)))
+            .map(|(_, _, printed)| printed)
+    }
+
+    /// The proof that `set` is finite, from why the checker says it is
+    /// (`citing::finite::finite_by` over the facts the writer is given): a
+    /// line's name where a line says so; `(whole).subset h` of a part of a
+    /// finite set by the line `h`; and how the set is made, by Mathlib's
+    /// lemmas for ∅, a listed set, a range, 𝒫, ∪, an image, and `.subset`
+    /// of A ∖ B, A ∩ B and a set-builder within A. None where the set is not
+    /// shown finite, or the reason names nothing a proof is written from: a
+    /// define's function, or a letter bound over a set.
+    fn finite_proof(&self, set: &Node) -> Option<Printed> {
+        let why = crate::citing::finite::finite_by(
+            self.writer.grammar,
+            &self.writer.finite,
+            set,
+        )?;
+        self.proof_of_finite(&why, set)
+    }
+
+    /// `finite_proof` of `set` for the reason `why`.
+    fn proof_of_finite(
+        &self,
+        why: &crate::citing::finite::FiniteBy,
+        set: &Node,
+    ) -> Option<Printed> {
+        use super::doc::TermKind;
+        use crate::citing::finite::{FiniteBy, Making};
+        let field = |inner: Printed, name: &str| projected(inner, &[name]);
+        let hole = || Printed::of(TermKind::Elided, super::doc::LeanType::Prop);
+        let constant = |name: &str| {
+            Printed::constant(
+                name,
+                super::doc::Source::Mathlib,
+                super::doc::LeanType::Prop,
+            )
+        };
+        // A part of A, by the membership of each member: `fun _ h => h.1` of
+        // a set-builder, A ∖ B or A ∩ B within A, `h.2` of A ∩ B within B.
+        let part_of = |whole: Printed, side: &str| {
+            let member = untyped_lambda(
+                &["_", "h"],
+                Printed {
+                    kind: TermKind::Field {
+                        inner: Box::new(super::tactics::hyp("h")),
+                        field: side.to_string(),
+                    },
+                    ty: Some(super::doc::LeanType::Prop),
+                },
+            );
+            applied_to(field(whole, "subset"), super::tactics::bracket(member))
+        };
+        let child = |k: usize| set.children.get(k);
+        let of = |k: usize| {
+            let part = child(k)?;
+            self.finite_proof(part)
+        };
+        match why {
+            FiniteBy::Said(line) => self.line_saying(line),
+            // A count given as a number at least 1, written in ℕ,
+            // `(X.ncard : ℤ) = 2`: its count is not 0, by the line and the
+            // bounds in scope.
+            FiniteBy::Counted {
+                at_least_one: true, ..
+            } => Some(Printed::applied(
+                "Set.finite_of_ncard_ne_zero",
+                super::doc::Source::Mathlib,
+                vec![super::tactics::by_term(super::doc::Proof::By(
+                    super::tactics::call("omega", vec![]),
+                ))],
+                super::doc::LeanType::Prop,
+            )),
+            // A count that may be 0, written in ℕ∞, `X.encard = ↑m`.
+            FiniteBy::Counted {
+                line,
+                at_least_one: false,
+            } => Some(Printed::applied(
+                "Set.finite_of_encard_eq_coe",
+                super::doc::Source::Mathlib,
+                vec![self.line_saying(line)?],
+                super::doc::LeanType::Prop,
+            )),
+            FiniteBy::Part { line, whole } => {
+                let said = self.line_node(line)?;
+                let whole_set = match (said.notation(), said.children.as_slice()) {
+                    (crate::notations::MEMBERSHIP, [_, powerset]) => {
+                        powerset.children.first()?
+                    }
+                    (_, [_, whole]) => whole,
+                    _ => return None,
+                };
+                let whole_proof = self.proof_of_finite(whole, whole_set)?;
+                Some(applied_to(
+                    field(whole_proof, "subset"),
+                    self.line_saying(line)?,
+                ))
+            }
+            FiniteBy::Made(made) => match made {
+                Making::Empty => Some(constant("Set.finite_empty")),
+                Making::Listed => Some(applied_to(constant("Set.toFinite"), hole())),
+                Making::Range => Some(applied_to(
+                    applied_to(constant("Set.finite_Icc"), hole()),
+                    hole(),
+                )),
+                Making::Powerset(_) => Some(field(of(0)?, "powerset")),
+                Making::Builder(_) => Some(part_of(of(1)?, "1")),
+                Making::Minus(_) => Some(part_of(of(0)?, "1")),
+                Making::Inter(_) => match of(0) {
+                    Some(left) => Some(part_of(left, "1")),
+                    None => Some(part_of(of(1)?, "2")),
+                },
+                Making::Union(_, _) => Some(applied_to(
+                    field(of(0)?, "union"),
+                    super::tactics::bracket(of(1)?),
+                )),
+                Making::Image(_) => Some(applied_to(field(of(2)?, "image"), hole())),
+                Making::Applied(_) => None,
+            },
+            FiniteBy::Define(_) | FiniteBy::Bound(_) | FiniteBy::MemberOf(_) => None,
+        }
+    }
+
+    /// The sentence of a line in scope the page prints as `printed`.
+    fn line_node(&self, printed: &str) -> Option<&Node> {
+        self.trees
+            .values()
+            .flatten()
+            .map(|s| &s.node)
+            .find(|n| self.writer.grammar.print(n) == printed)
+    }
+
+    /// The proof of the sentence of a line in scope the page prints as
+    /// `printed`: its name, or the projection that takes it.
+    fn line_saying(&self, printed: &str) -> Option<Printed> {
+        self.trees
+            .values()
+            .flatten()
+            .find(|s| self.writer.grammar.print(&s.node) == printed)
+            .map(|s| s.proof.clone())
+    }
+
     /// `instantiate`: the "for all" line at the values given, each guard
     /// left to `parley_side`, and an "if" in it applied where the claim is
     /// what it gives.
@@ -7183,16 +7374,7 @@ impl<'a> Proof<'a> {
         else {
             return Route::no("an instantiate of no line");
         };
-        // The claim as the step's `have` states it (`claimed_all`): a claim
-        // of numerals alone in the type of the lines it is reached from.
-        let stated = self
-            .thm
-            .steps
-            .iter()
-            .find(|s| s.just.line == just.line)
-            .and_then(|step| self.claimed_all(step).built())
-            .and_then(|all| all.into_iter().find(|(_, n, _)| n.same(node)))
-            .map(|(_, _, printed)| printed);
+        let stated = self.stated_claim(just.line, node);
         let claim = match stated {
             Some(printed) => Route::Built(printed),
             None => writer.formula(node),
@@ -7469,7 +7651,11 @@ impl<'a> Proof<'a> {
                     true => written,
                     false => says,
                 };
-                self.read_in_spelling(None, &proof, said, written, wanted)
+                let claim = StepClaim {
+                    printed: wanted,
+                    stated: false,
+                };
+                self.read_in_spelling(None, &proof, said, written, claim)
             }
             _ => None,
         };
@@ -9991,17 +10177,24 @@ impl<'a> Proof<'a> {
         };
         // The claim as Lean writes it, in a calculation's type where it is
         // a row of one between numbers.
+        // A claim a step's `have` states is what that `have` says, its
+        // counts in the form the step writes them; a calculation's row is
+        // written as the calculation writes it.
         let of_numbers = node.children.iter().all(|c| self.writer.is_number(c));
-        let claim_lean = match self.worked_in.get() {
-            Some(at)
+        let stated = match self.worked_in.get() {
+            Some(_) => None,
+            None => self.stated_claim(reason.just.line, node),
+        };
+        let claim_lean = match (self.worked_in.get(), &stated) {
+            (_, Some(said)) => Some(said.clone()),
+            (Some(at), None)
                 if of_numbers
                     && (node.notation() == EQUALITY || node.notation() == ORDER) =>
             {
-                self.writer.closed_formula(node, at)
+                self.writer.closed_formula(node, at).built()
             }
-            _ => self.writer.formula(node),
-        }
-        .built();
+            _ => self.writer.formula(node).built(),
+        };
         let term = match concluded.way {
             Way::AsWritten => inst,
             Way::Forward if iff => forwards_of(inst, self.premise(cited, &statement)),
@@ -10076,6 +10269,10 @@ impl<'a> Proof<'a> {
                         let said = match one_statement(written, left) {
                             true => written,
                             false => left,
+                        };
+                        let claim = StepClaim {
+                            printed: claim,
+                            stated: stated.is_some(),
                         };
                         self.read_in_spelling(Some(cited), &mpr, said, written, claim)
                     }
@@ -10200,12 +10397,42 @@ impl<'a> Proof<'a> {
             (Some(written), Some(said), Some(claim))
                 if counted.is_empty() && !agrees =>
             {
+                let claim = StepClaim {
+                    printed: claim,
+                    stated: stated.is_some(),
+                };
                 self.read_in_spelling(Some(cited), &term, said, written, claim)
             }
             _ => None,
         };
         let closed = match (self.writer.integer_power_witness(node), read_as_written) {
-            _ if !counted.is_empty() => counts_converted(&term, &counted, turned),
+            _ if !counted.is_empty() => {
+                // Every set the claim counts, and the item at the citation's
+                // values counts, each written from its page formula with why
+                // it is finite (`finite_proof`); one not shown finite has no
+                // count in ℕ to be taken to.
+                let item_at_values = self.at_values(&sentence.says, &cited.binding);
+                let mut finite: Vec<(Printed, Printed)> = Vec::new();
+                let mut seen: Vec<Node> = Vec::new();
+                for set in [node, &item_at_values]
+                    .into_iter()
+                    .flat_map(|n| n.walk())
+                    .filter(|c| &*c.notation_name() == "cardinality")
+                    .filter_map(|c| c.children.first().cloned())
+                {
+                    if seen.iter().any(|s| s.same_shape(&set)) {
+                        continue;
+                    }
+                    seen.push(set.clone());
+                    let (Route::Built(written), Some(proof)) =
+                        (self.writer.set_term(&set), self.finite_proof(&set))
+                    else {
+                        continue;
+                    };
+                    finite.push((written, proof));
+                }
+                counts_converted(&term, &finite, turned)
+            }
             _ if agrees => Proof::By(Tactic::Exact(term)),
             (Some(witness), _) => Proof::By(Tactic::Exact(witness)),
             // The item read in the step's spelling and met with the claim
@@ -10214,7 +10441,10 @@ impl<'a> Proof<'a> {
             (None, Some(read)) => read,
             (None, None) => self.closer(
                 node,
-                claim_lean.as_ref(),
+                claim_lean.as_ref().map(|printed| StepClaim {
+                    printed,
+                    stated: stated.is_some(),
+                }),
                 term,
                 says.as_ref(),
                 cited.facings.get(k).copied().flatten(),
@@ -11425,7 +11655,7 @@ impl<'a> Proof<'a> {
 
     /// `induction on Y starting at ∅` of "for all Y ⊆ X": the parts of a
     /// finite X, `LeanBridges.Sets.subset_induction`, X's finiteness from
-    /// the lines (`parley_finite`). The base is ∅; the step lets Y ⊆ X,
+    /// why it is (`finite_proof`). The base is ∅; the step lets Y ⊆ X,
     /// assumes the claim of Y under the page's label, and opens its own
     /// lines, a ∈ X ∖ Y, before proving it of Y ∪ {a}.
     fn subset_induction(
@@ -11456,10 +11686,14 @@ impl<'a> Proof<'a> {
             .insert(letter.text.to_string(), LetterType::Set(members));
         let open =
             || Printed::of(super::doc::TermKind::Open, super::doc::LeanType::Prop);
-        let finite = t::by_term(super::doc::Proof::By(t::bridge(
-            BridgeTactic::Finite,
-            vec![],
-        )));
+        // X's finiteness from why the checker says it is (`finite_proof`);
+        // `parley_finite` where the reason names nothing to write it from.
+        let finite = self.finite_proof(whole).unwrap_or_else(|| {
+            t::by_term(super::doc::Proof::By(t::bridge(
+                BridgeTactic::Finite,
+                vec![],
+            )))
+        });
         let induction = Printed::applied(
             "LeanBridges.Sets.subset_induction",
             super::doc::Source::Bridge(BridgeModule::Sets),
@@ -12721,67 +12955,6 @@ fn apart(
     }
 }
 
-/// The proof that a set is finite by how it is made alone, as
-/// `citing::finite::is_finite` reads it with no line saying a set is:
-/// `Set.finite_Icc _ _` of a range, `Set.toFinite _` of a listed set,
-/// `pA.powerset` of 𝒫A, `pA.subset (fun _ h => h.1)` of a part of A by a
-/// condition, ∩ or ∖, `pA.union pB`, `pA.image _`. None for a set finite
-/// only by what a line says, or not at all.
-fn finite_by_making(set: &Node) -> Option<Printed> {
-    use super::doc::TermKind;
-    let field = |inner: Printed, name: &str| projected(inner, &[name]);
-    let hole = || Printed::of(TermKind::Elided, super::doc::LeanType::Prop);
-    let constant = |name: &str| {
-        Printed::constant(
-            name,
-            super::doc::Source::Mathlib,
-            super::doc::LeanType::Prop,
-        )
-    };
-    let first_part = untyped_lambda(
-        &["_", "h"],
-        Printed {
-            kind: super::doc::TermKind::Field {
-                inner: Box::new(super::tactics::hyp("h")),
-                field: "1".to_string(),
-            },
-            ty: Some(super::doc::LeanType::Prop),
-        },
-    );
-    let part_of = |whole: Printed| {
-        applied_to(
-            field(whole, "subset"),
-            super::tactics::bracket(first_part.clone()),
-        )
-    };
-    match (
-        &*set.notation_name(),
-        &*set.spelling().text(),
-        set.children.as_slice(),
-    ) {
-        ("empty-set", _, _) => Some(constant("Set.finite_empty")),
-        ("singleton" | "listed-two" | "listed-three" | "listed-four", _, _) => {
-            Some(applied_to(constant("Set.toFinite"), hole()))
-        }
-        ("integer-range", _, _) => Some(applied_to(
-            applied_to(constant("Set.finite_Icc"), hole()),
-            hole(),
-        )),
-        ("powerset", _, [a]) => Some(field(finite_by_making(a)?, "powerset")),
-        ("set-builder", _, [_, a, _]) => Some(part_of(finite_by_making(a)?)),
-        ("set-operations", "∖", [a, _]) => Some(part_of(finite_by_making(a)?)),
-        ("set-operations", "∩", [a, _]) => Some(part_of(finite_by_making(a)?)),
-        ("set-operations", "∪", [a, b]) => Some(applied_to(
-            field(finite_by_making(a)?, "union"),
-            super::tactics::bracket(finite_by_making(b)?),
-        )),
-        ("set-image", _, [_, _, a]) => {
-            Some(applied_to(field(finite_by_making(a)?, "image"), hole()))
-        }
-        _ => None,
-    }
-}
-
 /// `parley_subst e`: the equation e put into the goal.
 fn subst_by(equation: &Printed) -> Tactic {
     use super::tactics as t;
@@ -12801,43 +12974,33 @@ fn put_into(tactic: BridgeTactic, equation: &Printed, into: &Printed) -> Tactic 
 }
 
 /// A citation whose item counts a set in one form and the claim in the
-/// other: `(have h := t; simp only [← Set.Finite.cast_ncard_eq (show
-/// S.Finite by parley_finite)] at h ⊢; exact_mod_cast h)`, each count in ℕ∞
-/// of a finite S written as its count in ℕ, after which the two differ
-/// only by casts; `h.symm` where the claim is the item's equation turned
-/// round.
+/// other: `(have h := t; simp only [← Set.Finite.cast_ncard_eq (p :
+/// S.Finite)] at h ⊢; exact_mod_cast h)`, each count in ℕ∞ of a finite S
+/// written as its count in ℕ, after which the two differ only by casts;
+/// `h.symm` where the claim is the item's equation turned round. `finite`
+/// holds each finite set the two count, S, with p, why it is.
 fn counts_converted(
     cited: &Printed,
-    sets: &[Printed],
+    finite: &[(Printed, Printed)],
     turned: bool,
 ) -> super::doc::Proof {
     use super::tactics as t;
-    // Each told its type, `({a} : Set α)`, as the count writes it; one
-    // rule for each set as printed.
-    let mut typed: Vec<Printed> = Vec::new();
-    for s in sets {
-        let t = match &s.ty {
-            Some(ty) => Printed::cast(s.clone(), ty.clone()),
-            None => t::bracket(s.clone()),
-        };
-        if !typed.iter().any(|u| u.text() == t.text()) {
-            typed.push(t);
-        }
-    }
-    let rules = typed
-        .into_iter()
-        .map(|typed| {
-            let finite = Printed::of(
+    let rules = finite
+        .iter()
+        .map(|(set, proof)| {
+            // Told its type, `({a} : Set α)`, as the count writes it.
+            let typed = match &set.ty {
+                Some(ty) => Printed::cast(set.clone(), ty.clone()),
+                None => t::bracket(set.clone()),
+            };
+            let says = Printed::of(
                 super::doc::TermKind::Field {
                     inner: Box::new(typed),
                     field: "Finite".to_string(),
                 },
                 super::doc::LeanType::Prop,
             );
-            let proof = shown(
-                finite,
-                super::doc::Proof::By(t::bridge(BridgeTactic::Finite, vec![])),
-            );
+            let proof = ascribed(proof.clone(), says);
             t::backwards(Printed::applied(
                 "Set.Finite.cast_ncard_eq",
                 super::doc::Source::Mathlib,

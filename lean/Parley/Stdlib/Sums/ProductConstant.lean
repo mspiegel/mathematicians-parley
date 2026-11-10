@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import InstanceTactics
 public import NormTactics
 public import PowerTactics
 public import SetTactics
@@ -44,7 +45,7 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
   -- 1. induction on Y starting at ∅
   have r74_1 : X.Finite := by parley_set_side
   have s1 : ∀ Y ∈ 𝒫 X, (∏ᶠ x ∈ Y, (c : ℝ)) = c ^ Y.ncard := by
-    refine LeanBridges.Sets.subset_induction (by parley_finite) ?_ ?_
+    refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
       -- 1.1. mun:product-empty
       have s1_1 : (∏ᶠ x ∈ (∅ : Set α), (c : ℝ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : α => c)))
@@ -69,7 +70,9 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       -- 1.8. mun:card-nat0 X := Y, from 1.6
       have s1_8 : 0 ≤ (Y.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := Y) s1_6)
       -- 1.9. mun:exponent-step a := c, m := |Y|, from 1.8
-      have s1_9 : c ^ (Y.ncard + 1) = c ^ Y.ncard * c := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)); parley_set_side)
+      have s1_9 : c ^ (Y.ncard + 1) = c ^ Y.ncard * c := by
+        have hI : c ^ (Y.ncard + 1) = c ^ Y.ncard * c := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) (by parley_set_side)))
+        exact hI
       -- 1.10. substitute ∏(x ∈ Y) c = c^|Y| (IH) into line 1.7
       have s1_10 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ Y.ncard * c := by (have h := Eq.subst (motive := (fun t : ℝ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = t * c)) hIH s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.11. transitivity, from 1.10, 1.9

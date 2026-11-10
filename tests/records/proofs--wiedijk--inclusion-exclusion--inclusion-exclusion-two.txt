@@ -13,10 +13,8 @@ step 12 cites stdlib/sets/intersection-commutes group 0; Y := B, Z := A; conclud
 step 13 cites stdlib/sets/intersection-and-difference-disjoint group 0; Y := B, Z := A; concludes 0 AsWritten; from no line; supplied by ; letters Y none from none, Z none from none; facing straight
 step 15 cites stdlib/sets/intersection-and-difference group 0; Y := B, Z := A; concludes 0 AsWritten; from no line; supplied by ; letters Y none from none, Z none from none; facing straight
 step 17 cites stdlib/counting/card-disjoint-union group 0; X := A ∩ B, Y := B ∖ A, m := |A ∩ B|, n := |B ∖ A|; concludes 0 AsWritten; from no line; supplied by 7 sentence 0, 6 sentence 0, unstated, unstated, 14 sentence 0; letters X none from none, Y none from none, m cn0 from cn0, n cn0 from cn0; facing straight
-finite A
-finite B
-only A is finite makes finite A
-only B is finite makes finite B
+finite A, by Said("A is finite")
+finite B, by Said("B is finite")
 read 15: |A ∪ B| = |A| + |B| − |A ∩ B|  as  equality:=(cardinality:||(set-operations:∪(name:A, name:B)), additive:−(additive:+(cardinality:||(name:A), cardinality:||(name:B)), cardinality:||(set-operations:∩(name:A, name:B))))  a statement
 read 19: A  as  name:A  a set of things of a sort not yet settled
 read 20: B  as  name:B  a set of things of a sort not yet settled

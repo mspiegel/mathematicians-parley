@@ -4,6 +4,7 @@ use std::borrow::Cow;
 use std::cell::{OnceCell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use indexmap::IndexMap;
 
@@ -222,10 +223,10 @@ pub struct Library<'a> {
     record_sorts: Cow<'a, IndexMap<usize, Sorts>>,
     items: IndexMap<String, usize>,
     proved: IndexMap<String, Proved<'a>>,
-    cache: RefCell<IndexMap<String, Option<Rc<Vec<Group>>>>>,
+    cache: RefCell<IndexMap<String, Option<Arc<Vec<Group>>>>>,
     /// Every item's groups as the checker read them, where this library is
     /// the build's: it then reads no item itself (`read_by_checker`).
-    read_by_checker: Option<&'a IndexMap<String, Option<Rc<Vec<Group>>>>>,
+    read_by_checker: Option<&'a IndexMap<String, Option<Arc<Vec<Group>>>>>,
     /// Which notations are an existential, a universal, a membership, a
     /// biconditional, an implication and a negation, taken from what they
     /// target in the kernel rather than named here; a conjunction is the
@@ -317,7 +318,7 @@ impl<'a> Library<'a> {
         record_sorts: Cow<'a, IndexMap<usize, Sorts>>,
         proved: IndexMap<String, Proved<'a>>,
         env: Env<'a>,
-        groups: &'a IndexMap<String, Option<Rc<Vec<Group>>>>,
+        groups: &'a IndexMap<String, Option<Arc<Vec<Group>>>>,
     ) -> Library<'a> {
         Library {
             read_by_checker: Some(groups),
@@ -352,14 +353,14 @@ impl<'a> Library<'a> {
 
     /// The groups of the item of that full name, or None where no item has
     /// it.
-    pub fn groups(&self, name: &str) -> Option<Rc<Vec<Group>>> {
+    pub fn groups(&self, name: &str) -> Option<Arc<Vec<Group>>> {
         if let Some(read) = self.read_by_checker {
             return read.get(name).cloned().flatten();
         }
         if let Some(found) = self.cache.borrow().get(name) {
             return found.clone();
         }
-        let found = self.read(name).map(Rc::new);
+        let found = self.read(name).map(Arc::new);
         self.cache
             .borrow_mut()
             .insert(name.to_string(), found.clone());
@@ -502,7 +503,7 @@ impl<'a> Library<'a> {
     /// The groups of every item a citation may name, a record's and a
     /// proved theorem's, by its full name, for the build to cite from
     /// (`LibraryReading`).
-    pub fn all_groups(&self) -> IndexMap<String, Option<Rc<Vec<Group>>>> {
+    pub fn all_groups(&self) -> IndexMap<String, Option<Arc<Vec<Group>>>> {
         self.items
             .keys()
             .chain(self.proved.keys())

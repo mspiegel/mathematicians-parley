@@ -69,13 +69,13 @@ fn a_part_of_a_finite_set_is_finite_in_the_steps_it_is_in_scope() {
     // Y is finite at 1.5.
     let i = step_index(&read, PRODUCT_CONSTANT, "1.5");
     assert!(
-        record.finite_at[i].contains("Y"),
+        record.finite_at[i].contains_key("Y"),
         "{:?}",
         record.finite_at[i]
     );
     // At step 1, which owns the induction, no line in scope lets Y.
     assert!(
-        !record.finite_at[0].contains("Y"),
+        !record.finite_at[0].contains_key("Y"),
         "{:?}",
         record.finite_at[0]
     );
@@ -95,7 +95,7 @@ fn an_items_hypotheses_make_its_sets_finite_and_bound_its_terms() {
     // finite-part asks X is finite.
     let facts = &read.library.item_facts["stdlib/counting/finite-part"];
     assert!(
-        facts.iter().any(|g| g.finite.sets.contains("X")),
+        facts.iter().any(|g| g.finite.sets.contains_key("X")),
         "{:?}",
         facts.iter().map(|g| &g.finite.sets).collect::<Vec<_>>()
     );

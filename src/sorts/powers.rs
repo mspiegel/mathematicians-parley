@@ -187,13 +187,14 @@ impl Settling<'_> {
         } else {
             node.with_children(children)
         };
-        if let Some((from, to)) = node.span() {
-            made.set_span(from, to);
-        }
-        if node.grouped() {
-            made.set_grouped();
-        }
-        Ok(made)
+        let made = match node.span() {
+            Some((from, to)) => made.spanned(from, to),
+            None => made,
+        };
+        Ok(match node.grouped() {
+            true => made.in_brackets(),
+            false => made,
+        })
     }
 
     /// Whether a letter is a number, a set or a function that needs not be

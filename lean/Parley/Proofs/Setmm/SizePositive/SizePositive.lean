@@ -25,7 +25,7 @@ namespace Parley.Proofs.Setmm.SizePositive.SizePositive
 theorem size_positive {α : Type*} (A : Set α) (hH2 : A.Finite) (hH3 : ¬ A = ∅) :
     0 < (A.ncard : ℤ) := by
   -- 1. thm:size-at-least-one, from H3
-  have s1 : 1 ≤ (A.ncard : ℤ) := by (have h := (Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne.size_at_least_one (A := A) hH3); simp only [← Set.Finite.cast_ncard_eq (show (A : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
+  have s1 : 1 ≤ (A.ncard : ℤ) := by (have h := (Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne.size_at_least_one (A := A) hH3); simp only [← Set.Finite.cast_ncard_eq ((hH2 : (A : Set α).Finite))] at h ⊢; exact_mod_cast h)
   -- 2. mun:card-nat0, from H2
   have s2 : 0 ≤ (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH2)
   -- 3. inequalities, from 1

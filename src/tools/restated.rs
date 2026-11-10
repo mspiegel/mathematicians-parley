@@ -659,8 +659,15 @@ fn built_and_verified(
         for (path, text) in files {
             read.write(path, text.clone().into_bytes());
         }
-        let checked = match crate::checker::checked(&read) {
-            Ok(checked) => checked,
+        // A restatement gives every letter its value on purpose, so no pair
+        // is asked whether it does work (`checker::PairsAsked`).
+        let all = |_: &crate::corpus::Theorem| true;
+        let ask = crate::checker::Ask {
+            wanted: &all,
+            pairs: crate::checker::PairsAsked::No,
+        };
+        let checked = match crate::checker::front(&read, &ask) {
+            Ok(front) => front.checked,
             Err(out) => return out,
         };
         let mut maker = Maker::new(source, &checked, libraries);

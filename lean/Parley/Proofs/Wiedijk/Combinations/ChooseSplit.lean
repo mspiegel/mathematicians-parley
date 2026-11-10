@@ -3,7 +3,6 @@ module
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -20,8 +19,6 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
@@ -41,8 +38,11 @@ set_option maxHeartbeats 800000 in
 theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ) (hH4 : X.Finite) :
     {S ∈ 𝒫 X | (S.ncard : ℤ) = j} = {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j} ∪ (fun T : Set α => T ∪ ({a} : Set α)) '' {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j - 1} := by
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1
+  have hD1_finite : F.Finite := by rw [hD1]; exact ((hH4).powerset).subset (fun _ h => h.1)
   set U : Set (Set α) := {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j} with hD2
+  have hD2_finite : U.Finite := by rw [hD2]; exact (((hH4).subset (fun _ h => h.1)).powerset).subset (fun _ h => h.1)
   set V : Set (Set α) := {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j - 1} with hD3
+  have hD3_finite : V.Finite := by rw [hD3]; exact (((hH4).subset (fun _ h => h.1)).powerset).subset (fun _ h => h.1)
   set W : Set (Set α) := (fun T : Set α => T ∪ ({a} : Set α)) '' V with hD4
   -- 1. proof
   have s1 : ∀ R ∈ F, R ∈ U ∪ W := by
@@ -55,7 +55,8 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     have s1_1b : (R.ncard : ℤ) = j := by
       try simp only [hD1] at *
       try push_cast at *
-      first | linear_combination (norm := parley_norm) (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2 | exact_mod_cast ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2).symm | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2; rify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2; qify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2; parley_int_power h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2; parley_set_side)
+      have hI : (R.ncard : ℤ) = j := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).2)
+      exact hI
     -- 1.2. axi:excluded-middle P := a ∈ R
     have s1_2 : a ∈ R ∨ ¬ a ∈ R := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a ∈ R))
     -- 1.3. cases, from 1.2
@@ -115,7 +116,8 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     have s4_1b : (R.ncard : ℤ) = j := by
       try simp only [hD2] at *
       try push_cast at *
-      first | linear_combination (norm := parley_norm) (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2 | exact_mod_cast ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2).symm | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2; rify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2; qify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2; parley_int_power h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2; parley_set_side)
+      have hI : (R.ncard : ℤ) = j := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp (by parley_set_side)).2)
+      exact hI
     -- 4.2. mun:subset-transitive, from 3, 4.1
     have s4_2 : R ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := R) (Y := X \ ({a} : Set α)) (Z := X) s4_1a s3)
     -- 4.3. def:part-builder u := R, from D1, 4.1, 4.2
@@ -133,7 +135,8 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     have s6_1b : (T.ncard : ℤ) = j - 1 := by
       try simp only [hD3] at *
       try push_cast at *
-      first | linear_combination (norm := parley_norm) (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2) | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2 | exact_mod_cast ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2).symm | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2; rify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2; qify; linear_combination (norm := parley_norm) h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2; parley_int_power h) | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2; parley_set_side)
+      have hI : (T.ncard : ℤ) = j - 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp (by parley_set_side)).2)
+      exact hI
     -- 6.2. mun:subset-transitive, from 3, 6.1
     have s6_2 : T ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := T) (Y := X \ ({a} : Set α)) (Z := X) s6_1a s3)
     -- 6.3. mun:singleton-subset, from H2

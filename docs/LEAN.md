@@ -174,8 +174,10 @@ number, a set, a member of one, a map or function between sets, a property, a
 group or one of its elements, or a polynomial. Nothing lists the theorems; the build grows as fields are added. A
 theorem left out is printed with what keeps it out, `it writes notation
 set-operations, which has no lean-builds field`. A theorem that is in and that the
-writer cannot write, or Lean refuses, is a gap of the Lean build and the gate
-is red.
+writer cannot write is a gap of the Lean build, and the gate is red. A
+theorem the checker refuses, or a file Lean does not read, is a failure: it
+is not built, nor is what cites it, every such failure is reported in one
+run, and the build exits 1 (`ELABORATION.md`).
 
 ## Number types
 
@@ -250,9 +252,13 @@ finite, and otherwise `Set.encard`, in ℕ∞, as set.mm's ♯ counts an infinit
 set as ∞; a set has one count form in each theorem. A set is finite where a
 hypothesis, or a line in scope in words (`A is finite`, `B ⊆ A` of a finite
 A), says so, and where it is ∅, listed, a range, or made by ∖, ∩, ∪, 𝒫,
-{x ∈ A : …} or {E(s) : s ∈ A} from finite sets. A count given as a number,
-|Y| = 2, makes its set finite only as a hypothesis: a line cannot vouch for
-itself, so a step's |Y| = 2 is written in ℕ∞, and so are the lines after it. A
+{x ∈ A : …} or {E(s) : s ∈ A} from finite sets. A count given as a number
+the page shows positive, |Y| = 2 or |Y| = n of an n ∈ ℕ, makes its set
+finite, in its own line and the lines after it: `Y.ncard = 2` holds of no
+infinite set, whose `ncard` is 0. A count given as a number that may be 0,
+|Y| = m, makes its set finite for the lines after it too, since
+`Y.encard = m` says Y has m elements; the line itself is written in ℕ∞,
+`Y.encard = m`, since `Y.ncard = 0` holds of every infinite set too. A
 citation whose item counts a set in the other form converts it: each count in
 ℕ∞ of a finite set is taken to its count in ℕ by `Set.Finite.cast_ncard_eq`,
 then `exact_mod_cast`. Where a set is not finite by these, a
