@@ -128,12 +128,14 @@ The equation's line is turned with `.symm` where the record puts its left
 side for its right, read from the line as the page writes it, with its
 defines kept (`FirstAt::written`). The result is stated by a `have`, so that
 a numeral exponent defaults to ℕ, and closed by `push_cast at h ⊢` and
-`exact_mod_cast h`. A substitution keeps the earlier ways, registered as
-"substitute: equation put in", where the record has none or the motive does
-not state it as written:
-- a place that is an exponent, unless the page says the term put for and
-  the term put are whole numbers, where the motive's letter is said whole
-  as well;
+`exact_mod_cast h`. At a place that is an exponent, the motive's letter is
+written as the line writes the term put for: said whole, a natural power's
+`toNat`, else an integer power. Where the term put is written the other way,
+the power the motive gives there is converted to the claim's, the exponent's
+fact from the record, as a citation's is (see "Number types"). A
+substitution keeps the earlier ways, registered as "substitute: equation put
+in", where the record has none or the motive does not state it as written:
+- a place that is an exponent in a type with no integer powers, ℤ;
 - a fact the line implies and does not write;
 - a line, or a motive, of a term written as the whole number it is;
 - a line in a narrower type than the equation; in a wider one, the equation

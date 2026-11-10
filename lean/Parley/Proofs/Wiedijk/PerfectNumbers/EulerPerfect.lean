@@ -73,7 +73,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s2 : k ≠ 0 := by
     intro hS1
     -- 2.1. substitute k = 0 (S1) into line 1
-    have s2_1 : n = 2 ^ 0 * m := by parley_subst_at hS1 s1d
+    have s2_1 : n = 2 ^ 0 * m := by (have h := Eq.subst (motive := (fun t : ℤ => n = 2 ^ t.toNat * m)) hS1 s1d; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.2. calculation
     have s2_2 : n = m := by
       calc n = 2 ^ 0 * m := by exact s2_1

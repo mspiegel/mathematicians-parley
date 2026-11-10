@@ -23,10 +23,8 @@ lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals
 lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.15	substitute: equation put in
 lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/PowerOfTwoEven.lean	3	row: equation put in
 lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/LogThreeOverTwoIrrational.lean	2.11	substitute: equation put in
-lean/Parley/Proofs/Hammack/MersennePrimeExponent/PrimeExponent.lean	4.9	substitute: equation put in
 lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/NinePowerIsThreePower.lean	3	row: equation put in
 lean/Parley/Proofs/Hammack/PrimeByTrialDivision/PrimeByTrialDivision.lean	1.11.7	cited: item and claim in different types
-lean/Parley/Proofs/Hammack/SqrtOfOddPowerOfThree/SqrtOfOddPowerOfThree.lean	10	substitute: equation put in
 lean/Parley/Proofs/Hammack/SumOfFactorialQuotients/FactorialQuotientStep.lean	4	substitute: equation put in
 lean/Parley/Proofs/Hammack/WeightedBinomialSum/BinomialRowSum.lean	2.3	substitute: equation put in
 lean/Parley/Proofs/Hammack/WeightedBinomialSum/WeightedRowSum.lean	6	cited: ring atoms apart
@@ -51,10 +49,6 @@ lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	6.2	cited: other shape, met 
 lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForB.lean	8.1	cited: other shape, met otherwise than written
 lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	24	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	25	row: equation put in
-lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	8.3	substitute: equation put in
-lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	12	substitute: equation put in
-lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	20.3	substitute: equation put in
-lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	20.3	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	cited: ring atoms apart
 lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.2	cited: other shape, met otherwise than written
@@ -76,10 +70,8 @@ lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	4	substitute: equation
 lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.8	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtLeast.lean	2.3	row: equation put in
 lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean	2.5	row: equation put in
-lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	3	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.2	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	cited: item and claim in different types
-lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	row: read off a cited line
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	10	definition read backwards

@@ -73,9 +73,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 10. calculation
   have r50_1 : 0 ≤ m + m := by parley_side
   have s10 : (3 ^ k.toNat : ℚ) = 3 ^ m * 3 ^ m * 3 := by
-    calc (3 ^ k.toNat : ℚ) = 3 ^ (m + m + 1) := by
-          have s8_w : (k : ℚ) = (m : ℚ) + (m : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s8; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst s8_w | parley_subst s8
+    calc (3 ^ k.toNat : ℚ) = 3 ^ (m + m + 1) := by (have h := congrArg (fun t : ℤ => ((3 ^ t.toNat) : ℚ)) s8; simp only [parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num))] at h ⊢; exact_mod_cast h)
       _ = 3 ^ (m + m) * 3 := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℚ)) (m := m + m) (by parley_side)); simp only [parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num)), parley_zpow_toNat (n := m + m) (h := r50_1)] at h ⊢; exact_mod_cast h)
       _ = 3 ^ m * 3 ^ m * 3 := by (have h := congrArg (fun t : ℚ => t * 3) s9; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. def:sqrt x := 3

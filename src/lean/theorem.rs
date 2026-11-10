@@ -7260,6 +7260,14 @@ impl<'a> Proof<'a> {
         self.exponents_whole_in(&[claim, &item], &known)
     }
 
+    /// Whether two statements, as Lean writes them, differ in no form the
+    /// writer chose (`forms::differences`).
+    fn forms_alike(&self, a: &Printed, b: &Printed) -> bool {
+        let templates = self.writer.templates;
+        let widen = |head: &str, at| templates.same_function_at(head, at);
+        super::doc::forms::differences(a, b, &widen).is_empty()
+    }
+
     /// A line read, `says`, met with the claim, `wanted`, where the two
     /// differ only in a power one writes as an integer power and the other
     /// to its exponent's `toNat`: each converted as a citation's is
@@ -8288,11 +8296,15 @@ impl<'a> Proof<'a> {
         };
         let said_whole =
             |n: &Node| self.writer.said_whole(n) && !self.writer.natural(n);
-        if exponent && !(said_whole(was) && said_whole(now)) {
-            return Route::no("a substitution into an exponent of no term said whole");
-        }
+        // The motive's letter is written as the line writes the term put for:
+        // said whole, a natural power's `toNat`, else an integer power.
+        // Where the term put is written the other way, the power the motive
+        // gives there is converted to the claim's after (`int_exponent`,
+        // `powers_converted_at`), the exponent's fact from the record.
+        let int_exponent = exponent && !(said_whole(was) && said_whole(now));
+        let whole_was = exponent && said_whole(was);
         let whole_letter = |w: &mut Writer, letter: &str| {
-            if exponent {
+            if whole_was {
                 w.wholes
                     .insert(letter.to_string(), super::expr::System::NonNegative);
             }
@@ -8461,7 +8473,7 @@ impl<'a> Proof<'a> {
                 // is that line.
                 let claimed = self.writer.formula(claim).built();
                 let line_said = self.line_statement(&into).built();
-                let one_form = [claimed, line_said].iter().all(|said| {
+                let one_form = [&claimed, &line_said].iter().all(|said| {
                     said.as_ref().is_some_and(|c| {
                         std::mem::discriminant(&c.kind)
                             == std::mem::discriminant(&body.kind)
@@ -8472,8 +8484,8 @@ impl<'a> Proof<'a> {
                         "a motive written in another form than the claim or the line",
                     );
                 }
-                let motive = lambda(letter, LeanType::Num(place_type), body);
-                let closed = close(applied(
+                let motive = lambda(letter, LeanType::Num(place_type), body.clone());
+                let put_in = applied(
                     "Eq.subst",
                     vec![
                         super::doc::Arg::Named {
@@ -8483,11 +8495,136 @@ impl<'a> Proof<'a> {
                         super::doc::Arg::Explicit(equation),
                         super::doc::Arg::Explicit(into.proof),
                     ],
-                ));
+                );
+                let closed = match int_exponent {
+                    false => close(put_in),
+                    // The motive at the new term, its power an integer one,
+                    // converted to the claim's natural power, the exponent's
+                    // fact from the record.
+                    true => {
+                        let now_written = match inner.number_fixed(now, place_type) {
+                            Route::Built(p) => p,
+                            Route::Declined(d) => return Route::Declined(d),
+                        };
+                        let given = std::collections::BTreeMap::from([(
+                            super::names::letter(letter),
+                            now_written,
+                        )]);
+                        let result = body.substituted(&given);
+                        let converted = claimed.as_ref().and_then(|c| {
+                            self.powers_converted_at(
+                                &[claim, &rec.start, now],
+                                &result,
+                                c,
+                                &put_in,
+                                false,
+                            )
+                        });
+                        let alike = claimed
+                            .as_ref()
+                            .is_some_and(|c| self.forms_alike(&result, c));
+                        match (converted, alike) {
+                            (Some(proof), _) => proof,
+                            // Nothing left to convert: closed as any other.
+                            (None, true) => close(put_in),
+                            (None, false) => return Route::no(
+                                "a substitution into an exponent of no term said whole",
+                            ),
+                        }
+                    }
+                };
                 Route::Built(match (widen, closed) {
                     (Some(have), Proof::By(tactic)) => Proof::Block(vec![have, tactic]),
                     (_, closed) => closed,
                 })
+            }
+            // Into an exponent of a side whose term put for is not said whole:
+            // the motive's letter an integer, its power an integer one, in
+            // the calculation's field, and what `congrArg` gives converted
+            // to the claim's natural powers, each exponent's fact from the
+            // record (`powers_converted_at`).
+            SubstitutedInto::ClaimSide(side) if int_exponent => {
+                use super::doc::Op;
+                use super::templates::Num;
+                let at = match self.writer.carrier(&rec.start) {
+                    Route::Built(n) => {
+                        n.max(ty).max(self.worked_in.get().unwrap_or(Num::Int))
+                    }
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                // An integer power is a field's.
+                if !whole_was && at < Num::Rat {
+                    return Route::no(
+                        "a substitution into an exponent of no term said whole",
+                    );
+                }
+                let body = match inner.number(&marked, at) {
+                    Route::Built(b) => b,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                // Told its type where nothing in it fixes one, numerals and
+                // the motive's letter alone, as a calculation's first term is.
+                let body = match inner.pinned(&marked) {
+                    true => body,
+                    false => Printed::cast(t::bracket(body), inner.num_type(at)),
+                };
+                let (Route::Built(was_written), Route::Built(now_written)) =
+                    (inner.number_fixed(was, ty), inner.number_fixed(now, ty))
+                else {
+                    return Route::no(
+                        "a substitution into an exponent of no term said whole",
+                    );
+                };
+                let at_value = |v: Printed| {
+                    body.substituted(&std::collections::BTreeMap::from([(
+                        super::names::letter(letter),
+                        v,
+                    )]))
+                };
+                let (before, after) = (at_value(was_written), at_value(now_written));
+                let motive = lambda(letter, LeanType::Num(ty), body.clone());
+                let made = applied(
+                    "congrArg",
+                    vec![
+                        super::doc::Arg::Explicit(motive),
+                        super::doc::Arg::Explicit(equation),
+                    ],
+                );
+                let (made, result) = match side {
+                    0 => (
+                        made,
+                        Printed::infix(Op::EQUALS, before, after, LeanType::Prop),
+                    ),
+                    _ => (
+                        t::symm(t::bracket(made)),
+                        Printed::infix(Op::EQUALS, after, before, LeanType::Prop),
+                    ),
+                };
+                let claimed = self
+                    .row_stated
+                    .borrow()
+                    .clone()
+                    .or_else(|| self.writer.formula(claim).built());
+                let converted = claimed.as_ref().and_then(|c| {
+                    self.powers_converted_at(
+                        &[claim, &rec.start, was, now],
+                        &result,
+                        c,
+                        &made,
+                        false,
+                    )
+                });
+                let alike = claimed
+                    .as_ref()
+                    .is_some_and(|c| self.forms_alike(&result, c));
+                match (converted, alike) {
+                    (Some(proof), _) => Route::Built(proof),
+                    // Nothing left to convert: closed as any other.
+                    (None, true) => Route::Built(close(made)),
+                    (None, false) => Route::no(
+                        "a substitution into an exponent of no term said whole",
+                    ),
+                }
             }
             SubstitutedInto::ClaimSide(side) => {
                 // Written in the wider of the claim side's type and the
