@@ -12,6 +12,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Analysis.Real.Sqrt
@@ -21,8 +22,10 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
@@ -66,18 +69,14 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 8. algebra, from 1
   have s8 : k = m + m + 1 := by linear_combination (norm := parley_norm) s1
   -- 9. mun:exponent-sum a := 3, n := m, from 5
-  have s9 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by
-    have hI : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (3 : ℚ)) (m := m) (by parley_side) (n := m) (by parley_side)))
-    exact hI
+  have s9 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (3 : ℚ)) (m := m) (by parley_side) (n := m) (by parley_side)); simp only [parley_zpow_toNat (n := m + m) (h := add_nonneg (s5) (s5)), parley_zpow_toNat (n := m) (h := s5)] at h ⊢; exact_mod_cast h)
   -- 10. calculation
   have r50_1 : 0 ≤ m + m := by parley_side
   have s10 : (3 ^ k.toNat : ℚ) = 3 ^ m * 3 ^ m * 3 := by
     calc (3 ^ k.toNat : ℚ) = 3 ^ (m + m + 1) := by
           have s8_w : (k : ℚ) = (m : ℚ) + (m : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s8; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s8_w | parley_subst s8
-      _ = 3 ^ (m + m) * 3 := by
-          have hI : (3 ^ (m + m + 1) : ℚ) = 3 ^ (m + m) * 3 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℚ)) (m := m + m) (by parley_side)))
-          exact hI
+      _ = 3 ^ (m + m) * 3 := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℚ)) (m := m + m) (by parley_side)); simp only [parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num)), parley_zpow_toNat (n := m + m) (h := r50_1)] at h ⊢; exact_mod_cast h)
       _ = 3 ^ m * 3 ^ m * 3 := by (have h := congrArg (fun t : ℚ => t * 3) s9; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. def:sqrt x := 3
   have r57_1 : (3 : ℤ) ≥ 0 := by parley_arith

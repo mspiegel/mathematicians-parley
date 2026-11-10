@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -15,6 +14,7 @@ public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Basic.SetLike.Basic
@@ -79,9 +79,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     -- 8.3. calculation
     have r87_1 : 0 ≤ m - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m) (k := k) hJ)
     have s8_3 : x ^ (m - k) * x = x ^ (m + 1 - k) := by
-      calc x ^ (m - k) * x = x ^ (m - k + 1) := by
-            have hI : x ^ (m - k + 1) = x ^ (m - k) * x := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)))
-            exact hI.symm
+      calc x ^ (m - k) * x = x ^ (m - k + 1) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); simp only [parley_zpow_toNat (n := m - k) (h := r87_1), parley_zpow_toNat (n := m - k + 1) (h := add_nonneg (r87_1) (by norm_num))] at h ⊢; exact_mod_cast h.symm)
         _ = x ^ (m + 1 - k) := by
             have s8_2_w : (m : ℝ) - (k : ℝ) + 1 = (m : ℝ) + 1 - (k : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s8_2; push_cast at h; linear_combination (norm := parley_norm) h
             first | parley_subst s8_2_w | parley_subst s8_2

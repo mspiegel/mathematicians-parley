@@ -5,6 +5,7 @@ public import Counting
 public import FactorialTactics
 public import InstanceTactics
 public import NormTactics
+public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -27,6 +28,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -55,9 +57,7 @@ theorem binomial_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
     -- 2.1. mun:one-power m := m − k
     have s2_1 : (1 ^ (m - k) : ℚ) = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := m - k))
     -- 2.2. mun:one-power m := k
-    have s2_2 : (1 ^ k.toNat : ℤ) = 1 := by
-      have hI : (1 ^ k.toNat : ℤ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := k)))
-      exact hI
+    have s2_2 : (1 ^ k.toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); simp only [parley_zpow_toNat (n := k) (h := le_trans (by norm_num) (Finset.mem_Icc.mp hJ).1)] at h ⊢; exact_mod_cast h)
     -- 2.3. calculation
     calc (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) * 1 ^ k.toNat := by parley_subst s2_1
       _ = (LeanBridges.Counting.choose m k : ℚ) := by

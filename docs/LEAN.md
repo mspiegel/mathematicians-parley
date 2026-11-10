@@ -81,8 +81,8 @@ two trees are compared (`doc::forms`). Casts are first pushed down, as
 `push_cast` pushes them, and a relation in a narrower type is cast up to the
 other's. What is left is a form the writer chose: a count in ℕ beside one in
 ℕ∞, a `toNat` on one side, or a cast to another type. A count is converted as
-described under "Sets and functions", and any other difference fails the
-build. An item that Lean writes exactly as it writes the line closes the step
+described under "Sets and functions", and a power as described under "Number
+types"; any other difference fails the build. An item that Lean writes exactly as it writes the line closes the step
 by `exact` alone.
 
 How a line proves a statement elsewhere comes from the record. A block's last
@@ -192,9 +192,11 @@ On the page every number is a number. In Lean each has a type, and three
 traps follow: subtraction in ℕ stops at 0, division in ℤ rounds down, and
 Lean's ℕ starts at 0 where the page's starts at 1.
 
-- A letter keeps its own type. `let n ∈ ℕ` is `(n : ℕ) (H1 : 0 < n)`;
-  `let n ∈ ℕ₀` is `(n : ℕ)`; `let a ∈ ℤ` is `(a : ℤ)`, and so for ℚ, ℝ, ℂ;
-  `let k ∈ {1, …, n}` is `(k : ℤ) (H1 : k ∈ Finset.Icc 1 n)`. A letter a
+- A letter of ℕ or ℕ₀ is an integer with its fact, as Metamath has n ∈ ℕ
+  as a fact about a number: `let n ∈ ℕ` is `(n : ℤ) (hH1 : 0 < n)` and
+  `let n ∈ ℕ₀` is `(n : ℤ) (hH1 : 0 ≤ n)`. Any other letter keeps its own
+  type: `let a ∈ ℤ` is `(a : ℤ)`, and so for ℚ, ℝ, ℂ; `let k ∈ {1, …, n}`
+  is `(k : ℤ) (hH1 : k ∈ Finset.Icc 1 n)`. A letter a
   library item puts in a range without letting it, the k of `range`'s "k ∈
   {1, …, n} ↔ k ∈ ℕ and k ≤ n", is `(k : ℤ)` too: of any other k both sides
   are false.
@@ -204,6 +206,21 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   `f(n) = ((−1)^n·(2n − 1) + 1)/4` with n ∈ ℕ is written in ℚ.
 - A power whose exponent is no natural number, `x^(−1)`, is Lean's integer
   power, taken in ℚ at least.
+- A power whose exponent the page says once is in ℕ₀, `2^n` of n ∈ ℕ, is the
+  natural power `2 ^ n.toNat`. Any other integer exponent, `2^(n − 1)`, gives
+  the integer power, even after a line says the exponent is in ℕ₀, so that
+  every line writes one term one way. A citation whose item writes a power
+  the other way converts it, as a count is converted: each integer power
+  `a ^ e` whose exponent is shown at least 0 is rewritten as `a ^ e.toNat` by
+  `parley_zpow_toNat`, then `exact_mod_cast`. The proof of `0 ≤ e` is named
+  from what the checker found:
+  - the line the citation supplies the item's `m ∈ ℕ₀` from;
+  - a line in scope saying e ∈ ℕ or ℕ₀;
+  - a line in scope putting e in a range that starts at a number at least 0;
+  - a numeral;
+  - a sum or product of such parts (`add_nonneg`, `mul_nonneg`).
+
+  An exponent shown in none of these ways fails the build.
 - A claim of numerals alone reached from lines is written in the type of
   those lines, and a cited line of a narrower type than the claim is cast up
   to the claim's type before it is used.

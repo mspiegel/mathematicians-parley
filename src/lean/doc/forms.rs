@@ -198,6 +198,47 @@ pub fn with_natural_counts(term: &Term, sets: &[Term]) -> Term {
     out
 }
 
+/// The term with each integer power to one of the exponents, `a ^ e` of an
+/// `e` in ℤ, written as the natural power to its `toNat`, `a ^ e.toNat`:
+/// what rewriting by `parley_zpow_toNat`, each exponent's `0 ≤ e` given,
+/// makes of it.
+pub fn with_natural_powers(term: &Term, exponents: &[Term]) -> Term {
+    use super::term::Op;
+    let mut out = term.clone();
+    if let TermKind::Infix { op, lhs, rhs } = &mut out.kind {
+        if *op == Op::POWER
+            && rhs.ty == Some(LeanType::Num(Num::Int))
+            && exponents.iter().any(|e| alike(e, rhs))
+        {
+            let natural =
+                Term::of(TermKind::ToNat(rhs.clone()), LeanType::Num(Num::Nat));
+            **lhs = with_natural_powers(lhs, exponents);
+            **rhs = natural;
+            return out;
+        }
+    }
+    for child in out.children_mut() {
+        *child = with_natural_powers(child, exponents);
+    }
+    out
+}
+
+/// The exponents of the integer powers in a term, `e` of each `a ^ e` with
+/// `e` in ℤ.
+pub fn integer_exponents(term: &Term) -> Vec<Term> {
+    use super::term::Op;
+    let mut out = Vec::new();
+    if let TermKind::Infix { op, rhs, .. } = &term.kind {
+        if *op == Op::POWER && rhs.ty == Some(LeanType::Num(Num::Int)) {
+            out.push((**rhs).clone());
+        }
+    }
+    for child in children(term) {
+        out.extend(integer_exponents(child));
+    }
+    out
+}
+
 /// The constant that is a library function at another type.
 pub type Widen<'a> = dyn Fn(&str, Num) -> Option<super::term::ConstRef> + 'a;
 
@@ -1629,6 +1670,98 @@ mod tests {
         let other = Term::letter("q", LeanType::Prop);
         assert_eq!(substituted(&lambda, "h", &other).text(), "fun a h => h");
         assert_eq!(substituted(&lambda, "a", &other).text(), "fun a h => h");
+    }
+
+    /// `2 ^ e = 1` with e an integer, beside `2 ^ e.toNat = 1`.
+    struct PowersApart {
+        /// The equation with the integer power.
+        integer: Term,
+        /// The equation with the natural power to the exponent's `toNat`.
+        natural: Term,
+        exponent: Term,
+    }
+
+    fn powers_apart() -> PowersApart {
+        use super::super::term::Op;
+        let e = infix(
+            Op::MINUS,
+            int_letter("n"),
+            Term::numeral("1", int()),
+            Num::Int,
+        );
+        let two = Term::numeral("2", LeanType::Num(Num::Rat));
+        let one = Term::numeral("1", LeanType::Num(Num::Rat));
+        let integer = infix(Op::POWER, two.clone(), e.clone(), Num::Rat);
+        let to_nat = Term::of(
+            TermKind::ToNat(Box::new(e.clone())),
+            LeanType::Num(Num::Nat),
+        );
+        let natural = infix(Op::POWER, two, to_nat, Num::Rat);
+        let equals = |l: Term| Term::infix(Op::EQUALS, l, one.clone(), LeanType::Prop);
+        PowersApart {
+            integer: equals(integer),
+            natural: equals(natural),
+            exponent: e,
+        }
+    }
+
+    #[test]
+    fn an_integer_power_of_an_exponent_shown_whole_meets_its_natural_power() {
+        let none = |_: &str, _: Num| None;
+        let PowersApart {
+            integer,
+            natural,
+            exponent: e,
+        } = powers_apart();
+        assert_eq!(
+            differences(&natural, &integer, &none),
+            vec![FormDifference::ToNat { in_item: true }]
+        );
+        let exponents = [e];
+        assert!(differences(
+            &with_natural_powers(&natural, &exponents),
+            &with_natural_powers(&integer, &exponents),
+            &none
+        )
+        .is_empty());
+    }
+
+    #[test]
+    fn an_integer_power_of_no_exponent_shown_whole_stays_apart() {
+        let none = |_: &str, _: Num| None;
+        let PowersApart {
+            integer, natural, ..
+        } = powers_apart();
+        let other = [int_letter("m")];
+        assert_eq!(
+            differences(
+                &with_natural_powers(&integer, &other),
+                &with_natural_powers(&natural, &other),
+                &none
+            ),
+            vec![FormDifference::ToNat { in_item: false }]
+        );
+    }
+
+    #[test]
+    fn a_to_nat_outside_an_exponent_stays_apart() {
+        use super::super::term::Op;
+        let none = |_: &str, _: Num| None;
+        let n = int_letter("n");
+        let m = Term::letter("m", LeanType::Num(Num::Nat));
+        let to_nat = Term::of(
+            TermKind::ToNat(Box::new(n.clone())),
+            LeanType::Num(Num::Nat),
+        );
+        let natural = Term::infix(Op::EQUALS, to_nat, m.clone(), LeanType::Prop);
+        let integer = Term::infix(Op::EQUALS, n.clone(), m, LeanType::Prop);
+        let exponents = [n];
+        assert!(!differences(
+            &with_natural_powers(&natural, &exponents),
+            &with_natural_powers(&integer, &exponents),
+            &none
+        )
+        .is_empty());
     }
 
     #[test]

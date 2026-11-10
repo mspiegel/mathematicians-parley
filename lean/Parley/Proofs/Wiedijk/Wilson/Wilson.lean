@@ -21,6 +21,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.Real.Basic
@@ -150,9 +151,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
           have row1 : (a ^ (p - 1).toNat) ≡ (1 : ℤ) [ZMOD p] := by parley_subst_at c1 s5_7_1
           exact row1)
       -- 5.7.3. mun:exponent-step m := p − 2, from 5.3
-      have s5_7_3 : (a : ℚ) ^ (p - 2 + 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by
-        have hI : (a : ℚ) ^ (p - 2 + 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (a : ℚ)) (m := p - 2) (by parley_set_side)))
-        exact hI
+      have s5_7_3 : (a : ℚ) ^ (p - 2 + 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (a : ℚ)) (m := p - 2) (by parley_set_side)); simp only [parley_zpow_toNat (n := p - 2 + 1) (h := add_nonneg (le_of_lt s5_3) (by norm_num)), parley_zpow_toNat (n := p - 2) (h := le_of_lt s5_3)] at h ⊢; exact_mod_cast h)
       -- 5.7.4. substitute
       have s5_7_4 : (a : ℚ) ^ (p - 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by
         have c1 : p - 2 + 1 = p - 1 := by parley_ring

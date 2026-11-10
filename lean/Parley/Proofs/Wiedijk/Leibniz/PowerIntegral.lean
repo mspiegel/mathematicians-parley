@@ -2,7 +2,7 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import InstanceTactics
+public import PowerTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -33,6 +33,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -136,9 +137,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 23. D2, from 22
   have s23 : q 1 = 1 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 24. mun:one-power m := m + 1
-  have s24 : (1 ^ (m + 1).toNat : ℤ) = 1 := by
-    have hI : (1 ^ (m + 1).toNat : ℤ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)))
-    exact hI
+  have s24 : (1 ^ (m + 1).toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); simp only [parley_zpow_toNat (n := m + 1) (h := le_of_lt s1)] at h ⊢; exact_mod_cast h)
   -- 25. D2, from 21
   have s25 : q 0 = 0 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 26. mun:zero-power n := m + 1, from 1

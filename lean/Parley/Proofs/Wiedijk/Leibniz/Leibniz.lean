@@ -4,6 +4,7 @@ public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
+public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -14,6 +15,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.InnerProductSpace.Basic
 public import Mathlib.Analysis.InnerProductSpace.Defs
 public import Mathlib.Analysis.Normed.Group.Defs
@@ -32,6 +34,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -40,6 +43,7 @@ public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -89,9 +93,7 @@ theorem leibniz :
       have s3_2_4 : (abs ((-1) ^ (n + 1).toNat) : ℤ) = 1 := by
         calc (abs ((-1) ^ (n + 1).toNat) : ℤ) = abs (-1) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_abs_power (x := (-1 : ℤ)) (n := n + 1) (by parley_side))
           _ = 1 ^ (n + 1).toNat := by (have h := congrArg (fun t : ℤ => t ^ (n + 1).toNat) s3_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 1 := by
-              have hI : (1 ^ (n + 1).toNat : ℤ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)))
-              exact hI
+          _ = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); simp only [parley_zpow_toNat (n := n + 1) (h := add_nonneg (le_of_lt hK2) (by norm_num))] at h ⊢; exact_mod_cast h)
       -- 3.2.5. thm:integral-bounds n := n + 1
       have s3_2_5a : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (by parley_side)).2.1
       have s3_2_5b : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * ((n : ℝ) + 1) + 1) := by

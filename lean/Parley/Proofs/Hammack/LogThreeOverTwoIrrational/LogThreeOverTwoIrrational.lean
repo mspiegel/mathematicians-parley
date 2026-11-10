@@ -75,9 +75,7 @@ theorem log_three_over_two_irrational :
     have r115_2 : (2 : ℤ) > 0 := by parley_arith
     have r115_3 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_5 : Real.log (3 ^ q.toNat : ℝ) = Real.log (2 ^ p : ℝ) := by
-      calc Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by
-            have hI : Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by parley_instance ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (3 : ℝ)) (n := q) (by parley_side)))
-            exact hI
+      calc Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (3 : ℝ)) (n := q) (by parley_side)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
         _ = (p : ℝ) * Real.log (2 : ℝ) := by linear_combination (norm := parley_field) (Real.log (2 : ℝ) * (q : ℝ)) * s2_1b
         _ = Real.log (2 ^ p : ℝ) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := p) (by parley_side)).symm
     -- 2.6. mun:power-positive a := 3, m := q

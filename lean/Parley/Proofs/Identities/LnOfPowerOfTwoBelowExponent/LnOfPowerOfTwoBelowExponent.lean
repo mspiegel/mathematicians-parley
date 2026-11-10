@@ -2,8 +2,8 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import InstanceTactics
 public import OrderTactics
+public import PowerTactics
 public import RealTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
@@ -12,8 +12,8 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
@@ -34,9 +34,7 @@ theorem ln_of_power_of_two_below_exponent (n : ℤ) (hH1 : 0 < n) :
   have s2 : n > 0 := by parley_order
   -- 3. calculation
   have r16_1 : (2 : ℤ) > 0 := by parley_arith
-  calc Real.log (2 ^ n.toNat : ℝ) = (n : ℝ) * Real.log (2 : ℝ) := by
-        have hI : Real.log (2 ^ n.toNat : ℝ) = (n : ℝ) * Real.log (2 : ℝ) := by parley_instance ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := n) (by parley_side)))
-        exact hI
+  calc Real.log (2 ^ n.toNat : ℝ) = (n : ℝ) * Real.log (2 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := n) (by parley_side)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt hH1)] at h ⊢; exact_mod_cast h)
     _ < (n : ℝ) * 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.log (2 : ℝ)) (y := (1 : ℝ)) (c := (n : ℝ)) (by parley_side))).mp s1
     _ = (n : ℝ) := by parley_ring
 

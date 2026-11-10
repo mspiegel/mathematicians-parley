@@ -5,6 +5,7 @@ public import ArithTactics
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
+public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -52,8 +53,7 @@ theorem nine_power_is_three_power (m : ℤ) :
         have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr (by parley_side))
         exact hI
       -- 4.2. thm:nine-power-from-zero n := m, from 4.1
-      have hI : (9 ^ m : ℚ) = 3 ^ m * 3 ^ m := by parley_instance_cast ((Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := m) (by parley_side)))
-      exact hI
+      (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := m) (by parley_side)); simp only [parley_zpow_toNat (n := m) (h := s4_1)] at h ⊢; exact_mod_cast h)
     · skip
       -- 4.3. inequalities
       have s4_3 : -m > 0 := by parley_order
@@ -63,9 +63,7 @@ theorem nine_power_is_three_power (m : ℤ) :
         have hI : 0 ≤ -m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr (by parley_side))
         exact hI
       -- 4.5. thm:nine-power-from-zero n := −m, from 4.4
-      have s4_5 : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by
-        have hI : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by parley_instance_cast ((Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := -m) (by parley_side)))
-        exact hI
+      have s4_5 : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := -m) (by parley_side)); simp only [parley_zpow_toNat (n := -m) (h := s4_4)] at h ⊢; exact_mod_cast h)
       -- 4.6. thm:positive-power-is-real a := 9
       have r146_1 : (9 : ℤ) > 0 := by parley_arith
       -- 4.7. thm:positive-power-is-real a := 3

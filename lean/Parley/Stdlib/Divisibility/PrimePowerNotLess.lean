@@ -12,6 +12,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
@@ -56,9 +57,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
     refine ⟨(p ^ (a' - a).toNat), ?_, by (push_cast; simp only [whole1]; all_goals ring)⟩
     (exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := p) (by parley_side) (m := a' - a) (by parley_side)))
   -- 3.4. mun:exponent-sum a := p, m := a, n := a′ − a, from 3.2
-  have s3_4 : (p : ℚ) ^ (a + (a' - a)) = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by
-    have hI : (p : ℚ) ^ (a + (a' - a)) = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (p : ℚ)) (m := a) (by parley_side) (n := a' - a) (by parley_side)))
-    exact hI
+  have s3_4 : (p : ℚ) ^ (a + (a' - a)) = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (p : ℚ)) (m := a) (by parley_side) (n := a' - a) (by parley_side)); simp only [parley_zpow_toNat (n := a + (a' - a)) (h := add_nonneg (hH3) (le_of_lt s3_2)), parley_zpow_toNat (n := a' - a) (h := le_of_lt s3_2)] at h ⊢; exact_mod_cast h)
   -- 3.5. substitute
   have s3_5 : (p : ℚ) ^ a'.toNat = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by
     have c1 : a + (a' - a) = a' := by parley_ring
