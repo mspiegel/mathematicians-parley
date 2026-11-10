@@ -58,6 +58,11 @@ exactly what the check refuses.
 - `Cited::facings`: for each conclusion a citation takes, whether the item's
   equation, read at the citation's values, meets the claim's equation
   straight or turned round.
+- `Cited::meetings`: for each conclusion a citation takes, how the item's
+  sentence, read at the citation's values, met the claim's
+  (`Known::alike_how`), with the identity elements dropped on the way, x − 0
+  read as x. Lean rewrites by those identities (`sub_zero`, `zero_add`, …)
+  where it converts a power at the step.
 - `Cited::firsts`: the line, or the sentence of one, a reading of a
   definition starts from, with the fact as the page writes it
   (`FirstAt::written`). Metamath unfolds the definition from it; Lean gives

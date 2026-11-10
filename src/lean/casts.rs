@@ -41,6 +41,9 @@ pub enum CastOp {
     Sin,
     Cos,
     Floor,
+    /// An integer taken to ℕ, `n.toNat`, of a natural number cast up:
+    /// `((a : ℕ) : ℤ).toNat` is a.
+    ToNat,
     Sum,
     Prod,
     /// An equation, `a = b`.
@@ -287,6 +290,13 @@ const TABLES: &[OpTable] = &[
         facts: &[moves_by_norm_cast(Q, R)],
     },
     OpTable {
+        op: CastOp::ToNat,
+        binders: "(a : {S})",
+        lhs: "((a : {S}) : {T}).toNat",
+        rhs: "a",
+        facts: &[moves_both(N, Z)],
+    },
+    OpTable {
         op: CastOp::Sum,
         binders: "(s : Finset ℕ) (f : ℕ → {S})",
         lhs: "((∑ i ∈ s, f i : {S}) : {T})",
@@ -477,6 +487,13 @@ pub fn norm_cast_form(term: &Term) -> Term {
         TermKind::Cast { inner, .. } | TermKind::Paren(inner) => {
             return norm_cast_form(inner)
         }
+        // A natural number written in ℤ and taken back to ℕ is that number
+        // (the table's `ToNat`).
+        TermKind::ToNat(inner) => {
+            if let Some(natural) = as_natural(inner) {
+                return norm_cast_form(&natural);
+            }
+        }
         TermKind::Enclosed {
             open: "‖", inner, ..
         } if matches!(inner.kind, TermKind::Cast { .. }) => {
@@ -499,6 +516,37 @@ pub fn norm_cast_form(term: &Term) -> Term {
         *c = norm_cast_form(c);
     }
     out.untyped()
+}
+
+/// A term written in ℤ that is a natural number as `norm_cast` reads it,
+/// as that natural number: a natural number cast up, an integer's `toNat`,
+/// a numeral, and a sum, product or power to a natural exponent of such,
+/// `(2 : ℤ) ^ k.toNat` as `2 ^ k.toNat`. None of any other term, a
+/// difference among them, which ℕ does not compute as ℤ does.
+pub fn as_natural(term: &Term) -> Option<Term> {
+    use super::doc::{LeanType, Op, TermKind};
+    let nat = LeanType::Num(Num::Nat);
+    if term.ty == Some(nat.clone()) {
+        return Some(term.clone());
+    }
+    match &term.kind {
+        TermKind::Paren(inner) => as_natural(inner),
+        TermKind::Cast { inner, .. } => as_natural(inner),
+        TermKind::ToNat(_) => Some(term.clone()),
+        TermKind::Numeral(_) => Some(Term {
+            kind: term.kind.clone(),
+            ty: Some(nat),
+        }),
+        TermKind::Infix { op, lhs, rhs } if *op == Op::PLUS || *op == Op::TIMES => {
+            Some(Term::infix(*op, as_natural(lhs)?, as_natural(rhs)?, nat))
+        }
+        TermKind::Infix { op, lhs, rhs }
+            if *op == Op::POWER && rhs.ty == Some(nat.clone()) =>
+        {
+            Some(Term::infix(*op, as_natural(lhs)?, (**rhs).clone(), nat))
+        }
+        _ => None,
+    }
 }
 
 /// `|x|`.
@@ -635,6 +683,9 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
             moves_all(lhs, &under(at), by) && moves_all(rhs, &under(at), by)
         }
         TermKind::Neg(inner) => moves_all(inner, &under(Some(CastOp::Neg)), by),
+        // An integer taken to ℕ is a natural number whatever it is of: a
+        // cast inside it stands under it alone, as under a norm.
+        TermKind::ToNat(inner) => moves_all(inner, &[Some(CastOp::ToNat)], by),
         TermKind::Enclosed { open, inner, .. } => {
             match *open {
                 "|" => moves_all(inner, &under(Some(CastOp::Abs)), by),

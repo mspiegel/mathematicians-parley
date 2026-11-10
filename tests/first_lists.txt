@@ -46,12 +46,10 @@
 2	lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	cited: ring atoms apart; substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	12	substitute: equation put in
 2	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	20.3	substitute: equation put in
-1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	23	cited: toNat in different places
 1	lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	8.3	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.2	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.5	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	16	substitute: equation put in
-1	lean/Parley/Proofs/Wiedijk/GeometricSeries/GeometricSum.lean	1.1	cited: toNat in different places
 1	lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean	2.2	cited: casts push_cast does not move
 1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralOfArctanDerivative.lean	12.4	row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/Leibniz/Leibniz.lean	3.2.8	substitute: equation put in
@@ -71,7 +69,7 @@
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	3	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.2	substitute: equation put in
 2	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	cited: item and claim in different types; substitute: equation put in
-3	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	cited: toNat in different places; named numbers put in; row: read off a cited line
+2	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in; row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	23.2	cited: item and claim in different types
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	31	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeFactorisation.lean	1.11	cited: item and claim in different types

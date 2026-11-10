@@ -656,7 +656,9 @@ fn integer_powers_under_binders(term: &Printed) -> usize {
 /// - of numerals alone, the numeral it works out to (`Int.reduceToNat`),
 ///   `(2 : ℤ).toNat` as `2`;
 /// - of a sum, the sum of the parts' (`Int.toNat_add`), and of a product,
-///   the product of the parts' (`Int.toNat_mul`).
+///   the product of the parts' (`Int.toNat_mul`);
+/// - of a natural number written in ℤ, that number (`casts::as_natural`,
+///   `Int.toNat_natCast`).
 ///
 /// The writer writes `(t).toNat` only of a term the said-once rule puts in
 /// ℕ₀ (`Writer::said_whole`), which puts a sum or a product there by its
@@ -673,6 +675,9 @@ fn to_nat_read(term: &Printed) -> Printed {
     let TermKind::ToNat(inner) = &out.kind else {
         return out;
     };
+    if let Some(natural) = super::casts::as_natural(inner) {
+        return natural;
+    }
     let lettered = |t: &Printed| {
         t.walk()
             .iter()
@@ -697,10 +702,13 @@ fn to_nat_read(term: &Printed) -> Printed {
 
 /// The `toNat`s a statement as Lean writes it takes, each by its text, in
 /// order, read as `parley_norm` reads them (`to_nat_read`), with no
-/// ascription of a term to its own type.
+/// ascription of a term to its own type and its bound letters renamed in
+/// order (`forms::bound_renamed`).
 fn to_nat_texts(term: &Printed) -> Vec<String> {
     use super::doc::TermKind;
-    let read = super::doc::forms::ascriptions_dropped(&to_nat_read(term));
+    let read = super::doc::forms::bound_renamed(
+        &super::doc::forms::ascriptions_dropped(&to_nat_read(term)),
+    );
     read.walk()
         .into_iter()
         .filter(|t| match &t.kind {
@@ -7289,8 +7297,17 @@ impl<'a> Proof<'a> {
             &forms::with_natural_powers(wanted, &exponents),
             &widen,
         );
+        let conversion = Conversion {
+            finite: &[],
+            whole: &whole,
+            bound: &[],
+            cast_powers: false,
+            identities: &[],
+            numeral_to_nat: leaves_numeral_to_nat(&facing)
+                || leaves_numeral_to_nat(wanted),
+        };
         (!whole.is_empty() && left.is_empty())
-            .then(|| forms_converted(proof, &[], &whole, &[], false, turned))
+            .then(|| forms_converted(proof, &conversion, turned))
     }
 
     /// Each exponent of a power in the page formulas `pages` that the
@@ -10445,6 +10462,11 @@ impl<'a> Proof<'a> {
         // The powers under a sum whose exponent names its letter, converted
         // for each letter in its range.
         let mut bound: Vec<super::doc::forms::BoundPower> = Vec::new();
+        // The rewrites of the identity elements the checker dropped meeting
+        // the reading with the claim (`Cited::meetings`).
+        let mut identities: Vec<&'static str> = Vec::new();
+        // Whether a numeral's `toNat` is left once a reading is worked out.
+        let mut numeral_to_nat = false;
         // A line that is the item's equation turned round, compared turned
         // back and closed by the equation's `symm`.
         let mut turned = false;
@@ -10484,7 +10506,36 @@ impl<'a> Proof<'a> {
                     true => forms::turned(&claim),
                     false => claim,
                 };
-                let mut found = forms::differences(&compared, &claim, &widen);
+                // The identity elements the checker dropped meeting the two,
+                // x − 0 read as x (`Cited::meetings`), dropped from both as
+                // the conversion's rewrites drop them, and compared so.
+                identities = cited
+                    .meetings
+                    .get(k)
+                    .cloned()
+                    .flatten()
+                    .map(|m| m.identities.iter().filter_map(identity_lemma).collect())
+                    .unwrap_or_default();
+                identities.sort_unstable();
+                identities.dedup();
+                // With functions given as values applied first, as `simp`
+                // reads them: (fun k => x ^ (m + 1 - k)) 0 is x ^ (m + 1 - 0).
+                let (compared, claim_read) = match identities.is_empty() {
+                    true => (compared, claim.clone()),
+                    false => (
+                        forms::with_identities_dropped(
+                            &forms::beta_reduced(&compared),
+                            &identities,
+                        ),
+                        forms::with_identities_dropped(
+                            &forms::beta_reduced(&claim),
+                            &identities,
+                        ),
+                    ),
+                };
+                numeral_to_nat = leaves_numeral_to_nat(&compared)
+                    || leaves_numeral_to_nat(&claim_read);
+                let mut found = forms::differences(&compared, &claim_read, &widen);
                 if forward {
                     found.retain(|d| matches!(d, forms::FormDifference::ToNat { .. }));
                 }
@@ -10512,7 +10563,7 @@ impl<'a> Proof<'a> {
                 if !counted.is_empty() {
                     found = forms::differences(
                         &forms::with_natural_counts(&compared, &counted),
-                        &forms::with_natural_counts(&claim, &counted),
+                        &forms::with_natural_counts(&claim_read, &counted),
                         &widen,
                     );
                 }
@@ -10524,7 +10575,7 @@ impl<'a> Proof<'a> {
                 // of a natural number cast up, `a ^ (k : ℤ)`, is the natural
                 // power `a ^ k` with no fact asked (`zpow_natCast`).
                 let natural_casts = forms::casts_natural_exponent(&compared)
-                    || forms::casts_natural_exponent(&claim);
+                    || forms::casts_natural_exponent(&claim_read);
                 let apart = |d: &forms::FormDifference| match d {
                     forms::FormDifference::ToNat { .. } => true,
                     forms::FormDifference::Cast { .. } => natural_casts,
@@ -10533,7 +10584,7 @@ impl<'a> Proof<'a> {
                 if found.iter().any(apart) {
                     cast_powers = natural_casts;
                     let mut zpow = forms::integer_exponents(&compared);
-                    zpow.extend(forms::integer_exponents(&claim));
+                    zpow.extend(forms::integer_exponents(&claim_read));
                     powered = self
                         .exponents_shown_whole(cited, sentence, node)
                         .into_iter()
@@ -10552,7 +10603,7 @@ impl<'a> Proof<'a> {
                         .collect();
                     bound = forms::bound_integer_powers(&compared)
                         .into_iter()
-                        .chain(forms::bound_integer_powers(&claim))
+                        .chain(forms::bound_integer_powers(&claim_read))
                         .filter(|b| range_lower(&b.over).is_some())
                         .filter(|b| {
                             apart_at.iter().any(|t| forms::alike(t, &b.exponent))
@@ -10570,8 +10621,11 @@ impl<'a> Proof<'a> {
                                 &exponents,
                             )
                         };
-                        found =
-                            forms::differences(&read(&compared), &read(&claim), &widen);
+                        found = forms::differences(
+                            &read(&compared),
+                            &read(&claim_read),
+                            &widen,
+                        );
                         if forward {
                             found.retain(|d| {
                                 matches!(d, forms::FormDifference::ToNat { .. })
@@ -10586,6 +10640,7 @@ impl<'a> Proof<'a> {
                     && powered.is_empty()
                     && !cast_powers
                     && bound.is_empty()
+                    && identities.is_empty()
                     && !claim.is_truth()
                     && forms::one_term_once_set(&compared, &claim, &self.set_values());
                 for d in found {
@@ -10839,7 +10894,15 @@ impl<'a> Proof<'a> {
                 || cast_powers
                 || !bound.is_empty() =>
             {
-                forms_converted(&term, &finite, &powered, &bound, cast_powers, turned)
+                let conversion = Conversion {
+                    finite: &finite,
+                    whole: &powered,
+                    bound: &bound,
+                    cast_powers,
+                    identities: &identities,
+                    numeral_to_nat,
+                };
+                forms_converted(&term, &conversion, turned)
             }
             _ if agrees => Proof::By(Tactic::Exact(term)),
             (Some(witness), _) => Proof::By(Tactic::Exact(witness)),
@@ -13484,6 +13547,39 @@ fn membership_of_whole(sentence: &Node) -> Option<(&Node, crate::rules::System)>
     matches!(system, System::N | System::N0).then_some((term, system))
 }
 
+/// Whether a statement, its functions applied (`forms::beta_reduced`), takes
+/// a numeral to ℕ, `(0 : ℤ).toNat` of `fun k => y ^ k.toNat` at 0.
+fn leaves_numeral_to_nat(term: &Printed) -> bool {
+    use super::doc::TermKind;
+    super::doc::forms::beta_reduced(term).walk().iter().any(|t| {
+        matches!(&t.kind, TermKind::ToNat(inner)
+            if super::casts::as_natural(inner).is_some()
+                && matches!(&super::doc::forms::ascriptions_dropped(inner).kind, TermKind::Numeral(_)))
+    })
+}
+
+/// What a citation's conversion rewrites (`forms_converted`).
+struct Conversion<'a> {
+    /// Each finite set the two count, with why it is finite: its count in
+    /// ℕ∞ written as its count in ℕ.
+    finite: &'a [ShownFinite],
+    /// Each exponent at least 0, with why: the integer power written as the
+    /// natural power to its `toNat`.
+    whole: &'a [NonNegative],
+    /// Each power under a sum whose exponent names its letter, converted for
+    /// each letter in the sum's range.
+    bound: &'a [super::doc::forms::BoundPower],
+    /// An integer power of a natural number cast up, `a ^ (k : ℤ)`, written
+    /// as the natural power `a ^ k` (`zpow_natCast`).
+    cast_powers: bool,
+    /// The rewrites of the identity elements the checker dropped meeting the
+    /// two (`Cited::meetings`), `sub_zero` of x − 0.
+    identities: &'a [&'static str],
+    /// A numeral's `toNat` the reading leaves, `(0 : ℤ).toNat`, worked out
+    /// (`Int.reduceToNat`).
+    numeral_to_nat: bool,
+}
+
 /// A citation whose item writes a term in one form and the claim in the
 /// other, each form one the writer chose under a fact the record gives:
 /// `(have h := t; simp only [← Set.Finite.cast_ncard_eq (p : S.Finite),
@@ -13491,19 +13587,17 @@ fn membership_of_whole(sentence: &Node) -> Option<(&Node, crate::rules::System)>
 /// count in ℕ∞ of a finite S is written as its count in ℕ, and each integer
 /// power `a ^ e` of an e at least 0 as the natural power `a ^ e.toNat`,
 /// after which the two differ only by casts; `h.symm` where the claim is
-/// the item's equation turned round. `finite` holds each finite set the two
-/// count, S, with p, why it is; `whole` each exponent with q, why it is at
-/// least 0. `cast_powers` adds `zpow_natCast`, an integer power of a natural
-/// number cast up, `a ^ (k : ℤ)`, as the natural power `a ^ k`.
-fn forms_converted(
-    cited: &Printed,
-    finite: &[ShownFinite],
-    whole: &[NonNegative],
-    bound: &[super::doc::forms::BoundPower],
-    cast_powers: bool,
-    turned: bool,
-) -> super::doc::Proof {
+/// the item's equation turned round (`Conversion` says what is converted).
+fn forms_converted(cited: &Printed, c: &Conversion, turned: bool) -> super::doc::Proof {
     use super::tactics as t;
+    let Conversion {
+        finite,
+        whole,
+        bound,
+        cast_powers,
+        identities,
+        numeral_to_nat,
+    } = c;
     let powers = whole.iter().map(|w| {
         t::forwards(Printed {
             kind: super::doc::TermKind::App {
@@ -13552,6 +13646,8 @@ fn forms_converted(
         .chain(powers)
         .chain(cast_powers.then(|| t::forwards(t::lemma("zpow_natCast"))))
         .chain((0..bound.len()).map(|k| t::forwards(t::hyp(&format!("hb{}", k + 1)))))
+        .chain(identities.iter().map(|l| t::forwards(t::lemma(l))))
+        .chain(numeral_to_nat.then(|| t::forwards(t::lemma("Int.reduceToNat"))))
         .collect();
     let mut steps: Vec<Tactic> = bound
         .iter()

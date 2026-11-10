@@ -56,13 +56,11 @@ lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	8.3	substitute: equation p
 lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	12	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	20.3	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	20.3	substitute: equation put in
-lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean	23	cited: toNat in different places
 lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	cited: ring atoms apart
 lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.2	cited: other shape, met otherwise than written
 lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean	12.3.5.5	cited: other shape, met otherwise than written
 lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	16	substitute: equation put in
-lean/Parley/Proofs/Wiedijk/GeometricSeries/GeometricSum.lean	1.1	cited: toNat in different places
 lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean	2.2	cited: casts push_cast does not move
 lean/Parley/Proofs/Wiedijk/Leibniz/PowerIntegral.lean	19.3	row: read off a cited line
 lean/Parley/Proofs/Wiedijk/Leibniz/IntegralOfArctanDerivative.lean	12.4	row: read off a cited line
@@ -83,7 +81,6 @@ lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	3	substitute: equat
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.2	substitute: equation put in
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	cited: item and claim in different types
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	7	substitute: equation put in
-lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	cited: toNat in different places
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	row: read off a cited line
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in
 lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	10	definition read backwards

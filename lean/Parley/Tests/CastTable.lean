@@ -262,6 +262,10 @@ example : True := by
   trivial
 example (a : ℚ) : (⌊a⌋ : ℤ) = ⌊(a : ℝ)⌋ := by norm_cast
 
+-- ToNat ℕ to ℤ: push_cast moves, norm_cast moves
+example (a : ℕ) : ((a : ℕ) : ℤ).toNat = a := by push_cast; try rfl
+example (a : ℕ) : ((a : ℕ) : ℤ).toNat = a := by norm_cast
+
 -- Sum ℕ to ℤ: push_cast moves, norm_cast moves
 example (s : Finset ℕ) (f : ℕ → ℕ) : ((∑ i ∈ s, f i : ℕ) : ℤ) = ∑ i ∈ s, (f i : ℤ) := by push_cast; try rfl
 example (s : Finset ℕ) (f : ℕ → ℕ) : ((∑ i ∈ s, f i : ℕ) : ℤ) = ∑ i ∈ s, (f i : ℤ) := by norm_cast

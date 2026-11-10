@@ -480,6 +480,11 @@ pub struct Cited {
     /// faces the other (`citations::facings`); None where either is no
     /// equation, or no side of the one is alike a side of the other.
     pub facings: Vec<Option<Facing>>,
+    /// For each of `concluded`, how the sentence read at the binding met
+    /// the claim's sentence it gives (`Known::alike_how`): the identity
+    /// elements dropped among it, x − 0 read as x; None where the two were
+    /// not met as wholes.
+    pub meetings: Vec<Option<crate::matching::Meeting>>,
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.

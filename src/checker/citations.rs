@@ -269,6 +269,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     let facings = facings(&groups, taken, &parts.claims, known, library);
+    let meetings = meetings(&groups, taken, &parts.claims, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -278,6 +279,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         supplied,
         item_letters,
         facings,
+        meetings,
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
@@ -321,6 +323,32 @@ fn facings(
             } else {
                 None
             }
+        })
+        .collect()
+}
+
+/// For each sentence `taken` concludes, how the item's sentence read at the
+/// binding met the claim's sentence it gives (`record::Cited::meetings`), as
+/// `Known::alike_how` meets them; None where the two do not meet as wholes.
+fn meetings(
+    groups: &[Group],
+    taken: &Taken,
+    claims: &[Node],
+    known: &Known,
+    library: &Library,
+) -> Vec<Option<crate::matching::Meeting>> {
+    let group = &groups[taken.group];
+    taken
+        .concluded
+        .iter()
+        .enumerate()
+        .map(|(k, c)| {
+            let said = group.gives.get(c.sentence)?;
+            let read = readings(said, library)
+                .into_iter()
+                .find(|r| r.way == c.way)?;
+            let item = filled(&read.claimed, &taken.binding, &library.ctx);
+            known.alike_how(&item, claims.get(k)?)
         })
         .collect()
 }
@@ -525,6 +553,7 @@ pub fn cited_requires(
     let item_letters =
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     let facings = facings(&groups, &taken, &parts.claims, known, library);
+    let meetings = meetings(&groups, &taken, &parts.claims, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -534,6 +563,7 @@ pub fn cited_requires(
         supplied,
         item_letters,
         facings,
+        meetings,
         binding: taken.binding,
         bound: taken.bound,
         written: parts.seed,

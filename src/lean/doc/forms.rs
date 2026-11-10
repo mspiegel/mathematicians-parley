@@ -315,6 +315,37 @@ pub fn casts_natural_exponent(term: &Term) -> bool {
     children(term).into_iter().any(casts_natural_exponent)
 }
 
+/// The term with each identity element the rewrites `lemmas` drop taken
+/// out, everywhere, as `simp only` with them takes it: `x - 0` as `x` by
+/// `sub_zero`, `0 + x` as `x` by `zero_add`, and so for `add_zero`,
+/// `mul_one`, `one_mul`, `div_one` and `pow_one`.
+pub fn with_identities_dropped(term: &Term, lemmas: &[&str]) -> Term {
+    use super::term::Op;
+    let mut out = term.clone();
+    for child in out.children_mut() {
+        *child = with_identities_dropped(child, lemmas);
+    }
+    let is = |t: &Term, digits: &str| matches!(&bare(t).kind, TermKind::Numeral(d) if d == digits);
+    if let TermKind::Infix { op, lhs, rhs } = &out.kind {
+        let kept = match op.symbol {
+            "+" if lemmas.contains(&"add_zero") && is(rhs, "0") => Some(lhs),
+            "+" if lemmas.contains(&"zero_add") && is(lhs, "0") => Some(rhs),
+            "-" if lemmas.contains(&"sub_zero") && is(rhs, "0") => Some(lhs),
+            "*" if lemmas.contains(&"mul_one") && is(rhs, "1") => Some(lhs),
+            "*" if lemmas.contains(&"one_mul") && is(lhs, "1") => Some(rhs),
+            "/" if lemmas.contains(&"div_one") && is(rhs, "1") => Some(lhs),
+            _ if *op == Op::POWER && lemmas.contains(&"pow_one") && is(rhs, "1") => {
+                Some(lhs)
+            }
+            _ => None,
+        };
+        if let Some(kept) = kept {
+            return (**kept).clone();
+        }
+    }
+    out
+}
+
 /// The exponents of the integer powers in a term, `e` of each `a ^ e` with
 /// `e` in ℤ.
 pub fn integer_exponents(term: &Term) -> Vec<Term> {
@@ -751,6 +782,12 @@ fn reduced(term: &Term) -> Term {
         }
         _ => out,
     }
+}
+
+/// The term with its bound letters renamed in order (`renamed_bound`), so
+/// that two terms apart only in those letters write alike.
+pub fn bound_renamed(term: &Term) -> Term {
+    renamed_bound(term, &mut 0)
 }
 
 /// The term with each letter a binder binds renamed in the order the

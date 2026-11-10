@@ -26,8 +26,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 
@@ -48,7 +46,7 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
       -- 1.1. calculation
       have s1_1 : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = 1 := by
         calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) := by parley_side
-          _ = a ^ 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))); parley_side)
+          _ = a ^ 0 := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ)))
           _ = 1 := by parley_ring
       -- 1.2. calculation
       have r26_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) (-1) * h)

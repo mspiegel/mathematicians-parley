@@ -222,6 +222,9 @@ Lean's ℕ starts at 0 where the page's starts at 1.
     rewritten as `a ^ e.toNat` by `parley_zpow_toNat`;
   - an integer power of a natural number cast up, `a ^ (k : ℤ)`, is
     rewritten as `a ^ k` by `zpow_natCast`;
+  - each identity element the checker dropped meeting the two
+    (`Cited::meetings`) is rewritten away, `sub_zero` of x − 0, and a
+    numeral's `toNat` is worked out (`Int.reduceToNat`);
   - then `exact_mod_cast` closes the step.
 
   The proof of `0 ≤ e` is written from why the said-once walk puts e in ℕ₀
