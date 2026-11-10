@@ -62,8 +62,6 @@ pub enum ListReason {
     /// A function the header lets by its value put in: the claim as it
     /// stands, or once worked out.
     HeaderFunction,
-    /// A power's exponent taken to ℕ by a fact in scope or an index's range.
-    NaturalPowers,
     /// A calculation row's equation put in by rewriting or substituting.
     RowPut,
     /// A calculation row read off a cited line, as it stands or turned, or
@@ -99,7 +97,6 @@ impl ListReason {
             ListReason::CitedUnstated => "cited: claim or item not stated",
             ListReason::NamedNumbers => "named numbers put in",
             ListReason::HeaderFunction => "header function put in",
-            ListReason::NaturalPowers => "exponents taken to ℕ",
             ListReason::RowPut => "row: equation put in",
             ListReason::RowRead => "row: read off a cited line",
             ListReason::DefineSides => "define: sides with defines written out",

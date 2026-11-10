@@ -212,8 +212,12 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   every line writes one term one way.
 
   A step may write a power one way while what it reads writes it the other.
-  What it reads is an item it cites as written or forward, or a line it
-  instantiates. The step then converts the power, as a count is converted:
+  What it reads is an item it cites as written or forward, a line it
+  instantiates, or the line a calculation row is read off. A part an
+  `obtain` takes from an item holds the part as the item's Lean statement
+  gives it, paired with the page's sentence as the checker paired them
+  (`CheckedTheorem::obtained_parts`), and a step citing that line reads that
+  statement. The step then converts the power, as a count is converted:
   - each integer power `a ^ e` whose exponent is shown at least 0 is
     rewritten as `a ^ e.toNat` by `parley_zpow_toNat`;
   - an integer power of a natural number cast up, `a ^ (k : ℤ)`, is
@@ -226,6 +230,8 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   - a part the walk does not take apart: from a line the step names, or from
     the line the checker found the item's `m ∈ ℕ₀` supplied by, with
     `le_of_lt` for a line of ℕ;
+  - a term a line in scope bounds below at 0 or above
+    (`CheckedTheorem::bounds`): from that line, `0 < e` by `le_of_lt`;
   - a letter: from the line that introduces it, which is its `let`, an
     induction's step case, a define of a kind, or a range from a numeral;
   - a numeral, by `norm_num`; a factorial, by `Nat.cast_nonneg`;

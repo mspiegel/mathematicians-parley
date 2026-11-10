@@ -51,7 +51,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s2_2b : s ≤ 5 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).2
     -- 2.3. calculation
     have s2_3 : y = s ^ 2 + 3 := by
-      calc y = f s := by parley_set_side
+      calc y = f s := by exact s2_1b
         _ = s ^ 2 + 3 := by exact (hH2 s)
     -- 2.4. mun:square-nonneg x := s
     have s2_4 : s ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := s))

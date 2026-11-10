@@ -13,12 +13,15 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -116,7 +119,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       calc (2 ^ n.toNat - 1 : ℚ) = 2 ^ (d * e) - 1 := by
             have s4_2_w : (n : ℚ) = (d : ℚ) * (e : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s4_2; push_cast at h; linear_combination (norm := parley_norm) h
             first | parley_subst s4_2_w | parley_subst s4_2
-        _ = (2 ^ d.toNat - 1) * (q : ℚ) := by first | parley_side | parley_line_toNat s4_8a | parley_line_toNat s4_8b | parley_line_toNat s4_8c
+        _ = (2 ^ d.toNat - 1) * (q : ℚ) := by (have h := s4_8b; simp only [parley_zpow_toNat (n := d * e) (h := mul_nonneg (le_of_lt hK1) (le_of_lt (lt_of_le_of_lt (by norm_num) s4_3)))] at h ⊢; exact_mod_cast h)
     -- 4.10. def:divides d := 2^d − 1, n := 2^n − 1, from 4.9
     have s4_10 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ d.toNat - 1 : ℤ)) (n := (2 ^ n.toNat - 1 : ℤ)))).mpr ⟨q, s4_9⟩
     -- 4.11. thm:two-power-bound

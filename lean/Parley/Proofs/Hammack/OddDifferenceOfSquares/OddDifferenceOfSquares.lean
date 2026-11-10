@@ -29,7 +29,7 @@ theorem odd_difference_of_squares (n : ℤ) (hH2 : Odd n) :
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hH2
   -- 2. calculation
   have s2 : n = (k + 1) ^ 2 - k ^ 2 := by
-    calc n = 2 * k + 1 := by parley_side
+    calc n = 2 * k + 1 := by exact s1
       _ = (k + 1) ^ 2 - k ^ 2 := by parley_ring
   -- 3. exhibit, from 2
   exact ⟨k + 1, k, s2⟩

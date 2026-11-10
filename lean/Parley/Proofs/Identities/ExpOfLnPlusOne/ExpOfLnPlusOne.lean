@@ -2,7 +2,6 @@ module
 
 public import ComplexTactics
 public import NormTactics
-public import PowerTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
@@ -28,7 +27,7 @@ namespace Parley.Proofs.Identities.ExpOfLnPlusOne.ExpOfLnPlusOne
 theorem exp_of_ln_plus_one (x : ℝ) (hH2 : x > 0) :
     Real.exp (Real.log x + 1) = Real.exp 1 * x := by
   -- 1. mun:exp-sum a := ln(x), b := 1
-  have s1 : Real.exp (Real.log x + 1) = Real.exp (Real.log x) * Real.exp (1 : ℝ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); parley_side)
+  have s1 : Real.exp (Real.log x + 1) = Real.exp (Real.log x) * Real.exp (1 : ℝ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); parley_side)
   -- 2. substitute
   have s2 : Real.exp (Real.log x + 1) = x * Real.exp (1 : ℝ) := by
     have c1 : Real.exp (Real.log x) = x := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := x) hH2)

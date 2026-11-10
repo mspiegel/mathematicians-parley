@@ -47,7 +47,7 @@ theorem zero_derivative_ends (a : ℝ) (b : ℝ) (hH3 : a < b) (H : ℝ → ℝ)
   obtain ⟨c, s3a, s3b⟩ := (Parley.Proofs.Wiedijk.MeanValue.MeanValue.mean_value (a := a) (b := b) hH3 (f := H) (by parley_set_side) hH5 hH6)
   -- 4. calculation
   have s4 : (H b - H a) / (b - a) = 0 := by
-    calc (H b - H a) / (b - a) = (deriv H) c := by parley_set_side
+    calc (H b - H a) / (b - a) = (deriv H) c := by exact s3b.symm
       _ = 0 := by exact (hH7 c (by parley_set_side))
   -- 5. inequalities
   have s5 : b - a > 0 := by parley_order

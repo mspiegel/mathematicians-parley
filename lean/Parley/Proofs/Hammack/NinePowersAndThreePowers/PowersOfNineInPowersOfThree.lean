@@ -45,7 +45,7 @@ theorem powers_of_nine_in_powers_of_three :
     obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (9 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp hK1
     -- 1.2. calculation
     have s1_2 : t = 3 ^ (2 * m) := by
-      calc t = 9 ^ m := by parley_set_side
+      calc t = 9 ^ m := by exact s1_1
         _ = 3 ^ (2 * m) := by exact (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower.nine_power_is_three_power (m := m))
     -- 1.3. exhibit, from 1.2
     have s1_3 : ∃ n : ℤ, t = 3 ^ n := ⟨2 * m, s1_2⟩
@@ -61,7 +61,7 @@ theorem powers_of_nine_in_powers_of_three :
     -- 3.2. calculation
     have s3_2 : (3 ^ 1 : ℚ) = 3 ^ (2 * m) := by
       calc (3 ^ 1 : ℚ) = 3 := by norm_num
-        _ = 9 ^ m := by parley_set_side
+        _ = 9 ^ m := by exact s3_1
         _ = 3 ^ (2 * m) := by exact (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower.nine_power_is_three_power (m := m))
     -- 3.3. mun:power-cancel a := 3, m := 1, n := 2m, from 3.2
     have r238_1 : (3 : ℤ) > 1 := by parley_arith

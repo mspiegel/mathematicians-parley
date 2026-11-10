@@ -24,6 +24,7 @@ public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -77,7 +78,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       have s2_2_1 : n > 0 := by parley_order
       -- 2.2.2. mun:power-positive a := 2, m := n
       have r63_1 : (2 : ℤ) > 0 := by parley_arith
-      have s2_2_2 : (2 ^ n.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := n) (by parley_side)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt hK2)] at h ⊢; exact_mod_cast h)
+      have s2_2_2 : (2 ^ n.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := n) (by parley_side)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s2_2_1))] at h ⊢; exact_mod_cast h)
       -- 2.2.3. mun:reciprocal-order x := n, y := 2^n, from 1
       have r67_1 : n > 0 := by parley_side
       have r67_2 : (2 ^ n.toNat : ℤ) > 0 := by parley_side

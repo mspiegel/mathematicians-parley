@@ -2,7 +2,6 @@ module
 
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -56,7 +55,7 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 4.5. calculation
     have s4_5 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) := by parley_count_after (by
       calc k + 1 ≤ (W.ncard : ℤ) + 1 := by parley_set_side
-        _ = ((W ∪ ({v} : Set α)).ncard : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2)).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); parley_set_side))
+        _ = ((W ∪ ({v} : Set α)).ncard : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2)).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2); parley_set_side))
     -- 4.6. proof
     have s4_6 : ∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E := by
       intro Y hK1

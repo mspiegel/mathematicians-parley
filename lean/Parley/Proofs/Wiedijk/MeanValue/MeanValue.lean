@@ -124,7 +124,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have s24 : (deriv f) c + m = 0 := by
     calc (deriv f) c + m = (deriv f) c + (deriv g) c := by (have h := congrArg (fun t : ℝ => (deriv f) c + t) (s23).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (deriv F) c := by exact ((s16 c (by parley_set_side))).symm
-      _ = 0 := by parley_set_side
+      _ = 0 := by exact s22b
   -- 25. algebra, from D1, 24
   have r145_1 : b - a ≠ 0 := by parley_set_side
   have s25 : (deriv f) c = (f b - f a) / (b - a) := by

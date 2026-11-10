@@ -33,6 +33,10 @@ pub struct SaidBounds {
 pub struct Bound {
     pub term: Node,
     pub least: i64,
+    /// The sentence that says it, as the page writes it, `0 < e` or `e ∈
+    /// ℕ`, from which a backend proves the bound; None of a bound the rule
+    /// reads from the set a quantifier runs over, which no line says.
+    pub said_by: Option<Node>,
 }
 
 impl SaidBounds {
@@ -113,6 +117,7 @@ pub fn said_bounds<A: BoundsAsk>(
                 out.terms.push(Bound {
                     term: t.clone(),
                     least,
+                    said_by: Some(line.clone()),
                 });
             }
         }
@@ -121,6 +126,7 @@ pub fn said_bounds<A: BoundsAsk>(
                 out.terms.push(Bound {
                     term: t.clone(),
                     least,
+                    said_by: Some(line.clone()),
                 });
             }
         }
@@ -282,6 +288,7 @@ pub fn inside_quantifier<A: BoundsAsk>(
         said.terms.push(Bound {
             term: letter.clone(),
             least,
+            said_by: None,
         });
     }
     said

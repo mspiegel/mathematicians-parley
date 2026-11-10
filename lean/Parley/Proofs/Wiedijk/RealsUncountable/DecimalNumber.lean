@@ -5,7 +5,6 @@ public import Functions
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -260,8 +259,8 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have s10_1_2 : L j ≤ U k := by exact (s6 j (by parley_set_side) k (by parley_set_side))
       -- 10.1.3. calculation
       have s10_1_3 : y = (L j : ℝ) := by
-        calc y = (N j : ℝ) / 10 ^ j.toNat := by first | parley_set_side | parley_line_toNat s10_1_1a | parley_line_toNat s10_1_1b
-          _ = (L j : ℝ) := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side | parley_line_toNat hD5
+        calc y = (N j : ℝ) / 10 ^ j.toNat := by parley_set_side
+          _ = (L j : ℝ) := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side
       -- 10.1.4. substitute y = L(j) (line 10.1.3) into line 10.1.2
       parley_subst_at s10_1_3 s10_1_2
     -- 10.2. def:upper-bound, from 10.1

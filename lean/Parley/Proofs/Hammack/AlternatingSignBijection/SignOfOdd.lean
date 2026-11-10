@@ -7,11 +7,8 @@ public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
-public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
-public import Mathlib.Algebra.Order.GroupWithZero.Basic
-public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
@@ -50,7 +47,7 @@ theorem sign_of_odd (n : ℤ) (hH1 : 0 < n) (hH2 : Odd n) :
     have hI : 0 ≤ k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k))).mpr (by parley_side))
     exact hI
   -- 6. thm:odd-power-of-minus-one, from 5
-  have s6 : ((-1) ^ (2 * k + 1) : ℚ) = -1 := by (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); simp only [parley_zpow_toNat (n := 2 * k + 1) (h := add_nonneg (mul_nonneg (by norm_num) (s5)) (by norm_num))] at h ⊢; exact_mod_cast h)
+  have s6 : ((-1) ^ (2 * k + 1) : ℚ) = -1 := by (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); simp only [parley_zpow_toNat (n := 2 * k + 1) (h := le_trans (by norm_num) s3)] at h ⊢; exact_mod_cast h)
   -- 7. substitute 2·k + 1 = n (line 1) into line 6
   parley_subst_at s1 s6
 

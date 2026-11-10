@@ -35,7 +35,7 @@ theorem positive_rational_fraction (A : ℝ) (hH2 : ∃ m : ℚ, (m : ℝ) = A) 
     have s2_2 : (p : ℚ) / (q : ℚ) ≤ 0 / (q : ℚ) := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (p : ℚ)) (y := (0 : ℚ)) (c := (q : ℚ)) (by parley_side) (by parley_side))
     -- 2.3. calculation
     have s2_3 : A ≤ 0 := by
-      calc A = (p : ℝ) / (q : ℝ) := by parley_side
+      calc A = (p : ℝ) / (q : ℝ) := by exact s1b
         _ ≤ 0 / (q : ℝ) := by parley_side
         _ = 0 := by parley_ring
     -- 2.4. inequalities, from H3

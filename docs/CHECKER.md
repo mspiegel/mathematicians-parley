@@ -182,9 +182,11 @@ exactly what the check refuses.
   reads a cited "for all" at that letter and at no other.
 - `statement_bounds`, `bounds`: what the statement's hypotheses, and the
   lines in scope above each step, bound below, y − 3 ≥ 0 of `y ≥ 3` or
-  x ≥ 1 of `x ∈ ℕ` (`citing::bounds`), read with the letters in scope.
-  Lean writes a square root or a real power of a base at least 0 as a real
-  one, as Metamath proves `√x ∈ ℝ` from `0 ≤ x`.
+  x ≥ 1 of `x ∈ ℕ` (`citing::bounds`), read with the letters in scope,
+  each with the sentence that says it (`Bound::said_by`). Lean writes a
+  square root or a real power of a base at least 0 as a real one, as
+  Metamath proves `√x ∈ ℝ` from `0 ≤ x`. Where Lean converts a power, it
+  proves the exponent at least 0 from that sentence.
 - `finite_at`: for each step, the sets the lines in scope make finite,
   `W is finite`, `|W| = m`, or `B ⊆ A` of a finite A, each with why, as
   `said_finite` keeps them. A count records whether its number is at least

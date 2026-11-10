@@ -123,11 +123,9 @@ pub enum BridgeTactic {
     SubstAt,
     PutAt,
     Order,
-    IntPower,
     CastToNat,
     WitnessAt,
     WitnessNotAt,
-    LineToNat,
     ZpowToNat,
     Instance,
     InstanceCast,
@@ -147,7 +145,7 @@ pub enum BridgeTactic {
 
 impl BridgeTactic {
     /// Every tactic, in no order Lean reads.
-    pub const ALL: [BridgeTactic; 41] = [
+    pub const ALL: [BridgeTactic; 39] = [
         BridgeTactic::Side,
         BridgeTactic::Norm,
         BridgeTactic::SetSide,
@@ -169,11 +167,9 @@ impl BridgeTactic {
         BridgeTactic::SubstAt,
         BridgeTactic::PutAt,
         BridgeTactic::Order,
-        BridgeTactic::IntPower,
         BridgeTactic::CastToNat,
         BridgeTactic::WitnessAt,
         BridgeTactic::WitnessNotAt,
-        BridgeTactic::LineToNat,
         BridgeTactic::ZpowToNat,
         BridgeTactic::Instance,
         BridgeTactic::InstanceCast,
@@ -215,11 +211,9 @@ impl BridgeTactic {
             BridgeTactic::SubstAt => "parley_subst_at",
             BridgeTactic::PutAt => "parley_put_at",
             BridgeTactic::Order => "parley_order",
-            BridgeTactic::IntPower => "parley_int_power",
             BridgeTactic::CastToNat => "parley_cast_toNat",
             BridgeTactic::WitnessAt => "parley_witness_at",
             BridgeTactic::WitnessNotAt => "parley_witness_not_at",
-            BridgeTactic::LineToNat => "parley_line_toNat",
             BridgeTactic::ZpowToNat => "parley_zpow_toNat",
             BridgeTactic::Instance => "parley_instance",
             BridgeTactic::InstanceCast => "parley_instance_cast",
@@ -262,11 +256,9 @@ impl BridgeTactic {
                 BridgeModule::SubstTactics
             }
             BridgeTactic::Order => BridgeModule::OrderTactics,
-            BridgeTactic::IntPower
-            | BridgeTactic::CastToNat
+            BridgeTactic::CastToNat
             | BridgeTactic::WitnessAt
             | BridgeTactic::WitnessNotAt
-            | BridgeTactic::LineToNat
             | BridgeTactic::ZpowToNat => BridgeModule::PowerTactics,
             BridgeTactic::Instance
             | BridgeTactic::InstanceCast

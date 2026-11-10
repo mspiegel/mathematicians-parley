@@ -30,7 +30,7 @@ theorem powers_of_two_onto (f : ℤ → ℚ) (hH1 : Set.MapsTo f (Set.univ : Set
     obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (2 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mp hK1
     -- 1.2. calculation
     have s1_2 : y = f m := by
-      calc y = 2 ^ m := by parley_set_side
+      calc y = 2 ^ m := by exact s1_1
         _ = f m := by exact ((hH2 m)).symm
     -- 1.3. exhibit, from 1.2
     exact ⟨m, s1_2⟩

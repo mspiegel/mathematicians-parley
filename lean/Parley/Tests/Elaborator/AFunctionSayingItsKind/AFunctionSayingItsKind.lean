@@ -1,7 +1,6 @@
 module
 
 public import Divisibility
-public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
@@ -29,7 +28,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -58,7 +56,7 @@ theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
     have whole1 : ((k : ℚ) : ℚ) ^ (n - 1).toNat = (k : ℚ) ^ (n - 1) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]
     exact ⟨(k ^ (n - 1).toNat), by (push_cast; simp only [whole1]; all_goals ring)⟩
   -- 2.2. mun:mod-less, from 2.1
-  have s2_2 : LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) < (n : ℝ) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s2_1); push_cast at h; exact h : ((Classical.choose s2_1 : ℤ) : ℝ) = (k : ℝ) ^ (n - 1))]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); (first | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)); parley_side))
+  have s2_2 : LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) < (n : ℝ) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s2_1); push_cast at h; exact h : ((Classical.choose s2_1 : ℤ) : ℝ) = (k : ℝ) ^ (n - 1))]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); (first | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)); parley_side))
   -- 2.3. mun:range-from-bounds, from 2.2
   have r29_1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by
     have whole1 : ∃ m : ℤ, (m : ℝ) = (k : ℝ) ^ (n - 1) := by obtain ⟨m, hm⟩ := s2_1; exact ⟨m, by have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h⟩

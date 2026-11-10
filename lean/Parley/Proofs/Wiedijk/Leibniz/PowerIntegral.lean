@@ -14,7 +14,6 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Module.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
-public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Calculus.Deriv.Basic
 public import Mathlib.Analysis.Calculus.FDeriv.Defs
@@ -37,7 +36,6 @@ public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -139,7 +137,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 23. D2, from 22
   have s23 : q 1 = 1 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 24. mun:one-power m := m + 1
-  have s24 : (1 ^ (m + 1).toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); simp only [parley_zpow_toNat (n := m + 1) (h := add_nonneg (hH1) (by norm_num))] at h ⊢; exact_mod_cast h)
+  have s24 : (1 ^ (m + 1).toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := m + 1)); simp only [parley_zpow_toNat (n := m + 1) (h := le_of_lt s1)] at h ⊢; exact_mod_cast h)
   -- 25. D2, from 21
   have s25 : q 0 = 0 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 26. mun:zero-power n := m + 1, from 1

@@ -48,7 +48,6 @@ public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Set
@@ -93,7 +92,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s4 : 1 < p := by parley_order
   -- 5. mun:power-order a := 2, m := 1, n := p, from 4
   have r352_1 : (2 : ℤ) > 1 := by parley_arith
-  have s5 : (2 ^ 1 : ℤ) < 2 ^ p.toNat := by (have h := ((Parley.Items.Stdlib.Numbers.mun_power_order (a := (2 : ℚ)) (m := (1 : ℤ)) (n := p) (by parley_side))).mp s4; simp only [parley_zpow_toNat (n := (1 : ℤ)) (h := by norm_num), parley_zpow_toNat (n := p) (h := le_of_lt hD2_pos)] at h ⊢; exact_mod_cast h)
+  have s5 : (2 ^ 1 : ℤ) < 2 ^ p.toNat := by (have h := ((Parley.Items.Stdlib.Numbers.mun_power_order (a := (2 : ℚ)) (m := (1 : ℤ)) (n := p) (by parley_side))).mp s4; simp only [parley_zpow_toNat (n := (1 : ℤ)) (h := by norm_num), parley_zpow_toNat (n := p) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s4))] at h ⊢; exact_mod_cast h)
   -- 6. inequalities, from 5
   have s6 : (2 ^ p.toNat - 1 : ℤ) > 1 := by parley_order
   -- 7. mun:pos-int-nat
@@ -189,7 +188,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 23.1. inequalities, from 6
     have s23_1 : (2 ^ p.toNat - 1 - 1 : ℤ) > 0 := by parley_order
     -- 23.2. mun:product-positive x := 2^p − 1 − 1, y := c, from D3, 23.1
-    have s23_2 : (2 ^ p.toNat - 1 - 1) * c > 0 := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side)); parley_side)
+    have s23_2 : (2 ^ p.toNat - 1 - 1) * c > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by parley_side) (by parley_side)); parley_side)
     -- 23.3. substitute
     have s23_3 : m - c > 0 := by
       have c1 : (2 ^ p.toNat - 1 - 1) * c = m - c := by linear_combination (norm := parley_norm) (-1) * s20
@@ -255,7 +254,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     parley_ring
   -- 31. calculation
   have s31 : (n : ℚ) = 2 ^ (p - 1) * (2 ^ p.toNat - 1) := by
-    calc (n : ℚ) = 2 ^ k.toNat * (m : ℚ) := by first | parley_side | parley_line_toNat s1a | parley_line_toNat s1b | parley_line_toNat s1c | parley_line_toNat s1d
+    calc (n : ℚ) = 2 ^ k.toNat * (m : ℚ) := by parley_side
       _ = 2 ^ (p - 1) * (m : ℚ) := by
           have s30_w : (p : ℚ) - 1 = (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s30; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s30_w | parley_subst s30
