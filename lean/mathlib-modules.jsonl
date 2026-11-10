@@ -292,6 +292,7 @@
 {"key":"Real.sqrt (sorry : ℝ)","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.RealSqrt"]}
 {"key":"Set.BijOn (sorry : Set ℤ → Set ℤ) (sorry : Set (Set ℤ)) (sorry : Set (Set ℤ))","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Set.BijOn (sorry : ℤ → ℝ) (sorry : Set ℤ) (sorry : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"Set.BijOn (sorry : ℤ → ℤ) (sorry : Set ℤ) (sorry : Set ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Set.BijOn a a a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Set.Finite.cast_ncard_eq (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Finite.Defs","Mathlib.Data.Set.Card","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Set.Icc (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Order.Interval.Set.Defs"]}
@@ -430,6 +431,7 @@
 {"key":"fun y : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun y : α => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun y : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun z : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if h : (sorry : Prop) then a else (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_left a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_right a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
@@ -466,6 +468,7 @@
 {"key":"{t : ℝ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{t : ℤ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{t ∈ a | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"{u : ℤ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{w ∈ a | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{x : ℝ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{x : ℤ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
@@ -795,6 +798,7 @@
 {"key":"∀ y : ℤ, (sorry : Prop) → (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ z : ℝ, (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ z : ℤ, (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"∀ z : ℤ, (sorry : Prop) → (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ {G : Type*} [Group G], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.Group.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"∀ {K : Type*} [CommRing K] [IsDomain K] [CharZero K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.CharZero.Defs","Mathlib.Algebra.Ring.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Data.Int.Cast.Defs"]}
 {"key":"∀ {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K], True","kind":"term","modules":["Mathlib.Order.Lattice","Mathlib.Tactic.TypeStar","Mathlib.Algebra.CharZero.Defs","Mathlib.Algebra.Ring.Defs","Mathlib.Order.Defs.Lattice","Mathlib.Order.Defs.LinearOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Order.Ring.Defs","Mathlib.Data.Int.Cast.Defs"]}

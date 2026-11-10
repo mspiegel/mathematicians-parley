@@ -179,6 +179,13 @@ theorem the checker refuses, or a file Lean does not read, is a failure: it
 is not built, nor is what cites it, every such failure is reported in one
 run, and the build exits 1 (`ELABORATION.md`).
 
+The Lean build is to build every theorem the Metamath build does. Leaving
+theorems out (`lean::coverage`) is scaffolding for the build while it grows
+by fields, and goes once nothing is left out. Its rules are lookups of
+fields: a notation's `lean-builds`, an item's `lean-proof`, a function's
+definition. A limit of the writer's own is a decline the writer gives at the
+step, from the checker's record, not a reading coverage makes of the page.
+
 ## Number types
 
 On the page every number is a number. In Lean each has a type, and three

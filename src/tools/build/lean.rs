@@ -82,6 +82,35 @@ pub struct Made {
     pub forms: Vec<String>,
 }
 
+impl Made {
+    /// What the writer declined of the item or theorem `name`: left out
+    /// where it is a form the build does not cover yet
+    /// (`Decline::left_out`), and a gap otherwise.
+    fn declined(&mut self, name: String, d: &crate::outcome::Decline) {
+        match d.leaves_out() {
+            true => self.left_out.insert(name, d.reason()),
+            false => self.gaps.insert(name, d.reason()),
+        };
+    }
+
+    /// The theorem `name` not written because it cites `cited`, which is
+    /// not: as `cited` was, failed, left out or a gap.
+    fn not_built_after(&mut self, name: String, cited: &str) {
+        if self.failed.contains_key(cited) {
+            self.failed
+                .insert(name, format!("it cites {cited}, which was not built"));
+        } else if self.left_out.contains_key(cited) {
+            self.left_out
+                .insert(name, format!("{cited} is not in the Lean build"));
+        } else {
+            self.gaps.insert(
+                name,
+                format!("it cites {cited}, which the Lean build cannot yet write"),
+            );
+        }
+    }
+}
+
 /// Where a theorem's Lean file comes from, line by line.
 pub struct Origins {
     /// The theorem, by its full name.
@@ -279,9 +308,7 @@ pub fn make(
             Route::Declined(d) if record.phrase.is_some() => {
                 made.left_out.insert(full, d.reason());
             }
-            Route::Declined(d) => {
-                made.gaps.insert(full, d.reason());
-            }
+            Route::Declined(d) => made.declined(full, &d),
         }
     }
     for (module, (path, decls)) in &modules {
@@ -377,9 +404,46 @@ pub fn make(
                 // proof is written beside it all the same.
                 items.entry(name).or_insert(it);
             }
-            Route::Declined(d) => {
-                made.gaps.insert(name, d.reason());
+            Route::Declined(d) => made.declined(name, &d),
+        }
+    }
+    // A theorem citing one of the corpus the build does not take in is not
+    // written either, for the same kind of reason, and nor is one citing
+    // it: until no more are.
+    let ours: BTreeSet<String> = checked
+        .corpus
+        .theorems
+        .iter()
+        .map(|t| t.qualified())
+        .collect();
+    loop {
+        let unread: Vec<(usize, String)> = theorems
+            .iter()
+            .enumerate()
+            .filter_map(|(k, (thm, _))| {
+                let name = thm.qualified();
+                cited_items(thm)
+                    .into_iter()
+                    .map(|(full, _)| full)
+                    .find(|full| {
+                        ours.contains(full)
+                            && *full != name
+                            && !items.contains_key(full)
+                    })
+                    .map(|full| (k, full))
+            })
+            .collect();
+        if unread.is_empty() {
+            break;
+        }
+        for (k, cited) in unread.into_iter().rev() {
+            let (thm, _) = theorems.remove(k);
+            let name = thm.qualified();
+            items.shift_remove(&name);
+            for record in proves.get(name.as_str()).into_iter().flatten() {
+                items.shift_remove(record);
             }
+            made.not_built_after(name, &cited);
         }
     }
     let mut written: Vec<String> = modules
@@ -401,7 +465,7 @@ pub fn make(
         let file = match theorem(&sources, thm, rec) {
             Route::Built(f) => f,
             Route::Declined(d) => {
-                made.gaps.insert(name, d.reason());
+                made.declined(name, &d);
                 continue;
             }
         };
@@ -514,20 +578,12 @@ pub fn make(
             if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
                 made.statements.shift_remove(&s.decl);
             }
-            // Not built because of a failure, or because of a gap.
-            let failed = made.failed.contains_key(&import)
-                || imported
-                    .get(&import)
-                    .is_some_and(|(cited, _)| made.failed.contains_key(cited));
-            if failed {
-                made.failed
-                    .insert(name, format!("it cites {import}, which was not built"));
-            } else {
-                made.gaps.insert(
-                    name,
-                    format!("it cites {import}, which the Lean build cannot yet write"),
-                );
-            }
+            // Not built as what it imports was not: the theorem that module
+            // writes, or the module itself where it is the library's.
+            let cited = imported
+                .get(&import)
+                .map_or(import.clone(), |(cited, _)| cited.clone());
+            made.not_built_after(name, &cited);
         }
     }
 

@@ -1752,6 +1752,9 @@ fn header_reading(
     rec: &CheckedTheorem,
 ) -> Route<HeaderReading> {
     use super::templates::Num;
+    if set_valued(rec, &def.name) {
+        return Route::left_out(SET_VALUED);
+    }
     let [param] = def.params.as_slice() else {
         return Route::no("a function the header lets of more than one argument");
     };
@@ -2231,6 +2234,9 @@ fn statement(
     // its letter the type its sort settles, ahead of the lines that use it.
     let mut binders_of_sets = Vec::new();
     let mut read: usize = said.iter().map(|(_, s)| s.len()).sum();
+    // The first `let` that is no formula and that no Lean type is given
+    // for, `let A be a point`: what keeps the theorem out.
+    let mut untyped: Option<String> = None;
     for (i, h) in thm.hypotheses.iter().enumerate() {
         let body = h.body(&thm.path);
         if body.sentences().iter().all(|s| rec.page.get(s).is_some()) {
@@ -2263,7 +2269,10 @@ fn statement(
                 }
                 continue;
             }
-            _ => continue,
+            _ => {
+                untyped.get_or_insert_with(|| body.text().to_string());
+                continue;
+            }
         };
         // An element nothing settles a sort of, `let B be an element` of a
         // B only listed, {B}, is a thing.
@@ -2281,6 +2290,7 @@ fn statement(
                     .then_some(LetterType::Member(super::expr::Members::Things(0)))
             })
         else {
+            untyped.get_or_insert_with(|| body.text().to_string());
             continue;
         };
         writer.letters.insert(name.clone(), ty.clone());
@@ -2302,7 +2312,12 @@ fn statement(
         .map(|h| h.body(&thm.path).sentences().len())
         .sum();
     if read != written {
-        return Route::no("a hypothesis the checker did not read");
+        return match untyped {
+            Some(line) => {
+                Route::left_out(format!("let {line}, a line Lean has no type for yet"))
+            }
+            None => Route::no("a hypothesis the checker did not read"),
+        };
     }
     // A define the statement is read with is written out in it: Lean's
     // statement says what the name stands for, and the proof names it again
@@ -2869,7 +2884,7 @@ impl<'a> Proof<'a> {
                     return Route::Declined(d);
                 }
                 let number = &self.thm.steps[i].number;
-                return Route::no(format!("step {number}: {reason}"));
+                return Route::Declined(d.reworded(format!("step {number}: {reason}")));
             }
         }
         Route::Built(())
@@ -3096,6 +3111,29 @@ impl<'a> Proof<'a> {
 
     fn step(&mut self, i: usize, depth: usize) -> Route<()> {
         let step = &self.thm.steps[i];
+        // A function the header lets by its value is its equation for every
+        // x (`header_function`), which a step citing the define or
+        // substituting from it puts in, and a calculation's rows citing it;
+        // a step of another method citing it, an algebra from D1, does not.
+        let through = !matches!(
+            step.just.head,
+            crate::corpus::Head::Define
+                | crate::corpus::Head::Method(
+                    crate::corpus::Method::Substitute
+                        | crate::corpus::Method::Calculation
+                )
+        );
+        if through
+            && step
+                .just
+                .refs
+                .iter()
+                .any(|r| self.header_function_named(r).is_some())
+        {
+            return Route::left_out(
+                "a step cites a function the header lets through a method, which its equation for every x is not put in by",
+            );
+        }
         // A square root of y − 3 is Mathlib's real one once a line in scope
         // says y − 3 ≥ 0 (`Writer::principal_is_real`), as the check read
         // the lines in scope (`CheckedTheorem::bounds`).
@@ -6808,7 +6846,7 @@ impl<'a> Proof<'a> {
             return Route::no("a define of a function of more than one argument");
         };
         if set_valued(self.rec, &def.name) {
-            return Route::no(SET_VALUED);
+            return Route::left_out(SET_VALUED);
         }
         // The checker reads the line's argument, the set it runs over and
         // the value apart.
@@ -6838,7 +6876,9 @@ impl<'a> Proof<'a> {
             .find(over)
             .or_else(|| read.iter().find(of_numbers))
         else {
-            return Route::no("a define of a function on other than a number system");
+            return Route::left_out(
+                "a define of a function on other than a number system",
+            );
         };
         // The value is what the line reads besides the domain and the
         // argument; a value that is itself a set of numbers, {|x| : x ∈
@@ -6849,7 +6889,7 @@ impl<'a> Proof<'a> {
             .filter(|n| !(n.is_name() && *n.text == *param.name))
             .collect();
         let [body] = bodies.as_slice() else {
-            return Route::no(
+            return Route::left_out(
                 "a define whose value the checker did not read as one term",
             );
         };
@@ -9261,7 +9301,7 @@ impl<'a> Proof<'a> {
             Some(g) if &*g.notation_name() == "property-of" => Route::Built(
                 super::expr::Printed::head("Set.univ", super::doc::Source::Mathlib),
             ),
-            _ => Route::no(format!(
+            _ => Route::left_out(format!(
                 "a map's domain where its map {map} is given no letter"
             )),
         })
@@ -10420,7 +10460,10 @@ impl<'a> Proof<'a> {
                     .filter(|c| &*c.notation_name() == "cardinality")
                     .filter_map(|c| c.children.first().cloned())
                 {
-                    if seen.iter().any(|s| s.same_shape(&set)) {
+                    if seen
+                        .iter()
+                        .any(|s| crate::matching::alike_top(s, &set, self.sources.ctx))
+                    {
                         continue;
                     }
                     seen.push(set.clone());

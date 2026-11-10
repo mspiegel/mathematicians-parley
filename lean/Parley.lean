@@ -46,6 +46,7 @@ public import Parley.Stdlib.Sets.SubsetAntisymmetric
 public import Parley.Stdlib.Sums.ProductIntegerTerms
 public import Parley.Stdlib.Sums.ProductConstant
 public import Parley.Stdlib.Sums.ProductFactor
+public import Parley.Stdlib.Sums.ProductReorder
 public import Parley.Proofs.Halmos.EmptySetUnique.EmptySetUnique
 public import Parley.Proofs.Hammack.AbsLimitZero.AbsLimitZero
 public import Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne
@@ -719,6 +720,7 @@ public import Parley.Tests.Elaborator.ADefineAtEveryMemberOfARange.ADefineAtEver
 public import Parley.Tests.Elaborator.ADefineCitedAsAStep.ADefineCitedAsAStep
 public import Parley.Tests.Elaborator.ADefineFillingACitedFunction.ValueAtOne
 public import Parley.Tests.Elaborator.ADefineFillingACitedFunction.ADefineFillingACitedFunction
+public import Parley.Tests.Elaborator.ADefineOnAnOpenInterval.ADefineOnAnOpenInterval
 public import Parley.Tests.Elaborator.ADefinePutIntoALine.ADefinePutIntoALine
 public import Parley.Tests.Elaborator.ADefineWhoseBodyTheReadingRewrites.ADefineWhoseBodyTheReadingRewrites
 public import Parley.Tests.Elaborator.ADefinitionFoldedWithoutItsPair.ADefinitionFoldedWithoutItsPair
@@ -734,7 +736,9 @@ public import Parley.Tests.Elaborator.AFamilyOfPartsByADefine.AnInstanceWhoseCon
 public import Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineCitedInABlock
 public import Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineInACalculationLink
 public import Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineJoinedInABlock
+public import Parley.Tests.Elaborator.AForAllOverARange.AForAllReadAtANumeral
 public import Parley.Tests.Elaborator.AForAllOverARange.AForAllOverAWiderSet
+public import Parley.Tests.Elaborator.AForAllOverARange.ASumOfADefinedFunction
 public import Parley.Tests.Elaborator.AForAllRelatingTwoSets.AForAllRelatingTwoSets
 public import Parley.Tests.Elaborator.AFunctionExhibitedByItsType.AFunctionExhibitedByItsType
 public import Parley.Tests.Elaborator.AFunctionExhibitedByItsType.AFunctionAndItsLengthExhibited
@@ -845,6 +849,7 @@ public import Parley.Tests.Elaborator.ATypeALineStates.IntoTheEmptySet
 public import Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesForATheorem
 public import Parley.Tests.Elaborator.AValueAtAPointSaidOnce.AnItemAtAValue
 public import Parley.Tests.Elaborator.AValueAtAPointSaidOnce.ARequiresLineAtAValue
+public import Parley.Tests.Elaborator.AWitnessTheCheckerRead.ASetMemberBesideAnEquation
 public import Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMember
 public import Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.InequalitiesAtAMember
 public import Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnAssumeLineOfSeveralSentences
@@ -1349,13 +1354,18 @@ public import Parley.Tests.Notations.Primes.PastFourBillionNotOneMore
 public import Parley.Tests.Notations.Primes.FloorOfMinusHalf
 public import Parley.Tests.Notations.Primes.FloorOfMinusHalfNotZero
 public import Parley.Tests.Notations.Primes.FloorOfSevenHalves
+public import Parley.Tests.Notations.Sets.TwoInAListedSet
+public import Parley.Tests.Notations.Sets.SevenInALongListedSet
 public import Parley.Tests.Notations.Sets.OneNotInALongListedSet
+public import Parley.Tests.Notations.Sets.FourNotInAListedSet
 public import Parley.Tests.Notations.Sets.ARepeatCountsOnce
 public import Parley.Tests.Notations.Sets.APairCounted
 public import Parley.Tests.Notations.Sets.FourNotInAWrittenSet
 public import Parley.Tests.Notations.Sets.InAUnion
 public import Parley.Tests.Notations.Sets.NotInAnIntersection
 public import Parley.Tests.Notations.Sets.APartOfASet
+public import Parley.Tests.Notations.Sets.EvenInTheEvens
+public import Parley.Tests.Notations.Sets.OddNotInTheEvens
 public import Parley.Tests.Notations.Sums.AConstantSummed
 public import Parley.Tests.Notations.Sums.OneToThreeSummed
 public import Parley.Tests.Notations.Sums.OneToThreeNotFive

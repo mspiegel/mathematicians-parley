@@ -1676,7 +1676,7 @@ impl Writer<'_> {
             self.letters.get(f.text.as_str()),
             Some(LetterType::Function { to: Num::Real, .. })
         ) {
-            return Route::no(format!("{} is no function into ℝ", f.text));
+            return Route::left_out(format!("{} is no function into ℝ", f.text));
         }
         let Some(domain) = self.domain_of(&f.text) else {
             return Route::no(format!(
@@ -1860,7 +1860,7 @@ impl Writer<'_> {
                 Some(LetterType::Function { to: Num::Real, .. })
             )
         {
-            return Route::no(format!("{} is no function into ℝ", f.text));
+            return Route::left_out(format!("{} is no function into ℝ", f.text));
         }
         match self.numbers_at(set, Num::Real) {
             Route::Built(s) => Route::Built(Printed::applied(

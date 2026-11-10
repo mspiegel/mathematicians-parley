@@ -1,11 +1,15 @@
-//! Which theorems the Lean build covers.
+//! Which theorems the Lean build covers, by its fields.
 //!
-//! A theorem is in the Lean build exactly when every notation its page uses
-//! and every item it cites has a Lean form: a notation with a `lean-builds`
-//! field, a record with a `lean-proof` field, or a theorem of the corpus that
-//! is itself in. Nothing lists the theorems; the build grows as fields are
-//! added. A theorem left
-//! out is reported with what keeps it out.
+//! A theorem is taken in when every notation its page uses, every library
+//! function it applies and every item it cites has a Lean form: a notation
+//! with a `lean-builds` field, a function whose definition has one, a record
+//! with a `lean-proof` field, or a theorem of the corpus that is itself in.
+//! Nothing lists the theorems; the build grows as fields are added. These
+//! are lookups of fields only. A form the writer has no way to write yet is
+//! its own to find, where it meets it, as a decline that leaves the theorem
+//! out (`Decline::left_out`). This module is scaffolding while the Lean
+//! build covers less than the Metamath build, and goes at parity
+//! (`docs/LEAN.md`, "Which theorems are in").
 
 use indexmap::IndexMap;
 
@@ -44,6 +48,7 @@ pub const IN_CODE: &[&str] = &[
     "integer-range",
     "comma-conjunction",
     "function-type",
+    "function-on",
     "composition",
     "sum",
     "product",
@@ -116,237 +121,6 @@ pub fn coverage(
     out
 }
 
-/// Whether a step of a method other than citing a define, substituting from
-/// one or a calculation cites a function the header lets by its value.
-fn header_function_through_a_method(thm: &crate::corpus::Theorem) -> bool {
-    let labels: Vec<&str> = thm
-        .defines
-        .iter()
-        .filter(|d| d.line < thm.conclusion_line)
-        .filter(|d| {
-            matches!(
-                crate::corpus::define_parts(&d.text),
-                crate::outcome::Route::Built(crate::corpus::DefineParts::One(ref one))
-                    if !one.params.is_empty()
-            )
-        })
-        .map(|d| d.label.as_str())
-        .collect();
-    thm.steps.iter().any(|s| {
-        // A calculation's rows citing the define put it in as a citation
-        // of it does (`theorem::calculation`).
-        let through = !matches!(
-            s.just.head,
-            crate::corpus::Head::Define
-                | crate::corpus::Head::Method(
-                    crate::corpus::Method::Substitute
-                        | crate::corpus::Method::Calculation
-                )
-        );
-        through && s.just.refs.iter().any(|r| labels.contains(&r.as_str()))
-    })
-}
-
-/// Whether the checker records the numbers the set letter holds, D of D ⊆
-/// ℝ or T of {1, …, i} ∖ T, which gives it the type of a set of those
-/// (`CheckedTheorem::set_systems`).
-fn among_numbers(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
-    rec.set_systems.contains_key(name)
-}
-
-/// Whether a letter is a define whose value is a set of sets of numbers by
-/// its shape, as the writer types a define by its value: {d ⊆ A : …} of a
-/// set of numbers A, or {c ∈ O : …} of such a define O.
-fn defined_parts_of_numbers(
-    name: &str,
-    thm: &crate::corpus::Theorem,
-    rec: &crate::checker::CheckedTheorem,
-    depth: usize,
-) -> bool {
-    if depth > 8 {
-        return false;
-    }
-    let Some(line) = thm.defines.iter().find(|d| {
-        matches!(crate::corpus::define_parts(&d.text),
-            crate::outcome::Route::Built(crate::corpus::DefineParts::One(def))
-                if def.name == name && def.params.is_empty())
-    }) else {
-        return false;
-    };
-    rec.page
-        .entries()
-        .filter(|(key, _)| key.line == line.line)
-        .any(|(_, value)| parts_of_numbers(value, thm, rec, depth))
-}
-
-/// Whether a set term is a set of sets of numbers by its shape: {d ⊆ A : …}
-/// of a set of numbers A, 𝒫A, or {c ∈ S : …} of such a term S.
-fn parts_of_numbers(
-    s: &crate::formula::Node,
-    thm: &crate::corpus::Theorem,
-    rec: &crate::checker::CheckedTheorem,
-    depth: usize,
-) -> bool {
-    match (&*s.notation_name(), s.children.as_slice()) {
-        ("set-builder-part", [_, whole, _]) => set_of_numbers(whole),
-        ("set-builder", [_, whole, _]) => parts_of_numbers(whole, thm, rec, depth + 1),
-        ("powerset", [whole]) => set_of_numbers(whole),
-        _ => s.is_name() && defined_parts_of_numbers(&s.text, thm, rec, depth + 1),
-    }
-}
-
-/// Whether a line gives the function letter a type between sets of
-/// numbers, f : D → ℝ, as the checker records it
-/// (`CheckedTheorem::function_systems`).
-fn between_number_sets(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
-    rec.function_systems.contains_key(name)
-}
-
-/// Whether a set's members have a type its sort says, or, for A ∪ B, A ∩ B,
-/// A ∖ B or 𝒫A, its parts' sorts say.
-fn sorted_set(s: &crate::formula::Node) -> bool {
-    s.sort
-        .full()
-        .and_then(super::expr::Members::of_set)
-        .is_some()
-        || (matches!(&*s.notation_name(), "set-operations" | "powerset")
-            && s.children.iter().all(sorted_set))
-}
-
-/// Whether a set lists letters, {B} or {a, b}: a set of the things they
-/// are, as the writer reads it (`sets::members_of`).
-fn listed_letters(s: &crate::formula::Node) -> bool {
-    matches!(
-        &*s.notation_name(),
-        "singleton" | "listed-two" | "listed-three" | "listed-four"
-    ) && s.children.iter().all(|c| c.is_name())
-}
-
-/// Whether a set is one of numbers by its shape: a number system, a letter
-/// the checker sorts a set of numbers, or ℝ ∖ {2}, A ∪ B and A ∩ B of such.
-fn set_of_numbers(s: &crate::formula::Node) -> bool {
-    use crate::formula::Whole;
-    if let Some(Whole::Set(m)) = s.sort.full() {
-        return matches!(**m, Whole::Number);
-    }
-    match &*s.notation_name() {
-        "number-systems" | "closed-interval" | "open-interval" | "integer-range" => {
-            true
-        }
-        // A ∖ B holds what A does; A ∩ B what either does.
-        "set-operations" => match (&*s.spelling().text(), s.children.as_slice()) {
-            ("∖", [a, _]) => set_of_numbers(a),
-            ("∩", [a, b]) => set_of_numbers(a) || set_of_numbers(b),
-            (_, parts) => parts.iter().all(set_of_numbers),
-        },
-        // {2ⁿ : n ∈ ℤ} holds what its term is.
-        "set-image" => s
-            .children
-            .first()
-            .is_some_and(|term| term.sort.is("number")),
-        _ => false,
-    }
-}
-
-/// Whether a `let` line is `A be a set` or `x be an element` of a letter
-/// whose sort Lean has a type for (`sets::set_letter_type`).
-fn set_line(
-    body: crate::formula::page::Written,
-    rec: &crate::checker::CheckedTheorem,
-) -> bool {
-    use crate::sorts::introduction::{Form, Introduction};
-    match Introduction::read(body).form {
-        Form::Set(name)
-        | Form::Element(name)
-        | Form::Property { name, .. }
-        | Form::FunctionOn { name, .. }
-            if rec
-                .sorts
-                .get(&name)
-                .is_some_and(|s| super::sets::set_letter_type(s).is_some()) =>
-        {
-            true
-        }
-        // An element a line puts in a set of numbers, A ∈ ℝ ∖ ℚ, is a number
-        // of that set's type, as the checker records it
-        // (`CheckedTheorem::element_systems`, `theorem::element_number_type`);
-        // one nothing settles a sort of, a thing (`theorem::statement`).
-        Form::Element(name) => {
-            rec.sorts.get(&name).is_none() || rec.element_systems.contains_key(&name)
-        }
-        // A group is a type with Mathlib's group on it (`theorem::statement`);
-        // a polynomial a function from ℂ to ℂ among set.mm's polynomials.
-        Form::Group { .. } | Form::Polynomial(_) => true,
-        // A set of numbers a line joins with a set of numbers, T of {1, …,
-        // i} ∖ T, or puts inside one, D ⊆ ℝ, is a set of that set's type
-        // (`theorem::recorded_number_set_type`).
-        Form::Set(name) => among_numbers(&name, rec),
-        _ => false,
-    }
-}
-
-/// Whether what a `let` line asserts is a map between sets with a property,
-/// `f : A → B is one-to-one`, onto, or both, its sets no number systems.
-fn map_line(asserted: Option<&Vec<crate::formula::Node>>) -> bool {
-    let map = |n: &crate::formula::Node| {
-        matches!(
-            &*n.notation_name(),
-            "one-to-one" | "onto" | "one-to-one-onto"
-        ) && {
-            // Both sets of numbers, a function of numbers; or neither
-            // touching a number system, a map of things.
-            let sets = &n.children[1..];
-            sets.iter().all(set_of_numbers)
-                || sets.iter().all(|set| {
-                    set.walk()
-                        .iter()
-                        .all(|m| m.notation() != crate::notations::NUMBER_SYSTEMS)
-                })
-        }
-    };
-    asserted.is_some_and(|a| !a.is_empty() && a.iter().all(map))
-}
-
-/// The function a proof's define line gives, where the Lean build writes it
-/// (`Proof::define_function`): one argument, running over a number system,
-/// `let S(m) = …, for m ∈ ℕ`. None for any other line.
-pub fn defined_function(
-    line: &crate::corpus::DefineLine,
-    rec: &crate::checker::CheckedTheorem,
-) -> Option<String> {
-    let crate::outcome::Route::Built(crate::corpus::DefineParts::One(def)) =
-        crate::corpus::define_parts(&line.text)
-    else {
-        return None;
-    };
-    let [param] = def.params.as_slice() else {
-        return None;
-    };
-    let read: Vec<&crate::formula::Node> = rec
-        .page
-        .entries()
-        .filter(|(key, _)| key.line == line.line)
-        .map(|(_, node)| node)
-        .collect();
-    // Over a number system or a range of integers, {0, …, m}.
-    let over_numbers = read.iter().any(|n| {
-        (n.notation() == crate::notations::NUMBER_SYSTEMS
-            && super::expr::system_of(n).is_some())
-            || n.notation() == crate::notations::INTEGER_RANGE
-    });
-    let values = read
-        .iter()
-        .filter(|n| {
-            !matches!(
-                n.notation(),
-                crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
-            )
-        })
-        .filter(|n| !(n.is_name() && *n.text == *param.name))
-        .count();
-    (over_numbers && values == 1).then(|| def.name.clone())
-}
-
 fn covered(
     checked: &CheckedCorpus,
     templates: &Templates,
@@ -372,205 +146,15 @@ fn covered(
     // Its file's functions written out where applied, as the writer reads
     // it (`CheckedTheorem::written`).
     let rec = super::theorem::as_written(rec);
-    let set_valued = thm.defines.iter().any(|d| {
-        matches!(crate::corpus::define_parts(&d.text),
-            crate::outcome::Route::Built(crate::corpus::DefineParts::One(def))
-                if !def.params.is_empty() && super::theorem::set_valued(rec, &def.name))
-    });
-    if set_valued {
-        return Covered::Out {
-            reason: super::theorem::SET_VALUED.to_string(),
-        };
-    }
     if !rec.problems.is_empty() {
         return Covered::Failed {
             reason: "the checker refuses it".to_string(),
         };
     }
-    // A `let` the page does not read as a formula is in where it is `A be a
-    // set` or `x be an element` of a sort Lean has a type for, or a map
-    // between sets with a property, `let f : A → B be one-to-one`, which
-    // the writer states from what the checker reads the line to assert.
-    let in_parts = thm.hypotheses.iter().enumerate().any(|(i, h)| {
-        let body = h.body(&thm.path);
-        let unread = body.sentences().iter().any(|s| rec.page.get(s).is_none());
-        unread && !set_line(body, rec) && !map_line(rec.asserted.get(i))
-    });
-    if in_parts {
-        return Covered::Out {
-            reason: "a let line says a property beside a type, which the Lean build does not read yet"
-                .to_string(),
-        };
-    }
-    // A function the header lets by its value is its equation for every x
-    // (`theorem::header_function`), which a step citing the define or
-    // substituting from it puts in; a step of another method citing it, an
-    // algebra or a transitivity from D1, does not.
-    if header_function_through_a_method(thm) {
-        return Covered::Out {
-            reason: "a step cites a function the header lets through a method, which its equation for every x is not put in by"
-                .to_string(),
-        };
-    }
-    // A count of a set no line says is finite is in ℕ∞ (`sets::count_term`),
-    // whose subtraction stops at 0 where the page's does not: |A| − |B| is
-    // not written of such sets.
-    // The theorem counts as natural numbers the sets the checker records
-    // finite (`CheckedTheorem::said_finite`).
-    let finite = &rec.said_finite.sets;
-    let extended = |n: &crate::formula::Node| {
-        super::sets::counts_in_extended(&checked.grammar, finite, n)
-    };
-    // Nor is one compared with what is no natural number, which beside it
-    // is taken in ℕ: a difference or a quotient, |S| = j − 1, or a letter
-    // the page puts in ℤ, ℚ, ℝ or ℂ, |S| = j of j ∈ ℤ.
-    let systems: std::collections::BTreeMap<String, super::expr::System> = rec
-        .page
-        .entries()
-        .filter_map(|(_, n)| super::statement::introduces(n))
-        .collect();
-    let differs = |n: &crate::formula::Node| {
-        n.walk().iter().any(|m| {
-            let lettered = m.is_name()
-                && matches!(
-                    systems.get(m.text.as_str()),
-                    Some(super::expr::System::Type(_))
-                );
-            lettered
-                || (matches!(&*m.notation_name(), "additive" | "multiplicative")
-                    && !matches!(&*m.spelling().text(), "+" | "·"))
-        })
-    };
-    let count_subtracted =
-        rec.page
-            .entries()
-            .flat_map(|(_, node)| node.walk())
-            .any(|n| {
-                let arithmetic =
-                    matches!(&*n.notation_name(), "additive" | "multiplicative");
-                let plus_or_times = matches!(&*n.spelling().text(), "+" | "·");
-                // An equation of a count alone and a number with no count,
-                // |S| = j, is said as "the count is a natural number that is
-                // j" (`sets::count_equals_number`).
-                let bare = |c: &crate::formula::Node| {
-                    &*c.notation_name() == "cardinality" && extended(c)
-                };
-                let beside = match n.children.as_slice() {
-                    [a, b]
-                        if &*n.notation_name() == "equality"
-                            && ((bare(a) && !extended(b))
-                                || (bare(b) && !extended(a))) =>
-                    {
-                        false
-                    }
-                    [a, b] if matches!(&*n.notation_name(), "equality" | "order") => {
-                        (extended(a) && differs(b)) || (extended(b) && differs(a))
-                    }
-                    _ => false,
-                };
-                (arithmetic && !plus_or_times && extended(&n)) || beside
-            });
-    if count_subtracted {
-        return Covered::Out {
-            reason: "a count of a set subtracted or divided, which ℕ∞ does not compute as the page does"
-                .to_string(),
-        };
-    }
-    // A citation that gives a count for a letter of a number system, m :=
-    // |A| for m ∈ ℕ₀, of a set no line says is finite: the count is in ℕ∞,
-    // the letter in Lean's ℕ. A count inside a formula or a set given for
-    // a letter of those, P := "k ≤ |W| and …", is written as the lines
-    // around it write it.
-    let count_given = rec
-        .cited
-        .iter()
-        .flatten()
-        .chain(rec.cited_requires.values())
-        .any(|c| {
-            c.binding
-                .values()
-                .any(|v| v.sort.is("number") && extended(v))
-        });
-    if count_given {
-        return Covered::Out {
-            reason: "a count given for a number letter of a cited item, which Lean's ℕ meets in ℕ∞ only through finiteness"
-                .to_string(),
-        };
-    }
-    // A letter the page gives a function type, `f : ℝ → ℝ`, is a Lean
-    // function of its own; a composite of such is one too; and so is a
-    // function the proof defines, `let S(m) = …, for m ∈ ℕ`.
-    let mut own: std::collections::BTreeSet<String> = rec
-        .page
-        .entries()
-        .flat_map(|(_, node)| node.walk())
-        .filter(|n| n.notation() == crate::notations::FUNCTION_TYPE)
-        .filter_map(|n| {
-            n.children
-                .first()
-                .filter(|f| f.is_name())
-                .map(|f| f.text.to_string())
-        })
-        .collect();
-    // A polynomial is a function from ℂ to ℂ (`sets::polynomial_claim`): a
-    // letter the page says is one, in a line or a `let`, or that "there is
-    // a polynomial q" binds.
-    let said = rec
-        .page
-        .entries()
-        .map(|(_, node)| node)
-        .chain(rec.asserted.iter().flatten())
-        .flat_map(|node| node.walk());
-    for n in said {
-        if let Some(p) = super::statement::introduces_polynomial(&n) {
-            own.insert(p);
-        }
-        let over_polynomials = matches!(n.children.as_slice(), [q, set, _]
-            if matches!(n.notation(), crate::notations::THERE_IS | crate::notations::FOR_ALL)
-                && &*set.notation_name() == "polynomials"
-                && q.is_name());
-        // f of "there is f : A → B with …" is the quantifier's own letter.
-        let over_functions = matches!(n.children.as_slice(), [q, set, _]
-            if matches!(n.notation(), crate::notations::THERE_IS | crate::notations::FOR_ALL)
-                && &*set.notation_name() == "functions-from"
-                && q.is_name());
-        if over_polynomials || over_functions {
-            own.insert(n.children[0].text.to_string());
-        }
-    }
-    // Only a define in the proof below the statement: one in the statement
-    // is part of what the theorem says, which the statement writer reads.
-    for line in thm.defines.iter().filter(|d| d.line > thm.conclusion_line) {
-        if let Some(name) = defined_function(line, rec) {
-            own.insert(name);
-        }
-        // A recursion the proof lets is its function, obtained where it is
-        // let (`theorem::define_recursion`).
-        if let crate::outcome::Route::Built(crate::corpus::DefineParts::Recursion(r)) =
-            crate::corpus::define_parts(&line.text)
-        {
-            if r.domain.trim() == "ℕ₀" {
-                own.extend(r.names.iter().cloned());
-            }
-        }
-    }
-    // A recursion over ℕ₀ the statement lets is its functions, letters of
-    // the statement (`theorem::header_recursions`), as is a function it lets
-    // by its value over numbers (`theorem::header_function`).
-    for line in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
-        if let Some(name) = defined_function(line, rec) {
-            own.insert(name);
-        }
-        if let crate::outcome::Route::Built(crate::corpus::DefineParts::Recursion(r)) =
-            crate::corpus::define_parts(&line.text)
-        {
-            if r.domain.trim() == "ℕ₀" {
-                own.extend(r.names.iter().cloned());
-            }
-        }
-    }
-    // A library function applied is in where its definition says what it
-    // is in Lean (`lean-builds`).
+    // A notation is in where its record says what it is in Lean
+    // (`lean-builds`), and a library function applied where its definition
+    // does.
+    let functions = &checked.grammar.functions;
     let mut notations: Vec<String> = rec
         .page
         .entries()
@@ -579,50 +163,10 @@ fn covered(
             let name = n.notation_name().to_string();
             if matches!(name.as_str(), "application" | "application-to-two") {
                 let head = n.children.first()?;
-                if !head.is_name() || own.contains(head.text.as_str()) {
-                    return None;
-                }
                 let f = head.text.to_string();
-                return templates.function(&f).is_none().then(|| {
+                let library = head.is_name() && functions.contains_key(&f);
+                return (library && templates.function(&f).is_none()).then(|| {
                     format!("{f}, applied, whose definition has no lean-builds field")
-                });
-            }
-            // f is a function on a set, which a Lean function of the set's
-            // type is (`expr`): a set of numbers, a range, or a set of
-            // things a letter's sort says.
-            // Continuity or a derivative of f′: its domain is where f has a
-            // derivative, which no line gives (`expr::differentiable`).
-            if matches!(name.as_str(), "continuous" | "differentiable")
-                && n.children.first().is_some_and(|f| !f.is_name())
-            {
-                return Some(format!("{name} of a function that is no letter"));
-            }
-            if &*n.notation_name() == "function-on" {
-                let typed = matches!(n.children.as_slice(), [_, set]
-                    if set_of_numbers(set)
-                        || set.notation() == crate::notations::INTEGER_RANGE
-                        || sorted_set(set));
-                return (!typed)
-                    .then(|| "a function on a set Lean has no type for".to_string());
-            }
-            if n.notation() == crate::notations::FUNCTION_TYPE {
-                // Between number systems, between sets of things, a map
-                // `α → α` (`sets`), from things into numbers, `α → ℝ`, or
-                // between sets of numbers, a function of the numbers' types
-                // with the sets beside it.
-                // The sets are the last two parts, after the letter where
-                // the type names one.
-                let sides = n.children.len().checked_sub(2).map(|k| &n.children[k..]);
-                let typed = matches!(sides, Some([from, to])
-                if super::expr::function_systems(from, to).is_some()
-                    || [from, to].iter().all(|s| {
-                        sorted_set(s)
-                            || listed_letters(s)
-                            || &*s.notation_name() == "empty-set"
-                            || set_of_numbers(s)
-                    }));
-                return (!typed).then(|| {
-                    "a function type between sets Lean has no type for yet".to_string()
                 });
             }
             (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name))
@@ -633,54 +177,6 @@ fn covered(
     if let Some(first) = notations.first() {
         return Covered::Out {
             reason: format!("it writes {first}"),
-        };
-    }
-    // A letter whose sort Lean has no type for yet: the writer types
-    // numbers only. A letter a binder in the line holds is the binder's,
-    // the s of "for all s ∈ S, s ≤ u" that "u is an upper bound of S"
-    // means, whatever a letter of that name is outside it.
-    let binders = checked.grammar.binders();
-    let mut letters: Vec<(String, String)> = rec
-        .page
-        .entries()
-        .flat_map(|(_, node)| crate::matching::free_names(node, &binders))
-        .filter(|n| templates.function(n).is_none())
-        .filter(|n| !own.contains(n.as_str()))
-        .filter_map(|n| {
-            let sort = rec.sorts.get(n.as_str())?;
-            // A group's elements, the group itself and its subgroups take
-            // their types from the group line (`theorem::statement`).
-            let of_group =
-                matches!(sort.full(), Some(crate::formula::Whole::GroupElement))
-                    || matches!(sort.full(), Some(crate::formula::Whole::Set(m))
-                    if matches!(**m, crate::formula::Whole::GroupElement));
-            // A set of numbers a line puts among numbers, D ⊆ ℝ, is a set of
-            // those; a function of numbers is typed through its sets.
-            let of_numbers = match sort.full() {
-                Some(crate::formula::Whole::Set(m)) => match &**m {
-                    crate::formula::Whole::Number => among_numbers(&n, rec),
-                    crate::formula::Whole::Set(inner) => {
-                        matches!(**inner, crate::formula::Whole::Number)
-                            && defined_parts_of_numbers(&n, thm, rec, 0)
-                    }
-                    _ => false,
-                },
-                Some(crate::formula::Whole::Function(_, _)) => {
-                    between_number_sets(&n, rec)
-                }
-                _ => false,
-            };
-            let typed = sort.is("number")
-                || super::sets::set_letter_type(sort).is_some()
-                || of_group
-                || of_numbers;
-            (!typed).then(|| (n.clone(), sort.describe()))
-        })
-        .collect();
-    letters.sort();
-    if let Some((letter, sort)) = letters.first() {
-        return Covered::Out {
-            reason: format!("{letter} is {sort}, which has no Lean type yet"),
         };
     }
     for (full, _) in cited_items(thm) {

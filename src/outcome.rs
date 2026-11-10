@@ -142,6 +142,8 @@ pub type Checked<T> = Result<T, Problem>;
 pub struct Decline {
     shape: Cow<'static, str>,
     terms: Vec<String>,
+    /// Whether it is something a backend does not cover yet (`left_out`).
+    left_out: bool,
 }
 
 impl Decline {
@@ -150,6 +152,7 @@ impl Decline {
         Decline {
             shape: reason.into(),
             terms: Vec::new(),
+            left_out: false,
         }
     }
 
@@ -159,6 +162,34 @@ impl Decline {
         Decline {
             shape: shape.into(),
             terms,
+            left_out: false,
+        }
+    }
+
+    /// A decline for what a backend does not cover yet, a form the Lean
+    /// build has no way to write: the theorem is left out, and that is no
+    /// failure (`docs/LEAN.md`, "Which theorems are in"). Any other decline
+    /// of a theorem the build takes in is a gap.
+    pub fn left_out(reason: impl Into<Cow<'static, str>>) -> Self {
+        Decline {
+            shape: reason.into(),
+            terms: Vec::new(),
+            left_out: true,
+        }
+    }
+
+    /// Whether this is something a backend does not cover yet.
+    pub fn leaves_out(&self) -> bool {
+        self.left_out
+    }
+
+    /// The same decline said as `reason`, of the same kind: a step's decline
+    /// named by its step.
+    pub fn reworded(self, reason: impl Into<Cow<'static, str>>) -> Self {
+        Decline {
+            shape: reason.into(),
+            terms: Vec::new(),
+            left_out: self.left_out,
         }
     }
 
@@ -206,6 +237,12 @@ impl<T> Route<T> {
     /// A route that declines for the reason given.
     pub fn no(reason: impl Into<Cow<'static, str>>) -> Self {
         Route::Declined(Decline::new(reason))
+    }
+
+    /// A route declining for what a backend does not cover yet
+    /// (`Decline::left_out`).
+    pub fn left_out(reason: impl Into<Cow<'static, str>>) -> Self {
+        Route::Declined(Decline::left_out(reason))
     }
 
     pub fn is_declined(&self) -> bool {
