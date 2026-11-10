@@ -5,6 +5,7 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SubstTactics
@@ -23,7 +24,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -58,7 +58,9 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
     have s2_2 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side))
     -- 2.3. mun:power-positive a := 2, m := (n + j + 1)!
     have r247_1 : (2 : ℤ) > 0 := by parley_arith
-    have s2_3 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); parley_side)
+    have s2_3 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by
+      have hI : (0 : ℤ) < 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)))
+      exact hI
     -- 2.4. mun:reciprocal-positive x := 2^((n + j + 1)!), from 2.3
     have s2_4 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by parley_side))
     -- 2.5. thm:partial-sum-real m := n + j, from 2.2

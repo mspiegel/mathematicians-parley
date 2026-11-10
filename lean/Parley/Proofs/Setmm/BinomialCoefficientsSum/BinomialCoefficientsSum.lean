@@ -5,11 +5,8 @@ public import Counting
 public import FactorialTactics
 public import InstanceTactics
 public import NormTactics
-public import PowerTactics
-public import RealTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
-public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -26,7 +23,6 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -34,10 +30,8 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Wiedijk.Binomial.Binomial
@@ -71,7 +65,9 @@ theorem binomial_coefficients_sum (N : ℤ) (hH1 : 0 ≤ N) :
   -- 3. calculation
   try qify
   calc (2 ^ N.toNat : ℚ) = (1 + 1) ^ N.toNat := by (have h := congrArg (fun t : ℤ => t ^ N.toNat) (s2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)) | exact_mod_cast ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side))).symm | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); parley_int_power h) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); parley_rat_of_real h) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); simp +contextual (disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith)) only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)); parley_side)
+    _ = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by
+        have hI : (1 + 1) ^ N.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)))
+        exact hI
     _ = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat)) (u := (fun k : ℤ => (LeanBridges.Counting.choose N k : ℚ))) (a := (0 : ℤ)) (b := N) s1)
 
 end Parley.Proofs.Setmm.BinomialCoefficientsSum.BinomialCoefficientsSum

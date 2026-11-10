@@ -46,7 +46,7 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_3 : 3 * (m + 1) = 3 * m + 3 := by parley_ring
       -- 1.4. calculation
       have s1_4 : (4 ^ (3 * (m + 1)).toNat : ℤ) = 4 ^ (3 * m).toNat * 4 ^ 3 := by
-        calc (4 ^ (3 * (m + 1)).toNat : ℤ) = 4 ^ (3 * m + 3).toNat := by parley_subst s1_3
+        calc (4 ^ (3 * (m + 1)).toNat : ℤ) = 4 ^ (3 * m + 3).toNat := by (have h := congrArg (fun t : ℤ => 4 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 4 ^ (3 * m).toNat * 4 ^ 3 := by
               have hI : (4 ^ (3 * m + 3).toNat : ℤ) = 4 ^ (3 * m).toNat * 4 ^ 3 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (4 : ℤ)) (m := 3 * m) (by parley_side) (n := (3 : ℤ)) (by parley_side)))
               exact hI

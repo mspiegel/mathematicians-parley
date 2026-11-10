@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import Functions
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -51,7 +50,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       -- 1.5. algebra, from 1.4
       have s1_5 : 2 ^ (k + 1).toNat * c = 2 ^ k.toNat * (2 * c) := by linear_combination (norm := parley_norm) (c) * s1_4
       -- 1.6. substitute 2^(k + 1)·c = 2^k·(2·c) (line 1.5) into A
-      have s1_6 : (5 : ℤ) ∣ 2 ^ k.toNat * (2 * c) := by parley_subst_at s1_5 hA
+      have s1_6 : (5 : ℤ) ∣ 2 ^ k.toNat * (2 * c) := by (have h := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t)) s1_5 hA; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.7. instantiate c := 2·c in IH, from 1.6
       have s1_7 : (5 : ℤ) ∣ 2 * c := by exact (hIH (2 * c) (by parley_side))
       -- 1.8. thm:five-divides-half b := c, from 1.7

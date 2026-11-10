@@ -3,10 +3,8 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
@@ -64,9 +62,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
     have s1_1 : 2 * (n + 1) = 2 * n + 2 := by parley_ring
     -- 1.2. calculation
     have s1_2 : x ^ (2 * (n + 1)).toNat = x ^ (2 * n).toNat * x ^ 2 := by
-      calc x ^ (2 * (n + 1)).toNat = x ^ (2 * n + 2).toNat := by
-            have s1_1_w : 2 * ((n : ℝ) + 1) = 2 * (n : ℝ) + 2 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_1; push_cast at h; linear_combination (norm := parley_norm) h
-            first | parley_subst s1_1_w | parley_subst s1_1
+      calc x ^ (2 * (n + 1)).toNat = x ^ (2 * n + 2).toNat := by (have h := congrArg (fun t : ℤ => x ^ t.toNat) s1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = x ^ (2 * n).toNat * x ^ 2 := by
             have hI : x ^ (2 * n + 2).toNat = x ^ (2 * n).toNat * x ^ 2 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)))
             exact hI

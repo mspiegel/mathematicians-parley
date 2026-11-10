@@ -2,11 +2,9 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import ComplexTactics
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import PowerTactics
 public import RealTactics
 public import SetTactics
 public import Tactics
@@ -29,8 +27,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Trigonometry
@@ -65,7 +61,9 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 10. mun:sin-nonneg a := x − π/2, from 9
   have s10 : 0 ≤ Real.sin (x - Real.pi / 2) := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_nonneg (a := x - Real.pi / 2) s9)
   -- 11. thm:cos-add a := x − π/2, b := π/2
-  have s11 : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)); parley_set_side)
+  have s11 : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by
+    have hI : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)))
+    exact hI
   -- 12. algebra
   have s12 : x - Real.pi / 2 + Real.pi / 2 = x := by parley_ring
   -- 13. substitute (x − π/2) + π/2 = x (line 12)

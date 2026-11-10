@@ -48,7 +48,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     obtain ⟨p, q, ⟨⟨s1_1a, s1_1b⟩, s1_1c⟩⟩ := (Parley.Proofs.Wiedijk.Sqrt2Irrational.LowestTerms.lowest_terms (x := (Classical.choose hS)))
     have s1_1b : x = (p : ℝ) / (q : ℝ) := by rw [← Classical.choose_spec hS]; exact_mod_cast s1_1b
     -- 1.2. substitute x = p/q (line 1.1) into H2
-    have s1_2 : ((p : ℚ) / (q : ℚ)) ^ 3 + (p : ℚ) / (q : ℚ) + 3 = 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 3 + t + 3 = 0)) s1_1b hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s1_2 : ((p : ℚ) / (q : ℚ)) ^ 3 + (p : ℚ) / (q : ℚ) + 3 = 0 := by parley_subst_at s1_1b hH2
     -- 1.3. algebra, from 1.2
     have r29_1 : q ≠ 0 := by parley_side
     have s1_3 : p ^ 3 + p * q ^ 2 + 3 * q ^ 3 = 0 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s1_2
@@ -93,7 +93,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
         -- 1.5.4. obtain r: def:odd n := p, from C4
         obtain ⟨r, s1_5_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := p))).mp hC4
         -- 1.5.5. substitute p = 2r + 1 (line 1.5.4) into line 1.3
-        have s1_5_5 : (2 * r + 1) ^ 3 + (2 * r + 1) * q ^ 2 + 3 * q ^ 3 = 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 3 + t * q ^ 2 + 3 * q ^ 3 = 0)) s1_5_4 s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s1_5_5 : (2 * r + 1) ^ 3 + (2 * r + 1) * q ^ 2 + 3 * q ^ 3 = 0 := by parley_subst_at s1_5_4 s1_3
         -- 1.5.6. mun:even-or-odd n := q
         have s1_5_6 : Even q ∨ Odd q := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := q))
         -- 1.5.7. cases, from 1.5.6

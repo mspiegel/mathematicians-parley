@@ -26,7 +26,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -34,7 +33,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
@@ -84,7 +82,9 @@ theorem log_three_over_two_irrational :
         _ = Real.log (2 ^ p : ℝ) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := p) (by parley_side)).symm
     -- 2.6. mun:power-positive a := 3, m := q
     have r124_1 : (3 : ℤ) > 0 := by parley_arith
-    have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by first | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | linarith [(Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); parley_side)
+    have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by
+      have hI : (0 : ℤ) < 3 ^ q.toNat := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)))
+      exact hI
     -- 2.7. mun:power-positive a := 2, m := p
     have r128_1 : (2 : ℤ) > 0 := by parley_arith
     have s2_7 : (2 ^ p : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by parley_side))
@@ -99,7 +99,7 @@ theorem log_three_over_two_irrational :
     -- 2.10. thm:power-of-two-even n := p, from 2.4
     have s2_10 : ∃ m : ℤ, (m : ℚ) = (2 ^ p : ℚ) ∧ Even m := by
       have whole1 : ((2 : ℚ) : ℚ) ^ (p).toNat = (2 ^ p : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s2_4)]
-      refine ⟨(((2 : ℤ) ^ (p).toNat) : ℤ), by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring), ?_⟩
+      refine ⟨(((2 : ℤ) ^ (p).toNat) : ℤ), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
       (exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven.power_of_two_even (n := p) (by parley_side)))
     -- 2.11. substitute 2^p = 3^q (line 2.8) into line 2.10
     have s2_11 : Even (3 ^ q.toNat : ℤ) := by first | parley_subst_at s2_8 s2_10 | exact parley_witness_at s2_10 ((3 ^ q.toNat : ℤ)) (by push_cast; linear_combination (norm := parley_norm) s2_8) | exact parley_witness_at s2_10 ((3 ^ q.toNat : ℤ)) (by push_cast; linear_combination (norm := parley_norm) -s2_8)

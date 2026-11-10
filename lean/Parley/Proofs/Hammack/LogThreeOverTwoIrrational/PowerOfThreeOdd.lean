@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -49,7 +48,7 @@ theorem power_of_three_odd (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.4. calculation
       have s1_4 : 3 ^ (j + 1).toNat = 2 * (3 * k + 1) + 1 := by
         calc (3 ^ (j + 1).toNat : ℤ) = 3 ^ j.toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) (by parley_side))
-          _ = (2 * k + 1) * 3 := by parley_subst s1_3
+          _ = (2 * k + 1) * 3 := by (have h := congrArg (fun t : ℤ => t * 3) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 2 * (3 * k + 1) + 1 := by parley_ring
       -- 1.5. def:odd n := 3^(j + 1), from 1.4
       exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, s1_4⟩

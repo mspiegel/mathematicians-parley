@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -56,7 +55,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       -- 3.5. mun:exponent-step a := Q
       have s3_5 : Q ^ (m + 1).toNat = Q ^ m.toNat * Q := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := Q) (m := m) (by parley_side))
       -- 3.6. substitute Q^(m + 1) = Q^m·Q (line 3.5) into C2
-      have s3_6 : P ∣ Q ^ m.toNat * Q := by parley_subst_at s3_5 hC2
+      have s3_6 : P ∣ Q ^ m.toNat * Q := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s3_5 hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.7. thm:prime-divides-product m := Q^m, n := Q, from H2, 3.6
       have s3_7 : P ∣ Q ^ m.toNat ∨ P ∣ Q := by exact ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) (by parley_side) hH2 (m := Q ^ m.toNat) (n := Q))).mp s3_6
       -- 3.8. cases, from 3.7

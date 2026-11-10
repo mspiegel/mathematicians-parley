@@ -69,7 +69,7 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
       have s2_4 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / 2 ≥ 1 + ((m : ℚ) + 1) / 2 := by parley_order
       -- 2.5. transitivity, from 2.3, 2.4
       have s2_5 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + ((m : ℚ) + 1) / 2 := by parley_order
-      first | exact_mod_cast s2_5 | (have h := s2_5; push_cast at h ⊢; exact h) | simpa using s2_5
+      (have h := s2_5; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate m := n in line 2
   exact (s2 n (by parley_side))
 

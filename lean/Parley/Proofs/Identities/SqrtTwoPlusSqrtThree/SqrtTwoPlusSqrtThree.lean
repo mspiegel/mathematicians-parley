@@ -44,7 +44,7 @@ theorem sqrt_two_plus_sqrt_three :
   have s4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by
     intro hS
     -- 4.1. thm:rational-product A := √2 + √3, B := √2 + √3, from S
-    have s4_1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by (exact ⟨(Classical.choose hS : ℚ) * (Classical.choose hS : ℚ), by push_cast; (try simp only [Classical.choose_spec hS]); first | done | parley_ring⟩)
+    have s4_1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by (exact ⟨(Classical.choose hS : ℚ) * (Classical.choose hS : ℚ), by push_cast; (try simp only [Classical.choose_spec hS]); all_goals parley_ring⟩)
     -- 4.2. substitute
     have s4_2 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by
       have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by parley_real

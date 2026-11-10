@@ -3,9 +3,7 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import NormTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
@@ -29,13 +27,13 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -152,17 +150,13 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 29. calculation
   have s29 : F 1 = 1 / ((m : ℝ) + 1) * 1 := by
     calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := by exact s27
-      _ = 1 / ((m : ℝ) + 1) * 1 ^ (m + 1).toNat := by parley_subst s23
-      _ = 1 / ((m : ℝ) + 1) * 1 := by
-          have s24_w : (1 ^ (m + 1).toNat : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst s24_w | parley_subst s24
+      _ = 1 / ((m : ℝ) + 1) * 1 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s23; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 1 / ((m : ℝ) + 1) * 1 := by (have h := congrArg (fun t : ℤ => 1 / ((m : ℚ) + 1) * (t : ℚ)) s24; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 30. calculation
   have s30 : F 0 = 1 / ((m : ℝ) + 1) * 0 := by
     calc F 0 = 1 / ((m : ℝ) + 1) * q 0 := by exact s28
-      _ = 1 / ((m : ℝ) + 1) * 0 ^ (m + 1).toNat := by parley_subst s25
-      _ = 1 / ((m : ℝ) + 1) * 0 := by
-          have s26_w : (0 ^ (m + 1).toNat : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s26; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst s26_w | parley_subst s26
+      _ = 1 / ((m : ℝ) + 1) * 0 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s25; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 1 / ((m : ℝ) + 1) * 0 := by (have h := congrArg (fun t : ℤ => 1 / ((m : ℚ) + 1) * (t : ℚ)) s26; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 31. calculation
   have r193_1 : m + 1 ≠ 0 := by parley_set_side
   calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by simp (disch := omega) only [hD1]

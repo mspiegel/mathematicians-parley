@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -47,13 +46,13 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       have s1_4 : d * (j + 1) = d * j + d := by parley_ring
       -- 1.5. calculation
       have s1_5 : (2 ^ (d * (j + 1)).toNat : ℤ) = 2 ^ (d * j).toNat * 2 ^ d.toNat := by
-        calc (2 ^ (d * (j + 1)).toNat : ℤ) = 2 ^ (d * j + d).toNat := by parley_subst s1_4
+        calc (2 ^ (d * (j + 1)).toNat : ℤ) = 2 ^ (d * j + d).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 2 ^ (d * j).toNat * 2 ^ d.toNat := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd.two_power_add (a := d * j) (by parley_side) (b := d) (by parley_side))
       -- 1.6. calculation
       have s1_6 : 2 ^ (d * (j + 1)).toNat - 1 = (2 ^ d.toNat - 1) * (2 ^ d.toNat * q + 1) := by
-        calc (2 ^ (d * (j + 1)).toNat - 1 : ℤ) = 2 ^ (d * j).toNat * 2 ^ d.toNat - 1 := by parley_subst s1_5
+        calc (2 ^ (d * (j + 1)).toNat - 1 : ℤ) = 2 ^ (d * j).toNat * 2 ^ d.toNat - 1 := by (have h := congrArg (fun t : ℤ => t - 1) s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 2 ^ d.toNat * (2 ^ (d * j).toNat - 1) + (2 ^ d.toNat - 1) := by parley_ring
-          _ = 2 ^ d.toNat * ((2 ^ d.toNat - 1) * q) + (2 ^ d.toNat - 1) := by parley_subst s1_3b
+          _ = 2 ^ d.toNat * ((2 ^ d.toNat - 1) * q) + (2 ^ d.toNat - 1) := by (have h := congrArg (fun t : ℤ => 2 ^ d.toNat * t + (2 ^ d.toNat - 1)) s1_3b; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (2 ^ d.toNat - 1) * (2 ^ d.toNat * q + 1) := by parley_ring
       -- 1.7. thm:two-power-bound
       have s1_7 : 2 ^ d.toNat ≥ d + 1 := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side))

@@ -1,10 +1,8 @@
 module
 
 public import InstanceTactics
-public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Basic.Real.Basic
@@ -14,7 +12,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -63,8 +60,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       parley_order
     · skip
       -- 4.5.3. substitute t = i (C2) into H9
-      have hC2_w : (t : ℝ) = (i : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) hC2; push_cast at h; linear_combination (norm := parley_norm) h
-      first | parley_subst_at hC2_w hH9 | parley_subst_at hC2 hH9
+      (have h := Eq.subst (motive := (fun u : ℤ => c u < c j)) (hC2).symm hH9; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. proof
   intro p hK2
   intro q hK3
@@ -117,7 +113,6 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
         have s5_3_5_5 : ¬ j < j := by parley_set_side
         exact absurd s5_3_5_4 s5_3_5_5
     -- 5.3.6. substitute q = j (line 5.3.4) into line 5.3.5
-    have s5_3_4_w : (q : ℝ) = (j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s5_3_4; push_cast at h; linear_combination (norm := parley_norm) h
-    first | parley_subst_at s5_3_4_w s5_3_5 | parley_subst_at s5_3_4 s5_3_5
+    (have h := Eq.subst (motive := (fun t : ℤ => c p < c t)) (s5_3_4).symm s5_3_5; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.ErdosSzekeres.ExtendRun

@@ -80,9 +80,7 @@ theorem halves_series :
       -- 2.4. mun:exponent-step a := 2
       have s2_4 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (by parley_side))
       -- 2.5. substitute 2^(m + 1) = 2^m·2 (line 2.4)
-      have s2_5 : (1 / 2 ^ (m + 1).toNat : ℚ) = 1 / (2 ^ m.toNat * 2) := by
-        have s2_4_w : (2 ^ (m + 1).toNat : ℚ) = 2 ^ m.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
-        first | parley_subst s2_4_w | parley_subst s2_4
+      have s2_5 : (1 / 2 ^ (m + 1).toNat : ℚ) = 1 / (2 ^ m.toNat * 2) := by (have h := congrArg (fun t : ℤ => 1 / (t : ℚ)) s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.6. calculation
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ m.toNat + 1 / 2 ^ (m + 1).toNat := by exact s2_3
         _ = 1 - 1 / 2 ^ m.toNat + 1 / (2 ^ m.toNat * 2) := by (have h := congrArg (fun t : ℚ => 1 - 1 / 2 ^ m.toNat + t) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)

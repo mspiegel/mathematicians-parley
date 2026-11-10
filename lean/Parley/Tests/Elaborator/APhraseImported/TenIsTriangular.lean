@@ -22,7 +22,7 @@ theorem ten_is_triangular :
   -- 1. arithmetic
   have s1 : (10 : ℚ) = 4 * (4 + 1) / 2 := by parley_arith
   -- 2. exhibit, from 1
-  have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by parley_side, by first | exact_mod_cast s1 | (have h := s1; push_cast at h ⊢; exact h) | simpa using s1⟩
+  have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by parley_side, by (have h := s1; push_cast at h ⊢; all_goals exact h)⟩
   -- 3. def:triangular-number n := 10, from 2
   parley_side
 

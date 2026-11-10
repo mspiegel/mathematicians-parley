@@ -1,10 +1,7 @@
 module
 
 public import AlgebraTactics
-public import ComplexTactics
 public import InstanceTactics
-public import NormTactics
-public import PowerTactics
 public import RealTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -14,12 +11,9 @@ public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from proofs/identities/sine-of-half-pi-minus.proof by parley build lean. -/
@@ -42,7 +36,9 @@ theorem sine_of_half_pi_minus (x : ℝ) :
     exact hI
   -- 4. calculation
   calc Real.sin (Real.pi / 2 - x) = Real.sin (Real.pi / 2 + -x) := by (have h := congrArg (fun t : ℝ => Real.sin t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))); parley_side)
+    _ = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by
+        have hI : Real.sin (Real.pi / 2 + -x) = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))))
+        exact hI
     _ = 1 * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by parley_real
     _ = 1 * Real.cos (-x) + 0 * Real.sin (-x) := by parley_real
     _ = 1 * Real.cos x + 0 * Real.sin (-x) := by (have h := congrArg (fun t : ℝ => 1 * t + 0 * Real.sin (-x)) s2; push_cast at h ⊢; all_goals exact_mod_cast h)

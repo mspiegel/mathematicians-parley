@@ -35,7 +35,7 @@ theorem irrational_times_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : S
   have s3 : ¬ (∃ m : ℚ, (m : ℝ) = A * B) := by
     intro hS
     -- 3.1. thm:rational-quotient A := A·B, from H4, H5, S
-    have s3_1 : ∃ m : ℚ, (m : ℝ) = A * B / B := by (exact ⟨(Classical.choose hS : ℚ) / (Classical.choose hH4 : ℚ), by push_cast; (try simp only [Classical.choose_spec hS, Classical.choose_spec hH4]); first | done | parley_ring⟩)
+    have s3_1 : ∃ m : ℚ, (m : ℝ) = A * B / B := by (exact ⟨(Classical.choose hS : ℚ) / (Classical.choose hH4 : ℚ), by push_cast; (try simp only [Classical.choose_spec hS, Classical.choose_spec hH4]); all_goals parley_ring⟩)
     -- 3.2. substitute
     have s3_2 : ∃ m : ℚ, (m : ℝ) = A := by
       have c1 : A * B / B = A := by parley_ring

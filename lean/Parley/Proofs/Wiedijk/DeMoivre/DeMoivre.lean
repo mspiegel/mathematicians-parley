@@ -76,7 +76,7 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
           _ = (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by (have h := congrArg (fun t : ℝ => (t : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ))) (s2_5).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * (Real.sin ((k : ℝ) * x + x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * (t : ℂ)) (s2_6).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Real.cos (((k : ℝ) + 1) * x) : ℂ) + Complex.I * (Real.sin (((k : ℝ) + 1) * x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
-      first | exact_mod_cast s2_8 | (have h := s2_8; push_cast at h ⊢; exact h) | simpa using s2_8
+      (have h := s2_8; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate k := n in line 2
   exact (s2 n (by parley_side))
 

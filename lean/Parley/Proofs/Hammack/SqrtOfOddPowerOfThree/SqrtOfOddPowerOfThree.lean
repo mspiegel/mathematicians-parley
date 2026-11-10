@@ -59,7 +59,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 6. mun:power-nat a := 3, from 5
   have s6 : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = 3 ^ m := by
     have whole1 : ((3 : ℚ) : ℚ) ^ (m).toNat = (3 ^ m : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg s5]
-    refine ⟨(((3 : ℤ) ^ (m).toNat) : ℤ), ?_, by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring)⟩
+    refine ⟨(((3 : ℤ) ^ (m).toNat) : ℤ), ?_, by (push_cast; simp only [whole1]; all_goals ring)⟩
     (exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by parley_side) (m := m) (by parley_side)))
   -- 7. mun:power-nat a := 3, m := k
   have s7 : (0 : ℤ) < 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by parley_side) (m := k) (by parley_side))

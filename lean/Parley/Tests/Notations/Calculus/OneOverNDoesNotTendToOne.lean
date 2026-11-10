@@ -50,7 +50,7 @@ theorem one_over_n_does_not_tend_to_one :
   obtain ⟨N, s2_3a, s2_3b⟩ := s2_2
   -- 2.4. instantiate n := N + 1 in line 2.3
   have r303_1 : N + 1 ≥ N := by parley_order
-  have s2_4 : abs (1 / ((N : ℚ) + 1) - 1) < 1 / 2 := by first | exact_mod_cast (s2_3b (N + 1) (by parley_side) (by parley_side)) | (have h := (s2_3b (N + 1) (by parley_side) (by parley_side)); push_cast at h ⊢; exact h) | simpa using (s2_3b (N + 1) (by parley_side) (by parley_side))
+  have s2_4 : abs (1 / ((N : ℚ) + 1) - 1) < 1 / 2 := by (have h := (s2_3b (N + 1) (by parley_side) (by parley_side)); push_cast at h ⊢; all_goals exact h)
   -- 2.5. inequalities, from 2.3
   have s2_5 : N + 1 > 0 := by parley_order
   -- 2.6. mun:abs-difference-lt x := 1/(N + 1), c := 1, δ := 1/2, from 2.4

@@ -46,7 +46,7 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_3 : 2 * (m + 1) = 2 * m + 2 := by parley_ring
       -- 1.4. calculation
       have s1_4 : (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m).toNat * 5 ^ 2 := by
-        calc (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m + 2).toNat := by parley_subst s1_3
+        calc (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m + 2).toNat := by (have h := congrArg (fun t : ℤ => 5 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 5 ^ (2 * m).toNat * 5 ^ 2 := by
               have hI : (5 ^ (2 * m + 2).toNat : ℤ) = 5 ^ (2 * m).toNat * 5 ^ 2 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (by parley_side) (n := (2 : ℤ)) (by parley_side)))
               exact hI

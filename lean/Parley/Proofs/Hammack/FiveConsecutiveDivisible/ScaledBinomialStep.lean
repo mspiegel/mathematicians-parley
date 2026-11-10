@@ -4,6 +4,7 @@ public import Counting
 public import FactorialTactics
 public import NormTactics
 public import OrderTactics
+public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -43,6 +44,6 @@ theorem scaled_binomial_step (m : ℤ) (hH1 : 0 ≤ m) (i : ℤ) (hH2 : 0 ≤ i)
   -- 7. algebra, from 1
   have s7 : m + i + 1 = m + j := by linear_combination (norm := parley_norm) (-1) * s1
   -- 8. substitute (m + i) + 1 = m + j (line 7) into line 6
-  (have h := Eq.subst (motive := (fun t : ℤ => j * (LeanBridges.Counting.choose t j : ℤ) = t * (LeanBridges.Counting.choose (m + i) i : ℤ))) s7 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
+  parley_subst_at s7 s6
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep

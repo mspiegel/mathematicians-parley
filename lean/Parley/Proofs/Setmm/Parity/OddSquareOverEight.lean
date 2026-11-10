@@ -30,6 +30,6 @@ theorem odd_square_over_eight (N : ℤ) :
           have hD1_w : (M : ℚ) = 2 * (N : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hD1; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst hD1_w | parley_subst hD1
       _ = (N : ℚ) * ((N : ℚ) + 1) / 2 := by parley_ring
-  first | exact_mod_cast s1 | (have h := s1; push_cast at h ⊢; exact h) | simpa using s1
+  (have h := s1; rw [hD1] at h; push_cast at h ⊢; all_goals exact h)
 
 end Parley.Proofs.Setmm.Parity.OddSquareOverEight

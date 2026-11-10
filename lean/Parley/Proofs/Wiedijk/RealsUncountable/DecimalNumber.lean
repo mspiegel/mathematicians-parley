@@ -15,7 +15,6 @@ public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
-public import Mathlib.Algebra.Group.Nat.Defs
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
@@ -93,14 +92,14 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have s3_12 : (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / (10 ^ k.toNat * 10) := by parley_ring
     -- 3.13. substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.12
     have s3_13 : (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / 10 ^ (k + 1).toNat := by
-      have s3_11_w : (10 ^ (k + 1).toNat : ℚ) = 10 ^ k.toNat * 10 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_11; push_cast at h; linear_combination (norm := parley_norm) h
-      first | parley_subst_at s3_11_w s3_12 | parley_subst_at s3_11 s3_12 | (have e_nat : 10 ^ (k + 1).toNat = 10 ^ k.toNat * 10 := by exact_mod_cast s3_11; parley_subst_at e_nat s3_12)
+      have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by exact_mod_cast (s3_11).symm
+      (have h := Eq.subst (motive := (fun t : ℚ => (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / t)) e_w s3_12; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.14. algebra
     have s3_14 : ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / (10 ^ k.toNat * 10) := by parley_ring
     -- 3.15. substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.14
     have s3_15 : ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by
-      have s3_11_w : (10 ^ (k + 1).toNat : ℚ) = 10 ^ k.toNat * 10 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_11; push_cast at h; linear_combination (norm := parley_norm) h
-      first | parley_subst_at s3_11_w s3_14 | parley_subst_at s3_11 s3_14 | (have e_nat : 10 ^ (k + 1).toNat = 10 ^ k.toNat * 10 := by exact_mod_cast s3_11; parley_subst_at e_nat s3_14)
+      have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by exact_mod_cast (s3_11).symm
+      (have h := Eq.subst (motive := (fun t : ℚ => ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / t)) e_w s3_14; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.16. mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.9
     have r256_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
     have s3_16 : 10 * (N k : ℚ) / 10 ^ (k + 1).toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := 10 * (N k : ℚ)) (y := (N (k + 1) : ℚ)) (c := (10 ^ (k + 1).toNat : ℚ)) (by parley_set_side) (by parley_set_side))

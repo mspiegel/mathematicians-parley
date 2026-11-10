@@ -47,7 +47,7 @@ theorem pronic_sum (n : ℤ) (hH1 : 0 < n) :
               have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((k : ℚ) * ((k : ℚ) + 1) : ℚ)) = 1 * (1 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) * ((j : ℚ) + 1))) (a := (1 : ℤ))))
               exact hI
           _ = 1 * (1 + 1) * (1 + 2) / 3 := by norm_num
-      first | exact_mod_cast s1_1 | (have h := s1_1; push_cast at h ⊢; exact h) | simpa using s1_1
+      (have h := s1_1; push_cast at h ⊢; all_goals exact h)
     | succ k hK hIH =>
       -- 1.2. calculation
       have r27_1 : k ≥ 1 := by parley_side
@@ -60,7 +60,7 @@ theorem pronic_sum (n : ℤ) (hH1 : 0 < n) :
         calc (S (k + 1) : ℚ) = (S k : ℚ) + ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) := by parley_side
           _ = (k : ℚ) * ((k : ℚ) + 1) * ((k : ℚ) + 2) / 3 + ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) := by (have h := congrArg (fun t : ℚ => t + ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) * ((k : ℚ) + 1 + 2) / 3 := by parley_ring
-      first | exact_mod_cast s1_3 | (have h := s1_3; push_cast at h ⊢; exact h) | simpa using s1_3
+      (have h := s1_3; push_cast at h ⊢; all_goals exact h)
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * ((k : ℚ) + 1) : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num
     _ = (n : ℚ) * ((n : ℚ) + 1) * ((n : ℚ) + 2) / 3 := by exact (s1 n (by parley_side))

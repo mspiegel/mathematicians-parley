@@ -138,9 +138,15 @@ enum Proved {
         line: Printed,
     },
     /// By the line `line`, the two apart in casts the cast table does not
-    /// settle: the ways tried in order, a `first` list the register of
-    /// lists keeps (`tests/first_lists.rs`).
-    Ways { line: Printed },
+    /// say one tactic moves: both pushed down to the letters, where in one
+    /// type they are one statement; where the line is in a narrower type
+    /// (`CastsApart::lift`), it is then lifted to the goal's. Each side is
+    /// first rewritten by the `set` equations its letters name, as
+    /// `Proved::Cast` rewrites them.
+    Unsettled {
+        line: Printed,
+        apart: super::doc::forms::CastsApart,
+    },
 }
 
 /// The tactic that moves the casts of a line and a goal apart only in them,
@@ -177,7 +183,7 @@ fn cast_proved(
     {
         CastsBy::PushCast
     } else {
-        return Some(Proved::Ways { line });
+        return Some(Proved::Unsettled { line, apart });
     };
     Some(Proved::Cast { apart, by, line })
 }
@@ -191,20 +197,40 @@ impl Proved {
             Proved::Simplified { rules, line } => {
                 t::simpa_only(rules.clone(), line.clone())
             }
-            Proved::Ways { line } => t::first(
-                ListReason::CastsUnsettled,
-                vec![
-                    t::exact_mod_cast(line.clone()),
-                    t::on_h(
-                        line,
+            // Casts the table does not say one tactic moves: both pushed down
+            // to the letters, where in one type they are one statement; a
+            // line in a narrower type is then lifted to the goal's. Lifting
+            // where neither is narrower would read a division of casts one
+            // way on one side and another on the other. A claim the pushing
+            // works out is closed on the way.
+            Proved::Unsettled { line, apart } => {
+                let rewrite = |by: &[String], at: super::doc::Location| {
+                    t::call(
+                        "rw",
                         vec![
-                            t::push_cast(Some(t::at_h(true))),
-                            Tactic::Exact(t::hyp("h")),
+                            t::rules(by.iter().map(|e| t::hyp(e)).collect()),
+                            TacticArg::At(vec![at]),
                         ],
-                    ),
-                    t::call("simpa", vec![TacticArg::Using(line.clone())]),
-                ],
-            ),
+                    )
+                };
+                let mut steps = Vec::new();
+                if !apart.at_given.is_empty() {
+                    steps.push(rewrite(
+                        &apart.at_given,
+                        super::doc::Location::Hypothesis("h".to_string()),
+                    ));
+                }
+                if !apart.at_line.is_empty() {
+                    steps.push(rewrite(&apart.at_line, super::doc::Location::Goal));
+                }
+                let last = match apart.lift {
+                    true => t::exact_mod_cast(t::hyp("h")),
+                    false => Tactic::Exact(t::hyp("h")),
+                };
+                steps.push(t::push_cast(Some(t::at_h(true))));
+                steps.push(Tactic::AllGoals(Box::new(last)));
+                t::on_h(line, steps)
+            }
             // Each side rewritten by the `set` equations its letters name, and
             // then the casts moved by the tactic the cast table gives
             // (`CastsBy`).
@@ -628,20 +654,30 @@ fn one_statement(written: &Printed, said: &Printed) -> bool {
         && number_types(written) == number_types(said)
 }
 
-/// Whether the statement writes an integer power under a binder, x^(m − k)
-/// in a sum over k: its exponent's fact holds only there, where
-/// `parley_zpow_toNat`'s `omega` does not ask it.
-fn integer_power_under_binders(term: &Printed) -> bool {
+/// How many integer powers the statement writes under its binders, x^(m − k)
+/// in a sum over k, whose exponent's fact holds only there, where
+/// `parley_zpow_toNat`'s `omega` does not ask it: two statements of one fact
+/// that write as many have spelt each such power alike, none taken to
+/// `toNat` on one side alone.
+fn integer_powers_under_binders(term: &Printed) -> usize {
     use super::doc::{LeanType, Op, TermKind};
     let int = Some(LeanType::Num(super::templates::Num::Int));
     match &term.kind {
         TermKind::Quantified { .. }
         | TermKind::Bound { .. }
-        | TermKind::Lambda { .. } => term.walk().iter().any(|t| {
-            matches!(&t.kind, TermKind::Infix { op, rhs, .. }
+        | TermKind::Lambda { .. } => term
+            .walk()
+            .iter()
+            .filter(|t| {
+                matches!(&t.kind, TermKind::Infix { op, rhs, .. }
                     if *op == Op::POWER && rhs.ty == int)
-        }),
-        _ => term.children().into_iter().any(integer_power_under_binders),
+            })
+            .count(),
+        _ => term
+            .children()
+            .into_iter()
+            .map(integer_powers_under_binders)
+            .sum(),
     }
 }
 
@@ -1094,6 +1130,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
     writer.reals = held_real(rec, &writer);
     writer.finite_from(&rec.said_finite);
     writer.bounds = rec.statement_bounds.clone();
+    writer.whole_bounds = rec.statement_bounds.clone();
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -1203,6 +1240,44 @@ fn rules_said(k: &str, starts: Vec<Printed>, steps: Vec<Printed>) -> Printed {
 fn conjunction(parts: Vec<Printed>) -> Option<Printed> {
     parts.into_iter().rev().reduce(|right, left| {
         Printed::infix(super::doc::Op::AND, left, right, super::doc::LeanType::Prop)
+    })
+}
+
+/// Whether the statement applies a function to a numeral, through brackets
+/// and casts: `Complex.cos 0`.
+fn function_of_numeral(statement: &Printed) -> bool {
+    use super::doc::{Arg, TermKind};
+    fn bare(t: &Printed) -> &Printed {
+        match &t.kind {
+            TermKind::Paren(inner) | TermKind::Cast { inner, .. } => bare(inner),
+            _ => t,
+        }
+    }
+    statement.walk().iter().any(|t| {
+        let TermKind::App { args, .. } = &t.kind else {
+            return false;
+        };
+        args.iter().any(|a| match a {
+            Arg::Explicit(v) | Arg::Named { value: v, .. } => {
+                matches!(bare(v).kind, TermKind::Numeral(_))
+            }
+        })
+    })
+}
+
+/// Whether the term holds a cast whose term, through brackets, is a
+/// `toNat`: `((2^p − 1).toNat : ℤ)`.
+fn casts_a_to_nat(term: &Printed) -> bool {
+    use super::doc::TermKind;
+    fn bare(t: &Printed) -> &Printed {
+        match &t.kind {
+            TermKind::Paren(inner) => bare(inner),
+            _ => t,
+        }
+    }
+    term.walk().iter().any(|t| {
+        matches!(&t.kind, TermKind::Cast { inner, .. }
+            if matches!(bare(inner).kind, TermKind::ToNat(_)))
     })
 }
 
@@ -2580,6 +2655,7 @@ pub fn theorem(
     proof.writer.reals = held_real(rec, &proof.writer);
     proof.writer.finite_from(&rec.said_finite);
     proof.writer.bounds = rec.statement_bounds.clone();
+    proof.writer.whole_bounds = rec.statement_bounds.clone();
     let Statement {
         binders,
         conclusion,
@@ -4495,16 +4571,12 @@ impl<'a> Proof<'a> {
                 ))
             })
             .collect();
+        // The named numbers' equations put in leave the claim closed, or
+        // arithmetic for `parley_ring`.
         let equal = super::tactics::by_term(super::doc::Proof::By(Tactic::Seq(vec![
             t::push_cast(None),
             t::try_(t::simp_only(false, None, rules, None)),
-            t::first(
-                ListReason::NamedNumbers,
-                vec![
-                    t::call("done", vec![]),
-                    t::bridge(BridgeTactic::Ring, vec![]),
-                ],
-            ),
+            Tactic::AllGoals(Box::new(t::bridge(BridgeTactic::Ring, vec![]))),
         ])));
         let parts = match claimed {
             // In ℕ₀: the integer, beside its being at least 0.
@@ -5883,14 +5955,18 @@ impl<'a> Proof<'a> {
         // whose goal those numbers' equations rewrite before the step's
         // proof (`specs_in`), so that it is not the claim as written; nor a
         // claim that counts a set, whose line may count in ℕ∞, which the
-        // claim as written does not show (as `closer` holds); nor an integer
-        // power under a binder, whose exponent's fact `omega` is not asked.
+        // claim as written does not show (as `closer` holds).
         let through_named =
             !self.named_specs.is_empty() || !self.said_used.borrow().is_empty();
+        // An integer power under a binder is read across only where the two
+        // write it alike: taken to `toNat` on one side alone, its exponent's
+        // fact holds only under the binder, where `omega` is not asked.
+        let binder_powers_apart =
+            integer_powers_under_binders(written) != integer_powers_under_binders(said);
         if written.is_truth()
             || through_named
             || item_counts(claim)
-            || integer_power_under_binders(written)
+            || binder_powers_apart
         {
             return None;
         }
@@ -5902,15 +5978,19 @@ impl<'a> Proof<'a> {
         // asked (as `forms::meets` holds). `parley_instance_real` lifts the
         // step instead and leaves the item as it is.
         let letters = cited.map(|c| c.item_letters.as_slice()).unwrap_or_default();
-        let bare_widened = letters.iter().any(|l| {
-            matches!(
-                (l.item_system, l.value_system),
-                (Some(crate::rules::System::C | crate::rules::System::R), Some(v))
-                    if Some(v) != l.item_system
-            ) && cited
-                .and_then(|c| c.binding.get(&l.letter))
-                .is_some_and(|v| v.names().is_empty())
-        });
+        // Only where the item applies a function to a numeral: in
+        // arithmetic, `(2 : ℚ) ^ n`, `norm_cast` reads the numeral as the
+        // cast of the claim's.
+        let bare_widened = function_of_numeral(said)
+            && letters.iter().any(|l| {
+                matches!(
+                    (l.item_system, l.value_system),
+                    (Some(crate::rules::System::C | crate::rules::System::R), Some(v))
+                        if Some(v) != l.item_system
+                ) && cited
+                    .and_then(|c| c.binding.get(&l.letter))
+                    .is_some_and(|v| v.names().is_empty())
+            });
         let lettered = said
             .walk()
             .iter()
@@ -5921,16 +6001,14 @@ impl<'a> Proof<'a> {
         {
             return None;
         }
-        let met = self
-            .proof_meeting(
-                match one_statement(written, said) {
-                    true => term.clone(),
-                    false => t::hyp("hI"),
-                },
-                written,
-                claim,
-            )
-            .filter(|p| !matches!(p, Proved::Ways { .. }))?;
+        let met = self.proof_meeting(
+            match one_statement(written, said) {
+                true => term.clone(),
+                false => t::hyp("hI"),
+            },
+            written,
+            claim,
+        )?;
         Some(match one_statement(written, said) {
             true => Proof::By(met.closer()),
             false => Proof::Block(vec![
@@ -5997,7 +6075,7 @@ impl<'a> Proof<'a> {
                     Proved::Term(_)
                     | Proved::Cast { .. }
                     | Proved::Simplified { .. }
-                    | Proved::Ways { .. },
+                    | Proved::Unsettled { .. },
                 )
                 | None => {}
             }
@@ -7636,23 +7714,28 @@ impl<'a> Proof<'a> {
             true => part.proof.clone(),
             false => t::symm(t::bracket(part.proof.clone())),
         };
-        // A side written with a `toNat`, `((2^p − 1).toNat : ℤ)`, whose cast
-        // `push_cast` moves only knowing the term is not negative.
-        let to_nat = [left, right].iter().any(|side| {
+        // A side holding a cast of a `toNat`, `((2^p − 1).toNat : ℤ)`, which
+        // `push_cast` moves only knowing the term is not negative. A `toNat`
+        // with no cast over it, an exponent's `2 ^ m.toNat`, is a term like
+        // any other.
+        let cast_to_nat = [left, right].iter().any(|side| {
             self.writer
                 .formula(side)
                 .built()
                 .or_else(|| {
                     self.writer.number(side, super::templates::Num::Int).built()
                 })
-                .is_some_and(|p| !to_nat_texts(&p).is_empty())
+                .is_some_and(|p| casts_a_to_nat(&p))
         });
-        if to_nat {
-            return Route::no("an equation with a side written with toNat");
+        if cast_to_nat {
+            return Route::no("an equation with a side holding a cast of a toNat");
         }
         // A place that is an exponent is written by what the page says of
-        // its term, `(−1)^m.toNat` of m said natural, which the motive's
-        // letter has nothing of.
+        // its term, `(−1)^m.toNat` of m said a whole number. Where the page
+        // says so of the term put for and of the term put, and neither is a
+        // natural-number letter written as it stands, the motive's letter is
+        // said whole as well (`Writer::wholes`), and its exponent is written
+        // as theirs are; any other exponent declines.
         let exponent = rec.put.places.iter().any(|p| {
             let Some((&last, up)) = p.split_last() else {
                 return false;
@@ -7661,9 +7744,21 @@ impl<'a> Proof<'a> {
                 && at_path(&rec.start, up)
                     .is_some_and(|n| n.notation() == crate::notations::POWER)
         });
-        if exponent {
-            return Route::no("a substitution into an exponent");
+        let now = match faced {
+            false => right,
+            true => left,
+        };
+        let said_whole =
+            |n: &Node| self.writer.said_whole(n) && !self.writer.natural(n);
+        if exponent && !(said_whole(was) && said_whole(now)) {
+            return Route::no("a substitution into an exponent of no term said whole");
         }
+        let whole_letter = |w: &mut Writer, letter: &str| {
+            if exponent {
+                w.wholes
+                    .insert(letter.to_string(), super::expr::System::NonNegative);
+            }
+        };
         // The motive's letter, of the type the equation's proof states it
         // in, the claim's where the line is widened to it, else the type
         // the term put for has where it stands; and fresh to what it is put
@@ -7695,7 +7790,8 @@ impl<'a> Proof<'a> {
         );
         let mut letters = self.writer.letters.clone();
         letters.insert(letter.to_string(), LetterType::Number(ty));
-        let inner = self.writer.with_letters(letters);
+        let mut inner = self.writer.with_letters(letters);
+        whole_letter(&mut inner, letter);
         // The motive's letter standing in a slot of whole numbers in a wider
         // type, a range's member, is written as the whole number it is
         // (`Writer::wide_in_slot`), otherwise than the line or claim.
@@ -7735,18 +7831,86 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                // The motive is written in the equation's type, which is the
-                // line's statement only where the line is stated in it.
-                let line_type = self
+                // The type the line writes the term put for in. A term of
+                // the line's arithmetic, a side or a part of a sum, product or
+                // power's base, is written in the line's type, `2^k · 2` in a
+                // line of ℚ; any other, a function's argument, in its own,
+                // `factorial (4 − 2)` in ℤ, which is the equation's.
+                let line_type = match self
                     .line_statement(&into)
                     .built()
                     .as_ref()
-                    .and_then(super::doc::forms::relation_type);
-                if line_type.is_some_and(|t| t != LeanType::Num(ty)) {
+                    .and_then(super::doc::forms::relation_type)
+                {
+                    Some(LeanType::Num(n)) => Some(n),
+                    _ => None,
+                };
+                let in_arithmetic = |path: &Vec<usize>| {
+                    let Some((&last, up)) = path.split_last() else {
+                        return true;
+                    };
+                    at_path(&rec.start, up).is_some_and(|parent| {
+                        use crate::notations as n;
+                        let notation = parent.notation();
+                        [n::EQUALITY, n::ORDER, n::ADDITIVE, n::MULTIPLICATIVE]
+                            .contains(&notation)
+                            || [n::UNARY_MINUS, n::JUXTAPOSITION].contains(&notation)
+                            || (notation == n::POWER && last == 0)
+                    })
+                };
+                let arithmetic: Vec<bool> =
+                    rec.put.places.iter().map(in_arithmetic).collect();
+                let place_type = match (
+                    arithmetic.iter().all(|a| *a),
+                    arithmetic.iter().any(|a| *a),
+                ) {
+                    (true, _) => line_type.unwrap_or(ty),
+                    (false, false) => ty,
+                    (false, true) => {
+                        return Route::no(
+                            "a substitution at places written in different types",
+                        )
+                    }
+                };
+                // A line in a narrower type than the equation, `F (j + 1) =
+                // G j` of ℤ for an equation of ℝ, holds the term in no type
+                // the equation has; in a wider, the equation is stated in the
+                // line's type first, as `widened` states it.
+                if place_type < ty {
                     return Route::no(
-                        "a line in another type than the equation put into it",
+                        "a line in a narrower type than the equation put into it",
                     );
                 }
+                let (equation, widen) = match place_type > ty {
+                    false => (equation, None),
+                    true => {
+                        // `was = now` in the place's type, its numerals
+                        // ascribed it (`Writer::closed_formula`).
+                        let now = match faced {
+                            false => right,
+                            true => left,
+                        };
+                        let put =
+                            rec.equation.with_children(vec![was.clone(), now.clone()]);
+                        let Route::Built(says) =
+                            self.writer.closed_formula(&put, place_type)
+                        else {
+                            return Route::no(
+                                "an equation the writer cannot state widened",
+                            );
+                        };
+                        let have = Tactic::Have {
+                            name: "e_w".to_string(),
+                            says,
+                            proof: Box::new(Proof::By(t::exact_mod_cast(equation))),
+                        };
+                        (t::hyp("e_w"), Some(have))
+                    }
+                };
+                let mut letters = self.writer.letters.clone();
+                letters.insert(letter.to_string(), LetterType::Number(place_type));
+                let mut inner = self.writer.with_letters(letters);
+                whole_letter(&mut inner, letter);
                 let body = match inner.formula(&marked) {
                     Route::Built(b) => b,
                     Route::Declined(d) => return Route::Declined(d),
@@ -7755,18 +7919,23 @@ impl<'a> Proof<'a> {
                 // are written in one form: a line of a real term written as
                 // the whole number it is, `∃ m : ℤ, (m : ℝ) = t ∧ …`, is not
                 // the claim of an integer, `f k ∈ …`.
+                // Nor the line it is put into: the motive at the old value
+                // is that line.
                 let claimed = self.writer.formula(claim).built();
-                let one_form = claimed.as_ref().is_some_and(|c| {
-                    std::mem::discriminant(&c.kind)
-                        == std::mem::discriminant(&body.kind)
+                let line_said = self.line_statement(&into).built();
+                let one_form = [claimed, line_said].iter().all(|said| {
+                    said.as_ref().is_some_and(|c| {
+                        std::mem::discriminant(&c.kind)
+                            == std::mem::discriminant(&body.kind)
+                    })
                 });
                 if !one_form {
                     return Route::no(
-                        "a motive written in another form than the claim",
+                        "a motive written in another form than the claim or the line",
                     );
                 }
-                let motive = lambda(letter, LeanType::Num(ty), body);
-                Route::Built(close(applied(
+                let motive = lambda(letter, LeanType::Num(place_type), body);
+                let closed = close(applied(
                     "Eq.subst",
                     vec![
                         super::doc::Arg::Named {
@@ -7776,7 +7945,11 @@ impl<'a> Proof<'a> {
                         super::doc::Arg::Explicit(equation),
                         super::doc::Arg::Explicit(into.proof),
                     ],
-                )))
+                ));
+                Route::Built(match (widen, closed) {
+                    (Some(have), Proof::By(tactic)) => Proof::Block(vec![have, tactic]),
+                    (_, closed) => closed,
+                })
             }
             SubstitutedInto::ClaimSide(side) => {
                 // Written in the wider of the claim side's type and the
@@ -8825,8 +8998,7 @@ impl<'a> Proof<'a> {
                                 return None;
                             }
                             self.proof_meeting(proof, &says, &row)
-                        })
-                        .filter(|p| !matches!(p, Proved::Ways { .. }));
+                        });
                     match (by_define, placed) {
                         (Some(proof), _) => proof,
                         (None, Some(proved)) => super::doc::Proof::By(proved.closer()),
@@ -12857,19 +13029,18 @@ fn spec_of(said: &super::expr::SaidInteger) -> Printed {
     }
 }
 
-/// `by first | (push_cast; simp only [specs]; done) | (push_cast; simp only
-/// [specs]; ring)`: a claim made true by the named numbers' equations, as
-/// they stand or once worked out.
+/// `by push_cast; simp only [specs]; all_goals ring`: a claim made true by
+/// the named numbers' equations. Put in, they leave the claim closed where
+/// its terms are theirs as written, or arithmetic, which is `ring`'s.
 fn specs_equal(specs: &[Printed]) -> Printed {
     use super::tactics as t;
     let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
-    super::tactics::by_term(ways_proof(
-        ListReason::NamedNumbers,
-        vec![
-            specs_then(&rules, t::call("done", vec![])),
-            specs_then(&rules, t::call("ring", vec![])),
-        ],
-    ))
+    super::tactics::by_term(super::doc::Proof::By(specs_then(&rules, ring_left())))
+}
+
+/// `all_goals ring`: the arithmetic a rewriting leaves, where it leaves any.
+fn ring_left() -> Tactic {
+    Tactic::AllGoals(Box::new(super::tactics::call("ring", vec![])))
 }
 
 /// `specs_equal` of a named number for `term`. Where the term takes a
@@ -12884,13 +13055,7 @@ fn specs_equal_of(term: &Node, specs: &[Printed]) -> Printed {
         return specs_equal(specs);
     }
     let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
-    t::by_term(ways_proof(
-        ListReason::NamedNumbers,
-        vec![
-            unmod_then(&rules, t::call("done", vec![])),
-            unmod_then(&rules, t::call("ring", vec![])),
-        ],
-    ))
+    t::by_term(super::doc::Proof::By(unmod_then(&rules, ring_left())))
 }
 
 /// One way of `specs_equal_of`: the integers' `%` put as the bridge's

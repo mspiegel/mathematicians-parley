@@ -56,8 +56,6 @@ pub enum ListReason {
     CitedClaimCounts,
     /// The claim or the item's statement the writer does not state.
     CitedUnstated,
-    /// A line and a goal apart in casts the cast table does not settle.
-    CastsUnsettled,
     /// A named number's equations put in: the claim as it stands, or once
     /// worked out.
     NamedNumbers,
@@ -99,7 +97,6 @@ impl ListReason {
             ListReason::CitedClaimTruth => "cited: claim a truth of Lean's types",
             ListReason::CitedClaimCounts => "cited: claim counts a set",
             ListReason::CitedUnstated => "cited: claim or item not stated",
-            ListReason::CastsUnsettled => "casts the cast table does not settle",
             ListReason::NamedNumbers => "named numbers put in",
             ListReason::HeaderFunction => "header function put in",
             ListReason::NaturalPowers => "exponents taken to ℕ",

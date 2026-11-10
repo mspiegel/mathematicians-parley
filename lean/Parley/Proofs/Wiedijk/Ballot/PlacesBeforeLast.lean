@@ -2,7 +2,6 @@ module
 
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -30,6 +29,6 @@ theorem places_before_last (p : ℤ) (N : ℤ) (hH3 : 1 ≤ p) (hH4 : p + 1 = N)
   -- 3. mun:range-without-last n := p, from 2
   have s3 : (Set.Icc (1 : ℤ) p : Set ℤ) = (Set.Icc (1 : ℤ) (p + 1) : Set ℤ) \ ({p + 1} : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_without_last (n := p) (by parley_set_side))
   -- 4. substitute p + 1 = N (H4) into line 3
-  parley_subst_at hH4 s3
+  (have h := Eq.subst (motive := (fun t : ℤ => (Set.Icc (1 : ℤ) p : Set ℤ) = (Set.Icc (1 : ℤ) t : Set ℤ) \ ({t} : Set ℤ))) hH4 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Ballot.PlacesBeforeLast

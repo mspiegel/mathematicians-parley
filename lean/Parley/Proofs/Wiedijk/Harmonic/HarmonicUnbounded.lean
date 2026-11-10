@@ -73,7 +73,7 @@ theorem harmonic_unbounded (M : ℝ) :
       have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by parley_order
       -- 2.7. transitivity, from 2.5, 2.6
       have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ ((m : ℚ) + 1) / 2 := by parley_order
-      first | exact_mod_cast s2_7 | (have h := s2_7; push_cast at h ⊢; exact h) | simpa using s2_7
+      (have h := s2_7; push_cast at h ⊢; all_goals exact h)
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))
   -- 4. instantiate m := N in line 2

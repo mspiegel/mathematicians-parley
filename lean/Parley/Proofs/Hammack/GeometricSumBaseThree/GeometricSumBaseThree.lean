@@ -3,9 +3,7 @@ module
 public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -21,7 +19,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -70,9 +67,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
       calc (S (k + 1) : ℚ) = (S k : ℚ) + 3 ^ (k + 1).toNat := by first | parley_side | parley_line_toNat s1_2
         _ = (3 ^ (k + 1).toNat - 3) / 2 + 3 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℚ => t + 3 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (3 ^ (k + 1).toNat * 3 - 3) / 2 := by parley_ring
-        _ = (3 ^ (k + 1 + 1).toNat - 3) / 2 := by
-            have s1_3_w : (3 ^ (k + 1 + 1).toNat : ℚ) = 3 ^ (k + 1).toNat * 3 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_3; push_cast at h; linear_combination (norm := parley_norm) h
-            first | parley_subst s1_3_w | parley_subst s1_3
+        _ = (3 ^ (k + 1 + 1).toNat - 3) / 2 := by (have h := congrArg (fun t : ℤ => ((t : ℚ) - 3) / 2) (s1_3).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (3 ^ k.toNat : ℚ)) = (S n : ℚ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side | parley_line_toNat hD1
     _ = (3 ^ (n + 1).toNat - 3) / 2 := by exact (s1 n (by parley_side))

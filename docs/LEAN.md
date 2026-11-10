@@ -117,7 +117,9 @@ at a step.
 calculation row makes its claim (`CheckedTheorem::substituted`), the writer
 puts the equation in exactly there. It writes what the equation is put into
 with each recorded place as one fresh letter, the motive, its letter of the
-type the equation's line is stated in. Put into a line, `Eq.subst` along the
+type its places are written in: the line's, for a term of the line's
+arithmetic, and its own, for a function's argument. Put into a line,
+`Eq.subst` along the
 motive takes the line to the claim; put into a side of the claim `t = t′`,
 `congrArg` of the motive is the claim, turned where the side is its right.
 The equation's line is turned with `.symm` where the record puts its left
@@ -127,12 +129,16 @@ a numeral exponent defaults to ℕ, and closed by `push_cast at h ⊢` and
 `exact_mod_cast h`. A substitution keeps the earlier ways, registered as
 "substitute: equation put in", where the record has none or the motive does
 not state it as written:
-- a place that is an exponent, written by what the page says of its term;
+- a place that is an exponent, unless the page says the term put for and
+  the term put are whole numbers, where the motive's letter is said whole
+  as well;
 - a fact the line implies and does not write;
 - a line, or a motive, of a term written as the whole number it is;
-- a line stated in another type than the equation;
+- a line in a narrower type than the equation; in a wider one, the equation
+  is first stated in the type its place is written in;
+- places written in different types in one step;
 - an equation of rationals put into a wider field;
-- an equation with a side written with `toNat`.
+- an equation with a side holding a cast of a `toNat`.
 
 **Casts.** Where two statements are alike but for casts, the closer comes
 from the cast table (`src/lean/casts.rs`). For each operation the writer
@@ -146,7 +152,10 @@ The closer is chosen as follows:
   they are stated in one type;
 - `push_cast at h ⊢; exact h` where only `push_cast` moves them all and the
   line is in no narrower type;
-- otherwise the step keeps its ways.
+- otherwise, each side rewritten by the `set` equations its letters name,
+  `push_cast at h ⊢` and then `exact h`, or `exact_mod_cast h` where the
+  line is in a narrower type; lifting where neither is would read a
+  division of casts one way on one side and another on the other.
 
 A step no rule decides keeps its `first |` list, and `tests/first_lists.txt`
 keeps each such list with its reason. `tests/lean_closers.rs` names a step

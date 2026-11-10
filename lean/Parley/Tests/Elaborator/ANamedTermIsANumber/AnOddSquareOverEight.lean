@@ -26,6 +26,6 @@ theorem an_odd_square_over_eight (N : ℤ) :
     try simp only [hD1] at *
     try push_cast at *
     parley_ring
-  first | exact_mod_cast s1 | (have h := s1; push_cast at h ⊢; exact h) | simpa using s1
+  (have h := s1; rw [hD1] at h; push_cast at h ⊢; all_goals exact h)
 
 end Parley.Tests.Elaborator.ANamedTermIsANumber.AnOddSquareOverEight

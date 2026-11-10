@@ -53,7 +53,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.3. mun:power-nat a := p, m := a′ − a, from 3.2
   have s3_3 : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) ^ (a' - a) := by
     have whole1 : ((p : ℚ) : ℚ) ^ (a' - a).toNat = (p : ℚ) ^ (a' - a) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s3_2)]
-    refine ⟨(p ^ (a' - a).toNat), ?_, by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring)⟩
+    refine ⟨(p ^ (a' - a).toNat), ?_, by (push_cast; simp only [whole1]; all_goals ring)⟩
     (exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := p) (by parley_side) (m := a' - a) (by parley_side)))
   -- 3.4. mun:exponent-sum a := p, m := a, n := a′ − a, from 3.2
   have s3_4 : (p : ℚ) ^ (a + (a' - a)) = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by
@@ -83,16 +83,16 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.11. thm:prime-divides-power a := p, n := a′ − a, from H2, 3.2, 3.10
   have s3_11 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) ∧ p ∣ m := by
     have whole1 : ((p : ℚ) : ℚ) ^ (a' - a).toNat = (p : ℚ) ^ (a' - a) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s3_2)]
-    refine ⟨(p ^ (a' - a).toNat), by first | (push_cast; simp only [whole1]; done) | (push_cast; simp only [whole1]; ring), ?_⟩
+    refine ⟨(p ^ (a' - a).toNat), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
     exact (((Parley.Items.Stdlib.Divisibility.thm_prime_divides_power (p := p) (by parley_side) hH2 (a := p) (n := a' - a) (by parley_side))).mpr s3_10)
   -- 3.12. mun:divides-multiple e := p, a := p^(a′ − a), x := m′, from 3.11
   have r443_1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by
     have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, _, hm⟩ := s3_3; exact ⟨m, by exact_mod_cast hm⟩
-    exact ⟨(Classical.choose whole1 : ℤ), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring)⟩
+    exact ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring)⟩
   have s3_12 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) * (m' : ℚ) ∧ p ∣ m := by
     have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, hm⟩ := r443_1; exact ⟨m, by exact_mod_cast hm⟩
-    have s3_11 := parley_witness_at s3_11 (Classical.choose whole1 : ℤ) (by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring))
-    refine ⟨((Classical.choose whole1 : ℤ) * m'), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring), ?_⟩
+    have s3_11 := parley_witness_at s3_11 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))
+    refine ⟨((Classical.choose whole1 : ℤ) * m'), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring), ?_⟩
     (exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := (Classical.choose whole1 : ℤ)) (x := m') s3_11))
   -- 3.13. substitute m = p^(a′ − a)·m′ (line 3.9) into line 3.12
   have s3_13 : p ∣ m := by first | parley_subst_at s3_9 s3_12 | exact parley_witness_at s3_12 (m) (by push_cast; linear_combination (norm := parley_norm) s3_9) | exact parley_witness_at s3_12 (m) (by push_cast; linear_combination (norm := parley_norm) -s3_9)

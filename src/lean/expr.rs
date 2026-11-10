@@ -249,6 +249,12 @@ pub struct Writer<'a> {
     /// square root of a term at least 0 is Mathlib's real one
     /// (`Writer::principal_is_real`).
     pub bounds: SaidBounds,
+    /// What the theorem's hypotheses say terms are at least
+    /// (`CheckedTheorem::statement_bounds`), which hold in every step: what
+    /// says an exponent is a whole number (`said_whole`), so that a term is
+    /// spelt one way throughout the theorem. A fact a later line proves is
+    /// bridged at the step that uses it, and changes no spelling.
+    pub whole_bounds: SaidBounds,
     /// Each real power or square root written so far in a theorem, by the
     /// page's print of it, with the forms it was written in: Mathlib's real
     /// one, the principal one in ℂ, or both, which the theorem's writer
@@ -445,6 +451,7 @@ impl<'a> Writer<'a> {
             empty_of: None,
             in_extended: false,
             bounds: SaidBounds::default(),
+            whole_bounds: SaidBounds::default(),
             root_forms: Default::default(),
         }
     }
@@ -464,6 +471,7 @@ impl<'a> Writer<'a> {
             empty_of: self.empty_of.clone(),
             in_extended: self.in_extended,
             bounds: self.bounds.clone(),
+            whole_bounds: self.whole_bounds.clone(),
             root_forms: self.root_forms.clone(),
         }
     }
@@ -512,14 +520,28 @@ impl<'a> Writer<'a> {
     /// their introducing lines. Such a term goes where Lean wants a natural
     /// number as `(t).toNat`, and a power to it is a natural power.
     pub fn said_whole(&self, node: &Node) -> bool {
+        use crate::rules::System;
         let letters = self.page_systems();
-        crate::citing::within(
-            node,
-            crate::rules::System::N0,
-            &letters,
-            &|d| crate::citing::nonzero_said_once(d, &letters),
-            &|_, _| false,
-        )
+        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
+        // An integer by its letters and its build that a hypothesis of the
+        // theorem says is at least 0, `p − 1` beside `p ≥ 1`, as the check
+        // read the hypotheses (`whole_bounds`), is a whole number as surely
+        // as one its build makes so, in every step alike.
+        let integer = |t: &Node| {
+            crate::citing::within(t, System::Z, &letters, &nonzero, &|_, _| false)
+        };
+        let bounded = |t: &Node, s: System| {
+            let least = match s {
+                System::N0 => 0,
+                System::N => 1,
+                _ => return false,
+            };
+            integer(t)
+                && self.whole_bounds.terms.iter().any(|b| {
+                    b.least >= least && bounds::BoundsAsk::same(self, &b.term, t)
+                })
+        };
+        crate::citing::within(node, System::N0, &letters, &nonzero, &bounded)
     }
 
     /// What the set `a` counts holds, where `b` counts ∅: |S| beside |∅|.

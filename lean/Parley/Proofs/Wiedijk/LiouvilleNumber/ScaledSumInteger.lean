@@ -83,7 +83,7 @@ theorem scaled_sum_integer :
     -- 10. membership, from IH
     have s10 : ∃ m : ℤ, (m : ℚ) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) + 1 := by
       have whole1 : ∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by obtain ⟨m, hm⟩ := hIH; exact ⟨m, by exact_mod_cast hm⟩
-      exact ⟨((2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (Classical.choose whole1 : ℤ) + 1), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring)⟩
+      exact ⟨((2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (Classical.choose whole1 : ℤ) + 1), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring)⟩
     -- 11. substitute (2^(n!))^n·(2^(n!)·s(n)) + 1 = 2^((n + 1)!)·s(n + 1) (line 9) into line 10
     (have h := Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t)) (s9).symm s10; push_cast at h ⊢; all_goals exact_mod_cast h)
 
