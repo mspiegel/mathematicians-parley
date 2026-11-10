@@ -44,6 +44,6 @@ theorem quotient_and_product {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.uni
     -- 6. calculation
     calc a * b⁻¹ = c * b * b⁻¹ := by parley_subst hD2
       _ = c * (1 : G) := by exact s5
-      _ = c := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := c) hH4)
+      _ = c := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := c) hH4)
 
 end Parley.Proofs.Setmm.GroupCancellation.QuotientAndProduct

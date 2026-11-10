@@ -27,6 +27,6 @@ theorem group_inverse_of_identity {G : Type*} [Group G] :
   have s2 : (1 : G)⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := (1 : G)) s1)
   -- 3. calculation
   calc (1 : G)⁻¹ = (1 : G) * (1 : G)⁻¹ := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := (1 : G)⁻¹) s2).symm
-    _ = (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1)
+    _ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := (1 : G)) s1)
 
 end Parley.Proofs.Setmm.GroupInverses.GroupInverseOfIdentity

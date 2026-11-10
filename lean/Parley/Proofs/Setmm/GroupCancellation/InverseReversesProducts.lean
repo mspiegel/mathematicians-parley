@@ -44,14 +44,14 @@ theorem inverse_reverses_products {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Se
   -- 8. calculation
   have s8 : b * (b⁻¹ * a⁻¹) = a⁻¹ := by
     calc b * (b⁻¹ * a⁻¹) = (1 : G) * a⁻¹ := by exact s7.symm
-      _ = a⁻¹ := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2)
+      _ = a⁻¹ := by exact (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a⁻¹) s2)
   -- 9. axi:group-associative c := b⁻¹·a⁻¹, from H2, H3, 4
   have s9 : a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) hH2 hH3 s4)
   -- 10. substitute b·(b⁻¹·a⁻¹) = a⁻¹ (line 8) into line 9
   have s10 : a * b * (b⁻¹ * a⁻¹) = a * a⁻¹ := by parley_subst_at s8 s9
   -- 11. calculation
   have s11 : a * b * (a * b)⁻¹ = a * b * (b⁻¹ * a⁻¹) := by
-    calc a * b * (a * b)⁻¹ = (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1)
+    calc a * b * (a * b)⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) s1)
       _ = a * a⁻¹ := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2).symm
       _ = a * b * (b⁻¹ * a⁻¹) := by exact s10.symm
   -- 12. thm:left-cancellation a := (a·b)⁻¹, b := b⁻¹·a⁻¹, g := a·b, from 1, 4, 5, 11

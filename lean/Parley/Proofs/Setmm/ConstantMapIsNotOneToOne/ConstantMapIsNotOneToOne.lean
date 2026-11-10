@@ -24,7 +24,7 @@ theorem constant_map_is_not_one_to_one {α : Type*} (A : Set α) (C : Set α) (B
   have s2 : F Y ∈ ({B} : Set α) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set α)) (f := F) (x := Y) hH6 (by parley_set_side))
   -- 3. calculation
   have s3 : F X = F Y := by
-    calc F X = B := ((Parley.Items.Stdlib.Sets.def_singleton (a := B) (x := F X))).mp s1
+    calc F X = B := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := B) (x := F X))).mp s1
       _ = F Y := (((Parley.Items.Stdlib.Sets.def_singleton (a := B) (x := F Y))).mp s2).symm
   -- 4. contradiction
   intro hS

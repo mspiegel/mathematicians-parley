@@ -33,11 +33,11 @@ theorem quotient_is_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.uni
     have s2 : (1 : G) * b = a := by parley_subst_at hD1 s1
     -- 3. calculation
     calc a = (1 : G) * b := by exact s2.symm
-      _ = b := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := b) hH3)
+      _ = b := by exact (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := b) hH3)
   · skip
     intro hD2
     -- 4. calculation
     calc a * b⁻¹ = b * b⁻¹ := by parley_subst hD2
-      _ = (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3)
+      _ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) hH3)
 
 end Parley.Proofs.Setmm.GroupCancellation.QuotientIsIdentity

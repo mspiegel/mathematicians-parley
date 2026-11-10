@@ -43,7 +43,7 @@ theorem right_cancellation {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ 
     calc a = a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2).symm
       _ = b * g * g⁻¹ := by exact s5.symm
       _ = b * (1 : G) := by exact s7
-      _ = b := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) hH3)
+      _ = b := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) hH3)
   · skip
     intro hD2
     -- 9. substitute a = b (D2)

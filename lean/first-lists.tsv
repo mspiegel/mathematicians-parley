@@ -43,7 +43,6 @@ lean/Parley/Proofs/Setmm/Parity/OddSquareOverEight.lean	1	substitute: equation p
 lean/Parley/Proofs/Setmm/RationalClosure/IrrationalSum.lean	2.1	cited: other shape, met otherwise than written
 lean/Parley/Proofs/Setmm/RationalClosure/IrrationalProduct.lean	2.1	cited: other shape, met otherwise than written
 lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.4	cited: item and claim in different types
-lean/Parley/Proofs/Setmm/SizeWithoutAPair/SizeWithoutAPair.lean	3	cited: claim counts a set
 lean/Parley/Proofs/Setmm/TwoElements/TwoElements.lean	13	cited: claim counts a set
 lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	5	cited: item and claim in different types
 lean/Parley/Proofs/Wiedijk/Ballot/LastVoteForA.lean	6.2	cited: other shape, met otherwise than written

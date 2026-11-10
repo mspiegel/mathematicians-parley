@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -9,12 +8,9 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
@@ -34,7 +30,7 @@ theorem size_without_a_pair {α : Type*} (A : Set α) (B : α) (hH2 : B ∈ A) (
   -- 2. thm:size-of-difference B := {B, C}, from H4, 1
   have s2 : ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - (({B, C} : Set α).ncard : ℤ) := by exact (Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference.size_of_difference (A := A) (B := ({B, C} : Set α)) hH4 s1)
   -- 3. substitute
-  have c1 : (({B, C} : Set α).ncard : ℤ) = 2 := by first | linear_combination (norm := parley_norm) ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5 | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5 | exact_mod_cast (((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5).symm | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5; rify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5; qify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5; parley_set_side)
+  have c1 : (({B, C} : Set α).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5
   have row1 : ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - 2 := by parley_count_int; parley_subst_at c1 s2
   exact row1
 

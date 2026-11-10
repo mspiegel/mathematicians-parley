@@ -38,6 +38,6 @@ theorem the_left_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ :
     exact row1
   -- 5. calculation
   calc (1 : G) * a = a * (1 : G) := by exact s4
-    _ = a := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)
+    _ = a := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)
 
 end Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity

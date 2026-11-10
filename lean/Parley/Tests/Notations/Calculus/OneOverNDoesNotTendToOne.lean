@@ -38,9 +38,7 @@ theorem one_over_n_does_not_tend_to_one :
   -- 2. contradiction
   intro hS
   -- 2.1. def:tends-to L := 1, from S, 1
-  have s2_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℝ) - 1) < ε)) := by
-    have hI : ∀ ε : ℝ, 0 < ε → (∃ N : ℤ, 0 < N ∧ (∀ a : ℤ, 0 < a → N ≤ a → abs (1 / (a : ℝ) - 1) < ε)) := by parley_instance (((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => 1 / (n : ℝ))) (L := (1 : ℝ)))).mp hS)
-    exact hI
+  have s2_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℝ) - 1) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => 1 / (n : ℝ))) (L := (1 : ℝ)))).mp hS
   -- 2.2. instantiate ε := 1/2 in line 2.1
   have r296_1 : (0 : ℚ) < 1 / 2 := by parley_arith
   have s2_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℚ) - 1) < 1 / 2) := by

@@ -79,7 +79,9 @@ again for any name that is missing or out of date.
 Where a citation's item, with its letters given, meets the line it proves, the
 two trees are compared (`doc::forms`). Casts are first pushed down, as
 `push_cast` pushes them, and a relation in a narrower type is cast up to the
-other's. What is left is a form the writer chose: a count in ℕ beside one in
+other's, each part of an "and", "or", ↔ or → beside its own. A row of a
+calculation is compared as the calculation states it. What is left is a form
+the writer chose: a count in ℕ beside one in
 ℕ∞, a `toNat` on one side, or a cast to another type. A count is converted as
 described under "Sets and functions", and a power as described under "Number
 types"; any other difference fails the build. An item that Lean writes exactly as it writes the line closes the step
@@ -244,8 +246,7 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   1)` over k from 1, is at least 0 only for k in the range. The step states
   the rewrite for each k in the range, from the range's lower bound, and
   `simp +contextual` takes it under the sum. An exponent shown in none of
-  these ways fails the build. Of a forward reading, only a power's form is
-  compared so far.
+  these ways fails the build.
 - A claim of numerals alone reached from lines is written in the type of
   those lines, and a cited line of a narrower type than the claim is cast up
   to the claim's type before it is used.

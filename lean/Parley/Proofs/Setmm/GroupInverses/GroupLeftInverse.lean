@@ -60,7 +60,7 @@ theorem group_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ 
   calc a⁻¹ * a = b * a := by simp (disch := omega) only [hD1]
     _ = b * a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b * a) s4).symm
     _ = b * a * (b * c) := by parley_subst s6
-    _ = b * (a * (b * c)) := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := b * c) s2 hH2 s5)
+    _ = b * (a * (b * c)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := b * c) s2 hH2 s5)
     _ = b * ((1 : G) * c) := by parley_subst s8
     _ = b * (1 : G) * c := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := (1 : G)) (c := c) s2 s1 s3).symm
     _ = b * c := by parley_subst s9

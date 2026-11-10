@@ -30,8 +30,8 @@ theorem group_left_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ
   have s3 : a⁻¹ * a = (1 : G) := by exact (Parley.Proofs.Setmm.GroupInverses.GroupLeftInverse.group_left_inverse (G := G) (a := a) hH2)
   -- 4. calculation
   calc (1 : G) * a = a * a⁻¹ * a := by parley_subst s2
-    _ = a * (a⁻¹ * a) := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2)
+    _ = a * (a⁻¹ * a) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := a⁻¹) (c := a) hH2 s1 hH2)
     _ = a * (1 : G) := by parley_subst s3
-    _ = a := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)
+    _ = a := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) hH2)
 
 end Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity

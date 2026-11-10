@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import InstanceTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -67,18 +66,14 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   have s8 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), F t = f t := by
     intro t hK1
     -- 8.1. mun:remove-member, from K1
-    have s8_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by
-      have hI : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by parley_instance (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK1)
-      exact hI
+    have s8_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK1
     -- 8.2. D1, from 8.1
     first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
   -- 9. proof
   have s9 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), G t = g t := by
     intro t hK2
     -- 9.1. mun:remove-member, from K2
-    have s9_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by
-      have hI : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by parley_instance (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK2)
-      exact hI
+    have s9_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK2
     -- 9.2. D2, from 9.1
     first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 10. proof
@@ -126,9 +121,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
     -- 21.2. substitute G′(t) = g′(t) (line 21.1) into H10
     (have h := Eq.subst (motive := (fun u : ℝ => u ≠ 0)) (s21_1).symm (hH10 t (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 22. mun:remove-member, from H11
-  have s22 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by
-    have hI : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by parley_instance (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp hH11)
-    exact hI
+  have s22 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp hH11
   -- 23. thm:quotient-two-points u := c, v := x, from H3, 11, 13, 14, 15, 17, 19, 21, 22
   have s23a : G c ≠ G x := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (by parley_set_side) (G := G) (by parley_set_side) s14 s15 s17 s19 s21).1
   have s23b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ (F x - F c) / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (by parley_set_side) (G := G) (by parley_set_side) s14 s15 s17 s19 s21).2

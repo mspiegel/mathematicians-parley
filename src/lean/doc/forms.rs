@@ -377,6 +377,36 @@ fn lifted(narrow: &Term, other: &Term, widen: &Widen) -> Option<Term> {
             ty: narrow.ty.clone(),
         });
     }
+    // Two statements joined alike, `a ∨ b` beside `c ∨ d`: each part cast up
+    // beside its own, the parts already in the other's type kept.
+    if let (
+        TermKind::Infix {
+            op: b,
+            lhs: nl,
+            rhs: nr,
+        },
+        TermKind::Infix {
+            op: a,
+            lhs: ol,
+            rhs: or,
+        },
+    ) = (&bare(narrow).kind, &bare(other).kind)
+    {
+        if a == b && matches!(a.symbol, "∧" | "∨" | "↔" | "→") {
+            let (l, r) = (lifted(nl, ol, widen), lifted(nr, or, widen));
+            if l.is_none() && r.is_none() {
+                return None;
+            }
+            return Some(Term {
+                kind: TermKind::Infix {
+                    op: *b,
+                    lhs: Box::new(l.unwrap_or_else(|| (**nl).clone())),
+                    rhs: Box::new(r.unwrap_or_else(|| (**nr).clone())),
+                },
+                ty: narrow.ty.clone(),
+            });
+        }
+    }
     let (
         TermKind::Infix { op: b, lhs, rhs },
         TermKind::Infix {

@@ -35,9 +35,7 @@ theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (
     intro ε
     intro hA1
     -- 1.1. def:tends-to L := 0, from H2
-    have s1_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (abs (a n) - 0) < ε)) := by
-      have hI : ∀ ε : ℝ, 0 < ε → (∃ N : ℤ, 0 < N ∧ (∀ b : ℤ, 0 < b → N ≤ b → abs (abs (a b) - 0) < ε)) := by parley_instance (((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp hH2)
-      exact hI
+    have s1_1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (abs (a n) - 0) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => abs (a n))) (L := (0 : ℝ)))).mp hH2
     -- 1.2. instantiate ε := ε in line 1.1, from A1
     have s1_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (abs (a n)) < ε) := by simpa only [sub_zero] using (s1_1 ε (by parley_side))
     -- 1.3. obtain N from line 1.2

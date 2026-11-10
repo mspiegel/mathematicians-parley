@@ -34,7 +34,6 @@
 1	lean/Parley/Proofs/Setmm/RationalClosure/IrrationalProduct.lean	2.1	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Setmm/RationalClosure/IrrationalSum.lean	2.1	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.4	cited: item and claim in different types
-1	lean/Parley/Proofs/Setmm/SizeWithoutAPair/SizeWithoutAPair.lean	3	cited: claim counts a set
 1	lean/Parley/Proofs/Setmm/TwoElements/TwoElements.lean	13	cited: claim counts a set
 1	lean/Parley/Proofs/Wiedijk/AmGm/AmGm.lean	5	cited: item and claim in different types
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	24	substitute: equation put in

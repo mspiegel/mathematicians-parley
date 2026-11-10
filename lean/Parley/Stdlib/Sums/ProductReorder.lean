@@ -35,9 +35,7 @@ set_option maxHeartbeats 600000 in
 theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (f : ℤ → ℤ) (hH3 : Set.MapsTo f X X ∧ Set.InjOn f X) :
     (∏ᶠ x ∈ X, (f x : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) := by
   -- 1. def:one-to-one Y := X, from H3
-  have s1 : Set.MapsTo f X X ∧ (∀ s ∈ X, ∀ t ∈ X, f s = f t → s = t) := by
-    have hI : Set.MapsTo f X X ∧ (∀ s ∈ X, ∀ t ∈ X, f s = f t → s = t) := by parley_instance (((Parley.Items.Stdlib.Functions.def_one_to_one (X := X) (Y := X) (f := f) (by parley_set_side))).mp hH3)
-    exact hI
+  have s1 : Set.MapsTo f X X ∧ (∀ s ∈ X, ∀ t ∈ X, f s = f t → s = t) := by exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := X) (Y := X) (f := f) (by parley_set_side))).mp hH3
   -- 2. mun:subset-self
   have s2 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
   -- 3. proof

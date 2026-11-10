@@ -2395,6 +2395,10 @@ struct Proof<'a> {
     /// in: a row's claim alone, Σ j² = 1², may hold in a narrower type than
     /// the calculation's ℚ, which a citation in the row is applied at.
     worked_in: std::cell::Cell<Option<super::templates::Num>>,
+    /// While a calculation's row is written, the row as the calculation
+    /// states it in Lean, `_ = ((2 : ℕ) : ℕ∞)` of a chain of counts: what a
+    /// citation in the row is compared with.
+    row_stated: std::cell::RefCell<Option<Printed>>,
     /// The lines whose numbers a citation was given while its step was
     /// written, A/B of `A/B ∈ ℤ`, which the step's goal is put in terms of.
     said_used: std::cell::RefCell<Vec<SaidUsed>>,
@@ -2612,6 +2616,7 @@ pub fn theorem(
         trees: IndexMap::new(),
         defined: indexmap::IndexSet::new(),
         worked_in: std::cell::Cell::new(None),
+        row_stated: std::cell::RefCell::new(None),
         said_used: std::cell::RefCell::new(Vec::new()),
         forms: std::cell::RefCell::new(Vec::new()),
         named_specs: Vec::new(),
@@ -9374,8 +9379,18 @@ impl<'a> Proof<'a> {
                         cited: self.rec.cited_requires.get(&r.line),
                     };
                     self.worked_in.set(Some(at));
+                    *self.row_stated.borrow_mut() =
+                        super::doc::Op::of(relation.as_str()).map(|op| {
+                            Printed::infix(
+                                op,
+                                printed[k].clone(),
+                                printed[k + 1].clone(),
+                                super::doc::LeanType::Prop,
+                            )
+                        });
                     let proof = self.proof_of(reason, 0, &fact);
                     self.worked_in.set(None);
+                    *self.row_stated.borrow_mut() = None;
                     match proof {
                         Route::Built(p) => p,
                         Route::Declined(d) => return Route::Declined(d),
@@ -10479,20 +10494,25 @@ impl<'a> Proof<'a> {
         // no power for, and the comparison keeps casts.
         let mut agrees = false;
         // What the reading gives, as Lean states it at the citation's values:
-        // the sentence as written, or the side a forward reading reaches. Of
-        // a forward reading only a power's `toNat` is compared and converted
-        // so far; its counts and casts are left to the closers.
-        let forward = concluded.way == Way::Forward;
+        // the sentence as written, or the side a forward reading reaches.
         let compared = match concluded.way {
             Way::AsWritten => Some(instance.statement.clone()),
             Way::Forward => consequent(&instance.statement),
             Way::Backward => None,
         };
         if let Some(compared) = compared {
-            // A row of a calculation is written in the calculation's type
-            // (`worked_in`), and compared as it is written there.
-            let written = match self.worked_in.get() {
-                Some(at) if node.notation() == EQUALITY || node.notation() == ORDER => {
+            // A row of a calculation is compared as the calculation states
+            // it (`row_stated`).
+            let row = self.row_stated.borrow().clone();
+            let written = match (row, self.worked_in.get()) {
+                (Some(row), _)
+                    if node.notation() == EQUALITY || node.notation() == ORDER =>
+                {
+                    Route::Built(row)
+                }
+                (None, Some(at))
+                    if node.notation() == EQUALITY || node.notation() == ORDER =>
+                {
                     self.writer.closed_formula(node, at)
                 }
                 _ => self.writer.formula(node),
@@ -10536,9 +10556,6 @@ impl<'a> Proof<'a> {
                 numeral_to_nat = leaves_numeral_to_nat(&compared)
                     || leaves_numeral_to_nat(&claim_read);
                 let mut found = forms::differences(&compared, &claim_read, &widen);
-                if forward {
-                    found.retain(|d| matches!(d, forms::FormDifference::ToNat { .. }));
-                }
                 for d in &found {
                     if let forms::FormDifference::Count {
                         item_set, line_set, ..
@@ -10626,15 +10643,20 @@ impl<'a> Proof<'a> {
                             &read(&claim_read),
                             &widen,
                         );
-                        if forward {
-                            found.retain(|d| {
-                                matches!(d, forms::FormDifference::ToNat { .. })
-                            });
-                        }
                     }
                 }
+                // `exact` takes the two as written: not stated in two known
+                // types, which the comparison, reading a count's relation in
+                // ℕ, does not ask. An item's type variable is Lean's to fill.
+                let known = |t: &Printed| {
+                    forms::relation_type(t).filter(|ty| things_of_type(ty).is_empty())
+                };
+                let two_types = matches!(
+                    (known(&compared), known(&claim)),
+                    (Some(a), Some(b)) if a != b
+                );
                 agrees = found.is_empty()
-                    && !forward
+                    && !two_types
                     && !turned
                     && counted.is_empty()
                     && powered.is_empty()

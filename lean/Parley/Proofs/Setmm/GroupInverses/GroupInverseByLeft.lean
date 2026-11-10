@@ -40,8 +40,8 @@ theorem group_inverse_by_left {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.un
     -- 5. calculation
     calc a⁻¹ = (1 : G) * a⁻¹ := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := a⁻¹) s3).symm
       _ = b * a * a⁻¹ := by parley_subst hD2
-      _ = b * (a * a⁻¹) := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := a⁻¹) hH3 hH2 s3)
+      _ = b * (a * a⁻¹) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := a⁻¹) hH3 hH2 s3)
       _ = b * (1 : G) := by parley_subst s4
-      _ = b := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) hH3)
+      _ = b := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) hH3)
 
 end Parley.Proofs.Setmm.GroupInverses.GroupInverseByLeft
