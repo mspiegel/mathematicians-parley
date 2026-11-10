@@ -8,21 +8,26 @@ public import Functions
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
+public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
+public import Mathlib.Data.Nat.Cast.Order.Ring
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -73,9 +78,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       have s3_4 : 0 < n + j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) (by parley_side) (b := (1 : ℤ)) (by parley_side))
       -- 3.5. mun:power-positive a := 2, m := (n + j + 1)!
       have r142_1 : (2 : ℤ) > 0 := by parley_arith
-      have s3_5 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by
-        have hI : (0 : ℤ) < 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)))
-        exact hI
+      have s3_5 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (h := Nat.cast_nonneg _), zpow_natCast] at h ⊢; exact_mod_cast h)
       -- 3.6. algebra
       have s3_6 : n + j + 1 = n + (j + 1) := by parley_ring
       -- 3.7. substitute n + j + 1 = n + (j + 1) (line 3.6)
@@ -102,9 +105,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         exact hI
       -- 3.14. mun:power-positive a := 2, m := A + j
       have r174_1 : (2 : ℤ) > 0 := by parley_arith
-      have s3_14 : (2 ^ (A + j).toNat : ℤ) > 0 := by
-        have hI : (0 : ℤ) < 2 ^ (A + j).toNat := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)))
-        exact hI
+      have s3_14 : (2 ^ (A + j).toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)); simp only [parley_zpow_toNat (n := A + j) (h := add_nonneg (le_of_lt hD1_pos) (hK))] at h ⊢; exact_mod_cast h)
       -- 3.15. mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.5, 3.13, 3.14
       have s3_15 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) ≤ 1 / 2 ^ (A + j).toNat := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 ^ (A + j).toNat : ℚ)) (by parley_side) (y := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by parley_side))).mp (by parley_side)
       -- 3.16. algebra

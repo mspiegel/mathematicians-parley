@@ -13,7 +13,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -65,7 +64,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.1. mun:member-nonempty, from C1
       have s1_3_1 : ¬ R = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_member_nonempty (Y := R) (a := a) hC1)
       -- 1.3.2. mun:card-at-least-one, from 1.3.1
-      have s1_3_2 : (R.ncard : ℤ) ≥ 1 := by first | linarith [(Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1)] | (have h := (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1) | (have h := (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1); parley_set_side)
+      have s1_3_2 : (R.ncard : ℤ) ≥ 1 := by (have h := (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1); simp only [← Set.Finite.cast_ncard_eq (((hH4).subset s1_1a : (R : Set α).Finite))] at h ⊢; exact_mod_cast h)
       -- 1.3.3. substitute |R| = j (line 1.1) into line 1.3.2
       have s1_3_3 : j ≥ 1 := by parley_count_int; ((have h := Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1_1b s1_3_2; push_cast at h ⊢; all_goals exact_mod_cast h))
       -- 1.3.4. inequalities, from 1.3.3

@@ -131,9 +131,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean",
         step: "2.4",
-        holds: "by parley_instance (",
+        holds: "parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (h := add_nonneg (Nat.cast_nonneg _) (s2_1))",
         list: false,
-        why: "an instance whose sum runs to n + (i − n), written at the values as the step's lines are: read in that spelling, parley_instance",
+        why: "an instance whose power the line writes as the integer power 2^((n + 1)! + (i − n)) and the instance to the exponent's toNat: converted, the exponent's fact named from the record, line 2.1 the step cites (forms_converted)",
     },
 ];
 

@@ -21,8 +21,9 @@ pub enum FormDifference {
         item_set: Term,
         line_set: Term,
     },
-    /// A whole number taken to ℕ, `n.toNat`, in one and not the other.
-    ToNat { in_item: bool },
+    /// A whole number taken to ℕ, `n.toNat`, in one and not the other:
+    /// `term` is n, as the side without the `toNat` writes it.
+    ToNat { in_item: bool, term: Term },
     /// A term cast to a type in one and not, or to another, in the other.
     Cast {
         item: Option<LeanType>,
@@ -47,11 +48,11 @@ impl FormDifference {
                 count(item),
                 count(line)
             ),
-            FormDifference::ToNat { in_item: true } => {
+            FormDifference::ToNat { in_item: true, .. } => {
                 "a whole number the item takes to ℕ (.toNat) and the line does not"
                     .to_string()
             }
-            FormDifference::ToNat { in_item: false } => {
+            FormDifference::ToNat { in_item: false, .. } => {
                 "a whole number the line takes to ℕ (.toNat) and the item does not"
                     .to_string()
             }
@@ -79,7 +80,10 @@ impl FormDifference {
 /// cast of the function's value is the function of the cast argument.
 pub fn differences(item: &Term, line: &Term, widen: &Widen) -> Vec<FormDifference> {
     let mut out = Vec::new();
-    let (item, line) = (pushed(item, widen), pushed(line, widen));
+    // Each read as Lean's notations unfold, `a > b` as `b < a`, so that one
+    // relation written the two ways is compared side by side.
+    let (item, line) = (unfolded(item), unfolded(line));
+    let (item, line) = (pushed(&item, widen), pushed(&line, widen));
     let (item, line) = (in_naturals(&item), in_naturals(&line));
     let line = lifted(&line, &item, widen).unwrap_or(line);
     let item = lifted(&item, &line, widen).unwrap_or(item);
@@ -201,11 +205,17 @@ pub fn with_natural_counts(term: &Term, sets: &[Term]) -> Term {
 /// The term with each integer power to one of the exponents, `a ^ e` of an
 /// `e` in ℤ, written as the natural power to its `toNat`, `a ^ e.toNat`:
 /// what rewriting by `parley_zpow_toNat`, each exponent's `0 ≤ e` given,
-/// makes of it.
+/// makes of it. An integer power of a natural number cast up, `a ^ (k :
+/// ℤ)`, is the natural power `a ^ k`, as `zpow_natCast` rewrites it.
 pub fn with_natural_powers(term: &Term, exponents: &[Term]) -> Term {
     use super::term::Op;
     let mut out = term.clone();
     if let TermKind::Infix { op, lhs, rhs } = &mut out.kind {
+        if let Some(k) = natural_cast_up(rhs).filter(|_| *op == Op::POWER) {
+            **lhs = with_natural_powers(lhs, exponents);
+            **rhs = k;
+            return out;
+        }
         if *op == Op::POWER
             && rhs.ty == Some(LeanType::Num(Num::Int))
             && exponents.iter().any(|e| alike(e, rhs))
@@ -221,6 +231,88 @@ pub fn with_natural_powers(term: &Term, exponents: &[Term]) -> Term {
         *child = with_natural_powers(child, exponents);
     }
     out
+}
+
+/// An integer power inside a sum or product over a set whose exponent names
+/// the letter the sum runs by: `y ^ (k - 1 + 1)` in
+/// `∑ k ∈ Finset.Icc 1 (m + 1), …`. Its exponent is at least 0 only where
+/// the letter is in the set, which a step can say only of every k in it.
+#[derive(Clone, Debug)]
+pub struct BoundPower {
+    pub letter: String,
+    pub letter_ty: LeanType,
+    /// What the letter runs over, as the sum writes it.
+    pub over: Term,
+    /// The power, as written.
+    pub power: Term,
+    pub base: Term,
+    pub exponent: Term,
+}
+
+/// Each integer power in a term that stands inside a sum or product and
+/// whose exponent names the letter it runs by (`BoundPower`).
+pub fn bound_integer_powers(term: &Term) -> Vec<BoundPower> {
+    use super::term::Op;
+    let mut out = Vec::new();
+    if let TermKind::Bound {
+        form: BoundForm::BigOp { set, .. },
+        letter,
+        letter_ty,
+        body,
+    } = &term.kind
+    {
+        for t in body.walk() {
+            let TermKind::Infix { op, lhs, rhs } = &t.kind else {
+                continue;
+            };
+            let names_letter = rhs
+                .walk()
+                .iter()
+                .any(|p| matches!(&p.kind, TermKind::Letter(l) if l == letter));
+            if *op == Op::POWER
+                && rhs.ty == Some(LeanType::Num(Num::Int))
+                && names_letter
+            {
+                out.push(BoundPower {
+                    letter: letter.clone(),
+                    letter_ty: letter_ty.clone(),
+                    over: (**set).clone(),
+                    power: t.clone(),
+                    base: (**lhs).clone(),
+                    exponent: (**rhs).clone(),
+                });
+            }
+        }
+    }
+    for child in children(term) {
+        out.extend(bound_integer_powers(child));
+    }
+    out
+}
+
+/// The natural number k of an exponent `(k : ℤ)`; None of any other.
+fn natural_cast_up(exponent: &Term) -> Option<Term> {
+    match &bare(exponent).kind {
+        TermKind::Cast { inner, to }
+            if *to == LeanType::Num(Num::Int)
+                && inner.ty == Some(LeanType::Num(Num::Nat)) =>
+        {
+            Some((**inner).clone())
+        }
+        _ => None,
+    }
+}
+
+/// Whether a term holds an integer power of a natural number cast up,
+/// `a ^ (k : ℤ)`.
+pub fn casts_natural_exponent(term: &Term) -> bool {
+    use super::term::Op;
+    if let TermKind::Infix { op, rhs, .. } = &term.kind {
+        if *op == Op::POWER && natural_cast_up(rhs).is_some() {
+            return true;
+        }
+    }
+    children(term).into_iter().any(casts_natural_exponent)
 }
 
 /// The exponents of the integer powers in a term, `e` of each `a ^ e` with
@@ -243,9 +335,17 @@ pub fn integer_exponents(term: &Term) -> Vec<Term> {
 pub type Widen<'a> = dyn Fn(&str, Num) -> Option<super::term::ConstRef> + 'a;
 
 /// The relation with its sides cast up to the type the other's are in,
-/// where both are one relation and the other's is wider; None where they
-/// are not.
+/// where both are one relation and the other's is wider, or both the
+/// negation of one; None where they are not.
 fn lifted(narrow: &Term, other: &Term, widen: &Widen) -> Option<Term> {
+    if let (TermKind::Not(n), TermKind::Not(o)) =
+        (&bare(narrow).kind, &bare(other).kind)
+    {
+        return lifted(n, o, widen).map(|t| Term {
+            kind: TermKind::Not(Box::new(t)),
+            ty: narrow.ty.clone(),
+        });
+    }
     let (
         TermKind::Infix { op: b, lhs, rhs },
         TermKind::Infix {
@@ -1318,11 +1418,17 @@ fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
         (TermKind::ToNat(a), _) if is_to_nat_of(a, line) => {}
         (_, TermKind::ToNat(b)) if is_to_nat_of(b, item) => {}
         (TermKind::ToNat(a), _) => {
-            out.push(FormDifference::ToNat { in_item: true });
+            out.push(FormDifference::ToNat {
+                in_item: true,
+                term: line.clone(),
+            });
             compare(a, line, out);
         }
         (_, TermKind::ToNat(b)) => {
-            out.push(FormDifference::ToNat { in_item: false });
+            out.push(FormDifference::ToNat {
+                in_item: false,
+                term: item.clone(),
+            });
             compare(item, b, out);
         }
         (TermKind::Cast { inner: a, to: s }, TermKind::Cast { inner: b, to: t }) => {
@@ -1715,7 +1821,10 @@ mod tests {
         } = powers_apart();
         assert_eq!(
             differences(&natural, &integer, &none),
-            vec![FormDifference::ToNat { in_item: true }]
+            vec![FormDifference::ToNat {
+                in_item: true,
+                term: e.clone()
+            }]
         );
         let exponents = [e];
         assert!(differences(
@@ -1730,7 +1839,9 @@ mod tests {
     fn an_integer_power_of_no_exponent_shown_whole_stays_apart() {
         let none = |_: &str, _: Num| None;
         let PowersApart {
-            integer, natural, ..
+            integer,
+            natural,
+            exponent,
         } = powers_apart();
         let other = [int_letter("m")];
         assert_eq!(
@@ -1739,7 +1850,10 @@ mod tests {
                 &with_natural_powers(&natural, &other),
                 &none
             ),
-            vec![FormDifference::ToNat { in_item: false }]
+            vec![FormDifference::ToNat {
+                in_item: false,
+                term: exponent
+            }]
         );
     }
 

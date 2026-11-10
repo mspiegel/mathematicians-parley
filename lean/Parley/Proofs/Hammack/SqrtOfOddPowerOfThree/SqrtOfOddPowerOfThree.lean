@@ -98,7 +98,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s15 : Irrational (Real.sqrt (3 : ℝ)) := by exact Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational.sqrt3_irrational
   -- 16. thm:irrational-product A := √3, B := 3^m, from 6, 15
   have s16 : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by
-    have hI : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by parley_instance_cast ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (3 : ℝ)) (B := (3 ^ m : ℚ)) (by parley_side) s15))
+    have hI : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (3 : ℝ)) (B := (3 ^ m : ℚ)) (by parley_side) s15))
     exact hI
   -- 17. substitute
   have c1 : Real.sqrt (3 : ℝ) * 3 ^ m = Real.sqrt (3 ^ k.toNat : ℝ) := by exact (((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (3 ^ k.toNat : ℝ)) (y := Real.sqrt (3 : ℝ) * 3 ^ m) (by parley_side) (by parley_side))).mp s14).symm

@@ -33,6 +33,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -92,9 +93,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s4 : 1 < p := by parley_order
   -- 5. mun:power-order a := 2, m := 1, n := p, from 4
   have r352_1 : (2 : ℤ) > 1 := by parley_arith
-  have s5 : (2 ^ 1 : ℤ) < 2 ^ p.toNat := by
-    have hI : (2 ^ 1 : ℤ) < 2 ^ p.toNat := by parley_instance_cast (((Parley.Items.Stdlib.Numbers.mun_power_order (a := (2 : ℚ)) (m := (1 : ℤ)) (n := p) (by parley_side))).mp s4)
-    exact hI
+  have s5 : (2 ^ 1 : ℤ) < 2 ^ p.toNat := by (have h := ((Parley.Items.Stdlib.Numbers.mun_power_order (a := (2 : ℚ)) (m := (1 : ℤ)) (n := p) (by parley_side))).mp s4; simp only [parley_zpow_toNat (n := (1 : ℤ)) (h := by norm_num), parley_zpow_toNat (n := p) (h := le_of_lt hD2_pos)] at h ⊢; exact_mod_cast h)
   -- 6. inequalities, from 5
   have s6 : (2 ^ p.toNat - 1 : ℤ) > 1 := by parley_order
   -- 7. mun:pos-int-nat

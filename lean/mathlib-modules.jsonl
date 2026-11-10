@@ -30,6 +30,7 @@
 {"key":"IsAlgebraic","kind":"const","modules":["Mathlib.RingTheory.Algebraic.Defs"]}
 {"key":"IsOpen","kind":"const","modules":["Mathlib.Topology.Defs.Basic"]}
 {"key":"Nat.Prime","kind":"const","modules":["Mathlib.Tactic.NormNum.Prime","Mathlib.Data.Nat.Prime.Defs"]}
+{"key":"Nat.cast_nonneg","kind":"const","modules":["Mathlib.Data.Nat.Cast.Order.Ring"]}
 {"key":"Nat.cast_ofNat","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
 {"key":"Nat.cast_one","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
 {"key":"Nat.cast_zero","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
@@ -84,6 +85,7 @@
 {"key":"ite_eq_right","kind":"const","modules":[]}
 {"key":"le_of_lt","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"le_trans","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
+{"key":"lt_of_lt_of_le","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"max","kind":"const","modules":[]}
 {"key":"min","kind":"const","modules":[]}
 {"key":"mul_nonneg","kind":"const","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
@@ -97,6 +99,7 @@
 {"key":"sub_zero","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
 {"key":"trivial","kind":"const","modules":[]}
 {"key":"zero_add","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
+{"key":"zero_lt_one","kind":"const","modules":["Mathlib.Algebra.Order.ZeroLEOne"]}
 {"key":"zpow_natCast","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
 {"key":"ℝ","kind":"const","modules":[]}
 {"key":"ℤ","kind":"const","modules":[]}
@@ -279,6 +282,7 @@
 {"key":"IsAlgebraic a (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.RingTheory.Algebraic.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"IsOpen (sorry : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Basic","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
 {"key":"Nat.Prime a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Prime","Mathlib.Data.Nat.Prime.Defs"]}
+{"key":"Nat.cast_nonneg (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Data.Nat.Cast.Order.Ring"]}
 {"key":"Nat.totient (sorry : ℕ)","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Data.Nat.Totient","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Ne.symm a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Odd (sorry : ℤ)","kind":"term","modules":["Mathlib.Algebra.Ring.Parity","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Parity","Mathlib.Algebra.Ring.Int.Defs"]}
@@ -390,6 +394,7 @@
 {"key":"fun k : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun k => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun k h => by skip","kind":"term","modules":[]}
+{"key":"fun k hk => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun k v => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun m : ℤ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun m : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
@@ -441,8 +446,10 @@
 {"key":"if h : (sorry : Prop) then a else (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_left a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_right a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"le_of_lt (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"le_of_lt a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"le_trans a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
+{"key":"lt_of_lt_of_le (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"max (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"min (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"mul_nonneg a (sorry : Prop)","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
@@ -1045,6 +1052,7 @@
 {"key":"simp (disch := skip) only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp (disch := skip) only [← a] at h","kind":"tactic","modules":[]}
 {"key":"simp +contextual (disch := skip) only [a] at h","kind":"tactic","modules":[]}
+{"key":"simp +contextual only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp only [a]","kind":"tactic","modules":[]}
 {"key":"simp only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp only [← a] at h","kind":"tactic","modules":[]}

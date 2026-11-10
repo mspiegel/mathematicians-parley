@@ -582,19 +582,21 @@ impl Cites {
 }
 
 /// The tactic that reads an item's Lean statement, `item`, as the step's
-/// spelling of it, `written`: `parley_instance` where the two are stated in
-/// one number type, by the fields they name (a side's type the writer does
-/// not know is no difference); `parley_instance_real` where the item is in ℝ
-/// and the step in ℚ alone, which is lifted to ℝ; `parley_instance_cast`
-/// where the item is in another wider type, ℂ at reals or ℝ at integers,
-/// whose casts are lifted out to the step's.
+/// spelling of it, `written`: `parley_instance` where the two are worked in
+/// one field, the widest each names (a side's type the writer does not know
+/// is no difference; a narrower field the item names, a value of ℚ cast to
+/// ℝ, is cast down as `push_cast` takes it); `parley_instance_real` where
+/// the item is in ℝ and the step in ℚ alone, which is lifted to ℝ;
+/// `parley_instance_cast` where the item is in another wider type, ℂ at
+/// reals or ℝ at integers, whose casts are lifted out to the step's.
 fn instance_bridge(item: &Printed, written: &Printed) -> BridgeTactic {
     use super::templates::Num;
     let (of_item, of_step) = (fields_of(item), fields_of(written));
     let real_at_rationals = of_step == std::collections::BTreeSet::from([Num::Rat])
         && of_item.contains(&Num::Real)
         && !of_item.contains(&Num::Complex);
-    match (of_item == of_step, real_at_rationals) {
+    let one_field = of_item.last() == of_step.last();
+    match (one_field, real_at_rationals) {
         (true, _) => BridgeTactic::Instance,
         (false, true) => BridgeTactic::InstanceReal,
         (false, false) => BridgeTactic::InstanceCast,
@@ -624,10 +626,9 @@ fn one_statement(written: &Printed, said: &Printed) -> bool {
 }
 
 /// How many integer powers the statement writes under its binders, x^(m − k)
-/// in a sum over k, whose exponent's fact holds only there, where
-/// `parley_zpow_toNat`'s `omega` does not ask it: two statements of one fact
-/// that write as many have spelt each such power alike, none taken to
-/// `toNat` on one side alone.
+/// in a sum over k, whose exponent's fact holds only there: two statements
+/// of one fact that write as many have spelt each such power alike, none
+/// taken to `toNat` on one side alone, which `parley_instance` does not join.
 fn integer_powers_under_binders(term: &Printed) -> usize {
     use super::doc::{LeanType, Op, TermKind};
     let int = Some(LeanType::Num(super::templates::Num::Int));
@@ -3080,12 +3081,13 @@ impl<'a> Proof<'a> {
         // above, is counted as a natural number from there on, as one the
         // hypotheses make finite is (`CheckedTheorem::finite_at`).
         self.writer.finite = self.rec.said_finite.sets.clone();
+        // Of a set both give a reason for, the step's own, from the lines in
+        // scope there: R ⊆ X of a finite X, where the theorem has only that R
+        // is bound over sets of finite sets, which names no line to prove it
+        // from.
         if let Some(said) = self.rec.finite_at.get(i) {
             for (set, why) in said {
-                self.writer
-                    .finite
-                    .entry(set.clone())
-                    .or_insert_with(|| why.clone());
+                self.writer.finite.insert(set.clone(), why.clone());
             }
         }
         // The defines written above this step in its block, where the
@@ -5642,11 +5644,12 @@ impl<'a> Proof<'a> {
         let Some(rule) = at.implied else {
             return self.line_statement(&found).map(|says| (found.proof, says));
         };
-        let proof = match self.implied_proof(&found, rule) {
-            Route::Built(p) => p,
+        let says = match self.writer.formula(&at.written) {
+            Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
-        self.writer.formula(&at.written).map(|says| (proof, says))
+        self.implied_proof(&found, rule, &says)
+            .map(|proof| (proof, says))
     }
 
     /// The sentence or part of a line `at` names, as the page writes it, with
@@ -5714,14 +5717,44 @@ impl<'a> Proof<'a> {
     /// `rule` (`FirstAt::implied`), from how Lean writes `found`: a range
     /// membership is `x ∈ Finset.Icc a b`, whose bounds `Finset.mem_Icc`
     /// gives; a membership of ℕ or ℕ₀ is the bound `0 < x` or `0 ≤ x`
-    /// itself, which is also `x ≥ 1` in ℤ.
+    /// itself, which is also `x ≥ 1` in ℤ. `target` is what it implies as
+    /// Lean writes it.
     fn implied_proof(
         &self,
         found: &super::algebra::Cited,
         rule: crate::citing::Implication,
+        target: &Printed,
     ) -> Route<Printed> {
         use crate::citing::Implication;
         match rule {
+            // A membership of a wider number system: of one Lean's type
+            // already holds, `True`; of ℕ₀ from ℕ, `le_of_lt` of the bound
+            // `0 < x`, which Lean writes `0 ≤ x`.
+            Implication::WiderSystem if target.is_truth() => Route::Built(Printed::constant(
+                "True.intro",
+                super::doc::Source::Core,
+                super::doc::LeanType::Prop,
+            )),
+            Implication::WiderSystem => {
+                let at_most = matches!(
+                    &target.kind,
+                    super::doc::TermKind::Infix { op, .. } if op.symbol == "≤"
+                );
+                let positive = matches!(
+                    membership_of_whole(&found.node),
+                    Some((_, crate::rules::System::N))
+                );
+                match (at_most, positive && self.written_as_bound(&found.node)) {
+                    (true, true) => Route::Built(nonneg_of(
+                        crate::rules::System::N,
+                        found.proof.clone(),
+                    )),
+                    _ => Route::no(format!(
+                        "a membership of a wider system, {}, which Lean writes otherwise",
+                        target.text()
+                    )),
+                }
+            }
             Implication::RangeBound { lemma } => {
                 let says = match self.line_statement(found) {
                     Route::Built(s) => s,
@@ -6220,7 +6253,7 @@ impl<'a> Proof<'a> {
                     // What the line implies is what the checker found
                     // `wanted` to be.
                     Some(rule) => (
-                        self.implied_proof(&said.cited(), *rule).built()?,
+                        self.implied_proof(&said.cited(), *rule, wanted).built()?,
                         wanted.clone(),
                     ),
                 }
@@ -6437,6 +6470,22 @@ impl<'a> Proof<'a> {
         let label = line_name(&line.label);
         let (at, page_label) = (line.line, line.label.clone());
         let letter = super::names::letter(name);
+        // Its kind as a line of the letter, `A ∈ ℕ`, proved by the order
+        // named beside it, `0 < A`: a step finds the letter's fact there.
+        if ordered {
+            let member = fact
+                .with_children(vec![Node::name(body.sort.clone(), name), set.clone()]);
+            self.store(
+                format!("{page_label} kind"),
+                vec![LineSentence {
+                    at: 0,
+                    node: member,
+                    name: None,
+                    proof: super::tactics::hyp(&format!("{label}_pos")),
+                    says: None,
+                }],
+            );
+        }
         // A value of integers, k + 1, is the letter as any define's value
         // is: Lean's `set` of it, which a step citing the define unfolds
         // (`cited_defines`); its kind said as an order of the value, 0 < k +
@@ -7146,6 +7195,44 @@ impl<'a> Proof<'a> {
             .map(|(_, _, printed)| printed)
     }
 
+    /// Every set the claim counts, and the item at the citation's values
+    /// counts, written from its page formula with why it is finite
+    /// (`finite_proof`); a set not shown finite is left out.
+    fn finite_counted(
+        &self,
+        cited: &Cited,
+        sentence: &Sentence,
+        claim: &Node,
+    ) -> Vec<ShownFinite> {
+        let item = self.at_values(&sentence.says, &cited.binding);
+        let mut out = Vec::new();
+        let mut seen: Vec<Node> = Vec::new();
+        for set in [claim, &item]
+            .into_iter()
+            .flat_map(|n| n.walk())
+            .filter(|c| &*c.notation_name() == "cardinality")
+            .filter_map(|c| c.children.first().cloned())
+        {
+            if seen
+                .iter()
+                .any(|s| crate::matching::alike_top(s, &set, self.sources.ctx))
+            {
+                continue;
+            }
+            seen.push(set.clone());
+            let (Route::Built(written), Some(proof)) =
+                (self.writer.set_term(&set), self.finite_proof(&set))
+            else {
+                continue;
+            };
+            out.push(ShownFinite {
+                set: written,
+                proof,
+            });
+        }
+        out
+    }
+
     /// Each exponent of a power in the claim, or in the cited item at the
     /// citation's values, that the record shows at least 0, as Lean writes
     /// it with the proof (`nonneg_proof`).
@@ -7155,13 +7242,71 @@ impl<'a> Proof<'a> {
         sentence: &Sentence,
         claim: &Node,
     ) -> Vec<NonNegative> {
-        let ctx = self.sources.ctx;
         let known = self.supplied_whole(cited);
         let item = self.at_values(&sentence.says, &cited.binding);
+        self.exponents_whole_in(&[claim, &item], &known)
+    }
+
+    /// An instance, `says`, met with the claim, `wanted`, where the two
+    /// differ only in a power one writes as an integer power and the other
+    /// to its exponent's `toNat`: each converted as a citation's is
+    /// (`forms_converted`), its exponent's fact from the record, read from
+    /// the claim `node` and the instance as a page formula `page`. None where
+    /// they differ otherwise, or an exponent has no fact.
+    fn powers_converted_at(
+        &self,
+        node: &Node,
+        page: &Node,
+        says: &Printed,
+        wanted: &Printed,
+        proof: &Printed,
+        turned: bool,
+    ) -> Option<super::doc::Proof> {
+        use super::doc::forms;
+        let templates = self.writer.templates;
+        let widen = |head: &str, at| templates.same_function_at(head, at);
+        let facing = match turned {
+            true => forms::turned_statement(says),
+            false => says.clone(),
+        };
+        let found = forms::differences(&facing, wanted, &widen);
+        let to_nat = |d: &forms::FormDifference| {
+            matches!(d, forms::FormDifference::ToNat { .. })
+        };
+        if found.is_empty() || !found.iter().all(to_nat) {
+            return None;
+        }
+        let mut zpow = forms::integer_exponents(&facing);
+        zpow.extend(forms::integer_exponents(wanted));
+        let whole: Vec<NonNegative> = self
+            .exponents_whole_in(&[node, page], &[])
+            .into_iter()
+            .filter(|w| zpow.iter().any(|e| forms::alike(e, &w.exponent)))
+            .collect();
+        let exponents: Vec<Printed> =
+            whole.iter().map(|w| w.exponent.clone()).collect();
+        let left = forms::differences(
+            &forms::with_natural_powers(&facing, &exponents),
+            &forms::with_natural_powers(wanted, &exponents),
+            &widen,
+        );
+        (!whole.is_empty() && left.is_empty())
+            .then(|| forms_converted(proof, &[], &whole, &[], false, turned))
+    }
+
+    /// Each exponent of a power in the page formulas `pages` that the
+    /// record shows at least 0, as Lean writes it, with the proof
+    /// (`nonneg_proof`), `known` among the facts it is shown from.
+    fn exponents_whole_in(
+        &self,
+        pages: &[&Node],
+        known: &[ShownWhole],
+    ) -> Vec<NonNegative> {
+        let ctx = self.sources.ctx;
         let mut out = Vec::new();
         let mut seen: Vec<Node> = Vec::new();
-        for e in [claim, &item]
-            .into_iter()
+        for e in pages
+            .iter()
             .flat_map(|n| n.walk())
             .filter(|n| n.notation() == crate::notations::POWER)
             .filter_map(|n| n.children.get(1).cloned())
@@ -7172,7 +7317,7 @@ impl<'a> Proof<'a> {
             seen.push(e.clone());
             let (Route::Built(exponent), Some(proof)) = (
                 self.writer.number_fixed(&e, super::templates::Num::Int),
-                self.nonneg_proof(&e, &known),
+                self.nonneg_proof(&e, known),
             ) else {
                 continue;
             };
@@ -7201,90 +7346,151 @@ impl<'a> Proof<'a> {
             .collect()
     }
 
-    /// The proof that the integer `e` is at least 0, `0 ≤ e`, from what the
-    /// record gives, by the rules the said-once walk builds ℕ₀ by: a value
-    /// `known` gives, a line in scope saying e ∈ ℕ or ℕ₀ (`le_of_lt` of
-    /// `0 < e` for ℕ), a line in scope putting e in a range {a, …, b} of an
-    /// a so shown, a numeral, and a sum or product of parts each shown so
-    /// (`add_nonneg`, `mul_nonneg`). None for any other e.
+    /// The proof that the integer `e` is at least 0, `0 ≤ e`, from why the
+    /// said-once walk puts it in ℕ₀ (`citing::reason_within`), the walk the
+    /// Metamath build proves memberships from. A part the walk does not take
+    /// apart is in ℕ₀ where `known` gives it, a hypothesis of a cited item
+    /// the checker found supplied, or where a line the step names says so,
+    /// `i − n ∈ ℕ₀` of an `instantiate … from 2.1`. None where the walk does
+    /// not put e in ℕ₀, or gives a reason `nonneg_by` writes no proof for.
     fn nonneg_proof(&self, e: &Node, known: &[ShownWhole]) -> Option<Printed> {
-        use crate::notations::{ADDITIVE, MULTIPLICATIVE, NUMERAL, PLUS, TIMES};
+        use crate::citing::OnceReason;
+        use crate::rules::System;
         let ctx = self.sources.ctx;
-        if let Some(k) = known
-            .iter()
-            .find(|k| crate::matching::alike_top(&k.term, e, ctx))
-        {
-            return Some(k.proof.clone());
+        let mut known = known.to_vec();
+        if let Some(i) = self.step_now.get() {
+            for f in self.step_facts(i) {
+                let Some((term, system)) = membership_of_whole(&f.node) else {
+                    continue;
+                };
+                if self.written_as_bound(&f.node) {
+                    known.push(ShownWhole {
+                        term: term.clone(),
+                        proof: nonneg_of(system, f.proof.clone()),
+                    });
+                }
+            }
         }
-        let lines: Vec<super::algebra::Cited> = self
-            .trees
-            .values()
-            .flatten()
-            .map(LineSentence::cited)
-            .collect();
-        if let Some(NamedLine { name, system }) =
-            named_line(&lines, e, crate::rules::System::N0, ctx)
-        {
-            return Some(nonneg_of(system, name));
-        }
-        // A line in scope `e ∈ {a, …, b}` of an a at least 0: `le_trans`
-        // of a's fact and the range's lower bound, `(Finset.mem_Icc.mp h).1`.
-        let in_range = lines.iter().find_map(|l| {
-            let [x, range] = l.node.children.as_slice() else {
+        let known = known.as_slice();
+        let letters = self.writer.page_systems();
+        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
+        let said = |t: &Node, s: System| {
+            (System::N0.within(s)
+                && known
+                    .iter()
+                    .any(|k| crate::matching::alike_top(&k.term, t, ctx)))
+            .then_some(OnceReason::Stated)
+        };
+        let reason =
+            crate::citing::reason_within(e, System::N0, &letters, &nonzero, &said)?;
+        self.nonneg_by(e, &reason, known)
+    }
+
+    /// `nonneg_proof` of `e` for the reason the walk gives: a part `known`
+    /// gives, by its proof; a numeral, by `norm_num`; a letter, from the line
+    /// that introduces it (`letter_nonneg`); a factorial, a natural number
+    /// cast, `Nat.cast_nonneg`; a sum or a product of parts the
+    /// walk puts in ℕ₀, `add_nonneg` or `mul_nonneg` of theirs. None for any
+    /// other reason.
+    fn nonneg_by(
+        &self,
+        e: &Node,
+        reason: &crate::citing::OnceReason,
+        known: &[ShownWhole],
+    ) -> Option<Printed> {
+        use crate::citing::OnceReason;
+        use crate::notations::{ADDITIVE, MULTIPLICATIVE, PLUS, TIMES};
+        let ctx = self.sources.ctx;
+        let both = |lemma: &str, parts: &[Node], reasons: &[OnceReason]| {
+            let ([a, b], [ra, rb]) = (parts, reasons) else {
                 return None;
             };
-            let [from, _] = range.children.as_slice() else {
+            Some(Printed::applied(
+                lemma,
+                super::doc::Source::Mathlib,
+                vec![
+                    super::tactics::bracket(self.nonneg_by(a, ra, known)?),
+                    super::tactics::bracket(self.nonneg_by(b, rb, known)?),
+                ],
+                super::doc::LeanType::Prop,
+            ))
+        };
+        match (reason, e.notation()) {
+            (OnceReason::Stated, _) => known
+                .iter()
+                .find(|k| crate::matching::alike_top(&k.term, e, ctx))
+                .map(|k| k.proof.clone()),
+            (OnceReason::Numeral, _) => Some(norm_num_term()),
+            (OnceReason::Letter, _) => self.letter_nonneg(e),
+            // n! is a natural number, which Lean casts to ℤ.
+            (OnceReason::Factorial(_), _) => Some(Printed::applied(
+                "Nat.cast_nonneg",
+                super::doc::Source::Mathlib,
+                vec![Printed::of(
+                    super::doc::TermKind::Elided,
+                    super::doc::LeanType::Prop,
+                )],
+                super::doc::LeanType::Prop,
+            )),
+            (OnceReason::Built(reasons), ADDITIVE) if e.spelling() == PLUS => {
+                both("add_nonneg", &e.children, reasons)
+            }
+            (OnceReason::Built(reasons), MULTIPLICATIVE) if e.spelling() == TIMES => {
+                both("mul_nonneg", &e.children, reasons)
+            }
+            _ => None,
+        }
+    }
+
+    /// `0 ≤ n` of a letter the said-once walk puts in ℕ₀, from the line in
+    /// scope that introduces it: `n ∈ ℕ₀`, which Lean states `0 ≤ n`; `n ∈
+    /// ℕ`, `le_of_lt` of its `0 < n`; `n ∈ {a, …, b}` of a numeral a,
+    /// `le_trans` of `0 ≤ a` and the range's lower bound. None where no line
+    /// in scope introduces it so.
+    fn letter_nonneg(&self, e: &Node) -> Option<Printed> {
+        use super::expr::System;
+        if !e.is_name() {
+            return None;
+        }
+        self.trees.values().flatten().find_map(|s| {
+            if let Some((letter, system)) = super::statement::introduces(&s.node) {
+                if letter.as_str() != &*e.text {
+                    return None;
+                }
+                return match system {
+                    System::Positive => {
+                        Some(nonneg_of(crate::rules::System::N, s.proof.clone()))
+                    }
+                    System::NonNegative => Some(s.proof.clone()),
+                    System::Type(_) => None,
+                };
+            }
+            let letter = super::statement::range_letter(&s.node)?;
+            let from = s.node.children.get(1)?.children.first()?;
+            if letter.as_str() != &*e.text
+                || from.notation() != crate::notations::NUMERAL
+            {
                 return None;
-            };
-            (l.node.notation() == crate::notations::MEMBERSHIP
-                && range.notation() == crate::notations::INTEGER_RANGE
-                && crate::matching::alike_top(x, e, ctx))
-            .then(|| (from.clone(), l.proof.clone()))
-        });
-        if let Some((from, proof)) = in_range {
+            }
             let lower = Printed {
                 kind: super::doc::TermKind::Field {
                     inner: Box::new(super::tactics::bracket(Printed::applied(
                         "Finset.mem_Icc.mp",
                         super::doc::Source::Mathlib,
-                        vec![proof],
+                        vec![s.proof.clone()],
                         super::doc::LeanType::Prop,
                     ))),
                     field: "1".to_string(),
                 },
                 ty: Some(super::doc::LeanType::Prop),
             };
-            return Some(Printed::applied(
+            Some(Printed::applied(
                 "le_trans",
                 super::doc::Source::Mathlib,
-                vec![
-                    super::tactics::bracket(self.nonneg_proof(&from, known)?),
-                    lower,
-                ],
-                super::doc::LeanType::Prop,
-            ));
-        }
-        let parts = |lemma: &str, a: &Node, b: &Node| {
-            Some(Printed::applied(
-                lemma,
-                super::doc::Source::Mathlib,
-                vec![
-                    super::tactics::bracket(self.nonneg_proof(a, known)?),
-                    super::tactics::bracket(self.nonneg_proof(b, known)?),
-                ],
+                vec![super::tactics::bracket(norm_num_term()), lower],
                 super::doc::LeanType::Prop,
             ))
-        };
-        match (e.notation(), e.children.as_slice()) {
-            (NUMERAL, _) => Some(super::tactics::by_term(super::doc::Proof::By(
-                super::tactics::call("norm_num", vec![]),
-            ))),
-            (ADDITIVE, [a, b]) if e.spelling() == PLUS => parts("add_nonneg", a, b),
-            (MULTIPLICATIVE, [a, b]) if e.spelling() == TIMES => {
-                parts("mul_nonneg", a, b)
-            }
-            _ => None,
-        }
+        })
     }
 
     /// The proof that `set` is finite, from why the checker says it is
@@ -7465,9 +7671,16 @@ impl<'a> Proof<'a> {
             .is_some_and(|k| k >= self.written_sentences(&recorded.at.line));
         if at_letter && just.values.is_empty() {
             let instance = self.line_statement(&part);
-            return Route::Built(
-                self.instance_closed(node, claim, part.proof, instance, None, recorded),
-            );
+            let page = part.node.clone();
+            return Route::Built(self.instance_closed(
+                node,
+                claim,
+                part.proof,
+                instance,
+                None,
+                Some(&page),
+                recorded,
+            ));
         }
         let part = &part;
         let (line, name) = (&part.node, &part.proof);
@@ -7607,6 +7820,7 @@ impl<'a> Proof<'a> {
             node_consequent(at).filter(|_| at.notation() != BICONDITIONAL)
         });
         let written = left.and_then(|at| self.written_at_values(at, &binding));
+        let page = left.map(|at| self.at_values(at, &binding));
         let applied = Printed {
             kind: super::doc::TermKind::App {
                 head: Box::new(name.clone()),
@@ -7621,6 +7835,7 @@ impl<'a> Proof<'a> {
             super::tactics::bracket(applied),
             instance,
             written,
+            page.as_ref(),
             recorded,
         ))
     }
@@ -7637,7 +7852,12 @@ impl<'a> Proof<'a> {
     /// whose Lean fact holds of the two, the ways tried in order where none
     /// does (`close`). Before those rows, the instance as the step's lines
     /// write it at the values, `written`, read from the line and met with
-    /// the claim, as a citation's is (`read_in_spelling`).
+    /// the claim, as a citation's is (`read_in_spelling`). Before that, a
+    /// power the one writes as an integer power and the other to its
+    /// exponent's `toNat` is converted as a citation's is (`forms_converted`),
+    /// each exponent's fact from the record, `page` being the instance as a
+    /// page formula at its values.
+    #[allow(clippy::too_many_arguments)]
     fn instance_closed(
         &self,
         node: &Node,
@@ -7645,6 +7865,7 @@ impl<'a> Proof<'a> {
         proof: Printed,
         instance: Route<Printed>,
         written: Option<Printed>,
+        page: Option<&Node>,
         recorded: &crate::checker::record::Instantiated,
     ) -> super::doc::Proof {
         use super::doc::forms;
@@ -7711,6 +7932,18 @@ impl<'a> Proof<'a> {
         };
         if let Some(proved) = met {
             return super::doc::Proof::By(proved.closer());
+        }
+        if let (Some((says, wanted)), Some(page)) = (&lean, page) {
+            if let Some(converted) = self.powers_converted_at(
+                node,
+                page,
+                says,
+                wanted,
+                &proof,
+                recorded.meeting.turned,
+            ) {
+                return converted;
+            }
         }
         let read = match (&written, &lean) {
             (Some(written), Some((says, wanted))) => {
@@ -10162,9 +10395,17 @@ impl<'a> Proof<'a> {
         // write one term in different forms, the build reports it. The
         // sets whose counts differ only in form are converted.
         let mut counted: Vec<Printed> = Vec::new();
+        // The sets the two count, each with why it is finite.
+        let mut finite: Vec<ShownFinite> = Vec::new();
         // The exponents whose powers differ only in form, each with why it is
         // at least 0, converted alike.
         let mut powered: Vec<NonNegative> = Vec::new();
+        // Whether an integer power of a natural number cast up is converted
+        // to the natural power alike.
+        let mut cast_powers = false;
+        // The powers under a sum whose exponent names its letter, converted
+        // for each letter in its range.
+        let mut bound: Vec<super::doc::forms::BoundPower> = Vec::new();
         // A line that is the item's equation turned round, compared turned
         // back and closed by the equation's `symm`.
         let mut turned = false;
@@ -10176,7 +10417,17 @@ impl<'a> Proof<'a> {
         // an item over any ring given ℤ writes `n ^ (2 : ℤ)`, which ℤ has
         // no power for, and the comparison keeps casts.
         let mut agrees = false;
-        if concluded.way == Way::AsWritten {
+        // What the reading gives, as Lean states it at the citation's values:
+        // the sentence as written, or the side a forward reading reaches. Of
+        // a forward reading only a power's `toNat` is compared and converted
+        // so far; its counts and casts are left to the closers.
+        let forward = concluded.way == Way::Forward;
+        let compared = match concluded.way {
+            Way::AsWritten => Some(instance.statement.clone()),
+            Way::Forward => consequent(&instance.statement),
+            Way::Backward => None,
+        };
+        if let Some(compared) = compared {
             // A row of a calculation is written in the calculation's type
             // (`worked_in`), and compared as it is written there.
             let written = match self.worked_in.get() {
@@ -10189,12 +10440,15 @@ impl<'a> Proof<'a> {
                 let templates = self.writer.templates;
                 let widen = |head: &str, at| templates.same_function_at(head, at);
                 use super::doc::forms;
-                turned = forms::turned_round(&instance.statement, &claim);
+                turned = forms::turned_round(&compared, &claim);
                 let claim = match turned {
                     true => forms::turned(&claim),
                     false => claim,
                 };
-                let mut found = forms::differences(&instance.statement, &claim, &widen);
+                let mut found = forms::differences(&compared, &claim, &widen);
+                if forward {
+                    found.retain(|d| matches!(d, forms::FormDifference::ToNat { .. }));
+                }
                 for d in &found {
                     if let forms::FormDifference::Count {
                         item_set, line_set, ..
@@ -10207,11 +10461,18 @@ impl<'a> Proof<'a> {
                         }
                     }
                 }
-                // Both rewritten as `forms_converted` rewrites them, what
-                // is left is what the conversion leaves.
+                // A count is converted only of a set shown finite
+                // (`finite_counted`): one not shown so has no count in ℕ to
+                // be taken to, and its difference stays. Both rewritten as
+                // `forms_converted` rewrites them, what is left is what the
+                // conversion leaves.
+                if !counted.is_empty() {
+                    finite = self.finite_counted(cited, sentence, node);
+                    counted.retain(|s| finite.iter().any(|f| forms::alike(&f.set, s)));
+                }
                 if !counted.is_empty() {
                     found = forms::differences(
-                        &forms::with_natural_counts(&instance.statement, &counted),
+                        &forms::with_natural_counts(&compared, &counted),
                         &forms::with_natural_counts(&claim, &counted),
                         &widen,
                     );
@@ -10220,44 +10481,74 @@ impl<'a> Proof<'a> {
                 // exponent's `toNat` on the other: each integer power whose
                 // exponent the record shows at least 0 (`nonneg_proof`)
                 // rewritten as the natural one, as `forms_converted`
-                // rewrites it, and what is left compared.
-                let to_nat = |d: &forms::FormDifference| {
-                    matches!(d, forms::FormDifference::ToNat { .. })
+                // rewrites it, and what is left compared. An integer power
+                // of a natural number cast up, `a ^ (k : ℤ)`, is the natural
+                // power `a ^ k` with no fact asked (`zpow_natCast`).
+                let natural_casts = forms::casts_natural_exponent(&compared)
+                    || forms::casts_natural_exponent(&claim);
+                let apart = |d: &forms::FormDifference| match d {
+                    forms::FormDifference::ToNat { .. } => true,
+                    forms::FormDifference::Cast { .. } => natural_casts,
+                    _ => false,
                 };
-                if found.iter().any(to_nat) {
-                    let mut zpow = forms::integer_exponents(&instance.statement);
+                if found.iter().any(apart) {
+                    cast_powers = natural_casts;
+                    let mut zpow = forms::integer_exponents(&compared);
                     zpow.extend(forms::integer_exponents(&claim));
                     powered = self
                         .exponents_shown_whole(cited, sentence, node)
                         .into_iter()
                         .filter(|w| zpow.iter().any(|e| forms::alike(e, &w.exponent)))
                         .collect();
-                    if !powered.is_empty() {
-                        let exponents: Vec<Printed> =
-                            powered.iter().map(|w| w.exponent.clone()).collect();
+                    // A power under a sum whose exponent names its letter,
+                    // at least 0 only for each letter in the sum's range
+                    // (`bound_rewrite`), where the other side takes that
+                    // exponent to ℕ.
+                    let apart_at: Vec<&Printed> = found
+                        .iter()
+                        .filter_map(|d| match d {
+                            forms::FormDifference::ToNat { term, .. } => Some(term),
+                            _ => None,
+                        })
+                        .collect();
+                    bound = forms::bound_integer_powers(&compared)
+                        .into_iter()
+                        .chain(forms::bound_integer_powers(&claim))
+                        .filter(|b| range_lower(&b.over).is_some())
+                        .filter(|b| {
+                            apart_at.iter().any(|t| forms::alike(t, &b.exponent))
+                        })
+                        .collect();
+                    if !powered.is_empty() || cast_powers || !bound.is_empty() {
+                        let exponents: Vec<Printed> = powered
+                            .iter()
+                            .map(|w| w.exponent.clone())
+                            .chain(bound.iter().map(|b| b.exponent.clone()))
+                            .collect();
                         let read = |t: &Printed| {
                             forms::with_natural_powers(
                                 &forms::with_natural_counts(t, &counted),
                                 &exponents,
                             )
                         };
-                        found = forms::differences(
-                            &read(&instance.statement),
-                            &read(&claim),
-                            &widen,
-                        );
+                        found =
+                            forms::differences(&read(&compared), &read(&claim), &widen);
+                        if forward {
+                            found.retain(|d| {
+                                matches!(d, forms::FormDifference::ToNat { .. })
+                            });
+                        }
                     }
                 }
                 agrees = found.is_empty()
+                    && !forward
                     && !turned
                     && counted.is_empty()
                     && powered.is_empty()
+                    && !cast_powers
+                    && bound.is_empty()
                     && !claim.is_truth()
-                    && forms::one_term_once_set(
-                        &instance.statement,
-                        &claim,
-                        &self.set_values(),
-                    );
+                    && forms::one_term_once_set(&compared, &claim, &self.set_values());
                 for d in found {
                     self.forms.borrow_mut().push(FormNote {
                         page_line: reason.just.line,
@@ -10489,7 +10780,11 @@ impl<'a> Proof<'a> {
         };
         let read_as_written = match (&as_written, &says, &claim_lean) {
             (Some(written), Some(said), Some(claim))
-                if counted.is_empty() && powered.is_empty() && !agrees =>
+                if counted.is_empty()
+                    && powered.is_empty()
+                    && !cast_powers
+                    && bound.is_empty()
+                    && !agrees =>
             {
                 let claim = StepClaim {
                     printed: claim,
@@ -10500,36 +10795,12 @@ impl<'a> Proof<'a> {
             _ => None,
         };
         let closed = match (self.writer.integer_power_witness(node), read_as_written) {
-            _ if !counted.is_empty() || !powered.is_empty() => {
-                // Every set the claim counts, and the item at the citation's
-                // values counts, each written from its page formula with why
-                // it is finite (`finite_proof`); one not shown finite has no
-                // count in ℕ to be taken to.
-                let item_at_values = self.at_values(&sentence.says, &cited.binding);
-                let mut finite: Vec<(Printed, Printed)> = Vec::new();
-                let mut seen: Vec<Node> = Vec::new();
-                for set in [node, &item_at_values]
-                    .into_iter()
-                    .filter(|_| !counted.is_empty())
-                    .flat_map(|n| n.walk())
-                    .filter(|c| &*c.notation_name() == "cardinality")
-                    .filter_map(|c| c.children.first().cloned())
-                {
-                    if seen
-                        .iter()
-                        .any(|s| crate::matching::alike_top(s, &set, self.sources.ctx))
-                    {
-                        continue;
-                    }
-                    seen.push(set.clone());
-                    let (Route::Built(written), Some(proof)) =
-                        (self.writer.set_term(&set), self.finite_proof(&set))
-                    else {
-                        continue;
-                    };
-                    finite.push((written, proof));
-                }
-                forms_converted(&term, &finite, &powered, turned)
+            _ if !counted.is_empty()
+                || !powered.is_empty()
+                || cast_powers
+                || !bound.is_empty() =>
+            {
+                forms_converted(&term, &finite, &powered, &bound, cast_powers, turned)
             }
             _ if agrees => Proof::By(Tactic::Exact(term)),
             (Some(witness), _) => Proof::By(Tactic::Exact(witness)),
@@ -11667,11 +11938,46 @@ impl<'a> Proof<'a> {
                             vec![LineSentence::only(body.clone(), hypothesis.clone())],
                         );
                     }
-                    let guard = openers
+                    let letter_line = openers
                         .iter()
-                        .find(|o| !o.is_hypothesis && o.kind == Intro::Let)
+                        .find(|o| !o.is_hypothesis && o.kind == Intro::Let);
+                    let guard = letter_line
                         .map(|o| line_name(&o.label))
                         .unwrap_or_else(|| format!("h_{name}"));
+                    // The letter's line, `j ∈ ℕ` or `j ∈ ℕ₀`, which Lean
+                    // writes `0 < j` or `0 ≤ j`, from the case's guard,
+                    // `1 ≤ j` or `0 ≤ j`.
+                    if let Some(o) = letter_line {
+                        if let Some(node) = self.opener_node(o) {
+                            let h = super::tactics::hyp(&guard);
+                            let proof = match from_one {
+                                true => Printed::applied(
+                                    "lt_of_lt_of_le",
+                                    super::doc::Source::Mathlib,
+                                    vec![
+                                        Printed::constant(
+                                            "zero_lt_one",
+                                            super::doc::Source::Mathlib,
+                                            super::doc::LeanType::Prop,
+                                        ),
+                                        h,
+                                    ],
+                                    super::doc::LeanType::Prop,
+                                ),
+                                false => h,
+                            };
+                            self.store(
+                                o.label.clone(),
+                                vec![LineSentence {
+                                    at: 0,
+                                    node,
+                                    name: None,
+                                    proof,
+                                    says: None,
+                                }],
+                            );
+                        }
+                    }
                     let case = format!("succ {name} {guard} {hypothesis}");
                     self.push_at(
                         depth,
@@ -13082,6 +13388,14 @@ struct NonNegative {
     proof: Printed,
 }
 
+/// A set as Lean writes it, with the proof that it is finite
+/// (`finite_proof`).
+#[derive(Clone, Debug)]
+struct ShownFinite {
+    set: Printed,
+    proof: Printed,
+}
+
 /// A page term with the proof that it is at least 0, from a hypothesis of a
 /// cited item the checker found supplied.
 #[derive(Clone, Debug)]
@@ -13115,11 +13429,14 @@ fn membership_of_whole(sentence: &Node) -> Option<(&Node, crate::rules::System)>
 /// after which the two differ only by casts; `h.symm` where the claim is
 /// the item's equation turned round. `finite` holds each finite set the two
 /// count, S, with p, why it is; `whole` each exponent with q, why it is at
-/// least 0.
+/// least 0. `cast_powers` adds `zpow_natCast`, an integer power of a natural
+/// number cast up, `a ^ (k : ℤ)`, as the natural power `a ^ k`.
 fn forms_converted(
     cited: &Printed,
-    finite: &[(Printed, Printed)],
+    finite: &[ShownFinite],
     whole: &[NonNegative],
+    bound: &[super::doc::forms::BoundPower],
+    cast_powers: bool,
     turned: bool,
 ) -> super::doc::Proof {
     use super::tactics as t;
@@ -13147,7 +13464,7 @@ fn forms_converted(
     });
     let rules = finite
         .iter()
-        .map(|(set, proof)| {
+        .map(|ShownFinite { set, proof }| {
             // Told its type, `({a} : Set α)`, as the count writes it.
             let typed = match &set.ty {
                 Some(ty) => Printed::cast(set.clone(), ty.clone()),
@@ -13169,17 +13486,120 @@ fn forms_converted(
             ))
         })
         .chain(powers)
+        .chain(cast_powers.then(|| t::forwards(t::lemma("zpow_natCast"))))
+        .chain((0..bound.len()).map(|k| t::forwards(t::hyp(&format!("hb{}", k + 1)))))
         .collect();
-    super::doc::Proof::By(t::on_h(
-        cited,
+    let mut steps: Vec<Tactic> = bound
+        .iter()
+        .enumerate()
+        .filter_map(|(k, b)| bound_rewrite(b, &format!("hb{}", k + 1)))
+        .collect();
+    // A rewrite stated for each letter in a sum's range is taken under the
+    // sum, where the letter's membership is in scope: `+contextual`.
+    steps.push(t::simp_only(
+        !bound.is_empty(),
+        None,
+        rules,
+        Some(t::at_h(true)),
+    ));
+    steps.push(t::exact_mod_cast(match turned {
+        true => t::symm(t::hyp("h")),
+        false => t::hyp("h"),
+    }));
+    super::doc::Proof::By(t::on_h(cited, steps))
+}
+
+/// The lower end `a` of a range a sum runs over, `Finset.Icc a b`; None of
+/// any other set.
+fn range_lower(over: &Printed) -> Option<&Printed> {
+    let super::doc::TermKind::App { head, args, .. } = &over.kind else {
+        return None;
+    };
+    let (super::doc::TermKind::Const(c), [super::doc::Arg::Explicit(a), _]) =
+        (&head.kind, args.as_slice())
+    else {
+        return None;
+    };
+    (c.name == "Finset.Icc").then_some(a)
+}
+
+/// `have name : ∀ k ∈ Finset.Icc a b, x ^ e = x ^ e.toNat := fun k hk =>
+/// parley_zpow_toNat x e (by linarith [(Finset.mem_Icc.mp hk).1])`: a power
+/// under a sum whose exponent names its letter, as the natural power, for
+/// each letter in the sum's range, the exponent at least 0 by the range's
+/// lower bound. None where the sum runs over no range.
+fn bound_rewrite(b: &super::doc::forms::BoundPower, name: &str) -> Option<Tactic> {
+    use super::doc::{LeanType, Op, Quant, Source, TermKind};
+    use super::tactics as t;
+    range_lower(&b.over)?;
+    let k = || Printed::letter(&b.letter, b.letter_ty.clone());
+    let natural = Printed::infix(
+        Op::POWER,
+        b.base.clone(),
+        Printed::of(
+            TermKind::ToNat(Box::new(t::bracket(b.exponent.clone()))),
+            LeanType::Num(super::templates::Num::Nat),
+        ),
+        b.power.ty.clone().unwrap_or(LeanType::Prop),
+    );
+    let says = Printed::of(
+        TermKind::Quantified {
+            quant: Quant::ForAll,
+            letter: b.letter.clone(),
+            letter_ty: b.letter_ty.clone(),
+            guard: Some(Box::new(Printed::infix(
+                Op::of("∈")?,
+                k(),
+                b.over.clone(),
+                LeanType::Prop,
+            ))),
+            body: Box::new(Printed::infix(
+                Op::EQUALS,
+                b.power.clone(),
+                natural,
+                LeanType::Prop,
+            )),
+            bounded: true,
+        },
+        LeanType::Prop,
+    );
+    let lower = Printed {
+        kind: TermKind::Field {
+            inner: Box::new(t::bracket(Printed::applied(
+                "Finset.mem_Icc.mp",
+                Source::Mathlib,
+                vec![t::hyp("hk")],
+                LeanType::Prop,
+            ))),
+            field: "1".to_string(),
+        },
+        ty: Some(LeanType::Prop),
+    };
+    let nonneg = t::by_term(super::doc::Proof::By(t::call(
+        "linarith",
+        vec![t::rules(vec![lower])],
+    )));
+    let each = Printed::applied(
+        "parley_zpow_toNat",
+        Source::Bridge(BridgeModule::PowerTactics),
         vec![
-            t::simp_only(false, None, rules, Some(t::at_h(true))),
-            t::exact_mod_cast(match turned {
-                true => t::symm(t::hyp("h")),
-                false => t::hyp("h"),
-            }),
+            t::bracket(b.base.clone()),
+            t::bracket(b.exponent.clone()),
+            nonneg,
         ],
-    ))
+        LeanType::Prop,
+    );
+    Some(Tactic::Have {
+        name: name.to_string(),
+        says,
+        proof: Box::new(super::doc::Proof::Term(Printed::of(
+            TermKind::Lambda {
+                letters: vec![b.letter.clone(), "hk".to_string()],
+                body: Box::new(each),
+            },
+            LeanType::Prop,
+        ))),
+    })
 }
 
 /// The type variables a term's parts are of, or are sets or maps of.
@@ -13313,6 +13733,14 @@ fn nonneg_of(system: crate::rules::System, line: Printed) -> Printed {
         ),
         _ => line,
     }
+}
+
+/// `by norm_num`, as a term: a fact of numerals alone.
+fn norm_num_term() -> Printed {
+    super::tactics::by_term(super::doc::Proof::By(super::tactics::call(
+        "norm_num",
+        vec![],
+    )))
 }
 
 /// `Int.toNat_of_nonneg h`: an integer at least 0 is its `toNat`.

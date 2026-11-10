@@ -5,6 +5,7 @@ public import Functions
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
+public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -14,6 +15,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Finset.Defs
@@ -24,6 +26,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -134,9 +137,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
             have row1 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by parley_subst_at c1 s1_19_3
             exact row1
           -- 1.19.5. mun:power-positive, from C3
-          have s1_19_5 : A ^ j.toNat > 0 := by
-            have hI : 0 < A ^ j.toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)))
-            exact hI
+          have s1_19_5 : A ^ j.toNat > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); simp only [parley_zpow_toNat (n := j) (h := le_of_lt (lt_of_lt_of_le zero_lt_one hK1))] at h ⊢; exact_mod_cast h)
           -- 1.19.6. mun:product-positive, from C3, 1.19.5
           have s1_19_6 : A ^ j.toNat * A > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := A ^ j.toNat) (y := A) (by parley_side) (by parley_side))
           -- 1.19.7. algebra, from D4

@@ -61,9 +61,9 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 9. obtain v: mun:nonempty-member, from 8
   obtain ⟨v, s9, _⟩ := (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := X) s8)
   set R : Set α := {w ∈ X \ ({v} : Set α) | ({v, w} : Set α) ∈ E} with hD2
-  have hD2_finite : R.Finite := by rw [hD2]; exact (((hH4).subset hH8).subset (fun _ h => h.1)).subset (fun _ h => h.1)
+  have hD2_finite : R.Finite := by rw [hD2]; exact ((s1).subset (fun _ h => h.1)).subset (fun _ h => h.1)
   set B : Set α := {w ∈ X \ ({v} : Set α) | ¬ ({v, w} : Set α) ∈ E} with hD3
-  have hD3_finite : B.Finite := by rw [hD3]; exact (((hH4).subset hH8).subset (fun _ h => h.1)).subset (fun _ h => h.1)
+  have hD3_finite : B.Finite := by rw [hD3]; exact ((s1).subset (fun _ h => h.1)).subset (fun _ h => h.1)
   -- 10. mun:set-builder-split, from D2, D3
   have s10 : X \ ({v} : Set α) = R ∪ B := by
     try simp only [hD2, hD3] at *

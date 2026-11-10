@@ -209,18 +209,34 @@ Lean's ℕ starts at 0 where the page's starts at 1.
 - A power whose exponent the page says once is in ℕ₀, `2^n` of n ∈ ℕ, is the
   natural power `2 ^ n.toNat`. Any other integer exponent, `2^(n − 1)`, gives
   the integer power, even after a line says the exponent is in ℕ₀, so that
-  every line writes one term one way. A citation whose item writes a power
-  the other way converts it, as a count is converted: each integer power
-  `a ^ e` whose exponent is shown at least 0 is rewritten as `a ^ e.toNat` by
-  `parley_zpow_toNat`, then `exact_mod_cast`. The proof of `0 ≤ e` is named
-  from what the checker found:
-  - the line the citation supplies the item's `m ∈ ℕ₀` from;
-  - a line in scope saying e ∈ ℕ or ℕ₀;
-  - a line in scope putting e in a range that starts at a number at least 0;
-  - a numeral;
-  - a sum or product of such parts (`add_nonneg`, `mul_nonneg`).
+  every line writes one term one way.
 
-  An exponent shown in none of these ways fails the build.
+  A step may write a power one way while what it reads writes it the other.
+  What it reads is an item it cites as written or forward, or a line it
+  instantiates. The step then converts the power, as a count is converted:
+  - each integer power `a ^ e` whose exponent is shown at least 0 is
+    rewritten as `a ^ e.toNat` by `parley_zpow_toNat`;
+  - an integer power of a natural number cast up, `a ^ (k : ℤ)`, is
+    rewritten as `a ^ k` by `zpow_natCast`;
+  - then `exact_mod_cast` closes the step.
+
+  The proof of `0 ≤ e` is written from why the said-once walk puts e in ℕ₀
+  (`citing::reason_within`), the reasons the Metamath build proves
+  memberships from:
+  - a part the walk does not take apart: from a line the step names, or from
+    the line the checker found the item's `m ∈ ℕ₀` supplied by, with
+    `le_of_lt` for a line of ℕ;
+  - a letter: from the line that introduces it, which is its `let`, an
+    induction's step case, a define of a kind, or a range from a numeral;
+  - a numeral, by `norm_num`; a factorial, by `Nat.cast_nonneg`;
+  - a sum or product of such parts, by `add_nonneg` or `mul_nonneg`.
+
+  A power under a sum whose exponent names the sum's letter, `y^((k − 1) +
+  1)` over k from 1, is at least 0 only for k in the range. The step states
+  the rewrite for each k in the range, from the range's lower bound, and
+  `simp +contextual` takes it under the sum. An exponent shown in none of
+  these ways fails the build. Of a forward reading, only a power's form is
+  compared so far.
 - A claim of numerals alone reached from lines is written in the type of
   those lines, and a cited line of a narrower type than the claim is cast up
   to the claim's type before it is used.

@@ -12,12 +12,14 @@ public import Divisibility
 
 An item's Lean statement is written once, over any ring `K` or any set `X`;
 the step's lines are written by the theorem's writer from the page. At a
-citation the two can spell one fact differently: `x ^ e.toNat` beside
-`x ^ e`, `m ∈ {n : ℤ | 0 < n}` beside `0 < m`, `∀ x ∈ Set.univ` beside
-`∀ x`, an item in ℂ or ℝ beside a line in ℝ or ℚ. `parley_instance` reads
-the item's statement in the step's spelling by the facts that join them, the
-simp set `parley_spelling`, and closes the step's statement of it. A fact
-found missing is tagged into the set here, never added at a step.
+citation the two can spell one fact differently: `m ∈ {n : ℤ | 0 < n}`
+beside `0 < m`, `∀ x ∈ Set.univ` beside `∀ x`, an item in ℂ or ℝ beside a
+line in ℝ or ℚ. `parley_instance` reads the item's statement in the step's
+spelling by the facts that join them, the simp set `parley_spelling`, and
+closes the step's statement of it. A fact found missing is tagged into the
+set here, never added at a step. A form that holds only under a fact, `x ^
+e.toNat` beside `x ^ e` where `0 ≤ e`, is no representation fact: the step
+converts it with the fact named (`docs/LEAN.md`, Number types).
 -/
 
 public section
@@ -36,14 +38,13 @@ theorem parley_finsum_Icc {M : Type*} [AddCommMonoid M] (a b : ℤ) (f : ℤ →
 /- Each a representation fact: a cast of a term to its own type; ℕ or ℕ₀
 said as some integer; membership of a set built by a condition; a whole type
 as a set; a range as a set and as a finite set, a product or sum over it
-included; an order either way round; the norm of a real; an integer power to
-an exponent the lines in scope show not negative; the reals' `mod` of
+included; an order either way round; the norm of a real; the reals' `mod` of
 integers as their `%`; 1 + 1 of a field as 2, which no procedure works out
 there. -/
 attribute [parley_spelling] Int.cast_id exists_eq_right Set.mem_ofPred_eq
   Set.mem_sep_iff Set.sep_ofPred Set.mem_univ Set.univ_inter Set.inter_self
   true_and and_true true_implies Filter.univ_mem Set.mem_Icc Finset.mem_Icc ge_iff_le
-  gt_iff_lt Complex.norm_real Real.norm_eq_abs parley_zpow_toNat
+  gt_iff_lt Complex.norm_real Real.norm_eq_abs
   LeanBridges.Divisibility.mod_intCast parley_finprod_Icc parley_finsum_Icc
   one_add_one_eq_two
 
@@ -53,8 +54,8 @@ over a range written as a set is read as one over the finite set first, before
 `Set.mem_Icc` takes the range apart; the casts of both are pushed down to the
 letters, `↑(1 + 1)` as `1 + 1`, so the set's arithmetic facts meet them; then
 both are read by `parley_spelling` and a numeral's `toNat` worked out
-(`Int.reduceToNat`, a procedure no set can hold), the facts an integer power
-asks by `omega` from the lines in scope, and where that leaves the step open
+(`Int.reduceToNat`, a procedure no set can hold), a rule's side condition by
+`omega` from the lines in scope, and where that leaves the step open
 the casts are pushed down again and the two meet as written. Each step after
 the first acts on the step only while it is open: one that says `x = x` is
 closed on the way. Lifting the casts instead would read a division of casts

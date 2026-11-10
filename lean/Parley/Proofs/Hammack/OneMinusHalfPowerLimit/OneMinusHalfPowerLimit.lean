@@ -3,8 +3,8 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import InstanceTactics
 public import OrderTactics
+public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -19,6 +19,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
@@ -76,9 +77,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       have s2_2_1 : n > 0 := by parley_order
       -- 2.2.2. mun:power-positive a := 2, m := n
       have r63_1 : (2 : ℤ) > 0 := by parley_arith
-      have s2_2_2 : (2 ^ n.toNat : ℤ) > 0 := by
-        have hI : (0 : ℤ) < 2 ^ n.toNat := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := n) (by parley_side)))
-        exact hI
+      have s2_2_2 : (2 ^ n.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := n) (by parley_side)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt hK2)] at h ⊢; exact_mod_cast h)
       -- 2.2.3. mun:reciprocal-order x := n, y := 2^n, from 1
       have r67_1 : n > 0 := by parley_side
       have r67_2 : (2 ^ n.toNat : ℤ) > 0 := by parley_side

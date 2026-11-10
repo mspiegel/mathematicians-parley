@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -70,9 +69,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
     linear_combination (norm := parley_norm) hH8_w + ((m' : ℚ)) * s3_5
   -- 3.7. mun:power-positive a := p, m := a
   have r423_1 : 0 < p := by parley_side
-  have s3_7 : p ^ a.toNat > 0 := by
-    have hI : 0 < p ^ a.toNat := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := (p : ℚ)) (m := a) (by parley_side)))
-    exact hI
+  have s3_7 : p ^ a.toNat > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (p : ℚ)) (m := a) (by parley_side)); simp only [parley_zpow_toNat (n := a) (h := hH3)] at h ⊢; exact_mod_cast h)
   -- 3.8. inequalities
   have s3_8 : p ^ a.toNat ≠ 0 := by parley_side
   -- 3.9. mun:multiply-cancel a := m, b := p^(a′ − a)·m′, c := p^a, from 3.6, 3.8

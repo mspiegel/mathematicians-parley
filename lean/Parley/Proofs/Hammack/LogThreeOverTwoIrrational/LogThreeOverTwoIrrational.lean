@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import InstanceTactics
 public import NormTactics
 public import PowerTactics
 public import RealTactics
@@ -80,9 +79,7 @@ theorem log_three_over_two_irrational :
         _ = Real.log (2 ^ p : ℝ) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := p) (by parley_side)).symm
     -- 2.6. mun:power-positive a := 3, m := q
     have r124_1 : (3 : ℤ) > 0 := by parley_arith
-    have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by
-      have hI : (0 : ℤ) < 3 ^ q.toNat := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)))
-      exact hI
+    have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
     -- 2.7. mun:power-positive a := 2, m := p
     have r128_1 : (2 : ℤ) > 0 := by parley_arith
     have s2_7 : (2 ^ p : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by parley_side))
