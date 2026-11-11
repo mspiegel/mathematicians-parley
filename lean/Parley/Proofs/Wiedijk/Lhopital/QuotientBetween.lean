@@ -2,10 +2,10 @@ module
 
 public import AlgebraTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Module.Defs
 public import Mathlib.Algebra.Order.Field.Basic
@@ -135,9 +135,9 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   have s28 : (F x - F c) / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by exact s27b.2
   -- 29. substitute
   have s29 : F x / G x = (deriv F) ξ / (deriv G) ξ := by
-    have c1 : F x - F c = F x := by parley_subst s6
+    have c1 : F x - F c = F x := by (have h := congrArg (fun t : ℝ => F x - t) s6; push_cast [sub_zero] at h ⊢; all_goals exact_mod_cast h)
     have row1 : F x / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => t / (G x - G c) = (deriv F) ξ / (deriv G) ξ)) c1 s28; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have c2 : G x - G c = G x := by parley_subst s7
+    have c2 : G x - G c = G x := by (have h := congrArg (fun t : ℝ => G x - t) s7; push_cast [sub_zero] at h ⊢; all_goals exact_mod_cast h)
     have row2 : F x / G x = (deriv F) ξ / (deriv G) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => F x / t = (deriv F) ξ / (deriv G) ξ)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 30. instantiate t := x in line 8, from H11

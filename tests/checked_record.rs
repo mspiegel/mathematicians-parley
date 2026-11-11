@@ -86,8 +86,15 @@ fn meetings_printed(read: &CheckedCorpus, name: &str) -> String {
         .find(|t| t.qualified() == name)
         .expect("a kept theorem is in the corpus");
     let mut out = String::new();
-    for (at, met) in &record.ends_met {
-        let step = &thm.steps[*at].number;
+    // The step whose justification is on `line`.
+    let step_at = |line: usize| {
+        thm.steps
+            .iter()
+            .find(|s| s.just.line == line)
+            .map_or_else(|| format!("line {line}"), |s| s.number.to_string())
+    };
+    for (line, met) in &record.ends_met {
+        let step = step_at(*line);
         out.push_str(&format!("step {step} ends meeting {met:?}\n"));
     }
     for (line, s) in &record.supposed {
@@ -96,8 +103,8 @@ fn meetings_printed(read: &CheckedCorpus, name: &str) -> String {
             s.shape, s.meeting
         ));
     }
-    for (at, c) in &record.contradicted {
-        let step = &thm.steps[*at].number;
+    for (line, c) in &record.contradicted {
+        let step = step_at(*line);
         out.push_str(&format!(
             "step {step} contradicts {}: {:?}, meeting {:?}\n",
             c.at.line, c.negated, c.meeting

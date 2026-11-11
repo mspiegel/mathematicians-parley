@@ -298,15 +298,16 @@ pub struct CheckedTheorem {
     /// as the step the line would be (`requires_as_step`).
     pub cited_requires: IndexMap<usize, Cited>,
     /// The relation each line a `transitivity` step cites gives its chain,
-    /// in the order cited, by the line the step is on: the line's own, or
-    /// of a line saying several, the one that meets the chain (`ChainLink`).
+    /// in the order cited, by the line of its justification: the line's
+    /// own, or of a line saying several, the one that meets the chain
+    /// (`ChainLink`).
     pub links: IndexMap<usize, Vec<ChainLink>>,
-    /// What each `exhibit` step shows, by the line the step is on: for each
+    /// What each `exhibit` step shows, by the line of its justification: for each
     /// sentence of its claim, the values of its "there is" and where each
     /// fact it says of them stands (`citations::exhibit_values`).
     pub exhibited: IndexMap<usize, Vec<Option<Exhibit>>>,
     /// How each obtain step's sentences after its memberships are the parts
-    /// of the "there is" it obtains from, by the step's index
+    /// of the "there is" it obtains from, by the line of its justification
     /// (`citations::obtained_parts`).
     pub obtained_parts: IndexMap<usize, Vec<ObtainedPart>>,
     /// How each instantiation's instance reaches its claim, a step's, a
@@ -375,12 +376,12 @@ pub struct CheckedTheorem {
     /// line its `suppose` is on (`formulas::suppositions`).
     pub supposed: IndexMap<usize, Supposition>,
     /// The two lines each step written `contradicting N` that ends a block
-    /// or a case closes it on, by the step's index
+    /// or a case closes it on, by the line of its justification
     /// (`formulas::contradictions`).
     pub contradicted: IndexMap<usize, Contradicted>,
     /// How each step that ends a block, a part of one or the proof meets
-    /// what it owes, by the step's index: one meeting for each part of its
-    /// "and" in order (`formulas::ended_meetings`).
+    /// what it owes, by the line of its justification: one meeting for each
+    /// part of its "and" in order (`formulas::ended_meetings`).
     pub ends_met: IndexMap<usize, Vec<crate::matching::Meeting>>,
     /// Each term a step puts where a notation asks a number system, a of
     /// a ≡ b (mod n) in ℤ, with how the step shows it is in that system
@@ -471,8 +472,8 @@ pub enum LinesHold {
     /// that sentence, as the check read it.
     Stated { line: Node },
     /// An equation a line says puts it beside `other`, a term in the
-    /// system.
-    Beside { equation: Node, other: Node },
+    /// system (`Besides`).
+    Beside(Besides),
     /// The closure table puts it there by its operation, x mod n in ℕ₀ of
     /// x ∈ ℤ and n ∈ ℕ, its parts held as the walk reads them.
     Closed,
@@ -495,8 +496,39 @@ pub enum ShownBy {
     Said,
     /// By an equation a line the step names says, which puts the term
     /// beside `other`, a term in the system: a·f(a) of a·f(a) = f(a)·a
-    /// where a requires line says f(a)·a ∈ ℤ.
-    Beside { equation: Node, other: Node },
+    /// where a requires line says f(a)·a ∈ ℤ (`Besides`).
+    Beside(Besides),
+}
+
+/// An equation that puts a term beside `other`, a term in a number system
+/// (`ShownBy::Beside`, `LinesHold::Beside`).
+#[derive(Clone, Debug)]
+pub struct Besides {
+    /// The equation, as the lines hold it.
+    pub equation: Node,
+    /// Its side that is not the term.
+    pub other: Node,
+    /// Which side the term is: straight where it is the left side, a·f(a)
+    /// of a·f(a) = f(a)·a; turned where it is the right.
+    pub facing: Facing,
+    /// The line stating `other` is in the system, as the lines hold it;
+    /// None where the page says it once or the closure table puts it there.
+    pub other_stated: Option<Node>,
+}
+
+impl Besides {
+    /// The record of `methods::membership`'s `Beside`.
+    pub fn of(b: &crate::methods::membership::Beside) -> Besides {
+        Besides {
+            equation: b.equation.clone(),
+            other: b.other.clone(),
+            facing: match b.term_left {
+                true => Facing::Straight,
+                false => Facing::Turned,
+            },
+            other_stated: b.other_stated.cloned(),
+        }
+    }
 }
 
 /// A step's citation of an item as the checker reads it (`citing::taken`,
@@ -790,15 +822,20 @@ pub struct Substituted {
     /// Where it is put (`matching::substitution_places`): which way round,
     /// and each place by its path of children from the top of `start`.
     pub put: crate::matching::SubstitutionPlaces,
-    /// The identity elements what the putting makes holds and the claim
-    /// leaves out, `1·x` written `x`, as `Known::alike_how` drops them; none
-    /// where the putting makes the claim as written.
-    pub identities: Vec<crate::matching::Dropped>,
+    /// How what the putting makes meets the claim (`Known::alike_how`): as
+    /// written; with identity elements the putting makes and the claim
+    /// leaves out, `1·x` written `x`; or turned round, `b ≡ c` of the claim
+    /// `c ≡ b`, or a listed set's members in another order.
+    pub meeting: crate::matching::Meeting,
     /// Of an equation a define gives, which way the step writes it beside
     /// the define's own, name or function applied on the left: straight
     /// for `q(a) = a + 1`, turned for `a + 1 = q(a)`. None of an equation
     /// from a line or from arithmetic.
     pub define_facing: Option<Facing>,
+    /// Of an equation a line gives (`from`), which way the line writes it
+    /// beside `equation`: turned where the step writes `b = a` of the
+    /// line's `a = b`. None where no line gives it.
+    pub line_facing: Option<Facing>,
 }
 
 /// One letter of a cited item the citation gives a value, with the number

@@ -1339,9 +1339,9 @@ pub fn suppositions(
 }
 
 /// The two lines each step written `contradicting N` that closes a block
-/// closes it on, by the step's index (`record::Contradicted`): what of line
-/// N it opposes, and which of the two says the other negated, as
-/// `check_contradicting` finds them.
+/// closes it on, by the line of its justification (`record::Contradicted`):
+/// what of line N it opposes, and which of the two says the other negated,
+/// as `check_contradicting` finds them.
 pub fn contradictions(
     thm: &Theorem,
     env: Env,
@@ -1388,7 +1388,7 @@ pub fn contradictions(
             })
         });
         if let Some(c) = found {
-            out.insert(at, c);
+            out.insert(step.just.line, c);
         }
     }
     out
@@ -2100,15 +2100,15 @@ fn endings(thm: &Theorem, step: &Step, known: &Known) -> Vec<Ending> {
 }
 
 /// How each step that ends a block, a part of one or the proof meets what it
-/// owes there (`endings`), by the step's index: one meeting for each part of
-/// its "and" in order, as the check paired them. A step whose parts do not
+/// owes there (`endings`), by the line of its justification: one meeting for
+/// each part of its "and" in order, as the check paired them. A step whose parts do not
 /// all meet what they owe has none, and the check reports it.
 pub fn ended_meetings(
     thm: &Theorem,
     known: &Known,
 ) -> IndexMap<usize, Vec<crate::matching::Meeting>> {
     let mut out = IndexMap::new();
-    for (at, step) in thm.steps.iter().enumerate() {
+    for step in &thm.steps {
         let ends = endings(thm, step, known);
         if ends.is_empty() {
             continue;
@@ -2118,7 +2118,7 @@ pub fn ended_meetings(
             .map(|e| known.alike_how(&e.said, &e.owed))
             .collect();
         if let Some(met) = met {
-            out.insert(at, met);
+            out.insert(step.just.line, met);
         }
     }
     out
@@ -2663,10 +2663,7 @@ pub fn places_at(step: &Step, known: &Known, library: &Library) -> PlacesAt {
                     by: ShownBy::Said,
                 }),
                 Some(Held::Beside(b)) => out.shown.push(PlaceShown {
-                    by: ShownBy::Beside {
-                        equation: b.equation.clone(),
-                        other: b.other.clone(),
-                    },
+                    by: ShownBy::Beside(super::record::Besides::of(&b)),
                     term: a.term,
                     system: a.system,
                 }),
@@ -4022,7 +4019,7 @@ fn reaching_claim(
 
 /// The relation each line a `transitivity` step cites gives its chain, as
 /// written, with where it stands in the line and whether the chain reads it
-/// from its right side, by the line each step is on
+/// from its right side, by the line of each step's justification
 /// (`CheckedTheorem::links`); a step whose lines make no chain has none, and
 /// is among the theorem's problems.
 pub fn transitivity_links(
@@ -4059,7 +4056,7 @@ pub fn transitivity_links(
                     }
                 })
                 .collect();
-            Some((s.line, linked))
+            Some((s.just.line, linked))
         })
         .collect()
 }
@@ -5521,10 +5518,9 @@ fn held_at(
             }
             let by = match methods_membership::held_otherwise(&part, system, &given) {
                 Some(HeldHow::Stated(line)) => LinesHold::Stated { line: line.clone() },
-                Some(HeldHow::Beside(b)) => LinesHold::Beside {
-                    equation: b.equation.clone(),
-                    other: b.other.clone(),
-                },
+                Some(HeldHow::Beside(b)) => {
+                    LinesHold::Beside(super::record::Besides::of(&b))
+                }
                 Some(HeldHow::Closed) => LinesHold::Closed,
                 None => continue,
             };
@@ -5563,10 +5559,7 @@ fn member_beside(
         methods_membership::Held::Beside(b) => Some(PlaceShown {
             term: term.clone(),
             system,
-            by: ShownBy::Beside {
-                equation: b.equation.clone(),
-                other: b.other.clone(),
-            },
+            by: ShownBy::Beside(super::record::Besides::of(&b)),
         }),
         methods_membership::Held::Said => None,
     }

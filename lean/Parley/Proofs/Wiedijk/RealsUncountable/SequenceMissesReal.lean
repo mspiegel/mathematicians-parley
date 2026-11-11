@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -76,12 +75,10 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
       rcases s7_1 with hC1 | hC2
       · skip
         -- 7.2.1. substitute D(x, n) = e(n) (C1) into line 2
-        have at0 := (s2 n hK5).1.2
-        parley_subst_at hC1 at0
+        (have h := Eq.subst (motive := (fun t : ℤ => t ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ))) hC1.symm (s2 n hK5).1.2; push_cast at h ⊢; all_goals exact_mod_cast h)
       · skip
         -- 7.2.2. substitute D(x, n) = s(e(n)) (C2) into line 2
-        have at0 := (s2 n hK5).2
-        parley_subst_at hC2 at0
+        (have h := Eq.subst (motive := (fun t : ℤ => t ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ))) hC2.symm (s2 n hK5).2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 7.3. substitute f(n) = x (S)
     have s7_3 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by (have h := congrArg (fun t : ℝ => ((⌊10 ^ n.toNat * t⌋ % (10 : ℤ) : ℤ) : ℝ)) hS.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact s7_2 s7_3

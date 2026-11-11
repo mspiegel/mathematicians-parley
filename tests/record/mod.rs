@@ -88,7 +88,7 @@ pub fn printed_but(
         let at = thm
             .steps
             .iter()
-            .find(|s| s.just.line == *line || s.line == *line)
+            .find(|s| s.just.line == *line)
             .map_or_else(|| format!("line {line}"), |s| format!("step {}", s.number));
         // Each link, where it stands, and whether the chain reads it turned.
         let links: Vec<String> = links
@@ -105,7 +105,7 @@ pub fn printed_but(
         let at = thm
             .steps
             .iter()
-            .find(|s| s.line == *line)
+            .find(|s| s.just.line == *line)
             .map_or_else(|| format!("line {line}"), |s| format!("step {}", s.number));
         for (i, value) in values.iter().enumerate() {
             let shown = match value {
@@ -209,14 +209,14 @@ pub fn printed_but(
         )
         .unwrap();
     }
-    for (i, parts) in &record.obtained_parts {
+    for (line, parts) in &record.obtained_parts {
         let pairs: Vec<String> = parts
             .iter()
             .map(|p| {
                 format!("sentence {} part {} is part {}", p.sentence, p.part, p.owed)
             })
             .collect();
-        writeln!(out, "step {} obtains {}", number(*i), pairs.join(", ")).unwrap();
+        writeln!(out, "{} obtains {}", reason_at(*line), pairs.join(", ")).unwrap();
     }
     out
 }

@@ -3849,26 +3849,23 @@ impl<'a> Proof<'a> {
         let ctx = self.sources.ctx;
         let mut out = Vec::new();
         for shown in self.rec.places_shown.get(i).into_iter().flatten() {
-            let ShownBy::Beside { equation, other } = &shown.by else {
+            let ShownBy::Beside(beside) = &shown.by else {
                 continue;
             };
+            let other = &beside.other;
             let Some(e) = facts
                 .iter()
-                .find(|f| crate::matching::alike_top(&f.node, equation, ctx))
+                .find(|f| crate::matching::alike_top(&f.node, &beside.equation, ctx))
             else {
                 continue;
             };
-            // e is term = other or other = term.
-            let term_first = equation
-                .children
-                .first()
-                .is_some_and(|left| crate::matching::alike_top(left, &shown.term, ctx));
-            let held = facts.iter().find(|f| {
-                matches!((f.node.notation(), f.node.children.as_slice()),
-                    (crate::notations::MEMBERSHIP, [held, set])
-                        if crate::matching::alike_top(held, other, ctx)
-                            && crate::rules::System::of_sign(&set.text)
-                                .is_some_and(|s| s.within(shown.system)))
+            // e is term = other, or other = term where it faces turned.
+            let term_first = beside.facing == Facing::Straight;
+            // The line the checker found states the other side's membership.
+            let held = beside.other_stated.as_ref().and_then(|stated| {
+                facts
+                    .iter()
+                    .find(|f| crate::matching::alike_top(&f.node, stated, ctx))
             });
             let (node, proved) = match held {
                 // A line puts the other side in the system: it, rewritten by
@@ -4091,15 +4088,16 @@ impl<'a> Proof<'a> {
         use crate::checker::record::ShownBy;
         let ctx = self.sources.ctx;
         let shown = self.rec.members_shown.get(&line)?;
-        let ShownBy::Beside { equation, other } = &shown.by else {
+        let ShownBy::Beside(beside) = &shown.by else {
             return None;
         };
+        let other = &beside.other;
         if !crate::matching::alike_top(&shown.term, term, ctx) {
             return None;
         }
         let e = facts
             .iter()
-            .find(|f| crate::matching::alike_top(&f.node, equation, ctx))?;
+            .find(|f| crate::matching::alike_top(&f.node, &beside.equation, ctx))?;
         let set = node.children.get(1)?.clone();
         let says = self
             .writer
@@ -4111,11 +4109,10 @@ impl<'a> Proof<'a> {
             return None;
         }
         let named = self.whole_witness(other, letters, facts).built()?;
-        let rule = match equation.children.first() {
-            Some(left) if crate::matching::alike_top(left, term, ctx) => {
-                t::forwards(e.proof.clone())
-            }
-            _ => t::backwards(e.proof.clone()),
+        // Which side the term is (`Besides::facing`).
+        let rule = match beside.facing {
+            Facing::Straight => t::forwards(e.proof.clone()),
+            Facing::Turned => t::backwards(e.proof.clone()),
         };
         // One tactic to a line: the have's own proof may take several.
         Some(Proof::Block(vec![
@@ -5635,7 +5632,7 @@ impl<'a> Proof<'a> {
         // Two lines that oppose close a contradiction, whose goal is False;
         // a case or a proof block whose assumption cannot hold they close by
         // `absurd`, whatever it owes.
-        if let Some(c) = self.rec.contradicted.get(&at) {
+        if let Some(c) = self.rec.contradicted.get(&step.just.line) {
             return self
                 .contradiction_closed(step, c, owes.is_empty())
                 .map(|t| Closing::Tactic(Box::new(Tactic::Exact(t))));
@@ -5648,7 +5645,7 @@ impl<'a> Proof<'a> {
         }
         // How the step meets what it owes, one meeting to each part of its
         // "and", as the checker paired them.
-        let Some(meetings) = self.rec.ends_met.get(&at) else {
+        let Some(meetings) = self.rec.ends_met.get(&step.just.line) else {
             return Route::no(format!(
                 "step {} ends its block, and the checker recorded no meeting of it with what it owes",
                 step.number
@@ -7730,14 +7727,10 @@ impl<'a> Proof<'a> {
     /// for its letters, and what it says of them by the lines the checker
     /// found to state it (`Exhibit::shown`), `parley_side` where none does.
     fn exhibit(&self, just: &Justification, node: &Node) -> Route<super::doc::Proof> {
-        let Some(step) = self.thm.steps.iter().find(|s| s.just.line == just.line)
-        else {
-            return Route::no("an exhibit that is no step's");
-        };
         let Some(exhibit) = self
             .rec
             .exhibited
-            .get(&step.line)
+            .get(&just.line)
             .and_then(|all| all.iter().flatten().next())
         else {
             return Route::no("an exhibit the checker read no values for");
@@ -8520,9 +8513,7 @@ impl<'a> Proof<'a> {
         };
         let mut read: Vec<(Printed, &'static str)> = Vec::new();
         let mut ty = None;
-        // The links are kept by the line the step is on.
-        let step = &self.thm.steps[self.step_now.get()?];
-        for link in self.rec.links.get(&step.line)? {
+        for link in self.rec.links.get(&just.line)? {
             let (proof, says) = self.line_says(link.at.as_ref()?).built()?;
             let symbol = relation_symbol(&says)?;
             let t = forms::relation_type(&says)?;
@@ -9088,6 +9079,26 @@ impl<'a> Proof<'a> {
         let Some(rec) = found else {
             return Route::no("a substitution the checker recorded no way of");
         };
+        // Put at no place: the line is the claim once the theorem's outside
+        // defines are written out, as Lean has both (`Substituted::put`).
+        if rec.put.places.is_empty() {
+            let SubstitutedInto::Line(at) = &rec.into else {
+                return Route::no("a putting at no place into no line");
+            };
+            let (proof, says) = match self.line_says(at) {
+                Route::Built(both) => both,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            let Some(wanted) = self.claim_as_stated(line, claim) else {
+                return Route::no("a claim Lean states no form of");
+            };
+            return match self.proof_meeting(proof, &says, &wanted) {
+                Some(proved) => Route::Built(Proof::By(Tactic::Exact(proved.term()))),
+                None => Route::no(
+                    "a line put at no place that Lean states otherwise than the claim",
+                ),
+            };
+        }
         let [left, right] = rec.equation.children.as_slice() else {
             return Route::no("a recorded equation of no two sides");
         };
@@ -9110,14 +9121,9 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                // Which way round the line says the recorded equation, as the
-                // record has the line write it with its defines kept
-                // (`FirstAt::written`), side by side: `alike_top` takes an
-                // equation either way round.
-                let as_said = match from.written.children.as_slice() {
-                    [l, _] => crate::matching::alike_top(l, left, self.sources.ctx),
-                    _ => true,
-                };
+                // Which way round the line says the recorded equation
+                // (`Substituted::line_facing`).
+                let as_said = rec.line_facing != Some(Facing::Turned);
                 let equation = faced(part.proof.clone(), put_facing(as_said));
                 (part, equation)
             }
@@ -9250,10 +9256,17 @@ impl<'a> Proof<'a> {
         // `↑(a * b)` meet; lifted instead, a division of casts is read one
         // way on one side and another on the other. A claim that pushing
         // alone works out, `True`, is closed on the way.
+        // A putting that makes the claim only turned round, or with a listed
+        // set's members in another order (`Substituted::meeting`), is no
+        // motive's: the claim is not the line with the equation put in.
+        let m = &rec.meeting;
+        if m.turned || m.permuted || m.renamed || m.respelled {
+            return Route::no("a putting that meets the claim other than as written");
+        }
         // The identity elements the putting leaves and the claim drops, as
         // the record names them, `1·x` as `x` by `one_mul`.
         let dropped: Option<Vec<&'static str>> =
-            rec.identities.iter().map(identity_lemma).collect();
+            m.identities.iter().map(identity_lemma).collect();
         let Some(dropped) = dropped else {
             return Route::no("an identity element dropped that no lemma names");
         };
@@ -9783,29 +9796,46 @@ impl<'a> Proof<'a> {
                     .map(|p| p.untyped());
                 let parts = self.cited_parts(&[place.named().to_string()]);
                 let grammar = &self.sources.checked.grammar;
-                let chosen = parts
-                    .iter()
-                    .find(|c| {
-                        wanted.is_some()
-                            && self.line_statement(c).built().map(|p| p.untyped())
-                                == wanted
-                    })
-                    .or_else(|| {
-                        (claim.notation() == crate::notations::EQUALITY)
-                            .then(|| {
-                                parts.iter().find(|c| {
-                                    c.node.notation() == crate::notations::EQUALITY
-                                        && makes_claim(&c.node, claim, grammar)
-                                })
-                            })
-                            .flatten()
-                    })
+                // Where the checker recorded the substitution, the
+                // equation is the part of the line it found
+                // (`Substituted::from`).
+                let recorded = self
+                    .rec
+                    .substituted
+                    .get(&just.line)
+                    .and_then(|r| r.from.as_ref())
+                    .and_then(|at| self.line_part(at).built());
+                let chosen = recorded
+                    .as_ref()
                     .or_else(|| {
                         parts
                             .iter()
-                            .find(|c| c.node.notation() == crate::notations::EQUALITY)
+                            .find(|c| {
+                                wanted.is_some()
+                                    && self
+                                        .line_statement(c)
+                                        .built()
+                                        .map(|p| p.untyped())
+                                        == wanted
+                            })
+                            .or_else(|| {
+                                (claim.notation() == crate::notations::EQUALITY)
+                                    .then(|| {
+                                        parts.iter().find(|c| {
+                                            c.node.notation()
+                                                == crate::notations::EQUALITY
+                                                && makes_claim(&c.node, claim, grammar)
+                                        })
+                                    })
+                                    .flatten()
+                            })
+                            .or_else(|| {
+                                parts.iter().find(|c| {
+                                    c.node.notation() == crate::notations::EQUALITY
+                                })
+                            })
+                            .or(parts.first())
                     })
-                    .or(parts.first())
                     .map(|c| (c.node.clone(), c.proof.clone()));
                 // Put into a line Lean's types give, `⌊A⌋ ∈ ℤ`, the claim is
                 // a membership the equation shows.
@@ -9917,33 +9947,48 @@ impl<'a> Proof<'a> {
             self.at_recorded_letter(&cited, &claim.names())
                 .map_or_else(|| node.clone(), |at| at.node)
         };
-        let candidates: Vec<(&Node, &Printed)> = just
+        // Where the checker recorded the substitution into a line, the part
+        // of the line it found (`Substituted::into`).
+        let recorded_into = self.rec.substituted.get(&just.line).and_then(|r| match &r
             .into
-            .as_ref()
-            .and_then(|place| self.trees.get(place.named()))
-            .map(|t| {
-                let t: Vec<(&Node, &Printed)> =
-                    t.iter().map(|s| (&s.node, &s.proof)).collect();
-                let turned: Vec<_> = t
-                    .iter()
-                    .copied()
-                    .filter(|(n, _)| turns(&at_claim(n)))
-                    .take(1)
-                    .collect();
-                if !turned.is_empty() {
-                    return turned;
-                }
-                let alike: Vec<_> = t
-                    .iter()
-                    .copied()
-                    .filter(|(n, _)| at_claim(n).notation() == claim.notation())
-                    .collect();
-                if !alike.is_empty() {
-                    return alike;
-                }
-                t.into_iter().take(1).collect()
-            })
-            .unwrap_or_default();
+        {
+            crate::checker::record::SubstitutedInto::Line(at) => {
+                self.line_part(at).built()
+            }
+            _ => None,
+        });
+        let unrecorded = || {
+            just.into
+                .as_ref()
+                .and_then(|place| self.trees.get(place.named()))
+                .map(|t| {
+                    let t: Vec<(&Node, &Printed)> =
+                        t.iter().map(|s| (&s.node, &s.proof)).collect();
+                    let turned: Vec<_> = t
+                        .iter()
+                        .copied()
+                        .filter(|(n, _)| turns(&at_claim(n)))
+                        .take(1)
+                        .collect();
+                    if !turned.is_empty() {
+                        return turned;
+                    }
+                    let alike: Vec<_> = t
+                        .iter()
+                        .copied()
+                        .filter(|(n, _)| at_claim(n).notation() == claim.notation())
+                        .collect();
+                    if !alike.is_empty() {
+                        return alike;
+                    }
+                    t.into_iter().take(1).collect()
+                })
+                .unwrap_or_default()
+        };
+        let candidates: Vec<(&Node, &Printed)> = match &recorded_into {
+            Some(part) => vec![(&part.node, &part.proof)],
+            None => unrecorded(),
+        };
         let mut into = Vec::new();
         // A line put into that says something of the whole number a term
         // is, `∃ m : ℤ, (m : ℚ) = 2 ^ (p − 1) * 2 ∧ 2 ^ p − 1 ∣ m`, whose
@@ -10179,6 +10224,56 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// A `membership` claim `t ∈ S` the checker found shown by a cited
+    /// equation putting t beside a term in S (`members_shown`,
+    /// `ShownBy::Beside`), where Lean writes t in a wider type than S's:
+    /// that other side as S's witness, and the equation faced so the
+    /// witness is its left side, by `exact_mod_cast`. None where the record
+    /// has no such equation, or Lean writes t in S's type already.
+    fn member_from_record(
+        &self,
+        just: &Justification,
+        node: &Node,
+        writer: &Writer,
+    ) -> Option<super::doc::Proof> {
+        use crate::checker::record::ShownBy;
+        let ShownBy::Beside(beside) = &self.rec.members_shown.get(&just.line)?.by
+        else {
+            return None;
+        };
+        let [term, set] = node.children.as_slice() else {
+            return None;
+        };
+        let super::expr::System::Type(n) = super::expr::system_of(set)? else {
+            return None;
+        };
+        if writer.carrier(term).built()? <= n {
+            return None;
+        }
+        let other = &beside.other;
+        if !writer.carrier(other).built().is_some_and(|c| c <= n) {
+            return None;
+        }
+        let w = writer.number_fixed(other, n).built()?;
+        let equation = self.cited_parts(&just.refs).into_iter().find(|c| {
+            crate::matching::alike_top(&c.node, &beside.equation, self.sources.ctx)
+        })?;
+        // The witness is the side that is not the term: the equation as it
+        // stands where the term is its right side, turned where its left.
+        let faced = match beside.facing {
+            Facing::Turned => equation.proof,
+            Facing::Straight => {
+                super::tactics::symm(super::tactics::bracket(equation.proof))
+            }
+        };
+        let proof = super::tactics::by_term(super::doc::Proof::By(
+            super::tactics::exact_mod_cast(faced),
+        ));
+        Some(super::doc::Proof::Term(super::expr::anonymous(vec![
+            w, proof,
+        ])))
+    }
+
     /// `membership`. A term of a wider type said to be in a number system,
     /// an integer or a real, is one by a cited equation (`member_by_equation`).
     /// Any other membership is what the lines and the letters' types give.
@@ -10188,16 +10283,8 @@ impl<'a> Proof<'a> {
         node: &Node,
         writer: &Writer,
     ) -> Route<super::doc::Proof> {
-        for cited in self.cited_parts(&just.refs) {
-            if let Some(proof) = member_by_equation(
-                writer,
-                &cited.node,
-                &cited.proof,
-                node,
-                self.sources.ctx,
-            ) {
-                return Route::Built(proof);
-            }
+        if let Some(proof) = self.member_from_record(just, node, writer) {
+            return Route::Built(proof);
         }
         Route::Built(super::doc::Proof::By(super::tactics::bridge(
             BridgeTactic::Side,
@@ -13002,7 +13089,7 @@ impl<'a> Proof<'a> {
                     let found: Vec<&crate::checker::record::ObtainedPart> = self
                         .rec
                         .obtained_parts
-                        .get(&i)
+                        .get(&step.just.line)
                         .into_iter()
                         .flatten()
                         .filter(|p| p.sentence == *place)
@@ -13019,7 +13106,7 @@ impl<'a> Proof<'a> {
                 let met = at.map(|((place, _, _), _)| {
                     self.rec
                         .obtained_parts
-                        .get(&i)
+                        .get(&step.just.line)
                         .into_iter()
                         .flatten()
                         .filter(|p| p.sentence == *place)

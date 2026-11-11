@@ -16,6 +16,10 @@ reports; a build prints the same, then builds from the record. So every
 reading a backend uses runs under `parley check`, and a build refuses
 exactly what the check refuses.
 
+A step's fact kept in a map is kept by the line of its justification: a
+step's reason, or a calculation row's, a substitute row's or a requires
+line's own. A list holds one entry for each step, in the proof's order.
+
 ## The reading
 
 - `page`: every formula on the page, read once, which both backends write
@@ -133,9 +137,15 @@ exactly what the check refuses.
   `t = t′`. And it holds where it is put: which way round, and each place
   by its path in the trees as the page writes them. Lean writes what the
   equation is put into with those places as one letter, and closes the
-  step by `Eq.subst` along it. Where the putting leaves identity elements
-  the claim drops, `1·x` written `x`, it holds those (`identities`), the
-  equation put at every place its side stands. A substitution found only in
+  step by `Eq.subst` along it. Where the putting meets the claim only as
+  `Known::alike_how` meets the two, with identity elements the claim drops
+  (`1·x` written `x`), the claim written turned round (`c ≡ b` of `b ≡ c`),
+  or a listed set's members in another order, it holds how (`meeting`), the
+  equation put at every place its side stands. Of an equation a line gives,
+  it holds which way the line writes it beside the step's (`line_facing`).
+  Where writing the theorem's outside defines out makes the line the claim,
+  it holds no place. A calculation row's or substitute row's reason is read
+  with its step's requires lines. A substitution found only in
   the standard order is not recorded, and the step keeps its ways. Of an
   equation a define gives, it holds which way the step writes it beside the
   define's own (`define_facing`), and Lean turns the define's hypothesis by
@@ -171,7 +181,7 @@ exactly what the check refuses.
   every member of a set inside the domain, the member itself (`Member`).
   Lean puts the function's equation at that argument, `hD1 _ h`, h that
   line or, after `intro j h_j`, the member's fact or a range's lower bound.
-- `links`: for each `transitivity` step, by the line the step is on, each
+- `links`: for each `transitivity` step, by the line of its justification, each
   link of its chain (`ChainLink`): the relation the cited line gives, where
   it stands in the line (`FirstAt`; none for a define's equation), and
   whether the chain reads it from its right side, `b = a` as `a = b`,
@@ -229,7 +239,9 @@ exactly what the check refuses.
 - `places_shown`: each term a step puts where a notation's definition asks a
   number system (both sides of a ≡, the places of "divides" and "is prime"),
   with how the step shows it is in that system: said once, or beside an
-  equation a line the step names says. Lean proves the second from the
+  equation a line the step names says, with which side of the equation the
+  term is and the line stating the other side's membership (`Besides`).
+  Lean proves the second from the
   equation and the other side's line, as the check found it.
 - `members_shown`: the same of each claim the `membership` method proves
   whose term is in its system beside an equation, by the line its reason is

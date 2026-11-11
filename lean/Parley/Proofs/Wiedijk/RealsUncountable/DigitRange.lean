@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -24,7 +23,7 @@ theorem digit_range (t : ℤ) :
   -- 2. mun:mod-less a := t + 1, b := 10
   have s2 : (t + 1) % (10 : ℤ) < 10 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := t + 1) (b := (10 : ℤ)) (by parley_side))
   -- 3. substitute s(t) = (t + 1) mod 10 (line 1) into line 2
-  have s3 : (t + 1) % (10 : ℤ) < 10 := by parley_subst_at s1 s2
+  have s3 : (t + 1) % (10 : ℤ) < 10 := by exact s2
   -- 4. membership, from 1
   have s4 : 0 ≤ (t + 1) % (10 : ℤ) := by parley_side
   -- 5. mun:integer-step m := s(t), n := 10, from 3, 4

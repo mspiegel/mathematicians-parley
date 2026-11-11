@@ -929,17 +929,20 @@ pub(super) fn placed(
         SaidFrom::Whole => (None, None),
         SaidFrom::Sentence(k) => (Some(k), None),
         SaidFrom::Part { sentence, part } => (Some(sentence), Some(part)),
-        SaidFrom::AtLetter { part: None, .. } => {
+        // A "for all" read at a block's letter, numbered past the line's own
+        // sentences in the order read; a part of one, that reading's part.
+        SaidFrom::AtLetter { sentence, part } => {
+            let whole = SaidFrom::AtLetter {
+                sentence,
+                part: None,
+            };
             let reading = says
                 .iter()
                 .filter(|o| matches!(o.from, SaidFrom::AtLetter { part: None, .. }))
-                .position(|o| o.from == from)?;
-            (Some(own + reading), None)
+                .position(|o| o.from == whole)?;
+            (Some(own + reading), part)
         }
-        SaidFrom::AtLetter { part: Some(_), .. }
-        | SaidFrom::Pair(_)
-        | SaidFrom::Implied(_)
-        | SaidFrom::Members(_) => return None,
+        SaidFrom::Pair(_) | SaidFrom::Implied(_) | SaidFrom::Members(_) => return None,
     };
     Some(FirstAt {
         line: line.to_string(),
@@ -2829,11 +2832,12 @@ fn substitution_reading(
         .collect();
     // Where it is put, read as the page writes the trees: what a backend
     // puts the equation in at.
-    // Where the putting makes the claim only once an identity element it
-    // leaves is dropped, `1·x` written `x`: the side put for at every place
-    // it stands, and the identities dropped as `Known::alike_how` drops
-    // them, nothing else taken.
-    let dropping = || {
+    // Where the putting makes the claim only as `Known::alike_how` meets the
+    // two, an identity element it leaves dropped, `1·x` written `x`, or the
+    // claim written turned round, `c ≡ b` of `b ≡ c`, or a listed set's
+    // members in another order: the side put for at every place it stands,
+    // and how what that makes meets the claim.
+    let met_otherwise = || {
         [(left, right, false), (right, left, true)]
             .into_iter()
             .find_map(|(was, now, turned)| {
@@ -2843,34 +2847,30 @@ fn substitution_reading(
                 }
                 let made = crate::matching::put_at_places(&start.start, &places, now);
                 let met = known.alike_how(&made, &way.aim)?;
-                let only_identities = !met.identities.is_empty()
-                    && !met.turned
-                    && !met.permuted
-                    && !met.renamed
-                    && !met.respelled;
-                only_identities.then_some((
-                    crate::matching::SubstitutionPlaces { turned, places },
-                    met.identities,
-                ))
+                Some((crate::matching::SubstitutionPlaces { turned, places }, met))
             })
     };
     let define_facing = source
         .as_deref()
         .filter(|s| is_define(s))
         .and_then(|s| define_facing(thm, s, equation, source_define.as_ref(), known));
+    let line_facing = from
+        .as_ref()
+        .and_then(|at| facing_of(&at.written, equation, known));
     let found = match (&start.into, way.claimed) {
         (Some(into), true) => {
             crate::matching::substitution_places(&start.start, &way.aim, left, right)
-                .map(|put| (put, Vec::new()))
-                .or_else(dropping)
-                .map(|(put, identities)| Substituted {
+                .map(|put| (put, crate::matching::Meeting::default()))
+                .or_else(met_otherwise)
+                .map(|(put, meeting)| Substituted {
                     equation: equation.clone(),
                     from: from.clone(),
                     into: into.clone(),
                     start: start.start.clone(),
                     put,
-                    identities,
+                    meeting,
                     define_facing,
+                    line_facing,
                 })
         }
         _ => None,
@@ -2889,11 +2889,17 @@ pub fn substitutions(
 ) -> IndexMap<usize, crate::checker::record::Substituted> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
+        // A row or link stands inside its step, whose requires lines say
+        // what it rests on as the step's check reads them: a row dropping
+        // `− 0` from F(x) − 0 rests on the step's `requires F(x) ∈ ℝ`.
         let rows = chain_reasons(&step.just, &thm.path)
             .into_iter()
             .filter_map(|req| {
                 let by = req.by.as_ref().ok()?;
-                Some(reason_as_step(step, &req, by))
+                Some(Step {
+                    requires: step.requires.clone(),
+                    ..reason_as_step(step, &req, by)
+                })
             })
             .chain(
                 step.requires
@@ -2993,8 +2999,9 @@ pub fn sentence_substitutions(
                     }),
                     start,
                     put,
-                    identities: Vec::new(),
+                    meeting: crate::matching::Meeting::default(),
                     define_facing: s.define_facing,
+                    line_facing: s.line_facing,
                 },
             ));
         }
@@ -3052,8 +3059,9 @@ fn step_row_substitutions(
                     into: SubstitutedInto::RowAbove,
                     start,
                     put,
-                    identities: Vec::new(),
+                    meeting: crate::matching::Meeting::default(),
                     define_facing: None,
+                    line_facing: None,
                 },
             ))
         })
@@ -3134,8 +3142,8 @@ pub fn check_obtained_claims(
 }
 
 /// How each obtain step's sentences after its memberships meet the parts of
-/// the "there is" it obtains from (`record::ObtainedPart`), by the step's
-/// index; none for a step whose sentences do not meet them.
+/// the "there is" it obtains from (`record::ObtainedPart`), by the line of
+/// its justification; none for a step whose sentences do not meet them.
 pub fn obtained_parts(
     thm: &Theorem,
     library: &Library,
@@ -3143,10 +3151,11 @@ pub fn obtained_parts(
 ) -> IndexMap<usize, Vec<ObtainedPart>> {
     thm.steps
         .iter()
-        .enumerate()
-        .filter_map(|(i, step)| {
+        .filter_map(|step| {
             let read = obtained_reading(step, thm, library, known)?;
-            read.faults.is_empty().then_some((i, read.parts))
+            read.faults
+                .is_empty()
+                .then_some((step.just.line, read.parts))
         })
         .collect()
 }
@@ -5547,7 +5556,7 @@ fn shown_value(
     })
 }
 
-/// What each exhibit step shows, by the line the step is on: for each
+/// What each exhibit step shows, by the line of its justification: for each
 /// sentence of its claim, the value each letter of its "there is" stands
 /// for, as `check_exhibit` reads it, and where each fact it asks of them
 /// stands among the lines the step names, its requires lines and the `let`
@@ -5584,7 +5593,7 @@ pub fn exhibit_values(
                     Some(Exhibit { values, shown })
                 })
                 .collect();
-            (step.line, values)
+            (step.just.line, values)
         })
         .collect()
 }

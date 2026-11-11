@@ -188,8 +188,11 @@ pub fn written_out(
     // A substitution's places are paths into what it is put into, which
     // writing a define out moves, s(n + (j + 1)) becoming a sum over its
     // range: they are found again between the start written out and what
-    // the putting makes of the page's start, written out. One whose places
-    // are not found so is left out, as one never recorded.
+    // the putting makes of the page's start, written out. Where writing the
+    // defines out makes the start what the putting makes, s(t) < 10 of
+    // `s(t) = (t + 1) mod 10` put into (t + 1) mod 10 < 10, the line is the
+    // claim as written out, and there is no place to put at. One whose
+    // places are not found so is left out, as one never recorded.
     let substitution_written = |s: &mut super::record::Substituted| -> bool {
         let [left, right] = s.equation.children.as_slice() else {
             return false;
@@ -201,11 +204,17 @@ pub fn written_out(
         let made = crate::matching::put_at_places(&s.start, &s.put.places, now);
         let (start, made) = (out(&s.start), out(&made));
         let (left, right) = (out(left), out(right));
-        let Some(put) =
-            crate::matching::substitution_places(&start, &made, &left, &right)
-        else {
-            return false;
-        };
+        let put =
+            match crate::matching::substitution_places(&start, &made, &left, &right) {
+                Some(put) => put,
+                None if crate::matching::alike_top(&start, &made, ctx) => {
+                    crate::matching::SubstitutionPlaces {
+                        turned: s.put.turned,
+                        places: Vec::new(),
+                    }
+                }
+                None => return false,
+            };
         s.equation = out(&s.equation);
         s.start = start;
         s.put = put;
@@ -224,15 +233,28 @@ pub fn written_out(
     written
         .substituted_sentences
         .retain(|_, s| substitution_written(s));
+    let beside_written = |b: &mut super::record::Besides| {
+        b.equation = out(&b.equation);
+        b.other = out(&b.other);
+        b.other_stated = b.other_stated.as_ref().map(out);
+    };
+    for shown in written
+        .places_shown
+        .iter_mut()
+        .flatten()
+        .chain(written.members_shown.values_mut())
+    {
+        shown.term = out(&shown.term);
+        if let super::record::ShownBy::Beside(b) = &mut shown.by {
+            beside_written(b);
+        }
+    }
     for held in written.held_by_lines.values_mut().flatten() {
         use super::record::LinesHold;
         held.term = out(&held.term);
         match &mut held.by {
             LinesHold::Stated { line } => *line = out(line),
-            LinesHold::Beside { equation, other } => {
-                *equation = out(equation);
-                *other = out(other);
-            }
+            LinesHold::Beside(b) => beside_written(b),
             LinesHold::Closed => {}
         }
     }

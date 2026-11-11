@@ -496,7 +496,7 @@ no line states the fact.
 | inequalities, antisymmetry, rows | linear arithmetic, `parley_side` |
 | restate | the line the checker found the claim in (`CheckedTheorem::restated`), a "for all" read at a block's letter with its `let` line as the guard (`ReadAt::opened_by`); `parley_side` where no one line states it |
 | membership, join, inspection | `parley_side`; an integer the cited lines give, as a witness |
-| substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); else `parley_subst`, the equation either way round; rows one at a time |
+| substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); `exact` of the line where the record puts the equation at no place; else `parley_subst` from the equation and the line the record names, the equation either way round; rows one at a time |
 | calculation | `calc`, each link by its reason |
 | proof | `intro` |
 | contradiction | `by_contra hS` where the supposition is the claim negated, `intro hS` where the claim is the supposition negated, the supposition ascribed or turned where Lean writes it otherwise |

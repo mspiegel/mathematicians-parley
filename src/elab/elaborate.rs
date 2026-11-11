@@ -1715,7 +1715,7 @@ impl<'a> Elaborator<'a> {
         let values = self
             .checked
             .exhibited
-            .get(&step.line)
+            .get(&step.just.line)
             .and_then(|v| v.last())
             .cloned()
             .flatten()
@@ -3628,7 +3628,7 @@ impl<'a> Elaborator<'a> {
         let chosen = self
             .checked
             .links
-            .get(&step.line)
+            .get(&step.just.line)
             .cloned()
             .unwrap_or_default();
         for (i, r) in step.just.refs.iter().enumerate() {

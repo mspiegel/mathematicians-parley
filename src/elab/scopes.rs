@@ -2990,8 +2990,7 @@ impl<'a> Elaborator<'a> {
         // letters, `for all x ∈ ℂ`, and the page may bind another,
         // `for all n ∈ ℂ`, which a later `instantiate n := …` names; the two
         // are one claim (`renaming`).
-        let index = self.thm.steps.iter().position(|s| s.line == step.line);
-        let pairs = index.and_then(|i| self.checked.obtained_parts.get(&i).cloned());
+        let pairs = self.checked.obtained_parts.get(&step.just.line).cloned();
         let (line_term, line_proof) = match (sentences.get(got.len()..), pairs) {
             (Some([_, ..]), Some(pairs)) => self.obtained_line(
                 step,

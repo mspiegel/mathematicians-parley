@@ -67,8 +67,8 @@ fn a_congruence_asks_its_sides_whole_and_says_how() {
         .members_shown
         .values()
         .filter_map(|p| match &p.by {
-            ShownBy::Beside { equation, .. } => {
-                Some((read.grammar.print(&p.term), read.grammar.print(equation)))
+            ShownBy::Beside(b) => {
+                Some((read.grammar.print(&p.term), read.grammar.print(&b.equation)))
             }
             ShownBy::Said => None,
         })

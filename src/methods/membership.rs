@@ -117,6 +117,13 @@ pub struct Beside<'f> {
     pub equation: &'f Node,
     /// Its other side.
     pub other: &'f Node,
+    /// Whether the term is the equation's left side: `a·f(a)` of
+    /// `a·f(a) = f(a)·a`.
+    pub term_left: bool,
+    /// The fact stating the other side is in the system, where one does
+    /// (`stated_by`); None where it is said once or the closure table puts
+    /// it there.
+    pub other_stated: Option<&'f Node>,
 }
 
 /// `besides`, each with the equation that puts the term there.
@@ -128,10 +135,14 @@ fn besides_by<'f>(term: &Node, facts: &'f Facts) -> Vec<Beside<'f>> {
             (EQUALITY, [a, b]) if same(a, term, facts.ctx) => Some(Beside {
                 equation: f,
                 other: b,
+                term_left: true,
+                other_stated: None,
             }),
             (EQUALITY, [a, b]) if same(b, term, facts.ctx) => Some(Beside {
                 equation: f,
                 other: a,
+                term_left: false,
+                other_stated: None,
             }),
             _ => None,
         })
@@ -167,7 +178,12 @@ pub fn atom_held_by<'f>(
     besides_by(term, facts)
         .into_iter()
         .find(|b| holds(b.other, system, facts))
-        .map(Held::Beside)
+        .map(|b| {
+            Held::Beside(Beside {
+                other_stated: stated_by(b.other, system, facts),
+                ..b
+            })
+        })
 }
 
 /// Whether a bare `from` line reads `term ∈ system` off its facts
@@ -329,7 +345,10 @@ fn held_at<'f>(
             .into_iter()
             .find(|b| member(b.other, system, facts, depth - 1))
         {
-            return Some(HeldHow::Beside(b));
+            return Some(HeldHow::Beside(Beside {
+                other_stated: stated_by(b.other, system, facts),
+                ..b
+            }));
         }
     }
     let closed = whole(term, system, facts, depth)

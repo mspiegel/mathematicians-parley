@@ -4885,7 +4885,7 @@ impl<'a> Elaborator<'a> {
         let shown: Vec<crate::checker::record::SuppliedBy> = self
             .checked
             .exhibited
-            .get(&step.line)
+            .get(&step.just.line)
             .and_then(|v| v.last())
             .cloned()
             .flatten()
