@@ -86,6 +86,6 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
         have e_w : (LeanBridges.Counting.factorial k : ℚ) = (LeanBridges.Counting.factorial (k - 1) : ℚ) * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s11; push_cast at h; linear_combination (norm := parley_norm) h
         (have h := congrArg (fun t : ℚ => (k : ℚ) * ((LeanBridges.Counting.factorial m : ℚ) * ((m : ℚ) + 1) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * t))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = ((m : ℚ) + 1) * ((LeanBridges.Counting.factorial m : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial (k - 1) : ℚ))) := by parley_ring
-    _ = ((m : ℚ) + 1) * (LeanBridges.Counting.choose m (k - 1) : ℚ) := by (have h := congrArg (fun t : ℚ => ((m : ℚ) + 1) * t) (s15).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = ((m : ℚ) + 1) * (LeanBridges.Counting.choose m (k - 1) : ℚ) := by (have h := congrArg (fun t : ℚ => ((m : ℚ) + 1) * t) s15.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm

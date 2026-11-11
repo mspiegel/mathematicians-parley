@@ -15,6 +15,6 @@ namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedSubstituted
 theorem an_equation_turned_substituted (x : ℝ) (hH2 : x = 2) :
     2 + 1 = x + 1 := by
   -- 1. substitute 2 = x (H2)
-  (have h := congrArg (fun t : ℝ => t + 1) (hH2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+  (have h := congrArg (fun t : ℝ => t + 1) hH2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedSubstituted

@@ -66,7 +66,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
     -- 8.2. algebra
     have s8_2 : m + 1 - k + 1 = m + 1 + 1 - k := by parley_ring
     -- 8.3. calculation
-    calc (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) = (LeanBridges.Counting.choose (m + 1 - k + 1) k : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) (s8_2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) = (LeanBridges.Counting.choose (m + 1 - k + 1) k : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) s8_2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + 1 - k) (by parley_side) (k := k)).symm
   -- 9. proof
   -- what this block shows, Lean's types give

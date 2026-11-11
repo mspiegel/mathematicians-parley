@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
@@ -53,7 +52,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
       have s1_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
         calc (1 : ℤ) = (LeanBridges.Counting.choose (j - 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := j - 1) (by parley_set_side)).symm
           _ = (LeanBridges.Counting.choose (j - 1) (1 - 1 : ℤ) : ℤ) := by norm_num
-          _ = (LeanBridges.Counting.choose (1 + j - 2) (1 - 1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (1 - 1 : ℤ) : ℤ)) (s1_1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = (LeanBridges.Counting.choose (1 + j - 2) (1 - 1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (1 - 1 : ℤ) : ℤ)) s1_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ ≤ (X.ncard : ℤ) := by parley_set_side)
       -- 1.4. obtain W: thm:one-point-part G := E, from 1.2, 1.3
       obtain ⟨W, s1_4a, s1_4b⟩ := (Parley.Proofs.Wiedijk.Ramsey.OnePointPart.one_point_part (X := X) (G := E) s1_2 (by parley_set_side))
@@ -78,8 +77,8 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         -- 1.8.3. calculation
         have s1_8_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
           calc (1 : ℤ) = (LeanBridges.Counting.choose k k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := k) (by parley_set_side)).symm
-            _ = (LeanBridges.Counting.choose k (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose k t : ℤ)) (s1_7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-            _ = (LeanBridges.Counting.choose (k + 1 + 1 - 2) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) (s1_8_1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+            _ = (LeanBridges.Counting.choose k (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose k t : ℤ)) s1_7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+            _ = (LeanBridges.Counting.choose (k + 1 + 1 - 2) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) s1_8_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
             _ ≤ (X.ncard : ℤ) := by parley_set_side)
         -- 1.8.4. obtain W: thm:one-point-part G := F, from 1.8.2, 1.8.3
         obtain ⟨W, s1_8_4a, s1_8_4b⟩ := (Parley.Proofs.Wiedijk.Ramsey.OnePointPart.one_point_part (X := X) (G := F) s1_8_2 (by parley_set_side))
@@ -98,9 +97,9 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         -- 1.8.9. algebra
         have s1_8_9 : k + 1 + j - 2 = k + j - 1 := by parley_ring
         -- 1.8.10. substitute k + 1 + j − 2 = k + j − 1 (line 1.8.9) into IH2
-        have s1_8_10 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k + 1 - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; parley_subst_at s1_8_9 hIH2
+        have s1_8_10 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k + 1 - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by (have h := Eq.subst (motive := (fun t : ℤ => ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)))) s1_8_9 hIH2; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 1.8.11. substitute k + 1 − 1 = k (line 1.7) into line 1.8.10
-        have s1_8_11 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; parley_subst_at s1_7 s1_8_10
+        have s1_8_11 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by (have h := Eq.subst (motive := (fun t : ℤ => ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) t : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)))) s1_7 s1_8_10; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 1.8.12. algebra
         have s1_8_12 : k + 1 + (j + 1) - 2 = k + j := by parley_ring
         -- 1.8.13. proof
@@ -108,8 +107,8 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         intro hC3
         -- 1.8.13.1. calculation
         have s1_8_13_1 : (LeanBridges.Counting.choose (k + j) k : ℤ) ≤ (X.ncard : ℤ) := by
-          calc (LeanBridges.Counting.choose (k + j) k : ℤ) = (LeanBridges.Counting.choose (k + j) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (k + j) t : ℤ)) (s1_7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-            _ = (LeanBridges.Counting.choose (k + 1 + (j + 1) - 2) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) (s1_8_12).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+          calc (LeanBridges.Counting.choose (k + j) k : ℤ) = (LeanBridges.Counting.choose (k + j) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (k + j) t : ℤ)) s1_7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+            _ = (LeanBridges.Counting.choose (k + 1 + (j + 1) - 2) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) s1_8_12.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
             _ ≤ (X.ncard : ℤ) := by parley_set_side
         -- 1.8.13.2. thm:ramsey-step, from H4, H7, K6, 1.8.8, 1.8.11, 1.8.13.1
         exact (Parley.Proofs.Wiedijk.Ramsey.RamseyStep.ramsey_step (V := V) (E := E) (F := F) (k := k) (by parley_set_side) (j := j) (by parley_set_side) hH4 (by parley_set_side) (X := X) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))

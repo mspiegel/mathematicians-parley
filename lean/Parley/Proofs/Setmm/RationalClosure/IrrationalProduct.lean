@@ -28,7 +28,7 @@ theorem irrational_product (A : ℝ) (B : ℚ) (hH3 : B ≠ 0) (hH4 : Irrational
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = A * (B : ℝ)) := by
     intro hS
     -- 2.1. thm:rational-quotient A := A·B, from H3, S
-    have s2_1 : ∃ m : ℚ, (m : ℝ) = A * (B : ℝ) / (B : ℝ) := by rw [← Classical.choose_spec hS]; (try rw [← Classical.choose_spec hS] at hH3; norm_cast at hH3); (first | exact (Parley.Proofs.Setmm.RationalClosure.RationalQuotient.rational_quotient (A := (Classical.choose hS)) (B := B) hH3) | exact ((Parley.Proofs.Setmm.RationalClosure.RationalQuotient.rational_quotient (A := (Classical.choose hS)) (B := B) hH3)).symm | simpa using (Parley.Proofs.Setmm.RationalClosure.RationalQuotient.rational_quotient (A := (Classical.choose hS)) (B := B) hH3) | exact_mod_cast (Parley.Proofs.Setmm.RationalClosure.RationalQuotient.rational_quotient (A := (Classical.choose hS)) (B := B) hH3) | (have h := (Parley.Proofs.Setmm.RationalClosure.RationalQuotient.rational_quotient (A := (Classical.choose hS)) (B := B) hH3); parley_side))
+    have s2_1 : ∃ m : ℚ, (m : ℝ) = A * (B : ℝ) / (B : ℝ) := by (exact ⟨(Classical.choose hS : ℚ) / B, by push_cast; (try simp only [Classical.choose_spec hS]); all_goals parley_ring⟩)
     -- 2.2. substitute
     have s2_2 : ∃ m : ℚ, (m : ℝ) = A := by
       have c1 : A * (B : ℝ) / (B : ℝ) = A := by parley_ring

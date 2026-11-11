@@ -45,7 +45,7 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
   -- 5. calculation
   have s5 : 27 * (M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M) = 0 := by
     calc 27 * (M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M) = -((-(3 * M) - 2 * P) ^ 3) + 3 * U * (-(3 * M) - 2 * P) + V := by linear_combination (norm := parley_norm) (9 * M + 6 * P) * hH13 + (-1) * hH15
-      _ = -((T + U / T) ^ 3) + 3 * U * (T + U / T) + V := by (have h := congrArg (fun t : ℂ => -(t ^ 3) + 3 * U * t + V) (s4).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = -((T + U / T) ^ 3) + 3 * U * (T + U / T) + V := by (have h := congrArg (fun t : ℂ => -(t ^ 3) + 3 * U * t + V) s4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 0 := by linear_combination (norm := parley_field) (-1) * s3
   -- 6. algebra, from 5
   have s6 : M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M = 0 := by linear_combination (norm := parley_norm) ((1 / 27 : ℂ)) * s5
@@ -71,12 +71,12 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           try simp only [hD1] at *
           try push_cast at *
           parley_ring
-      _ = y ^ 4 + P * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by (have h := congrArg (fun t : ℂ => y ^ 4 + t * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) (hH7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = y ^ 4 + P * y ^ 2 + Q * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by (have h := congrArg (fun t : ℂ => y ^ 4 + P * y ^ 2 + t * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) (hH9).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = y ^ 4 + P * y ^ 2 + Q * y + R := by (have h := congrArg (fun t : ℂ => y ^ 4 + P * y ^ 2 + Q * y + t) (hH11).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = y ^ 4 + P * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by (have h := congrArg (fun t : ℂ => y ^ 4 + t * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) hH7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = y ^ 4 + P * y ^ 2 + Q * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by (have h := congrArg (fun t : ℂ => y ^ 4 + P * y ^ 2 + t * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) hH9.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = y ^ 4 + P * y ^ 2 + Q * y + R := by (have h := congrArg (fun t : ℂ => y ^ 4 + P * y ^ 2 + Q * y + t) hH11.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * (y ^ 2 - 2 * S * y + 2 * S ^ 2 + P / 2 + Q / 4 / S) := by linear_combination (norm := parley_field) ((-(64 * S ^ 4) - 16 * M * S ^ 2 - 32 * P * S ^ 2 - 8 * M * P - 4 * M ^ 2 - 4 * P ^ 2 + 16 * R) / ((64 * S ^ 2))) * hH25 + ((-4) / ((64 * S ^ 2))) * s6
-      _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * v := by (have h := congrArg (fun t : ℂ => (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * t) (s8).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = u * v := by (have h := congrArg (fun t : ℂ => t * v) (s7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * v := by (have h := congrArg (fun t : ℂ => (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * t) s8.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = u * v := by (have h := congrArg (fun t : ℂ => t * v) s7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 10. both directions
   constructor
   · skip

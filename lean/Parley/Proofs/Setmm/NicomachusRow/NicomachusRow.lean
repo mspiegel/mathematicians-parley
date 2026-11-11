@@ -76,6 +76,6 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by exact s2_7
         _ = 0 ^ 3 := by norm_num
     -- 2.9. substitute N = 0 (C2) into line 2.8
-    (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (t ^ 2 - t + (2 * k - 1) : ℤ)) = t ^ 3)) (hC2).symm s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (t ^ 2 - t + (2 * k - 1) : ℤ)) = t ^ 3)) hC2.symm s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.NicomachusRow.NicomachusRow

@@ -155,7 +155,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.13. def:abs x := √x + √c, from 4.8.11
       have s4_8_13 : abs (Real.sqrt x + Real.sqrt c) = Real.sqrt x + Real.sqrt c := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := Real.sqrt x + Real.sqrt c)) s4_8_11
       -- 4.8.14. substitute (√x − √c)·(√x + √c) = x − c (line 4.8.10)
-      have s4_8_14 : abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := by (have h := congrArg (fun t : ℝ => abs t) (s4_8_10).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s4_8_14 : abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := by (have h := congrArg (fun t : ℝ => abs t) s4_8_10.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.8.15. mun:abs-product x := √x − √c, y := √x + √c, from 4.8.6
       have s4_8_15 : abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := Real.sqrt x - Real.sqrt c) (y := Real.sqrt x + Real.sqrt c))
       -- 4.8.16. substitute |√x + √c| = √x + √c (line 4.8.13)
@@ -182,9 +182,9 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.25. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.24
       have s4_8_25 : abs (Real.sqrt x - Real.sqrt c) < ε := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_24
       -- 4.8.26. substitute g(x) = √x (line 4.8.8) into line 4.8.25
-      have s4_8_26 : abs (g x - Real.sqrt c) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs (t - Real.sqrt c) < ε)) (s4_8_8).symm s4_8_25; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s4_8_26 : abs (g x - Real.sqrt c) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs (t - Real.sqrt c) < ε)) s4_8_8.symm s4_8_25; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.8.27. substitute g(c) = √c (line 4.8.9) into line 4.8.26
-      (have h := Eq.subst (motive := (fun t : ℝ => abs (g x - t) < ε)) (s4_8_9).symm s4_8_26; push_cast at h ⊢; all_goals exact_mod_cast h)
+      (have h := Eq.subst (motive := (fun t : ℝ => abs (g x - t) < ε)) s4_8_9.symm s4_8_26; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.9. exhibit, from 4.6, 4.7, 4.8
     exact ⟨ε * Real.sqrt c, ⟨s4_7, s4_8⟩⟩
   -- 5. def:continuous-on f := g, from 1, 4

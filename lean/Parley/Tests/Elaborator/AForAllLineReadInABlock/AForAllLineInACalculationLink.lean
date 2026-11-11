@@ -18,7 +18,7 @@ theorem a_for_all_line_in_a_calculation_link (n : ℤ) (hH1 : 0 < n) (c : ℤ) (
   -- 1. proof
   intro b
   -- 1.1. calculation
-  calc b ≡ c [ZMOD n] := by first | exact (hH4 b) | exact ((hH4 b)).symm | parley_side
+  calc b ≡ c [ZMOD n] := by exact (hH4 b)
     _ ≡ 1 [ZMOD n] := by parley_side
 
 end Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineInACalculationLink

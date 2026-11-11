@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -33,7 +32,6 @@ namespace Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ATheoremOverADe
 theorem a_theorem_over_a_define_with_a_square :
     (∫ t in 0..1, (t ^ 0 / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ 0 / (1 + t ^ 2) : ℝ)) := by
   -- 1. thm:a-define-with-a-square-written-out n := 0
-  have hI : (∫ t in 0..1, (t ^ 0 / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ 0 / (1 + t ^ 2) : ℝ)) := by parley_instance ((Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ADefineWithASquareWrittenOut.a_define_with_a_square_written_out (n := (0 : ℤ)) (by parley_side)))
-  exact hI
+  exact (Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ADefineWithASquareWrittenOut.a_define_with_a_square_written_out (n := (0 : ℤ)) (by parley_side))
 
 end Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ATheoremOverADefineWithASquare

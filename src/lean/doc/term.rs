@@ -563,6 +563,15 @@ impl Term {
         out
     }
 
+    /// Whether the term holds a letter or a constant, a function or a
+    /// lemma's name: a term of numerals alone holds neither, and Lean's
+    /// arithmetic on numerals works it out.
+    pub fn lettered(&self) -> bool {
+        self.walk()
+            .iter()
+            .any(|n| matches!(n.kind, TermKind::Letter(_) | TermKind::Const(_)))
+    }
+
     /// The terms directly inside this one.
     pub fn children(&self) -> Vec<&Term> {
         match &self.kind {

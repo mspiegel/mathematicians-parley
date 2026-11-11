@@ -118,7 +118,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
         _ = g t := by parley_set_side
         _ = f t := by exact s10_4
     -- 10.6. calculation
-    calc s = f (f s) := by exact ((hH5 s (by parley_set_side))).symm
+    calc s = f (f s) := by exact (hH5 s (by parley_set_side)).symm
       _ = f (f t) := by (have h := congrArg (fun u : ℤ => f u) s10_5; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = t := by exact (hH5 t (by parley_set_side))
   -- 11. def:one-to-one, from 9, 10
@@ -197,6 +197,6 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
       _ = (∏ᶠ x ∈ L, (x : ℤ)) * (∏ᶠ x ∈ L, (f x : ℤ)) := by (have h := congrArg (fun t : ℤ => (∏ᶠ x ∈ L, (x : ℤ)) * t) s15; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (∏ᶠ x ∈ L, (x * f x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5).symm
   -- 22. substitute ∏(x ∈ X) x = ∏(x ∈ L) x·f(x) (line 21) into line 20
-  (have h := Eq.subst (motive := (fun t : ℤ => t ≡ (1 : ℤ) [ZMOD n])) (s21).symm s20; push_cast at h ⊢; all_goals exact_mod_cast h)
+  (have h := Eq.subst (motive := (fun t : ℤ => t ≡ (1 : ℤ) [ZMOD n])) s21.symm s20; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Wilson.PairedProduct

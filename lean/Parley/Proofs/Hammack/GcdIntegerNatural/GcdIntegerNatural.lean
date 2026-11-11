@@ -55,9 +55,9 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_5b : b ∣ a := by parley_side
       have s6_5c : b ∣ b := by parley_side
       -- 6.6. substitute gcd(a, b) = b (line 6.1) into line 6.5
-      have s6_6a : 0 < (Int.gcd a b : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) (s6_1).symm s6_5a; push_cast at h ⊢; all_goals exact_mod_cast h)
-      have s6_6b : (Int.gcd a b : ℤ) ∣ a := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a)) (s6_1).symm s6_5b; push_cast at h ⊢; all_goals exact_mod_cast h)
-      have s6_6c : (Int.gcd a b : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ b)) (s6_1).symm s6_5c; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s6_6a : 0 < (Int.gcd a b : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s6_1.symm s6_5a; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s6_6b : (Int.gcd a b : ℤ) ∣ a := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a)) s6_1.symm s6_5b; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s6_6c : (Int.gcd a b : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ b)) s6_1.symm s6_5c; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact ⟨s6_6a, s6_6b, s6_6c⟩
     · skip
       -- 6.7. mun:nat0-nonzero m := a mod b, from C2, 2

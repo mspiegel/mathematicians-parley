@@ -72,7 +72,7 @@ theorem square_of_sum_equals_sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
   -- 3. calculation
   try qify
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) ^ 2 = ((n : ℚ) * ((n : ℚ) + 1) / 2) ^ 2 := by (have h := congrArg (fun t : ℚ => t ^ 2) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = (C n : ℚ) := by exact ((s1 n (by parley_side))).symm
+    _ = (C n : ℚ) := by exact (s1 n (by parley_side)).symm
     _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) ^ 3 : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
 
 end Parley.Proofs.Hammack.SquareOfSumEqualsSumOfCubes.SquareOfSumEqualsSumOfCubes

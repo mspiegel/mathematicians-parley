@@ -155,6 +155,41 @@ pub fn printed_but(
     for (line, at) in &record.link_places {
         writeln!(out, "{} links from {}", reason_at(*line), place(at)).unwrap();
     }
+    for (line, facing) in &record.link_facings {
+        writeln!(
+            out,
+            "{} links facing {}",
+            reason_at(*line),
+            facing_word(Some(*facing))
+        )
+        .unwrap();
+    }
+    for (line, s) in &record.substituted {
+        if let Some(facing) = s.define_facing {
+            writeln!(
+                out,
+                "{} takes {} from a define, facing {}",
+                reason_at(*line),
+                g.print(&s.equation),
+                facing_word(Some(facing))
+            )
+            .unwrap();
+        }
+    }
+    for (line, said) in &record.define_domains {
+        let by = match said {
+            parley::checker::record::DomainSaid::Line(at) => place(at),
+            parley::checker::record::DomainSaid::Member => {
+                "the claim's member".to_string()
+            }
+        };
+        writeln!(
+            out,
+            "{} has its define's argument in the domain by {by}",
+            reason_at(*line)
+        )
+        .unwrap();
+    }
     for (i, parts) in &record.obtained_parts {
         let pairs: Vec<String> = parts
             .iter()
@@ -227,17 +262,21 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         })
         .collect();
     letters.sort();
-    let facings: Vec<&str> = cited
-        .facings
-        .iter()
-        .map(|f| match f {
-            Some(parley::checker::record::Facing::Straight) => "straight",
-            Some(parley::checker::record::Facing::Turned) => "turned",
-            None => "none",
-        })
-        .collect();
+    let facings: Vec<&str> = cited.facings.iter().map(|f| facing_word(*f)).collect();
+    // Which part of a property's body each claim sentence is, where one is.
+    let within = match cited.within.iter().any(Option::is_some) {
+        true => {
+            let parts: Vec<String> = cited
+                .within
+                .iter()
+                .map(|w| w.map_or("whole".to_string(), |j| format!("part {j}")))
+                .collect();
+            format!("; within {}", parts.join(", "))
+        }
+        false => String::new(),
+    };
     format!(
-        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}",
+        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}{within}",
         cited.item,
         cited.group,
         binding.join(", "),
@@ -246,6 +285,15 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         letters.join(", "),
         facings.join(", "),
     )
+}
+
+/// Which way an equation or congruence faces another, in a word.
+fn facing_word(facing: Option<parley::checker::record::Facing>) -> &'static str {
+    match facing {
+        Some(parley::checker::record::Facing::Straight) => "straight",
+        Some(parley::checker::record::Facing::Turned) => "turned",
+        None => "none",
+    }
 }
 
 /// Where a fact stands in a line, by its sentence and part, and the rule

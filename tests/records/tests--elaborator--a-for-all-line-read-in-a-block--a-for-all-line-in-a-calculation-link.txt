@@ -1,0 +1,23 @@
+theorem tests/elaborator/a-for-all-line-read-in-a-block/a-for-all-line-in-a-calculation-link
+block of 1: 1.1
+  the block owes b ≡ 1 (mod n)
+a row of step 1.1 links from H4 sentence 1
+a row of step 1.1 links from H3 sentence 0
+a row of step 1.1 links facing straight
+a row of step 1.1 links facing straight
+read 17: for all b ∈ ℤ, b ≡ 1 (mod n)  as  for-all:forall∈,(name:b, number-systems:ℤ, congruent-mod:≡(mod)(name:b, numeral:1, name:n))  a statement
+read 20: n ∈ ℕ  as  membership:∈(name:n, number-systems:ℕ)  a statement
+read 21: c ∈ ℤ  as  membership:∈(name:c, number-systems:ℤ)  a statement
+read 22: c ≡ 1 (mod n)  as  congruent-mod:≡(mod)(name:c, numeral:1, name:n)  a statement
+read 23: for all x ∈ ℤ, x ≡ c (mod n)  as  for-all:forall∈,(name:x, number-systems:ℤ, congruent-mod:≡(mod)(name:x, name:c, name:n))  a statement
+read 24: for all b ∈ ℤ, b ≡ 1 (mod n)  as  for-all:forall∈,(name:b, number-systems:ℤ, congruent-mod:≡(mod)(name:b, numeral:1, name:n))  a statement
+read 26: For all b ∈ ℤ, b ≡ 1 (mod n)  as  for-all:forall∈,(name:b, number-systems:ℤ, congruent-mod:≡(mod)(name:b, numeral:1, name:n))  a statement
+read 28: b ∈ ℤ  as  membership:∈(name:b, number-systems:ℤ)  a statement
+read 30: b ≡ 1 (mod n)  as  congruent-mod:≡(mod)(name:b, numeral:1, name:n)  a statement
+read 32: b  as  name:b  a number
+read 32: c  as  name:c  a number
+read 32: n  as  name:n  a number
+read 33: 1  as  numeral:1  a number
+read 33: n  as  name:n  a number
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

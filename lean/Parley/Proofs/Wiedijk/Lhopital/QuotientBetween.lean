@@ -118,7 +118,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
     -- 21.1. restate 20
     have s21_1 : (deriv G) t = (deriv g) t := by parley_set_side
     -- 21.2. substitute G′(t) = g′(t) (line 21.1) into H10
-    (have h := Eq.subst (motive := (fun u : ℝ => u ≠ 0)) (s21_1).symm (hH10 t (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun u : ℝ => u ≠ 0)) s21_1.symm (hH10 t (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 22. mun:remove-member, from H11
   have s22 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp hH11
   -- 23. thm:quotient-two-points u := c, v := x, from H3, 11, 13, 14, 15, 17, 19, 21, 22

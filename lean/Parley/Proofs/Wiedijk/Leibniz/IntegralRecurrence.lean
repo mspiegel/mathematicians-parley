@@ -63,9 +63,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
     -- 1.2. calculation
     have s1_2 : x ^ (2 * (n + 1)).toNat = x ^ (2 * n).toNat * x ^ 2 := by
       calc x ^ (2 * (n + 1)).toNat = x ^ (2 * n + 2).toNat := by (have h := congrArg (fun t : ℤ => x ^ t.toNat) s1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = x ^ (2 * n).toNat * x ^ 2 := by
-            have hI : x ^ (2 * n + 2).toNat = x ^ (2 * n).toNat * x ^ 2 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side)))
-            exact hI
+        _ = x ^ (2 * n).toNat * x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side))
     -- 1.3. mun:square-nonneg
     have s1_3 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 1.4. inequalities, from 1.3
@@ -121,6 +119,6 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   calc (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (h t : ℝ)) := by exact s16
     _ = (∫ t in 0..1, (f t : ℝ)) - (∫ t in 0..1, (g t : ℝ)) := by exact (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
     _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (g t : ℝ)) := by (have h := congrArg (fun u : ℝ => u - (∫ t in 0..1, (g t : ℝ))) s15; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) := by (have h := congrArg (fun u : ℝ => 1 / (2 * (n : ℝ) + 1) - u) (s17).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) := by (have h := congrArg (fun u : ℝ => 1 / (2 * (n : ℝ) + 1) - u) s17.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence

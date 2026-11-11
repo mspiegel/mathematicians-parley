@@ -49,7 +49,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 2. arithmetic
   have s2 : ¬ (1 / 2 : ℚ) < 1 / 2 := by parley_arith
   -- 3. D1, from 1, 2
-  have s3 : f (1 / 2) = 1 := by (try simp only [hD1]); first | done | parley_set_side
+  have s3 : f (1 / 2) = 1 := by simp (disch := omega) only [hD1 _ s1, if_neg (by norm_num : ¬ (1 / 2 : ℝ) < 1 / 2)]
   -- 4. contradiction
   intro hS
   -- 4.1. def:continuous-on D := [0, 1], from S

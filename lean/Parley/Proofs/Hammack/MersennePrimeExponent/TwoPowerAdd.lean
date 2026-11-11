@@ -46,7 +46,7 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
         _ = 2 ^ (a + k).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := a + k) (by parley_side))
         _ = 2 ^ a.toNat * 2 ^ k.toNat * 2 := by (have h := congrArg (fun t : ℤ => t * 2) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 ^ a.toNat * (2 ^ k.toNat * 2) := by parley_ring
-        _ = 2 ^ a.toNat * 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ a.toNat * t) (s1_4).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 2 ^ a.toNat * 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate k := b in line 1
   exact (s1 b (by parley_side))
 

@@ -1,0 +1,13 @@
+theorem tests/elaborator/reading-defines/a-define-applied-substituted-into-a-line
+step 1 takes q(a) = a + 1 from a define, facing straight
+step 1 has its define's argument in the domain by H1 sentence 0
+read 72: a + 1 > 3  as  order:>(additive:+(name:a, numeral:1), numeral:3)  a statement
+read 76: a ∈ ℕ  as  membership:∈(name:a, number-systems:ℕ)  a statement
+read 77: j  as  name:j  a number
+read 77: j + 1  as  additive:+(name:j, numeral:1)  a number
+read 77: ℕ  as  number-systems:ℕ  a set
+read 79: q(a) > 3  as  order:>(application:()(name:q, name:a), numeral:3)  a statement
+read 80: a + 1 > 3  as  order:>(additive:+(name:a, numeral:1), numeral:3)  a statement
+read 82: a + 1 > 3  as  order:>(additive:+(name:a, numeral:1), numeral:3)  a statement
+read 83: q(a) = a + 1  as  equality:=(application:()(name:q, name:a), additive:+(name:a, numeral:1))  a statement
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

@@ -103,7 +103,7 @@ theorem series_remainder :
       _ = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) - (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by linear_combination (norm := parley_field) ((4) / ((4))) * hIH
       _ = (-1) ^ (n + 1).toNat * -1 * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) := by linear_combination (norm := parley_field) ((-1) ^ (n + 1).toNat) * s2_6
       _ = (-1) ^ (n + 1 + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
-          have e_w : ((-1) ^ (n + 1).toNat * -1 : ℝ) = (-1) ^ (n + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℝ)) (s2_7).symm; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : ((-1) ^ (n + 1).toNat * -1 : ℝ) = (-1) ^ (n + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℝ)) s2_7.symm; push_cast at h; linear_combination (norm := parley_norm) h
           (have h := congrArg (fun u : ℝ => u * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Leibniz.SeriesRemainder

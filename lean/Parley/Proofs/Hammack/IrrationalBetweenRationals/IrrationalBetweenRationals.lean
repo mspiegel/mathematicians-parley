@@ -134,7 +134,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     have s17_14 : (b : ℝ) * ((c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ)) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by linear_combination (norm := parley_field) (-(2 * (b : ℝ) * (d : ℝ) * (q : ℝ))) * s17_13
     -- 17.15. substitute c·q − p·d = m (D2) into line 17.14
     have s17_15 : (b : ℝ) * (m : ℝ) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by
-      have e_w : (c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ) = (m : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) (hD2).symm; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : (c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ) = (m : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) hD2.symm; push_cast at h; linear_combination (norm := parley_norm) h
       (have h := Eq.subst (motive := (fun t : ℝ => (b : ℝ) * t * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)))) e_w s17_14; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.16. algebra, from 17.15
     have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by linear_combination (norm := parley_field) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15

@@ -42,7 +42,7 @@ theorem mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
       exact hI
     -- 1.3. calculation
     have s1_3 : (5 * s + 1) / (s - 2) = (5 * t + 1) / (t - 2) := by
-      calc (5 * s + 1) / (s - 2) = f s := by exact ((hH2 s (by parley_set_side))).symm
+      calc (5 * s + 1) / (s - 2) = f s := by exact (hH2 s (by parley_set_side)).symm
         _ = f t := by parley_set_side
         _ = (5 * t + 1) / (t - 2) := by exact (hH2 t (by parley_set_side))
     -- 1.4. algebra, from 1.3

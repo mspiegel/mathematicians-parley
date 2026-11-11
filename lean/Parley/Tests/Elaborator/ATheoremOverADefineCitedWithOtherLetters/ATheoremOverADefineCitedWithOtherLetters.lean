@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
@@ -31,7 +30,6 @@ namespace Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ATheo
 theorem a_theorem_over_a_define_cited_with_other_letters :
     (∫ t in 0..1, (t ^ 0 : ℝ)) = (∫ b in 0..1, (b ^ 0 : ℝ)) := by
   -- 1. thm:a-define-written-out-beside-its-own-letter n := 0
-  have hI : (∫ t in 0..1, (t ^ 0 : ℝ)) = (∫ t in 0..1, (t ^ 0 : ℝ)) := by parley_instance ((Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side)))
-  exact hI
+  exact (Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter.a_define_written_out_beside_its_own_letter (n := (0 : ℤ)) (by parley_side))
 
 end Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ATheoremOverADefineCitedWithOtherLetters

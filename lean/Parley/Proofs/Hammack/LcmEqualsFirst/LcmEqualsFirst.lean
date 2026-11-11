@@ -36,7 +36,7 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   · skip
     intro hD1
     -- 5.1. substitute a = lcm(a, b) (D1) into line 1
-    (have h := Eq.subst (motive := (fun t : ℤ => b ∣ t)) (hD1).symm s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℤ => b ∣ t)) hD1.symm s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   · skip
     intro hD2
     -- 5.2. mun:divides-self n := a

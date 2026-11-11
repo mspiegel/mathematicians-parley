@@ -65,7 +65,7 @@ theorem powers_of_two_sum (n : ℤ) (hH1 : 0 < n) :
       calc S (k + 1) = S k + 2 ^ (k + 1).toNat := by exact s1_2
         _ = 2 ^ (k + 1).toNat - 2 + 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => t + 2 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 ^ (k + 1).toNat * 2 - 2 := by parley_ring
-        _ = 2 ^ (k + 1 + 1).toNat - 2 := by (have h := congrArg (fun t : ℤ => t - 2) (s1_3).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 2 ^ (k + 1 + 1).toNat - 2 := by (have h := congrArg (fun t : ℤ => t - 2) s1_3.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 ^ k.toNat : ℤ)) = S n := by simp (disch := omega) only [hD1]
     _ = 2 ^ (n + 1).toNat - 2 := by exact (s1 n (by parley_side))

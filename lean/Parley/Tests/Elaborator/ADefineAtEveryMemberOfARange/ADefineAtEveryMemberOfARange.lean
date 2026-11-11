@@ -1,10 +1,13 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.SetLike.Basic
+public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -20,6 +23,6 @@ namespace Parley.Tests.Elaborator.ADefineAtEveryMemberOfARange.ADefineAtEveryMem
 theorem a_define_at_every_member_of_a_range (m : ℤ) (hH1 : 0 < m) (q : ℤ → ℤ) (hD1 : ∀ j : ℤ, 0 < j → q j = j + 1) :
     (∀ j : ℤ, j ∈ Finset.Icc 1 m → q j = j + 1) := by
   -- 1. D1
-  (try simp only [hD1]); first | done | parley_side
+  intro j h_j; simp (disch := omega) only [hD1 j (Finset.mem_Icc.mp h_j).1]
 
 end Parley.Tests.Elaborator.ADefineAtEveryMemberOfARange.ADefineAtEveryMemberOfARange

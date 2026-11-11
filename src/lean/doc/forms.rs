@@ -80,28 +80,22 @@ impl FormDifference {
 /// cast of the function's value is the function of the cast argument.
 pub fn differences(item: &Term, line: &Term, widen: &Widen) -> Vec<FormDifference> {
     let mut out = Vec::new();
-    // Each read as Lean's notations unfold, `a > b` as `b < a`, so that one
-    // relation written the two ways is compared side by side.
-    let (item, line) = (unfolded(item), unfolded(line));
-    let (item, line) = (pushed(&item, widen), pushed(&line, widen));
-    let (item, line) = (in_naturals(&item), in_naturals(&line));
-    let line = lifted(&line, &item, widen).unwrap_or(line);
-    let item = lifted(&item, &line, widen).unwrap_or(item);
+    let (item, line) = read_for_comparison(item, line, widen);
     compare(&item, &line, &mut out);
     out
 }
 
-/// Whether the two are one statement once read as `differences` reads them,
-/// the narrower cast up to the wider and every cast pushed down, apart from
-/// the forms it reports (`alike`): what `exact_mod_cast` takes the one to the
-/// other by where `norm_cast` moves every cast of both.
-pub fn lifted_alike(item: &Term, line: &Term, widen: &Widen) -> bool {
+/// The two read as `differences` compares them: each as Lean's notations
+/// unfold, `a > b` as `b < a`, so that one relation written the two ways is
+/// compared side by side; casts pushed down; a relation of natural numbers
+/// cast up read in ℕ (`in_naturals`); and the narrower cast up to the wider.
+fn read_for_comparison(item: &Term, line: &Term, widen: &Widen) -> (Term, Term) {
     let (item, line) = (unfolded(item), unfolded(line));
     let (item, line) = (pushed(&item, widen), pushed(&line, widen));
     let (item, line) = (in_naturals(&item), in_naturals(&line));
     let line = lifted(&line, &item, widen).unwrap_or(line);
     let item = lifted(&item, &line, widen).unwrap_or(item);
-    alike(&item, &line)
+    (item, line)
 }
 
 /// A relation between natural numbers cast to one type, `(a : ℤ) ≤ (b :
@@ -317,15 +311,13 @@ pub fn cast_unit_lemmas(term: &Term) -> Vec<&'static str> {
             let TermKind::Numeral(digits) = &bare(inner).kind else {
                 return None;
             };
-            Some(match (inner.ty.as_ref()?, digits.as_str()) {
-                (LeanType::Num(Num::Nat), "0") => "Nat.cast_zero",
-                (LeanType::Num(Num::Nat), "1") => "Nat.cast_one",
-                (LeanType::Num(Num::Int), "0") => "Int.cast_zero",
-                (LeanType::Num(Num::Int), "1") => "Int.cast_one",
-                (LeanType::Num(Num::Rat), "0") => "Rat.cast_zero",
-                (LeanType::Num(Num::Rat), "1") => "Rat.cast_one",
-                _ => return None,
-            })
+            let Some(LeanType::Num(from)) = inner.ty.as_ref() else {
+                return None;
+            };
+            crate::lean::casts::NUMERAL_CASTS
+                .iter()
+                .find(|(n, d, _)| n == from && d == digits)
+                .map(|(_, _, lemma)| *lemma)
         })
         .collect();
     out.sort_unstable();
@@ -666,14 +658,17 @@ pub fn relation_types_agree(a: &Term, b: &Term) -> bool {
     }
 }
 
+/// Whether the two state their relation in two types their trees both
+/// give, `1 ≤ 1/2` in ℝ beside it in ℚ.
+pub fn relation_types_apart(a: &Term, b: &Term) -> bool {
+    matches!((relation_type(a), relation_type(b)), (Some(x), Some(y)) if x != y)
+}
+
 /// How `given` stands to `line` (`Meets`), each letter of `values` read as
 /// its value; None where they differ in more.
 pub fn meets(given: &Term, line: &Term, values: &Values) -> Option<Meets> {
     let (given_written, line_written) = (given, line);
-    let lift = match (relation_type(given), relation_type(line)) {
-        (Some(a), Some(b)) => a != b,
-        _ => false,
-    };
+    let lift = relation_types_apart(given, line);
     if lift {
         // A fact of numerals alone in another type, (1 : ℚ)/4 > 0 for one in
         // ℝ, is worked out where it is asked: `norm_cast` does not take
@@ -973,11 +968,7 @@ pub fn to_nat_rules(term: &Term) -> std::collections::BTreeSet<&'static str> {
         let TermKind::ToNat(inner) = &t.kind else {
             continue;
         };
-        let closed = !inner
-            .walk()
-            .iter()
-            .any(|n| matches!(n.kind, TermKind::Letter(_) | TermKind::Const(_)));
-        if !closed {
+        if inner.lettered() {
             continue;
         }
         used.insert("Int.reduceToNat");
@@ -1018,10 +1009,7 @@ pub fn casts_differ(given: &Term, line: &Term, values: &Values) -> Option<CastsA
     if valued(given) == valued(line) {
         return None;
     }
-    let lift = match (relation_type(given), relation_type(line)) {
-        (Some(a), Some(b)) => a != b,
-        _ => false,
-    };
+    let lift = relation_types_apart(given, line);
     let Meets::Casts { through, lift } = casts_alike(given, line, values, lift)? else {
         return None;
     };
@@ -1093,6 +1081,9 @@ pub fn alike_once_set(a: &Term, b: &Term, values: &Values) -> bool {
 /// `|(0 : ℤ)| = 0` and `|(0 : ℝ)| = 0` are written alike and are two. A
 /// type Lean fills in where an item is cited, its α, agrees with any.
 pub fn one_term_once_set(a: &Term, b: &Term, values: &Values) -> bool {
+    // An integer's `toNat` of a natural number cast up is that number, which
+    // Lean computes so: `((↑a * ↑b : ℤ)).toNat` is `a * b`.
+    let (a, b) = (&naturals_read(a), &naturals_read(b));
     if !alike_once_set(a, b, values) {
         return false;
     }
@@ -1123,6 +1114,20 @@ pub fn one_term_once_set(a: &Term, b: &Term, values: &Values) -> bool {
             (Some(x), Some(y)) => x == y || !x.fixed() || !y.fixed(),
             _ => true,
         })
+}
+
+/// The term with each `toNat` of a natural number cast up read as that
+/// number (`casts::as_natural`).
+fn naturals_read(term: &Term) -> Term {
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = naturals_read(c);
+    }
+    let natural = match &out.kind {
+        TermKind::ToNat(inner) => crate::lean::casts::as_natural(inner),
+        _ => None,
+    };
+    natural.unwrap_or(out)
 }
 
 /// Whether Lean casts a letter a `set` names, or a term with one in it, to
@@ -1163,11 +1168,7 @@ fn identities_dropped(
     // Numerals taken to ℕ, `(2 * 0).toNat`, are what they work out to in ℕ,
     // as simp's arithmetic on numerals works them out.
     if let TermKind::ToNat(inner) = &out.kind {
-        let closed = !inner
-            .walk()
-            .iter()
-            .any(|t| matches!(t.kind, TermKind::Letter(_) | TermKind::Const(_)));
-        if closed {
+        if !inner.lettered() {
             // `simp only` works the arithmetic out only by the procedures
             // named: each operation's, in ℤ under the `toNat` and in ℕ where
             // the other side writes it so.
@@ -1463,17 +1464,17 @@ fn bare(term: &Term) -> &Term {
 }
 
 /// Whether a natural number is the integer `x` taken to ℕ, written as it
-/// stands: `natural` cast to ℤ, with the cast pushed down, is `x` in one
-/// form.
+/// stands: `x` read as the natural number it is (`casts::as_natural`) is
+/// `natural`, as `naturals_read` reads it.
 fn is_to_nat_of(x: &Term, natural: &Term) -> bool {
     if natural.ty != Some(LeanType::Num(Num::Nat)) {
         return false;
     }
-    let none = |_: &str, _: Num| None;
-    let up = pushed(&cast_down(natural, &LeanType::Num(Num::Int), &none), &none);
-    let mut parts = Vec::new();
-    compare(&pushed(x, &none), &up, &mut parts);
-    parts.is_empty() && alike(x, &up)
+    crate::lean::casts::as_natural(x).is_some_and(|n| {
+        let mut parts = Vec::new();
+        compare(&n, natural, &mut parts);
+        parts.is_empty() && alike(&n, natural)
+    })
 }
 
 fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
@@ -1600,6 +1601,70 @@ fn children(term: &Term) -> Vec<&Term> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// `((↑a * ↑b : ℤ)).toNat` beside `a * b` of natural a and b: Lean
+    /// computes the one as the other, so the two are one term
+    /// (`one_term_once_set`), and the `toNat` is no form apart
+    /// (`differences`).
+    #[test]
+    fn a_to_nat_of_naturals_cast_up_is_their_product() {
+        let nat = LeanType::Num(Num::Nat);
+        let int = LeanType::Num(Num::Int);
+        let times = super::super::term::Op::of("*").expect("times");
+        let (a, b) = (
+            Term::letter("a", nat.clone()),
+            Term::letter("b", nat.clone()),
+        );
+        let product = Term::infix(times, a.clone(), b.clone(), nat.clone());
+        let cast_up = Term::infix(
+            times,
+            Term::cast(a, int.clone()),
+            Term::cast(b, int.clone()),
+            int,
+        );
+        let to_nat = Term::of(TermKind::ToNat(Box::new(cast_up)), nat);
+        assert!(one_term_once_set(&to_nat, &product, &Values::new()));
+        assert!(differences(&to_nat, &product, &none).is_empty());
+    }
+
+    /// A term of numerals alone holds no letter; one with a letter does.
+    #[test]
+    fn a_term_of_numerals_alone_is_not_lettered() {
+        let int = LeanType::Num(Num::Int);
+        let plus = super::super::term::Op::of("+").expect("plus");
+        let two = Term::numeral("2", int.clone());
+        let numerals = Term::infix(plus, two.clone(), two.clone(), int.clone());
+        let lettered = Term::infix(plus, two, Term::letter("n", int.clone()), int);
+        assert!(!numerals.lettered());
+        assert!(lettered.lettered());
+    }
+
+    /// A numeral cast up from ℚ is taken to the numeral by its lemma, as
+    /// one from ℕ or ℤ is (`casts::NUMERAL_CASTS`).
+    #[test]
+    fn a_cast_numeral_is_taken_to_the_numeral() {
+        let rat = LeanType::Num(Num::Rat);
+        let one = Term::cast(Term::numeral("1", rat), LeanType::Num(Num::Real));
+        assert_eq!(cast_unit_lemmas(&one), vec!["Rat.cast_one"]);
+    }
+
+    /// Two relations in two known types are apart; one whose type is left
+    /// to Lean is not.
+    #[test]
+    fn relations_in_two_known_types_are_apart() {
+        let lt = super::super::term::Op::of("<").expect("less");
+        let at = |ty: LeanType| {
+            Term::infix(
+                lt,
+                Term::letter("x", ty.clone()),
+                Term::letter("y", ty),
+                LeanType::Prop,
+            )
+        };
+        let (rat, real) = (LeanType::Num(Num::Rat), LeanType::Num(Num::Real));
+        assert!(relation_types_apart(&at(rat.clone()), &at(real)));
+        assert!(!relation_types_apart(&at(rat.clone()), &at(rat)));
+    }
 
     /// `(2 : ℤ) ∣ N` and `2 ∣ N`: an ascription to the numeral's own type
     /// says nothing, and the two are written alike.

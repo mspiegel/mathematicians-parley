@@ -50,6 +50,6 @@ theorem remainder_below_divisor (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 5. inequalities
   have s5 : A - B * (q : ℝ) < B := by parley_order
   -- 6. substitute A mod B = A − B·q (line 2) into line 5
-  (have h := Eq.subst (motive := (fun t : ℝ => t < B)) (s2).symm s5; push_cast at h ⊢; all_goals exact_mod_cast h)
+  (have h := Eq.subst (motive := (fun t : ℝ => t < B)) s2.symm s5; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.RemainderBounds.RemainderBelowDivisor

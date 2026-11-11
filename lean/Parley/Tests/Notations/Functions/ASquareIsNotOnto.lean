@@ -45,7 +45,7 @@ theorem a_square_is_not_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x ^ 2) 
     calc (-1 : ℝ) = f x := by parley_set_side
       _ = x ^ 2 := by exact s1_4
   -- 1.7. substitute −1 = x² (line 1.6) into line 1.5
-  have s1_7 : (-1 : ℝ) ≥ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≥ 0)) (s1_6).symm s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s1_7 : (-1 : ℝ) ≥ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≥ 0)) s1_6.symm s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact absurd s1_7 (by norm_num)
 
 end Parley.Tests.Notations.Functions.ASquareIsNotOnto

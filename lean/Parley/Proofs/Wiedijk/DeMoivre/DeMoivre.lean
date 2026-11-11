@@ -55,7 +55,7 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
           _ = 1 + Complex.I * 0 := by parley_ring
           _ = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by exact s2_3.symm
           _ = (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by exact s2_2.symm
-          _ = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) (s2_1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) s2_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_4
     | succ k hK hIH =>
       -- 2.5. thm:cos-add a := k·x, b := x
@@ -76,10 +76,10 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
           _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + -1 * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by (have h := congrArg (fun t : ℂ => (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + t * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ))) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) - (Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by parley_ring
           _ = (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by
-              have e_w : (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) - (Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.cos ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) (s2_5).symm; push_cast at h; linear_combination (norm := parley_norm) h
+              have e_w : (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) - (Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.cos ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_5.symm; push_cast at h; linear_combination (norm := parley_norm) h
               (have h := congrArg (fun t : ℂ => t + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * (Real.sin ((k : ℝ) * x + x) : ℂ) := by
-              have e_w : (Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.sin ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) (s2_6).symm; push_cast at h; linear_combination (norm := parley_norm) h
+              have e_w : (Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.sin ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_6.symm; push_cast at h; linear_combination (norm := parley_norm) h
               (have h := congrArg (fun t : ℂ => (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Real.cos (((k : ℝ) + 1) * x) : ℂ) + Complex.I * (Real.sin (((k : ℝ) + 1) * x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       (have h := s2_8; push_cast at h ⊢; all_goals exact h)

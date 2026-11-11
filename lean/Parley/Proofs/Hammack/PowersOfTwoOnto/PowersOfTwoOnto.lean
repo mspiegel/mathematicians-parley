@@ -31,7 +31,7 @@ theorem powers_of_two_onto (f : ℤ → ℚ) (hH1 : Set.MapsTo f (Set.univ : Set
     -- 1.2. calculation
     have s1_2 : y = f m := by
       calc y = 2 ^ m := by exact s1_1
-        _ = f m := by exact ((hH2 m)).symm
+        _ = f m := by exact (hH2 m).symm
     -- 1.3. exhibit, from 1.2
     exact ⟨m, s1_2⟩
   -- 2. def:onto, from H1, 1

@@ -23,6 +23,6 @@ namespace Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayInstan
 theorem a_congruence_the_other_way_instantiated (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH3 : ∀ x : ℤ, x ^ 2 ≡ x [ZMOD n]) :
     a ≡ a ^ 2 [ZMOD n] := by
   -- 1. instantiate x := a in H3
-  exact ((hH3 a)).symm
+  exact (hH3 a).symm
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayInstantiated

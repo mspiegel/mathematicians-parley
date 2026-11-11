@@ -81,7 +81,7 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
         _ = F (1 + 1) := by norm_num
         _ = 1 := by exact s4_7
         _ = 2 - 1 := by norm_num
-        _ = F (2 * 1 + 1) - 1 := by (have h := congrArg (fun t : ℤ => t - 1) (s4_9).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = F (2 * 1 + 1) - 1 := by (have h := congrArg (fun t : ℤ => t - 1) s4_9.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     | succ m hK3 hIH2 =>
       -- 4.11. proof
       -- what this block shows, Lean's types give

@@ -62,7 +62,7 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
             (have h := congrArg (fun t : ℚ => 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 - 1 / 2 := by norm_num
         _ = 1 - 1 / (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℚ) := by
-            have e_w : 2 = (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s2_2).symm; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : 2 = (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_2.symm; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => 1 - 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
     | succ k hK hIH =>
       -- 2.4. def:factorial n := k + 1
@@ -82,7 +82,7 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
             have hI : 1 - 1 / (LeanBridges.Counting.factorial (k + 1) : ℚ) + ((k : ℚ) + 1) / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by parley_instance_real ((Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (LeanBridges.Counting.factorial (k + 1) : ℝ)) (by parley_side)))
             exact hI
         _ = 1 - 1 / (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by
-            have e_w : (LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1) = (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s2_4).symm; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1) = (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4.symm; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => 1 - 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 3. instantiate k := n in line 2
   exact (s2 n (by parley_side))

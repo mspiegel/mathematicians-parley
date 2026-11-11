@@ -60,7 +60,7 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := K)) hC1
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial K : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by parley_ring
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - (N - K)) : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by
-          have e_w : (LeanBridges.Counting.factorial K : ℚ) = (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s2_6).symm; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (LeanBridges.Counting.factorial K : ℚ) = (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_6.symm; push_cast at h; linear_combination (norm := parley_norm) h
           (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial (N - K) : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := by exact ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := N - K)) s2_4).symm
   · skip

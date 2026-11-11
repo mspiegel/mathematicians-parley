@@ -37,6 +37,6 @@ theorem fourth_powers_and_the_double_angle (x : ℝ) :
     _ = Real.cos (x + x) := by
         have hI : Real.cos (x + x) = Real.cos x * Real.cos x - Real.sin x * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ)) (b := (x : ℂ))))
         exact hI.symm
-    _ = Real.cos (2 * x) := by (have h := congrArg (fun t : ℝ => Real.cos t) (s2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Real.cos (2 * x) := by (have h := congrArg (fun t : ℝ => Real.cos t) s2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Identities.FourthPowersAndTheDoubleAngle.FourthPowersAndTheDoubleAngle

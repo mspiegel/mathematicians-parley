@@ -59,6 +59,6 @@ theorem prime_divides_product (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) 
       -- 2.3.2. mun:divides-multiple e := P, a := N, x := M, from C4
       have s2_3_2 : P ∣ N * M := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := P) (a := N) (x := M) hC4)
       -- 2.3.3. substitute N·M = M·N (line 1) into line 2.3.2
-      (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) (s1).symm s2_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s1.symm s2_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.PrimeDividesProduct.PrimeDividesProduct

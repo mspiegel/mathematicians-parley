@@ -95,7 +95,7 @@ theorem log_three_over_two_irrational :
       refine ⟨(((2 : ℤ) ^ (p).toNat) : ℤ), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
       (exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven.power_of_two_even (n := p) (by parley_side)))
     -- 2.11. substitute 2^p = 3^q (line 2.8) into line 2.10
-    have s2_11 : Even (3 ^ q.toNat : ℤ) := by exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ Even m)) (s2_8).symm s2_10) (3 ^ q.toNat : ℤ) (by norm_cast)
+    have s2_11 : Even (3 ^ q.toNat : ℤ) := by exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ Even m)) s2_8.symm s2_10) (3 ^ q.toNat : ℤ) (by norm_cast)
     -- 2.12. mun:odd-not-even n := 3^q, from 2.9
     have s2_12 : ¬ Even (3 ^ q.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_not_even (n := (3 ^ q.toNat : ℤ)) s2_9)
     exact s2_12 s2_11

@@ -6,7 +6,6 @@ public import Counting
 public import Divisibility
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import OrderTactics
 public import PowerTactics
 public import SetTactics
@@ -41,7 +40,6 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -53,7 +51,6 @@ public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Counting
@@ -201,7 +198,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         (try rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 1))] at s5_7_4; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_4); norm_cast at s5_7_4)
         (try rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 1))] at s5_7_9; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_9); norm_cast at s5_7_9)
         refine ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring), ?_⟩
-        (exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ f a * a ≡ m [ZMOD p])) (s5_7_4).symm s5_7_9) (Classical.choose whole1 : ℤ) (by push_cast; simp only [Classical.choose_spec whole1]))
+        (exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ f a * a ≡ m [ZMOD p])) s5_7_4.symm s5_7_9) (Classical.choose whole1 : ℤ) (by push_cast; simp only [Classical.choose_spec whole1]))
       -- 5.7.11. algebra, from 5.6
       have s5_7_11 : a * f a = f a * a := by parley_ring
       -- 5.7.12. membership, from 5.7.4, 5.7.5
@@ -220,8 +217,8 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_7_2 := parley_witness_at s5_7_2 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))
       (try rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 1))] at s5_7_11; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_11); norm_cast at s5_7_11)
       calc a * f a = f a * a := by exact s5_7_11
-        _ ≡ (Classical.choose whole1 : ℤ) [ZMOD p] := by first | parley_set_side | (qify; push_cast; simp only [Classical.choose_spec whole1]; first | (linear_combination (norm := parley_norm) s5_7_10; done) | (linear_combination (norm := parley_norm) -s5_7_10; done))
-        _ ≡ 1 [ZMOD p] := by first | parley_set_side | (qify; push_cast; simp only [Classical.choose_spec whole1]; first | (linear_combination (norm := parley_norm) s5_7_2; done) | (linear_combination (norm := parley_norm) -s5_7_2; done))
+        _ ≡ (Classical.choose whole1 : ℤ) [ZMOD p] := by exact s5_7_10
+        _ ≡ 1 [ZMOD p] := by exact s5_7_2
     -- 5.8. proof
     have s5_8 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → ¬ p ∣ a - 1 := by
       intro a hK5
@@ -362,7 +359,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_15_4 : f (f a) * f a ≡ a * f a [ZMOD p] := by
         calc f (f a) * f a = f a * f (f a) := by exact s5_15_3
           _ ≡ 1 [ZMOD p] := by exact (s5_7 (f a) (by parley_set_side))
-          _ ≡ a * f a [ZMOD p] := by first | exact (s5_7 a (by parley_set_side)) | exact ((s5_7 a (by parley_set_side))).symm | parley_set_side
+          _ ≡ a * f a [ZMOD p] := by exact (s5_7 a (by parley_set_side)).symm
       -- 5.15.5. instantiate a := f(a) in line 5.4, from 5.13
       have s5_15_5 : (Int.gcd (f a) p : ℤ) = 1 := by exact (s5_4 (f a) (by parley_set_side))
       -- 5.15.6. thm:congruent-cancel c := f(a), from 5.6, 5.15.2, 5.15.4, 5.15.5

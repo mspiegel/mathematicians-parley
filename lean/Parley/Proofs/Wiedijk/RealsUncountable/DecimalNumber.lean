@@ -91,13 +91,13 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have s3_12 : (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / (10 ^ k.toNat * 10) := by parley_ring
     -- 3.13. substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.12
     have s3_13 : (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / 10 ^ (k + 1).toNat := by
-      have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s3_11).symm; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_11.symm; push_cast at h; linear_combination (norm := parley_norm) h
       (have h := Eq.subst (motive := (fun t : ℚ => (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / t)) e_w s3_12; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.14. algebra
     have s3_14 : ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / (10 ^ k.toNat * 10) := by parley_ring
     -- 3.15. substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.14
     have s3_15 : ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by
-      have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s3_11).symm; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_11.symm; push_cast at h; linear_combination (norm := parley_norm) h
       (have h := Eq.subst (motive := (fun t : ℚ => ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / t)) e_w s3_14; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.16. mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.9
     have r256_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
@@ -106,9 +106,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have r262_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
     have s3_17 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N (k + 1) : ℚ) + 1) (y := 10 * ((N k : ℚ) + 1)) (c := (10 ^ (k + 1).toNat : ℚ)) (by parley_set_side) (by parley_set_side))
     -- 3.18. substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.13) into line 3.16
-    have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by (have h := Eq.subst (motive := (fun t : ℚ => t ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat)) (s3_13).symm s3_16; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by (have h := Eq.subst (motive := (fun t : ℚ => t ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat)) s3_13.symm s3_16; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.19. substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.15) into line 3.17
-    have s3_19 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by (have h := Eq.subst (motive := (fun t : ℚ => ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ t)) (s3_15).symm s3_17; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s3_19 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by (have h := Eq.subst (motive := (fun t : ℚ => ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ t)) s3_15.symm s3_17; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.20. calculation
     have s3_20 : L k ≤ L (k + 1) := by
       calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
@@ -260,7 +260,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 10.1.3. calculation
       have s10_1_3 : y = (L j : ℝ) := by
         calc y = (N j : ℝ) / 10 ^ j.toNat := by parley_set_side
-          _ = (L j : ℝ) := by first | (simp (disch := omega) only [hD5]; done) | (simp (disch := omega) only [hD5]; push_cast; norm_num; done) | parley_set_side
+          _ = (L j : ℝ) := by simp (disch := omega) only [hD5]; push_cast; norm_num
       -- 10.1.4. substitute y = L(j) (line 10.1.3) into line 10.1.2
       parley_subst_at s10_1_3 s10_1_2
     -- 10.2. def:upper-bound, from 10.1

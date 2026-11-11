@@ -87,6 +87,6 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by exact s3_5
         _ = 0 ^ 2 := by norm_num
     -- 3.7. substitute N = 0 (C2) into line 3.6
-    (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (2 * k - 1 : ℤ)) = t ^ 2)) (hC2).symm s3_6; push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (2 * k - 1 : ℤ)) = t ^ 2)) hC2.symm s3_6; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum

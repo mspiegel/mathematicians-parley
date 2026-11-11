@@ -70,7 +70,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.8. arithmetic
     have s2_8 : (0 : ℤ) < 1 := by parley_arith
     -- 2.9. substitute N = 0 (C2) into line 2.8
-    have s2_9 : N < 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t < 1)) (hC2).symm s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_9 : N < 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t < 1)) hC2.symm s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.10. calculation
     calc (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (1 : ℤ))) s2_9
       _ = N := by parley_side

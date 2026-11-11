@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import InstanceTactics
 public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
@@ -46,9 +45,7 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.4. calculation
       have s1_4 : (4 ^ (3 * (m + 1)).toNat : ℤ) = 4 ^ (3 * m).toNat * 4 ^ 3 := by
         calc (4 ^ (3 * (m + 1)).toNat : ℤ) = 4 ^ (3 * m + 3).toNat := by (have h := congrArg (fun t : ℤ => 4 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 4 ^ (3 * m).toNat * 4 ^ 3 := by
-              have hI : (4 ^ (3 * m + 3).toNat : ℤ) = 4 ^ (3 * m).toNat * 4 ^ 3 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (4 : ℤ)) (m := 3 * m) (by parley_side) (n := (3 : ℤ)) (by parley_side)))
-              exact hI
+          _ = 4 ^ (3 * m).toNat * 4 ^ 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (4 : ℤ)) (m := 3 * m) (by parley_side) (n := (3 : ℤ)) (by parley_side))
       -- 1.5. mun:divides-multiple e := 9, a := 4^(3m) + 8, x := 64, from IH
       have s1_5 : (9 : ℤ) ∣ ((4 ^ (3 * m).toNat + 8) * 64 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (9 : ℤ)) (a := (4 ^ (3 * m).toNat + 8 : ℤ)) (x := (64 : ℤ)) hIH)
       -- 1.6. def:divides d := 9, n := 504

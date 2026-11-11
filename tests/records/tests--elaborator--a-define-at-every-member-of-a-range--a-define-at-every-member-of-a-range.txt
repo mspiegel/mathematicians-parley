@@ -1,0 +1,10 @@
+theorem tests/elaborator/a-define-at-every-member-of-a-range/a-define-at-every-member-of-a-range
+step 1 has its define's argument in the domain by the claim's member
+read 1: For all j ∈ {1, …, m}, q(j) = j + 1  as  for-all:forall∈,(name:j, integer-range:{,…,}(numeral:1, name:m), equality:=(application:()(name:q, name:j), additive:+(name:j, numeral:1)))  a statement
+read 5: m ∈ ℕ  as  membership:∈(name:m, number-systems:ℕ)  a statement
+read 6: j  as  name:j  a number
+read 6: j + 1  as  additive:+(name:j, numeral:1)  a number
+read 6: ℕ  as  number-systems:ℕ  a set
+read 8: For all j ∈ {1, …, m}, q(j) = j + 1  as  for-all:forall∈,(name:j, integer-range:{,…,}(numeral:1, name:m), equality:=(application:()(name:q, name:j), additive:+(name:j, numeral:1)))  a statement
+read 10: For all j ∈ {1, …, m}, q(j) = j + 1  as  for-all:forall∈,(name:j, integer-range:{,…,}(numeral:1, name:m), equality:=(application:()(name:q, name:j), additive:+(name:j, numeral:1)))  a statement
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

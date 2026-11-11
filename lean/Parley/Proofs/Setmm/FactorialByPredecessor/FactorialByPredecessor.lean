@@ -37,7 +37,7 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
     -- 3.1. algebra
     have s3_1 : N - 1 + 1 = N := by parley_ring
     -- 3.2. calculation
-    calc (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1 + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) (s3_1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1 + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s3_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * (N - 1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N - 1) (by parley_side))
       _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial (N - 1) : ℤ) * t) s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
   · skip
@@ -53,6 +53,6 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
     calc (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
       _ = 1 * N := by exact s3_5.symm
-      _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by (have h := congrArg (fun t : ℤ => t * N) (s3_4).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by (have h := congrArg (fun t : ℤ => t * N) s3_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor

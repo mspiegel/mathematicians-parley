@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import InstanceTactics
 public import NormTactics
 public import SubstTactics
 public import Tactics
@@ -67,9 +66,7 @@ theorem scaled_sum_integer :
     -- 7. calculation
     have s7 : (2 ^ LeanBridges.Counting.factorial (n + 1) : ℤ) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by
       calc (2 ^ LeanBridges.Counting.factorial (n + 1) : ℤ) = 2 ^ ((LeanBridges.Counting.factorial n : ℤ) * (n + 1)).toNat := by parley_subst s6
-        _ = (2 ^ LeanBridges.Counting.factorial n) ^ (n + 1).toNat := by
-            have hI : (2 ^ ((LeanBridges.Counting.factorial n : ℤ) * (n + 1)).toNat : ℤ) = (2 ^ LeanBridges.Counting.factorial n) ^ (n + 1).toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_power_of_power (a := (2 : ℤ)) (m := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (n := n + 1) (by parley_side)))
-            exact hI
+        _ = (2 ^ LeanBridges.Counting.factorial n) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_of_power (a := (2 : ℤ)) (m := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (n := n + 1) (by parley_side))
         _ = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 ^ LeanBridges.Counting.factorial n : ℤ)) (m := n) (by parley_side))
     -- 8. algebra, from 5
     have s8 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 := by linear_combination (norm := parley_field) (2 ^ LeanBridges.Counting.factorial (n + 1)) * s5
@@ -85,6 +82,6 @@ theorem scaled_sum_integer :
       have whole1 : ∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by obtain ⟨m, hm⟩ := hIH; exact ⟨m, by exact_mod_cast hm⟩
       exact ⟨((2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (Classical.choose whole1 : ℤ) + 1), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring)⟩
     -- 11. substitute (2^(n!))^n·(2^(n!)·s(n)) + 1 = 2^((n + 1)!)·s(n + 1) (line 9) into line 10
-    (have h := Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t)) (s9).symm s10; push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t)) s9.symm s10; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.ScaledSumInteger

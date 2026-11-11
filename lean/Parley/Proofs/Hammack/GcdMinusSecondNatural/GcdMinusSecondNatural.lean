@@ -29,7 +29,7 @@ theorem gcd_minus_second_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     exact row1
   -- 3. calculation
   calc (Int.gcd a b : ℤ) = (Int.gcd (a % b) b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a) (b := b) (by parley_side)).symm
-    _ = (Int.gcd ((a - b) % b) b : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t b : ℤ)) (s2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = (Int.gcd ((a - b) % b) b : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t b : ℤ)) s2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (Int.gcd (a - b) b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a - b) (b := b) (by parley_side))
 
 end Parley.Proofs.Hammack.GcdMinusSecondNatural.GcdMinusSecondNatural

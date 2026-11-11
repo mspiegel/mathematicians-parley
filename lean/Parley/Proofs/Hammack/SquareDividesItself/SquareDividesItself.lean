@@ -41,7 +41,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
     -- 3.1. inspection
     have s3_1 : (0 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
     -- 3.2. substitute a = 0 (C1) into line 3.1
-    (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) (hC1).symm s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) hC1.symm s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
   · skip
     -- 3.3. algebra, from 1
     have s3_3 : a * k * a = 1 * a := by linear_combination (norm := parley_norm) (-1) * s1

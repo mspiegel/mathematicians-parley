@@ -28,7 +28,7 @@ theorem six_minus_n_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 6 - n)
     intro hA1
     -- 1.1. calculation
     have s1_1 : 6 - s = 6 - t := by
-      calc 6 - s = f s := by exact ((hH2 s)).symm
+      calc 6 - s = f s := by exact (hH2 s).symm
         _ = f t := by parley_set_side
         _ = 6 - t := by exact (hH2 t)
     -- 1.2. algebra, from 1.1

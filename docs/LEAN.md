@@ -120,8 +120,9 @@ calculation row makes its claim (`CheckedTheorem::substituted`), the writer
 puts the equation in exactly there. It writes what the equation is put into
 with each recorded place as one fresh letter, the motive, its letter of the
 type its places are written in: the line's, for a term of the line's
-arithmetic (a side, a part of a sum or product, or a power's base, `^` or a
-superscript), and its own, for a function's argument or an exponent. Places
+arithmetic (a hole its template computes in the formula's type, or a
+relation's side), and its own, for a hole of a fixed type, a function's
+argument or an exponent (`Writer::in_formula_type`). Places
 of different kinds written in one type take one motive. Put into a line,
 `Eq.subst` along the
 motive takes the line to the claim; put into a side of the claim `t = t′`,
@@ -147,16 +148,20 @@ in the equation's type and a term of the line's wider arithmetic, take the
 equation in two stages, as it is and then widened. An equation of natural
 numbers put at exponents is stated in ℕ first (`e_nat`), the motive's
 letter of ℕ. A range member Lean computes wider, made at the member alone,
-is `⟨_, equation, line⟩`.
+is `⟨_, equation, line⟩`. A substitution the record makes into a line's
+"for all" as a whole is written over the whole "for all", the claim not
+peeled. A row's change goes in as stated where every recorded place is
+written in its own type.
 The equation's line is turned with `.symm` where the record puts its left
 side for its right, read from the line as the page writes it, with its
 defines kept (`FirstAt::written`). The result is stated by a `have`, so that
 a numeral exponent defaults to ℕ, and closed by `push_cast at h ⊢` and
 `exact_mod_cast h`. At a place that is an exponent, the motive's letter is
-written as the line writes the term put for: said whole, a natural power's
-`toNat`, else an integer power. Where the term put is written the other way,
-the power the motive gives there is converted to the claim's, the exponent's
-fact from the record, as a citation's is (see "Number types"). A
+written as Lean writes the exponents at both its values
+(`Writer::natural_form`): as its `toNat` where both are written so, a
+numeral put counting so; else an integer, its powers converted to the
+claim's after, the exponent's fact from the record, as a citation's is (see
+"Number types"). A
 substitution keeps the earlier ways, registered as "substitute: equation put
 in", where the record has none or the motive does not state it as written:
 - a place that is an exponent in a type with no integer powers, ℤ;
@@ -166,7 +171,6 @@ in", where the record has none or the motive does not state it as written:
   is first stated in the type its place is written in;
 - places of more than two types, or of two where an exponent's form or a
   whole-number line is among them;
-- a claim "for all" put into a line "for all" as a whole;
 - an equation of rationals put into a wider field at a place written in its
   own type;
 - an equation with a side holding a cast of a `toNat`.
@@ -175,7 +179,9 @@ in", where the record has none or the motive does not state it as written:
 from the cast table (`src/lean/casts.rs`). For each operation the writer
 writes and each widening between ℕ, ℤ, ℚ, ℝ and ℂ, and from ℕ to ℕ∞ where a
 calculation's rows take counts, the table says whether `push_cast` moves a
-cast through the operation and whether `norm_cast` does.
+cast through the operation and whether `norm_cast` does. A cast inside an
+argument of a function the table does not know stands under it alone, as
+under a norm.
 `parley build lean` writes `lean/Parley/Tests/CastTable.lean` from it, with
 an example for each entry, so `lake build` holds every entry true. A
 calculation's row is met with what it cites as the calculation states it,
@@ -477,17 +483,20 @@ A step or a calculation row a define proves is `simp only [hD]`, with
 `push_cast; norm_num` after it where the checker met the two sides otherwise
 than as written, or where Lean casts a set's letter and the sides are not
 alike once it is read as its value. A function the header lets is put in
-the same way, by its hypothesis, except in a claim "for all", where its
-domain is to be shown of the claim's letter, which `omega` does not do. A
+the same way, by its hypothesis, and in a claim "for all" by `intro j h_j;
+simp only [hD1 j h]`, h as the record says (`define_domains`). A
 define by cases is put at the case the checker took (`define_cases`):
 `simp only [hD, if_pos h₁, if_neg h₂]`, each condition by the line that
 says it, and `push_cast; norm_num` after it where the case's value meets the
 other side otherwise than as written. A function the header lets by cases
 on a domain is put at the argument the record places in the domain
-(`define_domains`), `simp only [hD1 _ h, if_pos h₁]`. A condition is put by
-its line only where Lean states that line in the claim's type; arithmetic
-Lean states in ℚ beside a define over ℝ says another condition. A definition read backwards is
-`(…).mpr w` alone where Lean states its left side as it writes the claim.
+(`define_domains`), `simp only [hD1 _ h, if_pos h₁]`. A condition a line
+states in a narrower type than the claim's is restated in it: by
+`exact_mod_cast` of the line, or, of numerals alone, by `norm_num`. A
+definition read backwards is `(…).mpr w` alone where Lean states its left
+side as it writes the claim. The comparison reads an integer's `toNat` of
+naturals cast up as that natural; inside a witness's `refine` the claim is
+the goal left open.
 
 ## How a block ends
 

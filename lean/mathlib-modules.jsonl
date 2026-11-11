@@ -448,6 +448,7 @@
 {"key":"fun y : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun z : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if h : (sorry : Prop) then a else (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"if_neg (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if_neg a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if_pos a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_left a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
@@ -960,6 +961,7 @@
 {"key":"⋃ X ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Order.SetNotation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⌊(sorry : ℝ)⌋","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Rat.Floor","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Order.Floor.Defs","Mathlib.Algebra.Order.Floor.Ring","Mathlib.Algebra.Order.Archimedean.Real.Basic"]}
 {"key":"⌊a⌋","kind":"term","modules":["Mathlib.Data.Rat.Floor","Mathlib.Tactic.NormNum.Basic","Mathlib.Algebra.Order.Floor.Defs","Mathlib.Algebra.Order.Floor.Ring"]}
+{"key":"⟨(sorry : Prop), (sorry : Prop), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : Prop), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : Prop), a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : Prop), a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
@@ -1001,7 +1003,6 @@
 {"key":"⟨(sorry : ℤ), by skip, a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨(sorry : ℤ), by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨a, (sorry : Prop), (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, a, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, a, a, a, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
@@ -1016,10 +1017,8 @@
 {"key":"⟨by skip, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"𝒫 (sorry : Set ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"𝒫 a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
-{"key":"assumption","kind":"tactic","modules":[]}
 {"key":"by_contra a","kind":"tactic","modules":["Batteries.Tactic.Init"]}
 {"key":"constructor","kind":"tactic","modules":[]}
-{"key":"done","kind":"tactic","modules":[]}
 {"key":"exact_mod_cast a","kind":"tactic","modules":[]}
 {"key":"ext a","kind":"tactic","modules":[]}
 {"key":"intro a","kind":"tactic","modules":[]}

@@ -85,7 +85,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
             exact hI
         _ = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := by exact s2_9
         _ = 1 / 4 + 1 / 2 ^ (m + 1 + 1).toNat := by
-            have e_w : (2 ^ (m + 1).toNat * 2 : ℚ) = 2 ^ (m + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s2_8).symm; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (2 ^ (m + 1).toNat * 2 : ℚ) = 2 ^ (m + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_8.symm; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => 1 / 4 + 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 3. instantiate m := n in line 2
   exact (s2 n (by parley_side))

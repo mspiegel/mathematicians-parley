@@ -118,7 +118,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.4. thm:prime-times-product, from D2, 1.7, 1.18.3
         have s1_18_4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct.prime_times_product (p := p) (by parley_set_side) s1_7b (r := r) (by parley_set_side) (by parley_set_side))
         -- 1.18.5. substitute m = p·r (line 1.9) into line 1.18.4
-        (have h := Eq.subst (motive := (fun t : ℤ => ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (t = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))))) (s1_9).symm s1_18_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+        (have h := Eq.subst (motive := (fun t : ℤ => ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (t = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))))) s1_9.symm s1_18_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       · skip
         set e : ℤ → ℤ := fun i : ℤ => p with hD3
         -- 1.18.6. proof
@@ -129,7 +129,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
           -- 1.18.6.1. D3, from K4
           have s1_18_6_1 : e i = p := by simp (disch := omega) only [hD3]
           -- 1.18.6.2. substitute e(i) = p (line 1.18.6.1) into line 1.7
-          (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) (s1_18_6_1).symm s1_7b; push_cast at h ⊢; all_goals exact_mod_cast h)
+          (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s1_18_6_1.symm s1_7b; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 1.18.7. membership, from D3
         have s1_18_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; parley_set_side
         -- 1.18.8. mun:function-into, from 1.18.7
@@ -138,7 +138,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         have r295_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
         have s1_18_9 : e 1 = p := by simp (disch := omega) only [hD3]
         -- 1.18.10. substitute r = 1 (C2) into line 1.9
-        have s1_18_10 : m = p := by (have h := Eq.subst (motive := (fun t : ℤ => m = p * t)) (hC2).symm s1_9; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
+        have s1_18_10 : m = p := by (have h := Eq.subst (motive := (fun t : ℤ => m = p * t)) hC2.symm s1_9; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
         -- 1.18.11. calculation
         have s1_18_11 : m = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
           calc m = p := by exact s1_18_10

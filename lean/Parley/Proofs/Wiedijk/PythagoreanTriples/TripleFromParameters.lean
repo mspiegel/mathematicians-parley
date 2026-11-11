@@ -34,12 +34,12 @@ theorem triple_from_parameters (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
     calc a ^ 2 + b ^ 2 = (k * (m ^ 2 - n ^ 2)) ^ 2 + b ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2 + b ^ 2) hC1.1; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (k * (m ^ 2 - n ^ 2)) ^ 2 + (2 * k * m * n) ^ 2 := by (have h := congrArg (fun t : ℤ => (k * (m ^ 2 - n ^ 2)) ^ 2 + t ^ 2) hC1.2; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (k * (m ^ 2 + n ^ 2)) ^ 2 := by parley_ring
-      _ = c ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) (hH7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = c ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) hH7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   · skip
     -- 2.2. calculation
     calc a ^ 2 + b ^ 2 = (2 * k * m * n) ^ 2 + b ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2 + b ^ 2) hC2.1; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (2 * k * m * n) ^ 2 + (k * (m ^ 2 - n ^ 2)) ^ 2 := by (have h := congrArg (fun t : ℤ => (2 * k * m * n) ^ 2 + t ^ 2) hC2.2; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (k * (m ^ 2 + n ^ 2)) ^ 2 := by parley_ring
-      _ = c ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) (hH7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = c ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) hH7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.PythagoreanTriples.TripleFromParameters

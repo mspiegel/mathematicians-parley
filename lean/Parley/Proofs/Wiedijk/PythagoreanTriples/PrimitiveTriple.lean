@@ -117,9 +117,9 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s19 : (s - t) * 2 = 2 * s - 2 * t := by parley_ring
   -- 20. substitute
   have s20 : (s - t) * 2 = c + b - (c - b) := by
-    have c1 : 2 * s = c + b := by (have h := congrArg (fun u : ℤ => u) (s13).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have c1 : 2 * s = c + b := by (have h := congrArg (fun u : ℤ => u) s13.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     have row1 : (s - t) * 2 = c + b - 2 * t := by (have h := Eq.subst (motive := (fun u : ℤ => (s - t) * 2 = u - 2 * t)) c1 s19; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have c2 : 2 * t = c - b := by (have h := congrArg (fun u : ℤ => u) (s16).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have c2 : 2 * t = c - b := by (have h := congrArg (fun u : ℤ => u) s16.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     have row2 : (s - t) * 2 = c + b - (c - b) := by (have h := Eq.subst (motive := (fun u : ℤ => (s - t) * 2 = c + b - u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 21. calculation
@@ -165,7 +165,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 35. calculation
   have s35 : w ^ 2 * 4 = s * t * 4 := by
     calc w ^ 2 * 4 = (2 * w) ^ 2 := by parley_ring
-      _ = a ^ 2 := by (have h := congrArg (fun u : ℤ => u ^ 2) (s1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = a ^ 2 := by (have h := congrArg (fun u : ℤ => u ^ 2) s1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = c ^ 2 - b ^ 2 := by linear_combination (norm := parley_norm) hH4
       _ = 2 * s * (2 * t) := by exact s34.symm
       _ = s * t * 4 := by parley_ring
@@ -179,11 +179,11 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 38. mun:divides-sum d := gcd(s, t), a := s, b := t, from 37
   have s38 : (Int.gcd s t : ℤ) ∣ s + t := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (Int.gcd s t : ℤ)) (a := s) (b := t) s37b s37c)
   -- 39. substitute c = s + t (line 18) into line 38
-  have s39 : (Int.gcd s t : ℤ) ∣ c := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s t : ℤ) ∣ u)) (s18).symm s38; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s39 : (Int.gcd s t : ℤ) ∣ c := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s t : ℤ) ∣ u)) s18.symm s38; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 40. mun:divides-difference d := gcd(s, t), a := s, b := t, from 37
   have s40 : (Int.gcd s t : ℤ) ∣ s - t := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (Int.gcd s t : ℤ)) (a := s) (b := t) s37b s37c)
   -- 41. substitute b = s − t (line 22) into line 40
-  have s41 : (Int.gcd s t : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s t : ℤ) ∣ u)) (s22).symm s40; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s41 : (Int.gcd s t : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s t : ℤ) ∣ u)) s22.symm s40; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 42. thm:divides-gcd d := gcd(s, t), a := b, b := c, from 39, 41
   have s42 : (Int.gcd s t : ℤ) ∣ (Int.gcd b c : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (Int.gcd s t : ℤ)) (a := b) (b := c) s41 s39)
   -- 43. substitute

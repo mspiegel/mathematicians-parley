@@ -42,7 +42,7 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
     -- 5.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 5.2
     have s5_3 : d ≤ a * (u - q * x₀) + b * (v - q * y₀) := by exact (hH11 (u - q * x₀) (v - q * y₀) (by parley_side))
     -- 5.4. substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.3
-    have s5_4 : d ≤ c % d := by (have h := Eq.subst (motive := (fun t : ℤ => d ≤ t)) (s4).symm s5_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s5_4 : d ≤ c % d := by (have h := Eq.subst (motive := (fun t : ℤ => d ≤ t)) s4.symm s5_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 5.5. inequalities, from 2
     have s5_5 : ¬ d ≤ c % d := by parley_side
     exact s5_5 s5_4

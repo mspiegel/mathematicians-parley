@@ -44,7 +44,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
       have s5_1 : q * 3 = a := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = a)) hC1 s4; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
       -- 5.2. calculation
       have s5_2 : a ^ 3 - a = 3 * (9 * q ^ 3 - q) := by
-        calc a ^ 3 - a = (q * 3) ^ 3 - q * 3 := by (have h := congrArg (fun t : ℤ => t ^ 3 - t) (s5_1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc a ^ 3 - a = (q * 3) ^ 3 - q * 3 := by (have h := congrArg (fun t : ℤ => t ^ 3 - t) s5_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 3 * (9 * q ^ 3 - q) := by parley_ring
       -- 5.3. def:divides d := 3, n := a³ − a, from 5.2
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 - q, s5_2⟩
@@ -53,7 +53,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
       have s5_4 : q * 3 + 1 = a := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = a)) hC2 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 5.5. calculation
       have s5_5 : a ^ 3 - a = 3 * (9 * q ^ 3 + 9 * q ^ 2 + 2 * q) := by
-        calc a ^ 3 - a = (q * 3 + 1) ^ 3 - (q * 3 + 1) := by (have h := congrArg (fun t : ℤ => t ^ 3 - t) (s5_4).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc a ^ 3 - a = (q * 3 + 1) ^ 3 - (q * 3 + 1) := by (have h := congrArg (fun t : ℤ => t ^ 3 - t) s5_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 3 * (9 * q ^ 3 + 9 * q ^ 2 + 2 * q) := by parley_ring
       -- 5.6. def:divides d := 3, n := a³ − a, from 5.5
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 + 9 * q ^ 2 + 2 * q, s5_5⟩
@@ -62,7 +62,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
       have s5_7 : q * 3 + 2 = a := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = a)) hC3 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 5.8. calculation
       have s5_8 : a ^ 3 - a = 3 * (9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2) := by
-        calc a ^ 3 - a = (q * 3 + 2) ^ 3 - (q * 3 + 2) := by (have h := congrArg (fun t : ℤ => t ^ 3 - t) (s5_7).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc a ^ 3 - a = (q * 3 + 2) ^ 3 - (q * 3 + 2) := by (have h := congrArg (fun t : ℤ => t ^ 3 - t) s5_7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 3 * (9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2) := by parley_ring
       -- 5.9. def:divides d := 3, n := a³ − a, from 5.8
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2, s5_8⟩

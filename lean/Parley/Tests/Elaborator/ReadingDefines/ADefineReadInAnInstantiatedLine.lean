@@ -1,9 +1,9 @@
 module
 
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 
@@ -18,7 +18,7 @@ theorem a_define_read_in_an_instantiated_line (a : ℝ) (hH2 : ∀ x : ℝ, x + 
   set e : ℝ := a + 1 with hD1
   have hD1_kind : True := by parley_side
   -- 1. substitute e = a + 1 (D1) into H2
-  have s1 : ∀ x : ℝ, x + e > x := by intro x; parley_subst_at hD1 hH2
+  have s1 : ∀ x : ℝ, x + e > x := by (have h := Eq.subst (motive := (fun t : ℝ => ∀ x : ℝ, x + t > x)) hD1.symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate x := 2 in line 1, from D1
   exact (s1 (2 : ℝ))
 

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import InstanceTactics
 public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
@@ -46,9 +45,7 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.4. calculation
       have s1_4 : (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m).toNat * 5 ^ 2 := by
         calc (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m + 2).toNat := by (have h := congrArg (fun t : ℤ => 5 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 5 ^ (2 * m).toNat * 5 ^ 2 := by
-              have hI : (5 ^ (2 * m + 2).toNat : ℤ) = 5 ^ (2 * m).toNat * 5 ^ 2 := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (by parley_side) (n := (2 : ℤ)) (by parley_side)))
-              exact hI
+          _ = 5 ^ (2 * m).toNat * 5 ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (by parley_side) (n := (2 : ℤ)) (by parley_side))
       -- 1.5. mun:divides-multiple e := 24, a := 5^(2m) − 1, x := 25, from IH
       have s1_5 : (24 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m).toNat - 1 : ℤ)) (x := (25 : ℤ)) hIH)
       -- 1.6. mun:divides-self n := 24

@@ -325,10 +325,10 @@ pub struct CheckedTheorem {
     /// (`formulas::define_cases`).
     pub define_cases: IndexMap<usize, TakenCase>,
     /// Of each step citing a function a define lets on a domain, `H(x) for
-    /// x ∈ A ∪ B`, where a line the step cites says the argument its claim
-    /// applies the function at is in that domain. By the step's line
-    /// (`citations::define_domains`).
-    pub define_domains: IndexMap<usize, FirstAt>,
+    /// x ∈ A ∪ B`, or substituting the define's equation at an argument,
+    /// what says the argument it applies the function at is in that domain.
+    /// By the step's line (`citations::define_domains`).
+    pub define_domains: IndexMap<usize, DomainSaid>,
     /// Where in the line each calculation link cites the link stands, by
     /// the link's line (`formulas::link_places`). A link read off a chain,
     /// a = c of a = b = c, is placed at the chain's sentence with the pair it
@@ -536,6 +536,14 @@ pub struct Cited {
     /// elements dropped among it, x − 0 read as x; None where the two were
     /// not met as wholes.
     pub meetings: Vec<Option<crate::matching::Meeting>>,
+    /// For each of `concluded`, where the claim's sentence is one part of
+    /// what the sentence's part gives once read at the binding, a property
+    /// applied taken as its body: which part of that "and", counted from 0
+    /// with every conjunction taken apart (`citations::parts_within`). `P(u)` at
+    /// P := S ↦ N ∈ S and for all p ∈ S, p ≤ N gives "for all p ∈ T, p ≤ N"
+    /// as its part 1. None where the claim's sentence meets the part whole,
+    /// or meets no part of it.
+    pub within: Vec<Option<usize>>,
     /// What the citation's own pairs make the item's letters, `n := b`, as
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
@@ -625,6 +633,18 @@ pub struct FirstAt {
     pub implied: Option<crate::citing::Implication>,
 }
 
+/// What says a define's argument is in the define's domain
+/// (`CheckedTheorem::define_domains`).
+#[derive(Clone, Debug)]
+pub enum DomainSaid {
+    /// A line says it: one the step cites, or else the `let` line that
+    /// introduces the argument.
+    Line(FirstAt),
+    /// The claim is said of every member of a set inside the domain, and the
+    /// argument is the member: `for all j ∈ {1, …, m}` over a define on ℕ.
+    Member,
+}
+
 impl FirstAt {
     /// Whether the two name one place: the line, sentence and part.
     pub fn same_place(&self, other: &FirstAt) -> bool {
@@ -704,6 +724,11 @@ pub struct Substituted {
     /// leaves out, `1·x` written `x`, as `Known::alike_how` drops them; none
     /// where the putting makes the claim as written.
     pub identities: Vec<crate::matching::Dropped>,
+    /// Of an equation a define gives, which way the step writes it beside
+    /// the define's own, name or function applied on the left: straight
+    /// for `q(a) = a + 1`, turned for `a + 1 = q(a)`. None of an equation
+    /// from a line or from arithmetic.
+    pub define_facing: Option<Facing>,
 }
 
 /// One letter of a cited item the citation gives a value, with the number

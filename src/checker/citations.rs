@@ -28,7 +28,7 @@ use crate::citing::{
 use crate::corpus::proof::{chain_reasons, reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
 use crate::corpus::{
-    define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
+    define_parts, DefineParts, FileScope, Head, Intro, Item, Method, Step, Theorem,
 };
 use crate::formula::page::{self, conjoined, Written};
 use crate::formula::symbol::Symbol;
@@ -38,10 +38,11 @@ use crate::matching::{
     Context, FxIndexMap, FxIndexSet,
 };
 use crate::notations::{
-    APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, EQUALITY, FOR_ALL,
-    FOR_ALL_PART, FOR_ALL_SETS, FUNCTION_ON, FUNCTION_TYPE, IMPLICATION, IN,
-    INTEGER_RANGE, LOGICAL_NOT, MAP, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS,
-    POWERSET, PROPERTY_OF, SUBSET, THERE_IS, THERE_IS_SOME, WITHOUT,
+    APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, CONGRUENT_MOD,
+    EQUALITY, FOR_ALL, FOR_ALL_PART, FOR_ALL_SETS, FUNCTION_ON, FUNCTION_TYPE,
+    IMPLICATION, IN, INTEGER_RANGE, LOGICAL_NOT, MAP, MEMBERSHIP, NUMBER_SYSTEMS,
+    NUMERAL, ORDER, PLUS, POWERSET, PROPERTY_OF, SUBSET, THERE_IS, THERE_IS_SOME,
+    WITHOUT,
 };
 use crate::outcome::{Built, Declined, Route};
 use crate::rules::{self, System};
@@ -270,6 +271,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     let facings = facings(&groups, taken, &parts.claims, known, library);
     let meetings = meetings(&groups, taken, &parts.claims, known, library);
+    let within = parts_within(&groups, taken, &parts.claims, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -280,6 +282,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         item_letters,
         facings,
         meetings,
+        within,
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
@@ -314,16 +317,53 @@ fn facings(
         .collect()
 }
 
-/// Which way one equation faces another: a side of the one alike the same
-/// side of the other, or only the other side, as `Known::alike_how`
-/// compares them; None where either is no equation or no side meets.
+/// Which way a step writes the equation a define gives, `equation`, beside
+/// the define's own (`Substituted::define_facing`): a define of a name by
+/// its equation, `named` (`formulas::define_equation`), as `facing_of`
+/// meets the two; a define of a function by the side that applies it,
+/// `q(a)` of `q(a) = a + 1`. None where neither side is so.
+fn define_facing(
+    thm: &Theorem,
+    label: &str,
+    equation: &Node,
+    named: Option<&Node>,
+    known: &Known,
+) -> Option<Facing> {
+    if let Some(named) = named {
+        return facing_of(named, equation, known);
+    }
+    let d = thm.defines.iter().find(|d| d.label == label)?;
+    let rule = DefinedRule::of(d, known).ok()??;
+    let applies = |side: &Node| {
+        side.notation() == APPLICATION
+            && side
+                .children
+                .first()
+                .is_some_and(|f| f.is_name() && f.text == rule.name)
+    };
+    match equation.children.as_slice() {
+        [left, _] if applies(left) => Some(Facing::Straight),
+        [_, right] if applies(right) => Some(Facing::Turned),
+        _ => None,
+    }
+}
+
+/// Which way one equation, or one congruence, faces another: a side of the
+/// one alike the same side of the other, or only the other side, as
+/// `Known::alike_how` compares them; None where the two are not both
+/// equations, or both congruences with moduli alike, or no side meets.
 pub(super) fn facing_of(item: &Node, claim: &Node, known: &Known) -> Option<Facing> {
-    if item.notation() != EQUALITY || claim.notation() != EQUALITY {
+    let meets = |a: &Node, b: &Node| known.alike_how(a, b).is_some();
+    let sided = match (item.notation(), claim.notation()) {
+        (EQUALITY, EQUALITY) => true,
+        (CONGRUENT_MOD, CONGRUENT_MOD) => meets(&item.children[2], &claim.children[2]),
+        _ => false,
+    };
+    if !sided {
         return None;
     }
     let (il, ir) = (&item.children[0], &item.children[1]);
     let (cl, cr) = (&claim.children[0], &claim.children[1]);
-    let meets = |a: &Node, b: &Node| known.alike_how(a, b).is_some();
     if meets(il, cl) || meets(ir, cr) {
         Some(Facing::Straight)
     } else if meets(il, cr) || meets(ir, cl) {
@@ -355,6 +395,53 @@ fn meetings(
                 .find(|r| r.way == c.way)?;
             let item = filled(&read.claimed, &taken.binding, &library.ctx);
             known.alike_how(&item, claims.get(k)?)
+        })
+        .collect()
+}
+
+/// For each sentence `taken` concludes, where the claim's sentence it gives
+/// is one part of the item's part read at the binding, which part, counted
+/// from 0 with every conjunction taken apart (`record::Cited::within`). The
+/// item's part is the one its reading's "and" gives (`Concluded::part`), a
+/// property applied in it read as the property's body at its argument; None
+/// where that meets the claim's sentence whole, as `Known::alike_how` meets
+/// them, or no part of it does, or more than one does.
+fn parts_within(
+    groups: &[Group],
+    taken: &Taken,
+    claims: &[Node],
+    known: &Known,
+    library: &Library,
+) -> Vec<Option<usize>> {
+    let group = &groups[taken.group];
+    taken
+        .concluded
+        .iter()
+        .enumerate()
+        .map(|(k, c)| {
+            let said = group.gives.get(c.sentence)?;
+            let read = readings(said, library)
+                .into_iter()
+                .find(|r| r.way == c.way)?;
+            let part = match c.part {
+                Some(j) => conjuncts(&read.claimed, library).into_iter().nth(j)?,
+                None => read.claimed.clone(),
+            };
+            let item = filled(&part, &taken.binding, &library.ctx);
+            let claim = claims.get(k)?;
+            if known.alike_how(&item, claim).is_some() {
+                return None;
+            }
+            let parts = conjuncts(&item, library);
+            let mut meet = parts
+                .iter()
+                .enumerate()
+                .filter(|(_, p)| known.alike_how(p, claim).is_some())
+                .map(|(j, _)| j);
+            match (parts.len() > 1, meet.next(), meet.next()) {
+                (true, Some(j), None) => Some(j),
+                _ => None,
+            }
         })
         .collect()
 }
@@ -560,6 +647,7 @@ pub fn cited_requires(
         item_letters(&groups[taken.group], &taken.binding, step, &parts, known);
     let facings = facings(&groups, &taken, &parts.claims, known, library);
     let meetings = meetings(&groups, &taken, &parts.claims, known, library);
+    let within = parts_within(&groups, &taken, &parts.claims, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -570,6 +658,7 @@ pub fn cited_requires(
         item_letters,
         facings,
         meetings,
+        within,
         binding: taken.binding,
         bound: taken.bound,
         written: parts.seed,
@@ -2624,6 +2713,10 @@ fn substitution_reading(
                 ))
             })
     };
+    let define_facing = source
+        .as_deref()
+        .filter(|s| is_define(s))
+        .and_then(|s| define_facing(thm, s, equation, source_define.as_ref(), known));
     let found = match (&start.into, way.claimed) {
         (Some(into), true) => {
             crate::matching::substitution_places(&start.start, &way.aim, left, right)
@@ -2636,6 +2729,7 @@ fn substitution_reading(
                     start: start.start.clone(),
                     put,
                     identities,
+                    define_facing,
                 })
         }
         _ => None,
@@ -2759,6 +2853,7 @@ pub fn sentence_substitutions(
                     start,
                     put,
                     identities: Vec::new(),
+                    define_facing: s.define_facing,
                 },
             ));
         }
@@ -2817,6 +2912,7 @@ fn step_row_substitutions(
                     start,
                     put,
                     identities: Vec::new(),
+                    define_facing: None,
                 },
             ))
         })
@@ -3999,20 +4095,37 @@ struct DefinedAt<'a> {
     letters: &'a Introduced,
 }
 
-/// Of each step citing a function a define lets on a domain, where a line
-/// the step cites says the argument its claim applies the function at is in
-/// that domain (`CheckedTheorem::define_domains`): the membership among the
-/// step's facts, placed in its line (`formulas::fact_placed`). By the step's
-/// line; a step with no such line cited is left out.
+/// Of each step citing a function a define lets on a domain, or
+/// substituting the define's equation, what says the argument it applies
+/// the function at is in that domain (`CheckedTheorem::define_domains`).
+/// A step citing the define applies it in its claim, a substitute in its
+/// equation (`substituted`). The membership is found, in this order: among
+/// the step's facts, placed in a line it cites (`formulas::fact_placed`);
+/// in the claim's own "for all", whose member is the argument and whose set
+/// lies inside the domain; on the `let` line introducing the argument. By
+/// the step's line; a step where none says it is left out.
 pub fn define_domains(
     thm: &Theorem,
     library: &Library,
     known: &Known,
-) -> IndexMap<usize, crate::checker::record::FirstAt> {
+    substituted: &IndexMap<usize, crate::checker::record::Substituted>,
+) -> IndexMap<usize, crate::checker::record::DomainSaid> {
+    use crate::checker::record::DomainSaid;
     let mut out = IndexMap::new();
-    for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
-        let Some(label) = step.just.defined.as_deref() else {
+    for step in &thm.steps {
+        let Some(claim) = known.whole_as_written(&step.claim) else {
             continue;
+        };
+        let (label, applied) = match (&step.just.head, step.just.source.as_ref()) {
+            (Head::Define, _) => match step.just.defined.as_deref() {
+                Some(label) => (label, claim.clone()),
+                None => continue,
+            },
+            (_, Some(Source::At(place))) => match substituted.get(&step.just.line) {
+                Some(rec) => (place.named(), rec.equation.clone()),
+                None => continue,
+            },
+            _ => continue,
         };
         let Some(d) = thm.defines.iter().find(|d| d.label == label) else {
             continue;
@@ -4020,30 +4133,90 @@ pub fn define_domains(
         let Ok(Some(rule)) = DefinedRule::of(d, known) else {
             continue;
         };
-        let Some(claim) = known.whole_as_written(&step.claim) else {
-            continue;
-        };
         let parts = known.parts(step, library);
-        let at = claim.walk().into_iter().find_map(|n| {
+        let said = applied.walk().into_iter().find_map(|n| {
             let [f, arg] = n.children.as_slice() else {
                 return None;
             };
             if n.notation() != APPLICATION || !f.is_name() || f.text != rule.name {
                 return None;
             }
-            let fact = parts.facts.iter().find(|fact| {
+            let cited = parts.facts.iter().find(|fact| {
                 fact.notation() == MEMBERSHIP
                     && fact.children.len() == 2
                     && known.alike(&fact.children[0], arg)
                     && known.alike(&fact.children[1], &rule.domain)
-            })?;
-            super::formulas::fact_placed(step, fact, known)
+            });
+            if let Some(at) =
+                cited.and_then(|fact| super::formulas::fact_placed(step, fact, known))
+            {
+                return Some(DomainSaid::Line(at));
+            }
+            if member_in_domain(&claim, arg, &rule.domain, known) {
+                return Some(DomainSaid::Member);
+            }
+            let fact =
+                page::made(library.env.g, IN, vec![arg.clone(), rule.domain.clone()]);
+            introduced_placed(thm, step, &fact, known).map(DomainSaid::Line)
         });
-        if let Some(at) = at {
-            out.insert(step.just.line, at);
+        if let Some(said) = said {
+            out.insert(step.just.line, said);
         }
     }
     out
+}
+
+/// Whether `claim` is said of every member of a set inside `domain`, and
+/// `arg` is that member: the set is the domain, or a range whose number
+/// system it is (`range_system`).
+fn member_in_domain(claim: &Node, arg: &Node, domain: &Node, known: &Known) -> bool {
+    let (FOR_ALL, [letter, set, _]) = (claim.notation(), claim.children.as_slice())
+    else {
+        return false;
+    };
+    if !letter.is_name() || !arg.is_name() || letter.text != arg.text {
+        return false;
+    }
+    let inside = match set.notation() {
+        INTEGER_RANGE => range_system(set),
+        _ => None,
+    };
+    known.alike(set, domain)
+        || (domain.notation() == NUMBER_SYSTEMS
+            && inside.is_some()
+            && inside == System::of_sign(&domain.text))
+}
+
+/// The `let` line in scope at `step` that says `fact`, placed in it, as
+/// `formulas::fact_placed` places a cited line's: the line that introduces
+/// a define's argument, where no line the step cites says it is in the
+/// domain.
+fn introduced_placed(
+    thm: &Theorem,
+    step: &Step,
+    fact: &Node,
+    known: &Known,
+) -> Option<crate::checker::record::FirstAt> {
+    let scope = known.scope(step);
+    let defined = known.citing_step(step);
+    let lets = thm
+        .hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .filter_map(|h| h.label.clone())
+        .chain(
+            thm.steps
+                .iter()
+                .flat_map(|s| &s.openers)
+                .filter(|o| o.kind == Intro::Let)
+                .map(|o| o.label.clone()),
+        );
+    lets.into_iter().find_map(|r| {
+        let stated = scope.get(r.as_str())?;
+        let says = known.says(stated, &defined);
+        let s = says.iter().find(|s| known.alike(&s.cited, fact))?;
+        placed(&r, s, &says, known.sentence_count(stated))
+    })
 }
 
 /// Each type the item named asks of a function `at` defines

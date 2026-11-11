@@ -80,7 +80,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       have s3_2 : y ∈ ({y} : Set α) := ((Parley.Items.Stdlib.Sets.def_singleton (a := y) (x := y))).mpr (by parley_set_side)
       -- 3.3. substitute
       have s3_3 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by
-        have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by exact ((hD2 ({y} : Set α) (by parley_set_side))).symm
+        have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by exact (hD2 ({y} : Set α) (by parley_set_side)).symm
         have row1 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by parley_subst_at c1 s3_2
         exact row1
       -- 3.4. proof

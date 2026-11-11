@@ -32,8 +32,8 @@ theorem sine_squared_plus_cosine_squared (A : ℂ) :
   have s3 : A + -A = 0 := by parley_ring
   -- 4. calculation
   calc Complex.sin A ^ 2 + Complex.cos A ^ 2 = Complex.cos A * Complex.cos A - Complex.sin A * -Complex.sin A := by parley_ring
-    _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin (-A) := by (have h := congrArg (fun t : ℂ => Complex.cos A * Complex.cos A - Complex.sin A * t) (s2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = Complex.cos A * Complex.cos (-A) - Complex.sin A * Complex.sin (-A) := by (have h := congrArg (fun t : ℂ => Complex.cos A * t - Complex.sin A * Complex.sin (-A)) (s1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin (-A) := by (have h := congrArg (fun t : ℂ => Complex.cos A * Complex.cos A - Complex.sin A * t) s2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Complex.cos A * Complex.cos (-A) - Complex.sin A * Complex.sin (-A) := by (have h := congrArg (fun t : ℂ => Complex.cos A * t - Complex.sin A * Complex.sin (-A)) s1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = Complex.cos (A + -A) := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)).symm
     _ = (Real.cos (0 : ℝ) : ℂ) := by (have h := congrArg (fun t : ℂ => Complex.cos t) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 1 := by parley_real

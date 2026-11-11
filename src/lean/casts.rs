@@ -68,11 +68,11 @@ pub enum Carrier {
 }
 
 impl Carrier {
-    /// How Lean writes the type.
-    pub fn lean(self) -> &'static str {
+    /// The type, as the writer names Lean's types.
+    pub fn lean_type(self) -> super::doc::LeanType {
         match self {
-            Carrier::Num(n) => n.lean(),
-            Carrier::ENat => "ℕ∞",
+            Carrier::Num(n) => super::doc::LeanType::Num(n),
+            Carrier::ENat => super::doc::LeanType::ENat,
         }
     }
 
@@ -169,19 +169,43 @@ const C: Carrier = Carrier::Num(Num::Complex);
 /// ℕ∞, where a count of any set is.
 const E: Carrier = Carrier::ENat;
 
-/// Every widening between the number types the writer casts between.
-const WIDENINGS: &[CastFacts] = &[
-    moves_both(N, Z),
-    moves_both(N, Q),
-    moves_both(N, R),
-    moves_both(N, C),
-    moves_both(Z, Q),
-    moves_both(Z, R),
-    moves_both(Z, C),
-    moves_both(Q, R),
-    moves_both(Q, C),
-    moves_both(R, C),
+/// The lemma that takes a numeral of one type cast up to the numeral in the
+/// wider type: `Nat.cast_zero` of `((0 : ℕ) : ℤ)`, `Nat.cast_ofNat` of any
+/// other numeral, by the type cast from and the numeral, `n` standing for
+/// any but 0 and 1.
+pub const NUMERAL_CASTS: &[(Num, &str, &str)] = &[
+    (Num::Nat, "n", "Nat.cast_ofNat"),
+    (Num::Nat, "0", "Nat.cast_zero"),
+    (Num::Nat, "1", "Nat.cast_one"),
+    (Num::Int, "n", "Int.cast_ofNat"),
+    (Num::Int, "0", "Int.cast_zero"),
+    (Num::Int, "1", "Int.cast_one"),
+    (Num::Rat, "0", "Rat.cast_zero"),
+    (Num::Rat, "1", "Rat.cast_one"),
 ];
+
+/// Every widening between the number types the writer casts between, and
+/// the further ones given after them.
+macro_rules! widenings {
+    ($($more:expr),*) => {
+        &[
+            moves_both(N, Z),
+            moves_both(N, Q),
+            moves_both(N, R),
+            moves_both(N, C),
+            moves_both(Z, Q),
+            moves_both(Z, R),
+            moves_both(Z, C),
+            moves_both(Q, R),
+            moves_both(Q, C),
+            moves_both(R, C),
+            $($more),*
+        ]
+    };
+}
+
+/// Every widening between the number types the writer casts between.
+const WIDENINGS: &[CastFacts] = widenings!();
 
 /// The widenings from a type that has subtraction and negation.
 const FROM_RINGS: &[CastFacts] = &[
@@ -212,19 +236,7 @@ const ORDERED: &[CastFacts] = &[
 
 /// The widenings a sum is taken through: every one between number types,
 /// and a count's from ℕ to ℕ∞, where a calculation adds counts.
-const ADDED: &[CastFacts] = &[
-    moves_both(N, Z),
-    moves_both(N, Q),
-    moves_both(N, R),
-    moves_both(N, C),
-    moves_both(Z, Q),
-    moves_both(Z, R),
-    moves_both(Z, C),
-    moves_both(Q, R),
-    moves_both(Q, C),
-    moves_both(R, C),
-    moves_both(N, E),
-];
+const ADDED: &[CastFacts] = widenings!(moves_both(N, E));
 
 const TABLES: &[OpTable] = &[
     OpTable {
@@ -443,8 +455,8 @@ pub fn lean_test(module: &str) -> String {
     out.push_str(&format!("namespace {module}\n\n"));
     for table in TABLES {
         for f in table.facts {
-            let (s, t) = (f.from.lean(), f.to.lean());
-            let put = |text: &str| text.replace("{S}", s).replace("{T}", t);
+            let (s, t) = (f.from.lean_type().text(), f.to.lean_type().text());
+            let put = |text: &str| text.replace("{S}", &s).replace("{T}", &t);
             let equation = format!(
                 "{} {} {}",
                 put(table.lhs),
@@ -757,7 +769,14 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
                 },
                 _ => None,
             };
-            let below = under(at);
+            // A function the table does not know, `Polynomial.aeval x p`:
+            // a cast inside an argument stands under it alone, as under a
+            // norm, since `push_cast` and `norm_cast` rewrite inside the
+            // argument and take no cast across the function.
+            let below = match at {
+                Some(_) => under(at),
+                None => Vec::new(),
+            };
             moves_all(head, &below, by)
                 && args.iter().all(|a| match a {
                     Arg::Explicit(t) | Arg::Named { value: t, .. } => {
@@ -782,5 +801,33 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
             .children()
             .iter()
             .all(|c| moves_all(c, &under(None), by)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A sum is taken through every widening between number types, and a
+    /// count's from ℕ to ℕ∞ besides.
+    #[test]
+    fn a_sum_takes_every_widening_and_counts_into_extended_naturals() {
+        for w in WIDENINGS {
+            assert!(
+                ADDED.contains(w),
+                "{:?} → {:?} missing from ADDED",
+                w.from,
+                w.to
+            );
+        }
+        assert!(ADDED.contains(&moves_both(N, E)));
+        assert_eq!(ADDED.len(), WIDENINGS.len() + 1);
+    }
+
+    /// The type the table casts between prints as Lean writes it.
+    #[test]
+    fn a_carrier_prints_as_lean_writes_its_type() {
+        assert_eq!(E.lean_type().text(), "ℕ∞");
+        assert_eq!(Q.lean_type().text(), "ℚ");
     }
 }

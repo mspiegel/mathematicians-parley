@@ -32,7 +32,7 @@ theorem odd_line_one_to_one (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 2 * n + 
     intro hA1
     -- 1.1. calculation
     have s1_1 : 2 * s + 1 = 2 * t + 1 := by
-      calc 2 * s + 1 = f s := by exact ((hH2 s)).symm
+      calc 2 * s + 1 = f s := by exact (hH2 s).symm
         _ = f t := by parley_set_side
         _ = 2 * t + 1 := by exact (hH2 t)
     -- 1.2. algebra, from 1.1

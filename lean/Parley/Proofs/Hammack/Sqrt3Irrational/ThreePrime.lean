@@ -62,7 +62,7 @@ theorem three_prime :
         exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3)
       · skip
         -- 2.4.4.5. substitute d = 2 (C4) into H
-        have s2_4_4_5 : (2 : ℤ) ∣ (3 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ (3 : ℤ))) (hC4).symm hH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s2_4_4_5 : (2 : ℤ) ∣ (3 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ (3 : ℤ))) hC4.symm hH; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 2.4.4.6. obtain k: def:divides d := 2, n := 3, from 2.4.4.5
         obtain ⟨k, s2_4_4_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (3 : ℤ)))).mp s2_4_4_5
         -- 2.4.4.7. def:even n := 3, from 2.4.4.6

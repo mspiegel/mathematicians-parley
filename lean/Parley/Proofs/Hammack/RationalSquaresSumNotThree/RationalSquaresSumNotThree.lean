@@ -132,7 +132,7 @@ theorem rational_squares_sum_not_three :
   -- 34. inequalities
   have s34 : 3 * u > u := by parley_order
   -- 35. substitute m = 3u (line 24) into line 34
-  have s35 : m > u := by (have h := Eq.subst (motive := (fun w : ℤ => w > u)) (s24).symm s34; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s35 : m > u := by (have h := Eq.subst (motive := (fun w : ℤ => w > u)) s24.symm s34; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 36. inequalities, from 11, 35
   have s36 : ¬ m ≤ u := by parley_set_side
   exact s36 s33

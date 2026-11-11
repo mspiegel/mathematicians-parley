@@ -60,7 +60,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       parley_order
     · skip
       -- 4.5.3. substitute t = i (C2) into H9
-      (have h := Eq.subst (motive := (fun u : ℤ => c u < c j)) (hC2).symm hH9; push_cast at h ⊢; all_goals exact_mod_cast h)
+      (have h := Eq.subst (motive := (fun u : ℤ => c u < c j)) hC2.symm hH9; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. proof
   intro p hK2
   intro q hK3
@@ -113,6 +113,6 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
         have s5_3_5_5 : ¬ j < j := by parley_set_side
         exact absurd s5_3_5_4 s5_3_5_5
     -- 5.3.6. substitute q = j (line 5.3.4) into line 5.3.5
-    (have h := Eq.subst (motive := (fun t : ℤ => c p < c t)) (s5_3_4).symm s5_3_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℤ => c p < c t)) s5_3_4.symm s5_3_5; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.ErdosSzekeres.ExtendRun

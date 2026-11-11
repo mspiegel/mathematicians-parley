@@ -40,9 +40,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 3.1. substitute a(0) = M (line 1) into H1
-      have s3_1 : 0 ≤ a 0 := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) (s1).symm hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s3_1 : 0 ≤ a 0 := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s1.symm hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.2. substitute b(0) = N (line 2) into H2
-      have s3_2 : 0 ≤ b 0 := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) (s2).symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s3_2 : 0 ≤ b 0 := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s2.symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.3. join 3.1, 3.2
       have s3_3 : 0 ≤ a 0 ∧ 0 ≤ b 0 := by parley_side
       exact ⟨(s3_3).1, (s3_3).2⟩
@@ -58,7 +58,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 3.5.2. D1, from C1
           have s3_5_2 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); linarith
           -- 3.5.3. substitute a(k + 1) = a(k) (line 3.5.1) into IH1
-          have s3_5_3 : 0 ≤ a (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) (s3_5_1).symm hIH1.1; push_cast at h ⊢; all_goals exact_mod_cast h)
+          have s3_5_3 : 0 ≤ a (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s3_5_1.symm hIH1.1; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 3.5.4. membership, from 3.5.2
           have s3_5_4 : 0 ≤ b (k + 1) := by parley_side
           -- 3.5.5. join 3.5.3, 3.5.4
@@ -74,9 +74,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 3.5.9. mun:mod-natural, from 3.5.8
           have s3_5_9 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
           -- 3.5.10. substitute a(k + 1) = b(k) (line 3.5.6) into IH1
-          have s3_5_10 : 0 ≤ a (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) (s3_5_6).symm hIH1.2; push_cast at h ⊢; all_goals exact_mod_cast h)
+          have s3_5_10 : 0 ≤ a (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s3_5_6.symm hIH1.2; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 3.5.11. substitute b(k + 1) = a(k) mod b(k) (line 3.5.7) into line 3.5.9
-          have s3_5_11 : 0 ≤ b (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) (s3_5_7).symm s3_5_9; push_cast at h ⊢; all_goals exact_mod_cast h)
+          have s3_5_11 : 0 ≤ b (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s3_5_7.symm s3_5_9; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 3.5.12. join 3.5.10, 3.5.11
           have s3_5_12 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := by parley_side
           exact ⟨(s3_5_12).1, (s3_5_12).2⟩
@@ -103,7 +103,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 4.3.3. calculation
         calc (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd (a k) (b (k + 1)) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t (b (k + 1)) : ℤ)) s4_3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd (a k) (0 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a k) t : ℤ)) s4_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = (Int.gcd (a k) (b k) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a k) t : ℤ)) (hC3).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = (Int.gcd (a k) (b k) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a k) t : ℤ)) hC3.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd M N : ℤ) := by parley_side
       · skip
         -- 4.3.4. D1, from C4
@@ -154,9 +154,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 5.4.7. mun:mod-natural, from 5.4.4, 5.4.5
         have s5_4_7 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
         -- 5.4.8. substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.6
-        have s5_4_8 : b (k + 1) < b k := by (have h := Eq.subst (motive := (fun t : ℤ => t < b k)) (s5_4_3).symm s5_4_6; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s5_4_8 : b (k + 1) < b k := by (have h := Eq.subst (motive := (fun t : ℤ => t < b k)) s5_4_3.symm s5_4_6; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 5.4.9. substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.7
-        have s5_4_9 : 0 ≤ b (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) (s5_4_3).symm s5_4_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s5_4_9 : 0 ≤ b (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s5_4_3.symm s5_4_7; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 5.4.10. mun:integer-step, from 5.4.8
         have s5_4_10 : b (k + 1) + 1 ≤ b k := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := b (k + 1)) (n := b k) s5_4_8)
         -- 5.4.11. mun:disjunctive-syllogism, from C6, IH3
@@ -183,7 +183,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
     exact s8_3 s8_1
   -- 9. calculation
   calc a N = (Int.gcd (a N) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := a N) (by parley_side)).symm
-    _ = (Int.gcd (a N) (b N) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a N) t : ℤ)) (s8).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = (Int.gcd (a N) (b N) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a N) t : ℤ)) s8.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (Int.gcd M N : ℤ) := by exact (s4 N (by parley_side))
 
 end Parley.Proofs.Wiedijk.Euclid.Euclid

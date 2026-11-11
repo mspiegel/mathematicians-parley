@@ -12,7 +12,10 @@
 //! induction and its parts, cases, both directions, citations read
 //! forwards and backwards, a sum said once, a chain, an exhibit's values,
 //! the witnesses of a "there is" a citation asks, the sets hypotheses make
-//! finite, and the numbers a set letter holds.
+//! finite, and the numbers a set letter holds; a conjunct taken from a
+//! property's body, a congruence row facing the line it reads, and a
+//! define's argument put in its domain by the claim's member and by a `let`
+//! line.
 
 use std::path::Path;
 
@@ -22,7 +25,11 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 11] = [
+const KEPT: [&str; 15] = [
+    "tests/elaborator/sets-a-define-names/a-conjunct-of-a-property",
+    "tests/elaborator/a-for-all-line-read-in-a-block/a-for-all-line-in-a-calculation-link",
+    "tests/elaborator/a-define-at-every-member-of-a-range/a-define-at-every-member-of-a-range",
+    "tests/elaborator/reading-defines/a-define-applied-substituted-into-a-line",
     "proofs/hammack/geometric-sum-base-two/geometric-sum-base-two",
     "tests/elaborator/a-supposition-written-otherwise/a-claim-denying-its-supposition-written-otherwise",
     "proofs/wiedijk/euclid/euclid",

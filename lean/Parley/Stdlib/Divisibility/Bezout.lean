@@ -91,7 +91,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 18. mun:divides-combination e := gcd(a, b), x := x₀, y := y₀, from 12
   have s18 : (Int.gcd a b : ℤ) ∣ a * x₀ + b * y₀ := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd a b : ℤ)) (a := a) (b := b) (x := x₀) (y := y₀) s12b s12c)
   -- 19. substitute d = a·x₀ + b·y₀ (line 7) into line 18
-  have s19 : (Int.gcd a b : ℤ) ∣ d := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd a b : ℤ) ∣ t)) (s7).symm s18; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s19 : (Int.gcd a b : ℤ) ∣ d := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd a b : ℤ) ∣ t)) s7.symm s18; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 20. mun:divides-le e := gcd(a, b), m := d, from 6, 15, 19
   have s20 : (Int.gcd a b : ℤ) ≤ d := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd a b : ℤ)) (by parley_set_side) (m := d) (by parley_set_side) s19)
   -- 21. antisymmetry, from 17, 20

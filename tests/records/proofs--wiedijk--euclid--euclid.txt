@@ -55,6 +55,9 @@ a row of step 9 instantiates 4 sentence 0, 0 conditions taken off
 a row of step 4.3.3 links from IH2 sentence 0
 a row of step 4.3.9 links from 4.3.8 sentence 0
 a row of step 4.3.9 links from IH2 sentence 0
+a row of step 4.3.3 links facing straight
+a row of step 4.3.9 links facing straight
+a row of step 4.3.9 links facing straight
 read 16: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
 read 21: M ∈ ℕ₀  as  membership:∈(name:M, number-systems:ℕ₀)  a statement
 read 22: N ∈ ℕ₀  as  membership:∈(name:N, number-systems:ℕ₀)  a statement

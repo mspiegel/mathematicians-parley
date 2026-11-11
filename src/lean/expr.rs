@@ -319,6 +319,20 @@ enum Over<'n> {
     Set(&'n Node),
 }
 
+/// How Lean writes a term where a natural number is wanted, a power's
+/// exponent or a library function's argument (`Writer::natural_form`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum NaturalForm {
+    /// A natural number Lean computes in ℕ, written as it stands: a count,
+    /// a numeral.
+    AsItIs,
+    /// An integer the page says is at least 0, written as its `toNat`.
+    ToNat,
+    /// An integer the page does not say is at least 0: a power to it is
+    /// Lean's integer power, in a field.
+    Integer,
+}
+
 /// A term a line says is an integer or a rational: the term as the page
 /// prints it, the line's Lean name, `∃ m : ℤ, (m : ℝ) = f a`, and the type
 /// it says the term is in.
@@ -787,6 +801,30 @@ impl Writer<'_> {
             .collect()
     }
 
+    /// Whether child `at` of `parent` is written in the type of the formula
+    /// it stands in: a hole its template computes in the formula's type
+    /// (`Slot::Alpha`), a side, a part of a sum or product, a power's base.
+    /// A hole of a type of its own (`Slot::Fixed`), an exponent or a
+    /// function's argument, is not, nor is a library function's name. An
+    /// equation's or an order's sides have no template: `relation` writes
+    /// both in the one type that holds them, the formula's.
+    pub fn in_formula_type(&self, parent: &Node, at: usize) -> bool {
+        if matches!(parent.notation(), EQUALITY | ORDER) {
+            return true;
+        }
+        let Route::Built(template) = self.template(parent) else {
+            return false;
+        };
+        let hole = match self.library_function(parent).is_some() {
+            true => at.checked_sub(1),
+            false => Some(at),
+        };
+        matches!(
+            hole.and_then(|h| template.holes.get(h)),
+            Some(Slot::Alpha(_))
+        )
+    }
+
     /// The template the node's notation and pattern have in Lean, or a
     /// decline naming the notation.
     pub fn template(&self, node: &Node) -> Route<&Template> {
@@ -863,9 +901,9 @@ impl Writer<'_> {
     /// number, n of σ(n) with n ∈ ℕ, written `n.toNat` where n is an
     /// integer (`number`), and otherwise the least that holds it.
     fn argument_type(&self, a: &Node) -> Option<Num> {
-        match self.natural(a) || self.said_whole(a) {
-            true => Some(Num::Nat),
-            false => self.carrier(a).built(),
+        match self.natural_form(a) {
+            NaturalForm::AsItIs | NaturalForm::ToNat => Some(Num::Nat),
+            NaturalForm::Integer => self.carrier(a).built(),
         }
     }
 
@@ -911,11 +949,14 @@ impl Writer<'_> {
     /// The least number type that holds the node, ℤ at least: the type a
     /// formula made of it alone is computed in.
     pub fn carrier(&self, node: &Node) -> Route<Num> {
-        // A term the theorem takes the floor of is a real at least.
+        // A term the theorem takes the floor of is a real at least, unless a
+        // line says it is a number of a narrower type, which is written as
+        // that number (`said_integer`).
         let own = self.own_carrier(node);
         match own {
             Route::Built(n)
                 if !self.reals.is_empty()
+                    && self.said_integer(node).is_none()
                     && self.reals.contains(&self.grammar.print(node)) =>
             {
                 Route::Built(n.max(Num::Real))
@@ -1074,6 +1115,18 @@ impl Writer<'_> {
         Some(anonymous(vec![power, equal]))
     }
 
+    /// How Lean writes a term where a natural number is wanted, a power's
+    /// exponent or a library function's argument (`NaturalForm`).
+    pub fn natural_form(&self, node: &Node) -> NaturalForm {
+        if self.natural(node) {
+            NaturalForm::AsItIs
+        } else if self.said_whole(node) {
+            NaturalForm::ToNat
+        } else {
+            NaturalForm::Integer
+        }
+    }
+
     /// The base and exponent of a power whose exponent is no natural number
     /// as Lean computes one and is not said once in ℕ₀: a negative, an
     /// integer letter, or n − 1 of n ∈ ℕ. None for any other node.
@@ -1082,7 +1135,7 @@ impl Writer<'_> {
             return None;
         }
         let parts: &[Node; 2] = node.children.as_slice().try_into().ok()?;
-        (!self.natural(&parts[1]) && !self.said_whole(&parts[1])).then_some(parts)
+        (self.natural_form(&parts[1]) == NaturalForm::Integer).then_some(parts)
     }
 
     /// What the function an application applies takes and gives: a
@@ -2584,6 +2637,14 @@ impl Writer<'_> {
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
             if inner.notation() == EQUALITY {
                 return self.relation_from(inner, true, floor);
+            }
+            if inner.notation() == ORDER {
+                return self.relation_from(inner, false, floor).map(|r| {
+                    Printed::of(
+                        super::doc::TermKind::Not(Box::new(r)),
+                        super::doc::LeanType::Prop,
+                    )
+                });
             }
         }
         match node.notation() {

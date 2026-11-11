@@ -22,7 +22,7 @@ theorem a_conjunct_of_a_property (T : Set ℤ) (N : ℤ) (hH1 : 0 < N) (hH3 : T 
     (∀ p ∈ T, p ≤ N) := by
   -- 1. def:part-builder u := T, from H3
   have s1a : T ⊆ (Set.Icc (1 : ℤ) N : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set ℤ => N ∈ S ∧ (∀ p ∈ S, p ≤ N))) (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := T))).mp hH3).1
-  have s1b : ∀ p ∈ T, p ≤ N := by first | exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set ℤ => N ∈ S ∧ (∀ p ∈ S, p ≤ N))) (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := T))).mp hH3).2 | exact ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set ℤ => N ∈ S ∧ (∀ p ∈ S, p ≤ N))) (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := T))).mp hH3).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set ℤ => N ∈ S ∧ (∀ p ∈ S, p ≤ N))) (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := T))).mp hH3).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set ℤ => N ∈ S ∧ (∀ p ∈ S, p ≤ N))) (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := T))).mp hH3).2 | (have h := (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set ℤ => N ∈ S ∧ (∀ p ∈ S, p ≤ N))) (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := T))).mp hH3).2; parley_set_side)
+  have s1b : ∀ p ∈ T, p ≤ N := ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set ℤ => N ∈ S ∧ (∀ p ∈ S, p ≤ N))) (X := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := T))).mp hH3).2).2
   -- 2. restate 1
   intro p h_p; parley_set_side
 

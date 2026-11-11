@@ -97,4 +97,5 @@ notations! {
     EMPTY_SET = 65, "empty-set";
     SINGLETON = 66, "singleton";
     FINITE = 67, "finite";
+    CONGRUENT_MOD = 68, "congruent-mod";
 }

@@ -118,7 +118,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.4. arithmetic
     have s2_4 : (0 : ℤ) < 2 := by parley_arith
     -- 2.5. substitute N = 0 (C2) into line 2.4
-    have s2_5 : N < 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t < 2)) (hC2).symm s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_5 : N < 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t < 2)) hC2.symm s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.6. calculation
     calc (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by
           have hI : (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by parley_instance_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) (by parley_side) (k := (2 : ℤ))) s2_5)

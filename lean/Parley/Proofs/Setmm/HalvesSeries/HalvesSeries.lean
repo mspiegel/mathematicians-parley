@@ -86,7 +86,7 @@ theorem halves_series :
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ m.toNat + 1 / 2 ^ (m + 1).toNat := by exact s2_3
         _ = 1 - 1 / 2 ^ m.toNat + 1 / (2 ^ m.toNat * 2) := by (have h := congrArg (fun t : ℚ => 1 - 1 / 2 ^ m.toNat + t) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 - 1 / (2 ^ m.toNat * 2) := by parley_ring
-        _ = 1 - 1 / 2 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℚ => 1 - t) (s2_5).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 1 - 1 / 2 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℚ => 1 - t) s2_5.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 3. proof
   have s3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) - 1) < ε)) := by
     intro ε
@@ -125,7 +125,7 @@ theorem halves_series :
       -- 3.2.12. mun:abs-difference-lt x := 1 − 1/2^n, c := 1, δ := ε, from 3.2.11
       have s3_2_12 : abs (1 - 1 / 2 ^ n.toNat - 1) < ε := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (1 - 1 / 2 ^ n.toNat : ℝ)) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side)
       -- 3.2.13. substitute
-      have c1 : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℚ)) := by exact ((s2 n (by parley_side))).symm
+      have c1 : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℚ)) := by exact (s2 n (by parley_side)).symm
       have row1 : abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) - 1) < ε := by
         have e_w : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
         (have h := Eq.subst (motive := (fun t : ℝ => abs (t - 1) < ε)) e_w s3_2_12; push_cast at h ⊢; all_goals exact_mod_cast h)

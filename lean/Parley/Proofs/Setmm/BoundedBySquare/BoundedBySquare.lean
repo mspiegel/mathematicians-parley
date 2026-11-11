@@ -59,7 +59,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     -- 6.2.1. inequalities, from S1
     have s6_2_1 : B ^ 2 < A ^ 2 := by parley_order
     -- 6.2.2. substitute |A|² = A² (line 2) into line 6.2.1
-    have s6_2_2 : B ^ 2 < abs A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℝ => B ^ 2 < t)) (s2).symm s6_2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s6_2_2 : B ^ 2 < abs A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℝ => B ^ 2 < t)) s2.symm s6_2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 6.2.3. mun:square-less x := B, y := |A|, from 6.2.2
     have r70_1 : abs A ≥ 0 := by parley_side
     have r70_2 : B ≥ 0 := by parley_side

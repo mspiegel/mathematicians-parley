@@ -96,7 +96,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
           try simp only [hD4] at *
           try push_cast at *
           linear_combination (norm := parley_field) (-1) * s8
-      _ = u * (v * w) := by (have h := congrArg (fun t : ℂ => u * t) (s10).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = u * (v * w) := by (have h := congrArg (fun t : ℂ => u * t) s10.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. both directions
   constructor
   · skip

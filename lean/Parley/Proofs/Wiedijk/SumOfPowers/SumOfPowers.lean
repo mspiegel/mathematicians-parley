@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import OrderTactics
 public import PowerTactics
 public import Tactics
@@ -36,8 +35,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Polynomials
 public import Parley.Items.Stdlib.Sums
@@ -69,7 +66,7 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
   have s2 : ((k : ℂ) + 1) * (∑ n ∈ Finset.Icc (0 : ℤ) m, ((n : ℂ) ^ k.toNat : ℂ)) = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli (k + 1).toNat) := by
     calc ((k : ℂ) + 1) * (∑ n ∈ Finset.Icc (0 : ℤ) m, ((n : ℂ) ^ k.toNat : ℂ)) = (∑ n ∈ Finset.Icc (0 : ℤ) m, (((k : ℂ) + 1) * (n : ℂ) ^ k.toNat : ℂ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_scaled (t := (fun n : ℤ => (n : ℂ) ^ k.toNat)) (a := (0 : ℤ)) (b := m) (c := (k : ℂ) + 1))
       _ = (∑ n ∈ Finset.Icc (0 : ℤ) m, (Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) : ℂ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise_complex (t := (fun n : ℤ => ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat)) (u := (fun n : ℤ => Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) (by parley_side))
-      _ = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli (k + 1).toNat) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1) | exact_mod_cast ((Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1)).symm | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1); parley_side)
+      _ = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli (k + 1).toNat) := by exact_mod_cast (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1)
   -- 3. algebra, from 2
   have r36_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) (by parley_side))
   linear_combination (norm := parley_field) ((1) / (((k : ℂ) + 1))) * s2

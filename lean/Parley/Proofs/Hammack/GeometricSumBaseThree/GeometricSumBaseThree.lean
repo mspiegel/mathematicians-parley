@@ -48,7 +48,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. calculation
-      calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (3 ^ j.toNat : ℚ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+      calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (3 ^ j.toNat : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
         _ = 3 ^ 1 := by
             have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (3 ^ k.toNat : ℚ)) = 3 ^ 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (3 ^ j.toNat : ℚ))) (a := (1 : ℤ))))
             exact hI
@@ -69,10 +69,10 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
         _ = (3 ^ (k + 1).toNat - 3) / 2 + 3 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℚ => t + 3 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (3 ^ (k + 1).toNat * 3 - 3) / 2 := by parley_ring
         _ = (3 ^ (k + 1 + 1).toNat - 3) / 2 := by
-            have e_w : (3 ^ (k + 1).toNat * 3 : ℚ) = 3 ^ (k + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s1_3).symm; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (3 ^ (k + 1).toNat * 3 : ℚ) = 3 ^ (k + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_3.symm; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => (t - 3) / 2) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. calculation
-  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (3 ^ k.toNat : ℚ)) = (S n : ℚ) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_side
+  calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (3 ^ k.toNat : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num
     _ = (3 ^ (n + 1).toNat - 3) / 2 := by exact (s1 n (by parley_side))
 
 end Parley.Proofs.Hammack.GeometricSumBaseThree.GeometricSumBaseThree

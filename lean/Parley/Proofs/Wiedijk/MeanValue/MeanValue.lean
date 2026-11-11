@@ -113,7 +113,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
           try simp only [hD1] at *
           try push_cast at *
           parley_ring
-      _ = f b + g b := by (have h := congrArg (fun t : ℝ => f b + t) (s20).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = f b + g b := by (have h := congrArg (fun t : ℝ => f b + t) s20.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = F b := by exact s19
   -- 22. obtain c: thm:rolle f := F, from H3, 12, 15, 21
   have r132_1 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
@@ -122,8 +122,8 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have s23 : (deriv g) c = m := by exact (s14 c (by parley_set_side))
   -- 24. calculation
   have s24 : (deriv f) c + m = 0 := by
-    calc (deriv f) c + m = (deriv f) c + (deriv g) c := by (have h := congrArg (fun t : ℝ => (deriv f) c + t) (s23).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = (deriv F) c := by exact ((s16 c (by parley_set_side))).symm
+    calc (deriv f) c + m = (deriv f) c + (deriv g) c := by (have h := congrArg (fun t : ℝ => (deriv f) c + t) s23.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (deriv F) c := by exact (s16 c (by parley_set_side)).symm
       _ = 0 := by exact s22b
   -- 25. algebra, from D1, 24
   have r145_1 : b - a ≠ 0 := by parley_set_side

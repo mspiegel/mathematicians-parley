@@ -21,7 +21,7 @@ theorem a_define_read_in_a_requires_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
   set e : ℝ := a + 1 with hD1
   have hD1_kind : True := by parley_side
   -- 1. substitute e = a + 1 (D1) into H2
-  have s1 : e ≠ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) (hD1).symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s1 : e ≠ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) hD1.symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. algebra
   have r56_1 : a + 1 ≠ 0 := by parley_side
   parley_ring

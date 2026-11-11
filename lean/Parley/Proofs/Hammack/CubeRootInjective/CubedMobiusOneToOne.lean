@@ -51,7 +51,7 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
     have s1_4 : t - 1 ≠ 0 := by intro h; exact s1_2 (by linear_combination (norm := parley_norm) h)
     -- 1.5. calculation
     have s1_5 : ((s + 1) / (s - 1)) ^ 3 = ((t + 1) / (t - 1)) ^ 3 := by
-      calc ((s + 1) / (s - 1)) ^ 3 = f s := by exact ((hH2 s (by parley_set_side))).symm
+      calc ((s + 1) / (s - 1)) ^ 3 = f s := by exact (hH2 s (by parley_set_side)).symm
         _ = f t := by parley_set_side
         _ = ((t + 1) / (t - 1)) ^ 3 := by exact (hH2 t (by parley_set_side))
     -- 1.6. thm:cube-injective a := (s + 1)/(s − 1), b := (t + 1)/(t − 1), from 1.5

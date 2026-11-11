@@ -83,7 +83,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       have r219_1 : d > 0 := by parley_order
       have s4_3_2 : d * e ≤ d * 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := e) (y := (0 : ℤ)) (c := d) (by parley_side) (by parley_side))
       -- 4.3.3. substitute n = d·e (line 4.2) into line 4.3.2
-      have s4_3_3 : n ≤ d * 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≤ d * 0)) (s4_2).symm s4_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s4_3_3 : n ≤ d * 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≤ d * 0)) s4_2.symm s4_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.3.4. substitute
       have s4_3_4 : n ≤ 0 := by
         have c1 : d * 0 = 0 := by parley_ring
@@ -113,7 +113,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     -- 4.9. calculation
     have s4_9 : 2 ^ n.toNat - 1 = (2 ^ d.toNat - 1) * q := by
       try qify
-      calc (2 ^ n.toNat - 1 : ℚ) = 2 ^ (d * e) - 1 := by (have h := congrArg (fun t : ℤ => ((2 ^ t.toNat - 1) : ℚ)) s4_2; simp only [parley_zpow_toNat (n := d * e) (h := mul_nonneg (le_of_lt hK1) (le_of_lt (lt_of_le_of_lt (by norm_num) s4_3)))] at h ⊢; exact_mod_cast h)
+      calc (2 ^ n.toNat - 1 : ℚ) = 2 ^ (d * e) - 1 := by (have h := congrArg (fun t : ℤ => ((2 ^ t - 1) : ℚ)) s4_2; simp only [parley_zpow_toNat (n := n) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s3)), parley_zpow_toNat (n := d * e) (h := mul_nonneg (le_of_lt hK1) (le_of_lt (lt_of_le_of_lt (by norm_num) s4_3)))] at h ⊢; exact_mod_cast h)
         _ = (2 ^ d.toNat - 1) * (q : ℚ) := by (have h := s4_8b; simp only [parley_zpow_toNat (n := d * e) (h := mul_nonneg (le_of_lt hK1) (le_of_lt (lt_of_le_of_lt (by norm_num) s4_3)))] at h ⊢; exact_mod_cast h)
     -- 4.10. def:divides d := 2^d − 1, n := 2^n − 1, from 4.9
     have s4_10 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ d.toNat - 1 : ℤ)) (n := (2 ^ n.toNat - 1 : ℤ)))).mpr ⟨q, s4_9⟩

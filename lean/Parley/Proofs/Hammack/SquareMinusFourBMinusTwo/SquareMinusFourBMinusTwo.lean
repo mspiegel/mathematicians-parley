@@ -49,7 +49,7 @@ theorem square_minus_four_b_minus_two (a : ℤ) (b : ℤ) :
   -- 6. calculation
   have s6 : 4 * k ^ 2 = 4 * b + 2 := by
     calc 4 * k ^ 2 = (2 * k) ^ 2 := by parley_ring
-      _ = a ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) (s5).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = a ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) s5.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 4 * b + 2 := by exact s1
   -- 7. algebra, from 6
   have s7 : 1 = 2 * (k ^ 2 - b) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s6

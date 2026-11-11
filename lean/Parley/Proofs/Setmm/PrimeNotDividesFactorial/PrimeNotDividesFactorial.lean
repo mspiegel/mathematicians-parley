@@ -86,7 +86,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
     -- 4.1. arithmetic
     have s4_1 : (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 := by parley_arith
     -- 4.2. substitute N = 0 (C3) into line 4.1
-    have s4_2 : (LeanBridges.Counting.factorial N : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1)) (hC3).symm s4_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s4_2 : (LeanBridges.Counting.factorial N : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1)) hC3.symm s4_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.3. contradiction
     intro hS3
     -- 4.3.1. substitute N! = 1 (line 4.2) into S3
