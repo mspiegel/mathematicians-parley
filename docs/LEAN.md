@@ -136,6 +136,18 @@ it out, and by the define's hypothesis, turned where the step writes the
 name on the right. Identity elements the record says the claim drops are
 rewritten away by `push_cast` with their lemmas, `push_cast [one_mul] at h
 ⊢`.
+A line that says something of the whole number a term is, `∃ m : ℤ, (m :
+ℚ) = t ∧ Even m`, is put into with a motive of that same form. Where the
+claim says it of the whole number the new term is, `Even (3 ^ q.toNat)`,
+the result is said of that number by `parley_witness_at`, its equation by
+`norm_cast`, or by the step's named numbers' equations. Where the record
+takes the substitution sentence by sentence, each sentence is put into its
+own (`substituted_sentences`). Places of two types, a function's argument
+in the equation's type and a term of the line's wider arithmetic, take the
+equation in two stages, as it is and then widened. An equation of natural
+numbers put at exponents is stated in ℕ first (`e_nat`), the motive's
+letter of ℕ. A range member Lean computes wider, made at the member alone,
+is `⟨_, equation, line⟩`.
 The equation's line is turned with `.symm` where the record puts its left
 side for its right, read from the line as the page writes it, with its
 defines kept (`FirstAt::written`). The result is stated by a `have`, so that
@@ -152,8 +164,9 @@ in", where the record has none or the motive does not state it as written:
 - a line, or a motive, of a term written as the whole number it is;
 - a line in a narrower type than the equation; in a wider one, the equation
   is first stated in the type its place is written in;
-- places written in different types in one step, a term of the arithmetic
-  beside an exponent or argument of another type;
+- places of more than two types, or of two where an exponent's form or a
+  whole-number line is among them;
+- a claim "for all" put into a line "for all" as a whole;
 - an equation of rationals put into a wider field at a place written in its
   own type;
 - an equation with a side holding a cast of a `toNat`.

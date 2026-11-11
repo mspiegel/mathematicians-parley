@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -56,9 +55,9 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_5b : b ∣ a := by parley_side
       have s6_5c : b ∣ b := by parley_side
       -- 6.6. substitute gcd(a, b) = b (line 6.1) into line 6.5
-      have s6_6a : 0 < (Int.gcd a b : ℤ) := by parley_subst_at s6_1 s6_5a
-      have s6_6b : (Int.gcd a b : ℤ) ∣ a := by parley_subst_at s6_1 s6_5b
-      have s6_6c : (Int.gcd a b : ℤ) ∣ b := by first | parley_put_at s6_1 s6_5b | parley_put_at s6_1 s6_5c | parley_subst_at s6_1 s6_5b | parley_subst_at s6_1 s6_5c
+      have s6_6a : 0 < (Int.gcd a b : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) (s6_1).symm s6_5a; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s6_6b : (Int.gcd a b : ℤ) ∣ a := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a)) (s6_1).symm s6_5b; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s6_6c : (Int.gcd a b : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ b)) (s6_1).symm s6_5c; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact ⟨s6_6a, s6_6b, s6_6c⟩
     · skip
       -- 6.7. mun:nat0-nonzero m := a mod b, from C2, 2
@@ -69,9 +68,9 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_8c : (Int.gcd (a % b) b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a % b) (by parley_side) (b := b) (by parley_side))
       -- 6.9. substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
       have r80_1 : 0 < a % b := by parley_side
-      have s6_9a : 0 < (Int.gcd a b : ℤ) := by first | parley_subst_at s1 s6_8a | (have e_nat : Int.gcd (a % b) b = Int.gcd a b := by exact_mod_cast s1; parley_subst_at e_nat s6_8a)
-      have s6_9b : (Int.gcd a b : ℤ) ∣ a % b := by first | parley_subst_at s1 s6_8b | (have e_nat : Int.gcd (a % b) b = Int.gcd a b := by exact_mod_cast s1; parley_subst_at e_nat s6_8b)
-      have s6_9c : (Int.gcd a b : ℤ) ∣ b := by first | parley_subst_at s1 s6_8c | (have e_nat : Int.gcd (a % b) b = Int.gcd a b := by exact_mod_cast s1; parley_subst_at e_nat s6_8c)
+      have s6_9a : 0 < (Int.gcd a b : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s1 s6_8a; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s6_9b : (Int.gcd a b : ℤ) ∣ a % b := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a % b)) s1 s6_8b; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s6_9c : (Int.gcd a b : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ b)) s1 s6_8c; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 6.10. mun:divides-multiple e := gcd(a, b), a := b, x := q, from 6.9
       have s6_10 : (Int.gcd a b : ℤ) ∣ b * q := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (Int.gcd a b : ℤ)) (a := b) (x := q) s6_9c)
       -- 6.11. mun:divides-sum d := gcd(a, b), a := b·q, b := a mod b, from 6.9, 6.10

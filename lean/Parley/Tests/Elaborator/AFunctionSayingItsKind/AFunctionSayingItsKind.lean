@@ -68,6 +68,6 @@ theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
   -- 2.5. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.3
   have s2_5 : f k ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_subst_at s2_4 s2_3
   -- 2.6. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.5
-  first | parley_subst_at s2_4 s2_5 | exact ⟨_, s2_4, s2_5⟩
+  exact ⟨_, s2_4, s2_5⟩
 
 end Parley.Tests.Elaborator.AFunctionSayingItsKind.AFunctionSayingItsKind

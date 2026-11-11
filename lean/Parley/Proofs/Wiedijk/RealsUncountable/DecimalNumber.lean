@@ -373,7 +373,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 16.24.10. substitute
       have s16_24_10 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by
         have c1 : ⌊10 ^ n.toNat * c⌋ = N (n - 1) * 10 + (d n + 1) := by linear_combination (norm := parley_norm) s16_3 + s16_24_9
-        have row1 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by parley_subst_at c1 s16_20
+        have row1 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = t % (10 : ℤ))) c1 s16_20; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 16.24.11. D2
       have s16_24_11 : (d n + 1) % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by parley_set_side

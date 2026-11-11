@@ -352,6 +352,12 @@ pub struct CheckedTheorem {
     /// `substituted`, which has under that line how the reason itself makes
     /// the change.
     pub substituted_rows: IndexMap<usize, Substituted>,
+    /// Of a substitution into a line's sentences together whose claim has
+    /// as many sentences, each claim sentence as made from the line's
+    /// sentence in its place, by the line of the justification and the
+    /// sentence's place (`citations::sentence_substitutions`): a backend
+    /// that names the sentences apart puts the equation into each.
+    pub substituted_sentences: IndexMap<(usize, usize), Substituted>,
     /// What each of the theorem's `let` lines asserts that the page does not
     /// read as a formula, `f : A → B be one-to-one` as `f : A → B is
     /// one-to-one`, by the hypothesis's index; empty for any other line

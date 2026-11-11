@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -90,7 +89,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
     refine ⟨((Classical.choose whole1 : ℤ) * m'), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring), ?_⟩
     (exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := (Classical.choose whole1 : ℤ)) (x := m') s3_11))
   -- 3.13. substitute m = p^(a′ − a)·m′ (line 3.9) into line 3.12
-  have s3_13 : p ∣ m := by first | parley_subst_at s3_9 s3_12 | exact parley_witness_at s3_12 (m) (by push_cast; linear_combination (norm := parley_norm) s3_9) | exact parley_witness_at s3_12 (m) (by push_cast; linear_combination (norm := parley_norm) -s3_9)
+  have s3_13 : p ∣ m := by exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ p ∣ m)) (s3_9).symm s3_12) m (by norm_cast)
   -- 3.14. thm:divides-gcd d := p, a := m, b := p, from 3.10, 3.13
   have s3_14 : p ∣ (Int.gcd m p : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := p) (a := m) (b := p) s3_13 s3_10)
   -- 3.15. substitute gcd(m, p) = 1 (H7) into line 3.14

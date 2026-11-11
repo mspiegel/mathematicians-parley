@@ -117,6 +117,11 @@ exactly what the check refuses.
   (`SubstitutedInto::RowAbove`), by the line of the row's reason; places as
   in `substituted`. It is kept apart from `substituted`, which has under
   that line how the reason itself makes the change.
+- `substituted_sentences`: of a substitution into a line's sentences
+  together whose claim has as many sentences, each claim sentence as made
+  from the line's sentence in its place, by the justification's line and
+  the sentence's place. A backend that names the sentences apart puts the
+  equation into each.
 - `define_links`: for each calculation row citing a define, and each step
   whose reason is defines it names, how the two sides of its equation meet
   once the defines are written out, or that they do not meet and arithmetic
@@ -232,6 +237,11 @@ exactly what the check refuses.
   written out, T(k + 1) of `define T(k) := k(k + 1)/2` as (k + 1)(k + 2)/2,
   and each phrase as its meaning, its facts read again of the page as
   written. Lean, which has no name for such a function, reads this record.
+  The substitution records are written out too. A define written out moves
+  a substitution's places, `s(n + (j + 1))` becoming a sum over its range,
+  so they are found again between the start written out and what the
+  putting makes, written out. One whose places are not found so is left
+  out.
 - `item_facts`, of the library's reading rather than a theorem's: for each
   group of each item, what its hypotheses bound below and make finite, and
   for each sentence it concludes, the number systems of its set letters.

@@ -125,6 +125,45 @@ pub fn written_out(
     for c in written.contradicted.values_mut() {
         c.at.written = out(&c.at.written);
     }
+    // A substitution's places are paths into what it is put into, which
+    // writing a define out moves, s(n + (j + 1)) becoming a sum over its
+    // range: they are found again between the start written out and what
+    // the putting makes of the page's start, written out. One whose places
+    // are not found so is left out, as one never recorded.
+    let substitution_written = |s: &mut super::record::Substituted| -> bool {
+        let [left, right] = s.equation.children.as_slice() else {
+            return false;
+        };
+        let now = match s.put.turned {
+            false => right,
+            true => left,
+        };
+        let made = crate::matching::put_at_places(&s.start, &s.put.places, now);
+        let (start, made) = (out(&s.start), out(&made));
+        let (left, right) = (out(left), out(right));
+        let Some(put) =
+            crate::matching::substitution_places(&start, &made, &left, &right)
+        else {
+            return false;
+        };
+        s.equation = out(&s.equation);
+        s.start = start;
+        s.put = put;
+        if let Some(from) = &mut s.from {
+            from.written = out(&from.written);
+        }
+        if let super::record::SubstitutedInto::Line(at) = &mut s.into {
+            at.written = out(&at.written);
+        }
+        true
+    };
+    written.substituted.retain(|_, s| substitution_written(s));
+    written
+        .substituted_rows
+        .retain(|_, s| substitution_written(s));
+    written
+        .substituted_sentences
+        .retain(|_, s| substitution_written(s));
     for held in written.held_by_lines.values_mut().flatten() {
         use super::record::LinesHold;
         held.term = out(&held.term);

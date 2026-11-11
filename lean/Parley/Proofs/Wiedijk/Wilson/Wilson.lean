@@ -201,7 +201,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         (try rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 1))] at s5_7_4; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_4); norm_cast at s5_7_4)
         (try rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 1))] at s5_7_9; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_9); norm_cast at s5_7_9)
         refine ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring), ?_⟩
-        (first | parley_subst_at s5_7_4 s5_7_9 | exact parley_witness_at s5_7_9 ((Classical.choose whole1 : ℤ)) (by push_cast; (try simp only [Classical.choose_spec whole1]); linear_combination (norm := parley_norm) s5_7_4) | exact parley_witness_at s5_7_9 ((Classical.choose whole1 : ℤ)) (by push_cast; (try simp only [Classical.choose_spec whole1]); linear_combination (norm := parley_norm) -s5_7_4))
+        (exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ f a * a ≡ m [ZMOD p])) (s5_7_4).symm s5_7_9) (Classical.choose whole1 : ℤ) (by push_cast; simp only [Classical.choose_spec whole1]))
       -- 5.7.11. algebra, from 5.6
       have s5_7_11 : a * f a = f a * a := by parley_ring
       -- 5.7.12. membership, from 5.7.4, 5.7.5

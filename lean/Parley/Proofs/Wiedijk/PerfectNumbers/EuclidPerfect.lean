@@ -76,7 +76,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
       refine ⟨(((2 : ℤ) ^ (p - 1).toNat) * 2 : ℤ), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
       (exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (2 ^ p.toNat - 1 : ℤ)) (a := (((2 : ℤ) ^ (p - 1).toNat) : ℤ)) (x := (2 : ℤ)) hS))
     -- 4.2. substitute 2^p = 2^(p − 1)·2 (line 3) into line 4.1
-    have s4_2 : (2 ^ p.toNat - 1 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by first | parley_subst_at s3 s4_1 | exact parley_witness_at s4_1 ((2 ^ p.toNat : ℤ)) (by push_cast; linear_combination (norm := parley_norm) s3) | exact parley_witness_at s4_1 ((2 ^ p.toNat : ℤ)) (by push_cast; linear_combination (norm := parley_norm) -s3)
+    have s4_2 : (2 ^ p.toNat - 1 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ (2 ^ p.toNat - 1 : ℤ) ∣ m)) (s3).symm s4_1) (2 ^ p.toNat : ℤ) (by norm_cast)
     -- 4.3. mun:divides-self n := 2^p − 1
     have s4_3 : (2 ^ p.toNat - 1 : ℤ) ∣ (2 ^ p.toNat - 1 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (2 ^ p.toNat - 1 : ℤ)))
     -- 4.4. mun:divides-difference d := 2^p − 1, a := 2^p, b := 2^p − 1, from 4.2, 4.3

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
@@ -178,7 +177,9 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   -- 15. substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 10) into line 14
   have s15 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ t [ZMOD n])) s10 s14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 16. substitute φ(n) = |S| (line 13) into line 15
-  have s16 : a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by first | parley_subst_at s13 s15 | (have e_nat : Nat.totient n.toNat = S.ncard := by exact_mod_cast s13; parley_subst_at e_nat s15)
+  have s16 : a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by
+    have e_nat : S.ncard = Nat.totient n.toNat := by exact_mod_cast (s13).symm
+    (have h := Eq.subst (motive := (fun t : ℕ => a ^ t * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n])) e_nat s15; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 17. def:set-builder u := r, from D1
   have s17 : ∀ r ∈ S, (Int.gcd r n : ℤ) = 1 := by
     intro r h_r

@@ -2677,6 +2677,96 @@ pub fn substitutions(
     out
 }
 
+/// Each substitution `substituted` records into a line's sentences together
+/// whose claim has as many sentences, taken sentence by sentence
+/// (`CheckedTheorem::substituted_sentences`): claim sentence k as the line's
+/// sentence k with the equation put in, at the places found between the two
+/// as the page writes them (`matching::substitution_places`), or at none
+/// where the putting leaves the sentence as it is. None of a step where a
+/// pair is neither.
+pub fn sentence_substitutions(
+    thm: &Theorem,
+    known: &Known,
+    substituted: &IndexMap<usize, crate::checker::record::Substituted>,
+) -> IndexMap<(usize, usize), crate::checker::record::Substituted> {
+    use crate::checker::record::{FirstAt, Substituted, SubstitutedInto};
+    let mut out = IndexMap::new();
+    for (line, s) in substituted {
+        let SubstitutedInto::Line(at) = &s.into else {
+            continue;
+        };
+        if at.sentence.is_some() || at.part.is_some() || at.implied.is_some() {
+            continue;
+        }
+        let Some(step) = thm.steps.iter().find(|st| st.just.line == *line) else {
+            continue;
+        };
+        let claims: Option<Vec<Node>> = step
+            .claim
+            .sentences()
+            .iter()
+            .map(|c| known.read_as_written(c))
+            .collect();
+        let Some(claims) = claims else {
+            continue;
+        };
+        let scope = known.scope(step);
+        let Some(stated) = scope.get(&at.line) else {
+            continue;
+        };
+        let says = known.says(stated, &known.citing_step(step));
+        let mut sentences: Vec<(usize, Node)> = says
+            .iter()
+            .filter_map(|said| match said.from {
+                SaidFrom::Sentence(k) => Some((k, said.written.clone())),
+                _ => None,
+            })
+            .collect();
+        sentences.sort_by_key(|(k, _)| *k);
+        if claims.len() < 2 || sentences.len() != claims.len() {
+            continue;
+        }
+        let [left, right] = s.equation.children.as_slice() else {
+            continue;
+        };
+        let mut each = Vec::new();
+        for ((k, start), claim) in sentences.into_iter().zip(&claims) {
+            let put = match start.spelt_alike(claim) {
+                true => Some(crate::matching::SubstitutionPlaces {
+                    turned: s.put.turned,
+                    places: Vec::new(),
+                }),
+                false => {
+                    crate::matching::substitution_places(&start, claim, left, right)
+                }
+            };
+            let Some(put) = put else {
+                each.clear();
+                break;
+            };
+            each.push((
+                (*line, k),
+                Substituted {
+                    equation: s.equation.clone(),
+                    from: s.from.clone(),
+                    into: SubstitutedInto::Line(FirstAt {
+                        line: at.line.clone(),
+                        sentence: Some(k),
+                        part: None,
+                        written: start.clone(),
+                        implied: None,
+                    }),
+                    start,
+                    put,
+                    identities: Vec::new(),
+                },
+            ));
+        }
+        out.extend(each);
+    }
+    out
+}
+
 /// Each row of a `substitute` step after the first, by its reason's line
 /// (`CheckedTheorem::substituted_rows`): the change its reason proves, put
 /// into the row above (`SubstitutedInto::RowAbove`) at the places the

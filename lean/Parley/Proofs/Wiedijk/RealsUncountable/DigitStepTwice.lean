@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -28,7 +27,7 @@ theorem digit_step_twice (t : ℤ) :
   -- 4. contradiction
   intro hS
   -- 4.1. substitute s(s(t)) = t (S) into line 3
-  have s4_1 : (10 : ℤ) ∣ (t + 1) % (10 : ℤ) + 1 - t := by parley_subst_at hS s3
+  have s4_1 : (10 : ℤ) ∣ (t + 1) % (10 : ℤ) + 1 - t := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ (t + 1) % (10 : ℤ) + 1 - u)) hS s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4.2. mun:divides-sum d := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t, from 2, 4.1
   have s4_2 : (10 : ℤ) ∣ t + 1 - (t + 1) % (10 : ℤ) + ((t + 1) % (10 : ℤ) + 1 - t) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (10 : ℤ)) (a := t + 1 - (t + 1) % (10 : ℤ)) (b := (t + 1) % (10 : ℤ) + 1 - t) s2 s4_1)
   -- 4.3. substitute

@@ -674,6 +674,8 @@ fn theorem_record(
     record.link_facings = links.facings;
     record.substituted = citations::substitutions(thm, c.library, &c.known[i]);
     record.substituted_rows = citations::row_substitutions(thm, &c.known[i]);
+    record.substituted_sentences =
+        citations::sentence_substitutions(thm, &c.known[i], &record.substituted);
     record.asserted = library::let_assertions(&c.known[i]);
     record.opener_asserted = library::opener_assertions(&c.known[i]);
     record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);

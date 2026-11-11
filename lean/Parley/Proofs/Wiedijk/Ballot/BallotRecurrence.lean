@@ -103,7 +103,7 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   have s18 : m - 1 + n = m + (n - 1) := by parley_ring
   -- 19. substitute (m − 1) + n = m + (n − 1) (line 18) into H4
   have r846_1 : 0 ≤ m - 1 := by parley_set_side
-  have s19 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) = (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) := by parley_subst_at s18 hH4
+  have s19 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) = (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * t = (m - 1 - n) * (LeanBridges.Counting.choose t (m - 1) : ℤ))) s18 hH4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 20. inequalities, from H2
   have s20 : m - 1 ≤ m + (n - 1) := by parley_order
   -- 21. def:range0 k := m − 1, n := m + (n − 1), from 1, 2, 20
@@ -116,13 +116,14 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   have s23 : m + (n - 1) + 1 = m + n := by parley_ring
   -- 24. substitute (m + (n − 1)) + 1 = m + n (line 23) into line 22
   have s24 : (LeanBridges.Counting.choose (m + n) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / ((m : ℚ) - 1 + 1)) := by
-    have s23_w : (m : ℚ) + ((n : ℚ) - 1) + 1 = (m : ℚ) + (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s23; push_cast at h; linear_combination (norm := parley_norm) h
-    first | parley_subst_at s23_w s22 | parley_subst_at s23 s22
+    have e_w : (m : ℚ) + ((n : ℚ) - 1) + 1 = (m : ℚ) + (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s23; push_cast at h; linear_combination (norm := parley_norm) h
+    (have h := Eq.subst (motive := (fun t : ℚ => (LeanBridges.Counting.choose (m + n) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (t / ((m : ℚ) - 1 + 1)))) e_w (Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose t (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)))) s23 s22); push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 25. substitute
   have s25 : (LeanBridges.Counting.choose (m + n) m : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / (m : ℚ)) := by
     have c1 : m - 1 + 1 = m := by parley_ring
-    have c1_w : (m : ℚ) - 1 + 1 = (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : (LeanBridges.Counting.choose (m + n) m : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / (m : ℚ)) := by first | parley_put_at c1_w s24 | parley_put_at c1 s24 | parley_subst_at c1_w s24 | parley_subst_at c1 s24
+    have row1 : (LeanBridges.Counting.choose (m + n) m : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / (m : ℚ)) := by
+      have e_w : (m : ℚ) - 1 + 1 = (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
+      (have h := Eq.subst (motive := (fun t : ℚ => (LeanBridges.Counting.choose (m + n) m : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / t))) e_w (Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + n) t : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / ((m : ℚ) - 1 + 1)))) c1 s24); push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 26. thm:pascal n := m + (n − 1), k := m, from 2
   have s26 : (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) + (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) = (LeanBridges.Counting.choose (m + (n - 1) + 1) m : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + (n - 1)) (by parley_set_side) (k := m))

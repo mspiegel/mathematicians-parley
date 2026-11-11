@@ -53,7 +53,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
     -- 2.6. D7
     have s2_6 : e n = (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) := by simp (disch := omega) only [hD7]
     -- 2.7. substitute e(n) = s(D(f(n), n)) (line 2.6) into line 2.5
-    have s2_7 : (((True ∧ 0 ≤ e n) ∧ e n ≤ 9) ∧ e n ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ (e n + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_subst_at s2_6 s2_5
+    have s2_7 : (((True ∧ 0 ≤ e n) ∧ e n ≤ 9) ∧ e n ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ (e n + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (((True ∧ 0 ≤ t) ∧ t ≤ 9) ∧ t ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ (t + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ))) (s2_6).symm s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact ⟨⟨⟨⟨trivial, ((((s2_7).1).1).1).2⟩, (((s2_7).1).1).2⟩, ((s2_7).1).2⟩, (s2_7).2⟩
   -- 3. proof
   -- what this block shows, Lean's types give
@@ -84,7 +84,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
         have at0 := (s2 n (by parley_side)).2
         parley_subst_at hC2 at0
     -- 7.3. substitute f(n) = x (S)
-    have s7_3 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_subst hS
+    have s7_3 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by (have h := congrArg (fun t : ℝ => ((⌊10 ^ n.toNat * t⌋ % (10 : ℤ) : ℤ) : ℝ)) (hS).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact s7_2 s7_3
   -- 8. exhibit, from 7
   exact ⟨x, s7⟩

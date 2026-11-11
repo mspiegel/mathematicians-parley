@@ -3,8 +3,6 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.Field.Basic
@@ -17,7 +15,6 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,8 +44,7 @@ theorem later_at_least (n : ℤ) (hH1 : 0 < n) :
   have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1 + (i - (n + 1))), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by exact (s1 (i - (n + 1)) (by parley_side))
   -- 2.3. substitute
   have c1 : n + 1 + (i - (n + 1)) = i := by parley_ring
-  have c1_w : (n : ℚ) + 1 + ((i : ℚ) - ((n : ℚ) + 1)) = (i : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-  have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by first | parley_put_at c1_w s2_2 | parley_put_at c1 s2_2 | parley_subst_at c1_w s2_2 | parley_subst_at c1 s2_2
+  have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)))) c1 s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtLeast
