@@ -6641,7 +6641,7 @@ impl<'a> Proof<'a> {
             }
             // An item stated over more than its values are in, as the record
             // says (`cited_bridge`): the Lean facts that read it as the claim.
-            let faced = || match facing {
+            let turned_term = || match facing {
                 Some(facing) => faced(term.clone(), facing),
                 None => term.clone(),
             };
@@ -6649,15 +6649,68 @@ impl<'a> Proof<'a> {
                 Some(CitedBridge::Rules(rules)) => {
                     return super::doc::Proof::By(super::tactics::simpa_only(
                         rules,
-                        faced(),
+                        turned_term(),
                     ))
                 }
                 Some(CitedBridge::Cast) => {
                     return super::doc::Proof::By(super::tactics::exact_mod_cast(
-                        faced(),
+                        turned_term(),
                     ))
                 }
                 None => {}
+            }
+            // The checker met the item with the claim as written
+            // (`Cited::meetings`), and the step's proof first puts each term
+            // the citation gave as a named number as the cast of that number
+            // (`specs_in`, `proof_of`): what is left is the item's relation
+            // with each side cast up, which `norm_cast` takes back to the
+            // item where the cast table says it moves a cast through the
+            // relation (`casts::norm_cast_lifts_relation`).
+            let as_written = meeting.is_some_and(|m| {
+                m.identities.is_empty() && !m.respelled && !m.turned && !m.permuted
+            });
+            let through_named =
+                !self.specs_in(node, &self.said_used.borrow()).is_empty();
+            if as_written && through_named {
+                match node.notation() {
+                    // An equation the way the checker found it faces, or an
+                    // order: `exact_mod_cast` of the item.
+                    EQUALITY | ORDER
+                        if super::doc::forms::relation_type(claim).is_some_and(
+                            |to| super::casts::norm_cast_lifts_relation(says, &to),
+                        ) =>
+                    {
+                        let faced_term = match (node.notation(), facing) {
+                            (ORDER, _) => Some(term.clone()),
+                            (_, Some(f)) => Some(faced(term.clone(), f)),
+                            (_, None) => None,
+                        };
+                        if let Some(t) = faced_term {
+                            return super::doc::Proof::By(
+                                super::tactics::exact_mod_cast(t),
+                            );
+                        }
+                    }
+                    // A range member Lean writes as the integer that is it
+                    // (`wide_range_member`): that integer, the named number,
+                    // its equation `rfl`, and the item's membership.
+                    _ if wide_range_member(&self.writer, node) => {
+                        let rfl = Printed::constant(
+                            "rfl",
+                            super::doc::Source::Core,
+                            super::doc::LeanType::Prop,
+                        );
+                        return super::doc::Proof::By(Tactic::Exact(
+                            range_member_made(rfl, term.clone()),
+                        ));
+                    }
+                    // A claim joined by "and": part by part (`parts_closed`).
+                    _ => {
+                        if let Some(proof) = parts_closed(node, claim, says, &term) {
+                            return proof;
+                        }
+                    }
+                }
             }
             let why = apart(node, &reduced, claim, &values, facing);
             return close(why, &self.writer, node, term);
@@ -15228,6 +15281,84 @@ fn whole_term(term: Printed) -> Printed {
         true => term,
         false => super::tactics::bracket(term),
     }
+}
+
+/// A claim joined by "and" that the checker met with the item's "and" as
+/// written, closed part by part: "and" stands in no other order, so part j
+/// of the item is part j of the claim. The item named once, `have h :=
+/// term`, each part from its projection `h.j`:
+/// - a membership of ℕ or ℕ₀ Lean writes as an integer of a wider term,
+///   `∃ m : ℤ, 0 < m ∧ ↑m = t` (`Writer::in_system`), beside the item's
+///   order `0 < v` of the same order: `⟨_, h.j, rfl⟩`, t being the named
+///   number's cast once the proof has put it;
+/// - an equation or order whose casts `norm_cast` all moves on both sides:
+///   `by exact_mod_cast h.j`.
+///
+/// None where the two split into different numbers of parts, or a part has
+/// neither form.
+fn parts_closed(
+    node: &Node,
+    claim: &Printed,
+    says: &Printed,
+    term: &Printed,
+) -> Option<super::doc::Proof> {
+    use super::doc::TermKind;
+    use super::tactics as t;
+    let parts = and_parts(node);
+    if parts.len() < 2 {
+        return None;
+    }
+    // The order of `0 < m` or `0 ≤ m`, a bound of the numeral 0.
+    let zero_bound = |p: &Printed| match &p.kind {
+        TermKind::Infix { op, lhs, .. }
+            if matches!(op.symbol, "<" | "≤")
+                && matches!(&lhs.kind, TermKind::Numeral(d) if d == "0") =>
+        {
+            Some(op.symbol)
+        }
+        _ => None,
+    };
+    let mut proofs = Vec::new();
+    for (j, part) in parts.iter().enumerate() {
+        let path = leaf_path(node, j)?;
+        let (wanted, given) = (along(claim, &path)?, along(says, &path)?);
+        if and_sides(&given).is_some() || and_sides(&wanted).is_some() {
+            return None;
+        }
+        let h = projected(t::hyp("h"), &path);
+        let witnessed = match &wanted.kind {
+            TermKind::Quantified {
+                quant: super::doc::Quant::Exists,
+                guard: Some(guard),
+                ..
+            } if part.notation() == crate::notations::MEMBERSHIP => {
+                zero_bound(guard).filter(|order| zero_bound(&given) == Some(*order))
+            }
+            _ => None,
+        };
+        let proof = match witnessed {
+            Some(_) => {
+                let rfl = Printed::constant(
+                    "rfl",
+                    super::doc::Source::Core,
+                    super::doc::LeanType::Prop,
+                );
+                super::expr::anonymous(vec![elided_term(), h, rfl])
+            }
+            None if matches!(part.notation(), EQUALITY | ORDER)
+                && super::casts::norm_cast_moves_all(&given)
+                && super::casts::norm_cast_moves_all(&wanted) =>
+            {
+                t::by_term(super::doc::Proof::By(t::exact_mod_cast(h)))
+            }
+            None => return None,
+        };
+        proofs.push(proof);
+    }
+    Some(super::doc::Proof::By(t::on_h(
+        term,
+        vec![Tactic::Exact(super::expr::anonymous(proofs))],
+    )))
 }
 
 /// `⟨_, equation, member⟩`: a claim of a range member Lean computes wider

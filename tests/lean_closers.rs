@@ -24,6 +24,27 @@ struct Site {
 
 const SITES: &[Site] = &[
     Site {
+        file: "lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean",
+        step: "3.4",
+        holds: "(exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer",
+        list: false,
+        why: "an item met as written through a named number the proof puts first, ⌊↑c⌋ = c beside the claim's ↑⌊↑c⌋ = ↑c: the item's equation cast up as a whole, which norm_cast takes back, exact_mod_cast",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
+        step: "5.5.3",
+        holds: "exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds",
+        list: false,
+        why: "a range member Lean writes as the integer that is it, met as written through a named number: that number, rfl, and the item's membership",
+    },
+    Site {
+        file: "lean/Parley/Tests/Stdlib/Sums/Range.lean",
+        step: "1",
+        holds: "exact ⟨⟨_, (h).1, rfl⟩, by exact_mod_cast (h).2⟩",
+        list: false,
+        why: "an \"and\" met as written, part by part: a membership of ℕ Lean writes as an integer of a real beside the item's 0 < c, and an order cast up",
+    },
+    Site {
         file: "lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicBlock.lean",
         step: "14",
         holds: "by parley_instance (",

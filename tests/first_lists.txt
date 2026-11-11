@@ -1,7 +1,0 @@
-1	lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.4	cited: item and claim in different types
-1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.2	cited: item and claim in different types
-1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.3	cited: other shape, met otherwise than written
-1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.2	cited: item and claim in different types
-1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.3	cited: other shape, met otherwise than written
-1	lean/Parley/Tests/Stdlib/Sums/Range.lean	1	cited: other shape, met otherwise than written
-1	lean/Parley/Tests/Stdlib/Sums/Range0.lean	1	cited: other shape, met otherwise than written

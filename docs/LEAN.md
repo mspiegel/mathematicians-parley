@@ -190,10 +190,10 @@ its counts in the form the rows take them.
 The closer is chosen as follows:
 - `exact_mod_cast` where `norm_cast` moves every cast in both statements and
   they are stated in one type;
-- `exact_mod_cast` where the two are stated in different types, are one
-  statement once the narrower is cast up and every cast pushed down, with no
-  form apart, and `norm_cast` moves every cast of both; not of a fact of
-  numerals alone, which `norm_cast` does not take across every order;
+- `exact_mod_cast` where the two are stated in different types, the checker
+  met them as written (`Cited::meetings`), no form stands apart, and
+  `norm_cast` moves every cast of both; not of a fact of numerals alone,
+  which `norm_cast` does not take across every order;
 - `push_cast at h ⊢; exact h` where only `push_cast` moves them all and the
   line is in no narrower type;
 - otherwise, each side rewritten by the `set` equations its letters name,
@@ -217,11 +217,24 @@ claim (`Cited::meetings`, `Cited::facings`):
   `tauto`;
 - where the item is worked in a wider field than the claim's: read down to
   the claim's, by `parley_of_complex` from ℂ and `parley_rat_of_real` from ℝ,
-  as an instance is.
+  as an instance is;
+- where the step goes through named numbers its proof puts first, as the
+  casts of those numbers (`Classical.choose_spec`), and the checker met the
+  item as written: an equation or order is then the item's relation with
+  each side cast up as a whole, `exact_mod_cast` of the item where the cast
+  table says `norm_cast` moves a cast through that relation
+  (`casts::norm_cast_lifts_relation`); a range member Lean writes as the
+  integer that is it, `⟨_, rfl, item⟩`;
+- where the claim is an "and" the checker met as written, part by part, the
+  item named once, `have h := …`: "and" stands in no other order, so part j
+  of the item is part j of the claim. A membership of ℕ or ℕ₀ Lean writes as
+  an integer of a wider term, `∃ m : ℤ, 0 < m ∧ ↑m = t`, beside the item's
+  `0 < v` is `⟨_, h.j, rfl⟩`; an equation or order whose casts `norm_cast`
+  all moves is `by exact_mod_cast h.j`.
 
 A step no rule decides keeps its `first |` list, and `tests/first_lists.txt`
-keeps each such list with its reason. `tests/lean_closers.rs` names a step
-where each rule decides and one where its fact does not hold.
+keeps each such list with its reason; it holds none at present.
+`tests/lean_closers.rs` names a step where each rule decides.
 
 ## Which theorems are in
 

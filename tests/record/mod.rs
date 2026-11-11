@@ -275,8 +275,35 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         }
         false => String::new(),
     };
+    // How each conclusion met the claim's sentence: as written, or what the
+    // meeting took to meet them; apart where they did not meet as wholes.
+    let met: Vec<String> = cited
+        .meetings
+        .iter()
+        .map(|m| match m {
+            None => "apart".to_string(),
+            Some(m) => {
+                let mut took: Vec<&str> = Vec::new();
+                for (flag, word) in [
+                    (m.turned, "turned"),
+                    (m.permuted, "permuted"),
+                    (m.renamed, "renamed"),
+                    (m.respelled, "respelled"),
+                    (!m.identities.is_empty(), "identities dropped"),
+                ] {
+                    if flag {
+                        took.push(word);
+                    }
+                }
+                match took.is_empty() {
+                    true => "as written".to_string(),
+                    false => took.join(" and "),
+                }
+            }
+        })
+        .collect();
     format!(
-        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}{within}",
+        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}; met {}{within}",
         cited.item,
         cited.group,
         binding.join(", "),
@@ -284,6 +311,7 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         supplied.join(", "),
         letters.join(", "),
         facings.join(", "),
+        met.join(", "),
     )
 }
 

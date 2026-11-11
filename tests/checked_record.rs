@@ -25,7 +25,8 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 15] = [
+const KEPT: [&str; 16] = [
+    "tests/stdlib/sums/range",
     "tests/elaborator/sets-a-define-names/a-conjunct-of-a-property",
     "tests/elaborator/a-for-all-line-read-in-a-block/a-for-all-line-in-a-calculation-link",
     "tests/elaborator/a-define-at-every-member-of-a-range/a-define-at-every-member-of-a-range",

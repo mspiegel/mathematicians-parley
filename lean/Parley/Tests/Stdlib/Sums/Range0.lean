@@ -21,7 +21,7 @@ namespace Parley.Tests.Stdlib.Sums.Range0
 theorem range0 (n : ℤ) (hH1 : 0 ≤ n) (k : ℝ) (hH3 : ∃ m : ℤ, (m : ℝ) = k ∧ m ∈ Finset.Icc (0 : ℤ) n) :
     ((∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = k) ∧ k ≤ (n : ℝ)) := by
   -- 1. def:sums-range0, from H3
-  have s1 : (∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = k) ∧ k ≤ (n : ℝ) := by rw [← (Classical.choose_spec hH3).1]; have := (Classical.choose_spec hH3).2; (first | exact ((Parley.Items.Stdlib.Sums.def_range0 (k := (Classical.choose hH3)) (n := n) (by parley_side))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sums.def_range0 (k := (Classical.choose hH3)) (n := n) (by parley_side))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sums.def_range0 (k := (Classical.choose hH3)) (n := n) (by parley_side))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sums.def_range0 (k := (Classical.choose hH3)) (n := n) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range0 (k := (Classical.choose hH3)) (n := n) (by parley_side))).mp (by parley_side); parley_side))
+  have s1 : (∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = k) ∧ k ≤ (n : ℝ) := by rw [← (Classical.choose_spec hH3).1]; have := (Classical.choose_spec hH3).2; ((have h := ((Parley.Items.Stdlib.Sums.def_range0 (k := (Classical.choose hH3)) (n := n) (by parley_side))).mp (by parley_side); exact ⟨⟨_, (h).1, rfl⟩, by exact_mod_cast (h).2⟩))
   exact ⟨(s1).1, (s1).2⟩
 
 end Parley.Tests.Stdlib.Sums.Range0

@@ -510,6 +510,35 @@ pub fn norm_cast_moves_all(term: &Term) -> bool {
     moves_all(term, &[], Mover::NormCast)
 }
 
+/// Whether `norm_cast` takes a relation with each side cast up as a whole to
+/// the type `to`, `((a : ℤ) : ℝ) < ((b : ℤ) : ℝ)`, back to `relation` itself,
+/// `a < b`: the table says it moves a cast of that pair of types through the
+/// relation (`Nat.cast_lt`, `Int.cast_inj`, …). What stands inside each side
+/// is alike in the two and moves nowhere.
+pub fn norm_cast_lifts_relation(relation: &Term, to: &super::doc::LeanType) -> bool {
+    use super::doc::TermKind;
+    let relation = match &relation.kind {
+        TermKind::Paren(inner) => inner,
+        _ => relation,
+    };
+    let TermKind::Infix { op, .. } = &relation.kind else {
+        return false;
+    };
+    let op = match op.symbol {
+        "=" | "≠" => CastOp::Eq,
+        "<" | ">" => CastOp::Lt,
+        "≤" | "≥" => CastOp::Le,
+        _ => return false,
+    };
+    let from = super::doc::forms::relation_type(relation);
+    match (from.as_ref().and_then(Carrier::of), Carrier::of(to)) {
+        (Some(from), Some(to)) if from != to => {
+            facts(op, from, to).is_some_and(|f| f.norm_cast)
+        }
+        _ => false,
+    }
+}
+
 /// Whether `push_cast` moves every cast in `term` to the letters and
 /// numerals, as `norm_cast_moves_all` asks of `norm_cast`: the casts of two
 /// statements alike but for them are then pushed in alike, and what is left
@@ -822,6 +851,22 @@ mod tests {
         }
         assert!(ADDED.contains(&moves_both(N, E)));
         assert_eq!(ADDED.len(), WIDENINGS.len() + 1);
+    }
+
+    /// `norm_cast` takes an order of integers cast up to the reals back to
+    /// the order, as the table's order row says; not to a type it is in
+    /// already.
+    #[test]
+    fn an_order_cast_up_as_a_whole_is_lifted_back() {
+        use super::super::doc::{LeanType, TermKind};
+        let int = LeanType::Num(Num::Int);
+        let lt = super::super::doc::Op::of("<").expect("less");
+        let a = Term::letter("a", int.clone());
+        let b = Term::letter("b", int.clone());
+        let order = Term::infix(lt, a, b, LeanType::Prop);
+        assert!(matches!(order.kind, TermKind::Infix { .. }));
+        assert!(norm_cast_lifts_relation(&order, &LeanType::Num(Num::Real)));
+        assert!(!norm_cast_lifts_relation(&order, &int));
     }
 
     /// The type the table casts between prints as Lean writes it.

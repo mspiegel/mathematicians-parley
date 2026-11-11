@@ -1,0 +1,9 @@
+theorem tests/stdlib/sums/range
+step 1 cites stdlib/sums/range group 0; k := k, n := n; concludes 0 Forward, 0 Forward; from H3 sentence 0; supplied by once H1 sentence 0; letters k none from cr, n cz from cz; facing none, none; met as written, apart
+read 42: k ∈ ℕ and k ≤ n  as  conjunction:and(membership:∈(name:k, number-systems:ℕ), order:≤(name:k, name:n))  a statement
+read 43: n ∈ ℤ  as  membership:∈(name:n, number-systems:ℤ)  a statement
+read 44: k ∈ ℝ  as  membership:∈(name:k, number-systems:ℝ)  a statement
+read 45: k ∈ {1, …, n}  as  membership:∈(name:k, integer-range:{,…,}(numeral:1, name:n))  a statement
+read 46: k ∈ ℕ and k ≤ n  as  conjunction:and(membership:∈(name:k, number-systems:ℕ), order:≤(name:k, name:n))  a statement
+read 48: k ∈ ℕ and k ≤ n  as  conjunction:and(membership:∈(name:k, number-systems:ℕ), order:≤(name:k, name:n))  a statement
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

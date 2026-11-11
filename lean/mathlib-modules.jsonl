@@ -1061,7 +1061,6 @@
 {"key":"simp only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp only [← a] at h","kind":"tactic","modules":[]}
 {"key":"simpa only [a] using a","kind":"tactic","modules":[]}
-{"key":"simpa using a","kind":"tactic","modules":[]}
 {"key":"skip","kind":"tactic","modules":[]}
 {"key":"specialize a","kind":"tactic","modules":[]}
 {"key":"tauto","kind":"tactic","modules":["Mathlib.Tactic.Tauto"]}
