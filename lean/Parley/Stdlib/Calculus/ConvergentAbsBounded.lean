@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -90,7 +89,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
       -- 10.3.8. substitute
       have s10_3_8 : abs (x m) ≤ abs (x m - L) + abs L := by
         have c1 : x m - L + L = x m := by parley_ring
-        have row1 : abs (x m) ≤ abs (x m - L) + abs L := by parley_subst_at c1 s10_3_7
+        have row1 : abs (x m) ≤ abs (x m - L) + abs L := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (x m - L) + abs L)) c1 s10_3_7; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 10.3.9. inequalities
       have s10_3_9 : abs (x m - L) + abs L < abs L + 1 := by parley_order

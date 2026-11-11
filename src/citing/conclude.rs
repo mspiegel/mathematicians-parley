@@ -331,7 +331,7 @@ pub fn substitution_unsaid(
 fn dropped_at_sites(start: &Node, was: &Node, ctx: &Context) -> bool {
     // A place written as `was` is written is the place itself, and drops
     // nothing (`matching::put_places`).
-    if start.same_shape(was) {
+    if start.spelt_alike(was) {
         return false;
     }
     let inside = |c: &Node| crate::matching::put_places(c, was, was, ctx).is_some();

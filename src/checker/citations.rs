@@ -309,22 +309,28 @@ fn facings(
                 .into_iter()
                 .find(|r| r.way == c.way)?;
             let item = filled(&read.claimed, &taken.binding, &library.ctx);
-            let claim = claims.get(k)?;
-            if item.notation() != EQUALITY || claim.notation() != EQUALITY {
-                return None;
-            }
-            let (il, ir) = (&item.children[0], &item.children[1]);
-            let (cl, cr) = (&claim.children[0], &claim.children[1]);
-            let meets = |a: &Node, b: &Node| known.alike_how(a, b).is_some();
-            if meets(il, cl) || meets(ir, cr) {
-                Some(Facing::Straight)
-            } else if meets(il, cr) || meets(ir, cl) {
-                Some(Facing::Turned)
-            } else {
-                None
-            }
+            facing_of(&item, claims.get(k)?, known)
         })
         .collect()
+}
+
+/// Which way one equation faces another: a side of the one alike the same
+/// side of the other, or only the other side, as `Known::alike_how`
+/// compares them; None where either is no equation or no side meets.
+pub(super) fn facing_of(item: &Node, claim: &Node, known: &Known) -> Option<Facing> {
+    if item.notation() != EQUALITY || claim.notation() != EQUALITY {
+        return None;
+    }
+    let (il, ir) = (&item.children[0], &item.children[1]);
+    let (cl, cr) = (&claim.children[0], &claim.children[1]);
+    let meets = |a: &Node, b: &Node| known.alike_how(a, b).is_some();
+    if meets(il, cl) || meets(ir, cr) {
+        Some(Facing::Straight)
+    } else if meets(il, cr) || meets(ir, cl) {
+        Some(Facing::Turned)
+    } else {
+        None
+    }
 }
 
 /// For each sentence `taken` concludes, how the item's sentence read at the
@@ -1142,8 +1148,8 @@ fn ways_supplied(
 
 /// The two lists say the same things in the same order, facts being the
 /// same when they are spelt the same.
-fn same_shapes(one: &[Node], other: &[Node]) -> bool {
-    one.len() == other.len() && one.iter().zip(other).all(|(a, b)| a.same_shape(b))
+fn lists_spelt_alike(one: &[Node], other: &[Node]) -> bool {
+    one.len() == other.len() && one.iter().zip(other).all(|(a, b)| a.spelt_alike(b))
 }
 
 /// Every fact of `some` is among `all`, as many times as it is in `some`,
@@ -1544,7 +1550,7 @@ fn recursion_differs(
             // the term its rules build, and F(k) + 1 + 0 builds another term
             // than F(k) + 1, which the kernel will not fit to it.
             let as_written = |t: &Node| standard(t, known.ctx);
-            if !as_written(&a_tree).same_shape(&as_written(&b_tree)) {
+            if !as_written(&a_tree).spelt_alike(&as_written(&b_tree)) {
                 let place = match at {
                     None => format!("{name}(0)"),
                     Some(k) => format!("{name}({k} + 1)"),
@@ -2593,15 +2599,43 @@ fn substitution_reading(
         .collect();
     // Where it is put, read as the page writes the trees: what a backend
     // puts the equation in at.
+    // Where the putting makes the claim only once an identity element it
+    // leaves is dropped, `1·x` written `x`: the side put for at every place
+    // it stands, and the identities dropped as `Known::alike_how` drops
+    // them, nothing else taken.
+    let dropping = || {
+        [(left, right, false), (right, left, true)]
+            .into_iter()
+            .find_map(|(was, now, turned)| {
+                let places = crate::matching::places_of(&start.start, was);
+                if places.is_empty() {
+                    return None;
+                }
+                let made = crate::matching::put_at_places(&start.start, &places, now);
+                let met = known.alike_how(&made, &way.aim)?;
+                let only_identities = !met.identities.is_empty()
+                    && !met.turned
+                    && !met.permuted
+                    && !met.renamed
+                    && !met.respelled;
+                only_identities.then_some((
+                    crate::matching::SubstitutionPlaces { turned, places },
+                    met.identities,
+                ))
+            })
+    };
     let found = match (&start.into, way.claimed) {
         (Some(into), true) => {
             crate::matching::substitution_places(&start.start, &way.aim, left, right)
-                .map(|put| Substituted {
+                .map(|put| (put, Vec::new()))
+                .or_else(dropping)
+                .map(|(put, identities)| Substituted {
                     equation: equation.clone(),
                     from: from.clone(),
                     into: into.clone(),
                     start: start.start.clone(),
                     put,
+                    identities,
                 })
         }
         _ => None,
@@ -2641,6 +2675,62 @@ pub fn substitutions(
         }
     }
     out
+}
+
+/// Each row of a `substitute` step after the first, by its reason's line
+/// (`CheckedTheorem::substituted_rows`): the change its reason proves, put
+/// into the row above (`SubstitutedInto::RowAbove`) at the places the
+/// change's left side stands where the row has its right.
+pub fn row_substitutions(
+    thm: &Theorem,
+    known: &Known,
+) -> IndexMap<usize, crate::checker::record::Substituted> {
+    thm.steps
+        .iter()
+        .flat_map(|step| step_row_substitutions(step, thm, known))
+        .collect()
+}
+
+/// `row_substitutions` of one step, the places found by
+/// `matching::substitution_places`, read as the page writes the trees.
+fn step_row_substitutions(
+    step: &Step,
+    thm: &Theorem,
+    known: &Known,
+) -> Vec<(usize, crate::checker::record::Substituted)> {
+    use crate::checker::record::{Substituted, SubstitutedInto};
+    let Some(Ok(rows)) = crate::corpus::proof::substitute_rows(&step.just, &thm.path)
+    else {
+        return Vec::new();
+    };
+    let read =
+        |w: &crate::formula::page::Written| known.read_as_written(&w.formula().ok()?);
+    rows.windows(2)
+        .filter_map(|pair| {
+            let (above, row) = (&pair[0], &pair[1]);
+            let reason = row.reason.as_ref()?;
+            let (start, aim, equation) = (
+                read(&above.formula)?,
+                read(&row.formula)?,
+                read(&reason.fact)?,
+            );
+            let [left, right] = equation.children.as_slice() else {
+                return None;
+            };
+            let put = crate::matching::substitution_places(&start, &aim, left, right)?;
+            Some((
+                reason.line,
+                Substituted {
+                    equation: equation.clone(),
+                    from: None,
+                    into: SubstitutedInto::RowAbove,
+                    start,
+                    put,
+                    identities: Vec::new(),
+                },
+            ))
+        })
+        .collect()
 }
 
 /// An obtain reaches a "there is" of the item it names.
@@ -3140,7 +3230,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     let holds_atom = |n: &Node| {
         atoms
             .iter()
-            .any(|atom| n.walk().iter().any(|part| part.same_shape(atom)))
+            .any(|atom| n.walk().iter().any(|part| part.spelt_alike(atom)))
     };
     let scope = known.scope(step);
     step.requires
@@ -3166,8 +3256,8 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 &n
             };
             let written = atoms.iter().any(|atom| {
-                (whole || !held.same_shape(atom))
-                    && held.walk().iter().any(|part| part.same_shape(atom))
+                (whole || !held.spelt_alike(atom))
+                    && held.walk().iter().any(|part| part.spelt_alike(atom))
             });
             // Or it holds the term once the defines it cites are written
             // out: `U(0) ∈ ℝ: membership, from D6` divides by 10^0, which
@@ -3817,6 +3907,53 @@ impl DefinedRule {
 struct DefinedAt<'a> {
     defined: &'a IndexMap<String, Option<DefinedRule>>,
     letters: &'a Introduced,
+}
+
+/// Of each step citing a function a define lets on a domain, where a line
+/// the step cites says the argument its claim applies the function at is in
+/// that domain (`CheckedTheorem::define_domains`): the membership among the
+/// step's facts, placed in its line (`formulas::fact_placed`). By the step's
+/// line; a step with no such line cited is left out.
+pub fn define_domains(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, crate::checker::record::FirstAt> {
+    let mut out = IndexMap::new();
+    for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
+        let Some(label) = step.just.defined.as_deref() else {
+            continue;
+        };
+        let Some(d) = thm.defines.iter().find(|d| d.label == label) else {
+            continue;
+        };
+        let Ok(Some(rule)) = DefinedRule::of(d, known) else {
+            continue;
+        };
+        let Some(claim) = known.whole_as_written(&step.claim) else {
+            continue;
+        };
+        let parts = known.parts(step, library);
+        let at = claim.walk().into_iter().find_map(|n| {
+            let [f, arg] = n.children.as_slice() else {
+                return None;
+            };
+            if n.notation() != APPLICATION || !f.is_name() || f.text != rule.name {
+                return None;
+            }
+            let fact = parts.facts.iter().find(|fact| {
+                fact.notation() == MEMBERSHIP
+                    && fact.children.len() == 2
+                    && known.alike(&fact.children[0], arg)
+                    && known.alike(&fact.children[1], &rule.domain)
+            })?;
+            super::formulas::fact_placed(step, fact, known)
+        });
+        if let Some(at) = at {
+            out.insert(step.just.line, at);
+        }
+    }
+    out
 }
 
 /// Each type the item named asks of a function `at` defines
@@ -5975,8 +6112,8 @@ fn fails_without(
     // are among these, and the claim and the seed are these, so the claim's
     // route is the one the ways were found by.
     within(&left.facts, &facts.facts)
-        && same_shapes(&left.claims, &facts.claims)
-        && same_shapes(
+        && lists_spelt_alike(&left.claims, &facts.claims)
+        && lists_spelt_alike(
             &left.seed.values().cloned().collect::<Vec<_>>(),
             &facts.seed.values().cloned().collect::<Vec<_>>(),
         )

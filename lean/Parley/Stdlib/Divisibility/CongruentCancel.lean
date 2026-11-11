@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -28,7 +27,7 @@ theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (
   -- 2. substitute
   have s2 : n ∣ (x - y) * c := by
     have c1 : x * c - y * c = (x - y) * c := by parley_ring
-    have row1 : n ∣ (x - y) * c := by parley_subst_at c1 s1
+    have row1 : n ∣ (x - y) * c := by (have h := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. thm:coprime-divides x := x − y, from H6, 2
   have s3 : n ∣ x - y := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) s2 hH6)

@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -86,7 +85,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 19. substitute
   have s19 : abs (-p / 2) = abs (p / 2) := by
     have c1 : -(p / 2) = -p / 2 := by parley_ring
-    have row1 : abs (-p / 2) = abs (p / 2) := by parley_subst_at c1 s18
+    have row1 : abs (-p / 2) = abs (p / 2) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (p / 2))) c1 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 20. transitivity, from 19, 8, 9
   have s20 : abs (-p / 2) < p := by parley_order

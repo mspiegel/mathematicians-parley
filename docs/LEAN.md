@@ -120,10 +120,22 @@ calculation row makes its claim (`CheckedTheorem::substituted`), the writer
 puts the equation in exactly there. It writes what the equation is put into
 with each recorded place as one fresh letter, the motive, its letter of the
 type its places are written in: the line's, for a term of the line's
-arithmetic, and its own, for a function's argument. Put into a line,
+arithmetic (a side, a part of a sum or product, or a power's base, `^` or a
+superscript), and its own, for a function's argument or an exponent. Places
+of different kinds written in one type take one motive. Put into a line,
 `Eq.subst` along the
 motive takes the line to the claim; put into a side of the claim `t = t′`,
 `congrArg` of the motive is the claim, turned where the side is its right.
+An equation in a narrower type than a claim side whose places are all of
+its arithmetic is first stated in the wider, as a line's is, cast up with
+`push_cast` and `linear_combination`, and the motive's letter is of the
+wider. Each row of a `substitute` step is put into the row above the same
+way, its change proved by its reason (`substituted_rows`). An equation no
+line says is proved where it is put: by `parley_arith` where the step works
+it out, and by the define's hypothesis, turned where the step writes the
+name on the right. Identity elements the record says the claim drops are
+rewritten away by `push_cast` with their lemmas, `push_cast [one_mul] at h
+⊢`.
 The equation's line is turned with `.symm` where the record puts its left
 side for its right, read from the line as the page writes it, with its
 defines kept (`FirstAt::written`). The result is stated by a `have`, so that
@@ -140,8 +152,10 @@ in", where the record has none or the motive does not state it as written:
 - a line, or a motive, of a term written as the whole number it is;
 - a line in a narrower type than the equation; in a wider one, the equation
   is first stated in the type its place is written in;
-- places written in different types in one step;
-- an equation of rationals put into a wider field;
+- places written in different types in one step, a term of the arithmetic
+  beside an exponent or argument of another type;
+- an equation of rationals put into a wider field at a place written in its
+  own type;
 - an equation with a side holding a cast of a `toNat`.
 
 **Casts.** Where two statements are alike but for casts, the closer comes
@@ -455,7 +469,11 @@ domain is to be shown of the claim's letter, which `omega` does not do. A
 define by cases is put at the case the checker took (`define_cases`):
 `simp only [hD, if_pos h₁, if_neg h₂]`, each condition by the line that
 says it, and `push_cast; norm_num` after it where the case's value meets the
-other side otherwise than as written. A definition read backwards is
+other side otherwise than as written. A function the header lets by cases
+on a domain is put at the argument the record places in the domain
+(`define_domains`), `simp only [hD1 _ h, if_pos h₁]`. A condition is put by
+its line only where Lean states that line in the claim's type; arithmetic
+Lean states in ℚ beside a define over ℝ says another condition. A definition read backwards is
 `(…).mpr w` alone where Lean states its left side as it writes the claim.
 
 ## How a block ends

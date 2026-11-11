@@ -699,7 +699,7 @@ impl Elaborator<'_> {
             Some(want) => wanted_reading(self.g, &b, want).unwrap_or(b),
             None => b,
         });
-        back.is_ok_and(|b| b.same_shape(&node)).then_some(node)
+        back.is_ok_and(|b| b.spelt_alike(&node)).then_some(node)
     }
 
     /// What fills each hole of `target` where the term is what it builds,

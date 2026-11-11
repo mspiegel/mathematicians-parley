@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -43,7 +42,9 @@ theorem binomial_of_two (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.4. thm:pascal n := j, k := 2
       have s1_4 : (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) (by parley_side) (k := (2 : ℤ)))
       -- 1.5. substitute 2 − 1 = 1 (arithmetic) into line 1.4
-      have s1_5 : (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ) := by parley_subst_at (show (2 - 1 : ℤ) = 1 by parley_side) s1_4
+      have s1_5 : (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ) := by
+        have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ))) e_arith s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.6. thm:binomial-of-one m := j
       have s1_6 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = j := by exact (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := j) (by parley_side))
       -- 1.7. algebra, from IH, 1.5, 1.6

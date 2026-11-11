@@ -414,6 +414,17 @@ struct HowMet<'m> {
     meeting: Option<&'m crate::matching::Meeting>,
 }
 
+/// An equation a substitution puts in that no line says, as Lean has it:
+/// a row's change, proved by its reason, `c2 : 3 * 3 + 3 = 12`, put into
+/// the row above (`SubstitutedInto::RowAbove`); or a step's own equation,
+/// worked out by arithmetic or a define's, put where the record says.
+struct GivenEquation {
+    /// The equation, its proof and what Lean states for it.
+    change: super::algebra::Cited,
+    /// The row above, by its name and what it says, for a row's change.
+    above: Option<super::algebra::Cited>,
+}
+
 /// The claim a citation is met with, as Lean prints it.
 #[derive(Clone, Copy)]
 struct StepClaim<'p> {
@@ -4684,6 +4695,50 @@ impl<'a> Proof<'a> {
                 // function's domain, is to be shown of the claim's letter
                 // and `omega` does not show it.
                 None => match self.header_function_cited(reason.just) {
+                    // A function the header lets by cases on a domain: its
+                    // equation at the argument the cited line puts in the
+                    // domain (`define_domains`), `hD1 _ h`, and the case the
+                    // checker took (`define_cases`).
+                    Some(hyp)
+                        if self.rec.define_cases.contains_key(&reason.just.line)
+                            && self
+                                .rec
+                                .define_domains
+                                .contains_key(&reason.just.line) =>
+                    {
+                        let taken = &self.rec.define_cases[&reason.just.line];
+                        let at = &self.rec.define_domains[&reason.just.line];
+                        match (self.line_part(at), self.conditions_put(taken, node)) {
+                            (Route::Built(domain), Route::Built(conditions))
+                                if at.implied.is_none() =>
+                            {
+                                let equation = Printed {
+                                    kind: super::doc::TermKind::App {
+                                        head: Box::new(t::hyp(&hyp)),
+                                        args: vec![
+                                            super::doc::Arg::Explicit(Printed {
+                                                kind: super::doc::TermKind::Elided,
+                                                ty: None,
+                                            }),
+                                            super::doc::Arg::Explicit(domain.proof),
+                                        ],
+                                        explicit: false,
+                                    },
+                                    ty: None,
+                                };
+                                let mut rules = vec![t::forwards(equation)];
+                                rules.extend(conditions);
+                                let alone =
+                                    taken.meeting.as_ref().is_some_and(unfolds_alone);
+                                Route::Built(Proof::By(simp_unfolded(
+                                    rules,
+                                    alone,
+                                    node.notation() == crate::notations::FOR_ALL,
+                                )))
+                            }
+                            _ => Route::Built(header_ways(&hyp)),
+                        }
+                    }
                     Some(hyp)
                         if self.rec.define_links.contains_key(&reason.just.line)
                             && !reason
@@ -4701,21 +4756,7 @@ impl<'a> Proof<'a> {
                             node.notation() == crate::notations::FOR_ALL,
                         )))
                     }
-                    Some(hyp) => Route::Built(Proof::By(Tactic::Seq(vec![
-                        t::try_(t::simp_only(
-                            false,
-                            None,
-                            vec![t::forwards(t::hyp(&hyp))],
-                            None,
-                        )),
-                        t::first(
-                            ListReason::HeaderFunction,
-                            vec![
-                                t::call("done", vec![]),
-                                t::bridge(BridgeTactic::Side, vec![]),
-                            ],
-                        ),
-                    ]))),
+                    Some(hyp) => Route::Built(header_ways(&hyp)),
                     // A define of the proof's, its equation under the
                     // define's label: unfolded, as a calculation row
                     // citing it is, L(k) = N(k)/10^k of L's `set`.
@@ -4770,7 +4811,8 @@ impl<'a> Proof<'a> {
                             unfold.is_empty(),
                             by_cases,
                         ) {
-                            if let Route::Built(conditions) = self.conditions_put(taken)
+                            if let Route::Built(conditions) =
+                                self.conditions_put(taken, node)
                             {
                                 let alone =
                                     taken.meeting.as_ref().is_some_and(unfolds_alone);
@@ -5733,13 +5775,93 @@ impl<'a> Proof<'a> {
             .map(|proof| (proof, says))
     }
 
+    /// The proof of a substitution's own equation where no line says it
+    /// (`Substituted::from` None), by the source the step names: worked out
+    /// by arithmetic, a `have` proved by `parley_arith`; or a define of a
+    /// name, its hypothesis, turned where the step writes the name on the
+    /// right. None of any other source.
+    fn equation_given(
+        &self,
+        just: &Justification,
+    ) -> Option<(Option<Tactic>, GivenEquation)> {
+        use super::tactics as t;
+        use crate::corpus::skeleton::Source;
+        let rec = self.rec.substituted.get(&just.line)?;
+        if rec.from.is_some() {
+            return None;
+        }
+        match just.source.as_ref()? {
+            Source::Arithmetic => {
+                let says = self.writer.formula(&rec.equation).built()?;
+                let have = Tactic::Have {
+                    name: "e_arith".to_string(),
+                    says: says.clone(),
+                    proof: Box::new(super::doc::Proof::By(t::bridge(
+                        BridgeTactic::Arith,
+                        vec![],
+                    ))),
+                };
+                Some((
+                    Some(have),
+                    GivenEquation {
+                        change: super::algebra::Cited {
+                            node: rec.equation.clone(),
+                            proof: t::hyp("e_arith"),
+                            says: Some(says),
+                        },
+                        above: None,
+                    },
+                ))
+            }
+            Source::At(place) => {
+                let label = place.named();
+                let d = self.thm.defines.iter().find(|d| d.label == label)?;
+                let Route::Built(crate::corpus::DefineParts::One(one)) =
+                    crate::corpus::define_parts(&d.text)
+                else {
+                    return None;
+                };
+                if !one.params.is_empty() {
+                    return None;
+                }
+                let hyp = self.named.get(label)?.first()?;
+                let [left, _] = rec.equation.children.as_slice() else {
+                    return None;
+                };
+                let name_left = left.is_name() && left.text == one.name;
+                let proof = match name_left {
+                    true => t::hyp(hyp),
+                    false => t::symm(t::bracket(t::hyp(hyp))),
+                };
+                Some((
+                    None,
+                    GivenEquation {
+                        change: super::algebra::Cited {
+                            node: rec.equation.clone(),
+                            proof,
+                            says: None,
+                        },
+                        above: None,
+                    },
+                ))
+            }
+            Source::RealArithmetic => None,
+        }
+    }
+
     /// The rewrites that take a define by cases to the case the checker
     /// took (`define_cases`): `if_pos h` of each condition passed that
     /// holds and `if_neg h` of each that fails, h the line that says so.
     fn conditions_put(
         &self,
         taken: &crate::checker::record::TakenCase,
+        claim: &Node,
     ) -> Route<Vec<super::doc::Rule>> {
+        use super::doc::forms::relation_type;
+        let claim_type = match self.writer.formula(claim) {
+            Route::Built(c) => relation_type(&c),
+            Route::Declined(d) => return Route::Declined(d),
+        };
         let mut out = Vec::new();
         for condition in &taken.passed {
             let Some(at) = &condition.said_by else {
@@ -5753,6 +5875,20 @@ impl<'a> Proof<'a> {
                 return Route::no(
                     "a case's condition a line implies without saying it",
                 );
+            }
+            // A line Lean states in another type than the claim's, `¬ (1/2 :
+            // ℚ) < 1/2` beside a define over ℝ, says another condition than
+            // the define's.
+            let says = match self.line_statement(&found) {
+                Route::Built(s) => s,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            if let (Some(line), Some(claim)) = (relation_type(&says), &claim_type) {
+                if line != *claim {
+                    return Route::no(
+                        "a case's condition said by a line in another type than the claim's",
+                    );
+                }
             }
             let lemma = match condition.holds {
                 true => "if_pos",
@@ -8398,15 +8534,23 @@ impl<'a> Proof<'a> {
     /// is its right. Either is closed by `exact_mod_cast`, as a numeral put
     /// where the claim writes it in a wider type is written with its cast.
     /// Declined where the record has none, or a place of no number type.
+    /// A row of a `substitute` step (`SubstitutedInto::RowAbove`) is put
+    /// into the row above as into a line, its change proved by its reason;
+    /// a step's own equation from no line, by its proof (`GivenEquation`).
     fn substituted_by_record(
         &self,
-        just: &Justification,
+        line: usize,
         claim: &Node,
+        row: Option<&GivenEquation>,
     ) -> Route<super::doc::Proof> {
         use super::doc::{LeanType, Proof};
         use super::tactics as t;
         use crate::checker::record::SubstitutedInto;
-        let Some(rec) = self.rec.substituted.get(&just.line) else {
+        let recorded = match row.is_some_and(|r| r.above.is_some()) {
+            true => &self.rec.substituted_rows,
+            false => &self.rec.substituted,
+        };
+        let Some(rec) = recorded.get(&line) else {
             return Route::no("a substitution the checker recorded no way of");
         };
         let [left, right] = rec.equation.children.as_slice() else {
@@ -8417,24 +8561,38 @@ impl<'a> Proof<'a> {
             true => (right, true),
         };
         // The equation's proof: the line's part the record names, turned
-        // where the line says it the other way round.
-        let Some(from) = &rec.from else {
-            return Route::no("an equation the record takes from no line");
-        };
-        let part = match self.line_part(from) {
-            Route::Built(p) => p,
-            Route::Declined(d) => return Route::Declined(d),
-        };
-        // Which way round the line says the recorded equation, as the record
-        // has the line write it with its defines kept (`FirstAt::written`),
-        // side by side: `alike_top` takes an equation either way round.
-        let as_said = match from.written.children.as_slice() {
-            [l, _] => crate::matching::alike_top(l, left, self.sources.ctx),
-            _ => true,
-        };
-        let equation = match as_said != faced {
-            true => part.proof.clone(),
-            false => t::symm(t::bracket(part.proof.clone())),
+        // where the line says it the other way round; a row's change, which
+        // its reason proves as the record writes it.
+        let (part, equation) = match (&rec.from, row) {
+            (Some(from), _) => {
+                let part = match self.line_part(from) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                // Which way round the line says the recorded equation, as the
+                // record has the line write it with its defines kept
+                // (`FirstAt::written`), side by side: `alike_top` takes an
+                // equation either way round.
+                let as_said = match from.written.children.as_slice() {
+                    [l, _] => crate::matching::alike_top(l, left, self.sources.ctx),
+                    _ => true,
+                };
+                let equation = match as_said != faced {
+                    true => part.proof.clone(),
+                    false => t::symm(t::bracket(part.proof.clone())),
+                };
+                (part, equation)
+            }
+            (None, Some(row)) => {
+                let equation = match faced {
+                    false => row.change.proof.clone(),
+                    true => t::symm(t::bracket(row.change.proof.clone())),
+                };
+                (row.change.clone(), equation)
+            }
+            (None, None) => {
+                return Route::no("an equation the record takes from no line")
+            }
         };
         // A side holding a cast of a `toNat`, `((2^p − 1).toNat : ℤ)`, which
         // `push_cast` moves only knowing the term is not negative. A `toNat`
@@ -8531,21 +8689,61 @@ impl<'a> Proof<'a> {
         // `↑(a * b)` meet; lifted instead, a division of casts is read one
         // way on one side and another on the other. A claim that pushing
         // alone works out, `True`, is closed on the way.
+        // The identity elements the putting leaves and the claim drops, as
+        // the record names them, `1·x` as `x` by `one_mul`.
+        let dropped: Option<Vec<&'static str>> =
+            rec.identities.iter().map(identity_lemma).collect();
+        let Some(dropped) = dropped else {
+            return Route::no("an identity element dropped that no lemma names");
+        };
+        // Dropped with the casts pushed, as rewrites `push_cast` takes beside
+        // its own: a numeral put where the claim has it in a wider type is
+        // cast, `((1 : ℤ) : ℝ) * x`, which `one_mul` meets only as `1 * x`,
+        // and `push_cast` may drop the identity itself.
         let close = |term: Printed| {
+            let pushed = match dropped.is_empty() {
+                true => t::push_cast(Some(t::at_h(true))),
+                false => t::call(
+                    "push_cast",
+                    vec![
+                        t::rules(dropped.iter().map(|l| t::lemma(l)).collect()),
+                        t::at_h(true),
+                    ],
+                ),
+            };
             Proof::By(t::on_h(
                 &term,
                 vec![
-                    t::push_cast(Some(t::at_h(true))),
+                    pushed,
                     Tactic::AllGoals(Box::new(t::exact_mod_cast(t::hyp("h")))),
                 ],
             ))
         };
+        // Whether a place is a term of what it is put into's arithmetic, a
+        // side or a part of a sum, product or power's base, which Lean writes
+        // in that statement's type; any other, a function's argument or an
+        // exponent, is written in its own.
+        let in_arithmetic = |path: &Vec<usize>| {
+            let Some((&last, up)) = path.split_last() else {
+                return true;
+            };
+            at_path(&rec.start, up).is_some_and(|parent| {
+                use crate::notations as n;
+                let notation = parent.notation();
+                [n::EQUALITY, n::ORDER, n::ADDITIVE, n::MULTIPLICATIVE]
+                    .contains(&notation)
+                    || [n::UNARY_MINUS, n::JUXTAPOSITION].contains(&notation)
+                    || ([n::POWER, n::SUPERSCRIPT].contains(&notation) && last == 0)
+            })
+        };
         match &rec.into {
-            SubstitutedInto::Line(at) => {
+            SubstitutedInto::Line(_) | SubstitutedInto::RowAbove => {
                 // A fact the line implies, `k ≤ n` of `k ∈ {1, …, n}`, has
                 // no name of its own: the line's proves what it writes.
-                if at.implied.is_some() {
-                    return Route::no("a substitution into a fact a line implies");
+                if let SubstitutedInto::Line(at) = &rec.into {
+                    if at.implied.is_some() {
+                        return Route::no("a substitution into a fact a line implies");
+                    }
                 }
                 // A line saying something of the whole number a term is,
                 // `∃ m : ℤ, (m : ℚ) = t ∧ Even m`, is written otherwise than
@@ -8553,9 +8751,18 @@ impl<'a> Proof<'a> {
                 if self.writer.wide_in_slot(&rec.start).is_some() {
                     return Route::no("a substitution into a line of a whole number");
                 }
-                let into = match self.line_part(at) {
-                    Route::Built(p) => p,
-                    Route::Declined(d) => return Route::Declined(d),
+                let into = match (&rec.into, row) {
+                    (SubstitutedInto::Line(at), _) => match self.line_part(at) {
+                        Route::Built(p) => p,
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
+                    (
+                        _,
+                        Some(GivenEquation {
+                            above: Some(above), ..
+                        }),
+                    ) => above.clone(),
+                    _ => return Route::no("a row's substitution with no row above"),
                 };
                 // The type the line writes the term put for in. A term of
                 // the line's arithmetic, a side or a part of a sum, product or
@@ -8571,28 +8778,21 @@ impl<'a> Proof<'a> {
                     Some(LeanType::Num(n)) => Some(n),
                     _ => None,
                 };
-                let in_arithmetic = |path: &Vec<usize>| {
-                    let Some((&last, up)) = path.split_last() else {
-                        return true;
-                    };
-                    at_path(&rec.start, up).is_some_and(|parent| {
-                        use crate::notations as n;
-                        let notation = parent.notation();
-                        [n::EQUALITY, n::ORDER, n::ADDITIVE, n::MULTIPLICATIVE]
-                            .contains(&notation)
-                            || [n::UNARY_MINUS, n::JUXTAPOSITION].contains(&notation)
-                            || (notation == n::POWER && last == 0)
+                // Each place's type: the line's for one in its arithmetic,
+                // its own for any other; places of one type take one motive.
+                let types: std::collections::BTreeSet<super::templates::Num> = rec
+                    .put
+                    .places
+                    .iter()
+                    .map(|p| match in_arithmetic(p) {
+                        true => line_type.unwrap_or(ty),
+                        false => ty,
                     })
-                };
-                let arithmetic: Vec<bool> =
-                    rec.put.places.iter().map(in_arithmetic).collect();
-                let place_type = match (
-                    arithmetic.iter().all(|a| *a),
-                    arithmetic.iter().any(|a| *a),
-                ) {
-                    (true, _) => line_type.unwrap_or(ty),
-                    (false, false) => ty,
-                    (false, true) => {
+                    .collect();
+                let place_type = match types.into_iter().collect::<Vec<_>>().as_slice()
+                {
+                    [one] => *one,
+                    _ => {
                         return Route::no(
                             "a substitution at places written in different types",
                         )
@@ -8625,10 +8825,22 @@ impl<'a> Proof<'a> {
                                 "an equation the writer cannot state widened",
                             );
                         };
+                        // Cast up and its casts pushed in, as `widened` states
+                        // an equation in a wider type: `norm_cast` does not take
+                        // a sum of rationals to the reals.
                         let have = Tactic::Have {
                             name: "e_w".to_string(),
                             says,
-                            proof: Box::new(Proof::By(t::exact_mod_cast(equation))),
+                            proof: Box::new(Proof::By(Tactic::Seq(vec![
+                                t::name_h(&cast_up(
+                                    &self.writer,
+                                    ty,
+                                    place_type,
+                                    equation,
+                                )),
+                                t::push_cast(Some(t::at_h(false))),
+                                t::linear_combination(t::hyp("h")),
+                            ]))),
                         };
                         (t::hyp("e_w"), Some(have))
                     }
@@ -8804,24 +9016,61 @@ impl<'a> Proof<'a> {
             }
             SubstitutedInto::ClaimSide(side) => {
                 // Written in the wider of the claim side's type and the
-                // equation's. Not an equation of rationals put into a wider
-                // field: its cast inside the motive is pushed onto each
-                // division, which `push_cast` spells as `Rat.divInt` on one
-                // side and not the other.
+                // equation's. An equation in a narrower type put only at
+                // places of the side's arithmetic is stated in the wider
+                // first, as `widened` states it, and the motive's letter is of
+                // the wider: cast inside the motive, it would be pushed onto
+                // each division, which `push_cast` spells as `Rat.divInt` on
+                // one side and not the other. At a place written in its own
+                // type, an index or an exponent, the letter keeps the
+                // equation's, and an equation of rationals is not put into a
+                // wider field so.
                 let at = match self.writer.carrier(&rec.start) {
                     Route::Built(n) => n.max(ty),
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                if ty == super::templates::Num::Rat && at > ty {
+                let arithmetic = rec.put.places.iter().all(in_arithmetic);
+                if !arithmetic && ty == super::templates::Num::Rat && at > ty {
                     return Route::no(
                         "an equation of rationals put into a wider field",
                     );
                 }
-                let body = match inner.number(&marked, at) {
+                let letter_ty = match arithmetic {
+                    true => at,
+                    false => ty,
+                };
+                let (equation, widen) = match at > ty && arithmetic {
+                    false => (equation, None),
+                    true => {
+                        let put =
+                            rec.equation.with_children(vec![was.clone(), now.clone()]);
+                        let Route::Built(says) = self.writer.closed_formula(&put, at)
+                        else {
+                            return Route::no(
+                                "an equation the writer cannot state widened",
+                            );
+                        };
+                        let have = Tactic::Have {
+                            name: "e_w".to_string(),
+                            says,
+                            proof: Box::new(Proof::By(Tactic::Seq(vec![
+                                t::name_h(&cast_up(&self.writer, ty, at, equation)),
+                                t::push_cast(Some(t::at_h(false))),
+                                t::linear_combination(t::hyp("h")),
+                            ]))),
+                        };
+                        (t::hyp("e_w"), Some(have))
+                    }
+                };
+                let mut letters = self.writer.letters.clone();
+                letters.insert(letter.to_string(), LetterType::Number(letter_ty));
+                let mut wide = self.writer.with_letters(letters);
+                whole_letter(&mut wide, letter);
+                let body = match wide.number(&marked, at) {
                     Route::Built(b) => b,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let motive = lambda(letter, LeanType::Num(ty), body);
+                let motive = lambda(letter, LeanType::Num(letter_ty), body);
                 let made = applied(
                     "congrArg",
                     vec![
@@ -8829,10 +9078,14 @@ impl<'a> Proof<'a> {
                         super::doc::Arg::Explicit(equation),
                     ],
                 );
-                Route::Built(close(match side {
+                let closed = close(match side {
                     0 => made,
                     _ => t::symm(t::bracket(made)),
-                }))
+                });
+                Route::Built(match (widen, closed) {
+                    (Some(have), Proof::By(tactic)) => Proof::Block(vec![have, tactic]),
+                    (_, closed) => closed,
+                })
             }
         }
     }
@@ -8845,9 +9098,16 @@ impl<'a> Proof<'a> {
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
         use super::tactics as t;
-        // As the checker recorded it, where it did.
-        if let Route::Built(proof) = self.substituted_by_record(just, claim) {
-            return Route::Built(proof);
+        // As the checker recorded it, where it did; an equation from no line
+        // by its own proof (`equation_given`).
+        let given = self.equation_given(just);
+        if let Route::Built(proof) =
+            self.substituted_by_record(just.line, claim, given.as_ref().map(|(_, g)| g))
+        {
+            return Route::Built(match given.and_then(|(have, _)| have) {
+                Some(have) => haves_then(vec![have], proof),
+                None => proof,
+            });
         }
         if !just.rows.is_empty() {
             return self.substitute_rows(just, writer);
@@ -9364,6 +9624,13 @@ impl<'a> Proof<'a> {
             .get(first.cite.trim())
             .and_then(|t| t.first())
             .map(|s| s.node.clone());
+        // The row above as Lean has it, its name and statement: the cited
+        // line's one sentence, then each row as it is written.
+        let mut above_cited: Option<super::algebra::Cited> =
+            match self.trees.get(first.cite.trim()).map(Vec::as_slice) {
+                Some([one]) => Some(one.cited()),
+                _ => None,
+            };
         let mut haves = Vec::new();
         for (k, row) in rows.iter().enumerate().skip(1) {
             let row_node = match self.tree(&row.formula) {
@@ -9402,10 +9669,53 @@ impl<'a> Proof<'a> {
             let change_name = format!("c{k}");
             haves.push(Tactic::Have {
                 name: change_name.clone(),
-                says: change_says,
+                says: change_says.clone(),
                 proof: Box::new(proof),
             });
             let change_h = super::tactics::hyp(&change_name);
+            let row_name = format!("row{k}");
+            // The change put into the row above at the places the checker
+            // recorded (`SubstitutedInto::RowAbove`), as a line's equation
+            // is put into a line; not where the row's lines say counts both
+            // ways, which are taken to integers first (`count_conversion`).
+            let counted_both_ways = {
+                let lines: Vec<&Node> = std::iter::once(&change)
+                    .chain(above_node.as_ref())
+                    .chain(std::iter::once(&row_node))
+                    .collect();
+                self.count_forms(&lines).mixed
+            };
+            let recorded =
+                above_cited
+                    .clone()
+                    .filter(|_| !counted_both_ways)
+                    .and_then(|above| {
+                        let put = GivenEquation {
+                            change: super::algebra::Cited {
+                                node: change.clone(),
+                                proof: change_h.clone(),
+                                says: Some(change_says.clone()),
+                            },
+                            above: Some(above),
+                        };
+                        self.substituted_by_record(reason.line, &row_node, Some(&put))
+                            .built()
+                    });
+            if let Some(proof) = recorded {
+                haves.push(Tactic::Have {
+                    name: row_name.clone(),
+                    says: row_says.clone(),
+                    proof: Box::new(proof),
+                });
+                above_cited = Some(super::algebra::Cited {
+                    node: row_node.clone(),
+                    proof: super::tactics::hyp(&row_name),
+                    says: Some(row_says),
+                });
+                above = row_name;
+                above_node = Some(row_node);
+                continue;
+            }
             let used = match self.widened(&change, &change_h, &row_node, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
@@ -9413,7 +9723,6 @@ impl<'a> Proof<'a> {
                 }
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let row_name = format!("row{k}");
             // At the type the term has where it stands, as `substitute`
             // puts its equation in; each equation put by rewriting before
             // either by `simp`, which loops where one side stands in the
@@ -9448,8 +9757,13 @@ impl<'a> Proof<'a> {
             };
             haves.push(Tactic::Have {
                 name: row_name.clone(),
-                says: row_says,
+                says: row_says.clone(),
                 proof: Box::new(super::doc::Proof::By(put)),
+            });
+            above_cited = Some(super::algebra::Cited {
+                node: row_node.clone(),
+                proof: super::tactics::hyp(&row_name),
+                says: Some(row_says),
             });
             above = row_name;
             above_node = Some(row_node);
@@ -9726,9 +10040,11 @@ impl<'a> Proof<'a> {
                     // put as its term, and the line used.
                     let named = self.named.get(cite).and_then(|n| n.first());
                     let in_named = match (named, self.named_specs.is_empty()) {
-                        (Some(line), false) => {
-                            Some(in_named_forms(&self.named_specs, line))
-                        }
+                        (Some(name), false) => Some(in_named_forms(
+                            &self.named_specs,
+                            name,
+                            self.rec.link_facings.get(&line.line).copied(),
+                        )),
                         _ => None,
                     };
                     // Whether the row, or the line it cites, takes an integer
@@ -9791,13 +10107,30 @@ impl<'a> Proof<'a> {
                         .into_iter()
                         .chain(terms[k + 1].names())
                         .collect();
-                    let read = self
+                    let read: Vec<super::algebra::Cited> = self
                         .trees
                         .get(cite)
                         .into_iter()
                         .flatten()
                         .filter(|s| s.node.notation() == crate::notations::FOR_ALL)
-                        .filter_map(|s| self.at_recorded_letter(&s.cited(), &names));
+                        .filter_map(|s| self.at_recorded_letter(&s.cited(), &names))
+                        .collect();
+                    // The one such line, the way the checker found the row
+                    // faces it (`link_facings`).
+                    let at_letter = match (
+                        read.as_slice(),
+                        self.rec.link_facings.get(&line.line),
+                    ) {
+                        ([at], Some(Facing::Straight)) => {
+                            Some(super::doc::Proof::By(Tactic::Exact(at.proof.clone())))
+                        }
+                        ([at], Some(Facing::Turned)) => Some(super::doc::Proof::By(
+                            Tactic::Exact(super::tactics::symm(
+                                super::tactics::bracket(at.proof.clone()),
+                            )),
+                        )),
+                        _ => None,
+                    };
                     for at in read {
                         ways.push(Tactic::Exact(at.proof.clone()));
                         ways.push(Tactic::Exact(super::tactics::symm(
@@ -9805,6 +10138,12 @@ impl<'a> Proof<'a> {
                         )));
                     }
                     ways.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
+                    // In the named numbers' forms, the line used the way the
+                    // record says the row faces it: the row's proof.
+                    let named_decided = in_named
+                        .clone()
+                        .filter(|_| self.rec.link_facings.contains_key(&line.line))
+                        .map(super::doc::Proof::By);
                     ways.extend(in_named);
                     // The row is what the cited line says where the checker
                     // found it (`link_places`), that sentence or part as the
@@ -9869,9 +10208,11 @@ impl<'a> Proof<'a> {
                     match (by_define, placed) {
                         (Some(proof), _) => proof,
                         (None, Some(proved)) => super::doc::Proof::By(proved.closer()),
-                        (None, None) => match converted() {
-                            Some(proof) => proof,
-                            None => ways_proof(ListReason::RowRead, ways),
+                        (None, None) => match (converted(), at_letter, named_decided) {
+                            (Some(proof), _, _)
+                            | (None, Some(proof), _)
+                            | (None, None, Some(proof)) => proof,
+                            (None, None, None) => ways_proof(ListReason::RowRead, ways),
                         },
                     }
                 }
@@ -13452,7 +13793,7 @@ fn step_cited_refs(step: &crate::corpus::Step, path: &str) -> Vec<String> {
 /// The child indices that lead from `node` to a part of the shape of `part`,
 /// the first in the tree's order; None where there is none.
 fn path_to(node: &Node, part: &Node) -> Option<Vec<usize>> {
-    if node.same_shape(part) {
+    if node.spelt_alike(part) {
         return Some(Vec::new());
     }
     node.children.iter().enumerate().find_map(|(i, c)| {
@@ -14267,6 +14608,28 @@ fn unfolded_by(defines: &[String], alone: bool, for_all: bool) -> Tactic {
     simp_unfolded(rules, alone, for_all)
 }
 
+/// The ways a step citing a function the header lets keeps where the record
+/// does not decide it: the function's equation put in, then the claim as it
+/// stands or worked out.
+fn header_ways(hyp: &str) -> super::doc::Proof {
+    use super::tactics as t;
+    super::doc::Proof::By(Tactic::Seq(vec![
+        t::try_(t::simp_only(
+            false,
+            None,
+            vec![t::forwards(t::hyp(hyp))],
+            None,
+        )),
+        t::first(
+            ListReason::HeaderFunction,
+            vec![
+                t::call("done", vec![]),
+                t::bridge(BridgeTactic::Side, vec![]),
+            ],
+        ),
+    ]))
+}
+
 /// `unfolded_by` with the rules given: the defines' equations and any
 /// rewrite that goes with them, a case's `if_pos h`.
 fn simp_unfolded(
@@ -14307,24 +14670,29 @@ fn unfolded(defines: &[String]) -> Vec<Tactic> {
     ]
 }
 
-/// `(qify; push_cast; simp only [specs]; first | (linear_combination line;
-/// done) | (linear_combination -line; done))`: a row and the line it cites
-/// taken to ℚ, each named number put as its term, and the line used either
-/// way round.
-fn in_named_forms(specs: &[Printed], line: &str) -> Tactic {
+/// `qify; push_cast; simp only [specs]; linear_combination line`: a row and
+/// the line it cites taken to ℚ, each named number put as its term, and the
+/// line used the way the row faces it (`link_facings`), `-line` where
+/// turned; both ways where the record has no facing.
+fn in_named_forms(specs: &[Printed], line: &str, facing: Option<Facing>) -> Tactic {
     use super::tactics as t;
     let rules = specs.iter().cloned().map(t::forwards).collect();
     let by_line = |by: Printed| {
         t::steps(vec![t::linear_combination(by), t::call("done", vec![])])
     };
+    let used = match facing {
+        Some(Facing::Straight) => t::linear_combination(t::hyp(line)),
+        Some(Facing::Turned) => t::linear_combination(negated(t::hyp(line))),
+        None => t::first(
+            ListReason::NamedNumbers,
+            vec![by_line(t::hyp(line)), by_line(negated(t::hyp(line)))],
+        ),
+    };
     t::steps(vec![
         t::call("qify", vec![]),
         t::push_cast(None),
         t::simp_only(false, None, rules, None),
-        t::first(
-            ListReason::NamedNumbers,
-            vec![by_line(t::hyp(line)), by_line(negated(t::hyp(line)))],
-        ),
+        used,
     ])
 }
 

@@ -324,17 +324,34 @@ pub struct CheckedTheorem {
     /// case, how it reaches that case and meets it. By the step's line
     /// (`formulas::define_cases`).
     pub define_cases: IndexMap<usize, TakenCase>,
+    /// Of each step citing a function a define lets on a domain, `H(x) for
+    /// x ∈ A ∪ B`, where a line the step cites says the argument its claim
+    /// applies the function at is in that domain. By the step's line
+    /// (`citations::define_domains`).
+    pub define_domains: IndexMap<usize, FirstAt>,
     /// Where in the line each calculation link cites the link stands, by
     /// the link's line (`formulas::link_places`). A link read off a chain,
     /// a = c of a = b = c, is placed at the chain's sentence with the pair it
     /// reads as `written`.
     pub link_places: IndexMap<usize, FirstAt>,
+    /// Which way each calculation link that cites a line faces what the line
+    /// says, an equation of the line's turned round where the link writes
+    /// its sides the other way (`citations::facing_of`), by the link's line
+    /// (`formulas::link_places`); left out where the line says no equation
+    /// or no side meets.
+    pub link_facings: IndexMap<usize, Facing>,
     /// How each `substitute` step and calculation row writing no rows makes
     /// its claim, by the line of its justification; none where the
     /// equation is put at places only a standard order of the trees finds,
     /// or an identity element is dropped on the way
     /// (`citations::substitutions`).
     pub substituted: IndexMap<usize, Substituted>,
+    /// How each row of a `substitute` step after the first makes the row:
+    /// the change its reason proves put into the row above, by the line of
+    /// the row's reason (`citations::row_substitutions`). Apart from
+    /// `substituted`, which has under that line how the reason itself makes
+    /// the change.
+    pub substituted_rows: IndexMap<usize, Substituted>,
     /// What each of the theorem's `let` lines asserts that the page does not
     /// read as a formula, `f : A → B be one-to-one` as `f : A → B is
     /// one-to-one`, by the hypothesis's index; empty for any other line
@@ -652,6 +669,10 @@ pub enum SubstitutedInto {
     /// A side of the claim `t = t′`, by its place, 0 or 1: the side the
     /// equation is put into makes the other.
     ClaimSide(usize),
+    /// The row above, of a `substitute` step's rows: the row's change, as
+    /// its reason proves it, put into the row before it makes the row
+    /// (`CheckedTheorem::substituted_rows`).
+    RowAbove,
 }
 
 /// How a `substitute` step or calculation row makes its claim: the
@@ -673,6 +694,10 @@ pub struct Substituted {
     /// Where it is put (`matching::substitution_places`): which way round,
     /// and each place by its path of children from the top of `start`.
     pub put: crate::matching::SubstitutionPlaces,
+    /// The identity elements what the putting makes holds and the claim
+    /// leaves out, `1·x` written `x`, as `Known::alike_how` drops them; none
+    /// where the putting makes the claim as written.
+    pub identities: Vec<crate::matching::Dropped>,
 }
 
 /// One letter of a cited item the citation gives a value, with the number

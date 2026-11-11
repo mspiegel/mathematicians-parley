@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
+public import NormTactics
 public import PowerTactics
 public import SetTactics
 public import Tactics
@@ -35,6 +36,7 @@ public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -120,7 +122,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     have s19_2 : p x = x ^ m.toNat := by simp (disch := omega) only [hD1]
     -- 19.3. calculation
     have r142_1 : m + 1 ≠ 0 := by parley_set_side
-    calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by first | exact (s18 x (by parley_set_side)) | exact ((s18 x (by parley_set_side))).symm | parley_set_side
+    calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by exact (s18 x (by parley_set_side))
       _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) (s16 x (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = x ^ m.toNat := by parley_ring
       _ = p x := by exact s19_2
@@ -150,12 +152,16 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   have s29 : F 1 = 1 / ((m : ℝ) + 1) * 1 := by
     calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := by exact s27
       _ = 1 / ((m : ℝ) + 1) * 1 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s23; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = 1 / ((m : ℝ) + 1) * 1 := by (have h := congrArg (fun t : ℤ => 1 / ((m : ℚ) + 1) * (t : ℚ)) s24; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 1 / ((m : ℝ) + 1) * 1 := by
+          have e_w : (1 ^ (m + 1).toNat : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
+          (have h := congrArg (fun t : ℚ => 1 / ((m : ℚ) + 1) * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 30. calculation
   have s30 : F 0 = 1 / ((m : ℝ) + 1) * 0 := by
     calc F 0 = 1 / ((m : ℝ) + 1) * q 0 := by exact s28
       _ = 1 / ((m : ℝ) + 1) * 0 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s25; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = 1 / ((m : ℝ) + 1) * 0 := by (have h := congrArg (fun t : ℤ => 1 / ((m : ℚ) + 1) * (t : ℚ)) s26; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 1 / ((m : ℝ) + 1) * 0 := by
+          have e_w : (0 ^ (m + 1).toNat : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s26; push_cast at h; linear_combination (norm := parley_norm) h
+          (have h := congrArg (fun t : ℚ => 1 / ((m : ℚ) + 1) * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 31. calculation
   have r193_1 : m + 1 ≠ 0 := by parley_set_side
   calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by simp (disch := omega) only [hD1]

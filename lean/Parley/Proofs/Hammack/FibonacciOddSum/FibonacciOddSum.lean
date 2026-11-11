@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
@@ -94,14 +93,14 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
       -- 5.11. substitute
       have s5_11 : q (m + 1) = F (2 * m + 1) := by
         have c1 : 2 * (m + 1) - 1 = 2 * m + 1 := by parley_ring
-        have row1 : q (m + 1) = F (2 * m + 1) := by parley_subst_at c1 s5_10
+        have row1 : q (m + 1) = F (2 * m + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => q (m + 1) = F t)) c1 s5_10; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 5.12. instantiate k := 2m in line 4
       have s5_12 : F (2 * m + 2) = F (2 * m) + F (2 * m + 1) := by exact (s4 (2 * m) (by parley_side))
       -- 5.13. substitute
       have s5_13 : F (2 * (m + 1)) = F (2 * m) + F (2 * m + 1) := by
         have c1 : 2 * m + 2 = 2 * (m + 1) := by parley_ring
-        have row1 : F (2 * (m + 1)) = F (2 * m) + F (2 * m + 1) := by parley_subst_at c1 s5_12
+        have row1 : F (2 * (m + 1)) = F (2 * m) + F (2 * m + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F t = F (2 * m) + F (2 * m + 1))) c1 s5_12; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 5.14. calculation
       have r125_1 : m ≥ 1 := by parley_side

@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -53,9 +52,9 @@ theorem even_leg (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 
       -- 2.2.3. substitute
       have s2_2_3 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by
         have c1 : a = 2 * p + 1 := by (have h := congrArg (fun t : ℤ => t) s2_2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
-        have row1 : (2 * p + 1) ^ 2 + b ^ 2 = c ^ 2 := by parley_subst_at c1 hH4
+        have row1 : (2 * p + 1) ^ 2 + b ^ 2 = c ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 + b ^ 2 = c ^ 2)) c1 hH4; push_cast at h ⊢; all_goals exact_mod_cast h)
         have c2 : b = 2 * q + 1 := by (have h := congrArg (fun t : ℤ => t) s2_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
-        have row2 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by parley_subst_at c2 row1
+        have row2 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (2 * p + 1) ^ 2 + t ^ 2 = c ^ 2)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row2
       -- 2.2.4. calculation
       have s2_2_4 : c ^ 2 = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by

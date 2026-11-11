@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -27,21 +26,21 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
   -- 2. substitute
   have s2 : abs A ≤ abs (A - B) + abs B := by
     have c1 : A - B + B = A := by parley_ring
-    have row1 : abs A ≤ abs (A - B) + abs B := by parley_subst_at c1 s1
+    have row1 : abs A ≤ abs (A - B) + abs B := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (A - B) + abs B)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. thm:triangle-inequality a := B − A, b := A
   have s3 : abs (B - A + A) ≤ abs (B - A) + abs A := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := B - A) (b := A))
   -- 4. substitute
   have s4 : abs B ≤ abs (B - A) + abs A := by
     have c1 : B - A + A = B := by parley_ring
-    have row1 : abs B ≤ abs (B - A) + abs A := by parley_subst_at c1 s3
+    have row1 : abs B ≤ abs (B - A) + abs A := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (B - A) + abs A)) c1 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 5. mun:abs-negative x := A − B
   have s5 : abs (-(A - B)) = abs (A - B) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))
   -- 6. substitute
   have s6 : abs (B - A) = abs (A - B) := by
     have c1 : -(A - B) = B - A := by parley_ring
-    have row1 : abs (B - A) = abs (A - B) := by parley_subst_at c1 s5
+    have row1 : abs (B - A) = abs (A - B) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (A - B))) c1 s5; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 7. mun:nonneg-or-neg x := |A| − |B|
   have s7 : abs A - abs B ≥ 0 ∨ abs A - abs B < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B))

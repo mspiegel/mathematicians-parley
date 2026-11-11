@@ -373,7 +373,7 @@ fn parts_of(made: &Made) -> Vec<&Written> {
 /// where the two are one notation written alike with as many children, the
 /// pieces their children part at, and otherwise the two whole.
 fn parted(above: &Node, below: &Node, path: &mut Vec<usize>, out: &mut Vec<Parting>) {
-    if above.same_shape(below) {
+    if above.spelt_alike(below) {
         return;
     }
     let alike = above.spelling() == below.spelling()
@@ -432,7 +432,7 @@ fn changed(
     };
     let one = pieces
         .iter()
-        .all(|p| p.was.same_shape(&first.was) && p.now.same_shape(&first.now));
+        .all(|p| p.was.spelt_alike(&first.was) && p.now.spelt_alike(&first.now));
     let (was, now) = if one {
         (first.was.clone(), first.now.clone())
     } else {

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -53,12 +52,12 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
     have r26_1 : 1 ≤ N := by parley_side
     have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) := by
       have c1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) := by exact (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := N) r26_1 (c := N ^ 2 - N))
-      have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) := by parley_subst_at c1 s2_1
+      have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = t + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)))) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.3. substitute
     have s2_3 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by
       have c1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = N ^ 2 := by exact (Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum.odd_numbers_sum (N := N) (by parley_side))
-      have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by parley_subst_at c1 s2_2
+      have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + t)) c1 s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.4. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by exact s2_3
@@ -77,6 +76,6 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by exact s2_7
         _ = 0 ^ 3 := by norm_num
     -- 2.9. substitute N = 0 (C2) into line 2.8
-    parley_subst_at hC2 s2_8
+    (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (t ^ 2 - t + (2 * k - 1) : ℤ)) = t ^ 3)) (hC2).symm s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.NicomachusRow.NicomachusRow

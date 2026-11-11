@@ -1,6 +1,7 @@
 module
 
 public import ArithTactics
+public import NormTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -11,6 +12,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -39,7 +41,10 @@ theorem positive_number_with_square_below_root :
   have r20_1 : (1 / 16 : ℚ) ≥ 0 := by parley_arith
   have s4 : 1 / 16 < Real.sqrt (1 / 4 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 / 16 : ℝ)) (y := Real.sqrt (1 / 4 : ℝ)) (by parley_side) (by parley_side))).mpr s3
   -- 5. substitute 1/16 = (1/4)² (arithmetic) into line 4
-  have s5 : (1 / 4) ^ 2 < Real.sqrt (1 / 4 : ℝ) := by parley_subst_at (show (1 / 16 : ℝ) = (1 / 4) ^ 2 by parley_side) s4
+  have s5 : (1 / 4) ^ 2 < Real.sqrt (1 / 4 : ℝ) := by
+    have e_arith : (1 / 16 : ℚ) = (1 / 4) ^ 2 := by parley_arith
+    have e_w : (1 / 16 : ℝ) = (1 / 4) ^ 2 := by have h := congrArg (fun x : ℚ => (x : ℝ)) e_arith; push_cast at h; linear_combination (norm := parley_norm) h
+    (have h := Eq.subst (motive := (fun t : ℝ => t < Real.sqrt (1 / 4 : ℝ))) e_w s4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. arithmetic
   have s6 : (1 / 4 : ℚ) > 0 := by parley_arith
   -- 7. exhibit, from 5, 6

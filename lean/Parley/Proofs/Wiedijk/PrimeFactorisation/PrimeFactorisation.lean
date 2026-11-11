@@ -11,6 +11,7 @@ public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.SetLike.Basic
@@ -93,7 +94,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.12. substitute
       have s1_12 : m - r > 0 := by
         have c1 : (p - 1) * r = m - r := by linear_combination (norm := parley_norm) (-1) * s1_9
-        have row1 : m - r > 0 := by parley_subst_at c1 s1_11
+        have row1 : m - r > 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s1_11; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.13. inequalities
       have s1_13 : r < m := by parley_order
@@ -138,7 +139,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         have r295_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
         have s1_18_9 : e 1 = p := by simp (disch := omega) only [hD3]
         -- 1.18.10. substitute r = 1 (C2) into line 1.9
-        have s1_18_10 : m = p := by parley_subst_at hC2 s1_9
+        have s1_18_10 : m = p := by (have h := Eq.subst (motive := (fun t : ℤ => m = p * t)) (hC2).symm s1_9; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
         -- 1.18.11. calculation
         have s1_18_11 : m = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
           calc m = p := by exact s1_18_10

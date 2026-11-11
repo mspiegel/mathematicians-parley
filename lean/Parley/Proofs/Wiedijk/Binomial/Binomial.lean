@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -58,8 +57,8 @@ theorem binomial (x : ℝ) (y : ℝ) (n : ℤ) (hH3 : 0 ≤ n) :
         calc (x + y) ^ 0 = 1 := by parley_ring
           _ = x ^ 0 * y ^ 0 := by parley_ring
           _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℝ) * x ^ 0 * y ^ 0 := by
-              have s1_1_w : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_1; push_cast at h; linear_combination (norm := parley_norm) h
-              first | parley_subst s1_1_w | parley_subst s1_1
+              have e_w : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_1; push_cast at h; linear_combination (norm := parley_norm) h
+              (have h := (congrArg (fun t : ℝ => t * x ^ 0 * y ^ 0) e_w).symm; push_cast [one_mul] at h ⊢; all_goals exact_mod_cast h)
           _ = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k.toNat : ℝ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k.toNat)) (a := (0 : ℤ))); simp only [Int.cast_zero, sub_zero, Int.reduceToNat] at h ⊢; exact_mod_cast h.symm)
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
     | succ m hK hIH =>

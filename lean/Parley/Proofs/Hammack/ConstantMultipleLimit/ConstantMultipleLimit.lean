@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -80,7 +79,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
       -- 4.6.9. substitute
       have s4_6_9 : abs (c * a n - c * L) = abs c * abs (a n - L) := by
         have c1 : c * (a n - L) = c * a n - c * L := by parley_ring
-        have row1 : abs (c * a n - c * L) = abs c * abs (a n - L) := by parley_subst_at c1 s4_6_8
+        have row1 : abs (c * a n - c * L) = abs c * abs (a n - L) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs c * abs (a n - L))) c1 s4_6_8; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.6.10. inequalities
       have s4_6_10 : abs c * abs (a n - L) ≤ abs c * abs (a n - L) + abs (a n - L) := by parley_order

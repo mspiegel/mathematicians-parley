@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -39,12 +38,12 @@ theorem prime_divides_a_factor (a : ℤ) (b : ℤ) (p : ℤ) (hH4 : Nat.Prime p.
     -- 3.3. substitute
     have s3_3 : (Int.gcd a p : ℤ) = 1 := by
       have c1 : (Int.gcd p a : ℤ) = (Int.gcd a p : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := p) (b := a))
-      have row1 : (Int.gcd a p : ℤ) = 1 := by parley_subst_at c1 s3_2
+      have row1 : (Int.gcd a p : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t = 1)) c1 s3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 3.4. substitute
     have s3_4 : p ∣ b * a := by
       have c1 : a * b = b * a := by parley_ring
-      have row1 : p ∣ b * a := by parley_subst_at c1 hH5
+      have row1 : p ∣ b * a := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 hH5; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 3.5. thm:coprime-divides x := b, c := a, n := p, from 1, 3.3, 3.4
     have s3_5 : p ∣ b := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := b) (c := a) (n := p) (by parley_side) s3_4 s3_3)

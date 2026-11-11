@@ -34,7 +34,7 @@ theorem digit_step_twice (t : ℤ) :
   -- 4.3. substitute
   have s4_3 : (10 : ℤ) ∣ (2 : ℤ) := by
     have c1 : t + 1 - (t + 1) % (10 : ℤ) + ((t + 1) % (10 : ℤ) + 1 - t) = 2 := by parley_ring
-    have row1 : (10 : ℤ) ∣ (2 : ℤ) := by parley_subst_at c1 s4_2
+    have row1 : (10 : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ u)) c1 s4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   exact absurd s4_3 (by norm_num)
 

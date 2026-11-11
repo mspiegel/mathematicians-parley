@@ -1,8 +1,8 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -29,7 +29,7 @@ theorem consecutive_coprime (n : ℤ) (hH1 : 0 ≤ n) :
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. calculation
-    calc (Int.gcd n (n + 1) : ℤ) = (Int.gcd (0 : ℤ) (1 : ℤ) : ℤ) := by parley_subst hC1
+    calc (Int.gcd n (n + 1) : ℤ) = (Int.gcd (0 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t (t + 1) : ℤ)) hC1; push_cast [zero_add] at h ⊢; all_goals exact_mod_cast h)
       _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_one (a := (0 : ℤ)))
   · skip
     -- 2.2. mun:nat0-nonzero m := n, from C2
@@ -43,7 +43,7 @@ theorem consecutive_coprime (n : ℤ) (hH1 : 0 ≤ n) :
     -- 2.5. substitute
     have s2_5 : (Int.gcd n (n + 1) : ℤ) ∣ (1 : ℤ) := by
       have c1 : n + 1 - n = 1 := by parley_ring
-      have row1 : (Int.gcd n (n + 1) : ℤ) ∣ (1 : ℤ) := by parley_subst_at c1 s2_4
+      have row1 : (Int.gcd n (n + 1) : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd n (n + 1) : ℤ) ∣ t)) c1 s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.6. mun:divides-one d := gcd(n, n + 1), from 2.3, 2.5
     exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd n (n + 1) : ℤ)) (by parley_side) s2_5)

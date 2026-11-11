@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import InstanceTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -63,7 +62,7 @@ theorem sum_of_binomials_along_a_diagonal (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (h
       -- 1.5. substitute
       have s1_5 : (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) m : ℤ) = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ) := by
         have c1 : m + 1 - 1 = m := by parley_ring
-        have row1 : (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) m : ℤ) = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ) := by parley_subst_at c1 s1_4
+        have row1 : (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) m : ℤ) = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) t : ℤ) = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ))) c1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.6. algebra
       have s1_6 : n + m + 1 + 1 = n + (m + 1) + 1 := by parley_ring

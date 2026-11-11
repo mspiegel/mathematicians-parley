@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs
@@ -45,7 +44,7 @@ theorem cube_minus_self_divisible_by_six (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_3 : (6 : ℤ) ∣ k ^ 3 - k + 3 * k * (k + 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (6 : ℤ)) (a := k ^ 3 - k) (b := 3 * k * (k + 1)) hIH s1_2)
       -- 1.4. substitute
       have c1 : k ^ 3 - k + 3 * k * (k + 1) = (k + 1) ^ 3 - (k + 1) := by parley_ring
-      have row1 : (6 : ℤ) ∣ (k + 1) ^ 3 - (k + 1) := by parley_subst_at c1 s1_3
+      have row1 : (6 : ℤ) ∣ (k + 1) ^ 3 - (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => (6 : ℤ) ∣ t)) c1 s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -30,7 +29,7 @@ theorem congruent_same_remainder (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH
   have s3 : (k * n + b) % n = b % n := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := b) (m := n) (by parley_side) (q := k))
   -- 4. substitute
   have c1 : k * n + b = a := by linear_combination (norm := parley_norm) (-1) * s2
-  have row1 : a % n = b % n := by parley_subst_at c1 s3
+  have row1 : a % n = b % n := by (have h := Eq.subst (motive := (fun t : ℤ => t % n = b % n)) c1 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Proofs.Hammack.CongruentSameRemainder.CongruentSameRemainder

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -37,7 +36,7 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
   -- 3. substitute
   have s3 : (Int.gcd b c : ℤ) ∣ a * a := by
     have c1 : c * c + b * -b = a * a := by linear_combination (norm := parley_norm) (-1) * hH4
-    have row1 : (Int.gcd b c : ℤ) ∣ a * a := by parley_subst_at c1 s2
+    have row1 : (Int.gcd b c : ℤ) ∣ a * a := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd b c : ℤ) ∣ t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. def:gcd a := gcd(b, c), b := a, from 1
   have s4a : 0 < (Int.gcd (Int.gcd b c : ℤ) a : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := (Int.gcd b c : ℤ)) (by parley_side) (b := a) (by parley_side))
@@ -60,7 +59,7 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
   -- 11. substitute
   have s11 : (Int.gcd b c : ℤ) ∣ (1 : ℤ) := by
     have c1 : (Int.gcd (a * a) (Int.gcd b c : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := a) (y := a) (n := (Int.gcd b c : ℤ)) (by parley_side) s8 s8)
-    have row1 : (Int.gcd b c : ℤ) ∣ (1 : ℤ) := by parley_subst_at c1 s10
+    have row1 : (Int.gcd b c : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd b c : ℤ) ∣ t)) c1 s10; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 12. mun:divides-one d := gcd(b, c), from 1, 11
   exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd b c : ℤ)) (by parley_side) s11)

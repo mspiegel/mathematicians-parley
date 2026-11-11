@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -89,7 +88,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have r94_1 : p ≠ 0 := by parley_set_side
   have s19 : 1 / (N : ℝ) < p := by
     have c1 : 1 / (1 / p) = p := by parley_ring
-    have row1 : 1 / (N : ℝ) < p := by parley_subst_at c1 s18
+    have row1 : 1 / (N : ℝ) < p := by (have h := Eq.subst (motive := (fun t : ℝ => 1 / (N : ℝ) < t)) c1 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 20. algebra
   have s20 : 1 + 1 / (N : ℚ) - 1 = 1 / (N : ℚ) := by parley_ring
@@ -110,7 +109,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 26. substitute
   have s26 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by
     have c1 : (1 / (N : ℚ)) ^ 2 = (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 := by parley_ring
-    have row1 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by parley_subst_at c1 s25
+    have row1 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by (have h := Eq.subst (motive := (fun t : ℚ => t > 0)) c1 s25; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 27. inequalities
   have s27 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 ≠ 0 := by parley_set_side

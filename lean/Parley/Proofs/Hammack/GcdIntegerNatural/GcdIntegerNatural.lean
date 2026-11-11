@@ -79,7 +79,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       -- 6.12. substitute
       have s6_12 : (Int.gcd a b : ℤ) ∣ a := by
         have c1 : b * q + a % b = a := by linear_combination (norm := parley_norm) s4
-        have row1 : (Int.gcd a b : ℤ) ∣ a := by parley_subst_at c1 s6_11
+        have row1 : (Int.gcd a b : ℤ) ∣ a := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd a b : ℤ) ∣ t)) c1 s6_11; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 6.13. join 6.9, 6.12
       have s6_13a : 0 < (Int.gcd a b : ℤ) := by parley_side

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -41,7 +40,7 @@ theorem square_mod_three (n : ℤ) :
   rcases s3 with (hC1 | hC2) | hC3
   · skip
     -- 5.1. substitute n mod 3 = 0 (C1) into line 4
-    have s5_1 : q * 3 = n := by parley_subst_at hC1 s4
+    have s5_1 : q * 3 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC1 s4; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
     -- 5.2. algebra, from 5.1
     have s5_2 : n ^ 2 = 3 * (3 * q ^ 2) := by linear_combination (norm := parley_norm) (-n - 3 * q) * s5_1
     -- 5.3. def:divides d := 3, n := n², from 5.2

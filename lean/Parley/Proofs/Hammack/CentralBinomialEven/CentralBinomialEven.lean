@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Data.Int.Interval
@@ -47,7 +46,7 @@ theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
   -- 6. substitute
   have s6 : n * (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * n * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by
     have c1 : 2 * n - 1 + 1 = 2 * n := by parley_ring
-    have row1 : n * (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * n * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by parley_subst_at c1 s5
+    have row1 : n * (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * n * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => n * (LeanBridges.Counting.choose t n : ℤ) = t * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ))) c1 s5; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 7. mun:binomial-nat0 n := 2n − 1, k := n − 1, from 1
   have s7 : 0 ≤ (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := 2 * n - 1) (by parley_side) (k := n - 1))

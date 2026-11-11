@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -63,7 +62,7 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
       -- 1.6. substitute
       have s1_6 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by
         have c1 : r + 1 - 1 = r := by parley_ring
-        have row1 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by parley_subst_at c1 s1_5
+        have row1 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) t : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ))) c1 s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.7. calculation
       calc S (m + 1) = S m + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by exact s1_4

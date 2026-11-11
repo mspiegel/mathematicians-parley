@@ -2,7 +2,6 @@ module
 
 public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -32,7 +31,7 @@ theorem a_one_dropped_from_the_middle (b : ℤ → ℝ) (k : ℤ) (j : ℤ) (hH3
   -- 1. mun:one-power m := j
   have s1 : (1 ^ j.toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := j)); simp only [parley_zpow_toNat (n := j) (h := hH3)] at h ⊢; exact_mod_cast h)
   -- 2. substitute 1^j = 1 (line 1)
-  have s1_w : (1 ^ j.toNat : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
-  first | parley_subst s1_w | parley_subst s1
+  have e_w : (1 ^ j.toNat : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
+  (have h := congrArg (fun t : ℝ => b k * t * 1 ^ k) e_w; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AOneDroppedFromTheMiddle

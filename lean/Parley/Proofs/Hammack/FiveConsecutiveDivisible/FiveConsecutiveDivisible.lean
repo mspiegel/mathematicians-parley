@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -52,7 +51,7 @@ theorem five_consecutive_divisible (n : ℤ) :
     have s2_4 : (120 : ℤ) ∣ (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side))
     -- 2.5. substitute
     have c1 : (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by parley_ring
-    have row1 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by parley_subst_at c1 s2_4
+    have row1 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by (have h := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) c1 s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   · skip
     -- 2.6. mun:nonneg-or-neg x := n + 4

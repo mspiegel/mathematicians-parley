@@ -28,6 +28,7 @@ use crate::outcome::Route;
 
 /// A cited line's equation: its tree, and the Lean term that proves it,
 /// `s3` or a part of a line, `H2.1`.
+#[derive(Clone)]
 pub struct Cited {
     pub node: Node,
     /// The line's proof: its name, a part of it, `H3.1`, or the line

@@ -69,7 +69,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
     have c1 : n + (i - n) = i := by parley_ring
     have c1_w : (n : ℚ) + ((i : ℚ) - (n : ℚ)) = (i : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
     have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) := by first | parley_put_at c1_w s2_4 | parley_put_at c1 s2_4 | parley_subst_at c1_w s2_4 | parley_subst_at c1 s2_4
-    have c2 : 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) = g := by parley_subst hD1
+    have c2 : 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) = g := by (have h := congrArg (fun t : ℝ => t) (hD1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     have row2 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - g := by parley_subst_at c2 row1
     exact row2
   -- 2.6. mun:quotient-positive x := 2, y := 2^((n + 1)! + (i − n)), from D1, 2.3

@@ -363,7 +363,7 @@ pub struct NodeData {
     pub rpn: Option<Rpn>,
     shape: OnceLock<String>,
     /// A hash of the shape, worked out from the parts and not the text
-    /// (`same_shape`).
+    /// (`spelt_alike`).
     shape_hash: OnceLock<u64>,
     /// The characters of the sentence the parser read this node from, for
     /// a tool that restates a part of what was written; none for a node
@@ -400,14 +400,14 @@ impl fmt::Debug for Node {
 pub type NodeId = usize;
 
 /// A node as a key by its shape: two keys are equal where their nodes have
-/// one shape (`Node::same_shape`), for a set of formulas told apart as
+/// one shape (`Node::spelt_alike`), for a set of formulas told apart as
 /// `shape` tells them.
 #[derive(Clone, Debug)]
 pub struct ByShape(pub Node);
 
 impl PartialEq for ByShape {
     fn eq(&self, other: &ByShape) -> bool {
-        self.0.same_shape(&other.0)
+        self.0.spelt_alike(&other.0)
     }
 }
 
@@ -636,10 +636,16 @@ impl Node {
         })
     }
 
-    /// Whether the two have one shape: the same notation, text and
+    /// Whether the two are spelt alike: the same notation, text and
     /// children's shapes, as `shape` writes them, compared part by part and
     /// with no text built. The hashes settle most pairs that differ.
-    pub fn same_shape(&self, other: &Node) -> bool {
+    ///
+    /// This asks how two trees are written, not whether they say one thing:
+    /// `b = a` is not spelt as `a = b`, nor `x > 0` as `0 < x`. Where the
+    /// question is whether two formulas are one claim, they are compared as
+    /// formulas (`Known::alike`, `matching::alike`), and a corpus rewritten
+    /// in other spellings must still check (`tests/invariance.rs`).
+    pub fn spelt_alike(&self, other: &Node) -> bool {
         self.same(other)
             || (self.shape_hash() == other.shape_hash()
                 && self.notation_id == other.notation_id
@@ -649,10 +655,10 @@ impl Node {
                     .children
                     .iter()
                     .zip(&other.children)
-                    .all(|(a, b)| a.same_shape(b)))
+                    .all(|(a, b)| a.spelt_alike(b)))
     }
 
-    /// A hash of the shape, the same for two nodes `same_shape` holds of,
+    /// A hash of the shape, the same for two nodes `spelt_alike` holds of,
     /// worked out once.
     pub fn shape_hash(&self) -> u64 {
         *self.shape_hash.get_or_init(|| {
@@ -667,7 +673,7 @@ impl Node {
         })
     }
 
-    /// The node as a key that two nodes of one shape share (`same_shape`).
+    /// The node as a key that two nodes of one shape share (`spelt_alike`).
     pub fn by_shape(&self) -> ByShape {
         ByShape(self.clone())
     }

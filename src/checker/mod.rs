@@ -668,8 +668,12 @@ fn theorem_record(
     record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);
     record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
     record.define_cases = formulas::define_cases(thm, c.library, &c.known[i]);
-    record.link_places = formulas::link_places(thm, c.library, &c.known[i]);
+    record.define_domains = citations::define_domains(thm, c.library, &c.known[i]);
+    let links = formulas::link_places(thm, c.library, &c.known[i]);
+    record.link_places = links.places;
+    record.link_facings = links.facings;
     record.substituted = citations::substitutions(thm, c.library, &c.known[i]);
+    record.substituted_rows = citations::row_substitutions(thm, &c.known[i]);
     record.asserted = library::let_assertions(&c.known[i]);
     record.opener_asserted = library::opener_assertions(&c.known[i]);
     record.supposed = formulas::suppositions(thm, c.env, &c.known[i]);
@@ -1159,7 +1163,7 @@ pub fn printed_back(source: &dyn Source) -> Result<(usize, Vec<String>), Outcome
                         Written::new(&printed, sentence.path(), sentence.line());
                     let again = again.formula().ok();
                     let again = again.as_ref().and_then(read);
-                    if !again.as_ref().is_some_and(|a| a.same_shape(&node)) {
+                    if !again.as_ref().is_some_and(|a| a.spelt_alike(&node)) {
                         out.push(format!(
                             "{}:{}  {text}  printed as  {printed}",
                             thm.path, step.line

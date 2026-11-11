@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import NormTactics
 public import SetTactics
 public import Sets
-public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
@@ -56,11 +55,11 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       -- 3.4. substitute
       have s3_4 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by
         have c1 : 1 = (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := X) (t := t)).symm
-        have row1 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by parley_subst_at c1 s3_3
+        have row1 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by (have h := Eq.subst (motive := (fun w : ℤ => w ≡ (1 : ℤ) [ZMOD n])) c1 s3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 3.5. substitute
       have c1 : 1 = (∏ᶠ x ∈ (∅ : Set α), (u x : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := X) (t := u)).symm
-      have row1 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (∏ᶠ x ∈ (∅ : Set α), (u x : ℤ)) [ZMOD n] := by parley_subst_at c1 s3_4
+      have row1 : (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ (∏ᶠ x ∈ (∅ : Set α), (u x : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun w : ℤ => (∏ᶠ x ∈ (∅ : Set α), (t x : ℤ)) ≡ w [ZMOD n])) c1 s3_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     · intro Y hK hIH
       intro a hK2
@@ -83,18 +82,18 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       -- 3.16. substitute
       have s3_16 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := by
         have c1 : ((∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ))) * t a + (t a - u a) * (∏ᶠ x ∈ Y, (u x : ℤ)) = (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := by parley_ring
-        have row1 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := by parley_subst_at c1 s3_15
+        have row1 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := by (have h := Eq.subst (motive := (fun w : ℤ => n ∣ w)) c1 s3_15; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 3.17. def:congruent-mod a := (∏(x ∈ Y) t(x))·t(a), b := (∏(x ∈ Y) u(x))·u(a), from 3.8, 3.9, 3.10, 3.11, 3.16
       have s3_17 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := (∏ᶠ x ∈ Y, (t x : ℤ)) * t a) (b := (∏ᶠ x ∈ Y, (u x : ℤ)) * u a))).mpr s3_16
       -- 3.18. substitute
       have s3_18 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by
         have c1 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2).symm
-        have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by parley_subst_at c1 s3_17
+        have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by (have h := Eq.subst (motive := (fun w : ℤ => w ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n])) c1 s3_17; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 3.19. substitute
       have c1 : (∏ᶠ x ∈ Y, (u x : ℤ)) * u a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2).symm
-      have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) [ZMOD n] := by parley_subst_at c1 s3_18
+      have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun w : ℤ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ w [ZMOD n])) c1 s3_18; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 4. instantiate Y := X in line 3
   have r776_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))

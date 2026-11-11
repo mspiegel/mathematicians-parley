@@ -1153,7 +1153,7 @@ fn applied_as_rule(
     let arg = read_at(&pattern.children[1], binding, ctx);
     let plain = ground.notation() == pattern.notation()
         && ground.children.len() == 2
-        && ground.children[1].same_shape(&arg);
+        && ground.children[1].spelt_alike(&arg);
     (plain
         && !binding.contains_key(name)
         && sites.contains(&pattern.id())
@@ -1734,7 +1734,7 @@ pub fn identities_dropped(instance: &Node, ground: &Node, ctx: &Context) -> Vec<
 }
 
 fn dropped_into(instance: &Node, ground: &Node, ctx: &Context, out: &mut Vec<Node>) {
-    if instance.same_shape(ground) {
+    if instance.spelt_alike(ground) {
         return;
     }
     if !differs(instance, ground) {
@@ -1822,7 +1822,7 @@ fn alike_as_written(
         .map(|&at| (&a.children[at], &b.children[at]))
         .collect();
     if pairs.iter().any(|(x, y)| !x.is_name() || !y.is_name()) {
-        return a.same_shape(b).then(Meeting::default);
+        return a.spelt_alike(b).then(Meeting::default);
     }
     let mut inner_ours = ours.clone();
     let mut inner_theirs = theirs.clone();
@@ -1890,7 +1890,7 @@ pub(crate) fn put_places(
     now: &Node,
     ctx: &Context,
 ) -> Option<Node> {
-    if start.same_shape(was) {
+    if start.spelt_alike(was) {
         return Some(now.clone());
     }
     let mut any = false;
@@ -1966,6 +1966,51 @@ pub fn substitution_places(
         })
 }
 
+/// Every place `was` stands in `term`, compared as the same tree as the
+/// page writes it, each by its path of children from the top; none inside
+/// another.
+pub fn places_of(term: &Node, was: &Node) -> Vec<Vec<usize>> {
+    fn walk(term: &Node, was: &Node, at: &mut Vec<usize>, out: &mut Vec<Vec<usize>>) {
+        if term.spelt_alike(was) {
+            out.push(at.clone());
+            return;
+        }
+        for (k, child) in term.children.iter().enumerate() {
+            at.push(k);
+            walk(child, was, at, out);
+            at.pop();
+        }
+    }
+    let mut out = Vec::new();
+    walk(term, was, &mut Vec::new(), &mut out);
+    out
+}
+
+/// The term with `now` put at each of `places`, paths of children from the
+/// top.
+pub fn put_at_places(term: &Node, places: &[Vec<usize>], now: &Node) -> Node {
+    if places.iter().any(|p| p.is_empty()) {
+        return now.clone();
+    }
+    let children = term
+        .children
+        .iter()
+        .enumerate()
+        .map(|(k, child)| {
+            let below: Vec<Vec<usize>> = places
+                .iter()
+                .filter(|p| p[0] == k)
+                .map(|p| p[1..].to_vec())
+                .collect();
+            match below.is_empty() {
+                true => child.clone(),
+                false => put_at_places(child, &below, now),
+            }
+        })
+        .collect();
+    term.with_children(children)
+}
+
 /// What `substitution_places` finds.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SubstitutionPlaces {
@@ -1988,10 +2033,10 @@ fn places_put(
     at: &mut Vec<usize>,
     places: &mut Vec<Vec<usize>>,
 ) -> bool {
-    if start.same_shape(aim) {
+    if start.spelt_alike(aim) {
         return true;
     }
-    if start.same_shape(was) && aim.same_shape(now) {
+    if start.spelt_alike(was) && aim.spelt_alike(now) {
         places.push(at.clone());
         return true;
     }
@@ -2141,7 +2186,7 @@ fn family(
     }
     let plain = ground.notation() == pattern.notation()
         && ground.children.len() == 2
-        && ground.children[1].same_shape(&arg);
+        && ground.children[1].spelt_alike(&arg);
     if stands.is_none() && sites.contains(&pattern.id()) && arg.is_name() && !plain {
         binding.insert(*name, Node::property(&arg.text, ground.clone()));
         return Some(true);

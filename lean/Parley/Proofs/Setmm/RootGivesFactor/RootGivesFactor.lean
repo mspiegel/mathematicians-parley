@@ -1,8 +1,8 @@
 module
 
 public import Polynomials
-public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -23,8 +23,7 @@ theorem root_gives_factor (p : ℂ → ℂ) (hH1 : p ∈ LeanBridges.Polynomials
   have s2 : ∀ x : ℂ, p x = (x - a) * q x := by
     intro x
     -- 2.1. substitute p(a) = 0 (H3) into line 1
-    have at0 := (s1b x)
-    parley_subst_at hH3 at0
+    (have h := Eq.subst (motive := (fun t : ℂ => p x = (x - a) * q x + t)) hH3 (s1b x); push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
   -- 3. exhibit, from 1, 2
   exact ⟨q, by parley_side, by parley_side⟩
 

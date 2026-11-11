@@ -2,9 +2,9 @@ module
 
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -44,7 +44,7 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
     have s3_5 : ¬ d ≤ r := by parley_side
     exact s3_5 s3_4
   -- 4. substitute r = 0 (line 3) into line 1
-  have s4 : c = q * d := by parley_subst_at s3 s1a
+  have s4 : c = q * d := by (have h := Eq.subst (motive := (fun t : ℤ => c = q * d + t)) s3 s1a; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
   -- 5. algebra, from 4
   have s5 : c = d * q := by linear_combination (norm := parley_norm) s4
   -- 6. def:divides n := c, from 5

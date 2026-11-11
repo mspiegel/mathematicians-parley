@@ -1562,7 +1562,7 @@ pub fn check_ranges(
             continue;
         };
         let set = &membership.children[1];
-        if !set.same_shape(&over) {
+        if !set.spelt_alike(&over) {
             report.say(
                 path,
                 body.line(),

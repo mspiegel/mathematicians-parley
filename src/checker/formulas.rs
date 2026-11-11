@@ -2847,7 +2847,7 @@ fn changed_closed(link: &Link, known: &Known) -> bool {
         return false;
     };
     fn alike(a: &Node, b: &Node) -> bool {
-        if a.same_shape(b) {
+        if a.spelt_alike(b) {
             return true;
         }
         if a.names().is_empty() && b.names().is_empty() {
@@ -6482,15 +6482,12 @@ pub fn define_link_meetings(
 /// Where in the line each calculation link cites the link stands, by the
 /// link's line (`CheckedTheorem::link_places`): the sentence or part of one
 /// that says it, as `check_chain_links` finds it, placed as a citation's
-/// facts are (`FirstAt`). None for a link citing a define, arithmetic, or a
-/// line it finds nothing in to place.
-pub fn link_places(
-    thm: &Theorem,
-    library: &Library,
-    known: &Known,
-) -> IndexMap<usize, crate::checker::record::FirstAt> {
+/// facts are (`FirstAt`), and which way the link faces it
+/// (`CheckedTheorem::link_facings`). None for a link citing a define,
+/// arithmetic, or a line it finds nothing in to place.
+pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlaces {
     let defines = define_labels(thm, known.env.scopes);
-    let mut out = IndexMap::new();
+    let mut out = LinkPlaces::default();
     for step in &thm.steps {
         let scope = known.scope(step);
         for link in chain_links(&step.just, &thm.path) {
@@ -6521,11 +6518,29 @@ pub fn link_places(
                 }
             });
             if let Some(at) = placed {
-                out.insert(link.line.line, at);
+                out.places.insert(link.line.line, at);
+            }
+            let facing = reading.at.and_then(|k| {
+                super::citations::facing_of(
+                    &reading.says[k].cited,
+                    &reading.said,
+                    known,
+                )
+            });
+            if let Some(facing) = facing {
+                out.facings.insert(link.line.line, facing);
             }
         }
     }
     out
+}
+
+/// Where each calculation link citing a line stands in it, and which way it
+/// faces it, by the link's line (`link_places`).
+#[derive(Default)]
+pub struct LinkPlaces {
+    pub places: IndexMap<usize, crate::checker::record::FirstAt>,
+    pub facings: IndexMap<usize, crate::checker::record::Facing>,
 }
 
 /// A calculation link read against the line it cites: what the line says
@@ -7176,7 +7191,7 @@ pub fn define_cases(
 /// Where in a line the step cites the fact stands, the first line that says
 /// it, placed as a citation's facts are (`FirstAt`); None where no line the
 /// step cites says it, a requires line's fact among them.
-fn fact_placed(
+pub(super) fn fact_placed(
     step: &Step,
     fact: &Node,
     known: &Known,

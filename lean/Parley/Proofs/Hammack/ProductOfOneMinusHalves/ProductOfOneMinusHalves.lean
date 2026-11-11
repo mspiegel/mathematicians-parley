@@ -4,6 +4,7 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import InstanceTactics
+public import NormTactics
 public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -24,6 +25,7 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -82,7 +84,9 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
             have hI : 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 ≤ (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by parley_instance_real ((Parley.Proofs.Hammack.ProductStepBound.ProductStepBound.product_step_bound (t := (1 / 2 ^ (m + 1).toNat : ℝ)) (p := ∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) (by parley_side) (by parley_side) (by parley_side)))
             exact hI
         _ = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := by exact s2_9
-        _ = 1 / 4 + 1 / 2 ^ (m + 1 + 1).toNat := by (have h := congrArg (fun t : ℤ => 1 / 4 + 1 / (t : ℚ)) (s2_8).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 1 / 4 + 1 / 2 ^ (m + 1 + 1).toNat := by
+            have e_w : (2 ^ (m + 1).toNat * 2 : ℚ) = 2 ^ (m + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s2_8).symm; push_cast at h; linear_combination (norm := parley_norm) h
+            (have h := congrArg (fun t : ℚ => 1 / 4 + 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 3. instantiate m := n in line 2
   exact (s2 n (by parley_side))
 

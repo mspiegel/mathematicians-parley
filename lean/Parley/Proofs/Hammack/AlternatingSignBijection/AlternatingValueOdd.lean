@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -11,6 +12,7 @@ public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -31,7 +33,9 @@ theorem alternating_value_odd (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
   have s1 : ((-1) ^ m.toNat : ℤ) = -1 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.SignOfOdd.sign_of_odd (n := m) (by parley_side) hH4)
   -- 2. calculation
   calc (f m : ℚ) = ((-1) ^ m.toNat * (2 * (m : ℚ) - 1) + 1) / 4 := by exact (hH2 m (by parley_side))
-    _ = (-1 * (2 * (m : ℚ) - 1) + 1) / 4 := by (have h := congrArg (fun t : ℤ => ((t : ℚ) * (2 * (m : ℚ) - 1) + 1) / 4) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = (-1 * (2 * (m : ℚ) - 1) + 1) / 4 := by
+        have e_w : ((-1) ^ m.toNat : ℚ) = -1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
+        (have h := congrArg (fun t : ℚ => (t * (2 * (m : ℚ) - 1) + 1) / 4) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (1 - (m : ℚ)) / 2 := by parley_ring
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd

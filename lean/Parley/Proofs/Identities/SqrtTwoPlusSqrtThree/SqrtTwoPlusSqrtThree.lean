@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import RealTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.Monoid
@@ -53,12 +52,12 @@ theorem sqrt_two_plus_sqrt_three :
     -- 4.2. substitute
     have s4_2 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by
       have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) * (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by parley_real
-      have row1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by parley_subst_at c1 s4_1
+      have row1 : ∃ m : ℚ, (m : ℝ) = (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s4_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 4.3. substitute
     have s4_3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := by
       have c1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) ^ 2 = Real.sqrt (6 : ℝ) * 2 + 5 := by parley_real
-      have row1 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := by parley_subst_at c1 s4_2
+      have row1 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5 := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 4.4. def:irrational x := √6·2 + 5, from 3
     have s4_4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp s3).2

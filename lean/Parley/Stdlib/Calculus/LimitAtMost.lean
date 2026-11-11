@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -58,7 +57,7 @@ theorem limit_at_most (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n :
   -- 13. substitute
   have s13 : B < x (M + N) := by
     have c1 : L - (L - B) = B := by parley_ring
-    have row1 : B < x (M + N) := by parley_subst_at c1 s12
+    have row1 : B < x (M + N) := by (have h := Eq.subst (motive := (fun t : ℝ => t < x (M + N))) c1 s12; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 14. inequalities, from 10, 13
   have s14 : ¬ x (M + N) ≤ B := by parley_side

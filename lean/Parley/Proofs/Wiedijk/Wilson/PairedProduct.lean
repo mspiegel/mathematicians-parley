@@ -4,7 +4,6 @@ public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
@@ -187,7 +186,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   -- 20. substitute
   have s20 : (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by
     have c1 : (∏ᶠ x ∈ L, (1 : ℤ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_of_ones (X := L) s5)
-    have row1 : (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by parley_subst_at c1 s19
+    have row1 : (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ t [ZMOD n])) c1 s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 21. calculation
   have r258_1 : ∀ x ∈ L, True := by parley_set_side

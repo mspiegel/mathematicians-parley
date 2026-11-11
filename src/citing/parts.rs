@@ -239,7 +239,7 @@ fn fits_form(
 ) -> bool {
     if form.is_name() && letters.iter().any(|(letter, _)| form.text == *letter) {
         return match put.get(&form.text) {
-            Some(held) => held.same_shape(fact),
+            Some(held) => held.spelt_alike(fact),
             None => {
                 put.insert(form.text, fact.clone());
                 true
@@ -334,7 +334,7 @@ pub fn function_values(facts: &[Node], env: Env, sorts: &Sorts) -> Vec<Node> {
         for member in facts {
             if member.notation() != MEMBERSHIP
                 || member.children.len() != 2
-                || !member.children[1].same_shape(domain)
+                || !member.children[1].spelt_alike(domain)
             {
                 continue;
             }

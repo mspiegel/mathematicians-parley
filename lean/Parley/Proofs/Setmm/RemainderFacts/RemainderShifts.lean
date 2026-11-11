@@ -2,7 +2,7 @@ module
 
 public import AlgebraTactics
 public import Divisibility
-public import SubstTactics
+public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -12,6 +12,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
@@ -36,11 +37,13 @@ theorem remainder_shifts (X : ℝ) (M : ℝ) (hH3 : M > 0) (K : ℤ) :
   have r24_1 : M ≠ 0 := by parley_side
   have s3 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by
     have c1 : X / M + (K : ℝ) = (X + M * (K : ℝ)) / M := by parley_ring
-    have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by parley_subst_at c1 s2
+    have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by (have h := Eq.subst (motive := (fun t : ℝ => ⌊t⌋ = ⌊X / M⌋ + K)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. calculation
   calc LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = X + M * (K : ℝ) - M * (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) hH3)
-    _ = X + M * (K : ℝ) - M * ((⌊X / M⌋ : ℝ) + (K : ℝ)) := by (have h := congrArg (fun t : ℤ => X + M * (K : ℝ) - M * (t : ℝ)) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = X + M * (K : ℝ) - M * ((⌊X / M⌋ : ℝ) + (K : ℝ)) := by
+        have e_w : (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) = (⌊X / M⌋ : ℝ) + (K : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3; push_cast at h; linear_combination (norm := parley_norm) h
+        (have h := congrArg (fun t : ℝ => X + M * (K : ℝ) - M * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = X - M * (⌊X / M⌋ : ℝ) := by parley_ring
     _ = LeanBridges.Divisibility.mod X M := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) hH3).symm
 

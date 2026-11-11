@@ -1,10 +1,10 @@
 module
 
 public import AlgebraTactics
+public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -72,21 +72,23 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.9. thm:pascal n := j + 2, k := 3
       have s1_9 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (3 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j + 2) (by parley_side) (k := (3 : ℤ)))
       -- 1.10. substitute 3 − 1 = 2 (arithmetic) into line 1.9
-      have s1_10 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by parley_subst_at (show (3 - 1 : ℤ) = 2 by parley_side) s1_9
+      have s1_10 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by
+        have e_arith : (3 - 1 : ℤ) = 2 := by parley_arith
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) t : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ))) e_arith s1_9; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.11. substitute
       have s1_11 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := by
         have c1 : j + 2 + 1 = j + 1 + 2 := by parley_ring
-        have row1 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := by parley_subst_at c1 s1_10
+        have row1 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose t (3 : ℤ) : ℤ))) c1 s1_10; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.12. substitute
       have s1_12 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by
         have c1 : j + 1 + 1 = j + 2 := by parley_ring
-        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by parley_subst_at c1 s1_8
+        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose t (2 : ℤ) : ℤ))) c1 s1_8; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.13. substitute
       have s1_13 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := by
         have c1 : (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) + (j + 1) * (j - (j + 1) + 1) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := by parley_ring
-        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := by parley_subst_at c1 s1_7
+        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = t)) c1 s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.14. calculation
       have s1_14 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = T j := by

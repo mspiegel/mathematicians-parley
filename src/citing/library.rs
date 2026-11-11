@@ -117,7 +117,7 @@ fn gives_of(groups: &[Group]) -> Vec<Node> {
 /// how the record writes its statement is built from how the proof writes
 /// it, and the two are compared as written.
 fn written_alike(a: &[Node], b: &[Node]) -> bool {
-    a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.same_shape(y))
+    a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.spelt_alike(y))
 }
 
 /// Each define's rule with every letter it binds that `names` uses spelt
@@ -822,7 +822,7 @@ pub fn with_parts(facts: &[Node], library: &Library) -> Vec<Node> {
     let mut out: Vec<Node> = facts.to_vec();
     for fact in facts {
         for part in supplies(fact, library) {
-            if out.iter().all(|x| !part.same_shape(x)) {
+            if out.iter().all(|x| !part.spelt_alike(x)) {
                 out.push(part);
             }
         }
@@ -899,7 +899,7 @@ pub fn either_way(node: &Node, library: &Library) -> Vec<Node> {
             turn(node)
         };
     match turned {
-        Some(turned) if !turned.same_shape(node) => vec![node.clone(), turned],
+        Some(turned) if !turned.spelt_alike(node) => vec![node.clone(), turned],
         _ => vec![node.clone()],
     }
 }

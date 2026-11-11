@@ -4,9 +4,7 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -16,7 +14,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -60,8 +57,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 12. substitute
   have s12 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by
     have c1 : a - (b - c) = a - b + c := by parley_ring
-    have c1_w : (a : ℚ) - ((b : ℚ) - (c : ℚ)) = (a : ℚ) - (b : ℚ) + (c : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by first | parley_put_at c1_w s11 | parley_put_at c1 s11 | parley_subst_at c1_w s11 | parley_subst_at c1 s11
+    have row1 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)))) c1 s11; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 13. inequalities
   have s13 : 0 ≤ a - b := by parley_order
@@ -82,8 +78,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 19. substitute
   have s19 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by
     have c1 : a - b + c - c = a - b := by parley_ring
-    have c1_w : (a : ℚ) - (b : ℚ) + (c : ℚ) - (c : ℚ) = (a : ℚ) - (b : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by first | parley_put_at c1_w s18 | parley_put_at c1 s18 | parley_subst_at c1_w s18 | parley_subst_at c1 s18
+    have row1 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial c : ℚ)))) c1 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 20. mun:nat0-as-int
   have r90_1 : 0 ≤ a - b := by parley_side

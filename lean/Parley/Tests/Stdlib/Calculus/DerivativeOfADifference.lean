@@ -2,7 +2,6 @@ module
 
 public import InstanceTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Field.Defs
@@ -54,7 +53,7 @@ theorem derivative_of_a_difference (f : ℝ → ℝ) (hH2 : ∀ x ∈ (Set.univ 
   have s6_1 : (deriv F) x = (deriv f) x - (deriv g) x := by exact (s5 x)
   -- 6.2. substitute
   have c1 : (deriv g) x = 3 := by exact (s4 x)
-  have row1 : (deriv F) x = (deriv f) x - 3 := by parley_subst_at c1 s6_1
+  have row1 : (deriv F) x = (deriv f) x - 3 := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv F) x = (deriv f) x - t)) c1 s6_1; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Tests.Stdlib.Calculus.DerivativeOfADifference

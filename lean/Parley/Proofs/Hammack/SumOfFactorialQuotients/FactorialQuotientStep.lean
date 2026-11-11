@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -35,8 +34,8 @@ theorem factorial_quotient_step (c : ℤ) (hH1 : 0 < c) (F : ℝ) (hH3 : F ≠ 0
   have r82_1 : F ≠ 0 := by parley_side
   calc 1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / F + 1 / F * ((c : ℝ) / ((c : ℝ) + 1)) := by (have h := congrArg (fun t : ℝ => 1 - 1 / F + t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 1 - 1 / F + 1 / F * (1 - 1 / ((c : ℝ) + 1)) := by
-        have s2_w : (c : ℝ) / ((c : ℝ) + 1) = 1 - 1 / ((c : ℝ) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2; push_cast at h; linear_combination (norm := parley_norm) h
-        first | parley_subst s2_w | parley_subst s2
+        have e_w : (c : ℝ) / ((c : ℝ) + 1) = 1 - 1 / ((c : ℝ) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2; push_cast at h; linear_combination (norm := parley_norm) h
+        (have h := congrArg (fun t : ℝ => 1 - 1 / F + 1 / F * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 1 - 1 / F * (1 / ((c : ℝ) + 1)) := by parley_ring
     _ = 1 - 1 / (F * ((c : ℝ) + 1)) := by (have h := congrArg (fun t : ℝ => 1 - t) (s3).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 

@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
+public import NormTactics
 public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -13,6 +14,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -57,7 +59,9 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     try qify
     calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := K)) hC1
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial K : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by parley_ring
-      _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - (N - K)) : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial N : ℚ) / ((t : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ))) (s2_6).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - (N - K)) : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by
+          have e_w : (LeanBridges.Counting.factorial K : ℚ) = (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) (s2_6).symm; push_cast at h; linear_combination (norm := parley_norm) h
+          (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial (N - K) : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := by exact ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := N - K)) s2_4).symm
   · skip
     -- 2.10. contradiction

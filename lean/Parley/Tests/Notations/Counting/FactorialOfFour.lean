@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -32,7 +31,7 @@ theorem factorial_of_four :
   -- 4. arithmetic
   have s4 : (2 + 1 : ℤ) = 3 := by parley_arith
   -- 5. substitute 2 + 1 = 3 (line 4) into line 3
-  have s5 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by first | parley_subst_at s4 s3 | (have e_nat : 2 + 1 = 3 := by exact_mod_cast s4; parley_subst_at e_nat s3)
+  have s5 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 2 * t)) s4 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. calculation
   have s6 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 6 := by
     calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by exact s5
@@ -44,7 +43,7 @@ theorem factorial_of_four :
   -- 9. arithmetic
   have s9 : (3 + 1 : ℤ) = 4 := by parley_arith
   -- 10. substitute 3 + 1 = 4 (line 9) into line 8
-  have s10 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by first | parley_subst_at s9 s8 | (have e_nat : 3 + 1 = 4 := by exact_mod_cast s9; parley_subst_at e_nat s8)
+  have s10 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 6 * t)) s9 s8; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. calculation
   calc (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by exact s10
     _ = 24 := by norm_num

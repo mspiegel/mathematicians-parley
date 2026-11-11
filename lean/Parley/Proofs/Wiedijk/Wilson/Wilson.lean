@@ -82,7 +82,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
   -- 2. mun:integer-step m := 1, n := p, from 1
   have s2 : 1 + 1 ≤ p := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := p) s1)
   -- 3. substitute 1 + 1 = 2 (arithmetic) into line 2
-  have s3 : 2 ≤ p := by parley_subst_at (show (1 + 1 : ℤ) = 2 by parley_set_side) s2
+  have s3 : 2 ≤ p := by
+    have e_arith : (1 + 1 : ℤ) = 2 := by parley_arith
+    (have h := Eq.subst (motive := (fun t : ℤ => t ≤ p)) e_arith s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. mun:le-cases x := 2, y := p, from 3
   have s4 : 2 < p ∨ 2 = p := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := p))).mp s3
   -- 5. cases, from 4
@@ -91,7 +93,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.1. mun:integer-step m := 2, n := p, from C1
     have s5_1 : 2 + 1 ≤ p := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := p) hC1)
     -- 5.2. substitute 2 + 1 = 3 (arithmetic) into line 5.1
-    have s5_2 : 3 ≤ p := by parley_subst_at (show (2 + 1 : ℤ) = 3 by parley_set_side) s5_1
+    have s5_2 : 3 ≤ p := by
+      have e_arith : (2 + 1 : ℤ) = 3 := by parley_arith
+      (have h := Eq.subst (motive := (fun t : ℤ => t ≤ p)) e_arith s5_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 5.3. mun:pos-int-nat m := p − 2
     have r321_1 : 0 < p - 2 := by parley_order
     have s5_3 : 0 < p - 2 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p - 2) r321_1)
@@ -154,8 +158,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.7.4. substitute
       have s5_7_4 : (a : ℚ) ^ (p - 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by
         have c1 : p - 2 + 1 = p - 1 := by parley_ring
-        have c1_w : (p : ℚ) - 2 + 1 = (p : ℚ) - 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-        have row1 : (a : ℚ) ^ (p - 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by first | parley_put_at c1_w s5_7_3 | parley_put_at c1 s5_7_3 | parley_subst_at c1_w s5_7_3 | parley_subst_at c1 s5_7_3
+        have row1 : (a : ℚ) ^ (p - 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by (have h := Eq.subst (motive := (fun t : ℤ => (a : ℚ) ^ t = (a : ℚ) ^ (p - 2) * (a : ℚ))) c1 s5_7_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 5.7.5. mun:power-integer m := p − 2, from 5.3
       have s5_7_5 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by
@@ -266,7 +269,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         -- 5.13.2.2. substitute
         have s5_13_2_2 : (0 : ℤ) ≡ (1 : ℤ) [ZMOD p] := by
           have c1 : a * 0 = 0 := by parley_ring
-          have row1 : (0 : ℤ) ≡ (1 : ℤ) [ZMOD p] := by parley_subst_at c1 s5_13_2_1
+          have row1 : (0 : ℤ) ≡ (1 : ℤ) [ZMOD p] := by (have h := Eq.subst (motive := (fun t : ℤ => t ≡ (1 : ℤ) [ZMOD p])) c1 s5_13_2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           exact row1
         -- 5.13.2.3. mun:congruent-in-range, from 5.10, 5.11, 5.13.2.2
         have s5_13_2_3 : (0 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := p) (by parley_set_side) (x := (0 : ℤ)) s5_10 (y := (1 : ℤ)) s5_11 s5_13_2_2)
@@ -275,9 +278,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_13_3 : f a ≠ 1 := by
         intro hS2
         -- 5.13.3.1. substitute f(a) = 1 (S2) into line 5.7
-        have s5_13_3_1 : a ≡ (1 : ℤ) [ZMOD p] := by
-          have at0 := (s5_7 a (by parley_set_side))
-          parley_subst_at hS2 at0
+        have s5_13_3_1 : a ≡ (1 : ℤ) [ZMOD p] := by (have h := Eq.subst (motive := (fun t : ℤ => a * t ≡ (1 : ℤ) [ZMOD p])) hS2 (s5_7 a (by parley_set_side)); push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
         -- 5.13.3.2. mun:congruent-in-range, from 5.11, 5.13.1, 5.13.3.1
         have s5_13_3_2 : a = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := p) (by parley_set_side) (x := a) s5_13_1 (y := (1 : ℤ)) s5_11 s5_13_3_1)
         -- 5.13.3.3. inequalities
@@ -300,7 +301,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         -- 5.13.4.5. substitute
         have s5_13_4_5 : p ∣ a + 1 := by
           have c1 : p * a - (a * (p - 1) - 1) = a + 1 := by parley_ring
-          have row1 : p ∣ a + 1 := by parley_subst_at c1 s5_13_4_4
+          have row1 : p ∣ a + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s5_13_4_4; push_cast at h ⊢; all_goals exact_mod_cast h)
           exact row1
         -- 5.13.4.6. restate 5.9
         have s5_13_4_6 : ¬ p ∣ a + 1 := by parley_set_side
@@ -314,7 +315,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.13.8. mun:integer-step m := 1, n := f(a), from 5.6, 5.13.7
       have s5_13_8 : 1 + 1 ≤ f a := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := f a) s5_13_7)
       -- 5.13.9. substitute 1 + 1 = 2 (arithmetic) into line 5.13.8
-      have s5_13_9 : 2 ≤ f a := by parley_subst_at (show (1 + 1 : ℤ) = 2 by parley_set_side) s5_13_8
+      have s5_13_9 : 2 ≤ f a := by
+        have e_arith : (1 + 1 : ℤ) = 2 := by parley_arith
+        (have h := Eq.subst (motive := (fun t : ℤ => t ≤ f a)) e_arith s5_13_8; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 5.13.10. inequalities, from 5.5, 5.13.4
       have s5_13_10 : f a < p - 1 := by have := (s5_5 a (by parley_set_side)); parley_order
       -- 5.13.11. mun:integer-step m := f(a), n := p − 1, from 5.6, 5.13.10
@@ -336,7 +339,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.14.3. substitute
       have s5_14_3 : p ∣ (a - 1) * (a + 1) := by
         have c1 : a * a - 1 = (a - 1) * (a + 1) := by parley_ring
-        have row1 : p ∣ (a - 1) * (a + 1) := by parley_subst_at c1 s5_14_2
+        have row1 : p ∣ (a - 1) * (a + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s5_14_2; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 5.14.4. thm:prime-divides-product m := a − 1, n := a + 1, from H2, 5.14.3
       have s5_14_4 : p ∣ a - 1 ∨ p ∣ a + 1 := by exact ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := p) (by parley_set_side) hH2 (m := a - 1) (n := a + 1))).mp s5_14_3
@@ -391,14 +394,16 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.23. substitute
     have s5_23 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by
       have c1 : p - 2 + 1 = p - 1 := by parley_ring
-      have row1 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by parley_subst_at c1 s5_22
+      have row1 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by (have h := Eq.subst (motive := (fun t : ℤ => (∏ k ∈ Finset.Icc (1 : ℤ) t, (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * t)) c1 s5_22; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 5.24. mun:product-first a := 1, b := p − 2
     have r647_1 : 1 ≤ p - 2 := by parley_order
     have s5_24 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = 1 * (∏ k ∈ Finset.Icc (1 + 1 : ℤ) (p - 2), (k : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_first (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (b := p - 2) r647_1)
     -- 5.25. mun:product-integer, from 5.17, 5.18
     -- 5.26. substitute 1 + 1 = 2 (arithmetic) into line 5.24
-    have s5_26 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) := by parley_subst_at (show (1 + 1 : ℤ) = 2 by parley_set_side) s5_24
+    have s5_26 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) := by
+      have e_arith : (1 + 1 : ℤ) = 2 := by parley_arith
+      (have h := Eq.subst (motive := (fun t : ℤ => (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) = 1 * (∏ k ∈ Finset.Icc t (p - 2), (k : ℤ)))) e_arith s5_24; push_cast [one_mul] at h ⊢; all_goals exact_mod_cast h)
     -- 5.27. substitute ∏(k = 1 to p − 2) k = ∏(k = 2 to p − 2) k (line 5.26)
     have s5_27 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by (have h := congrArg (fun t : ℤ => t * (p - 1)) s5_26; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 5.28. thm:congruent-times b := 1, c := p − 1, from 5.19, 5.25
@@ -414,6 +419,6 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     have s5_30 : (LeanBridges.Counting.factorial (2 - 1 : ℤ) : ℤ) ≡ (-1 : ℤ) [ZMOD (2 : ℤ)] := by parley_arith
     -- 5.31. substitute 2 = p (C2) into line 5.30
     have r680_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) (by parley_set_side))
-    parley_subst_at hC2 s5_30
+    (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (t - 1) : ℤ) ≡ (-1 : ℤ) [ZMOD t])) hC2 s5_30; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Wilson.Wilson

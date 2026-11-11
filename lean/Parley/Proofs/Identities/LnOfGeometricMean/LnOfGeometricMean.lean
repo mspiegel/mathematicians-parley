@@ -2,7 +2,6 @@ module
 
 public import InstanceTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -39,7 +38,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
   -- 3. substitute
   have s3 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by
     have c1 : x * y = Real.sqrt (x * y) * Real.sqrt (x * y) := by linear_combination (norm := parley_norm) (-1) * s2b
-    have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by parley_subst_at c1 s1
+    have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. mun:factor-positive a := √(x·y), b := √(x·y), from 2, 3
   have s4 : Real.sqrt (x * y) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) (by parley_side) (by parley_side))

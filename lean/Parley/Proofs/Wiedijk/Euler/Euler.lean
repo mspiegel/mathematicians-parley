@@ -173,7 +173,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   -- 14. substitute
   have s14 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by
     have c1 : (∏ᶠ r ∈ S, (r * a : ℤ)) = a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) := by exact (Parley.Items.Stdlib.Sums.thm_product_factor (X := S) s5 s4 (c := a))
-    have row1 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by parley_subst_at c1 s12
+    have row1 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => t ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n])) c1 s12; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 15. substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 10) into line 14
   have s15 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ t [ZMOD n])) s10 s14; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -195,7 +195,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   have r189_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) (by parley_set_side))
   have s20 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by
     have c1 : a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) - (∏ᶠ r ∈ S, (r : ℤ)) = (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by parley_ring
-    have row1 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by parley_subst_at c1 s19
+    have row1 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 21. thm:coprime-divides c := ∏(r ∈ S) r, from 18, 20
   have r196_2 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) (by parley_set_side))

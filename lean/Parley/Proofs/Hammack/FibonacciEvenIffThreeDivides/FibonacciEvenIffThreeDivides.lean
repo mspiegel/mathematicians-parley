@@ -5,7 +5,6 @@ public import Functions
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Even
@@ -100,12 +99,12 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 4.16. substitute
       have s4_16 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 1 + 1) := by
         have c1 : 3 * k + 1 + 2 = 3 * (k + 1) := by parley_ring
-        have row1 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 1 + 1) := by parley_subst_at c1 s4_15
+        have row1 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 1 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F t = F (3 * k + 1) + F (3 * k + 1 + 1))) c1 s4_15; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.17. substitute
       have s4_17 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 2) := by
         have c1 : 3 * k + 1 + 1 = 3 * k + 2 := by parley_ring
-        have row1 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 2) := by parley_subst_at c1 s4_16
+        have row1 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 2) := by (have h := Eq.subst (motive := (fun t : ℤ => F (3 * (k + 1)) = F (3 * k + 1) + F t)) c1 s4_16; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.18. thm:odd-plus-odd A := F(3k + 1), B := F(3k + 2), from IH2
       have s4_18 : Even (F (3 * k + 1) + F (3 * k + 2)) := by exact (Parley.Proofs.Setmm.Parity.OddPlusOdd.odd_plus_odd (A := F (3 * k + 1)) (B := F (3 * k + 2)) hIH2.1.2 hIH2.2)
@@ -116,12 +115,12 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 4.21. substitute
       have s4_21 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * k + 2 + 1) := by
         have c1 : 3 * k + 2 + 2 = 3 * (k + 1) + 1 := by parley_ring
-        have row1 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * k + 2 + 1) := by parley_subst_at c1 s4_20
+        have row1 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * k + 2 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F t = F (3 * k + 2) + F (3 * k + 2 + 1))) c1 s4_20; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.22. substitute
       have s4_22 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * (k + 1)) := by
         have c1 : 3 * k + 2 + 1 = 3 * (k + 1) := by parley_ring
-        have row1 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * (k + 1)) := by parley_subst_at c1 s4_21
+        have row1 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * (k + 1)) := by (have h := Eq.subst (motive := (fun t : ℤ => F (3 * (k + 1) + 1) = F (3 * k + 2) + F t)) c1 s4_21; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.23. instantiate k := 3(k + 1) in line 2
       -- 4.24. thm:odd-plus-even A := F(3k + 2), B := F(3(k + 1)), from IH2, 4.19
@@ -134,7 +133,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 4.28. substitute
       have s4_28 : Odd (F (3 * (k + 1) + 2)) := by
         have c1 : F (3 * (k + 1)) + F (3 * (k + 1) + 1) = F (3 * (k + 1) + 2) := by exact ((s3 (3 * (k + 1)) (by parley_side))).symm
-        have row1 : Odd (F (3 * (k + 1) + 2)) := by parley_subst_at c1 s4_27
+        have row1 : Odd (F (3 * (k + 1) + 2)) := by (have h := Eq.subst (motive := (fun t : ℤ => Odd t)) c1 s4_27; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.29. join 4.19, 4.25, 4.28
       have s4_29 : (Even (F (3 * (k + 1))) ∧ Odd (F (3 * (k + 1) + 1))) ∧ Odd (F (3 * (k + 1) + 2)) := by parley_side
@@ -180,7 +179,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     rcases s5_3 with (hC1 | hC2) | hC3
     · skip
       -- 5.14.1. substitute n mod 3 = 0 (C1) into line 5.4
-      have s5_14_1 : q * 3 = n := by parley_subst_at hC1 s5_4
+      have s5_14_1 : q * 3 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC1 s5_4; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
       -- 5.14.2. algebra, from 5.14.1
       have s5_14_2 : n = 3 * q := by linear_combination (norm := parley_norm) (-1) * s5_14_1
       -- 5.14.3. def:divides d := 3, from 5.14.2

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
@@ -21,7 +20,7 @@ theorem a_define_read_in_an_algebra_step (a : ℝ) (b : ℝ) (hH3 : a + 1 = 2 * 
   set e : ℝ := a + 1 with hD1
   have hD1_kind : True := by parley_side
   -- 1. substitute e = a + 1 (D1) into H3
-  have s1 : e = 2 * b := by parley_subst_at hD1 hH3
+  have s1 : e = 2 * b := by (have h := Eq.subst (motive := (fun t : ℝ => t = 2 * b)) (hD1).symm hH3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. algebra, from D1, 1
   try simp only [hD1] at *
   try push_cast at *

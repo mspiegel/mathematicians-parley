@@ -6,7 +6,6 @@ public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
@@ -40,8 +39,7 @@ theorem nine_power_is_three_power (m : ℤ) :
   -- 3. substitute
   have s3 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by
     have c1 : m + m = 2 * m := by parley_ring
-    have c1_w : (m : ℚ) + (m : ℚ) = 2 * (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by first | parley_put_at c1_w s2 | parley_put_at c1 s2 | parley_subst_at c1_w s2 | parley_subst_at c1 s2
+    have row1 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by (have h := Eq.subst (motive := (fun t : ℤ => (3 ^ t : ℚ) = 3 ^ m * 3 ^ m)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. cases, from 1
   have s4 : (9 ^ m : ℚ) = 3 ^ m * 3 ^ m := by
@@ -78,13 +76,13 @@ theorem nine_power_is_three_power (m : ℤ) :
       have r162_1 : (9 : ℤ) ≠ 0 := by parley_arith
       have s4_10 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by
         have c1 : (9 ^ (-m) : ℚ) = 1 / 9 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (9 : ℚ)) (by parley_side) (m := m))
-        have row1 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by parley_subst_at c1 s4_5
+        have row1 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := Eq.subst (motive := (fun t : ℚ => t = 3 ^ (-m) * 3 ^ (-m))) c1 s4_5; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.11. substitute
       have r168_1 : (3 : ℤ) ≠ 0 := by parley_arith
       have s4_11 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by
         have c1 : (3 ^ (-m) : ℚ) = 1 / 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (3 : ℚ)) (by parley_side) (m := m))
-        have row1 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by parley_subst_at c1 s4_10
+        have row1 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by (have h := Eq.subst (motive := (fun t : ℚ => 1 / 9 ^ m = t * t)) c1 s4_10; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.12. inequalities
       have s4_12 : (9 ^ m : ℚ) ≠ 0 := by parley_side

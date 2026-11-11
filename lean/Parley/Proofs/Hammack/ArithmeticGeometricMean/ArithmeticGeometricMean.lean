@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
@@ -53,7 +52,7 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5.6. substitute
   have s5_6 : (a + b) ^ 2 < 4 * (a * b) := by
     have c1 : (2 * Real.sqrt (a * b)) ^ 2 = 4 * (a * b) := by linear_combination (norm := parley_norm) (4) * s4b
-    have row1 : (a + b) ^ 2 < 4 * (a * b) := by parley_subst_at c1 s5_5
+    have row1 : (a + b) ^ 2 < 4 * (a * b) := by (have h := Eq.subst (motive := (fun t : ℝ => (a + b) ^ 2 < t)) c1 s5_5; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 5.7. algebra
   have s5_7 : (a - b) ^ 2 = (a + b) ^ 2 - 4 * (a * b) := by parley_ring

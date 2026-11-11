@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -42,7 +41,7 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.5. substitute
       have s1_5 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by
         have c1 : j + 1 - 1 = j := by parley_ring
-        have row1 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by parley_subst_at c1 s1_4
+        have row1 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ))) c1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.6. calculation
       calc (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) = (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) := by exact s1_5.symm

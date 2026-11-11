@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -26,7 +25,7 @@ theorem gcd_minus_second_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 2. substitute
   have s2 : (a - b) % b = a % b := by
     have c1 : -1 * b + a = a - b := by parley_ring
-    have row1 : (a - b) % b = a % b := by parley_subst_at c1 s1
+    have row1 : (a - b) % b = a % b := by (have h := Eq.subst (motive := (fun t : ℤ => t % b = a % b)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. calculation
   calc (Int.gcd a b : ℤ) = (Int.gcd (a % b) b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a) (b := b) (by parley_side)).symm

@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -68,7 +67,7 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
     -- 11.8. substitute
     have s11_8 : 0 < -(c * (Int.gcd a b : ℤ)) := by
       have c1 : -c * (Int.gcd a b : ℤ) = -(c * (Int.gcd a b : ℤ)) := by parley_ring
-      have row1 : 0 < -(c * (Int.gcd a b : ℤ)) := by parley_subst_at c1 s11_7
+      have row1 : 0 < -(c * (Int.gcd a b : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) c1 s11_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 11.9. inequalities
     have s11_9 : c * (Int.gcd a b : ℤ) < 0 := by parley_order

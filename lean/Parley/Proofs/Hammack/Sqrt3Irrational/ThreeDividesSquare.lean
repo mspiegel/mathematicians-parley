@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Int.Defs
@@ -40,7 +39,7 @@ theorem three_divides_square (n : ℤ) (hH2 : (3 : ℤ) ∣ n ^ 2) :
   -- 3. substitute
   have s3 : (3 : ℤ) ∣ n * n := by
     have c1 : n ^ 2 = n * n := by parley_ring
-    have row1 : (3 : ℤ) ∣ n * n := by parley_subst_at c1 hH2
+    have row1 : (3 : ℤ) ∣ n * n := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. thm:coprime-divides x := n, c := n, n := 3, from 2, 3
   have s4 : (3 : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := (3 : ℤ)) (by parley_side) s3 s2)

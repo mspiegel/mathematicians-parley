@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
@@ -28,7 +27,7 @@ theorem digit_step (t : ℤ) :
   -- 2.2. substitute
   have s2_2 : (10 : ℤ) ∣ (1 : ℤ) := by
     have c1 : t + 1 - t = 1 := by parley_ring
-    have row1 : (10 : ℤ) ∣ (1 : ℤ) := by parley_subst_at c1 s2_1
+    have row1 : (10 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ u)) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   exact absurd s2_2 (by norm_num)
 

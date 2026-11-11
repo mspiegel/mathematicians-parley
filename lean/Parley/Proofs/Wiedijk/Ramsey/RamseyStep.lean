@@ -108,7 +108,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     have c1 : X \ ({v} : Set α) ∪ ({v} : Set α) = X := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := X) (a := v) s9)
     have row1 : (X.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := by parley_subst_at c1 s22
     have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by (have h := congrArg (fun t : ℤ => t) s21; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_subst_at c2 row1
+    have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2)
   -- 24. mun:nat-minus-one n := k + j
   have s24 : 0 ≤ k + j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k + j) (by parley_set_side))

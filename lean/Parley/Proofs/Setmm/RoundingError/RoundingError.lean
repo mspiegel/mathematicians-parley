@@ -1,7 +1,6 @@
 module
 
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -71,6 +70,6 @@ theorem rounding_error (A : ℝ) :
       -- 10.4. transitivity, from 10.3, 8
       parley_order
   -- 11. substitute e = ⌊A + 1/2⌋ − A (D1) into line 10
-  parley_subst_at hD1 s10
+  (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ 1 / 2)) hD1 s10; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.RoundingError.RoundingError

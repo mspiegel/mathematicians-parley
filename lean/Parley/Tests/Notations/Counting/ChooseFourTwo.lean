@@ -3,6 +3,7 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
+public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -12,6 +13,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -46,11 +48,11 @@ theorem choose_four_two :
   have s5 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)))) s4 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. substitute 4! = 24 (line 1) into line 5
   have s6 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / ((LeanBridges.Counting.factorial (2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by
-    have e_w : (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) = 24 := by exact_mod_cast s1
+    have e_w : (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) = 24 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
     (have h := Eq.subst (motive := (fun t : ℚ => (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = t / ((LeanBridges.Counting.factorial (2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)))) e_w s5; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 7. substitute 2! = 2 (line 2) into line 6
   have s7 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by
-    have e_w : (LeanBridges.Counting.factorial (2 : ℤ) : ℚ) = 2 := by exact_mod_cast s2
+    have e_w : (LeanBridges.Counting.factorial (2 : ℤ) : ℚ) = 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2; push_cast at h; linear_combination (norm := parley_norm) h
     (have h := Eq.subst (motive := (fun t : ℚ => (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (t * t))) e_w s6; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 8. calculation
   try qify

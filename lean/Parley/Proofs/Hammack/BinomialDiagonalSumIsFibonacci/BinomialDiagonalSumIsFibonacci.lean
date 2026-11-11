@@ -6,7 +6,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import InstanceTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -91,7 +90,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
               simpa only [zero_add] using hI
           _ = (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ)) s2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 1 := by parley_subst s2_10
+          _ = 1 := by (have h := congrArg (fun t : ℤ => 1 + t) s2_10; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
       -- 2.12. D1
       have s2_12 : G (0 + 1) = F 0 + G 0 := by have h := (hD1.2.2 ((0 + 1 : ℤ) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 2.13. D1

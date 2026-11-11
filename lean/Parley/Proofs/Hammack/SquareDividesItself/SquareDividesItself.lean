@@ -3,7 +3,6 @@ module
 public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -65,7 +64,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       have s3_6_5 : (1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
       -- 3.6.6. substitute
       have c1 : 1 = a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := a) (by parley_set_side) s3_6_4).symm
-      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_subst_at c1 s3_6_5
+      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_5; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     · skip
       -- 3.6.7. inequalities
@@ -82,7 +81,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       have s3_6_12 : (-1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
       -- 3.6.13. substitute
       have c1 : -1 = a := by linear_combination (norm := parley_norm) s3_6_11
-      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_subst_at c1 s3_6_12
+      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_12; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
 
 end Parley.Proofs.Hammack.SquareDividesItself.SquareDividesItself

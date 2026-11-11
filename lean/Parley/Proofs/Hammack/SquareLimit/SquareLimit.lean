@@ -5,7 +5,6 @@ public import ArithTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -91,7 +90,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.13. substitute
       have s1_4_13 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := by
         have c1 : (x + 3) * (x - 3) = f x - 7 := by linear_combination (norm := parley_norm) (-1) * s1_4_11
-        have row1 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := by parley_subst_at c1 s1_4_12
+        have row1 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (x + 3) * abs (x - 3))) c1 s1_4_12; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.4.14. calculation
       have r94_1 : ε / 7 > 0 := by parley_set_side

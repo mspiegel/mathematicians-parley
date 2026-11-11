@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -68,7 +67,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
       have s4_6_3 : abs (C * (x n - L)) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) (by parley_side) s4_6_1)
       -- 4.6.4. substitute
       have c1 : C * (x n - L) = C * x n - C * L := by parley_ring
-      have row1 : abs (C * x n - C * L) < ε := by parley_subst_at c1 s4_6_3
+      have row1 : abs (C * x n - C * L) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s4_6_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 4.7. exhibit, from 4.6
     exact ⟨N, s4_5a, s4_6⟩

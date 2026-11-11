@@ -1,9 +1,9 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -25,7 +25,7 @@ namespace Parley.Tests.Elaborator.AnIdentityASubstitutionMakes.AnIdentityASubsti
 theorem an_identity_a_substitution_makes_at_a_value (b : ℤ → ℝ) (k : ℤ) (hH3 : (1 ^ k : ℚ) = 1) :
     b 0 * 1 ^ k = b 0 := by
   -- 1. substitute 1^k = 1 (H3)
-  have hH3_w : (1 ^ k : ℝ) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) hH3; push_cast at h; linear_combination (norm := parley_norm) h
-  first | parley_subst hH3_w | parley_subst hH3
+  have e_w : (1 ^ k : ℝ) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) hH3; push_cast at h; linear_combination (norm := parley_norm) h
+  (have h := congrArg (fun t : ℝ => b 0 * t) e_w; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.AnIdentityASubstitutionMakes.AnIdentityASubstitutionMakesAtAValue

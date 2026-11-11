@@ -4,9 +4,9 @@ public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
@@ -62,7 +62,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     have s1_6 : e ≠ 1 := by
       intro hS2
       -- 1.6.1. substitute e = 1 (S2) into line 1.1
-      have s1_6_1 : p = d := by parley_subst_at hS2 s1_1
+      have s1_6_1 : p = d := by (have h := Eq.subst (motive := (fun t : ℤ => p = d * t)) hS2 s1_1; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
       exact s1_2b s1_6_1.symm
     -- 1.7. inequalities, from D1, 1.6
     have s1_7 : 1 < e := by parley_order

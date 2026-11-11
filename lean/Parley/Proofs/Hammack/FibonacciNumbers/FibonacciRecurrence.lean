@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.Notation
@@ -34,7 +33,7 @@ theorem fibonacci_recurrence (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0
   have s1_5 : F (k + 1 + 1) = F k + F (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F (k + 1 + 1) = F k + t)) (s1_3).symm s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 1.6. substitute
   have c1 : k + 1 + 1 = k + 2 := by parley_ring
-  have row1 : F (k + 2) = F k + F (k + 1) := by parley_subst_at c1 s1_5
+  have row1 : F (k + 2) = F k + F (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F t = F k + F (k + 1))) c1 s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence

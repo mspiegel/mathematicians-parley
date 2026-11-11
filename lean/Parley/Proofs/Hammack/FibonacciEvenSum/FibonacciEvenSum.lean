@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
@@ -93,12 +92,12 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       -- 4.14. substitute
       have s4_14 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := by
         have c1 : 2 * m + 1 + 2 = 2 * (m + 1) + 1 := by parley_ring
-        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := by parley_subst_at c1 s4_13
+        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F t = F (2 * m + 1) + F (2 * m + 1 + 1))) c1 s4_13; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.15. substitute
       have s4_15 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := by
         have c1 : 2 * m + 1 + 1 = 2 * (m + 1) := by parley_ring
-        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := by parley_subst_at c1 s4_14
+        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := by (have h := Eq.subst (motive := (fun t : ℤ => F (2 * (m + 1) + 1) = F (2 * m + 1) + F t)) c1 s4_14; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.16. instantiate k := 2m + 1 in line 2
       -- 4.17. instantiate k := 2(m + 1) in line 2

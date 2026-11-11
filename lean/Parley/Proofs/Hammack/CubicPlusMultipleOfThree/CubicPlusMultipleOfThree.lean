@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -44,7 +43,7 @@ theorem cubic_plus_multiple_of_three (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_4 : (3 : ℤ) ∣ k ^ 3 + 5 * k + 6 + 3 * (k ^ 2 + k + 2) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := k ^ 3 + 5 * k + 6) (b := 3 * (k ^ 2 + k + 2)) hIH s1_3)
       -- 1.5. substitute
       have c1 : k ^ 3 + 5 * k + 6 + 3 * (k ^ 2 + k + 2) = (k + 1) ^ 3 + 5 * (k + 1) + 6 := by parley_ring
-      have row1 : (3 : ℤ) ∣ (k + 1) ^ 3 + 5 * (k + 1) + 6 := by parley_subst_at c1 s1_4
+      have row1 : (3 : ℤ) ∣ (k + 1) ^ 3 + 5 * (k + 1) + 6 := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate k := n in line 1
   exact (s1 n (by parley_side))

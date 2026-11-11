@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -27,12 +26,12 @@ theorem factorial_four :
   -- 2. substitute
   have s2 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = 6 * (3 + 1) := by
     have c1 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 6 := by exact Parley.Proofs.Setmm.SmallFactorials.FactorialThree.factorial_three
-    have row1 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = 6 * (3 + 1) := by parley_subst_at c1 s1
+    have row1 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = 6 * (3 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = t * (3 + 1))) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. substitute
   have s3 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by
     have c1 : (3 + 1 : ℤ) = 4 := by parley_arith
-    have row1 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by parley_subst_at c1 s2
+    have row1 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 6 * t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. calculation
   calc (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by exact s3

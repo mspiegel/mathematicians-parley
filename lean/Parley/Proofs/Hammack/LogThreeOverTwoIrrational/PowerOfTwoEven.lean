@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
@@ -43,8 +42,7 @@ theorem power_of_two_even (n : ℤ) (hH1 : 0 < n) :
   -- 3. substitute
   have s3 : (2 ^ n.toNat : ℚ) = 2 ^ (n - 1) * 2 := by
     have c1 : n - 1 + 1 = n := by parley_ring
-    have c1_w : (n : ℚ) - 1 + 1 = (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : (2 ^ n.toNat : ℚ) = 2 ^ (n - 1) * 2 := by first | parley_put_at c1_w s2 | parley_put_at c1 s2 | parley_subst_at c1_w s2 | parley_subst_at c1 s2
+    have row1 : (2 ^ n.toNat : ℚ) = 2 ^ (n - 1) * 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (2 ^ t : ℚ) = 2 ^ (n - 1) * 2)) c1 s2; simp only [parley_zpow_toNat (n := n) (h := le_of_lt hH1), parley_zpow_toNat (n := n - 1) (h := s1)] at h ⊢; exact_mod_cast h)
     exact row1
   -- 4. algebra, from 3
   have s4 : (2 ^ n.toNat : ℚ) = 2 * 2 ^ (n - 1) := by linear_combination (norm := parley_norm) s3

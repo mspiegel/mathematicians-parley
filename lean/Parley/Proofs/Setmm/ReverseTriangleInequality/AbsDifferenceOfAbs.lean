@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -32,7 +31,7 @@ theorem abs_difference_of_abs (A : ℝ) (B : ℝ) :
   -- 4. substitute
   have s4 : abs (B - A) = abs (A - B) := by
     have c1 : -(A - B) = B - A := by parley_ring
-    have row1 : abs (B - A) = abs (A - B) := by parley_subst_at c1 s3
+    have row1 : abs (B - A) = abs (A - B) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (A - B))) c1 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 5. substitute |B − A| = |A − B| (line 4) into line 2
   have s5 : abs B - abs A ≤ abs (A - B) := by (have h := Eq.subst (motive := (fun t : ℝ => abs B - abs A ≤ t)) s4 s2; push_cast at h ⊢; all_goals exact_mod_cast h)

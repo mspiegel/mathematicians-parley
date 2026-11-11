@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
@@ -57,7 +56,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     -- 2.5. substitute
     have s2_5 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by
       have c1 : n - 1 + 1 = n := by parley_ring
-      have row1 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by parley_subst_at c1 s2_4
+      have row1 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => k * (LeanBridges.Counting.choose t k : ℤ) = t * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ))) c1 s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.6. mun:binomial-nat0 n := n − 1, k := k − 1
     have r87_1 : 0 ≤ n - 1 := by parley_side

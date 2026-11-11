@@ -3,9 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -15,7 +13,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -75,8 +72,7 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 19. substitute
   have s19 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by
     have c1 : n - 2 - (k - 2) = n - k := by (have h := congrArg (fun t : ℤ => t) s18; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have c1_w : (n : ℚ) - 2 - ((k : ℚ) - 2) = (n : ℚ) - (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by first | parley_put_at c1_w s15 | parley_put_at c1 s15 | parley_subst_at c1_w s15 | parley_subst_at c1 s15
+    have row1 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)))) c1 s15; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 20. calculation
   have r78_1 : 0 < (LeanBridges.Counting.factorial (n - 2) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n - 2) (by parley_side))

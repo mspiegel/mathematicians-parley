@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -42,7 +41,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
     rcases s3 with (hC1 | hC2) | hC3
     · skip
       -- 5.1. substitute a mod 3 = 0 (C1) into line 4
-      have s5_1 : q * 3 = a := by parley_subst_at hC1 s4
+      have s5_1 : q * 3 = a := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = a)) hC1 s4; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
       -- 5.2. calculation
       have s5_2 : a ^ 3 - a = 3 * (9 * q ^ 3 - q) := by
         calc a ^ 3 - a = (q * 3) ^ 3 - q * 3 := by (have h := congrArg (fun t : ℤ => t ^ 3 - t) (s5_1).symm; push_cast at h ⊢; all_goals exact_mod_cast h)

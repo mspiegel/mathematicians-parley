@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import InstanceTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -56,7 +55,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
     calc (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (m + 1 + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (m + 1 + 1) : ℤ)) s4; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := m + 1 + 1)) s5
   -- 7. substitute C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = 0 (line 6) into line 3
-  have s7 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) := by first | parley_subst_at s6 s3 | (have e_nat : LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) = 0 := by exact_mod_cast s6; parley_subst_at e_nat s3)
+  have s7 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) + t)) s6 s3; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
   -- 8. proof
   have s8 : ∀ k : ℤ, k ∈ Finset.Icc 0 (m + 1) → (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) = (LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) := by
     intro k hJ
@@ -86,7 +85,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- 14. proof
   -- what this block shows, Lean's types give
   -- 15. substitute C(m + 1, 0 − 1) = 0 (line 13) into line 12
-  have s15 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by first | parley_subst_at s13 s12 | (have e_nat : LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) = 0 := by exact_mod_cast s13; parley_subst_at e_nat s12)
+  have s15 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) = t + (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)))) s13 s12; push_cast [zero_add] at h ⊢; all_goals exact_mod_cast h)
   -- 16. proof
   -- what this block shows, Lean's types give
   -- 17. proof

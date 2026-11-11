@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -121,20 +120,22 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.13. substitute
     have s17_13 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
       have c1 : u = (a : ℝ) / (b : ℝ) := by (have h := congrArg (fun t : ℝ => t) s17_1b; push_cast at h ⊢; all_goals exact_mod_cast h)
-      have row1 : (a : ℝ) / (b : ℝ) - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by parley_subst_at c1 s17_12
+      have row1 : (a : ℝ) / (b : ℝ) - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by (have h := Eq.subst (motive := (fun t : ℝ => t - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)))) c1 s17_12; push_cast at h ⊢; all_goals exact_mod_cast h)
       have c2 : r = (p : ℚ) / (q : ℚ) := by (have h := congrArg (fun t : ℚ => t) s17_2b; push_cast at h ⊢; all_goals exact_mod_cast h)
-      have c2_w : (r : ℝ) = (p : ℝ) / (q : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c2; push_cast at h; linear_combination (norm := parley_norm) h
-      have row2 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((s : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_put_at c2_w row1 | parley_put_at c2 row1 | parley_subst_at c2_w row1 | parley_subst_at c2 row1
+      have row2 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((s : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
+        have e_w : (r : ℝ) = (p : ℝ) / (q : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c2; push_cast at h; linear_combination (norm := parley_norm) h
+        (have h := Eq.subst (motive := (fun t : ℝ => (a : ℝ) / (b : ℝ) - t = ((s : ℝ) - t) * (1 / 2 * Real.sqrt (2 : ℝ)))) e_w row1; push_cast at h ⊢; all_goals exact_mod_cast h)
       have c3 : s = (c : ℚ) / (d : ℚ) := by (have h := congrArg (fun t : ℚ => t) s17_3b; push_cast at h ⊢; all_goals exact_mod_cast h)
-      have c3_w : (s : ℝ) = (c : ℝ) / (d : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c3; push_cast at h; linear_combination (norm := parley_norm) h
-      have row3 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_put_at c3_w row2 | parley_put_at c3 row2 | parley_subst_at c3_w row2 | parley_subst_at c3 row2
+      have row3 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
+        have e_w : (s : ℝ) = (c : ℝ) / (d : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c3; push_cast at h; linear_combination (norm := parley_norm) h
+        (have h := Eq.subst (motive := (fun t : ℝ => (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = (t - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)))) e_w row2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row3
     -- 17.14. algebra, from 17.13
     have s17_14 : (b : ℝ) * ((c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ)) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by linear_combination (norm := parley_field) (-(2 * (b : ℝ) * (d : ℝ) * (q : ℝ))) * s17_13
     -- 17.15. substitute c·q − p·d = m (D2) into line 17.14
     have s17_15 : (b : ℝ) * (m : ℝ) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by
-      have hD2_w : (m : ℝ) = (c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) hD2; push_cast at h; linear_combination (norm := parley_norm) h
-      first | parley_subst_at hD2_w s17_14 | parley_subst_at hD2 s17_14
+      have e_w : (c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ) = (m : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) (hD2).symm; push_cast at h; linear_combination (norm := parley_norm) h
+      (have h := Eq.subst (motive := (fun t : ℝ => (b : ℝ) * t * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)))) e_w s17_14; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.16. algebra, from 17.15
     have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by linear_combination (norm := parley_field) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15
     -- 17.17. def:rational x := √2, from 17.16

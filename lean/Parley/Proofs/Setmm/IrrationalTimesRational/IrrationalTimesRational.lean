@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
@@ -39,7 +38,7 @@ theorem irrational_times_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : S
     -- 3.2. substitute
     have s3_2 : ∃ m : ℚ, (m : ℝ) = A := by
       have c1 : A * B / B = A := by parley_ring
-      have row1 : ∃ m : ℚ, (m : ℝ) = A := by parley_subst_at c1 s3_1
+      have row1 : ∃ m : ℚ, (m : ℝ) = A := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 3.3. restate 1
     have s3_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_set_side

@@ -5,7 +5,6 @@ public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -100,7 +99,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
     exact hI
   -- 17. substitute
   have c1 : Real.sqrt (3 : ℝ) * 3 ^ m = Real.sqrt (3 ^ k.toNat : ℝ) := by exact (((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (3 ^ k.toNat : ℝ)) (y := Real.sqrt (3 : ℝ) * 3 ^ m) (by parley_side) (by parley_side))).mp s14).symm
-  have row1 : Irrational (Real.sqrt (3 ^ k.toNat : ℝ)) := by parley_subst_at c1 s16
+  have row1 : Irrational (Real.sqrt (3 ^ k.toNat : ℝ)) := by (have h := Eq.subst (motive := (fun t : ℝ => Irrational t)) c1 s16; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Proofs.Hammack.SqrtOfOddPowerOfThree.SqrtOfOddPowerOfThree

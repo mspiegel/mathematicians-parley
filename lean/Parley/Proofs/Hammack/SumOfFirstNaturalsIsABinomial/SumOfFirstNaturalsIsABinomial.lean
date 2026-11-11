@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -50,7 +49,9 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. thm:pascal n := 1, k := 2
       have s1_3 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := (1 : ℤ)) (by parley_side) (k := (2 : ℤ)))
       -- 1.4. substitute 2 − 1 = 1 (arithmetic) into line 1.3
-      have s1_4 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by parley_subst_at (show (2 - 1 : ℤ) = 1 by parley_side) s1_3
+      have s1_4 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by
+        have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) t : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ))) e_arith s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.5. thm:binomial-of-one m := 1
       have s1_5 : (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) = 1 := by exact (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := (1 : ℤ)) (by parley_side))
       -- 1.6. calculation
@@ -72,7 +73,9 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.9. thm:pascal n := k + 1, k := 2
       have s1_9 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k + 1) (by parley_side) (k := (2 : ℤ)))
       -- 1.10. substitute 2 − 1 = 1 (arithmetic) into line 1.9
-      have s1_10 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by parley_subst_at (show (2 - 1 : ℤ) = 1 by parley_side) s1_9
+      have s1_10 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by
+        have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) t : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ))) e_arith s1_9; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.11. calculation
       calc S (k + 1) = S k + (k + 1) := by exact s1_7
         _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (k + 1) := by (have h := congrArg (fun t : ℤ => t + (k + 1)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)

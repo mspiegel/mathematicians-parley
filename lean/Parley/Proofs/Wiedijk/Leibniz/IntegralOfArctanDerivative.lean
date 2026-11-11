@@ -4,11 +4,11 @@ public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Module.Defs
@@ -110,7 +110,7 @@ theorem integral_of_arctan_derivative :
     -- 12.3. D1, from 12.1
     have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by simp (disch := omega) only [hD1]
     -- 12.4. calculation
-    calc (deriv F) x = 1 / (1 + x ^ 2) := by first | exact (s11 x (by parley_set_side)) | exact ((s11 x (by parley_set_side))).symm | parley_set_side
+    calc (deriv F) x = 1 / (1 + x ^ 2) := by exact (s11 x (by parley_set_side))
       _ = x ^ (2 * 0) / (1 + x ^ 2) := by (have h := congrArg (fun t : ℝ => t / (1 + x ^ 2)) (s12_2).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = g x := by exact s12_3
   -- 13. arithmetic
@@ -144,6 +144,6 @@ theorem integral_of_arctan_derivative :
   calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by exact s21
     _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := g) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
     _ = Real.pi / 4 - F 0 := by (have h := congrArg (fun t : ℝ => t - F 0) s19; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = Real.pi / 4 := by parley_subst s20
+    _ = Real.pi / 4 := by (have h := congrArg (fun t : ℝ => Real.pi / 4 - t) s20; push_cast [sub_zero] at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.Leibniz.IntegralOfArctanDerivative

@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -26,7 +25,7 @@ theorem difference_of_sizes (A : ℝ) (B : ℝ) :
   -- 2. substitute
   have s2 : abs A ≤ abs (A - B) + abs B := by
     have c1 : A - B + B = A := by parley_ring
-    have row1 : abs A ≤ abs (A - B) + abs B := by parley_subst_at c1 s1
+    have row1 : abs A ≤ abs (A - B) + abs B := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (A - B) + abs B)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. inequalities
   parley_order

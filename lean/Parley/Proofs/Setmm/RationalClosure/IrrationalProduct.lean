@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -33,7 +32,7 @@ theorem irrational_product (A : ℝ) (B : ℚ) (hH3 : B ≠ 0) (hH4 : Irrational
     -- 2.2. substitute
     have s2_2 : ∃ m : ℚ, (m : ℝ) = A := by
       have c1 : A * (B : ℝ) / (B : ℝ) = A := by parley_ring
-      have row1 : ∃ m : ℚ, (m : ℝ) = A := by parley_subst_at c1 s2_1
+      have row1 : ∃ m : ℚ, (m : ℝ) = A := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.3. restate 1
     have s2_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_side

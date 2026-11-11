@@ -96,9 +96,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Setmm/Parity/OddSquareOverEight.lean",
         step: "1",
-        holds: "first |",
-        list: true,
-        why: "casts neither tactic is known to move: the ways tried in order",
+        holds: "congrArg (fun t : ℚ => (t ^ 2 - 1) / 8) e_w",
+        list: false,
+        why: "a define's equation of integers put into a side of the claim in ℚ, at places all of its arithmetic: stated in ℚ first, then congrArg of the motive in ℚ",
     },
     Site {
         file: "lean/Parley/Proofs/Hammack/FibonacciSum/FibonacciSum.lean",

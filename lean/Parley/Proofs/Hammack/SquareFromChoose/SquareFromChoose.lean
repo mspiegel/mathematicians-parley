@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -49,7 +48,9 @@ theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
       -- 1.5. thm:pascal n := m, k := 2
       have s1_5 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m) (by parley_side) (k := (2 : ℤ)))
       -- 1.6. substitute 2 − 1 = 1 (arithmetic) into line 1.5
-      have s1_6 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by parley_subst_at (show (2 - 1 : ℤ) = 1 by parley_side) s1_5
+      have s1_6 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by
+        have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m t : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ))) e_arith s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.7. thm:choose-one n := m
       have s1_7 : (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = m := by exact (Parley.Proofs.Hammack.SquareFromChoose.ChooseOne.choose_one (n := m) (by parley_side))
       -- 1.8. thm:choose-one n := m + 1

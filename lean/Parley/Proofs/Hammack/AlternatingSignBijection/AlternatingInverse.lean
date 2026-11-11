@@ -6,7 +6,6 @@ public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
@@ -62,7 +61,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     have s2_5 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (2 * m)) = 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 2 * m) (by parley_whole_side) (by parley_whole_side))
     -- 2.6. substitute
     have c1 : f (2 * m) = m := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s2_4
-    have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := by parley_subst_at c1 s2_5
+    have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) t = 2 * m)) c1 s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. proof
   have s3 : ∀ m : ℤ, m ≤ 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := by
@@ -86,7 +85,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     have s3_7 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (1 - 2 * m)) = 1 - 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 1 - 2 * m) (by parley_whole_side) (by parley_whole_side))
     -- 3.8. substitute
     have c1 : f (1 - 2 * m) = m := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s3_6
-    have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := by parley_subst_at c1 s3_7
+    have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) t = 1 - 2 * m)) c1 s3_7; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. join 2, 3
   have s4a : ∀ m : ℤ, m > 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := by intro m; parley_set_side

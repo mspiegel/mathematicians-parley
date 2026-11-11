@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import OrderTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -59,7 +58,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
   -- 7. inequalities
   have s7 : abs M < abs M + 1 := by parley_order
   -- 8. substitute t = |M| + 1 (D2) into line 7
-  have s8 : abs M < t := by parley_subst_at hD2 s7
+  have s8 : abs M < t := by (have h := Eq.subst (motive := (fun u : ℝ => abs M < u)) (hD2).symm s7; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 9. proof
   have s9 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n * b n - L * M) < ε)) := by
     intro ε
@@ -132,7 +131,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.9. transitivity, from 9.20.7, 9.20.8
       have s9_20_9 : abs (a n) < abs L + 1 := by parley_order
       -- 9.20.10. substitute s = |L| + 1 (D1) into line 9.20.9
-      have s9_20_10 : abs (a n) < s := by parley_subst_at hD1 s9_20_9
+      have s9_20_10 : abs (a n) < s := by (have h := Eq.subst (motive := (fun u : ℝ => abs (a n) < u)) (hD1).symm s9_20_9; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 9.20.11. calculation
       have r238_3 : 2 * s ≠ 0 := by parley_side
       have s9_20_11 : abs (a n * (b n - M)) < ε / 2 := by

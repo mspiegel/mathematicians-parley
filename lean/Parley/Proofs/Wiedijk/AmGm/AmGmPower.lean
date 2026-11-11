@@ -6,7 +6,6 @@ public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -134,7 +133,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.4. substitute
           have s1_19_4 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by
             have c1 : 1 + (r - 1) = r := by parley_ring
-            have row1 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by parley_subst_at c1 s1_19_3
+            have row1 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by (have h := Eq.subst (motive := (fun t : ℝ => 1 + (r - 1) * ((j : ℝ) + 1) ≤ t ^ (j + 1).toNat)) c1 s1_19_3; push_cast at h ⊢; all_goals exact_mod_cast h)
             exact row1
           -- 1.19.5. mun:power-positive, from C3
           have s1_19_5 : A ^ j.toNat > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := A) (m := j) (by parley_side)); simp only [parley_zpow_toNat (n := j) (h := le_of_lt (lt_of_lt_of_le zero_lt_one hK1))] at h ⊢; exact_mod_cast h)

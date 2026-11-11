@@ -5,7 +5,6 @@ public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import SetTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Defs
@@ -90,7 +89,7 @@ theorem rational_squares_sum_not_three :
   -- 15. substitute
   have s15 : (3 : ℤ) ∣ q ^ 2 + p ^ 2 := by
     have c1 : p ^ 2 + q ^ 2 = q ^ 2 + p ^ 2 := by parley_ring
-    have row1 : (3 : ℤ) ∣ q ^ 2 + p ^ 2 := by parley_subst_at c1 s13
+    have row1 : (3 : ℤ) ∣ q ^ 2 + p ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s13; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 16. thm:three-divides-sum-of-squares p := q, q := p, from 15
   have s16 : (3 : ℤ) ∣ q := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesSumOfSquares.three_divides_sum_of_squares (p := q) (q := p) (by parley_set_side))

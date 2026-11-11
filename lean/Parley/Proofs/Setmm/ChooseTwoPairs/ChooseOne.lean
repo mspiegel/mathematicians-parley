@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -36,11 +35,13 @@ theorem choose_one (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.3. thm:pascal n := k, k := 1
       have s1_3 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ)))
       -- 1.4. substitute 1 − 1 = 0 (arithmetic) into line 1.3
-      have s1_4 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by parley_subst_at (show (1 - 1 : ℤ) = 0 by parley_side) s1_3
+      have s1_4 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
+        have e_arith : (1 - 1 : ℤ) = 0 := by parley_arith
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k t : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) e_arith s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.5. substitute
       have s1_5 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
         have c1 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side))
-        have row1 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by parley_subst_at c1 s1_4
+        have row1 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + t = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) c1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.6. calculation
       calc (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 := by exact s1_5.symm

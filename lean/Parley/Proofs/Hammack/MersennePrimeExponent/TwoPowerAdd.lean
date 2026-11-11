@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -35,7 +34,7 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
       -- 1.1. arithmetic
       have s1_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
       -- 1.2. substitute 2^0 = 1 (line 1.1)
-      have s1_2 : (2 ^ a.toNat : ℤ) = 2 ^ a.toNat * 2 ^ 0 := by parley_subst s1_1
+      have s1_2 : (2 ^ a.toNat : ℤ) = 2 ^ a.toNat * 2 ^ 0 := by (have h := (congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_1).symm; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
       simpa only [add_zero, Int.reduceToNat] using s1_2
     | succ k hK hIH =>
       -- 1.3. algebra

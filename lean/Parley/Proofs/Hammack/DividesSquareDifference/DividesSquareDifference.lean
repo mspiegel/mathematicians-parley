@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -29,13 +28,13 @@ theorem divides_square_difference (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ∣ b) 
   -- 2. substitute
   have s2 : a ∣ b ^ 2 := by
     have c1 : b * b = b ^ 2 := by parley_ring
-    have row1 : a ∣ b ^ 2 := by parley_subst_at c1 s1
+    have row1 : a ∣ b ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => a ∣ t)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. mun:divides-difference d := a, a := b², b := b² − c, from H5, 2
   have s3 : a ∣ b ^ 2 - (b ^ 2 - c) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := a) (a := b ^ 2) (b := b ^ 2 - c) s2 hH5)
   -- 4. substitute
   have c1 : b ^ 2 - (b ^ 2 - c) = c := by parley_ring
-  have row1 : a ∣ c := by parley_subst_at c1 s3
+  have row1 : a ∣ c := by (have h := Eq.subst (motive := (fun t : ℤ => a ∣ t)) c1 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Proofs.Hammack.DividesSquareDifference.DividesSquareDifference

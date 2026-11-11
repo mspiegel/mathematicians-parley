@@ -74,9 +74,9 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 8. substitute
   have s8 : (2 * w) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by
     have c1 : a = 2 * w := by (have h := congrArg (fun t : ℤ => t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row1 : (2 * w) ^ 2 + b ^ 2 = c ^ 2 := by parley_subst_at c1 hH4
+    have row1 : (2 * w) ^ 2 + b ^ 2 = c ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 + b ^ 2 = c ^ 2)) c1 hH4; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c2 : b = 2 * q + 1 := by (have h := congrArg (fun t : ℤ => t) s7; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : (2 * w) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by parley_subst_at c2 row1
+    have row2 : (2 * w) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (2 * w) ^ 2 + t ^ 2 = c ^ 2)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 9. contradiction
   have s9 : Odd c := by
@@ -118,9 +118,9 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 20. substitute
   have s20 : (s - t) * 2 = c + b - (c - b) := by
     have c1 : 2 * s = c + b := by (have h := congrArg (fun u : ℤ => u) (s13).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row1 : (s - t) * 2 = c + b - 2 * t := by parley_subst_at c1 s19
+    have row1 : (s - t) * 2 = c + b - 2 * t := by (have h := Eq.subst (motive := (fun u : ℤ => (s - t) * 2 = u - 2 * t)) c1 s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c2 : 2 * t = c - b := by (have h := congrArg (fun u : ℤ => u) (s16).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : (s - t) * 2 = c + b - (c - b) := by parley_subst_at c2 row1
+    have row2 : (s - t) * 2 = c + b - (c - b) := by (have h := Eq.subst (motive := (fun u : ℤ => (s - t) * 2 = c + b - u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 21. calculation
   have s21 : b * 2 = (s - t) * 2 := by
@@ -158,9 +158,9 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 34. substitute
   have s34 : 2 * s * (2 * t) = c ^ 2 - b ^ 2 := by
     have c1 : c + b = 2 * s := by (have h := congrArg (fun u : ℤ => u) s13; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row1 : 2 * s * (c - b) = c ^ 2 - b ^ 2 := by parley_subst_at c1 s33
+    have row1 : 2 * s * (c - b) = c ^ 2 - b ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => u * (c - b) = c ^ 2 - b ^ 2)) c1 s33; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c2 : c - b = 2 * t := by (have h := congrArg (fun u : ℤ => u) s16; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : 2 * s * (2 * t) = c ^ 2 - b ^ 2 := by parley_subst_at c2 row1
+    have row2 : 2 * s * (2 * t) = c ^ 2 - b ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => 2 * s * u = c ^ 2 - b ^ 2)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 35. calculation
   have s35 : w ^ 2 * 4 = s * t * 4 := by
@@ -189,7 +189,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 43. substitute
   have s43 : (Int.gcd s t : ℤ) ∣ (1 : ℤ) := by
     have c1 : (Int.gcd b c : ℤ) = 1 := by exact (Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime.leg_hypotenuse_coprime (a := a) (by parley_side) (b := b) (by parley_side) (c := c) (by parley_side) (by parley_side) hH5)
-    have row1 : (Int.gcd s t : ℤ) ∣ (1 : ℤ) := by parley_subst_at c1 s42
+    have row1 : (Int.gcd s t : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s t : ℤ) ∣ u)) c1 s42; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 44. mun:divides-one d := gcd(s, t), from 37, 43
   have s44 : (Int.gcd s t : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd s t : ℤ)) (by parley_side) s43)
@@ -213,9 +213,9 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 48. substitute
   have s48 : w ^ 2 = m ^ 2 * n ^ 2 := by
     have c1 : s = m ^ 2 := by (have h := congrArg (fun u : ℤ => u) s46; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row1 : w ^ 2 = m ^ 2 * t := by parley_subst_at c1 s36
+    have row1 : w ^ 2 = m ^ 2 * t := by (have h := Eq.subst (motive := (fun u : ℤ => w ^ 2 = u * t)) c1 s36; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c2 : t = n ^ 2 := by (have h := congrArg (fun u : ℤ => u) s47; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : w ^ 2 = m ^ 2 * n ^ 2 := by parley_subst_at c2 row1
+    have row2 : w ^ 2 = m ^ 2 * n ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => w ^ 2 = m ^ 2 * u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 49. membership
   have s49 : 0 < m * n := by parley_side
@@ -230,16 +230,16 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 53. substitute
   have s53 : b = m ^ 2 - n ^ 2 := by
     have c1 : s = m ^ 2 := by (have h := congrArg (fun u : ℤ => u) s46; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row1 : b = m ^ 2 - t := by parley_subst_at c1 s22
+    have row1 : b = m ^ 2 - t := by (have h := Eq.subst (motive := (fun u : ℤ => b = u - t)) c1 s22; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c2 : t = n ^ 2 := by (have h := congrArg (fun u : ℤ => u) s47; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : b = m ^ 2 - n ^ 2 := by parley_subst_at c2 row1
+    have row2 : b = m ^ 2 - n ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => b = m ^ 2 - u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 54. substitute
   have s54 : c = m ^ 2 + n ^ 2 := by
     have c1 : s = m ^ 2 := by (have h := congrArg (fun u : ℤ => u) s46; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row1 : c = m ^ 2 + t := by parley_subst_at c1 s18
+    have row1 : c = m ^ 2 + t := by (have h := Eq.subst (motive := (fun u : ℤ => c = u + t)) c1 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c2 : t = n ^ 2 := by (have h := congrArg (fun u : ℤ => u) s47; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : c = m ^ 2 + n ^ 2 := by parley_subst_at c2 row1
+    have row2 : c = m ^ 2 + n ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => c = m ^ 2 + u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 55. inequalities, from H2
   have s55 : 0 < b := by parley_order
@@ -260,14 +260,14 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 61. substitute
   have s61 : (Int.gcd m n : ℤ) ∣ s := by
     have c1 : m * m = s := by linear_combination (norm := parley_norm) (-1) * s46
-    have row1 : (Int.gcd m n : ℤ) ∣ s := by parley_subst_at c1 s60
+    have row1 : (Int.gcd m n : ℤ) ∣ s := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd m n : ℤ) ∣ u)) c1 s60; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 62. mun:divides-multiple e := gcd(m, n), a := n, x := n, from 59
   have s62 : (Int.gcd m n : ℤ) ∣ n * n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (Int.gcd m n : ℤ)) (a := n) (x := n) s59c)
   -- 63. substitute
   have s63 : (Int.gcd m n : ℤ) ∣ t := by
     have c1 : n * n = t := by linear_combination (norm := parley_norm) (-1) * s47
-    have row1 : (Int.gcd m n : ℤ) ∣ t := by parley_subst_at c1 s62
+    have row1 : (Int.gcd m n : ℤ) ∣ t := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd m n : ℤ) ∣ u)) c1 s62; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 64. thm:divides-gcd d := gcd(m, n), a := s, b := t, from 61, 63
   have s64 : (Int.gcd m n : ℤ) ∣ (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (Int.gcd m n : ℤ)) (a := s) (b := t) s61 s63)

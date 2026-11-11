@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -30,7 +29,7 @@ theorem congruent_products (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (n : ℤ) (hH
   -- 4. substitute
   have s4 : n ∣ a * c - b * d := by
     have c1 : (a - b) * c + (c - d) * b = a * c - b * d := by parley_ring
-    have row1 : n ∣ a * c - b * d := by parley_subst_at c1 s3
+    have row1 : n ∣ a * c - b * d := by (have h := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 5. def:congruent-mod, from 4
   exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr s4

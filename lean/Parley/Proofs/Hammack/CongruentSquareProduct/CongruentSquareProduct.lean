@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -34,7 +33,7 @@ theorem congruent_square_product (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH
   -- 3. substitute
   have s3 : n ∣ a ^ 2 - a * b := by
     have c1 : (a - b) * a = a ^ 2 - a * b := by parley_ring
-    have row1 : n ∣ a ^ 2 - a * b := by parley_subst_at c1 s2
+    have row1 : n ∣ a ^ 2 - a * b := by (have h := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. def:congruent-mod, from 3
   exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 2) (b := a * b))).mpr s3

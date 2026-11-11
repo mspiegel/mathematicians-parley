@@ -372,7 +372,6 @@
 {"key":"congrArg (sorry : ℝ → ℝ) a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℝ) (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
 {"key":"congrArg (sorry : ℝ) a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
-{"key":"congrArg (sorry : ℤ → ℂ) a","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℤ → ℚ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℤ → ℝ) a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℤ → ℤ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
@@ -437,7 +436,6 @@
 {"key":"fun x : ℝ => (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℝ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℤ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
-{"key":"fun x : ℤ => (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℤ => (sorry : ℚ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℤ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
@@ -1029,6 +1027,7 @@
 {"key":"norm_num","kind":"tactic","modules":["Mathlib.Tactic.NormNum.Core"]}
 {"key":"omega","kind":"tactic","modules":[]}
 {"key":"push_cast","kind":"tactic","modules":[]}
+{"key":"push_cast [a] at h","kind":"tactic","modules":[]}
 {"key":"push_cast at h","kind":"tactic","modules":[]}
 {"key":"qify","kind":"tactic","modules":["Mathlib.Tactic.Qify"]}
 {"key":"qify at h","kind":"tactic","modules":["Mathlib.Tactic.Qify"]}

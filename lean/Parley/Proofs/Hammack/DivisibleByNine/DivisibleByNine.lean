@@ -5,7 +5,6 @@ public import ArithTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -59,7 +58,7 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_7 : (9 : ℤ) ∣ ((4 ^ (3 * m).toNat + 8) * 64 - 504 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (9 : ℤ)) (a := ((4 ^ (3 * m).toNat + 8) * 64 : ℤ)) (b := (504 : ℤ)) s1_5 s1_6)
       -- 1.8. substitute
       have c1 : ((4 ^ (3 * m).toNat + 8) * 64 - 504 : ℤ) = 4 ^ (3 * (m + 1)).toNat + 8 := by linear_combination (norm := parley_norm) (-1) * s1_4
-      have row1 : (9 : ℤ) ∣ (4 ^ (3 * (m + 1)).toNat + 8 : ℤ) := by parley_subst_at c1 s1_7
+      have row1 : (9 : ℤ) ∣ (4 ^ (3 * (m + 1)).toNat + 8 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (9 : ℤ) ∣ t)) c1 s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate m := n in line 1
   exact (s1 n (by parley_side))

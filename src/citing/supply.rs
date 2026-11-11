@@ -652,7 +652,7 @@ fn typed_into(
     };
     if domain.notation() != FUNCTIONS_FROM
         || fact.notation() != FUNCTION_TYPE
-        || !f.same_shape(value)
+        || !f.spelt_alike(value)
     {
         return false;
     }
@@ -702,7 +702,7 @@ pub(super) fn unwitnessed<'n>(
             !facts.iter().any(|f| {
                 let member = library.members.contains(&f.notation())
                     && f.children.len() == 2
-                    && f.children[0].same_shape(value)
+                    && f.children[0].spelt_alike(value)
                     && match_tree(
                         domain,
                         &f.children[1],

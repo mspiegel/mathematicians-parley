@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
+public import NormTactics
 public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -20,6 +21,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Eq
@@ -85,7 +87,9 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
     exact hI
   -- 15. calculation
   have s15 : ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = 1 / 2 := by
-    calc ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = (2 ^ j.toNat * 2 - (2 ^ j.toNat + 1) + 1) * (1 / (2 ^ j.toNat * 2)) := by (have h := congrArg (fun t : ℤ => ((t : ℚ) - (2 ^ j.toNat + 1) + 1) * (1 / (t : ℚ))) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = (2 ^ j.toNat * 2 - (2 ^ j.toNat + 1) + 1) * (1 / (2 ^ j.toNat * 2)) := by
+          have e_w : (2 ^ (j + 1).toNat : ℚ) = 2 ^ j.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
+          (have h := congrArg (fun t : ℚ => (t - (2 ^ j.toNat + 1) + 1) * (1 / t)) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 / 2 := by parley_ring
   -- 16. transitivity, from 15, 14, 11
   have s16 : 1 / 2 ≤ (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by parley_order

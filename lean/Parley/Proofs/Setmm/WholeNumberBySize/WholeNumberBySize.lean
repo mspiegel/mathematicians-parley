@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -56,7 +55,7 @@ theorem whole_number_by_size (A : ℝ) :
         exact ⟨(0 - (Classical.choose whole1 : ℤ)), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring)⟩
       -- 4.6. substitute
       have c1 : 0 - -A = A := by parley_ring
-      have row1 : ∃ m : ℤ, (m : ℝ) = A := by parley_subst_at c1 s4_5
+      have row1 : ∃ m : ℤ, (m : ℝ) = A := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℤ, (m : ℝ) = t)) c1 s4_5; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
 
 end Parley.Proofs.Setmm.WholeNumberBySize.WholeNumberBySize

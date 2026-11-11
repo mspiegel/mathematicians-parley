@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -48,14 +47,14 @@ theorem divisibility_by_three (n : ℤ) (hH1 : 0 ≤ n) (d : ℤ → ℤ) :
     have s1_3 : (3 : ℤ) ∣ (10 ^ k.toNat - 1) * d k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (10 ^ k.toNat - 1 : ℤ)) (x := d k) s1_2)
     -- 1.4. substitute
     have c1 : (10 ^ k.toNat - 1) * d k = d k * 10 ^ k.toNat - d k := by parley_ring
-    have row1 : (3 : ℤ) ∣ d k * 10 ^ k.toNat - d k := by parley_subst_at c1 s1_3
+    have row1 : (3 : ℤ) ∣ d k * 10 ^ k.toNat - d k := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 2. mun:sum-divisible m := 3, from 1
   have s2 : (3 : ℤ) ∣ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat - d k : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_divisible (t := (fun k : ℤ => d k * 10 ^ k.toNat - d k)) (n := n) (by parley_side) (m := (3 : ℤ)) s1)
   -- 3. substitute
   have s3 : (3 : ℤ) ∣ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) - (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) := by
     have c1 : (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat - d k : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) - (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_difference (t := (fun k : ℤ => d k * 10 ^ k.toNat)) (u := d) (n := n) (by parley_side))
-    have row1 : (3 : ℤ) ∣ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) - (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) := by parley_subst_at c1 s2
+    have row1 : (3 : ℤ) ∣ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) - (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. def:congruent-mod, from 3
   have s4 : (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) ≡ (∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)) [ZMOD (3 : ℤ)] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k * 10 ^ k.toNat : ℤ)) (b := ∑ k ∈ Finset.Icc (0 : ℤ) n, (d k : ℤ)))).mpr s3

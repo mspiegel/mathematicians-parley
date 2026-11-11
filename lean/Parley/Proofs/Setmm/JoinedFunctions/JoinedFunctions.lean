@@ -30,7 +30,7 @@ theorem joined_functions {α : Type*} (A : Set α) (B : Set α) (C : Set α) (D 
     rcases s1_1 with hC1 | hC2
     · skip
       -- 1.2.1. D1, from C1, K1
-      have s1_2_1 : H x = F x := by (try simp only [hD1]); first | done | parley_set_side
+      have s1_2_1 : H x = F x := by simp (disch := omega) only [hD1 _ hK1, if_pos hC1]
       -- 1.2.2. mun:function-value f := F, from C1
       have s1_2_2 : F x ∈ C := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := C) (f := F) (x := x) hC1 (by parley_set_side))
       -- 1.2.3. substitute H(x) = F(x) (line 1.2.1) into line 1.2.2
@@ -45,7 +45,7 @@ theorem joined_functions {α : Type*} (A : Set α) (B : Set α) (C : Set α) (D 
       -- 1.2.6. mun:disjoint-member, from C2, 1.2.5
       have s1_2_6 : ¬ x ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := B) (Z := A) (u := x) s1_2_5 hC2)
       -- 1.2.7. D1, from K1, 1.2.6
-      have s1_2_7 : H x = G x := by (try simp only [hD1]); first | done | parley_set_side
+      have s1_2_7 : H x = G x := by simp (disch := omega) only [hD1 _ hK1, if_neg s1_2_6]
       -- 1.2.8. mun:function-value f := G, from C2
       have s1_2_8 : G x ∈ D := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := B) (E := D) (f := G) (x := x) hC2 (by parley_set_side))
       -- 1.2.9. substitute H(x) = G(x) (line 1.2.7) into line 1.2.8

@@ -4,7 +4,7 @@ public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
 public import OrderTactics
-public import SubstTactics
+public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Algebra.Defs
 public import Mathlib.Algebra.Algebra.Hom
@@ -62,8 +62,7 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
       exact hI
     -- 1.2. substitute
     have c1 : k + 1 - 1 = k := by parley_ring
-    have c1_w : (k : ℂ) + 1 - 1 = (k : ℂ) := by have h := congrArg (fun x : ℤ => (x : ℂ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat := by first | parley_put_at c1_w s1_1 | parley_put_at c1 s1_1 | parley_subst_at c1_w s1_1 | parley_subst_at c1 s1_1
+    have row1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat := by (have h := Eq.subst (motive := (fun t : ℤ => Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ t)) c1 s1_1; simp only [parley_zpow_toNat (n := k) (h := hH1)] at h ⊢; exact_mod_cast h)
     exact row1
   -- 2. calculation
   have r29_1 : m + 1 ≥ 0 := by parley_order

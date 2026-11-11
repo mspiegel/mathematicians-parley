@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.LinearCombination
@@ -21,7 +20,7 @@ theorem a_define_read_in_a_contradicted_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
   set e : ℝ := a + 1 with hD1
   have hD1_kind : True := by parley_side
   -- 1. substitute e = a + 1 (D1) into H2
-  have s1 : e ≠ 0 := by parley_subst_at hD1 hH2
+  have s1 : e ≠ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) (hD1).symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. contradiction
   intro hS
   -- 2.1. algebra, from D1, S

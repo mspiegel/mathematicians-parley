@@ -84,7 +84,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
     -- 4.5. substitute
     have s4_5 : (2 ^ p.toNat - 1 : ℤ) ∣ (1 : ℤ) := by
       have c1 : (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) = 1 := by parley_ring
-      have row1 : (2 ^ p.toNat - 1 : ℤ) ∣ (1 : ℤ) := by parley_subst_at c1 s4_4
+      have row1 : (2 ^ p.toNat - 1 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 ^ p.toNat - 1 : ℤ) ∣ t)) c1 s4_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 4.6. mun:divides-one d := 2^p − 1, from 4.5
     have r91_1 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ p.toNat - 1 : ℤ)) hH2)
@@ -139,7 +139,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
       calc (ArithmeticFunction.sigma 1 ((2 ^ (p - 1).toNat) * (((2 ^ p.toNat - 1 : ℤ)).toNat)) : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ (p - 1).toNat) : ℤ) * (ArithmeticFunction.sigma 1 (((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) := by exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (((2 ^ (p - 1).toNat) : ℤ) : ℤ)) (by parley_side) (n := (((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) : ℤ)) (by parley_side) (by parley_side))
         _ = ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) * (ArithmeticFunction.sigma 1 (((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) := by parley_subst s7
         _ = ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) * 2 ^ p.toNat := by (have h := congrArg (fun t : ℤ => ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) * t) s6; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = 2 * (((2 ^ (p - 1).toNat) : ℤ) * ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ)) := by first | parley_side | (qify; push_cast; simp only [whole1, whole2]; first | (linear_combination (norm := parley_norm) s8; done) | (linear_combination (norm := parley_norm) -s8; done)))
+        _ = 2 * (((2 ^ (p - 1).toNat) : ℤ) * ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ)) := by (qify; push_cast; simp only [whole1, whole2]; linear_combination (norm := parley_norm) s8))
   -- 10. def:perfect n := 2^(p − 1)·(2^p − 1), from 9
   have r140_1 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) (by parley_side))
   have r140_2 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ p.toNat - 1 : ℤ)) hH2)

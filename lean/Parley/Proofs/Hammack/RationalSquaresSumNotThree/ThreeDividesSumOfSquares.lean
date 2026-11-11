@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Int.Defs
@@ -57,7 +56,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
       -- 4.3. substitute
       have s4_3 : (3 : ℤ) ∣ (1 : ℤ) := by
         have c1 : p ^ 2 + q ^ 2 - (p ^ 2 - 1 + q ^ 2) = 1 := by parley_ring
-        have row1 : (3 : ℤ) ∣ (1 : ℤ) := by parley_subst_at c1 s4_2
+        have row1 : (3 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.4. thm:three-divides-no-small r := 1
       have r149_1 : (1 : ℤ) < 3 := by parley_arith
@@ -71,7 +70,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
       -- 4.7. substitute
       have s4_7 : (3 : ℤ) ∣ (2 : ℤ) := by
         have c1 : p ^ 2 + q ^ 2 - (p ^ 2 - 1 + (q ^ 2 - 1)) = 2 := by parley_ring
-        have row1 : (3 : ℤ) ∣ (2 : ℤ) := by parley_subst_at c1 s4_6
+        have row1 : (3 : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s4_6; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.8. thm:three-divides-no-small r := 2
       have r167_1 : (2 : ℤ) < 3 := by parley_arith

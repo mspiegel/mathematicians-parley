@@ -392,7 +392,7 @@ impl RangedOperators {
 
 /// The node with each part of the shape of `from` put as `to`.
 pub(super) fn put_for(node: &Node, from: &Node, to: &Node) -> Node {
-    if node.same_shape(from) {
+    if node.spelt_alike(from) {
         return to.clone();
     }
     node.with_children(node.children.iter().map(|c| put_for(c, from, to)).collect())

@@ -4,9 +4,7 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -25,7 +23,6 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -59,10 +56,8 @@ theorem binomial_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
     -- 2.2. mun:one-power m := k
     have s2_2 : (1 ^ k.toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); simp only [parley_zpow_toNat (n := k) (h := le_trans (by norm_num) (Finset.mem_Icc.mp hJ).1)] at h ⊢; exact_mod_cast h)
     -- 2.3. calculation
-    calc (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) * 1 ^ k.toNat := by parley_subst s2_1
-      _ = (LeanBridges.Counting.choose m k : ℚ) := by
-          have s2_2_w : (1 ^ k.toNat : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_2; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst s2_2_w | parley_subst s2_2
+    calc (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) * 1 ^ k.toNat := by (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.choose m k : ℚ) * t * 1 ^ k.toNat) s2_1; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
+      _ = (LeanBridges.Counting.choose m k : ℚ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose m k : ℤ) * t) s2_2; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
   -- 3. arithmetic
   have s3 : (1 + 1 : ℤ) = 2 := by parley_arith
   -- 4. calculation

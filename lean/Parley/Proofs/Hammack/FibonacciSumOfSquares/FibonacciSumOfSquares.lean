@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
@@ -97,7 +96,7 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
         linear_combination (norm := parley_norm) hIH2 + s4_11 + (-F (m + 1)) * s4_12
       -- 4.16. substitute
       have c1 : m + 2 = m + 1 + 1 := by parley_ring
-      have row1 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 1 + 1) := by parley_subst_at c1 s4_15
+      have row1 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 1 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F t)) c1 s4_15; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 5. instantiate m := n in line 4, from D2
   exact (s4 n (by parley_side))

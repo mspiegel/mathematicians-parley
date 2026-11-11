@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -32,7 +31,7 @@ theorem coprime_divides (x : ℤ) (c : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : n ∣
   have s4 : n ∣ x * c * u + n * (x * v) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := n) (a := x * c) (b := n) (x := u) (y := x * v) hH4 s3)
   -- 5. substitute
   have c1 : x * c * u + n * (x * v) = x := by linear_combination (norm := parley_norm) (x) * s2
-  have row1 : n ∣ x := by parley_subst_at c1 s4
+  have row1 : n ∣ x := by (have h := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Stdlib.Divisibility.CoprimeDivides

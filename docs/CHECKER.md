@@ -94,6 +94,11 @@ exactly what the check refuses.
   the line the link stands (`FirstAt`), by the link's line. A link read off
   a chain, `a = c` of `a = b = c`, stands at the chain's sentence, with the
   pair as `written`.
+- `link_facings`: for each link of a calculation that cites a line, which
+  way it faces what the line says, `Straight` or `Turned`, compared as a
+  citation's facing is (`citations::facing_of`), by the link's line. Lean
+  uses the line as it stands or turned round, `linear_combination line` or
+  `-line`, `exact` or `.symm`.
 - `substituted`: for each `substitute` step and calculation row that
   writes no rows, how its substitution makes the claim (`Substituted`), by
   its line. It holds the equation as the page writes it, and where the line
@@ -103,9 +108,15 @@ exactly what the check refuses.
   `t = t′`. And it holds where it is put: which way round, and each place
   by its path in the trees as the page writes them. Lean writes what the
   equation is put into with those places as one letter, and closes the
-  step by `Eq.subst` along it. A substitution found only in the standard
-  order, or that drops an identity element, is not recorded, and the step
-  keeps its ways.
+  step by `Eq.subst` along it. Where the putting leaves identity elements
+  the claim drops, `1·x` written `x`, it holds those (`identities`), the
+  equation put at every place its side stands. A substitution found only in
+  the standard order is not recorded, and the step keeps its ways.
+- `substituted_rows`: for each row of a `substitute` step after the first,
+  how its change, which its reason proves, goes into the row above
+  (`SubstitutedInto::RowAbove`), by the line of the row's reason; places as
+  in `substituted`. It is kept apart from `substituted`, which has under
+  that line how the reason itself makes the change.
 - `define_links`: for each calculation row citing a define, and each step
   whose reason is defines it names, how the two sides of its equation meet
   once the defines are written out, or that they do not meet and arithmetic
@@ -120,6 +131,11 @@ exactly what the check refuses.
   side. The check that the step's claim is the define's value reads the
   step the same way (`value_given`). Lean puts each condition by
   `if_pos h` or `if_neg h`, h that line.
+- `define_domains`: for each step citing a function a define lets on a
+  domain, where a line the step cites says the argument its claim applies
+  the function at is in that domain (`FirstAt`). Lean puts the function's
+  equation at that argument, `hD1 _ h`, h that line, which `simp` would
+  otherwise have to show.
 - `links`: the relation each line a `transitivity` step cites gives its
   chain. Metamath reads it; Lean writes the chain by linear arithmetic.
 

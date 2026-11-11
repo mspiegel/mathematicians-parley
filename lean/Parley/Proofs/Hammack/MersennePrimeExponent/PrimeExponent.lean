@@ -5,7 +5,6 @@ public import ArithTactics
 public import InstanceTactics
 public import OrderTactics
 public import PowerTactics
-public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Int.Defs
@@ -88,7 +87,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       -- 4.3.4. substitute
       have s4_3_4 : n ≤ 0 := by
         have c1 : d * 0 = 0 := by parley_ring
-        have row1 : n ≤ 0 := by parley_subst_at c1 s4_3_3
+        have row1 : n ≤ 0 := by (have h := Eq.subst (motive := (fun t : ℤ => n ≤ t)) c1 s4_3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.3.5. inequalities, from H1
       have s4_3_5 : ¬ n ≤ 0 := by parley_side

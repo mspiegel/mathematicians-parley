@@ -65,7 +65,7 @@ theorem log_three_over_two_irrational :
     have r106_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_3 : p > 0 := by
       have c1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) = (p : ℝ) := by linear_combination (norm := parley_field) ((q : ℝ)) * s2_1b
-      have row1 : p > 0 := by parley_subst_at c1 s2_2
+      have row1 : p > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.4. mun:pos-int-nat m := p, from 2.3
     have s2_4 : 0 < p := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2_3)

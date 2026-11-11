@@ -5,7 +5,6 @@ public import ArithTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -58,7 +57,7 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_7 : (24 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m).toNat - 1) * 25 : ℤ)) (b := (24 : ℤ)) s1_5 s1_6)
       -- 1.8. substitute
       have c1 : ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) = 5 ^ (2 * (m + 1)).toNat - 1 := by linear_combination (norm := parley_norm) (-1) * s1_4
-      have row1 : (24 : ℤ) ∣ (5 ^ (2 * (m + 1)).toNat - 1 : ℤ) := by parley_subst_at c1 s1_7
+      have row1 : (24 : ℤ) ∣ (5 ^ (2 * (m + 1)).toNat - 1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (24 : ℤ) ∣ t)) c1 s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate m := n in line 1
   exact (s1 n (by parley_side))

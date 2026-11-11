@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -33,7 +32,7 @@ theorem square_congruent_one_mod_five (a : ℤ) (hH2 : a ≡ (1 : ℤ) [ZMOD (5 
   -- 3. substitute
   have s3 : (5 : ℤ) ∣ a ^ 2 - 1 := by
     have c1 : (a - 1) * (a + 1) = a ^ 2 - 1 := by parley_ring
-    have row1 : (5 : ℤ) ∣ a ^ 2 - 1 := by parley_subst_at c1 s2
+    have row1 : (5 : ℤ) ∣ a ^ 2 - 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. def:congruent-mod, from 3
   exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (5 : ℤ)) (a := a ^ 2) (b := (1 : ℤ)))).mpr s3

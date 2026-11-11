@@ -4,7 +4,6 @@ public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Sets
-public import SubstTactics
 public import Tactics
 public import WholeTactics
 public import Batteries.Util.ExtendedBinder
@@ -56,7 +55,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       have c1 : 1 = (∏ᶠ x ∈ (∅ : Set ℤ), (x : ℤ)) := by
         have hI : (∏ᶠ a ∈ (∅ : Set ℤ), (a : ℤ)) = 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : ℤ => x))))
         exact hI.symm
-      have row1 : (Int.gcd (∏ᶠ x ∈ (∅ : Set ℤ), (x : ℤ)) n : ℤ) = 1 := by parley_subst_at c1 s2_3
+      have row1 : (Int.gcd (∏ᶠ x ∈ (∅ : Set ℤ), (x : ℤ)) n : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd t n : ℤ) = 1)) c1 s2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     · intro Y hK hIH
       intro a hK2
@@ -74,7 +73,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       have s2_11 : (Int.gcd ((∏ᶠ x ∈ Y, (x : ℤ)) * a) n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := ∏ᶠ x ∈ Y, (x : ℤ)) (y := a) (n := n) (by parley_set_side) hIH s2_7)
       -- 2.12. substitute
       have c1 : (∏ᶠ x ∈ Y, (x : ℤ)) * a = (∏ᶠ x ∈ (Y ∪ ({a} : Set ℤ)), (x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := (fun x : ℤ => x)) (X := X) (Y := Y) (a := a) (by parley_set_side) s2_6 s2_5.1 s2_5.2).symm
-      have row1 : (Int.gcd (∏ᶠ x ∈ (Y ∪ ({a} : Set ℤ)), (x : ℤ)) n : ℤ) = 1 := by parley_subst_at c1 s2_11
+      have row1 : (Int.gcd (∏ᶠ x ∈ (Y ∪ ({a} : Set ℤ)), (x : ℤ)) n : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd t n : ℤ) = 1)) c1 s2_11; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 3. instantiate Y := X in line 2
   have r668_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))

@@ -1,37 +1,17 @@
-1	lean/Parley/Proofs/Hammack/ChooseOfChoose/ChooseOfChoose.lean	12	row: equation put in
-1	lean/Parley/Proofs/Hammack/ChooseOfChoose/ChooseOfChoose.lean	19	row: equation put in
-1	lean/Parley/Proofs/Hammack/ChooseTwoThenChooseTheRest/ChooseTwoThenChooseTheRest.lean	19	row: equation put in
-1	lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	15	substitute: equation put in
-1	lean/Parley/Proofs/Hammack/FibonacciBinomialStep/FibonacciBinomialStep.lean	7	substitute: equation put in
 1	lean/Parley/Proofs/Hammack/GcdIntegerNatural/GcdIntegerNatural.lean	6.6	substitute: equation put in
 3	lean/Parley/Proofs/Hammack/GcdIntegerNatural/GcdIntegerNatural.lean	6.9	substitute: equation put in
 1	lean/Parley/Proofs/Hammack/GeometricSumBaseThree/GeometricSumBaseThree.lean	1.1	row: read off a cited line
 1	lean/Parley/Proofs/Hammack/GeometricSumBaseThree/GeometricSumBaseThree.lean	2	row: read off a cited line
-2	lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.13	row: equation put in
-1	lean/Parley/Proofs/Hammack/IrrationalBetweenRationals/IrrationalBetweenRationals.lean	17.15	substitute: equation put in
 1	lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/LogThreeOverTwoIrrational.lean	2.11	substitute: equation put in
-1	lean/Parley/Proofs/Hammack/LogThreeOverTwoIrrational/PowerOfTwoEven.lean	3	row: equation put in
-1	lean/Parley/Proofs/Hammack/NinePowersAndThreePowers/NinePowerIsThreePower.lean	3	row: equation put in
-1	lean/Parley/Proofs/Hammack/SumOfFactorialQuotients/FactorialQuotientStep.lean	4	substitute: equation put in
-1	lean/Parley/Proofs/Hammack/WeightedBinomialSum/BinomialRowSum.lean	2.3	substitute: equation put in
 1	lean/Parley/Proofs/Hammack/WeightedBinomialSum/WeightedBinomialSum.lean	2	row: equation put in
-1	lean/Parley/Proofs/Setmm/AOverNLimit/AOverNTendsToZero.lean	5.4.5	row: equation put in
-1	lean/Parley/Proofs/Setmm/HalvesSeries/HalvesSeries.lean	3.2.13	row: equation put in
-1	lean/Parley/Proofs/Setmm/JoinedFunctions/JoinedFunctions.lean	1.2.1	header function put in
-1	lean/Parley/Proofs/Setmm/JoinedFunctions/JoinedFunctions.lean	1.2.7	header function put in
-1	lean/Parley/Proofs/Setmm/Parity/OddSquareOverEight.lean	1	substitute: equation put in
 1	lean/Parley/Proofs/Setmm/RationalClosure/IrrationalProduct.lean	2.1	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Setmm/RationalClosure/IrrationalSum.lean	2.1	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean	3.4	cited: item and claim in different types
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	24	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean	25	row: equation put in
-1	lean/Parley/Proofs/Wiedijk/Binomial/Binomial.lean	1.2	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/Euler/Euler.lean	16	substitute: equation put in
-1	lean/Parley/Proofs/Wiedijk/Leibniz/IntegralOfArctanDerivative.lean	12.4	row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/Leibniz/Leibniz.lean	3.2.8	substitute: equation put in
-1	lean/Parley/Proofs/Wiedijk/Leibniz/PowerIntegral.lean	19.3	row: read off a cited line
-1	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.4	substitute: equation put in
-2	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.8	substitute: equation put in
+1	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.8	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtLeast.lean	2.3	row: equation put in
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean	2.5	row: equation put in
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.8	substitute: equation put in
@@ -39,19 +19,15 @@
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/TailBound.lean	4	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	10	definition read backwards
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.2	substitute: equation put in
-2	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in; row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	31	substitute: equation put in
 1	lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean	10.1.3	row: read off a cited line
-1	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	1.2	row: equation put in
 1	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	2	cited: casts push_cast does not move
 1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.15.4	row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.2	cited: item and claim in different types
 1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.5.3	cited: other shape, met otherwise than written
 1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.10	substitute: equation put in
 4	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.13	named numbers put in; row: read off a cited line
-1	lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean	5.7.4	row: equation put in
 1	lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.13	substitute: equation put in
-1	lean/Parley/Stdlib/Divisibility/PrimePowerNotLess.lean	3.5	row: equation put in
 2	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.12	cited: claim counts a set; row: equation put in
 2	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.3	cited: claim counts a set; row: equation put in
 1	lean/Parley/Tests/Elaborator/ADefineAtEveryMemberOfARange/ADefineAtEveryMemberOfARange.lean	1	header function put in
@@ -60,18 +36,9 @@
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.2	cited: item and claim in different types
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.3	cited: other shape, met otherwise than written
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.6	substitute: equation put in
-1	lean/Parley/Tests/Elaborator/AnIdentityASubstitutionMakes/AnIdentityASubstitutionMakesAtAValue.lean	1	substitute: equation put in
 1	lean/Parley/Tests/Elaborator/ReadingDefines/ADefineAppliedAsASubstitutedEquation.lean	1	header function put in
 1	lean/Parley/Tests/Elaborator/ReadingDefines/ADefineAppliedSubstitutedIntoALine.lean	1	header function put in
 1	lean/Parley/Tests/Elaborator/SetsADefineNames/AConjunctOfAProperty.lean	1	cited: other shape, met otherwise than written
-1	lean/Parley/Tests/Elaborator/SubstituteRows/SubstituteRowsFromALine.lean	1	row: equation put in
-1	lean/Parley/Tests/Elaborator/TextbookExerciseShapes/AOneDroppedFromTheMiddle.lean	2	substitute: equation put in
 1	lean/Parley/Tests/Notations/Continuity/AStepIsNotContinuous.lean	3	header function put in
-1	lean/Parley/Tests/Notations/Continuity/AStepIsNotContinuous.lean	4.15	header function put in
-1	lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	10	substitute: equation put in
-1	lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	5	substitute: equation put in
-1	lean/Parley/Tests/Notations/Counting/FactorialOfTwo.lean	5	substitute: equation put in
-1	lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	5	substitute: equation put in
-1	lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	9	substitute: equation put in
 1	lean/Parley/Tests/Stdlib/Sums/Range.lean	1	cited: other shape, met otherwise than written
 1	lean/Parley/Tests/Stdlib/Sums/Range0.lean	1	cited: other shape, met otherwise than written

@@ -56,8 +56,12 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.6. calculation
     try qify
     calc (LeanBridges.Counting.choose (N + 1) N : ℚ) = (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((LeanBridges.Counting.factorial (N + 1 - N) : ℚ) * (LeanBridges.Counting.factorial N : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N + 1) (by parley_side) (k := N)) s2_2
-      _ = (LeanBridges.Counting.factorial (N + 1) : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((t : ℚ) * (LeanBridges.Counting.factorial N : ℚ))) s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = (LeanBridges.Counting.factorial N : ℚ) * ((N : ℚ) + 1) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by (have h := congrArg (fun t : ℤ => (t : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ))) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (LeanBridges.Counting.factorial (N + 1) : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by
+          have e_w : (LeanBridges.Counting.factorial (N + 1 - N) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
+          (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial (N + 1) : ℚ) / (t * (LeanBridges.Counting.factorial N : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (LeanBridges.Counting.factorial N : ℚ) * ((N : ℚ) + 1) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by
+          have e_w : (LeanBridges.Counting.factorial (N + 1) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) * ((N : ℚ) + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
+          (have h := congrArg (fun t : ℚ => t / (1 * (LeanBridges.Counting.factorial N : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (N : ℚ) + 1 := by parley_ring
   · skip
     -- 2.7. algebra, from C2

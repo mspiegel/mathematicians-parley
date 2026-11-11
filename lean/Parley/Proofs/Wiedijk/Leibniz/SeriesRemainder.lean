@@ -81,8 +81,8 @@ theorem series_remainder :
     -- 2.4. calculation
     have s2_4 : Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = -1 * (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) := by
       calc Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = Real.pi / 4 - 1 := by
-            have s2_1_w : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
-            first | parley_subst s2_1_w | parley_subst s2_1
+            have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
+            (have h := congrArg (fun t : ℝ => Real.pi / 4 - t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = -1 * (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) := by linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * s2_3
     simpa only [zero_add, pow_one, Int.reduceAdd, Int.reduceMul, Int.reduceToNat, Nat.reduceAdd, Nat.reduceMul] using s2_4
   | succ n hK hIH =>
@@ -99,8 +99,8 @@ theorem series_remainder :
     -- 2.8. calculation
     have r721_2 : 0 < 2 * (n + 1) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * (n + 1)) (by parley_side))
     calc Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = Real.pi / 4 - ((∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1)) := by
-          have s2_5_w : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
-          first | parley_subst s2_5_w | parley_subst s2_5
+          have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
+          (have h := congrArg (fun t : ℝ => Real.pi / 4 - t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) - (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by linear_combination (norm := parley_field) ((4) / ((4))) * hIH
       _ = (-1) ^ (n + 1).toNat * -1 * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) := by linear_combination (norm := parley_field) ((-1) ^ (n + 1).toNat) * s2_6
       _ = (-1) ^ (n + 1 + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) := by

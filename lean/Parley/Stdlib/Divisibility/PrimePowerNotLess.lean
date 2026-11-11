@@ -60,8 +60,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.5. substitute
   have s3_5 : (p : ℚ) ^ a'.toNat = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by
     have c1 : a + (a' - a) = a' := by parley_ring
-    have c1_w : (a : ℚ) + ((a' : ℚ) - (a : ℚ)) = (a' : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    have row1 : (p : ℚ) ^ a'.toNat = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by first | parley_put_at c1_w s3_4 | parley_put_at c1 s3_4 | parley_subst_at c1_w s3_4 | parley_subst_at c1 s3_4
+    have row1 : (p : ℚ) ^ a'.toNat = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by (have h := Eq.subst (motive := (fun t : ℤ => (p : ℚ) ^ t = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a))) c1 s3_4; simp only [parley_zpow_toNat (n := a') (h := hH4), parley_zpow_toNat (n := a' - a) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s3_1))] at h ⊢; exact_mod_cast h)
     exact row1
   -- 3.6. algebra, from H8, 3.5
   have s3_6 : (m : ℚ) * (p : ℚ) ^ a.toNat = (p : ℚ) ^ (a' - a) * (m' : ℚ) * (p : ℚ) ^ a.toNat := by
@@ -99,7 +98,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.16. substitute
   have s3_16 : (1 : ℤ) > 1 := by
     have c1 : p = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := p) (by parley_side) s3_15)
-    have row1 : (1 : ℤ) > 1 := by parley_subst_at c1 s2
+    have row1 : (1 : ℤ) > 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 1)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   exact absurd s3_16 (by norm_num)
 
