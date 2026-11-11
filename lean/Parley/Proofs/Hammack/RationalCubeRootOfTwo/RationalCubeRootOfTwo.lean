@@ -30,7 +30,6 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalCubeRootOfTwo.RationalCubeRootOfTwo
 
-set_option maxHeartbeats 400000 in
 theorem rational_cube_root_of_two :
     ¬ (∃ x : ℚ, x ^ 3 = 2) := by
   -- the theorem. contradiction

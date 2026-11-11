@@ -28,8 +28,8 @@ theorem integer_under_twice_half_floor (N : ℤ) :
   have hD1_kind : True := by trivial
   -- 1. mun:floor-above x := (N + 1)/2, from D1
   have s1 : ((N : ℝ) + 1) / 2 < (k : ℝ) + 1 := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := ((N : ℝ) + 1) / 2))
   -- 2. inequalities
   have s2 : N < 2 * k + 1 := by parley_order

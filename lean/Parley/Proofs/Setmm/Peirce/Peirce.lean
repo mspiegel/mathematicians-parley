@@ -22,7 +22,7 @@ theorem peirce (a : ℝ) (b : ℝ) :
   have s1 : a = 0 → b = 0 := by
     intro hK2
     -- 1.1. restate S
-    have s1_1 : a ≠ 0 := by parley_side
+    have s1_1 : a ≠ 0 := by exact hS
     exact absurd hK2 s1_1
   -- 2. mun:modus-ponens, from K1, 1
   have s2 : a = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 → b = 0) (Q := a = 0) hK1 s1)

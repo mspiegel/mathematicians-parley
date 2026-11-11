@@ -36,7 +36,6 @@ public section
 
 namespace Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum
 
-set_option maxHeartbeats 400000 in
 theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
     (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = N ^ 2 := by
   set S : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (2 * j - 1 : ℤ) with hD1
@@ -72,7 +71,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
     have s3_1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := by simp (disch := omega) only [hD1]
     -- 3.2. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := by exact s3_1
-      _ = N ^ 2 := by exact (s1 N (by parley_side))
+      _ = N ^ 2 := by exact (s1 N hC1)
   · skip
     -- 3.3. mun:sum-single a := 0
     have s3_3 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 2 * 0 - 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 2 * k - 1)) (a := (0 : ℤ)))

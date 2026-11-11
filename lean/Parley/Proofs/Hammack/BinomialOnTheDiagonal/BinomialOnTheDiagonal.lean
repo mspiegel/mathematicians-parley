@@ -35,9 +35,9 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.2. inequalities
       have s1_2 : j < j + 1 := by parley_order
       -- 1.3. def:C n := j, k := j + 1, from 1.2
-      have s1_3 : (LeanBridges.Counting.choose j (j + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (by parley_side) (k := j + 1)) s1_2
+      have s1_3 : (LeanBridges.Counting.choose j (j + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := j) hK (k := j + 1)) s1_2
       -- 1.4. thm:pascal n := j, k := j + 1
-      have s1_4 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j (j + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) (by parley_side) (k := j + 1))
+      have s1_4 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j (j + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) hK (k := j + 1))
       -- 1.5. substitute
       have s1_5 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by
         have c1 : j + 1 - 1 = j := by parley_ring
@@ -49,6 +49,6 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
         _ = 0 + 1 := by (have h := congrArg (fun t : ℤ => 0 + t) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 := by norm_num
   -- 2. instantiate j := m in line 1
-  exact (s1 m (by parley_side))
+  exact (s1 m hH1)
 
 end Parley.Proofs.Hammack.BinomialOnTheDiagonal.BinomialOnTheDiagonal

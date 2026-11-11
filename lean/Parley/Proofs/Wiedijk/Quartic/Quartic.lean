@@ -27,7 +27,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Quartic.Quartic
 
-set_option maxHeartbeats 800000 in
 theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7 : P = b - 3 / 8 * a ^ 2) (Q : ℂ) (hH9 : Q = c - a * b / 2 + a ^ 3 / 8) (R : ℂ) (hH11 : R = d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) (U : ℂ) (hH13 : U = P ^ 2 + 12 * R) (V : ℂ) (hH15 : V = -(2 * P ^ 3) - 27 * Q ^ 2 + 72 * (P * R)) (W : ℂ) (hH17 : W ^ 2 = V ^ 2 - 4 * U ^ 3) (T : ℂ) (hH19 : T ^ 3 = (V + W) / 2) (hH20 : T ≠ 0) (M : ℂ) (hH22 : M = -((2 * P + T + U / T) / 3)) (hH23 : M ≠ 0) (S : ℂ) (hH25 : 4 * S ^ 2 = M) (I : ℂ) (hH27 : I ^ 2 = -(S ^ 2) - P / 2 + Q / 4 / S) (J : ℂ) (hH29 : J ^ 2 = -(S ^ 2) - P / 2 - Q / 4 / S) :
     (x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔ (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) := by
   -- 1. contradiction
@@ -57,19 +56,19 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
   have hD3_kind : True := by parley_side
   -- 7. algebra, from D2, H27, 1
   have s7 : u = y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S := by
-    try simp only [hD2] at *
-    try push_cast at *
+    try simp only [hD2] at s1 hH27 ⊢
+    try push_cast at s1 hH27 ⊢
     linear_combination (norm := parley_field) ((-8) / ((8))) * hH27
   -- 8. algebra, from D3, H29, 1
   have s8 : v = y ^ 2 - 2 * S * y + 2 * S ^ 2 + P / 2 + Q / 4 / S := by
-    try simp only [hD3] at *
-    try push_cast at *
+    try simp only [hD3] at s1 hH29 ⊢
+    try push_cast at s1 hH29 ⊢
     linear_combination (norm := parley_field) ((-8) / ((8))) * hH29
   -- 9. calculation
   have s9 : x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by
     calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = y ^ 4 + (b - 3 / 8 * a ^ 2) * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by
-          try simp only [hD1] at *
-          try push_cast at *
+          try simp only [hD1] at s1 s6 s7 s8 hH11 hH25 hH7 hH9 ⊢
+          try push_cast at s1 s6 s7 s8 hH11 hH25 hH7 hH9 ⊢
           parley_ring
       _ = y ^ 4 + P * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by (have h := congrArg (fun t : ℂ => y ^ 4 + t * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) hH7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = y ^ 4 + P * y ^ 2 + Q * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by (have h := congrArg (fun t : ℂ => y ^ 4 + P * y ^ 2 + t * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) hH9.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -92,8 +91,8 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
     · skip
       -- 10.3.1. mun:zero-product x := y + S − I, y := y + S + I, from C1, D2
       have s10_3_1 : y + S - I = 0 ∨ y + S + I = 0 := by
-        try simp only [hD2] at *
-        try push_cast at *
+        try simp only [hD2] at ⊢
+        try push_cast at ⊢
         exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y + S - I) (y := y + S + I))).mp hC1
       -- 10.3.2. cases, from 10.3.1
       have s10_3_2 : x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I := by
@@ -101,16 +100,16 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
         · skip
           -- 10.3.2.1. algebra, from C2, D1
           have s10_3_2_1 : x = -(a / 4) - S + I := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC2 ⊢
+            try push_cast at hC2 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC2
           -- 10.3.2.2. mun:or-left, from 10.3.2.1
           exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_1)
         · skip
           -- 10.3.2.3. algebra, from C3, D1
           have s10_3_2_3 : x = -(a / 4) - S - I := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC3 ⊢
+            try push_cast at hC3 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC3
           -- 10.3.2.4. mun:or-right, from 10.3.2.3
           exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_3)
@@ -119,8 +118,8 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
     · skip
       -- 10.3.4. mun:zero-product x := y − S − J, y := y − S + J, from C4, D3
       have s10_3_4 : y - S - J = 0 ∨ y - S + J = 0 := by
-        try simp only [hD3] at *
-        try push_cast at *
+        try simp only [hD3] at ⊢
+        try push_cast at ⊢
         exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := y - S - J) (y := y - S + J))).mp hC4
       -- 10.3.5. cases, from 10.3.4
       have s10_3_5 : x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J := by
@@ -128,16 +127,16 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
         · skip
           -- 10.3.5.1. algebra, from C5, D1
           have s10_3_5_1 : x = -(a / 4) + S + J := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC5 ⊢
+            try push_cast at hC5 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC5
           -- 10.3.5.2. mun:or-left, from 10.3.5.1
           exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_1)
         · skip
           -- 10.3.5.3. algebra, from C6, D1
           have s10_3_5_3 : x = -(a / 4) + S - J := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC6 ⊢
+            try push_cast at hC6 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC6
           -- 10.3.5.4. mun:or-right, from 10.3.5.3
           exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_3)
@@ -154,22 +153,22 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
         · skip
           -- 10.4.1.1. algebra, from C8, D1
           have s10_4_1_1 : y + S - I = 0 := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC8 ⊢
+            try push_cast at hC8 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC8
           -- 10.4.1.2. algebra, from D2, 10.4.1.1
-          try simp only [hD2] at *
-          try push_cast at *
+          try simp only [hD2] at s10_4_1_1 ⊢
+          try push_cast at s10_4_1_1 ⊢
           linear_combination (norm := parley_norm) (I * v + S * v + v * y) * s10_4_1_1
         · skip
           -- 10.4.1.3. algebra, from C9, D1
           have s10_4_1_3 : y + S + I = 0 := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC9 ⊢
+            try push_cast at hC9 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC9
           -- 10.4.1.4. algebra, from D2, 10.4.1.3
-          try simp only [hD2] at *
-          try push_cast at *
+          try simp only [hD2] at s10_4_1_3 ⊢
+          try push_cast at s10_4_1_3 ⊢
           linear_combination (norm := parley_norm) (-(I * v) + S * v + v * y) * s10_4_1_3
       · skip
         -- 10.4.2. cases, from C10
@@ -177,22 +176,22 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
         · skip
           -- 10.4.2.1. algebra, from C11, D1
           have s10_4_2_1 : y - S - J = 0 := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC11 ⊢
+            try push_cast at hC11 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC11
           -- 10.4.2.2. algebra, from D3, 10.4.2.1
-          try simp only [hD3] at *
-          try push_cast at *
+          try simp only [hD3] at s10_4_2_1 ⊢
+          try push_cast at s10_4_2_1 ⊢
           linear_combination (norm := parley_norm) (J * u - S * u + u * y) * s10_4_2_1
         · skip
           -- 10.4.2.3. algebra, from C12, D1
           have s10_4_2_3 : y - S + J = 0 := by
-            try simp only [hD1] at *
-            try push_cast at *
+            try simp only [hD1] at hC12 ⊢
+            try push_cast at hC12 ⊢
             linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC12
           -- 10.4.2.4. algebra, from D3, 10.4.2.3
-          try simp only [hD3] at *
-          try push_cast at *
+          try simp only [hD3] at s10_4_2_3 ⊢
+          try push_cast at s10_4_2_3 ⊢
           linear_combination (norm := parley_norm) (-(J * u) - S * u + u * y) * s10_4_2_3
     -- 10.5. calculation
     calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by exact s9

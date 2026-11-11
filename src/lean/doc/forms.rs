@@ -630,10 +630,16 @@ pub enum Meets {
 pub fn relation_type(term: &Term) -> Option<LeanType> {
     match &term.kind {
         TermKind::Paren(inner) | TermKind::Not(inner) => relation_type(inner),
+        // Both sides are in one type: a number type either names, before
+        // an item's general type, which the citation makes that type, the
+        // `0` of `0 < (n : ℚ)`.
         TermKind::Infix { op, lhs, rhs }
             if matches!(op.symbol, "=" | "≠" | "<" | ">" | "≤" | "≥" | "∣") =>
         {
-            lhs.ty.clone().or_else(|| rhs.ty.clone())
+            let named = |t: &Term| t.ty.clone().filter(|ty| *ty != LeanType::General);
+            named(lhs)
+                .or_else(|| named(rhs))
+                .or_else(|| lhs.ty.clone().or_else(|| rhs.ty.clone()))
         }
         // A membership or a subset is stated of the type of its member or
         // of its sets.
@@ -727,8 +733,15 @@ fn casts_alike(
     lift: bool,
 ) -> Option<Meets> {
     let none = |_: &str, _: Num| None;
+    // Taken across types, the narrower statement has no casts where the
+    // wider has them on its letters, `10 * N k` beside `10 * (N k : ℚ)`:
+    // the two are compared with every cast dropped once pushed down.
     let cast = |t: &Term| {
         let pushed = pushed(&unfolded(&reduced(t)), &none);
+        let pushed = match lift {
+            true => casts_dropped(&pushed),
+            false => pushed,
+        };
         renamed_bound(&pushed, &mut 0).untyped()
     };
     if cast(given) == cast(line) {
@@ -911,6 +924,22 @@ fn renamed_bound(term: &Term, next: &mut usize) -> Term {
             out
         }
     }
+}
+
+/// The term with every cast taken off what it casts, and no bracket the
+/// writer kept.
+fn casts_dropped(term: &Term) -> Term {
+    match &term.kind {
+        TermKind::Paren(inner) | TermKind::Cast { inner, .. } => {
+            return casts_dropped(inner)
+        }
+        _ => {}
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = casts_dropped(c);
+    }
+    out.untyped()
 }
 
 /// The term untyped, with no bracket the writer kept and no ascription of

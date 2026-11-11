@@ -314,6 +314,11 @@ pub struct CheckedTheorem {
     /// justification
     /// (`citations::instantiations`).
     pub instantiated: IndexMap<usize, Instantiated>,
+    /// Where each `restate` step's claim, and each requires line reasoned
+    /// from lines alone, stands in a line it names, a "for all" read at a
+    /// block's letter among them, by the line of its justification
+    /// (`citations::restatements`).
+    pub restated: IndexMap<usize, FirstAt>,
     /// How each calculation link citing a define, and each step whose reason
     /// is defines, meets the defines written out: its equation's two sides
     /// once each define's name is its value, a "for all"'s at its body; None
@@ -444,6 +449,9 @@ pub struct ReadAt {
     pub said: Node,
     /// The letter of the block around the step that its set holds.
     pub letter: Node,
+    /// Where the block's `let` line says the letter is in that set, `K7` of
+    /// `let a ∈ {2, …, p − 2} (K7)`: what proves the letter is there.
+    pub opened_by: FirstAt,
 }
 
 /// A part a reason's lines put in a number system, and how
@@ -548,6 +556,29 @@ pub struct Cited {
     /// the checker reads them (`Parts::seed`): what an obtain unfolds a
     /// definition at, where it claims no conclusion of the item.
     pub written: Binding,
+    /// For each of `concluded` read backwards, what the right side of its
+    /// `↔` asks at the citation's values, its parts joined by "and" in
+    /// order, and where each fact stands (`citations::unfolded`): `u ∈ X
+    /// and P(u)` of set-builder at u := L(k), P := "there is a ∈ ℕ₀ with y
+    /// = N(a)/10^a", bound a := k, is L(k) ∈ ℝ, then the witness k with k ∈
+    /// ℕ₀ and L(k) = N(k)/10^k. None for a sentence read otherwise.
+    pub unfolded: Vec<Option<Vec<Unfolded>>>,
+}
+
+/// One part of what a definition's right side asks, at a citation's values
+/// (`Cited::unfolded`).
+#[derive(Clone, Debug)]
+pub enum Unfolded {
+    /// A fact, and what supplies it.
+    Fact { fact: Node, by: SuppliedBy },
+    /// A "there is": the witness the citation gives its letter, that the
+    /// witness is in the letter's domain, and the parts of its body at the
+    /// witness.
+    Witness {
+        value: Node,
+        member: Box<Unfolded>,
+        body: Vec<Unfolded>,
+    },
 }
 
 /// Which way an item's equation, read at a citation's values, faces the
@@ -680,11 +711,37 @@ pub struct ObtainedPart {
 pub struct Instantiated {
     /// The sentence of the line, or the part of one, instantiated.
     pub at: FirstAt,
-    /// How many conditions of the instance, `if A then`, are taken off on
-    /// the way to the claim, each by a line the step names.
-    pub conditions: usize,
+    /// The conditions of the instance, `if A then`, taken off on the way to
+    /// the claim, outermost first, each with where the line the step names
+    /// that meets it stands.
+    pub conditions: Vec<Condition>,
     /// How what is left meets the claim (`Known::alike_how`).
     pub meeting: crate::matching::Meeting,
+    /// Each value the step puts in a domain, in the order the line binds
+    /// their letters, with where its membership of the domain stands
+    /// (`citations::value_guards`).
+    pub guards: Vec<Guard>,
+}
+
+/// A condition of an instance an instantiation takes off: `for all s ∈ S,
+/// s ≤ U(k)` of "if u is an upper bound of S then c ≤ u" at u := U(k), and
+/// what supplies it.
+#[derive(Clone, Debug)]
+pub struct Condition {
+    /// The condition at the values, as compared, defined names written out.
+    pub read: Node,
+    pub by: SuppliedBy,
+}
+
+/// A value an instantiation puts in a domain: `f(a) ∈ {2, …, p − 2}` of
+/// `a := f(a)` in "for all a ∈ {2, …, p − 2}", and what supplies it.
+#[derive(Clone, Debug)]
+pub struct Guard {
+    /// The letter of the line the value is given to.
+    pub letter: String,
+    /// The membership as the page writes it, at the value as written.
+    pub written: Node,
+    pub by: SuppliedBy,
 }
 
 /// Where a substitution puts its equation, and what at (`Substituted`).

@@ -17,13 +17,12 @@ public section
 
 namespace Parley.Proofs.Setmm.DivisorOfPrime.DivisorOfPrime
 
-set_option maxHeartbeats 400000 in
 theorem divisor_of_prime (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (M : ℤ) (hH3 : 0 < M) :
     (M ∣ P ↔ M = P ∨ M = 1) := by
   -- 1. def:prime p := P, from H2
-  have s1 : ∀ d : ℤ, 0 < d → d ∣ P → d = 1 ∨ d = P := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).2
+  have s1 : ∀ d : ℤ, 0 < d → d ∣ P → d = 1 ∨ d = P := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) hH1)).mp hH2).2
   -- 2. instantiate d := M in line 1
-  have s2 : M ∣ P → M = 1 ∨ M = P := by exact (s1 M (by parley_side))
+  have s2 : M ∣ P → M = 1 ∨ M = P := by exact (s1 M hH3)
   -- 3. both directions
   constructor
   · skip

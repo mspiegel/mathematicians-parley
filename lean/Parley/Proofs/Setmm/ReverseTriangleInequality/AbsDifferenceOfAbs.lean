@@ -19,7 +19,6 @@ public section
 
 namespace Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceOfAbs
 
-set_option maxHeartbeats 400000 in
 theorem abs_difference_of_abs (A : ℝ) (B : ℝ) :
     abs (abs A - abs B) ≤ abs (A - B) := by
   -- 1. thm:abs-difference-below

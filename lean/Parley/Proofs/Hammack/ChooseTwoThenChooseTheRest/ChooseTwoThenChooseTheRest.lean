@@ -12,6 +12,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -27,7 +28,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ChooseTwoThenChooseTheRest.ChooseTwoThenChooseTheRest
 
-set_option maxHeartbeats 400000 in
 theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) (hH3 : 2 ≤ k) (hH4 : k ≤ n) :
     (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℤ) = (LeanBridges.Counting.choose n k : ℤ) * (LeanBridges.Counting.choose k (2 : ℤ) : ℤ) := by
   -- 1. transitivity, from H3, H4
@@ -46,13 +46,13 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 6. inequalities
   have s6 : k - 2 ≤ n - 2 := by parley_order
   -- 7. def:range-between k := 2, a := 0, b := n, from 2
-  have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr (by parley_side)
+  have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr ⟨s2a, s2b⟩
   -- 8. def:range-between k := 2, a := 0, b := k, from 3
-  have s8 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) k := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := k))).mpr (by parley_side)
+  have s8 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) k := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := k))).mpr ⟨s3a, s3b⟩
   -- 9. def:range-between a := 0, b := n, from 4
-  have s9 : k ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := n))).mpr (by parley_side)
+  have s9 : k ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := n))).mpr ⟨s4a, s4b⟩
   -- 10. def:range-between k := k − 2, a := 0, b := n − 2, from 5, 6
-  have s10 : k - 2 ∈ Finset.Icc (0 : ℤ) (n - 2) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 2) (a := (0 : ℤ)) (b := n - 2))).mpr (by parley_side)
+  have s10 : k - 2 ∈ Finset.Icc (0 : ℤ) (n - 2) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 2) (a := (0 : ℤ)) (b := n - 2))).mpr ⟨s5, s6⟩
   -- 11. mun:range-difference a := 0, k := 2, from 7
   have s11 : 0 ≤ n - 2 := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := n) (k := (2 : ℤ)) s7)
   -- 12. mun:range-difference a := 0, n := k, k := 2, from 8
@@ -60,13 +60,13 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 13. mun:range-difference a := 0, from 9
   have s13 : 0 ≤ n - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := n) (k := k) s9)
   -- 14. def:C k := 2, from 7
-  have s14 : (LeanBridges.Counting.choose n (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (by parley_side) (k := (2 : ℤ))) s7
+  have s14 : (LeanBridges.Counting.choose n (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (le_of_lt hH1) (k := (2 : ℤ))) s7
   -- 15. def:C n := n − 2, k := k − 2, from 10, 11
-  have s15 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - 2 - (k - 2)) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n - 2) (by parley_side) (k := k - 2)) s10
+  have s15 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - 2 - (k - 2)) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n - 2) s11 (k := k - 2)) s10
   -- 16. def:C, from 9
-  have s16 : (LeanBridges.Counting.choose n k : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (by parley_side) (k := k)) s9
+  have s16 : (LeanBridges.Counting.choose n k : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (le_of_lt hH1) (k := k)) s9
   -- 17. def:C n := k, k := 2, from 8
-  have s17 : (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial k : ℚ) / ((LeanBridges.Counting.factorial (k - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (by parley_side) (k := (2 : ℤ))) s8
+  have s17 : (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial k : ℚ) / ((LeanBridges.Counting.factorial (k - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (le_of_lt hH2) (k := (2 : ℤ))) s8
   -- 18. algebra
   have s18 : n - 2 - (k - 2) = n - k := by parley_ring
   -- 19. substitute
@@ -75,9 +75,9 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
     have row1 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)))) c1 s15; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 20. calculation
-  have r78_1 : 0 < (LeanBridges.Counting.factorial (n - 2) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n - 2) (by parley_side))
-  have r78_2 : 0 < (LeanBridges.Counting.factorial (n - k) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n - k) (by parley_side))
-  have r78_3 : 0 < (LeanBridges.Counting.factorial (k - 2) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k - 2) (by parley_side))
+  have r78_1 : 0 < (LeanBridges.Counting.factorial (n - 2) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n - 2) s11)
+  have r78_2 : 0 < (LeanBridges.Counting.factorial (n - k) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n - k) s13)
+  have r78_3 : 0 < (LeanBridges.Counting.factorial (k - 2) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k - 2) s12)
   try qify
   calc (LeanBridges.Counting.choose n (2 : ℤ) : ℚ) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) := by (have h := congrArg (fun t : ℚ => t * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ)) s14; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * ((LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ))) := by (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * t) s19; push_cast at h ⊢; all_goals exact_mod_cast h)

@@ -33,20 +33,20 @@ theorem choose_one (n : ℤ) (hH1 : 0 ≤ n) :
       exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) s1_1
     | succ k hK hIH =>
       -- 1.3. thm:pascal n := k, k := 1
-      have s1_3 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ)))
+      have s1_3 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) hK (k := (1 : ℤ)))
       -- 1.4. substitute 1 − 1 = 0 (arithmetic) into line 1.3
       have s1_4 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
         have e_arith : (1 - 1 : ℤ) = 0 := by parley_arith
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k t : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) e_arith s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.5. substitute
       have s1_5 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
-        have c1 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side))
+        have c1 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) hK)
         have row1 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + t = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) c1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.6. calculation
       calc (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 := by exact s1_5.symm
         _ = k + 1 := by (have h := congrArg (fun t : ℤ => t + 1) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne

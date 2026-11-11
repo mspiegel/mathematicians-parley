@@ -39,7 +39,7 @@ theorem positive_number_with_square_below_root :
   have s3 : (1 / 16) ^ 2 < Real.sqrt (1 / 4 : ℝ) ^ 2 := by parley_subst_at s1b s2
   -- 4. mun:square-less x := 1/16, y := √(1/4), from 1, 3
   have r20_1 : (1 / 16 : ℚ) ≥ 0 := by parley_arith
-  have s4 : 1 / 16 < Real.sqrt (1 / 4 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 / 16 : ℝ)) (y := Real.sqrt (1 / 4 : ℝ)) (by parley_side) (by parley_side))).mpr s3
+  have s4 : 1 / 16 < Real.sqrt (1 / 4 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 / 16 : ℝ)) (y := Real.sqrt (1 / 4 : ℝ)) (by parley_side) s1a)).mpr s3
   -- 5. substitute 1/16 = (1/4)² (arithmetic) into line 4
   have s5 : (1 / 4) ^ 2 < Real.sqrt (1 / 4 : ℝ) := by
     have e_arith : (1 / 16 : ℚ) = (1 / 4) ^ 2 := by parley_arith

@@ -38,8 +38,8 @@ namespace Parley.Proofs.Hammack.WeightedBinomialSum.WeightedBinomialSum
 theorem weighted_binomial_sum (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = (n : ℚ) * 2 ^ (n - 1) := by
   -- 1. thm:weighted-row-sum m := n − 1
-  have r172_1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side))
-  have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (n - 1 + 1), ((k : ℚ) * (LeanBridges.Counting.choose (n - 1 + 1) k : ℚ) : ℚ)) = ((n : ℚ) - 1 + 1) * 2 ^ (n - 1) := by (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum.weighted_row_sum (m := n - 1) (by parley_side)); simp only [parley_zpow_toNat (n := n - 1) (h := r172_1)] at h ⊢; exact_mod_cast h)
+  have r172_1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) hH1)
+  have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (n - 1 + 1), ((k : ℚ) * (LeanBridges.Counting.choose (n - 1 + 1) k : ℚ) : ℚ)) = ((n : ℚ) - 1 + 1) * 2 ^ (n - 1) := by (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum.weighted_row_sum (m := n - 1) r172_1); simp only [parley_zpow_toNat (n := n - 1) (h := r172_1)] at h ⊢; exact_mod_cast h)
   -- 2. substitute
   have c1 : n - 1 + 1 = n := by parley_ring
   have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = (n : ℚ) * 2 ^ (n - 1) := by

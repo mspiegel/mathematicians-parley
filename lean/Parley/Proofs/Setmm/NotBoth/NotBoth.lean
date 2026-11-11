@@ -37,12 +37,12 @@ theorem not_both (a : ℝ) (b : ℝ) :
     · skip
       intro hS1
       -- 5.1. restate C1
-      have s5_1 : a ≠ 0 := by parley_side
+      have s5_1 : a ≠ 0 := by exact hC1
       exact s5_1 hS1.1
     · skip
       intro hS2
       -- 5.2. restate C2
-      have s5_2 : b ≠ 0 := by parley_side
+      have s5_2 : b ≠ 0 := by exact hC2
       exact s5_2 hS2.2
 
 end Parley.Proofs.Setmm.NotBoth.NotBoth

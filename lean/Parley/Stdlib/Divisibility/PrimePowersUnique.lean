@@ -27,7 +27,6 @@ public section
 
 namespace Parley.Stdlib.Divisibility.PrimePowersUnique
 
-set_option maxHeartbeats 600000 in
 theorem prime_powers_unique (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) (c : ℤ) (hH3 : 0 ≤ c) (a' : ℤ) (hH4 : 0 ≤ a') (b' : ℤ) (hH5 : 0 ≤ b') (c' : ℤ) (hH6 : 0 ≤ c') (hH7 : (2 ^ a.toNat * 3 ^ b.toNat * 5 ^ c.toNat : ℤ) = 2 ^ a'.toNat * 3 ^ b'.toNat * 5 ^ c'.toNat) :
     a = a' ∧ b = b' ∧ c = c' := by
   -- 1. mun:two-prime
@@ -55,41 +54,41 @@ theorem prime_powers_unique (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) 
   have r538_1 : ¬ (3 : ℤ) ∣ (5 : ℤ) := by parley_arith
   have s9 : (Int.gcd (3 : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (3 : ℤ)) (by parley_side) s2 (a := (5 : ℤ)) r538_1)
   -- 10. mun:coprime-product x := 3^b, y := 5^c, n := 2
-  have r542_1 : (Int.gcd (3 ^ b.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (2 : ℤ)) (k := b) (by parley_side) s4)
-  have r542_2 : (Int.gcd (5 ^ c.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (2 : ℤ)) (k := c) (by parley_side) s5)
+  have r542_1 : (Int.gcd (3 ^ b.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (2 : ℤ)) (k := b) hH2 s4)
+  have r542_2 : (Int.gcd (5 ^ c.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (2 : ℤ)) (k := c) hH3 s5)
   have s10 : (Int.gcd (3 ^ b.toNat * 5 ^ c.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := (3 ^ b.toNat : ℤ)) (y := (5 ^ c.toNat : ℤ)) (n := (2 : ℤ)) (by parley_side) r542_1 r542_2)
   -- 11. mun:coprime-product x := 3^b′, y := 5^c′, n := 2
-  have r547_1 : (Int.gcd (3 ^ b'.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (2 : ℤ)) (k := b') (by parley_side) s4)
-  have r547_2 : (Int.gcd (5 ^ c'.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (2 : ℤ)) (k := c') (by parley_side) s5)
+  have r547_1 : (Int.gcd (3 ^ b'.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (2 : ℤ)) (k := b') hH5 s4)
+  have r547_2 : (Int.gcd (5 ^ c'.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (2 : ℤ)) (k := c') hH6 s5)
   have s11 : (Int.gcd (3 ^ b'.toNat * 5 ^ c'.toNat : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := (3 ^ b'.toNat : ℤ)) (y := (5 ^ c'.toNat : ℤ)) (n := (2 : ℤ)) (by parley_side) r547_1 r547_2)
   -- 12. algebra, from H7
   have s12 : (2 ^ a.toNat * (3 ^ b.toNat * 5 ^ c.toNat) : ℤ) = 2 ^ a'.toNat * (3 ^ b'.toNat * 5 ^ c'.toNat) := by linear_combination (norm := parley_norm) hH7
   -- 13. mun:prime-power-unique p := 2, m := 3^b·5^c, m′ := 3^b′·5^c′, from 1, 10, 11, 12
-  have s13 : a = a' := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_unique (p := (2 : ℤ)) (by parley_side) s1 (a := a) (by parley_side) (a' := a') (by parley_side) (m := (3 ^ b.toNat * 5 ^ c.toNat : ℤ)) (m' := (3 ^ b'.toNat * 5 ^ c'.toNat : ℤ)) s10 s11 s12)
+  have s13 : a = a' := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_unique (p := (2 : ℤ)) (by parley_side) s1 (a := a) hH1 (a' := a') hH4 (m := (3 ^ b.toNat * 5 ^ c.toNat : ℤ)) (m' := (3 ^ b'.toNat * 5 ^ c'.toNat : ℤ)) s10 s11 s12)
   -- 14. mun:coprime-product x := 2^a, y := 5^c, n := 3
-  have r559_1 : (Int.gcd (2 ^ a.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (3 : ℤ)) (k := a) (by parley_side) s6)
-  have r559_2 : (Int.gcd (5 ^ c.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (3 : ℤ)) (k := c) (by parley_side) s7)
+  have r559_1 : (Int.gcd (2 ^ a.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (3 : ℤ)) (k := a) hH1 s6)
+  have r559_2 : (Int.gcd (5 ^ c.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (3 : ℤ)) (k := c) hH3 s7)
   have s14 : (Int.gcd (2 ^ a.toNat * 5 ^ c.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := (2 ^ a.toNat : ℤ)) (y := (5 ^ c.toNat : ℤ)) (n := (3 : ℤ)) (by parley_side) r559_1 r559_2)
   -- 15. mun:coprime-product x := 2^a′, y := 5^c′, n := 3
-  have r564_1 : (Int.gcd (2 ^ a'.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (3 : ℤ)) (k := a') (by parley_side) s6)
-  have r564_2 : (Int.gcd (5 ^ c'.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (3 : ℤ)) (k := c') (by parley_side) s7)
+  have r564_1 : (Int.gcd (2 ^ a'.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (3 : ℤ)) (k := a') hH4 s6)
+  have r564_2 : (Int.gcd (5 ^ c'.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (5 : ℤ)) (b := (3 : ℤ)) (k := c') hH6 s7)
   have s15 : (Int.gcd (2 ^ a'.toNat * 5 ^ c'.toNat : ℤ) (3 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := (2 ^ a'.toNat : ℤ)) (y := (5 ^ c'.toNat : ℤ)) (n := (3 : ℤ)) (by parley_side) r564_1 r564_2)
   -- 16. algebra, from H7
   have s16 : (3 ^ b.toNat * (2 ^ a.toNat * 5 ^ c.toNat) : ℤ) = 3 ^ b'.toNat * (2 ^ a'.toNat * 5 ^ c'.toNat) := by linear_combination (norm := parley_norm) hH7
   -- 17. mun:prime-power-unique p := 3, a := b, a′ := b′, m := 2^a·5^c, m′ := 2^a′·5^c′, from 2, 14, 15, 16
-  have s17 : b = b' := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_unique (p := (3 : ℤ)) (by parley_side) s2 (a := b) (by parley_side) (a' := b') (by parley_side) (m := (2 ^ a.toNat * 5 ^ c.toNat : ℤ)) (m' := (2 ^ a'.toNat * 5 ^ c'.toNat : ℤ)) s14 s15 s16)
+  have s17 : b = b' := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_unique (p := (3 : ℤ)) (by parley_side) s2 (a := b) hH2 (a' := b') hH5 (m := (2 ^ a.toNat * 5 ^ c.toNat : ℤ)) (m' := (2 ^ a'.toNat * 5 ^ c'.toNat : ℤ)) s14 s15 s16)
   -- 18. mun:coprime-product x := 2^a, y := 3^b, n := 5
-  have r576_1 : (Int.gcd (2 ^ a.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (5 : ℤ)) (k := a) (by parley_side) s8)
-  have r576_2 : (Int.gcd (3 ^ b.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (5 : ℤ)) (k := b) (by parley_side) s9)
+  have r576_1 : (Int.gcd (2 ^ a.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (5 : ℤ)) (k := a) hH1 s8)
+  have r576_2 : (Int.gcd (3 ^ b.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (5 : ℤ)) (k := b) hH2 s9)
   have s18 : (Int.gcd (2 ^ a.toNat * 3 ^ b.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := (2 ^ a.toNat : ℤ)) (y := (3 ^ b.toNat : ℤ)) (n := (5 : ℤ)) (by parley_side) r576_1 r576_2)
   -- 19. mun:coprime-product x := 2^a′, y := 3^b′, n := 5
-  have r581_1 : (Int.gcd (2 ^ a'.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (5 : ℤ)) (k := a') (by parley_side) s8)
-  have r581_2 : (Int.gcd (3 ^ b'.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (5 : ℤ)) (k := b') (by parley_side) s9)
+  have r581_1 : (Int.gcd (2 ^ a'.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (5 : ℤ)) (k := a') hH4 s8)
+  have r581_2 : (Int.gcd (3 ^ b'.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (3 : ℤ)) (b := (5 : ℤ)) (k := b') hH5 s9)
   have s19 : (Int.gcd (2 ^ a'.toNat * 3 ^ b'.toNat : ℤ) (5 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := (2 ^ a'.toNat : ℤ)) (y := (3 ^ b'.toNat : ℤ)) (n := (5 : ℤ)) (by parley_side) r581_1 r581_2)
   -- 20. algebra, from H7
   have s20 : (5 ^ c.toNat * (2 ^ a.toNat * 3 ^ b.toNat) : ℤ) = 5 ^ c'.toNat * (2 ^ a'.toNat * 3 ^ b'.toNat) := by linear_combination (norm := parley_norm) hH7
   -- 21. mun:prime-power-unique p := 5, a := c, a′ := c′, m := 2^a·3^b, m′ := 2^a′·3^b′, from 3, 18, 19, 20
-  have s21 : c = c' := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_unique (p := (5 : ℤ)) (by parley_side) s3 (a := c) (by parley_side) (a' := c') (by parley_side) (m := (2 ^ a.toNat * 3 ^ b.toNat : ℤ)) (m' := (2 ^ a'.toNat * 3 ^ b'.toNat : ℤ)) s18 s19 s20)
+  have s21 : c = c' := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_unique (p := (5 : ℤ)) (by parley_side) s3 (a := c) hH3 (a' := c') hH6 (m := (2 ^ a.toNat * 3 ^ b.toNat : ℤ)) (m' := (2 ^ a'.toNat * 3 ^ b'.toNat : ℤ)) s18 s19 s20)
   -- 22. join 13, 17, 21
   have s22a : a = a' := by parley_side
   have s22b : b = b' := by parley_side

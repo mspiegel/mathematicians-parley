@@ -19,7 +19,7 @@ theorem a_congruence_the_other_way_contradicted (a : ℤ) (b : ℤ) (n : ℤ) (h
   -- 1. contradiction
   by_contra hS
   -- 1.1. restate S
-  have s1_1 : ¬ a ≡ b [ZMOD n] := by parley_side
+  have s1_1 : ¬ a ≡ b [ZMOD n] := by exact hS
   exact s1_1 hH4.symm
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayContradicted

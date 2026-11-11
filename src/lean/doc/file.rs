@@ -102,8 +102,6 @@ pub enum DeclProof {
 /// A theorem of a Lean file.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Declaration {
-    /// The heartbeats Lean may spend on it, where more than its default.
-    pub heartbeats: Option<u64>,
     pub name: String,
     pub binders: Vec<Binder>,
     pub says: Term,
@@ -135,9 +133,6 @@ impl Declaration {
     /// tactics.
     pub fn head(&self) -> String {
         let mut out = String::new();
-        if let Some(h) = self.heartbeats {
-            out.push_str(&format!("set_option maxHeartbeats {h} in\n"));
-        }
         let binders: Vec<String> = self.binders.iter().map(Binder::text).collect();
         let space = if binders.is_empty() { "" } else { " " };
         out.push_str(&format!(

@@ -39,13 +39,12 @@ public section
 
 namespace Parley.Tests.Notations.Continuity.AStepIsNotContinuous
 
-set_option maxHeartbeats 600000 in
 theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) → f x = (@ite _ (x < 1 / 2) (Classical.propDecidable (x < 1 / 2)) 0 1 : ℝ)) :
     ¬ ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
   -- 1. def:interval a := 0, b := 1, x := 1/2
   have r22_1 : (0 : ℚ) ≤ 1 / 2 := by parley_arith
   have r22_2 : (1 / 2 : ℚ) ≤ 1 := by parley_arith
-  have s1 : (1 / 2 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 / 2 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
+  have s1 : (1 / 2 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 / 2 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
   -- 2. arithmetic
   have s2 : ¬ (1 / 2 : ℚ) < 1 / 2 := by parley_arith
   -- 3. D1, from 1, 2
@@ -59,7 +58,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have s4_1 : ∀ c ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - c) < δ → abs (f x - f c) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r37_1)).mp hS
   -- 4.2. instantiate c := 1/2, ε := 1/2 in line 4.1, from 1
   have r45_1 : (0 : ℚ) < 1 / 2 := by parley_arith
-  have s4_2 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - 1 / 2) < δ → abs (f x - f (1 / 2)) < 1 / 2) := by exact (s4_1 (1 / 2 : ℝ) (by parley_set_side) (1 / 2 : ℝ) (by parley_set_side))
+  have s4_2 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - 1 / 2) < δ → abs (f x - f (1 / 2)) < 1 / 2) := by exact (s4_1 (1 / 2 : ℝ) s1 (1 / 2 : ℝ) (by parley_set_side))
   -- 4.3. obtain δ from line 4.2
   obtain ⟨δ, ⟨s4_3a, s4_3b⟩⟩ := s4_2
   set m : ℝ := min δ (1 / 2) with hD2
@@ -68,7 +67,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have hD3_kind : True := by parley_set_side
   -- 4.4. mun:lt-min z := 0, x := δ, y := 1/2, from 4.3
   have r62_1 : (0 : ℚ) < 1 / 2 := by parley_arith
-  have s4_4 : 0 < min δ (1 / 2) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr (by parley_set_side)
+  have s4_4 : 0 < min δ (1 / 2) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr ⟨s4_3a, by parley_set_side⟩
   -- 4.5. mun:min-le x := δ, y := 1/2
   have s4_5a : min δ (1 / 2) ≤ δ := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := δ) (y := (1 / 2 : ℝ)))
   have s4_5b : min δ (1 / 2) ≤ 1 / 2 := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := δ) (y := (1 / 2 : ℝ)))
@@ -85,15 +84,15 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 4.11. def:interval a := 0, b := 1, x := x₁, from D3
   have r94_1 : 0 ≤ x₁ := by parley_order
   have r94_2 : x₁ ≤ 1 := by parley_set_side
-  have s4_11 : x₁ ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := 1 / 2 - m / 2) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
+  have s4_11 : x₁ ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := 1 / 2 - m / 2) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, r94_1⟩, r94_2⟩
   -- 4.12. inequalities
   have s4_12 : -δ ≤ -min δ (1 / 2) := by parley_order
   -- 4.13. mun:abs-difference-lt x := x₁, c := 1/2, from D3
   have r106_1 : 1 / 2 - δ < x₁ := by parley_order
   have r106_2 : x₁ < 1 / 2 + δ := by parley_order
-  have s4_13 : abs (x₁ - 1 / 2) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / 2 - m / 2) (c := (1 / 2 : ℝ)) (δ := δ))).mpr (by parley_set_side)
+  have s4_13 : abs (x₁ - 1 / 2) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / 2 - m / 2) (c := (1 / 2 : ℝ)) (δ := δ))).mpr ⟨r106_1, r106_2⟩
   -- 4.14. instantiate x := x₁ in line 4.3, from 4.11, 4.13
-  have s4_14 : abs (f x₁ - f (1 / 2)) < 1 / 2 := by exact (s4_3b x₁ (by parley_set_side) (by parley_set_side))
+  have s4_14 : abs (f x₁ - f (1 / 2)) < 1 / 2 := by exact (s4_3b x₁ s4_11 s4_13)
   -- 4.15. D1, from 4.8, 4.11
   have s4_15 : f x₁ = 0 := by simp (disch := omega) only [hD1 _ s4_11, if_pos s4_8]
   -- 4.16. substitute f(x₁) = 0 (line 4.15) into line 4.14

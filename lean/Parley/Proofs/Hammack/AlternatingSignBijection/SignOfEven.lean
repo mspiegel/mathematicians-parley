@@ -44,7 +44,7 @@ theorem sign_of_even (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) :
   -- 6. mun:pos-int-nat m := k, from 5
   have s6 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s5)
   -- 7. thm:even-power-of-minus-one, from 6
-  have s7 : ((-1) ^ (2 * k) : ℚ) = 1 := by (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne.even_power_of_minus_one (k := k) (by parley_side)); simp only [parley_zpow_toNat (n := 2 * k) (h := le_trans (by norm_num) s3)] at h ⊢; exact_mod_cast h)
+  have s7 : ((-1) ^ (2 * k) : ℚ) = 1 := by (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne.even_power_of_minus_one (k := k) (le_of_lt s6)); simp only [parley_zpow_toNat (n := 2 * k) (h := le_trans (by norm_num) s3)] at h ⊢; exact_mod_cast h)
   -- 8. substitute 2·k = n (line 1) into line 7
   (have h := Eq.subst (motive := (fun t : ℤ => ((-1) ^ t : ℚ) = 1)) s1.symm s7; simp only [parley_zpow_toNat (n := n) (h := le_trans (by norm_num) s2)] at h ⊢; exact_mod_cast h)
 

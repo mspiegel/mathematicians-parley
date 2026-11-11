@@ -40,7 +40,7 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     -- 3.2. calculation
     have s3_2 : B < A := by
       calc B = Real.sqrt B ^ 2 := by exact s2b.symm
-        _ < Real.sqrt A ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mp s3_1
+        _ < Real.sqrt A ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) s2a s1a)).mp s3_1
         _ = A := by exact s1b
     -- 3.3. inequalities, from 3.2
     have s3_3 : ¬ A ≤ B := by parley_side
@@ -56,7 +56,7 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
         _ < A := by exact s3_4
         _ = Real.sqrt A ^ 2 := by exact s1b.symm
     -- 3.6. mun:square-less x := √B, y := √A, from 1, 2, 3.5
-    have s3_6 : Real.sqrt B < Real.sqrt A := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) (by parley_side) (by parley_side))).mpr s3_5
+    have s3_6 : Real.sqrt B < Real.sqrt A := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt B) (y := Real.sqrt A) s2a s1a)).mpr s3_5
     -- 3.7. inequalities, from 3.6
     have s3_7 : ¬ Real.sqrt A ≤ Real.sqrt B := by parley_side
     exact s3_7 hD2

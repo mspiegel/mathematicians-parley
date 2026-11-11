@@ -39,7 +39,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.PythagoreanTriples.PrimitiveTriple
 
-set_option maxHeartbeats 1800000 in
 theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 : 0 < c) (hH4 : a ^ 2 + b ^ 2 = c ^ 2) (hH5 : (Int.gcd a b : ℤ) = 1) (hH6 : Even a) :
     (∃ m : ℤ, 0 < m ∧ (∃ n : ℤ, 0 < n ∧ (((((n < m ∧ (Int.gcd m n : ℤ) = 1) ∧ Odd (m + n)) ∧ a = 2 * m * n) ∧ b = m ^ 2 - n ^ 2) ∧ c = m ^ 2 + n ^ 2))) := by
   -- 1. obtain w: def:even n := a, from H6
@@ -112,7 +111,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s17 : c * 2 = (s + t) * 2 := by linear_combination (norm := parley_norm) s13 + s16
   -- 18. mun:multiply-cancel a := c, b := s + t, c := 2, from 17
   have r269_1 : (2 : ℤ) ≠ 0 := by parley_arith
-  have s18 : c = s + t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := c) (b := s + t) (c := (2 : ℤ)) (by parley_side) (by parley_side))
+  have s18 : c = s + t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := c) (b := s + t) (c := (2 : ℤ)) (by parley_side) r269_1)
   -- 19. algebra
   have s19 : (s - t) * 2 = 2 * s - 2 * t := by parley_ring
   -- 20. substitute
@@ -128,9 +127,9 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
       _ = (s - t) * 2 := by exact s20.symm
   -- 22. mun:multiply-cancel a := b, b := s − t, c := 2, from 21
   have r287_1 : (2 : ℤ) ≠ 0 := by parley_arith
-  have s22 : b = s - t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := b) (b := s - t) (c := (2 : ℤ)) (by parley_side) (by parley_side))
+  have s22 : b = s - t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := b) (b := s - t) (c := (2 : ℤ)) (by parley_side) r287_1)
   -- 23. mun:square-positive x := a, from H1
-  have s23 : a ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a) (by parley_side))
+  have s23 : a ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a) hH1.ne')
   -- 24. inequalities
   have s24 : b ^ 2 < a ^ 2 + b ^ 2 := by parley_order
   -- 25. transitivity, from 24, H4
@@ -138,7 +137,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 26. mun:square-less x := b, y := c, from 25
   have r303_1 : b ≥ 0 := by parley_order
   have r303_2 : c ≥ 0 := by parley_order
-  have s26 : b < c := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := b) (y := c) (by parley_side) (by parley_side))).mpr s25
+  have s26 : b < c := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := b) (y := c) r303_1 r303_2)).mpr s25
   -- 27. inequalities
   have s27 : 0 < c - b := by parley_order
   -- 28. substitute c − b = 2t (line 16) into line 27
@@ -171,11 +170,11 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
       _ = s * t * 4 := by parley_ring
   -- 36. mun:multiply-cancel a := w², b := s·t, c := 4, from 35
   have r347_1 : (4 : ℤ) ≠ 0 := by parley_arith
-  have s36 : w ^ 2 = s * t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := w ^ 2) (b := s * t) (c := (4 : ℤ)) (by parley_side) (by parley_side))
+  have s36 : w ^ 2 = s * t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := w ^ 2) (b := s * t) (c := (4 : ℤ)) (by parley_side) r347_1)
   -- 37. def:gcd a := s, b := t, from 29, 32
-  have s37a : 0 < (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) (by parley_side) (b := t) (by parley_side))
-  have s37b : (Int.gcd s t : ℤ) ∣ s := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := s) (by parley_side) (b := t) (by parley_side))
-  have s37c : (Int.gcd s t : ℤ) ∣ t := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := s) (by parley_side) (b := t) (by parley_side))
+  have s37a : 0 < (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) s32 (b := t) s29)
+  have s37b : (Int.gcd s t : ℤ) ∣ s := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := s) s32 (b := t) s29)
+  have s37c : (Int.gcd s t : ℤ) ∣ t := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := s) s32 (b := t) s29)
   -- 38. mun:divides-sum d := gcd(s, t), a := s, b := t, from 37
   have s38 : (Int.gcd s t : ℤ) ∣ s + t := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (Int.gcd s t : ℤ)) (a := s) (b := t) s37b s37c)
   -- 39. substitute c = s + t (line 18) into line 38
@@ -188,22 +187,22 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s42 : (Int.gcd s t : ℤ) ∣ (Int.gcd b c : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (Int.gcd s t : ℤ)) (a := b) (b := c) s41 s39)
   -- 43. substitute
   have s43 : (Int.gcd s t : ℤ) ∣ (1 : ℤ) := by
-    have c1 : (Int.gcd b c : ℤ) = 1 := by exact (Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime.leg_hypotenuse_coprime (a := a) (by parley_side) (b := b) (by parley_side) (c := c) (by parley_side) (by parley_side) hH5)
+    have c1 : (Int.gcd b c : ℤ) = 1 := by exact (Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime.leg_hypotenuse_coprime (a := a) hH1 (b := b) hH2 (c := c) hH3 (by parley_side) hH5)
     have row1 : (Int.gcd s t : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s t : ℤ) ∣ u)) c1 s42; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 44. mun:divides-one d := gcd(s, t), from 37, 43
-  have s44 : (Int.gcd s t : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd s t : ℤ)) (by parley_side) s43)
+  have s44 : (Int.gcd s t : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd s t : ℤ)) s37a s43)
   -- 45. thm:coprime-square, from 4, 29, 32, 36, 44
-  have s45a : s = (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) s44 (by parley_side)).1
-  have s45b : t = (Int.gcd t w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) (by parley_side) (t := t) (by parley_side) (w := w) (by parley_side) s44 (by parley_side)).2
-  have hD1_kind : 0 < (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) (by parley_side) (b := w) (by parley_side))
+  have s45a : s = (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) s32 (t := t) s29 (w := w) s4 s44 (by parley_side)).1
+  have s45b : t = (Int.gcd t w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) s32 (t := t) s29 (w := w) s4 s44 (by parley_side)).2
+  have hD1_kind : 0 < (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) s32 (b := w) s4)
   set m : ℤ := (Int.gcd s w : ℤ) with hD1
   have hD1_pos := hD1_kind
   -- 46. calculation
   have s46 : s = m ^ 2 := by
     calc s = (Int.gcd s w : ℤ) ^ 2 := by exact s45a
       _ = m ^ 2 := by simp (disch := omega) only [hD1]
-  have hD2_kind : 0 < (Int.gcd t w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := t) (by parley_side) (b := w) (by parley_side))
+  have hD2_kind : 0 < (Int.gcd t w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := t) s29 (b := w) s4)
   set n : ℤ := (Int.gcd t w : ℤ) with hD2
   have hD2_pos := hD2_kind
   -- 47. calculation
@@ -224,7 +223,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 51. mun:square-equal x := w, y := m·n, from 50
   have r410_1 : w ≥ 0 := by parley_order
   have r410_2 : m * n ≥ 0 := by parley_order
-  have s51 : w = m * n := by exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := w) (y := m * n) (by parley_side) (by parley_side))).mp s50
+  have s51 : w = m * n := by exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := w) (y := m * n) r410_1 r410_2)).mp s50
   -- 52. substitute w = m·n (line 51) into line 1
   have s52 : a = 2 * (m * n) := by (have h := Eq.subst (motive := (fun u : ℤ => a = 2 * u)) s51 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 53. substitute
@@ -250,7 +249,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 58. mun:square-less x := n, y := m, from 57
   have r441_1 : n ≥ 0 := by parley_order
   have r441_2 : m ≥ 0 := by parley_order
-  have s58 : n < m := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := n) (y := m) (by parley_side) (by parley_side))).mpr s57
+  have s58 : n < m := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := n) (y := m) r441_1 r441_2)).mpr s57
   -- 59. def:gcd a := m, b := n
   have s59a : 0 < (Int.gcd m n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := m) (by parley_side) (b := n) (by parley_side))
   have s59b : (Int.gcd m n : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := m) (by parley_side) (b := n) (by parley_side))
@@ -274,7 +273,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 65. substitute gcd(s, t) = 1 (line 44) into line 64
   have s65 : (Int.gcd m n : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd m n : ℤ) ∣ u)) s44 s64; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 66. mun:divides-one d := gcd(m, n), from 59, 65
-  have s66 : (Int.gcd m n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd m n : ℤ)) (by parley_side) s65)
+  have s66 : (Int.gcd m n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd m n : ℤ)) s59a s65)
   -- 67. contradiction
   have s67 : Odd (m + n) := by
     by_contra hS3

@@ -57,6 +57,6 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       have row1 : (24 : ℤ) ∣ (5 ^ (2 * (m + 1)).toNat - 1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (24 : ℤ) ∣ t)) c1 s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate m := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.DivisibleByTwentyFour.DivisibleByTwentyFour

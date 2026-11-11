@@ -35,8 +35,8 @@ theorem remainder_of_product (A : ℝ) (B : ℤ) (M : ℝ) (hH4 : M > 0) :
   have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := M, from D1, H4
   have s2 : LeanBridges.Divisibility.mod A M = A - M * (q : ℝ) := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := M) hH4)
   -- 3. algebra, from 2
   have s3 : LeanBridges.Divisibility.mod A M * (B : ℝ) = A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ)) := by linear_combination (norm := parley_norm) ((B : ℝ)) * s2

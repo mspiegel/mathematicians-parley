@@ -38,7 +38,6 @@ public section
 
 namespace Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingInverse
 
-set_option maxHeartbeats 400000 in
 theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ)) (hH2 : ∀ n : ℤ, 0 < n → (f n : ℚ) = ((-1) ^ n.toNat * (2 * (n : ℚ) - 1) + 1) / 4) :
     (∀ m : ℤ, m > 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m) ∧ (∀ m : ℤ, m ≤ 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m) := by
   -- 1. def:one-to-one-onto, from H1
@@ -55,7 +54,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     have s2_3 : Even (2 * m) := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * m))).mpr ⟨m, by parley_set_side⟩
     -- 2.4. thm:alternating-value-even m := 2·m, from H2, 2.2, 2.3
     have s2_4 : (f (2 * m) : ℚ) = 2 * (m : ℚ) / 2 := by
-      have hI : (f (2 * m) : ℚ) = 2 * (m : ℚ) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * m) (by parley_set_side) s2_3))
+      have hI : (f (2 * m) : ℚ) = 2 * (m : ℚ) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * m) s2_2 s2_3))
       exact hI
     -- 2.5. mun:inverse-value g := f, y := 2·m, from 1, 2.2
     have s2_5 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (2 * m)) = 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 2 * m) (by parley_whole_side) (by parley_whole_side))
@@ -79,7 +78,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     have s3_5 : Odd (1 - 2 * m) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 1 - 2 * m))).mpr ⟨-m, s3_4⟩
     -- 3.6. thm:alternating-value-odd m := 1 − 2·m, from H2, 3.3, 3.5
     have s3_6 : (f (1 - 2 * m) : ℚ) = (1 - (1 - 2 * (m : ℚ))) / 2 := by
-      have hI : (f (1 - 2 * m) : ℚ) = (1 - (1 - 2 * (m : ℚ))) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * m) (by parley_set_side) s3_5))
+      have hI : (f (1 - 2 * m) : ℚ) = (1 - (1 - 2 * (m : ℚ))) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * m) s3_3 s3_5))
       exact hI
     -- 3.7. mun:inverse-value g := f, y := 1 − 2·m, from 1, 3.3
     have s3_7 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (1 - 2 * m)) = 1 - 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 1 - 2 * m) (by parley_whole_side) (by parley_whole_side))

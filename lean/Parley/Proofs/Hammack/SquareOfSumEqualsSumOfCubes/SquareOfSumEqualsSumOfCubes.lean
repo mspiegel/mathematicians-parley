@@ -68,11 +68,11 @@ theorem square_of_sum_equals_sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
           _ = (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2) ^ 2 := by parley_ring
       (have h := s1_3; push_cast at h ⊢; all_goals exact h)
   -- 2. thm:sum-formula
-  have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by exact (Parley.Proofs.Wiedijk.SumFormula.SumFormula.sum_formula (n := n) (by parley_side))
+  have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by exact (Parley.Proofs.Wiedijk.SumFormula.SumFormula.sum_formula (n := n) hH1)
   -- 3. calculation
   try qify
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) ^ 2 = ((n : ℚ) * ((n : ℚ) + 1) / 2) ^ 2 := by (have h := congrArg (fun t : ℚ => t ^ 2) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = (C n : ℚ) := by exact (s1 n (by parley_side)).symm
+    _ = (C n : ℚ) := by exact (s1 n hH1).symm
     _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) ^ 3 : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
 
 end Parley.Proofs.Hammack.SquareOfSumEqualsSumOfCubes.SquareOfSumEqualsSumOfCubes

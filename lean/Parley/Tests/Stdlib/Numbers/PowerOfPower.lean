@@ -22,6 +22,6 @@ namespace Parley.Tests.Stdlib.Numbers.PowerOfPower
 theorem power_of_power (z : ℂ) (j : ℤ) (hH2 : 0 ≤ j) (k : ℤ) (hH3 : 0 ≤ k) :
     z ^ (j * k).toNat = (z ^ j.toNat) ^ k.toNat := by
   -- 1. mun:numbers-power-of-power a := z, m := j, n := k
-  exact (Parley.Items.Stdlib.Numbers.mun_power_of_power (a := z) (m := j) (by parley_side) (n := k) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_power_of_power (a := z) (m := j) hH2 (n := k) hH3)
 
 end Parley.Tests.Stdlib.Numbers.PowerOfPower

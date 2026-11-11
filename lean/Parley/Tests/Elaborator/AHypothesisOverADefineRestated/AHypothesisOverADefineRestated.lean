@@ -32,6 +32,6 @@ namespace Parley.Tests.Elaborator.AHypothesisOverADefineRestated.AHypothesisOver
 theorem a_hypothesis_over_a_define_restated (n : ℤ) (hH1 : 0 ≤ n) (hH2 : (∫ t in 0..1, (t ^ n.toNat / (1 + t ^ 2) : ℝ)) = 0) :
     (∫ t in 0..1, (t ^ n.toNat / (1 + t ^ 2) : ℝ)) = 0 := by
   -- 1. restate H2
-  parley_side
+  exact hH2
 
 end Parley.Tests.Elaborator.AHypothesisOverADefineRestated.AHypothesisOverADefineRestated

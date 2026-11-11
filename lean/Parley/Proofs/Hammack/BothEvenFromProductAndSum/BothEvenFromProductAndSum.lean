@@ -17,7 +17,6 @@ public section
 
 namespace Parley.Proofs.Hammack.BothEvenFromProductAndSum.BothEvenFromProductAndSum
 
-set_option maxHeartbeats 400000 in
 theorem both_even_from_product_and_sum (a : ℤ) (b : ℤ) (hH3 : Even (a * b)) (hH4 : Even (a + b)) :
     (Even a ∧ Even b) := by
   -- 1. mun:even-product-factor, from H3

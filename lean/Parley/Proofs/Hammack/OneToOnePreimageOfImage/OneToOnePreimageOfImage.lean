@@ -19,7 +19,6 @@ public section
 
 namespace Parley.Proofs.Hammack.OneToOnePreimageOfImage.OneToOnePreimageOfImage
 
-set_option maxHeartbeats 600000 in
 theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) :
     (Set.MapsTo f A B ∧ Set.InjOn f A ↔ (∀ X ∈ 𝒫 A, A ∩ f ⁻¹' (f '' (A ∩ X)) = X)) := by
   -- the theorem. both directions
@@ -41,7 +40,7 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
       -- 2.1.3. mun:in-subset Y := A, u := s, from K1, 2.1.2
       have s2_1_3 : s ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := X) (Y := A) (u := s) hK1 s2_1_2a)
       -- 2.1.4. instantiate s := u, t := s in line 1, from 2.1.1, 2.1.2, 2.1.3
-      have s2_1_4 : u = s := by exact (s1 u (by parley_set_side) s (by parley_set_side) (by parley_set_side))
+      have s2_1_4 : u = s := by exact (s1 u s2_1_1a s s2_1_3 s2_1_2b)
       -- 2.1.5. substitute u = s (line 2.1.4) into line 2.1.2
       parley_subst_at s2_1_4 s2_1_2a
     -- 2.2. def:subset, from 2.1
@@ -66,15 +65,15 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
       -- 3.4. substitute f(s) = f(t) (A1) into line 3.3
       have s3_4 : f s ∈ f '' (A ∩ ({t} : Set α)) := by parley_subst_at hA1 s3_3
       -- 3.5. def:preimage Z := f[{t}], from K3, 3.4
-      have s3_5 : s ∈ A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
+      have s3_5 : s ∈ A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ ({t} : Set α))) (f := f) (u := s) (W := Set.univ) (by parley_set_side))).mpr ⟨hK3, by parley_set_side⟩
       -- 3.6. substitute
       have s3_6 : s ∈ ({t} : Set α) := by
-        have c1 : A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) = ({t} : Set α) := by exact (hD2 ({t} : Set α) (by parley_set_side))
+        have c1 : A ∩ f ⁻¹' (f '' (A ∩ ({t} : Set α))) = ({t} : Set α) := by exact (hD2 ({t} : Set α) s3_1)
         have row1 : s ∈ ({t} : Set α) := by parley_subst_at c1 s3_5
         exact row1
       -- 3.7. def:singleton x := s, a := t, from 3.6
       exact ((Parley.Items.Stdlib.Sets.def_singleton (a := t) (x := s))).mp s3_6
     -- 4. def:one-to-one, from H3, 3
-    exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mpr ⟨hH3, s3⟩
 
 end Parley.Proofs.Hammack.OneToOnePreimageOfImage.OneToOnePreimageOfImage

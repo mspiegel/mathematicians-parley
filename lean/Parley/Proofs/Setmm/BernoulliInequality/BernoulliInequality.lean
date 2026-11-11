@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Proofs.Setmm.BernoulliInequality.BernoulliInequality
 
-set_option maxHeartbeats 400000 in
 theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n) :
     (A - 1) * (n : ℝ) + 1 ≤ A ^ n.toNat := by
   -- 1. induction on k starting at 0
@@ -42,24 +41,24 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
     | succ k hK hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
-      have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (by parley_side))
+      have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) hK)
       -- 1.4. inequalities
       have s1_4 : 0 ≤ A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) := by parley_order
       set X : ℝ := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) with hD1
       have hD1_kind : True := by parley_side
       -- 1.5. thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
       have s1_5 : 0 ≤ A * X := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4)
       -- 1.6. mun:square-nonneg x := A − 1
       have s1_6 : 0 ≤ (A - 1) ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))
       -- 1.7. thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6
-      have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side))
+      have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by exact_mod_cast ge_iff_le.mp hK))
       -- 1.8. algebra, from D1
       have s1_8 : A ^ k.toNat * A - ((A - 1) * ((k : ℝ) + 1) + 1) = A * X + (A - 1) ^ 2 * (k : ℝ) := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         parley_ring
       -- 1.9. inequalities, from 1.5, 1.7
       have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by parley_order
@@ -71,6 +70,6 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1).toNat := by parley_order
       exact_mod_cast s1_12
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH3)
 
 end Parley.Proofs.Setmm.BernoulliInequality.BernoulliInequality

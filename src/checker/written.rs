@@ -23,6 +23,34 @@ pub struct Phrase {
     meaning: Node,
 }
 
+/// The parts of a definition's right side (`Cited::unfolded`) with `out`
+/// applied to each fact, witness and place.
+fn unfolded_written(
+    parts: &mut [super::record::Unfolded],
+    out: &impl Fn(&Node) -> Node,
+) {
+    use super::record::{SuppliedBy, Unfolded};
+    for part in parts {
+        match part {
+            Unfolded::Fact { fact, by } => {
+                *fact = out(fact);
+                if let SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) = by {
+                    at.written = out(&at.written);
+                }
+            }
+            Unfolded::Witness {
+                value,
+                member,
+                body,
+            } => {
+                *value = out(value);
+                unfolded_written(std::slice::from_mut(member.as_mut()), out);
+                unfolded_written(body, out);
+            }
+        }
+    }
+}
+
 /// The record with the theorem's outside defines and phrases written out;
 /// None where it has none of either, and the record stands as read.
 pub fn written_out(
@@ -82,6 +110,9 @@ pub fn written_out(
                 at.written = out(&at.written);
             }
         }
+        for parts in c.unfolded.iter_mut().flatten() {
+            unfolded_written(parts, &out);
+        }
     }
     for all in written.exhibited.values_mut() {
         for e in all.iter_mut().flatten() {
@@ -97,6 +128,7 @@ pub fn written_out(
     }
     for read in written.read_at.iter_mut().flatten() {
         read.said = out(&read.said);
+        read.opened_by.written = out(&read.opened_by.written);
     }
     for said in written
         .bounds
@@ -116,11 +148,33 @@ pub fn written_out(
     for s in written.supposed.values_mut() {
         s.against = out(&s.against);
     }
-    for at in written.link_places.values_mut() {
+    for at in written
+        .link_places
+        .values_mut()
+        .chain(written.restated.values_mut())
+    {
         at.written = out(&at.written);
     }
     for i in written.instantiated.values_mut() {
         i.at.written = out(&i.at.written);
+        for g in &mut i.guards {
+            g.written = out(&g.written);
+        }
+        for c in &mut i.conditions {
+            c.read = out(&c.read);
+        }
+        let bys = i
+            .guards
+            .iter_mut()
+            .map(|g| &mut g.by)
+            .chain(i.conditions.iter_mut().map(|c| &mut c.by));
+        for by in bys {
+            if let super::record::SuppliedBy::Line(at)
+            | super::record::SuppliedBy::SaidOnce(at) = by
+            {
+                at.written = out(&at.written);
+            }
+        }
     }
     for c in written.contradicted.values_mut() {
         c.at.written = out(&c.at.written);

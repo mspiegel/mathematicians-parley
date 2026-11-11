@@ -29,7 +29,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k
   -- the theorem. contradiction
   by_contra (hS : b ≠ 0)
   -- 1. mun:square-positive x := b, from S
-  have s1 : b ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := b) (by parley_side))
+  have s1 : b ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := b) hS)
   -- 2. mun:pos-int-nat m := b², from 1
   have s2 : 0 < b ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := b ^ 2) s1)
   -- 3. mun:divides-self n := b
@@ -42,7 +42,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k
     have row1 : b ∣ b ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => b ∣ t)) c1 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 6. instantiate k := b² in H2, from 2
-  have s6 : ¬ b ∣ b ^ 2 := by exact (hH2 (b ^ 2) (by parley_side))
+  have s6 : ¬ b ∣ b ^ 2 := by exact (hH2 (b ^ 2) s2)
   -- 7. restate 5
   have s7 : b ∣ b ^ 2 := by parley_side
   exact s6 s7

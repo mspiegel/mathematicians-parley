@@ -21,10 +21,10 @@ namespace Parley.Proofs.Hammack.GcdEqualsFirst.GcdEqualsFirst
 theorem gcd_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     (a = (Int.gcd a b : ℤ) ↔ a ∣ b) := by
   -- 1. def:gcd
-  have s1a : 0 < (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a) (by parley_side) (b := b) (by parley_side))
-  have s1b : (Int.gcd a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a) (by parley_side) (b := b) (by parley_side))
-  have s1c : (Int.gcd a b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a) (by parley_side) (b := b) (by parley_side))
-  have s1d : ∀ e : ℤ, 0 < e → e ∣ a ∧ e ∣ b → e ≤ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_4 (a := a) (by parley_side) (b := b) (by parley_side))
+  have s1a : 0 < (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a) hH1 (b := b) hH2)
+  have s1b : (Int.gcd a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a) hH1 (b := b) hH2)
+  have s1c : (Int.gcd a b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a) hH1 (b := b) hH2)
+  have s1d : ∀ e : ℤ, 0 < e → e ∣ a ∧ e ∣ b → e ≤ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_4 (a := a) hH1 (b := b) hH2)
   -- 2. both directions
   constructor
   · skip
@@ -38,11 +38,11 @@ theorem gcd_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 2.3. join 2.2, D2
     have s2_3 : a ∣ a ∧ a ∣ b := by parley_side
     -- 2.4. instantiate e := a in line 1
-    have s2_4 : a ∣ a ∧ a ∣ b → a ≤ (Int.gcd a b : ℤ) := by exact (s1d a (by parley_side))
+    have s2_4 : a ∣ a ∧ a ∣ b → a ≤ (Int.gcd a b : ℤ) := by exact (s1d a hH1)
     -- 2.5. mun:modus-ponens P := a divides a and a divides b, Q := a ≤ gcd(a, b), from 2.3, 2.4
     have s2_5 : a ≤ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a ∣ a ∧ a ∣ b) (Q := a ≤ (Int.gcd a b : ℤ)) s2_4 s2_3)
     -- 2.6. mun:divides-le e := gcd(a, b), m := a, from 1
-    have s2_6 : (Int.gcd a b : ℤ) ≤ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd a b : ℤ)) (by parley_side) (m := a) (by parley_side) s1b)
+    have s2_6 : (Int.gcd a b : ℤ) ≤ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd a b : ℤ)) s1a (m := a) hH1 s1b)
     -- 2.7. antisymmetry, from 2.5, 2.6
     parley_side
 

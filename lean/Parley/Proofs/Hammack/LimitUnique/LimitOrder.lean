@@ -32,7 +32,6 @@ public section
 
 namespace Parley.Proofs.Hammack.LimitUnique.LimitOrder
 
-set_option maxHeartbeats 800000 in
 theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filter.Tendsto f (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds L)) (hH6 : Filter.Tendsto f (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds M)) :
     M ≤ L := by
   -- the theorem. contradiction
@@ -52,9 +51,9 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
     have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)))
     exact hI
   -- 5. instantiate ε := (M − L)/3 in line 3, from 2
-  have s5 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < (M - L) / 3) := by exact (s3 ((M - L) / 3) (by parley_set_side))
+  have s5 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < (M - L) / 3) := by exact (s3 ((M - L) / 3) s2)
   -- 6. instantiate ε := (M − L)/3 in line 4, from 2
-  have s6 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < (M - L) / 3) := by exact (s4 ((M - L) / 3) (by parley_set_side))
+  have s6 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < (M - L) / 3) := by exact (s4 ((M - L) / 3) s2)
   -- 7. obtain p from line 5
   obtain ⟨p, ⟨s7a, s7b⟩⟩ := s5
   -- 8. obtain q from line 6
@@ -62,7 +61,7 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   set m : ℝ := min p q with hD1
   have hD1_kind : True := by trivial
   -- 9. mun:lt-min z := 0, x := p, y := q, from 7, 8
-  have s9 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side)
+  have s9 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr ⟨s7a, s8a⟩
   -- 10. mun:min-le x := p, y := q
   have s10a : min p q ≤ p := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := p) (y := q))
   have s10b : min p q ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := p) (y := q))
@@ -103,9 +102,9 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 27. inequalities, from D2, 21, 25
   have s27 : c - q < x₁ ∧ x₁ < c + q := by parley_set_side
   -- 28. mun:abs-difference-lt x := x₁, δ := p, from 26
-  have s28 : abs (x₁ - c) < p := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := p))).mpr (by parley_set_side)
+  have s28 : abs (x₁ - c) < p := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := p))).mpr ⟨s26.1, s26.2⟩
   -- 29. mun:abs-difference-lt x := x₁, δ := q, from 27
-  have s29 : abs (x₁ - c) < q := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := q))).mpr (by parley_set_side)
+  have s29 : abs (x₁ - c) < q := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := q))).mpr ⟨s27.1, s27.2⟩
   -- 30. instantiate x := x₁ in line 7, from 14, 28
   have s30 : abs (f x₁ - L) < (M - L) / 3 := by exact (s7b x₁ (by parley_set_side))
   -- 31. instantiate x := x₁ in line 8, from 14, 29

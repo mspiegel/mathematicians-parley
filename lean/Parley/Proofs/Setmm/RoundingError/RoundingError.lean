@@ -25,7 +25,6 @@ public section
 
 namespace Parley.Proofs.Setmm.RoundingError.RoundingError
 
-set_option maxHeartbeats 400000 in
 theorem rounding_error (A : ℝ) :
     abs ((⌊A + 1 / 2⌋ : ℝ) - A) ≤ 1 / 2 := by
   -- 1. mun:floor-integer x := A + 1/2
@@ -47,8 +46,8 @@ theorem rounding_error (A : ℝ) :
   have s8 : -e ≤ 1 / 2 := by parley_order
   -- 9. mun:nonneg-or-neg x := e, from D1
   have s9 : e ≥ 0 ∨ e < 0 := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := (⌊A + 1 / 2⌋ : ℝ) - A))
   -- 10. cases, from 9
   have s10 : abs e ≤ 1 / 2 := by
@@ -56,16 +55,16 @@ theorem rounding_error (A : ℝ) :
     · skip
       -- 10.1. def:abs x := e, from C1, D1
       have s10_1 : abs e = e := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC1
       -- 10.2. transitivity, from 10.1, 5
       parley_order
     · skip
       -- 10.3. def:abs x := e, from C2, D1
       have s10_3 : abs e = -e := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC2
       -- 10.4. transitivity, from 10.3, 8
       parley_order

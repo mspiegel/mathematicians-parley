@@ -23,7 +23,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SqueezeForSequences.SqueezeForSequences
 
-set_option maxHeartbeats 600000 in
 theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → ℝ) (L : ℝ) (hH5 : ∃ M : ℤ, ∀ n : ℤ, 0 < n → n > M → a n ≤ b n ∧ b n ≤ c n) (hH6 : Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds L)) (hH7 : Filter.Tendsto (fun n : ℤ => (c n : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℤ => (b n : ℝ)) Filter.atTop (nhds L) := by
   -- 1. proof
@@ -35,9 +34,9 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
     -- 1.2. def:tends-to x := c, from H7
     have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (c n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := c) (L := L))).mp hH7
     -- 1.3. instantiate ε := ε in line 1.1, from A1
-    have s1_3 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε) := by exact (s1_1 ε (by parley_side))
+    have s1_3 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε) := by exact (s1_1 ε hA1)
     -- 1.4. instantiate ε := ε in line 1.2, from A1
-    have s1_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (c n - L) < ε) := by exact (s1_2 ε (by parley_side))
+    have s1_4 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (c n - L) < ε) := by exact (s1_2 ε hA1)
     -- 1.5. obtain P from line 1.3
     obtain ⟨P, s1_5a, s1_5b⟩ := s1_3
     -- 1.6. obtain Q from line 1.4
@@ -45,7 +44,8 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
     -- 1.7. obtain M from H5
     obtain ⟨M, s1_7⟩ := hH5
     -- 1.8. obtain R: thm:archimedean-natural x := M
-    obtain ⟨R, s1_8a, s1_8b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := (M : ℝ)))
+    obtain ⟨R, s1_8a, s1_8b_obtained⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := (M : ℝ)))
+    have s1_8b : R > M := by exact_mod_cast s1_8b_obtained
     -- 1.9. inequalities, from 1.6, 1.8
     have s1_9 : Q + R > 0 := by parley_order
     -- 1.10. inequalities
@@ -69,11 +69,11 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.3. transitivity, from A2, 1.14, 1.8
       have s1_15_3 : n > M := by parley_order
       -- 1.15.4. instantiate n := n in line 1.5, from 1.15.1
-      have s1_15_4 : abs (a n - L) < ε := by exact (s1_5b n (by parley_side) (by parley_side))
+      have s1_15_4 : abs (a n - L) < ε := by exact (s1_5b n hK2 s1_15_1)
       -- 1.15.5. instantiate n := n in line 1.6, from 1.15.2
-      have s1_15_5 : abs (c n - L) < ε := by exact (s1_6b n (by parley_side) (by parley_side))
+      have s1_15_5 : abs (c n - L) < ε := by exact (s1_6b n hK2 s1_15_2)
       -- 1.15.6. instantiate n := n in line 1.7, from 1.15.3
-      have s1_15_6 : a n ≤ b n ∧ b n ≤ c n := by exact (s1_7 n (by parley_side) (by parley_side))
+      have s1_15_6 : a n ≤ b n ∧ b n ≤ c n := by exact (s1_7 n hK2 s1_15_3)
       -- 1.15.7. mun:abs-difference-lt x := a(n), c := L, δ := ε, from 1.15.4
       have s1_15_7 : L - ε < a n := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := L) (δ := ε))).mp s1_15_4).1
       -- 1.15.8. mun:abs-difference-lt x := c(n), c := L, δ := ε, from 1.15.5
@@ -85,7 +85,7 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.11. join 1.15.9, 1.15.10
       have s1_15_11 : L - ε < b n ∧ b n < L + ε := by parley_side
       -- 1.15.12. mun:abs-difference-lt x := b(n), c := L, δ := ε, from 1.15.11
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr (by parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr ⟨s1_15_11.1, s1_15_11.2⟩
     -- 1.16. exhibit, from 1.15
     exact ⟨P + Q + R, by parley_side, s1_15⟩
   -- 2. def:tends-to x := b, from 1

@@ -17,7 +17,6 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfIntersection.PreimageOfIntersection
 
-set_option maxHeartbeats 400000 in
 theorem preimage_of_intersection {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (Y : Set α) (hH4 : Y ⊆ B) (Z : Set α) (hH5 : Z ⊆ B) :
     A ∩ f ⁻¹' (Y ∩ Z) = (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by
   -- 1. proof
@@ -30,11 +29,11 @@ theorem preimage_of_intersection {α : Type*} (A : Set α) (B : Set α) (f : α 
     have s1_2a : f u ∈ Y := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := f u))).mp s1_1b).1
     have s1_2b : f u ∈ Z := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := f u))).mp s1_1b).2
     -- 1.3. def:preimage Z := Y, from 1.1, 1.2
-    have s1_3 : u ∈ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
+    have s1_3 : u ∈ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr ⟨s1_1a, by parley_set_side⟩
     -- 1.4. def:preimage, from 1.1, 1.2
-    have s1_4 : u ∈ A ∩ f ⁻¹' Z := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
+    have s1_4 : u ∈ A ∩ f ⁻¹' Z := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr ⟨s1_1a, by parley_set_side⟩
     -- 1.5. def:intersection Y := f⁻¹[Y], Z := f⁻¹[Z], from 1.3, 1.4
-    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∩ f ⁻¹' Y) (Z := A ∩ f ⁻¹' Z) (u := u))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∩ f ⁻¹' Y) (Z := A ∩ f ⁻¹' Z) (u := u))).mpr ⟨s1_3, s1_4⟩
   -- 2. def:subset, from 1
   have s2 : A ∩ f ⁻¹' (Y ∩ Z) ⊆ (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)))).mpr s1
   -- 3. proof
@@ -49,9 +48,9 @@ theorem preimage_of_intersection {α : Type*} (A : Set α) (B : Set α) (f : α 
     -- 3.3. def:preimage, from 3.1
     have s3_3 : f u ∈ Z := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mp s3_1b).2
     -- 3.4. def:intersection u := f(u), from 3.2, 3.3
-    have s3_4 : f u ∈ Y ∩ Z := ((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := f u))).mpr (by parley_set_side)
+    have s3_4 : f u ∈ Y ∩ Z := ((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := f u))).mpr ⟨s3_2b, s3_3⟩
     -- 3.5. def:preimage Z := Y ∩ Z, from 3.2, 3.4
-    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∩ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∩ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr ⟨s3_2a, by parley_set_side⟩
   -- 4. def:subset, from 3
   have s4 : (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) ⊆ A ∩ f ⁻¹' (Y ∩ Z) := ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (Y := A ∩ f ⁻¹' (Y ∩ Z)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

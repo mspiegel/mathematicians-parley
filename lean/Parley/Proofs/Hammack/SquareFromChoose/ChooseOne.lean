@@ -7,8 +7,10 @@ public import Functions
 public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -22,7 +24,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareFromChoose.ChooseOne
 
-set_option maxHeartbeats 400000 in
 theorem choose_one (n : ℤ) (hH1 : 0 < n) :
     (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) = n := by
   -- 1. induction on k starting at 1
@@ -48,16 +49,16 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       linear_combination (norm := parley_norm) (-1) * s1_2 + s1_4 + s1_5
     | succ k hK hIH =>
       -- 1.7. thm:pascal n := k, k := 1
-      have s1_7 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ)))
+      have s1_7 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (k := (1 : ℤ)))
       -- 1.8. substitute 1 − 1 = 0 (arithmetic) into line 1.7
       have s1_8 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
         have e_arith : (1 - 1 : ℤ) = 0 := by parley_arith
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k t : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) e_arith s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.9. mun:binomial-zero-index n := k
-      have s1_9 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side))
+      have s1_9 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.10. algebra, from IH, 1.8, 1.9
       linear_combination (norm := parley_norm) hIH + (-1) * s1_8 + s1_9
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.SquareFromChoose.ChooseOne

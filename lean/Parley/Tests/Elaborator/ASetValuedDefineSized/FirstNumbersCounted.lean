@@ -22,6 +22,6 @@ namespace Parley.Tests.Elaborator.ASetValuedDefineSized.FirstNumbersCounted
 theorem first_numbers_counted (m : ℤ) (hH1 : 0 ≤ m) :
     ((Set.Icc (1 : ℤ) m : Set ℤ).ncard : ℤ) = m := by
   -- 1. mun:range-size n := m, from D1
-  exact (Parley.Items.Stdlib.Counting.mun_range_size (n := m) (by parley_set_side))
+  exact (Parley.Items.Stdlib.Counting.mun_range_size (n := m) hH1)
 
 end Parley.Tests.Elaborator.ASetValuedDefineSized.FirstNumbersCounted

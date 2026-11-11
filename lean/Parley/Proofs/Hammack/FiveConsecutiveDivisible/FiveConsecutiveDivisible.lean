@@ -33,7 +33,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveDivisible
 
-set_option maxHeartbeats 800000 in
 theorem five_consecutive_divisible (n : ℤ) :
     (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
   -- 1. mun:nonneg-or-neg x := n − 1
@@ -46,9 +45,9 @@ theorem five_consecutive_divisible (n : ℤ) :
     -- 2.2. mun:pos-int-nat m := n, from 2.1
     have s2_2 : 0 < n := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1)
     -- 2.3. mun:nat-minus-one, from 2.2
-    have s2_3 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side))
+    have s2_3 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) s2_2)
     -- 2.4. thm:five-consecutive-natural m := n − 1, from 2.3
-    have s2_4 : (120 : ℤ) ∣ (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) (by parley_side))
+    have s2_4 : (120 : ℤ) ∣ (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) s2_3)
     -- 2.5. substitute
     have c1 : (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by parley_ring
     have row1 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by (have h := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) c1 s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -66,7 +65,7 @@ theorem five_consecutive_divisible (n : ℤ) :
       -- 2.7.3. inequalities, from 2.7.2
       have s2_7_3 : n + 4 ≤ 4 := by parley_order
       -- 2.7.4. def:range-between k := n + 4, a := 0, b := 4, from C3, 2.7.3
-      have s2_7_4 : n + 4 ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n + 4) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr (by parley_side)
+      have s2_7_4 : n + 4 ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n + 4) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr ⟨hC3, s2_7_3⟩
       -- 2.7.5. inspection, from 2.7.4
       have s2_7_5 : (((n + 4 = 0 ∨ n + 4 = 1) ∨ n + 4 = 2) ∨ n + 4 = 3) ∨ n + 4 = 4 := by parley_side
       -- 2.7.6. cases, from 2.7.5
@@ -112,15 +111,15 @@ theorem five_consecutive_divisible (n : ℤ) :
       have hD2_kind : True := by parley_side
       -- 2.7.11. thm:five-consecutive-natural m := k − 1, from D2, 2.7.10
       have s2_7_11 : (120 : ℤ) ∣ P := by
-        try simp only [hD2] at *
-        try push_cast at *
-        exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := k - 1) (by parley_side))
+        try simp only [hD2] at ⊢
+        try push_cast at ⊢
+        exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := k - 1) s2_7_10)
       -- 2.7.12. mun:divides-multiple e := 120, a := P, x := −1, from 2.7.11
       have s2_7_12 : (120 : ℤ) ∣ P * -1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11)
       -- 2.7.13. algebra, from D1, D2
       have s2_7_13 : P * -1 = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
-        try simp only [hD1, hD2] at *
-        try push_cast at *
+        try simp only [hD1, hD2] at ⊢
+        try push_cast at ⊢
         parley_ring
       -- 2.7.14. substitute P·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.7.13) into line 2.7.12
       (have h := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) s2_7_13 s2_7_12; push_cast at h ⊢; all_goals exact_mod_cast h)

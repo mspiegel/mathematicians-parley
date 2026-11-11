@@ -23,8 +23,8 @@ theorem a_pair_naming_a_define {α : Type*} (X : Set α) (a : α) (hH3 : ∀ S �
   -- 1. substitute F = 𝒫X (D1) into H3
   have s1 : ∀ S ∈ F, ∀ T ∈ F, S ∪ ({a} : Set α) = T ∪ ({a} : Set α) → S = T := by parley_subst_at hD1 hH3
   -- 2. mun:image-of-injection Y := F, from D1, 1
-  try simp only [hD1] at *
-  try push_cast at *
+  try simp only [hD1] at ⊢
+  try push_cast at ⊢
   exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := 𝒫 X) (a := a) s1)
 
 end Parley.Tests.Elaborator.APairNamingADefine.APairNamingADefine

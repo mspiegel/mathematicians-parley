@@ -1,5 +1,6 @@
 theorem tests/elaborator/a-supposition-written-otherwise/a-claim-denying-its-supposition-written-otherwise
 block of 1: 1.1
+step 1.1 restates S sentence 0
 read 1: a ≠ 1  as  logical-not:not(equality:=(name:a, numeral:1))  a statement
 read 4: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
 read 5: a ≠ 1  as  logical-not:not(equality:=(name:a, numeral:1))  a statement

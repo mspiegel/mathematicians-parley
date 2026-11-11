@@ -23,7 +23,6 @@ public section
 
 namespace Parley.Proofs.Setmm.BoundedBySquare.BoundedBySquare
 
-set_option maxHeartbeats 600000 in
 theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     (A ≤ B ∧ -A ≤ B ↔ A ^ 2 ≤ B ^ 2) := by
   -- 1. thm:abs-bounds x := A
@@ -63,7 +62,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     -- 6.2.3. mun:square-less x := B, y := |A|, from 6.2.2
     have r70_1 : abs A ≥ 0 := by parley_side
     have r70_2 : B ≥ 0 := by parley_side
-    have s6_2_3 : B < abs A := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := B) (y := abs A) (by parley_side) (by parley_side))).mpr s6_2_2
+    have s6_2_3 : B < abs A := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := B) (y := abs A) r70_2 r70_1)).mpr s6_2_2
     -- 6.2.4. inequalities, from 6.2.3
     have s6_2_4 : ¬ abs A ≤ B := by parley_side
     exact s6_2_4 s6_1
@@ -77,7 +76,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
       -- 6.3.2. mun:square-less x := B, y := |A|, from 6.3.1
       have r88_1 : abs A ≥ 0 := by parley_side
       have r88_2 : B ≥ 0 := by parley_side
-      have s6_3_2 : B ^ 2 < abs A ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := B) (y := abs A) (by parley_side) (by parley_side))).mp s6_3_1
+      have s6_3_2 : B ^ 2 < abs A ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := B) (y := abs A) r88_2 r88_1)).mp s6_3_1
       -- 6.3.3. substitute |A|² = A² (line 2) into line 6.3.2
       have s6_3_3 : B ^ 2 < A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℝ => B ^ 2 < t)) s2 s6_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 6.3.4. inequalities, from 6.3.3

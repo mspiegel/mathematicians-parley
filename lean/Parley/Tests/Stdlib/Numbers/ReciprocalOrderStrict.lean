@@ -17,6 +17,6 @@ namespace Parley.Tests.Stdlib.Numbers.ReciprocalOrderStrict
 theorem reciprocal_order_strict (x : ℝ) (hH2 : x > 0) (y : ℝ) (hH4 : y > 0) :
     (x < y ↔ 1 / y < 1 / x) := by
   -- 1. mun:numbers-reciprocal-order-strict, from H2, H4
-  exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_order_strict (x := x) (by parley_side) (y := y) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_order_strict (x := x) hH2 (y := y) hH4)
 
 end Parley.Tests.Stdlib.Numbers.ReciprocalOrderStrict

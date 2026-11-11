@@ -39,7 +39,7 @@ theorem sqrt_of_sum_bound (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
   -- 5. inequalities, from 1, 2
   have s5 : Real.sqrt a + Real.sqrt b ≥ 0 := by parley_order
   -- 6. mun:product-nonneg x := √a, y := √b, from 1, 2
-  have s6 : Real.sqrt a * Real.sqrt b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt a) (y := Real.sqrt b) (by parley_side) (by parley_side))
+  have s6 : Real.sqrt a * Real.sqrt b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt a) (y := Real.sqrt b) s1a s2a)
   -- 7. inequalities
   have s7 : a + b ≤ a + b + 2 * (Real.sqrt a * Real.sqrt b) := by parley_order
   -- 8. calculation
@@ -48,6 +48,6 @@ theorem sqrt_of_sum_bound (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
       _ ≤ a + b + 2 * (Real.sqrt a * Real.sqrt b) := by exact s7
       _ = (Real.sqrt a + Real.sqrt b) ^ 2 := by linear_combination (norm := parley_norm) (-1) * s1b + (-1) * s2b
   -- 9. mun:square-le x := √(a + b), y := √a + √b, from 1, 2, 4, 5, 8
-  exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (a + b)) (y := Real.sqrt a + Real.sqrt b) (by parley_side) (by parley_side))).mpr s8
+  exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (a + b)) (y := Real.sqrt a + Real.sqrt b) s4a s5)).mpr s8
 
 end Parley.Proofs.Identities.SqrtOfSumBound.SqrtOfSumBound

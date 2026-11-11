@@ -31,7 +31,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd
 
-set_option maxHeartbeats 400000 in
 theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c : Set ℤ) (hH3 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (hH4 : n < m) (hH5 : (c.ncard : ℤ) = m) (hH6 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)) :
     (∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)) := by
   -- 1. D1, from H6
@@ -47,8 +46,8 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
     rcases s2_1 with hC1 | hC2
     · skip
       -- 2.2.1. thm:last-place, from H3, H5
-      have s2_2_1a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) (by parley_set_side) (n := n) (by parley_set_side) (c := c) (by parley_set_side) (by parley_set_side)).1
-      have s2_2_1b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) (by parley_set_side) (n := n) (by parley_set_side) (c := c) (by parley_set_side) (by parley_set_side)).2
+      have s2_2_1a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) (by parley_set_side) (by parley_set_side)).1
+      have s2_2_1b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) (by parley_set_side) (by parley_set_side)).2
       -- 2.2.2. calculation
       have s2_2_2 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by parley_count_after (by
         calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by parley_set_side
@@ -67,9 +66,9 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       -- 2.2.7. inequalities, from 2.2.6
       have s2_2_7 : i ≤ m + n - 1 := by parley_order
       -- 2.2.8. def:range-between k := i, a := 1, b := (m + n) − 1, from 2.2.4, 2.2.7
-      have s2_2_8 : i ∈ Finset.Icc (1 : ℤ) (m + n - 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr (by parley_set_side)
+      have s2_2_8 : i ∈ Finset.Icc (1 : ℤ) (m + n - 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr ⟨s2_2_4a, s2_2_7⟩
       -- 2.2.9. instantiate i := i in line 1, from 2.2.8
-      exact (s1 i (by parley_set_side))
+      exact (s1 i s2_2_8)
   -- 3. D1, from 2
   parley_set_side
 

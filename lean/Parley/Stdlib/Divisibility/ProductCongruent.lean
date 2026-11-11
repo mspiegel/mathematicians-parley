@@ -33,6 +33,6 @@ theorem product_congruent (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 
     -- 1.2. membership, from 1.1
     exact trivial
   -- 2. thm:product-congruent-termwise, from H2, H6, 1
-  exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * c)) (u := f) (X := X) hH2 (n := n) (by parley_set_side) hH6)
+  exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent_termwise (t := (fun x : ℤ => x * c)) (u := f) (X := X) hH2 (n := n) hH4 hH6)
 
 end Parley.Stdlib.Divisibility.ProductCongruent

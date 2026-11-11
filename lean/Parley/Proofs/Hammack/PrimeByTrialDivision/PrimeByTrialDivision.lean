@@ -33,7 +33,6 @@ public section
 
 namespace Parley.Proofs.Hammack.PrimeByTrialDivision.PrimeByTrialDivision
 
-set_option maxHeartbeats 600000 in
 theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀ n : ℤ, 0 < n → 2 ≤ n ∧ (n : ℝ) ≤ Real.sqrt (p : ℝ) → ¬ n ∣ p) :
     Nat.Prime p.toNat := by
   -- 1. proof
@@ -41,7 +40,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     intro d hK
     intro hC
     by_contra hS
-    have hD1_kind : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) / (d : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := p) (by parley_side) (d := d) (by parley_side))).mp hC
+    have hD1_kind : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) / (d : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := p) hH1 (d := d) hK)).mp hC
     obtain ⟨e, hD1_pos, hD1⟩ := hD1_kind
     -- 1.1. algebra, from D1
     have s1_1 : p = d * e := by qify at *; linear_combination (norm := parley_field) (-(d : ℚ)) * hD1
@@ -79,9 +78,9 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.1. inequalities
         have s1_11_1 : e ≥ d := by parley_order
         -- 1.11.2. mun:multiply-le x := d, y := e, c := d, from K, 1.11.1
-        have s1_11_2 : d * d ≤ d * e := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := d) (y := e) (c := d) (by parley_side) (by parley_side))
+        have s1_11_2 : d * d ≤ d * e := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := d) (y := e) (c := d) s1_11_1 hK)
         -- 1.11.3. thm:divisor-exceeds-root, from C, H3, 1.5
-        have s1_11_3 : p < d * d := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) (by parley_side) (d := d) (by parley_side) s1_5 hC (by parley_side))
+        have s1_11_3 : p < d * d := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) hH1 (d := d) hK s1_5 hC (by parley_side))
         -- 1.11.4. transitivity, from 1.11.2, 1.1
         have s1_11_4 : d * d ≤ p := by parley_order
         -- 1.11.5. inequalities, from 1.11.4
@@ -91,13 +90,13 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.6. inequalities
         have s1_11_6 : e ≤ d := by parley_order
         -- 1.11.7. mun:multiply-le x := e, y := d, c := e, from D1, 1.11.6
-        have s1_11_7 : e * e ≤ e * d := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side))
+        have s1_11_7 : e * e ≤ e * d := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by exact_mod_cast s1_11_6) (by parley_side))
         -- 1.11.8. algebra, from 1.1
         have s1_11_8 : p = e * d := by linear_combination (norm := parley_norm) s1_1
         -- 1.11.9. def:divides d := e, n := p, from 1.11.8
         have s1_11_9 : e ∣ p := ((Parley.Items.Stdlib.Divisibility.def_divides (d := e) (n := p))).mpr ⟨d, s1_11_8⟩
         -- 1.11.10. thm:divisor-exceeds-root d := e, from H3, 1.9, 1.11.9
-        have s1_11_10 : p < e * e := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) (by parley_side) (d := e) (by parley_side) s1_9 s1_11_9 (by parley_side))
+        have s1_11_10 : p < e * e := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) hH1 (d := e) (by parley_side) s1_9 s1_11_9 (by parley_side))
         -- 1.11.11. transitivity, from 1.11.7, 1.11.8
         have s1_11_11 : e * e ≤ p := by parley_order
         -- 1.11.12. inequalities, from 1.11.11
@@ -108,6 +107,6 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
   have s2a : p > 1 := by parley_side
   have s2b : ∀ d : ℤ, 0 < d → d ∣ p → d = 1 ∨ d = p := by intro d h_d; parley_side
   -- 3. def:prime, from 2
-  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) hH1)).mpr ⟨s2a, s2b⟩
 
 end Parley.Proofs.Hammack.PrimeByTrialDivision.PrimeByTrialDivision

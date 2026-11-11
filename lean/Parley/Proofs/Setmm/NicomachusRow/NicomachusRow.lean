@@ -36,7 +36,6 @@ public section
 
 namespace Parley.Proofs.Setmm.NicomachusRow.NicomachusRow
 
-set_option maxHeartbeats 400000 in
 theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
     (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = N ^ 3 := by
   -- 1. def:nat0 n := N
@@ -49,14 +48,14 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.1. mun:sum-add a := 1, b := N
     have s2_1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N : ℤ)) + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_add (t := (fun k : ℤ => N ^ 2 - N)) (u := (fun k : ℤ => 2 * k - 1)) (a := (1 : ℤ)) (b := N))
     -- 2.2. substitute
-    have r26_1 : 1 ≤ N := by parley_side
+    have r26_1 : 1 ≤ N := by exact hC1
     have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) := by
       have c1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) := by exact (Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := N) r26_1 (c := N ^ 2 - N))
       have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = t + (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)))) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.3. substitute
     have s2_3 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by
-      have c1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = N ^ 2 := by exact (Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum.odd_numbers_sum (N := N) (by parley_side))
+      have c1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = N ^ 2 := by exact (Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum.odd_numbers_sum (N := N) hH1)
       have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + t)) c1 s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.4. calculation

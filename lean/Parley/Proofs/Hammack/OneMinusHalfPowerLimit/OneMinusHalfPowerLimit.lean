@@ -12,6 +12,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Cast.Basic
@@ -41,7 +42,6 @@ public section
 
 namespace Parley.Proofs.Hammack.OneMinusHalfPowerLimit.OneMinusHalfPowerLimit
 
-set_option maxHeartbeats 600000 in
 theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a n = 1 - 1 / 2 ^ n.toNat) :
     Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds 1) := by
   -- 1. induction on k starting at 1
@@ -55,7 +55,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 2, m := k
-      have s1_2 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side))
+      have s1_2 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.3. inequalities, from K
       have s1_3 : k + 1 ≤ 2 * k := by parley_order
       -- 1.4. inequalities
@@ -82,29 +82,29 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.3. mun:reciprocal-order x := n, y := 2^n, from 1
       have r67_1 : n > 0 := by parley_side
       have r67_2 : (2 ^ n.toNat : ℤ) > 0 := by parley_side
-      have s2_2_3 : 1 / 2 ^ n.toNat ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by parley_side) (y := (2 ^ n.toNat : ℚ)) (by parley_side))).mp (by parley_side)
+      have s2_2_3 : 1 / 2 ^ n.toNat ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r67_1) (y := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r67_2))).mp (by parley_side)
       -- 2.2.4. mun:reciprocal-order x := N, y := n, from A2
       have r72_1 : N > 0 := by parley_order
       have r72_2 : n > 0 := by parley_side
-      have s2_2_4 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s2_2_4 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by parley_side)
       -- 2.2.5. transitivity, from 2.2.3, 2.2.4, 2.1
       have s2_2_5 : 1 / 2 ^ n.toNat < ε := by parley_order
       -- 2.2.6. inequalities
       have s2_2_6 : 1 - ε < 1 - 1 / 2 ^ n.toNat := by parley_order
       -- 2.2.7. transitivity, from 2.2.6, H2
-      have s2_2_7 : 1 - ε < a n := by have := (hH2 n (by parley_side)); parley_order
+      have s2_2_7 : 1 - ε < a n := by have := (hH2 n hK2); parley_order
       -- 2.2.8. mun:reciprocal-positive x := 2^n, from 2.2.2
-      have s2_2_8 : (1 / 2 ^ n.toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by parley_side))
+      have s2_2_8 : (1 / 2 ^ n.toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_2_2))
       -- 2.2.9. inequalities
       have s2_2_9 : (1 - 1 / 2 ^ n.toNat : ℚ) < 1 := by parley_order
       -- 2.2.10. inequalities
       have s2_2_10 : 1 < 1 + ε := by parley_order
       -- 2.2.11. transitivity, from H2, 2.2.9, 2.2.10
-      have s2_2_11 : a n < 1 + ε := by have := (hH2 n (by parley_side)); parley_order
+      have s2_2_11 : a n < 1 + ε := by have := (hH2 n hK2); parley_order
       -- 2.2.12. join 2.2.7, 2.2.11
       have s2_2_12 : 1 - ε < a n ∧ a n < 1 + ε := by parley_side
       -- 2.2.13. mun:abs-difference-lt x := a(n), c := 1, δ := ε, from 2.2.12
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (1 : ℝ)) (δ := ε))).mpr (by parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (1 : ℝ)) (δ := ε))).mpr ⟨s2_2_12.1, s2_2_12.2⟩
     -- 2.3. exhibit, from 2.2
     exact ⟨N, s2_1a, s2_2⟩
   -- 3. def:tends-to L := 1, from 2

@@ -22,6 +22,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -40,7 +41,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded
 
-set_option maxHeartbeats 400000 in
 theorem harmonic_unbounded (M : ℝ) :
     (∃ n : ℤ, 0 < n ∧ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / (k : ℝ) : ℝ)) > M) := by
   -- 1. proof
@@ -64,7 +64,7 @@ theorem harmonic_unbounded (M : ℝ) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_4
     | succ m hK hIH =>
       -- 2.5. thm:harmonic-block j := m
-      have s2_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by exact (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) (by parley_side))
+      have s2_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by exact (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m) hK)
       -- 2.6. inequalities
       have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by parley_order
       -- 2.7. transitivity, from 2.5, 2.6
@@ -73,7 +73,7 @@ theorem harmonic_unbounded (M : ℝ) :
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))
   -- 4. instantiate m := N in line 2
-  have s4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (N : ℚ) / 2 := by exact (s2 N (by parley_side))
+  have s4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (N : ℚ) / 2 := by exact (s2 N (le_of_lt s3a))
   -- 5. inequalities
   have s5 : (N : ℝ) / 2 > M := by parley_order
   -- 6. transitivity, from 4, 5

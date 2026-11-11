@@ -23,6 +23,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundFillingAnItem
 theorem a_range_bound_filling_an_item (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 : ℤ) n) :
     0 ≤ n - k := by
   -- 1. mun:difference-nat0, from H2
-  exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (Finset.mem_Icc.mp hH2).2)
+  exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) hH1 (Finset.mem_Icc.mp hH2).2)
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundFillingAnItem

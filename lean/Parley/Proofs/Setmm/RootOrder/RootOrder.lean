@@ -38,13 +38,13 @@ theorem root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     -- 3.2. mun:square-less x := √A, y := √B, from 3.1
     have r28_3 : Real.sqrt A ≥ 0 := by parley_side
     have r28_4 : Real.sqrt B ≥ 0 := by parley_side
-    exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mpr s3_1
+    exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) r28_3 r28_4)).mpr s3_1
   · skip
     intro hD2
     -- 3.3. mun:square-less x := √A, y := √B, from D2
     have r38_3 : Real.sqrt A ≥ 0 := by parley_side
     have r38_4 : Real.sqrt B ≥ 0 := by parley_side
-    have s3_3 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mp hD2
+    have s3_3 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) r38_3 r38_4)).mp hD2
     -- 3.4. transitivity, from 1, 3.3, 2
     parley_order
 

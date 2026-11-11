@@ -39,7 +39,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareLimit.SquareLimit
 
-set_option maxHeartbeats 600000 in
 theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     Filter.Tendsto f (nhdsWithin 3 ((Set.univ : Set ℝ) \ {3})) (nhds 7) := by
   -- 1. proof
@@ -52,8 +51,8 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     have s1_1 : 0 < ε / 7 := by parley_order
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/7
     have r36_1 : (0 : ℤ) < 1 := by parley_arith
-    have r36_2 : 0 < ε / 7 := by parley_set_side
-    have s1_2 : 0 < min 1 (ε / 7) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 7))).mpr (by parley_set_side)
+    have r36_2 : 0 < ε / 7 := by exact s1_1
+    have s1_2 : 0 < min 1 (ε / 7) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 7))).mpr ⟨by parley_set_side, r36_2⟩
     -- 1.3. inequalities, from D1, 1.2
     have s1_3 : m > 0 := by parley_order
     -- 1.4. proof
@@ -62,8 +61,8 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       intro hA2
       -- 1.4.1. mun:lt-min z := |x − 3|, x := 1, y := ε/7, from A2, D1
       have s1_4_1 : abs (x - 3) < 1 ∧ abs (x - 3) < ε / 7 := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 3)) (x := (1 : ℝ)) (y := ε / 7))).mp hA2.2
       -- 1.4.2. mun:abs-difference-lt c := 3, δ := 1, from 1.4.1
       have s1_4_2 : 3 - 1 < x ∧ x < 3 + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (3 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
@@ -95,9 +94,9 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.14. calculation
       have r94_1 : ε / 7 > 0 := by parley_set_side
       calc abs (f x - 7) = abs (x + 3) * abs (x - 3) := by exact s1_4_13
-        _ < abs (x + 3) * (ε / 7) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 3)) (y := ε / 7) (c := abs (x + 3)) (by parley_set_side))).mp s1_4_1.2
+        _ < abs (x + 3) * (ε / 7) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 3)) (y := ε / 7) (c := abs (x + 3)) s1_4_9.1)).mp s1_4_1.2
         _ = ε / 7 * abs (x + 3) := by parley_ring
-        _ ≤ ε / 7 * 7 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (x + 3)) (y := (7 : ℝ)) (c := ε / 7) (by parley_set_side) (by parley_set_side))
+        _ ≤ ε / 7 * 7 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (x + 3)) (y := (7 : ℝ)) (c := ε / 7) s1_4_10 r94_1)
         _ = ε := by parley_ring
     -- 1.5. exhibit, from 1.3, 1.4
     exact ⟨m, ⟨s1_3, s1_4⟩⟩

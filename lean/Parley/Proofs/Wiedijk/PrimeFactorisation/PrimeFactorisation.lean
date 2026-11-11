@@ -47,7 +47,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeFactorisation
 
-set_option maxHeartbeats 800000 in
 theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
     (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (n = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by
   -- 1. induction on N starting at 1
@@ -79,17 +78,17 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       have s1_6 : 0 < m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := m) r199_1)
       -- 1.7. obtain p: thm:prime-factor, from 1.6
       have r203_1 : m > 1 := by parley_order
-      obtain ⟨p, s1_7a, ⟨s1_7b, s1_7c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := m) (by parley_set_side) r203_1)
-      have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) (by parley_set_side) (d := p) (by parley_set_side))).mp s1_7c
+      obtain ⟨p, s1_7a, ⟨s1_7b, s1_7c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := m) s1_6 r203_1)
+      have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) s1_6 (d := p) s1_7a)).mp s1_7c
       obtain ⟨r, hD2_pos, hD2⟩ := hD2_kind
       -- 1.8. def:prime, from 1.7
-      have s1_8 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_set_side))).mp s1_7b).1
+      have s1_8 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) s1_7a)).mp s1_7b).1
       -- 1.9. algebra, from D2
       have s1_9 : m = p * r := by qify at *; linear_combination (norm := parley_field) (-(p : ℚ)) * hD2
       -- 1.10. inequalities, from 1.8
       have s1_10 : p - 1 > 0 := by parley_order
       -- 1.11. mun:product-positive x := p − 1, y := r, from D2, 1.10
-      have s1_11 : (p - 1) * r > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (p : ℚ) - 1) (y := (r : ℚ)) (by parley_set_side) (by parley_set_side))
+      have s1_11 : (p - 1) * r > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (p : ℚ) - 1) (y := (r : ℚ)) (by exact_mod_cast gt_iff_lt.mp s1_10) (by parley_set_side))
       -- 1.12. substitute
       have s1_12 : m - r > 0 := by
         have c1 : (p - 1) * r = m - r := by linear_combination (norm := parley_norm) (-1) * s1_9
@@ -112,11 +111,11 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         have s1_18_1 : 1 + 1 ≤ r := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := r) hC1)
         -- 1.18.2. def:range-between k := r, a := 2, b := N, from 1.16
         have r258_1 : 2 ≤ r := by parley_order
-        have s1_18_2 : r ∈ Finset.Icc (2 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr (by parley_set_side)
+        have s1_18_2 : r ∈ Finset.Icc (2 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr ⟨r258_1, s1_16⟩
         -- 1.18.3. instantiate m := r in IH, from 1.18.2
-        have s1_18_3 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (hIH r (by parley_set_side))
+        have s1_18_3 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (hIH r s1_18_2)
         -- 1.18.4. thm:prime-times-product, from D2, 1.7, 1.18.3
-        have s1_18_4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct.prime_times_product (p := p) (by parley_set_side) s1_7b (r := r) (by parley_set_side) (by parley_set_side))
+        have s1_18_4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct.prime_times_product (p := p) s1_7a s1_7b (r := r) (by parley_set_side) (by parley_set_side))
         -- 1.18.5. substitute m = p·r (line 1.9) into line 1.18.4
         (have h := Eq.subst (motive := (fun t : ℤ => ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (t = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))))) s1_9.symm s1_18_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       · skip
@@ -149,11 +148,11 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.13. D1, from 1.18.12
         parley_set_side
   -- 2. instantiate N := n in line 1
-  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n (by parley_set_side) m (by parley_set_side))
+  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n hH1 m (by parley_set_side))
   -- 3. def:range-between k := n, a := 2, b := n, from H2
   have r317_1 : n ≤ n := by parley_order
-  have s3 : n ∈ Finset.Icc (2 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr (by parley_set_side)
+  have s3 : n ∈ Finset.Icc (2 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr ⟨hH2, r317_1⟩
   -- 4. instantiate m := n in line 2, from 3
-  exact (s2 n (by parley_set_side))
+  exact (s2 n s3)
 
 end Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeFactorisation

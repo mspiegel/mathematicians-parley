@@ -35,9 +35,9 @@ theorem irrational_product (A : ℝ) (B : ℚ) (hH3 : B ≠ 0) (hH4 : Irrational
       have row1 : ∃ m : ℚ, (m : ℝ) = A := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.3. restate 1
-    have s2_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_side
+    have s2_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by exact s1
     exact s2_3 s2_2
   -- 3. def:irrational x := A·B, from 2
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := A * (B : ℝ)))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := A * (B : ℝ)))).mpr ⟨by parley_side, s2⟩
 
 end Parley.Proofs.Setmm.RationalClosure.IrrationalProduct

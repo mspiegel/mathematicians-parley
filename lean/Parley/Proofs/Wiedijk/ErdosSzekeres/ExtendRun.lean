@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.ErdosSzekeres.ExtendRun
 
-set_option maxHeartbeats 800000 in
 theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i ∈ Finset.Icc (1 : ℤ) N) (j : ℤ) (hH4 : j ∈ Finset.Icc (1 : ℤ) N) (T : Set ℤ) (hH5 : T ⊆ (Set.Icc (1 : ℤ) i : Set ℤ)) (hH6 : i ∈ T) (hH7 : ∀ p ∈ T, ∀ q ∈ T, p < q → c p < c q) (hH8 : i < j) (hH9 : c i < c j) :
     (∀ p ∈ T ∪ ({j} : Set ℤ), ∀ q ∈ T ∪ ({j} : Set ℤ), p < q → c p < c q) := by
   -- 1. mun:range-bounds a := 1, b := N, k := i, from H3
@@ -55,7 +54,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
     rcases s4_4 with hC1 | hC2
     · skip
       -- 4.5.1. instantiate p := t, q := i in H7, from C1, H6, K1
-      have s4_5_1 : c t < c i := by exact (hH7 t (by parley_set_side) i (by parley_set_side) (by parley_set_side))
+      have s4_5_1 : c t < c i := by exact (hH7 t hK1 i hH6 hC1)
       -- 4.5.2. transitivity, from 4.5.1, H9
       parley_order
     · skip
@@ -82,7 +81,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
     rcases s5_2 with hC4 | hC5
     · skip
       -- 5.3.3.1. instantiate p := p, q := q in H7, from C3, C4, K4
-      exact (hH7 p (by parley_set_side) q (by parley_set_side) (by parley_set_side))
+      exact (hH7 p hC4 q hC3 hK4)
     · skip
       -- 5.3.3.2. def:singleton x := p, a := j, from C5
       have s5_3_3_2 : p = j := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC5
@@ -101,7 +100,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       rcases s5_2 with hC7 | hC8
       · skip
         -- 5.3.5.1. instantiate t := p in line 4, from C7
-        exact (s4 p (by parley_set_side))
+        exact (s4 p hC7)
       · skip
         -- 5.3.5.2. def:singleton x := p, a := j, from C8
         have s5_3_5_2 : p = j := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := j) (x := p))).mp hC8

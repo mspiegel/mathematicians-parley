@@ -19,7 +19,7 @@ theorem nothing_below_one_is_two :
   intro x
   intro hK2
   -- 1.1. restate K2
-  have s1_1 : x ≤ 1 := by parley_side
+  have s1_1 : x ≤ 1 := by exact hK2.1
   -- 1.2. substitute x = 2 (K2) into line 1.1
   have s1_2 : (2 : ℝ) ≤ 1 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≤ 1)) hK2.2 s1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact absurd s1_2 (by norm_num)

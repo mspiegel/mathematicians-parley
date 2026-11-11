@@ -37,7 +37,7 @@ theorem constant_sequence (c : ℝ) (a : ℤ → ℝ) (hH3 : ∀ n : ℤ, 0 < n 
       intro n hK2
       intro hA2
       -- 1.1.1. algebra, from H3
-      have s1_1_1 : a n - c = 0 := by linear_combination (norm := parley_norm) (hH3 n (by parley_side))
+      have s1_1_1 : a n - c = 0 := by linear_combination (norm := parley_norm) (hH3 n hK2)
       -- 1.1.2. calculation
       have s1_1_2 : abs (a n - c) = 0 := by
         calc abs (a n - c) = abs 0 := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1; push_cast at h ⊢; all_goals exact_mod_cast h)

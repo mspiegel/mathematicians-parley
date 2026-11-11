@@ -63,6 +63,6 @@ theorem shifted_pronic_sum (n : ℤ) (hH1 : 0 < n) :
       (have h := s1_3; push_cast at h ⊢; all_goals exact h)
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * ((k : ℚ) + 2) : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num
-    _ = (n : ℚ) * ((n : ℚ) + 1) * (2 * (n : ℚ) + 7) / 6 := by exact (s1 n (by parley_side))
+    _ = (n : ℚ) * ((n : ℚ) + 1) * (2 * (n : ℚ) + 7) / 6 := by exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.ShiftedPronicSum.ShiftedPronicSum

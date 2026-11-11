@@ -10,12 +10,14 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -39,7 +41,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciSumOfSquares.FibonacciSumOfSquares
 
-set_option maxHeartbeats 600000 in
 theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F k ^ 2 : ℤ)) = F n * F (n + 1) := by
   -- 1. thm:fibonacci-natural
@@ -76,8 +77,8 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
         calc F (1 + 1) = F 2 := by norm_num
           _ = 1 := by linear_combination (norm := parley_norm) s4_5 + s4_6 + s4_7
       -- 4.9. algebra, from D2, 4.2, 4.6, 4.8
-      try simp only [hD2] at *
-      try push_cast at *
+      try simp only [hD2] at s4_2 s4_6 s4_8 ⊢
+      try push_cast at s4_2 s4_6 s4_8 ⊢
       linear_combination (norm := parley_norm) s4_2 + (-F (1 + 1) + F 1 + 1) * s4_6 + (-1) * s4_8
     | succ m hK3 hIH2 =>
       -- 4.10. proof
@@ -86,19 +87,19 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
       have r90_1 : m ≥ 1 := by parley_side
       have s4_11 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r90_1)
       -- 4.12. instantiate k := m in line 3
-      have s4_12 : F (m + 2) = F m + F (m + 1) := by exact (s3 m (by parley_side))
+      have s4_12 : F (m + 2) = F m + F (m + 1) := by exact (s3 m (le_of_lt (lt_of_lt_of_le zero_lt_one hK3)))
       -- 4.13. instantiate k := m in line 2
       -- 4.14. instantiate k := m + 1 in line 2
       -- 4.15. algebra, from D2, IH2, 4.11, 4.12
       have s4_15 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 2) := by
-        try simp only [hD2] at *
-        try push_cast at *
+        try simp only [hD2] at s4_11 s4_12 hIH2 ⊢
+        try push_cast at s4_11 s4_12 hIH2 ⊢
         linear_combination (norm := parley_norm) hIH2 + s4_11 + (-F (m + 1)) * s4_12
       -- 4.16. substitute
       have c1 : m + 2 = m + 1 + 1 := by parley_ring
       have row1 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 1 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F t)) c1 s4_15; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 5. instantiate m := n in line 4, from D2
-  exact (s4 n (by parley_side))
+  exact (s4 n hH1)
 
 end Parley.Proofs.Hammack.FibonacciSumOfSquares.FibonacciSumOfSquares

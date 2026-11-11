@@ -143,17 +143,28 @@ pub fn printed_but(
             })
     };
     for (line, inst) in &record.instantiated {
+        let conditions: Vec<String> =
+            inst.conditions.iter().map(|c| supplier(&c.by)).collect();
+        let guards: Vec<String> = inst
+            .guards
+            .iter()
+            .map(|g| format!("{} by {}", g.letter, supplier(&g.by)))
+            .collect();
         writeln!(
             out,
-            "{} instantiates {}, {} conditions taken off",
+            "{} instantiates {}, conditions taken off [{}], guards [{}]",
             reason_at(*line),
             place(&inst.at),
-            inst.conditions
+            conditions.join(", "),
+            guards.join(", ")
         )
         .unwrap();
     }
     for (line, at) in &record.link_places {
         writeln!(out, "{} links from {}", reason_at(*line), place(at)).unwrap();
+    }
+    for (line, at) in &record.restated {
+        writeln!(out, "{} restates {}", reason_at(*line), place(at)).unwrap();
     }
     for (line, facing) in &record.link_facings {
         writeln!(
@@ -302,8 +313,23 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
             }
         })
         .collect();
+    // What a definition read backwards asks of its right side, where one is.
+    let unfolded = match cited.unfolded.iter().any(Option::is_some) {
+        true => {
+            let each: Vec<String> = cited
+                .unfolded
+                .iter()
+                .map(|u| match u {
+                    None => "none".to_string(),
+                    Some(parts) => format!("[{}]", unfolded_parts(parts, g)),
+                })
+                .collect();
+            format!("; unfolded {}", each.join(", "))
+        }
+        false => String::new(),
+    };
     format!(
-        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}; met {}{within}",
+        "cites {} group {}; {}; concludes {}; from {from}; supplied by {}; letters {}; facing {}; met {}{within}{unfolded}",
         cited.item,
         cited.group,
         binding.join(", "),
@@ -313,6 +339,32 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         facings.join(", "),
         met.join(", "),
     )
+}
+
+/// The parts of a definition's right side (`Cited::unfolded`): each fact
+/// and what supplies it, each witness with its membership and its body's
+/// parts.
+fn unfolded_parts(parts: &[parley::checker::record::Unfolded], g: &Grammar) -> String {
+    use parley::checker::record::Unfolded;
+    let each: Vec<String> = parts
+        .iter()
+        .map(|p| match p {
+            Unfolded::Fact { fact, by } => {
+                format!("{} by {}", g.print(fact), supplier(by))
+            }
+            Unfolded::Witness {
+                value,
+                member,
+                body,
+            } => format!(
+                "witness {} with {}; {}",
+                g.print(value),
+                unfolded_parts(std::slice::from_ref(member.as_ref()), g),
+                unfolded_parts(body, g)
+            ),
+        })
+        .collect();
+    each.join(", ")
 }
 
 /// Which way an equation or congruence faces another, in a word.

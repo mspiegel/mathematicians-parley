@@ -63,7 +63,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.Leibniz
 
-set_option maxHeartbeats 400000 in
 theorem leibniz :
     Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = Real.pi / 4 := by
   -- 1. membership
@@ -81,7 +80,7 @@ theorem leibniz :
       intro n hK2
       intro hA2
       -- 3.2.1. instantiate n := n in line 2
-      have s3_2_1 : Real.pi / 4 - (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (s2 n (by parley_side))
+      have s3_2_1 : Real.pi / 4 - (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (s2 n (le_of_lt hK2))
       -- 3.2.2. algebra, from 3.2.1
       have s3_2_2 : (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4 = -((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by linear_combination (norm := parley_norm) ((-16) / ((4) * (4))) * s3_2_1
       -- 3.2.3. calculation
@@ -117,7 +116,7 @@ theorem leibniz :
       -- 3.2.10. mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.9
       have r800_1 : N > 0 := by parley_order
       have r800_2 : 2 * (n + 1) + 1 > 0 := by parley_order
-      have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := 2 * ((n : ℚ) + 1) + 1) (by parley_side))).mp (by parley_side)
+      have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r800_1) (y := 2 * ((n : ℚ) + 1) + 1) (by exact_mod_cast gt_iff_lt.mp r800_2))).mp (by parley_side)
       -- 3.2.11. transitivity, from 3.2.8, 3.2.5, 3.2.10, 3.1
       parley_order
     -- 3.3. exhibit, from 3.2

@@ -35,7 +35,6 @@ public section
 
 namespace Parley.Proofs.Hammack.NinePowersAndThreePowers.PowersOfNineInPowersOfThree
 
-set_option maxHeartbeats 600000 in
 theorem powers_of_nine_in_powers_of_three :
     ((fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) ∧ ¬ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) = (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ)) := by
   -- 1. proof

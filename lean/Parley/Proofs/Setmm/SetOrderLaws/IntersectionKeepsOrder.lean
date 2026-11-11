@@ -26,7 +26,7 @@ theorem intersection_keeps_order {α : Type*} (A : Set α) (B : Set α) (C : Set
     -- 1.3. join 1.1, 1.2
     have s1_3 : u ∈ B ∧ u ∈ C := by parley_set_side
     -- 1.4. def:intersection, from 1.3
-    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr ⟨s1_3.1, s1_3.2⟩
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ C) (Y := B ∩ C))).mpr s1
 

@@ -17,6 +17,7 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -35,7 +36,6 @@ public section
 
 namespace Parley.Proofs.Hammack.BinetFormula.BinetFormula
 
-set_option maxHeartbeats 400000 in
 theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (F n : ℝ) = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by
   -- 1. real arithmetic
@@ -88,11 +88,11 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
         have s4_6_w : (F (j + 1) : ℝ) = (G j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h; linear_combination (norm := parley_norm) h
         parley_subst_at hIH.2 s4_6_w
       -- 4.9. thm:power-recurrence x := φ, k := j, from 2
-      have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) (by parley_side) (k := j) (by parley_side))
+      have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) (by parley_side) (k := j) hK)
       -- 4.10. thm:power-recurrence x := ψ, k := j, from 3
-      have s4_10 : ψ ^ (j + 1 + 1).toNat = ψ ^ (j + 1).toNat + ψ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := ψ) (by parley_side) (k := j) (by parley_side))
+      have s4_10 : ψ ^ (j + 1 + 1).toNat = ψ ^ (j + 1).toNat + ψ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := ψ) (by parley_side) (k := j) hK)
       -- 4.11. calculation
-      have r101_1 : Real.sqrt (5 : ℝ) ≠ 0 := by parley_side
+      have r101_1 : Real.sqrt (5 : ℝ) ≠ 0 := by exact s1
       have s4_11 : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by
         calc (G (j + 1) : ℝ) = (F j : ℝ) + (G j : ℝ) := by parley_side
           _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (G j : ℝ) := by (have h := congrArg (fun t : ℝ => t + (G j : ℝ)) hIH.1; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -103,7 +103,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have s4_12b : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_side
       exact ⟨s4_12a, s4_12b⟩
   -- 5. instantiate j := n in line 4
-  have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by exact (s4 n (by parley_side))
+  have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by exact (s4 n (le_of_lt hH1))
   -- 6. calculation
   calc (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by exact s5.1
     _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD2]

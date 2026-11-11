@@ -34,13 +34,13 @@ theorem add_element_bijection {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈
     intro hK3
     -- 1.1. def:part-builder u := S, X := Y, from D1, K1
     have s1_1 : S ⊆ Y := by
-      try simp only [hD1] at *
-      try push_cast at *
+      try simp only [hD1] at ⊢
+      try push_cast at ⊢
       exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j)) (X := Y) (u := S))).mp (by parley_set_side)).1
     -- 1.2. def:part-builder u := T, X := Y, from D1, K2
     have s1_2 : T ⊆ Y := by
-      try simp only [hD1] at *
-      try push_cast at *
+      try simp only [hD1] at ⊢
+      try push_cast at ⊢
       exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j)) (X := Y) (u := T))).mp (by parley_set_side)).1
     -- 1.3. mun:not-in-subset Y := S, Z := Y, from H2, 1.1
     have s1_3 : ¬ a ∈ S := by exact (Parley.Items.Stdlib.Sets.mun_not_in_subset (Y := S) (Z := Y) (a := a) hH2 s1_1)
@@ -56,8 +56,8 @@ theorem add_element_bijection {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈
       _ = T \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := T) (a := a))
       _ = T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := T) (a := a) s1_4)
   -- 2. mun:image-of-injection, from D1, 1
-  try simp only [hD1] at *
-  try push_cast at *
+  try simp only [hD1] at ⊢
+  try push_cast at ⊢
   exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) (by parley_set_side))
 
 end Parley.Proofs.Wiedijk.Combinations.AddElementBijection

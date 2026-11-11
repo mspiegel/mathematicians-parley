@@ -44,13 +44,12 @@ public section
 
 namespace Parley.Proofs.Hammack.LogThreeOverTwoIrrational.LogThreeOverTwoIrrational
 
-set_option maxHeartbeats 400000 in
 theorem log_three_over_two_irrational :
     Irrational (Real.log (3 : ℝ) / Real.log (2 : ℝ)) := by
   -- 1. mun:quotient-positive x := ln(3), y := ln(2)
   have r90_1 : Real.log (3 : ℝ) > 0 := by parley_real
   have r90_2 : Real.log (2 : ℝ) > 0 := by parley_real
-  have s1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := Real.log (3 : ℝ)) (y := Real.log (2 : ℝ)) (by parley_side) (by parley_side))
+  have s1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := Real.log (3 : ℝ)) (y := Real.log (2 : ℝ)) r90_1 r90_2)
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.log (3 : ℝ) / Real.log (2 : ℝ)) := by
     intro hS
@@ -58,7 +57,7 @@ theorem log_three_over_two_irrational :
     obtain ⟨p, q, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mp hS
     -- 2.2. mun:product-positive x := ln(3)/ln(2), y := q, from 1, 2.1
     have r102_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
-    have s2_2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) (by parley_side) (by parley_side))
+    have s2_2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) s1 (by exact_mod_cast gt_iff_lt.mp s2_1a))
     -- 2.3. substitute
     have r106_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_3 : p > 0 := by
@@ -84,16 +83,16 @@ theorem log_three_over_two_irrational :
     -- 2.8. calculation
     have s2_8 : (3 ^ q.toNat : ℚ) = 2 ^ p := by
       try rify
-      calc (3 ^ q.toNat : ℝ) = Real.exp (Real.log (3 ^ q.toNat : ℝ)) := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (3 ^ q.toNat : ℝ)) (by parley_side)).symm
+      calc (3 ^ q.toNat : ℝ) = Real.exp (Real.log (3 ^ q.toNat : ℝ)) := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (3 ^ q.toNat : ℝ)) (by exact_mod_cast gt_iff_lt.mp s2_6)).symm
         _ = Real.exp (Real.log (2 ^ p : ℝ)) := by (have h := congrArg (fun t : ℝ => Real.exp t) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 ^ p := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (2 ^ p : ℝ)) (by parley_side))
     -- 2.9. thm:power-of-three-odd n := q
-    have s2_9 : Odd (3 ^ q.toNat : ℤ) := by exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd.power_of_three_odd (n := q) (by parley_side))
+    have s2_9 : Odd (3 ^ q.toNat : ℤ) := by exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd.power_of_three_odd (n := q) (le_of_lt s2_1a))
     -- 2.10. thm:power-of-two-even n := p, from 2.4
     have s2_10 : ∃ m : ℤ, (m : ℚ) = (2 ^ p : ℚ) ∧ Even m := by
       have whole1 : ((2 : ℚ) : ℚ) ^ (p).toNat = (2 ^ p : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s2_4)]
       refine ⟨(((2 : ℤ) ^ (p).toNat) : ℤ), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
-      (exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven.power_of_two_even (n := p) (by parley_side)))
+      (exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven.power_of_two_even (n := p) s2_4))
     -- 2.11. substitute 2^p = 3^q (line 2.8) into line 2.10
     have s2_11 : Even (3 ^ q.toNat : ℤ) := by exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ Even m)) s2_8.symm s2_10) (3 ^ q.toNat : ℤ) (by norm_cast)
     -- 2.12. mun:odd-not-even n := 3^q, from 2.9
@@ -102,6 +101,6 @@ theorem log_three_over_two_irrational :
   -- 3. mun:quotient-real x := ln(3), y := ln(2)
   have r150_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
   -- 4. def:irrational x := ln(3)/ln(2), from 2, 3
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr ⟨by parley_side, s2⟩
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.LogThreeOverTwoIrrational

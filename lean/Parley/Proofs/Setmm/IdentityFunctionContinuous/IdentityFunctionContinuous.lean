@@ -36,9 +36,9 @@ theorem identity_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       intro x hK3
       intro hA2
       -- 1.1.1.1. instantiate x := x in H3, from K3
-      have s1_1_1_1 : f x = x := by exact (hH3 x (by parley_set_side))
+      have s1_1_1_1 : f x = x := by exact (hH3 x hK3)
       -- 1.1.1.2. instantiate x := a in H3, from K1
-      have s1_1_1_2 : f a = a := by exact (hH3 a (by parley_set_side))
+      have s1_1_1_2 : f a = a := by exact (hH3 a hK1)
       -- 1.1.1.3. calculation
       have s1_1_1_3 : f x - f a = x - a := by
         calc f x - f a = x - f a := by (have h := congrArg (fun t : ℝ => t - f a) s1_1_1_1; push_cast at h ⊢; all_goals exact_mod_cast h)

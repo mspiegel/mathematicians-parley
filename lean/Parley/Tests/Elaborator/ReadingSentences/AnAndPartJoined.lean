@@ -14,6 +14,6 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartJoined
 theorem an_and_part_joined (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ b = 2) :
     b = 2 := by
   -- 1. restate H3
-  parley_side
+  exact hH3.2
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartJoined

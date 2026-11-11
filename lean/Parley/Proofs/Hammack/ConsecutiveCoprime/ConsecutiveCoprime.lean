@@ -33,11 +33,11 @@ theorem consecutive_coprime (n : ℤ) (hH1 : 0 ≤ n) :
       _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_one (a := (0 : ℤ)))
   · skip
     -- 2.2. mun:nat0-nonzero m := n, from C2
-    have s2_2 : 0 < n := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := n) (by parley_side) hC2)
+    have s2_2 : 0 < n := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := n) hH1 hC2)
     -- 2.3. def:gcd a := n, b := n + 1, from 2.2
-    have s2_3a : 0 < (Int.gcd n (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := n) (by parley_side) (b := n + 1) (by parley_side))
-    have s2_3b : (Int.gcd n (n + 1) : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := n) (by parley_side) (b := n + 1) (by parley_side))
-    have s2_3c : (Int.gcd n (n + 1) : ℤ) ∣ n + 1 := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := n) (by parley_side) (b := n + 1) (by parley_side))
+    have s2_3a : 0 < (Int.gcd n (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := n) s2_2 (b := n + 1) (by parley_side))
+    have s2_3b : (Int.gcd n (n + 1) : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := n) s2_2 (b := n + 1) (by parley_side))
+    have s2_3c : (Int.gcd n (n + 1) : ℤ) ∣ n + 1 := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := n) s2_2 (b := n + 1) (by parley_side))
     -- 2.4. mun:divides-difference d := gcd(n, n + 1), a := n + 1, b := n, from 2.3
     have s2_4 : (Int.gcd n (n + 1) : ℤ) ∣ n + 1 - n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (Int.gcd n (n + 1) : ℤ)) (a := n + 1) (b := n) s2_3c s2_3b)
     -- 2.5. substitute
@@ -46,6 +46,6 @@ theorem consecutive_coprime (n : ℤ) (hH1 : 0 ≤ n) :
       have row1 : (Int.gcd n (n + 1) : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd n (n + 1) : ℤ) ∣ t)) c1 s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.6. mun:divides-one d := gcd(n, n + 1), from 2.3, 2.5
-    exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd n (n + 1) : ℤ)) (by parley_side) s2_5)
+    exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd n (n + 1) : ℤ)) s2_3a s2_5)
 
 end Parley.Proofs.Hammack.ConsecutiveCoprime.ConsecutiveCoprime

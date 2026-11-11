@@ -30,7 +30,7 @@ theorem whole_plus_small (A : ℤ) (hH1 : 0 ≤ A) (M : ℤ) (hH2 : 0 < M) (hH3 
         have hI : (A + M * 1) % M = A % M := by parley_instance_cast ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := (A : ℝ)) (M := (M : ℝ)) (by parley_side) (K := (1 : ℤ))))
         simpa only [mul_one] using hI
     _ = A := by
-        have hI : A % M = A := by parley_instance_cast ((Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := (A : ℝ)) (B := (M : ℝ)) (by parley_side) (by parley_side) (by parley_side)))
+        have hI : A % M = A := by parley_instance_cast ((Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := (A : ℝ)) (B := (M : ℝ)) (by parley_side) (by exact_mod_cast ge_iff_le.mp hH1) (by exact_mod_cast hH3)))
         exact hI
 
 end Parley.Proofs.Setmm.RemainderMore.WholePlusSmall

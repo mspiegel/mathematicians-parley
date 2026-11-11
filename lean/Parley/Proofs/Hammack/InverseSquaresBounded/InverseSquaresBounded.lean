@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -18,6 +19,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -36,7 +38,6 @@ public section
 
 namespace Parley.Proofs.Hammack.InverseSquaresBounded.InverseSquaresBounded
 
-set_option maxHeartbeats 600000 in
 theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / (k : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / (n : ℚ) := by
   -- 1. proof
@@ -66,15 +67,15 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       have s2_4 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by parley_ring
       -- 2.5. mun:square-positive x := k + 1
       have r45_1 : k + 1 ≠ 0 := by parley_side
-      have s2_5 : (k + 1) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := k + 1) (by parley_side))
+      have s2_5 : (k + 1) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := k + 1) r45_1)
       -- 2.6. mun:product-nonneg x := k, y := k + 1
       have r49_1 : k ≥ 0 := by parley_order
       have r49_2 : k + 1 ≥ 0 := by parley_side
-      have s2_6 : k * (k + 1) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := k) (y := k + 1) (by parley_side) (by parley_side))
+      have s2_6 : k * (k + 1) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := k) (y := k + 1) r49_1 r49_2)
       -- 2.7. mun:product-nonzero x := k, y := k + 1
-      have r54_1 : k ≠ 0 := by parley_side
+      have r54_1 : k ≠ 0 := by exact (lt_of_lt_of_le zero_lt_one hK).ne'
       have r54_2 : k + 1 ≠ 0 := by parley_side
-      have s2_7 : k * (k + 1) ≠ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) (by parley_side) (by parley_side))
+      have s2_7 : k * (k + 1) ≠ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := k) (y := k + 1) r54_1 r54_2)
       -- 2.8. inequalities, from 2.6, 2.7
       have s2_8 : k * (k + 1) > 0 := by parley_order
       -- 2.9. algebra
@@ -86,7 +87,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.12. inequalities
       have s2_12 : k * (k + 1) ≤ (k + 1) ^ 2 := by parley_order
       -- 2.13. mun:reciprocal-order x := k·(k + 1), y := (k + 1)², from 2.5, 2.8, 2.12
-      have s2_13 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by parley_side) (y := ((k : ℚ) + 1) ^ 2) (by parley_side))).mp (by parley_side)
+      have s2_13 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by exact_mod_cast gt_iff_lt.mp s2_8) (y := ((k : ℚ) + 1) ^ 2) (by exact_mod_cast gt_iff_lt.mp s2_5))).mp (by parley_side)
       -- 2.14. transitivity, from 2.13, 2.4
       have s2_14 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) := by parley_order
       -- 2.15. inequalities
@@ -97,6 +98,6 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       have s2_17 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_order
       (have h := s2_17; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate k := n in line 2
-  exact (s2 n (by parley_side))
+  exact (s2 n hH1)
 
 end Parley.Proofs.Hammack.InverseSquaresBounded.InverseSquaresBounded

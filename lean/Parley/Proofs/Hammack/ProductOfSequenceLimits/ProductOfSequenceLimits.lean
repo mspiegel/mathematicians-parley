@@ -34,7 +34,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ProductOfSequenceLimits.ProductOfSequenceLimits
 
-set_option maxHeartbeats 1000000 in
 theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (hH5 : Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds L)) (hH6 : Filter.Tendsto (fun n : ℤ => (b n : ℝ)) Filter.atTop (nhds M)) :
     Filter.Tendsto (fun n : ℤ => (a n * b n : ℝ)) Filter.atTop (nhds (L * M)) := by
   -- 1. mun:abs-real x := L
@@ -68,19 +67,19 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     -- 9.2. inequalities
     have s9_2 : 2 * s ≠ 0 := by parley_side
     -- 9.3. mun:quotient-positive x := ε, y := 2·s, from A1, 9.1
-    have s9_3 : ε / (2 * s) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * s) (by parley_side) (by parley_side))
+    have s9_3 : ε / (2 * s) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * s) hA1 s9_1)
     -- 9.4. inequalities
     have s9_4 : 2 * t > 0 := by parley_order
     -- 9.5. inequalities
     have s9_5 : 2 * t ≠ 0 := by parley_side
     -- 9.6. mun:quotient-positive x := ε, y := 2·t, from A1, 9.4
-    have s9_6 : ε / (2 * t) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side))
+    have s9_6 : ε / (2 * t) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) hA1 s9_4)
     -- 9.7. mun:quotient-real x := ε, y := 2·t, from 9.5
     set m : ℝ := min 1 (ε / (2 * t)) with hD3
     have hD3_kind : True := by trivial
     -- 9.8. mun:lt-min z := 0, x := 1, y := ε/(2·t), from 9.6, 9.7
     have r148_1 : (0 : ℤ) < 1 := by parley_arith
-    have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr (by parley_side)
+    have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr ⟨by parley_side, s9_6⟩
     -- 9.9. inequalities, from D3, 9.8
     have s9_9 : m > 0 := by parley_order
     -- 9.10. def:tends-to x := a, from H5
@@ -88,9 +87,9 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     -- 9.11. def:tends-to x := b, L := M, from H6
     have s9_11 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := M))).mp hH6
     -- 9.12. instantiate ε := m in line 9.10, from 9.9
-    have s9_12 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < m) := by exact (s9_10 m (by parley_side))
+    have s9_12 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < m) := by exact (s9_10 m s9_9)
     -- 9.13. instantiate ε := ε/(2·s) in line 9.11, from 9.3
-    have s9_13 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε / (2 * s)) := by exact (s9_11 (ε / (2 * s)) (by parley_side))
+    have s9_13 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (b n - M) < ε / (2 * s)) := by exact (s9_11 (ε / (2 * s)) s9_3)
     -- 9.14. obtain P from line 9.12
     obtain ⟨P, s9_14a, s9_14b⟩ := s9_12
     -- 9.15. obtain Q from line 9.13
@@ -112,13 +111,13 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.2. transitivity, from A2, 9.19
       have s9_20_2 : n ≥ Q := by parley_order
       -- 9.20.3. instantiate n := n in line 9.14, from 9.20.1
-      have s9_20_3 : abs (a n - L) < m := by exact (s9_14b n (by parley_side) (by parley_side))
+      have s9_20_3 : abs (a n - L) < m := by exact (s9_14b n hK2 s9_20_1)
       -- 9.20.4. instantiate n := n in line 9.15, from 9.20.2
-      have s9_20_4 : abs (b n - M) < ε / (2 * s) := by exact (s9_15b n (by parley_side) (by parley_side))
+      have s9_20_4 : abs (b n - M) < ε / (2 * s) := by exact (s9_15b n hK2 s9_20_2)
       -- 9.20.5. mun:lt-min z := |a(n) − L|, x := 1, y := ε/(2·t), from D3, 9.20.3
       have s9_20_5 : abs (a n - L) < 1 ∧ abs (a n - L) < ε / (2 * t) := by
-        try simp only [hD3] at *
-        try push_cast at *
+        try simp only [hD3] at ⊢
+        try push_cast at ⊢
         exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (a n - L)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mp s9_20_3
       -- 9.20.6. algebra
       have s9_20_6 : a n - L + L = a n := by parley_ring
@@ -133,12 +132,12 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.10. substitute s = |L| + 1 (D1) into line 9.20.9
       have s9_20_10 : abs (a n) < s := by (have h := Eq.subst (motive := (fun u : ℝ => abs (a n) < u)) hD1.symm s9_20_9; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 9.20.11. calculation
-      have r238_3 : 2 * s ≠ 0 := by parley_side
+      have r238_3 : 2 * s ≠ 0 := by exact s9_2
       have s9_20_11 : abs (a n * (b n - M)) < ε / 2 := by
         calc abs (a n * (b n - M)) < s * (ε / (2 * s)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) (by parley_side) s9_20_10 s9_20_4)
           _ = ε / 2 := by parley_ring
       -- 9.20.12. calculation
-      have r246_2 : 2 * t ≠ 0 := by parley_side
+      have r246_2 : 2 * t ≠ 0 := by exact s9_5
       have s9_20_12 : abs (M * (a n - L)) < ε / 2 := by
         calc abs (M * (a n - L)) < t * (ε / (2 * t)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) (by parley_side) s8 s9_20_5.2)
           _ = ε / 2 := by parley_ring

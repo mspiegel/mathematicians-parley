@@ -26,6 +26,6 @@ namespace Parley.Tests.Stdlib.Counting.BinomialCoefficient
 theorem binomial_coefficient (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (hH3 : k ∈ Finset.Icc (0 : ℤ) n) :
     (LeanBridges.Counting.choose n k : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) := by
   -- 1. def:C, from H3
-  exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (by parley_side) (k := k)) hH3
+  exact (Parley.Items.Stdlib.Counting.def_C_2 (n := n) hH1 (k := k)) hH3
 
 end Parley.Tests.Stdlib.Counting.BinomialCoefficient

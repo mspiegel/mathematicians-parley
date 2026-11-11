@@ -40,20 +40,20 @@ theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
   -- 3. inequalities, from H1
   have s3 : n ≤ 2 * n - 1 + 1 := by parley_order
   -- 4. def:range-between k := n, a := 1, b := (2n − 1) + 1, from 2, 3
-  have s4 : n ∈ Finset.Icc (1 : ℤ) (2 * n - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := 2 * n - 1 + 1))).mpr (by parley_side)
+  have s4 : n ∈ Finset.Icc (1 : ℤ) (2 * n - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := 2 * n - 1 + 1))).mpr ⟨s2, s3⟩
   -- 5. thm:weighted-term m := 2n − 1, k := n, from 1, 4
-  have s5 : n * (LeanBridges.Counting.choose (2 * n - 1 + 1) n : ℤ) = (2 * n - 1 + 1) * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := 2 * n - 1) (by parley_side) (k := n) s4)
+  have s5 : n * (LeanBridges.Counting.choose (2 * n - 1 + 1) n : ℤ) = (2 * n - 1 + 1) * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := 2 * n - 1) s1 (k := n) s4)
   -- 6. substitute
   have s6 : n * (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * n * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by
     have c1 : 2 * n - 1 + 1 = 2 * n := by parley_ring
     have row1 : n * (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * n * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => n * (LeanBridges.Counting.choose t n : ℤ) = t * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ))) c1 s5; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 7. mun:binomial-nat0 n := 2n − 1, k := n − 1, from 1
-  have s7 : 0 ≤ (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := 2 * n - 1) (by parley_side) (k := n - 1))
+  have s7 : 0 ≤ (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := 2 * n - 1) s1 (k := n - 1))
   -- 8. algebra, from 6
   have s8 : (LeanBridges.Counting.choose (2 * n) n : ℤ) * n = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) * n := by linear_combination (norm := parley_norm) s6
   -- 9. mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 8
-  have s9 : (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (LeanBridges.Counting.choose (2 * n) n : ℤ)) (b := 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ)) (c := n) (by parley_side) (by parley_side))
+  have s9 : (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (LeanBridges.Counting.choose (2 * n) n : ℤ)) (b := 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ)) (c := n) (by parley_side) hH1.ne')
   -- 10. def:even n := C(2n, n), from 9
   exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose (2 * n) n : ℤ)))).mpr ⟨(LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ), s9⟩
 

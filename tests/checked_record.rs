@@ -15,7 +15,10 @@
 //! finite, and the numbers a set letter holds; a conjunct taken from a
 //! property's body, a congruence row facing the line it reads, and a
 //! define's argument put in its domain by the claim's member and by a `let`
-//! line.
+//! line; a restate and a requires line read from a "for all" line at the
+//! block's letter, an instantiation's values in their domains and its
+//! conditions met by the lines it names, and a definition read backwards,
+//! where each part of its right side stands.
 
 use std::path::Path;
 
@@ -25,7 +28,7 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 16] = [
+const KEPT: [&str; 17] = [
     "tests/stdlib/sums/range",
     "tests/elaborator/sets-a-define-names/a-conjunct-of-a-property",
     "tests/elaborator/a-for-all-line-read-in-a-block/a-for-all-line-in-a-calculation-link",
@@ -42,6 +45,7 @@ const KEPT: [&str; 16] = [
     "tests/elaborator/a-witness-the-checker-read/a-set-member-beside-an-equation",
     "proofs/wiedijk/inclusion-exclusion/inclusion-exclusion-two",
     "proofs/wiedijk/ballot/prefix-unchanged",
+    "proofs/wiedijk/reals-uncountable/decimal-number",
 ];
 
 /// Every sentence of the theorem's page as the checker read it and the build

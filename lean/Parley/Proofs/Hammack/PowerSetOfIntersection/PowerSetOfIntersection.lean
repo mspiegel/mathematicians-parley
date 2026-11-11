@@ -15,7 +15,6 @@ public section
 
 namespace Parley.Proofs.Hammack.PowerSetOfIntersection.PowerSetOfIntersection
 
-set_option maxHeartbeats 600000 in
 theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
     𝒫 A ∩ 𝒫 B = 𝒫 (A ∩ B) := by
   -- 1. proof
@@ -36,7 +35,7 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 1.4.2. mun:in-subset X := t, Y := B, u := x, from K2, 1.3
       have s1_4_2 : x ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := t) (Y := B) (u := x) s1_3 hK2)
       -- 1.4.3. def:intersection u := x, Y := A, Z := B, from 1.4.1, 1.4.2
-      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := x))).mpr ⟨s1_4_1, s1_4_2⟩
     -- 1.5. def:subset, from 1.4
     have s1_5 : t ⊆ A ∩ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A ∩ B))).mpr s1_4
     -- 1.6. def:powerset S := t, A := A ∩ B, from 1.5
@@ -71,7 +70,7 @@ theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
     -- 3.7. def:powerset S := t, A := B, from 3.5
     have s3_7 : t ∈ 𝒫 B := ((Parley.Items.Stdlib.Sets.def_powerset (A := B) (S := t))).mpr s3_5
     -- 3.8. def:intersection u := t, Y := 𝒫A, Z := 𝒫B, from 3.6, 3.7
-    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := 𝒫 A) (Z := 𝒫 B) (u := t))).mpr ⟨s3_6, s3_7⟩
   -- 4. def:subset, from 3
   have s4 : 𝒫 (A ∩ B) ⊆ 𝒫 A ∩ 𝒫 B := ((Parley.Items.Stdlib.Sets.def_subset (X := 𝒫 (A ∩ B)) (Y := 𝒫 A ∩ 𝒫 B))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

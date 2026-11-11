@@ -16,6 +16,6 @@ namespace Parley.Tests.Stdlib.Divisibility.ModLess
 theorem mod_less (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     a % b < b := by
   -- 1. mun:divisibility-mod-less
-  exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := b) (by parley_side))
+  exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := b) hH2)
 
 end Parley.Tests.Stdlib.Divisibility.ModLess

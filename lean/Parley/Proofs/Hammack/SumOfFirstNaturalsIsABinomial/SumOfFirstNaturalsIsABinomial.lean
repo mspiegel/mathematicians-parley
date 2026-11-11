@@ -32,7 +32,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SumOfFirstNaturalsIsABinomial.SumOfFirstNaturalsIsABinomial
 
-set_option maxHeartbeats 400000 in
 theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by
   set S : ℤ → ℤ := fun m : ℤ => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j : ℤ) with hD1
@@ -83,6 +82,6 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
         _ = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by exact s1_10
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) = S n := by simp (disch := omega) only [hD1]
-    _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by exact (s1 n (by parley_side))
+    _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.SumOfFirstNaturalsIsABinomial.SumOfFirstNaturalsIsABinomial

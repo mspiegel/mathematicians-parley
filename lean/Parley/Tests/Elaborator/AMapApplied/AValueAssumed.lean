@@ -14,6 +14,6 @@ namespace Parley.Tests.Elaborator.AMapApplied.AValueAssumed
 theorem a_value_assumed (f : ℝ → ℝ) (x : ℝ) (hH3 : f x = 3) :
     f x = 3 := by
   -- 1. restate H3
-  parley_side
+  exact hH3
 
 end Parley.Tests.Elaborator.AMapApplied.AValueAssumed

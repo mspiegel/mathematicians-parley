@@ -60,7 +60,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.IntegralOfArctanDerivative
 
-set_option maxHeartbeats 600000 in
 theorem integral_of_arctan_derivative :
     (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = Real.pi / 4 := by
   set g : ℝ → ℝ := fun x : ℝ => x ^ (2 * 0) / (1 + x ^ 2) with hD1
@@ -110,7 +109,7 @@ theorem integral_of_arctan_derivative :
     -- 12.3. D1, from 12.1
     have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by simp (disch := omega) only [hD1]
     -- 12.4. calculation
-    calc (deriv F) x = 1 / (1 + x ^ 2) := by exact (s11 x (by parley_set_side))
+    calc (deriv F) x = 1 / (1 + x ^ 2) := by exact (s11 x hK2)
       _ = x ^ (2 * 0) / (1 + x ^ 2) := by (have h := congrArg (fun t : ℝ => t / (1 + x ^ 2)) s12_2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = g x := by exact s12_3
   -- 13. arithmetic
@@ -118,11 +117,11 @@ theorem integral_of_arctan_derivative :
   -- 14. def:interval a := 0, b := 1, x := 0
   have r388_1 : (0 : ℤ) ≤ 0 := by parley_arith
   have r388_2 : (0 : ℤ) ≤ 1 := by parley_arith
-  have s14 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
+  have s14 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
   -- 15. def:interval a := 0, b := 1, x := 1
   have r393_1 : (0 : ℤ) ≤ 1 := by parley_arith
   have r393_2 : (1 : ℤ) ≤ 1 := by parley_arith
-  have s15 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
+  have s15 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
   -- 16. mun:arctan-values
   have s16a : Real.arctan (0 : ℝ) = 0 := by exact Parley.Items.Stdlib.Trigonometry.mun_arctan_values_1
   have s16b : Real.arctan (1 : ℝ) = Real.pi / 4 := by exact Parley.Items.Stdlib.Trigonometry.mun_arctan_values_2
@@ -142,7 +141,7 @@ theorem integral_of_arctan_derivative :
   have s21 : (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by simp (disch := omega) only [hD1]
   -- 22. calculation
   calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by exact s21
-    _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := g) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
+    _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := g) (by parley_set_side) s8 (F := F) (by parley_set_side) s9 s10 s12)
     _ = Real.pi / 4 - F 0 := by (have h := congrArg (fun t : ℝ => t - F 0) s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = Real.pi / 4 := by (have h := congrArg (fun t : ℝ => Real.pi / 4 - t) s20; push_cast [sub_zero] at h ⊢; all_goals exact_mod_cast h)
 

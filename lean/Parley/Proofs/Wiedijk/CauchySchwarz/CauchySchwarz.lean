@@ -38,7 +38,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.CauchySchwarz.CauchySchwarz
 
-set_option maxHeartbeats 600000 in
 theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → ℝ) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by
   -- 1. proof
@@ -115,7 +114,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have s5_13 : B ^ 2 / A ≤ C := by parley_order
     -- 5.14. mun:multiply-le, from 5.13
     have r131_1 : A > 0 := by parley_order
-    have s5_14 : A * (B ^ 2 / A) ≤ A * C := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) (by parley_side) (by parley_side))
+    have s5_14 : A * (B ^ 2 / A) ≤ A * C := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) s5_13 r131_1)
     -- 5.15. substitute
     have r135_1 : A ≠ 0 := by parley_side
     have s5_15 : B ^ 2 ≤ A * C := by

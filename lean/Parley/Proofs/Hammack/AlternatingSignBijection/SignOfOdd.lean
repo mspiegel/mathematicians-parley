@@ -43,10 +43,10 @@ theorem sign_of_odd (n : ℤ) (hH1 : 0 < n) (hH2 : Odd n) :
   have s4 : k ≥ 0 := by parley_order
   -- 5. mun:nat0-as-int n := k, from 4
   have s5 : 0 ≤ k := by
-    have hI : 0 ≤ k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k))).mpr (by parley_side))
+    have hI : 0 ≤ k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k))).mpr ⟨by parley_side, s4⟩)
     exact hI
   -- 6. thm:odd-power-of-minus-one, from 5
-  have s6 : ((-1) ^ (2 * k + 1) : ℚ) = -1 := by (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) (by parley_side)); simp only [parley_zpow_toNat (n := 2 * k + 1) (h := le_trans (by norm_num) s3)] at h ⊢; exact_mod_cast h)
+  have s6 : ((-1) ^ (2 * k + 1) : ℚ) = -1 := by (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne.odd_power_of_minus_one (k := k) s5); simp only [parley_zpow_toNat (n := 2 * k + 1) (h := le_trans (by norm_num) s3)] at h ⊢; exact_mod_cast h)
   -- 7. substitute 2·k + 1 = n (line 1) into line 6
   (have h := Eq.subst (motive := (fun t : ℤ => ((-1) ^ t : ℚ) = -1)) s1.symm s6; simp only [parley_zpow_toNat (n := n) (h := le_trans (by norm_num) s2)] at h ⊢; exact_mod_cast h)
 

@@ -19,7 +19,6 @@ public section
 
 namespace Parley.Tests.Notations.Counting.FactorialOfFour
 
-set_option maxHeartbeats 400000 in
 theorem factorial_of_four :
     (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 24 := by
   -- 1. thm:factorial-of-two

@@ -48,7 +48,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Binomial.BinomialStep
 
-set_option maxHeartbeats 1000000 in
 theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat : ℝ)) * (x + y) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1) k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) := by
   set t : ℤ → ℝ := fun k : ℤ => (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat with hD1
@@ -76,7 +75,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     -- 8.3. calculation
     have r87_1 : 0 ≤ m - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m) (k := k) hJ)
     have s8_3 : x ^ (m - k) * x = x ^ (m + 1 - k) := by
-      calc x ^ (m - k) * x = x ^ (m - k + 1) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) (by parley_side)); simp only [parley_zpow_toNat (n := m - k) (h := r87_1), parley_zpow_toNat (n := m - k + 1) (h := add_nonneg (r87_1) (by norm_num))] at h ⊢; exact_mod_cast h.symm)
+      calc x ^ (m - k) * x = x ^ (m - k + 1) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := m - k) r87_1); simp only [parley_zpow_toNat (n := m - k) (h := r87_1), parley_zpow_toNat (n := m - k + 1) (h := add_nonneg (r87_1) (by norm_num))] at h ⊢; exact_mod_cast h.symm)
         _ = x ^ (m + 1 - k) := by (have h := congrArg (fun u : ℤ => x ^ u) s8_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 8.4. calculation
     have r93_1 : 0 ≤ m - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m) (k := k) hJ)
@@ -86,7 +85,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
   -- 9. inequalities
   have s9 : m < m + 1 := by parley_order
   -- 10. def:C n := m, k := m + 1, from 9
-  have s10 : (LeanBridges.Counting.choose m (m + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m) (by parley_side) (k := m + 1)) s9
+  have s10 : (LeanBridges.Counting.choose m (m + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m) hH3 (k := m + 1)) s9
   -- 11. algebra
   have s11 : m + 1 - (m + 1) = 0 := by parley_ring
   -- 12. calculation
@@ -97,7 +96,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
           (have h := congrArg (fun u : ℝ => u * x ^ 0 * y ^ (m + 1).toNat) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 0 := by parley_ring
   -- 13. mun:sum-last n := m
-  have s13 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) + (LeanBridges.Counting.choose m (m + 1) : ℝ) * x ^ (m + 1 - (m + 1)) * y ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat)) (n := m) (by parley_side))
+  have s13 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) + (LeanBridges.Counting.choose m (m + 1) : ℝ) * x ^ (m + 1 - (m + 1)) * y ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat)) (n := m) hH3)
   -- 14. substitute C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = 0 (line 12) into line 13
   have s14 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) + 0 := by (have h := Eq.subst (motive := (fun u : ℝ => (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) + u)) s12 s13; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 15. calculation
@@ -148,7 +147,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
   -- 21. calculation
   have s21 : (LeanBridges.Counting.choose m (0 - 1 : ℤ) : ℤ) = 0 := by
     calc (LeanBridges.Counting.choose m (0 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose m (-1 : ℤ) : ℤ) := by norm_num
-      _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_1 (n := m) (by parley_side))
+      _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_1 (n := m) hH3)
   -- 22. calculation
   have s22 : (LeanBridges.Counting.choose m (0 - 1 : ℤ) : ℝ) * x ^ (m + 1).toNat * y ^ 0 = 0 := by
     calc (LeanBridges.Counting.choose m (0 - 1 : ℤ) : ℝ) * x ^ (m + 1).toNat * y ^ 0 = 0 * x ^ (m + 1).toNat * y ^ 0 := by
@@ -186,7 +185,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
     -- 27.2. D3, from J
     have s27_2 : q k = (LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat := by simp (disch := omega) only [hD3]
     -- 27.3. thm:pascal n := m
-    have s27_3 : (LeanBridges.Counting.choose m k : ℤ) + (LeanBridges.Counting.choose m (k - 1) : ℤ) = (LeanBridges.Counting.choose (m + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m) (by parley_side) (k := k))
+    have s27_3 : (LeanBridges.Counting.choose m k : ℤ) + (LeanBridges.Counting.choose m (k - 1) : ℤ) = (LeanBridges.Counting.choose (m + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m) hH3 (k := k))
     -- 27.4. calculation
     have r226_1 : 0 ≤ m + 1 - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ)
     calc p k + q k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat + q k := by (have h := congrArg (fun u : ℝ => u + q k) s27_1; push_cast at h ⊢; all_goals exact_mod_cast h)

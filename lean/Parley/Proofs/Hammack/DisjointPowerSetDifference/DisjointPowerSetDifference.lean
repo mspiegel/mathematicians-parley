@@ -33,7 +33,7 @@ theorem disjoint_power_set_difference {α : Type*} (A : Set α) (B : Set α) (hH
       -- 1.3.2. mun:disjoint-member Y := A, Z := B, u := x, from H3, 1.3.1
       have s1_3_2 : ¬ x ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := x) hH3 s1_3_1)
       -- 1.3.3. def:difference u := x, Y := A, Z := B, from 1.3.1, 1.3.2
-      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := x))).mpr ⟨s1_3_1, s1_3_2⟩
     -- 1.4. def:subset, from 1.3
     have s1_4 : t ⊆ A \ B := ((Parley.Items.Stdlib.Sets.def_subset (X := t) (Y := A \ B))).mpr s1_3
     -- 1.5. def:powerset S := t, A := A ∖ B, from 1.4

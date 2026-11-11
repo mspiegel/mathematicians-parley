@@ -25,7 +25,6 @@ public section
 
 namespace Parley.Proofs.Hammack.CubeCongruentModThree.CubeCongruentModThree
 
-set_option maxHeartbeats 400000 in
 theorem cube_congruent_mod_three (a : ℤ) :
     a ^ 3 ≡ a [ZMOD (3 : ℤ)] := by
   -- 1. mun:mod-natural b := 3
@@ -33,9 +32,9 @@ theorem cube_congruent_mod_three (a : ℤ) :
   -- 2. mun:mod-less b := 3
   have s2 : a % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := (3 : ℤ)) (by parley_side))
   -- 3. thm:residue-mod-three r := a mod 3, from 1, 2
-  have s3 : (a % (3 : ℤ) = 0 ∨ a % (3 : ℤ) = 1) ∨ a % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := a % (3 : ℤ)) (by parley_side) s2)
+  have s3 : (a % (3 : ℤ) = 0 ∨ a % (3 : ℤ) = 1) ∨ a % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := a % (3 : ℤ)) s1 s2)
   -- 4. obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1, 2
-  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := (3 : ℤ)) (by parley_side) (r := a % (3 : ℤ)) (by parley_side) s2)).mp (by parley_side)
+  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := (3 : ℤ)) (by parley_side) (r := a % (3 : ℤ)) s1 s2)).mp (by parley_side)
   -- 5. cases, from 3
   have s5 : (3 : ℤ) ∣ a ^ 3 - a := by
     rcases s3 with (hC1 | hC2) | hC3

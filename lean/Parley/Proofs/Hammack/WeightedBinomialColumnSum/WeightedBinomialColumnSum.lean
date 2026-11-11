@@ -17,6 +17,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -34,7 +35,6 @@ public section
 
 namespace Parley.Proofs.Hammack.WeightedBinomialColumnSum.WeightedBinomialColumnSum
 
-set_option maxHeartbeats 400000 in
 theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     (∑ k ∈ Finset.Icc (0 : ℤ) n, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = n * (LeanBridges.Counting.choose (m + n + 1) (m + 1) : ℤ) - (LeanBridges.Counting.choose (m + n + 1) (m + 2) : ℤ) := by
   -- 1. induction on j starting at 0
@@ -84,6 +84,6 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
       -- 1.13. substitute (m + j + 1) + 1 = m + (j + 1) + 1 (line 1.12) into line 1.11
       (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (j + 1) * (LeanBridges.Counting.choose t (m + 1) : ℤ) - (LeanBridges.Counting.choose t (m + 2) : ℤ))) s1_12 s1_11; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate j := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n (le_of_lt hH2))
 
 end Parley.Proofs.Hammack.WeightedBinomialColumnSum.WeightedBinomialColumnSum

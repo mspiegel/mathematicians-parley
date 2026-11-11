@@ -48,7 +48,7 @@ theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
       -- 5.1. mun:card-zero X := A, from S2
       have s5_1 : A = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := A) (by parley_set_side))
       -- 5.2. restate C2
-      have s5_2 : ¬ A = ∅ := by parley_set_side
+      have s5_2 : ¬ A = ∅ := by exact hC2
       exact s5_2 s5_1
     -- 6. mun:nat0-nonzero m := |A|, from 4, 5
     exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (A.ncard : ℤ)) (by parley_set_side) (by parley_set_side))

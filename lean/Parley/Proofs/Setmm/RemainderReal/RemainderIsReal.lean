@@ -31,8 +31,8 @@ theorem remainder_is_real (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
   -- 3. membership
   -- 4. substitute A mod B = A − B·q (line 2) into line 3

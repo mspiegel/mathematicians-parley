@@ -8,10 +8,12 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -38,7 +40,7 @@ theorem linear_below_power_of_three (n : ℤ) (hH1 : 0 < n) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 3
-      have s1_2 : (3 ^ (k + 1).toNat : ℤ) = 3 ^ k.toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k) (by parley_side))
+      have s1_2 : (3 ^ (k + 1).toNat : ℤ) = 3 ^ k.toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.3. inequalities
       have s1_3 : 6 * k + 3 ≤ 3 ^ k.toNat * 3 := by parley_order
       -- 1.4. inequalities, from K
@@ -48,6 +50,6 @@ theorem linear_below_power_of_three (n : ℤ) (hH1 : 0 < n) :
       -- 1.6. transitivity, from 1.5, 1.3, 1.2
       parley_order
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.LinearBelowPowerOfThree.LinearBelowPowerOfThree

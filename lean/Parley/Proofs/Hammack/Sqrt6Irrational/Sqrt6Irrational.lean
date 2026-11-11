@@ -38,7 +38,6 @@ public section
 
 namespace Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational
 
-set_option maxHeartbeats 400000 in
 theorem sqrt6_irrational :
     Irrational (Real.sqrt (6 : ℝ)) := by
   -- 1. def:sqrt x := 6
@@ -84,6 +83,6 @@ theorem sqrt6_irrational :
     have s2_16 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r69_1, s2_14⟩, s2_15⟩⟩
     exact s2_1c s2_16
   -- 3. def:irrational x := √6, from 2
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ)))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ)))).mpr ⟨by parley_side, s2⟩
 
 end Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational

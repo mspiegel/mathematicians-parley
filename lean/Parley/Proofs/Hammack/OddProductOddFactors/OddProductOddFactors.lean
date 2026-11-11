@@ -25,7 +25,6 @@ public section
 
 namespace Parley.Proofs.Hammack.OddProductOddFactors.OddProductOddFactors
 
-set_option maxHeartbeats 400000 in
 theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 - 2 * b))) :
     (Odd a ∧ Odd b) := by
   -- 1. mun:even-or-odd n := a

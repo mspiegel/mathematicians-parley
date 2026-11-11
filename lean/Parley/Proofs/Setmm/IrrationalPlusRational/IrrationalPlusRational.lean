@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Proofs.Setmm.IrrationalPlusRational.IrrationalPlusRational
 
-set_option maxHeartbeats 400000 in
 theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (hH4 : ∃ m : ℚ, (m : ℝ) = B) :
     A + B ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x} := by
   -- 1. def:difference Y := ℝ, Z := ℚ, from H3
@@ -55,6 +54,6 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     exact s1 s3_6
   -- 4. mun:real-closure x := A, y := B, from 1
   -- 5. def:difference Y := ℝ, Z := ℚ, from 3, 4
-  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A + B))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A + B))).mpr ⟨by parley_set_side, by parley_set_side⟩
 
 end Parley.Proofs.Setmm.IrrationalPlusRational.IrrationalPlusRational

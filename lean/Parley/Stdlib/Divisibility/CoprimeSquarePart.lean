@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -25,14 +26,13 @@ public section
 
 namespace Parley.Stdlib.Divisibility.CoprimeSquarePart
 
-set_option maxHeartbeats 600000 in
 theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w : ℤ) (hH3 : 0 < w) (hH4 : (Int.gcd s t : ℤ) = 1) (hH5 : w ^ 2 = s * t) :
     s = (Int.gcd s w : ℤ) ^ 2 := by
   -- 1. def:gcd a := s, b := w
-  have s1a : 0 < (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) (by parley_side) (b := w) (by parley_side))
-  have s1b : (Int.gcd s w : ℤ) ∣ s := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := s) (by parley_side) (b := w) (by parley_side))
-  have s1c : (Int.gcd s w : ℤ) ∣ w := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := s) (by parley_side) (b := w) (by parley_side))
-  have s1d : ∀ e : ℤ, 0 < e → e ∣ s ∧ e ∣ w → e ≤ (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_4 (a := s) (by parley_side) (b := w) (by parley_side))
+  have s1a : 0 < (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) hH1 (b := w) hH3)
+  have s1b : (Int.gcd s w : ℤ) ∣ s := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := s) hH1 (b := w) hH3)
+  have s1c : (Int.gcd s w : ℤ) ∣ w := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := s) hH1 (b := w) hH3)
+  have s1d : ∀ e : ℤ, 0 < e → e ∣ s ∧ e ∣ w → e ≤ (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_4 (a := s) hH1 (b := w) hH3)
   -- 2. mun:divides-self n := s
   have s2 : s ∣ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := s))
   -- 3. mun:divides-multiple e := s, a := s, x := s, from 2
@@ -43,7 +43,7 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   have s5 : s ∣ (Int.gcd (s * s) (s * w) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := s) (a := s * s) (b := s * w) s3 s4)
   -- 6. substitute
   have s6 : s ∣ s * (Int.gcd s w : ℤ) := by
-    have c1 : (Int.gcd (s * s) (s * w) : ℤ) = s * (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := s) (by parley_side) (a := s) (b := w))
+    have c1 : (Int.gcd (s * s) (s * w) : ℤ) = s * (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := s) (le_of_lt hH1) (a := s) (b := w))
     have row1 : s ∣ s * (Int.gcd s w : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s5; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 7. substitute
@@ -67,7 +67,7 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   have s11 : s ∣ (Int.gcd (w * s) (w * w) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := s) (a := w * s) (b := w * w) s10 s9)
   -- 12. substitute
   have s12 : s ∣ w * (Int.gcd s w : ℤ) := by
-    have c1 : (Int.gcd (w * s) (w * w) : ℤ) = w * (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := w) (by parley_side) (a := s) (b := w))
+    have c1 : (Int.gcd (w * s) (w * w) : ℤ) = w * (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := w) (le_of_lt hH3) (a := s) (b := w))
     have row1 : s ∣ w * (Int.gcd s w : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s11; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 13. substitute
@@ -102,17 +102,17 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   have s21 : (Int.gcd s w : ℤ) ^ 2 ∣ (Int.gcd (s * s) (s * t) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (Int.gcd s w : ℤ) ^ 2) (a := s * s) (b := s * t) s20 s19)
   -- 22. substitute
   have s22 : (Int.gcd s w : ℤ) ^ 2 ∣ s := by
-    have c1 : (Int.gcd (s * s) (s * t) : ℤ) = s * (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := s) (by parley_side) (a := s) (b := t))
+    have c1 : (Int.gcd (s * s) (s * t) : ℤ) = s * (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := s) (le_of_lt hH1) (a := s) (b := t))
     have row1 : (Int.gcd s w : ℤ) ^ 2 ∣ s * (Int.gcd s t : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s w : ℤ) ^ 2 ∣ u)) c1 s21; push_cast at h ⊢; all_goals exact_mod_cast h)
     have c2 : s * (Int.gcd s t : ℤ) = s := by (have h := congrArg (fun u : ℤ => s * u) hH4; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
     have row2 : (Int.gcd s w : ℤ) ^ 2 ∣ s := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s w : ℤ) ^ 2 ∣ u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 23. mun:divides-le e := s, m := gcd(s, w)², from 16
   have r335_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := by parley_side
-  have s23 : s ≤ (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := s) (by parley_side) (m := (Int.gcd s w : ℤ) ^ 2) (by parley_side) s16)
+  have s23 : s ≤ (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := s) hH1 (m := (Int.gcd s w : ℤ) ^ 2) r335_1 s16)
   -- 24. mun:divides-le e := gcd(s, w)², m := s, from 22
   have r339_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := by parley_side
-  have s24 : (Int.gcd s w : ℤ) ^ 2 ≤ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd s w : ℤ) ^ 2) (by parley_side) (m := s) (by parley_side) s22)
+  have s24 : (Int.gcd s w : ℤ) ^ 2 ≤ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd s w : ℤ) ^ 2) r339_1 (m := s) hH1 s22)
   -- 25. antisymmetry, from 23, 24
   parley_side
 

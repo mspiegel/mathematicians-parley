@@ -22,7 +22,6 @@ public section
 
 namespace Parley.Proofs.Setmm.PrimeTwoOrOdd.PrimeTwoOrOdd
 
-set_option maxHeartbeats 400000 in
 theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
     (P = 2 ∨ Odd P) := by
   -- 1. mun:even-or-odd n := P
@@ -35,7 +34,7 @@ theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
     -- 2.2. def:divides d := 2, n := P, from 2.1
     have s2_2 : (2 : ℤ) ∣ P := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := P))).mpr ⟨k, s2_1⟩
     -- 2.3. def:prime p := P, from H2
-    have s2_3 : ∀ d : ℤ, 0 < d → d ∣ P → d = 1 ∨ d = P := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).2
+    have s2_3 : ∀ d : ℤ, 0 < d → d ∣ P → d = 1 ∨ d = P := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) hH1)).mp hH2).2
     -- 2.4. instantiate d := 2 in line 2.3
     have s2_4 : (2 : ℤ) ∣ P → (2 : ℤ) = 1 ∨ 2 = P := by exact (s2_3 (2 : ℤ) (by parley_side))
     -- 2.5. mun:modus-ponens, from 2.2, 2.4
@@ -50,7 +49,7 @@ theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
       · skip
         exact hC4
     -- 2.7. restate 2.6
-    have s2_7 : P = 2 := by parley_side
+    have s2_7 : P = 2 := by exact s2_6.symm
     -- 2.8. mun:or-left P := P = 2, Q := P is odd, from 2.7
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := P = 2) (Q := Odd P) s2_7)
   · skip

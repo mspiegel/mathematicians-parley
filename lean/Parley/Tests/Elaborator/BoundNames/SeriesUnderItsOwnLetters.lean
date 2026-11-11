@@ -34,6 +34,6 @@ theorem series_under_its_own_letters (hH1 : Filter.Tendsto (fun n : ℤ => (∑ 
   -- 1. proof
   -- what this block shows, Lean's types give
   -- 2. def:series-sum L := 1, from H1, 1
-  exact (Parley.Items.Stdlib.Calculus.def_series_sum (t := (fun k : ℤ => 1 / ((k : ℝ) * ((k : ℝ) + 1)))) (L := (1 : ℝ)) (by parley_side))
+  exact (Parley.Items.Stdlib.Calculus.def_series_sum (t := (fun k : ℤ => 1 / ((k : ℝ) * ((k : ℝ) + 1)))) (L := (1 : ℝ)) hH1)
 
 end Parley.Tests.Elaborator.BoundNames.SeriesUnderItsOwnLetters

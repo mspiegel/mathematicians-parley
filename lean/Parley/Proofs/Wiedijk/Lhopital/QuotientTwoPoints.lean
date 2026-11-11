@@ -39,7 +39,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints
 
-set_option maxHeartbeats 800000 in
 theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo a b : Set ℝ)) (v : ℝ) (hH4 : v ∈ (Set.Ioo a b : Set ℝ)) (hH5 : v ≠ u) (F : ℝ → ℝ) (hH6 : Set.MapsTo F (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ)) (G : ℝ → ℝ) (hH7 : Set.MapsTo G (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ)) (hH8 : ContinuousOn F (Set.Ioo a b : Set ℝ)) (hH9 : ContinuousOn G (Set.Ioo a b : Set ℝ)) (hH10 : ∀ x ∈ ((Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x) (hH11 : ∀ x ∈ ((Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ G x) (hH12 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), (deriv G) t ≠ 0) :
     G u ≠ G v ∧ (∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ) := by
   -- 1. mun:open-interval-real
@@ -73,7 +72,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have s4_5a : G v ≠ G u := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := v) (q := u) hC1 s4_1 s4_4 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r164_1 r164_2 hH10 hH11 hH12).1
       have s4_5b : ∃ ξ ∈ (Set.Ioo v u : Set ℝ), (F u - F v) / (G u - G v) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := v) (q := u) hC1 s4_1 s4_4 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r164_1 r164_2 hH10 hH11 hH12).2
       -- 4.6. restate 4.5
-      have s4_6 : G v ≠ G u := by parley_set_side
+      have s4_6 : G v ≠ G u := by exact s4_5a
       -- 4.7. inequalities
       have s4_7 : G u ≠ G v := by parley_set_side
       -- 4.8. obtain ξ from line 4.5
@@ -83,7 +82,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.10. algebra, from 4.8
       have r186_5 : G u - G v ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) (-1) * h)
       have r186_6 : G v - G u ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) h)
-      have r186_9 : (deriv G) ξ ≠ 0 := by exact (hH12 ξ (by parley_set_side))
+      have r186_9 : (deriv G) ξ ≠ 0 := by exact (hH12 ξ s4_9)
       have s4_10 : (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by linear_combination (norm := parley_field) s4_8b
       -- 4.11. def:open-interval a := v, b := u, x := ξ, from 4.8
       have s4_11a : v < ξ := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).1.2
@@ -125,7 +124,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have s4_20a : G u ≠ G v := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := u) (q := v) hC2 s4_16 s4_19 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r246_1 r246_2 hH10 hH11 hH12).1
       have s4_20b : ∃ ξ ∈ (Set.Ioo u v : Set ℝ), (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := u) (q := v) hC2 s4_16 s4_19 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r246_1 r246_2 hH10 hH11 hH12).2
       -- 4.21. restate 4.20
-      have s4_21 : G u ≠ G v := by parley_set_side
+      have s4_21 : G u ≠ G v := by exact s4_20a
       -- 4.22. obtain ξ from line 4.20
       obtain ⟨ξ, s4_22a, s4_22b⟩ := s4_20b
       -- 4.23. mun:in-subset, from 4.19, 4.22

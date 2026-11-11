@@ -46,6 +46,6 @@ theorem cubic_plus_multiple_of_three (n : ℤ) (hH1 : 0 ≤ n) :
       have row1 : (3 : ℤ) ∣ (k + 1) ^ 3 + 5 * (k + 1) + 6 := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.CubicPlusMultipleOfThree.CubicPlusMultipleOfThree

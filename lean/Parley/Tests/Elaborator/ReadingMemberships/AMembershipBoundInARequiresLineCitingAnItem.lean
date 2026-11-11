@@ -21,7 +21,7 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundInARequires
 theorem a_membership_bound_in_a_requires_line_citing_an_item (x : ℝ) (hH2 : x ≠ 0) (k : ℤ) (hH3 : 0 < k) :
     (x * (k : ℝ)) ^ 2 > 0 := by
   -- 1. mun:square-positive x := x·k
-  have r173_1 : x * (k : ℝ) ≠ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := x) (y := (k : ℝ)) (by parley_side) (by parley_side))
-  exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := x * (k : ℝ)) (by parley_side))
+  have r173_1 : x * (k : ℝ) ≠ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := x) (y := (k : ℝ)) hH2 (by exact_mod_cast hH3.ne'))
+  exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := x * (k : ℝ)) r173_1)
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundInARequiresLineCitingAnItem

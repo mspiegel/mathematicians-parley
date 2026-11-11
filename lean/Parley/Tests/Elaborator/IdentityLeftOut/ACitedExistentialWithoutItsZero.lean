@@ -21,6 +21,6 @@ theorem a_cited_existential_without_its_zero (A : ℤ) (N : ℤ) (hH2 : 0 < N) (
     A % N = 0 := by
   -- 1. mun:mod-remainder a := A, m := N, r := 0, from H3
   have r45_1 : 0 < N := by parley_order
-  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A) (m := N) (by parley_side) (r := (0 : ℤ)) (by parley_side) r45_1)).mpr (by simpa only [add_zero] using hH3)
+  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A) (m := N) hH2 (r := (0 : ℤ)) (by parley_side) r45_1)).mpr (by simpa only [add_zero] using hH3)
 
 end Parley.Tests.Elaborator.IdentityLeftOut.ACitedExistentialWithoutItsZero

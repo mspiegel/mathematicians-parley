@@ -25,8 +25,8 @@ theorem cantor {α : Type*} (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f
   set B : Set α := {x ∈ A | ¬ x ∈ f x} with hD1
   -- 1. mun:set-builder-subset, from D1
   have s1 : B ⊆ A := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : α => ¬ x ∈ f x)) (X := A))
   -- 2. proof
   have s2 : ∀ x ∈ A, ¬ f x = B := by
@@ -37,8 +37,8 @@ theorem cantor {α : Type*} (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f
       intro hS1
       -- 2.1.1. def:set-builder, from D1, S1
       have s2_1_1 : ¬ x ∈ f x := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         have hI : ¬ x ∈ f x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mp hS1).2)
         exact hI
       -- 2.1.2. substitute f(x) = B (S) into line 2.1.1
@@ -47,7 +47,7 @@ theorem cantor {α : Type*} (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f
     -- 2.2. substitute f(x) = B (S) into line 2.1
     have s2_2 : ¬ x ∈ f x := by parley_subst_at hS s2_1
     -- 2.3. def:set-builder, from D1, K, 2.2
-    have s2_3 : x ∈ B := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mpr (by parley_set_side)
+    have s2_3 : x ∈ B := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mpr ⟨hK, s2_2⟩
     exact s2_1 s2_3
   -- 3. exhibit, from 1, 2
   exact ⟨B, s1, s2⟩

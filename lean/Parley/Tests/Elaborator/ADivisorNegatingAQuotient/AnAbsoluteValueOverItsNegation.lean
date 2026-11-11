@@ -21,7 +21,7 @@ namespace Parley.Tests.Elaborator.ADivisorNegatingAQuotient.AnAbsoluteValueOverI
 theorem an_absolute_value_over_its_negation (p : ℝ) (hH2 : abs (p / 2) = p / 2) (hH3 : abs (-(p / 2)) = abs (p / 2)) (hH4 : -(p / 2) ≠ 0) :
     abs (-(p / 2)) / -(p / 2) = -1 := by
   -- 1. algebra, from H2, H3
-  have r22_1 : -(p / 2) ≠ 0 := by parley_side
+  have r22_1 : -(p / 2) ≠ 0 := by exact hH4
   linear_combination (norm := parley_field) ((4) / ((-p) * (2))) * hH2 + ((2) / ((-p))) * hH3
 
 end Parley.Tests.Elaborator.ADivisorNegatingAQuotient.AnAbsoluteValueOverItsNegation

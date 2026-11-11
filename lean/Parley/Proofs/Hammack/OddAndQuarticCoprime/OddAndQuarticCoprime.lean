@@ -36,9 +36,9 @@ theorem odd_and_quartic_coprime (n : ℤ) :
   have r26_1 : 0 < 4 * n ^ 2 + 1 := by parley_order
   have s3 : 0 < 4 * n ^ 2 + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 4 * n ^ 2 + 1) r26_1)
   -- 4. thm:gcd-integer-natural a := 2n + 1, b := 4n² + 1, from 3
-  have s4a : 0 < (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := 2 * n + 1) (b := 4 * n ^ 2 + 1) (by parley_side)).1
-  have s4b : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ 2 * n + 1 := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := 2 * n + 1) (b := 4 * n ^ 2 + 1) (by parley_side)).2.1
-  have s4c : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ 4 * n ^ 2 + 1 := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := 2 * n + 1) (b := 4 * n ^ 2 + 1) (by parley_side)).2.2
+  have s4a : 0 < (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := 2 * n + 1) (b := 4 * n ^ 2 + 1) s3).1
+  have s4b : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ 2 * n + 1 := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := 2 * n + 1) (b := 4 * n ^ 2 + 1) s3).2.1
+  have s4c : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ 4 * n ^ 2 + 1 := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := 2 * n + 1) (b := 4 * n ^ 2 + 1) s3).2.2
   -- 5. mun:divides-multiple e := gcd(2n + 1, 4n² + 1), a := 2n + 1, x := 2n − 1, from 4
   have s5 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (2 * n + 1) * (2 * n - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ)) (a := 2 * n + 1) (x := 2 * n - 1) s4b)
   -- 6. mun:divides-difference d := gcd(2n + 1, 4n² + 1), a := 4n² + 1, b := (2n + 1)·(2n − 1), from 4, 5
@@ -56,6 +56,6 @@ theorem odd_and_quartic_coprime (n : ℤ) :
     have row1 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ t)) c1 s8; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 10. mun:divides-one d := gcd(2n + 1, 4n² + 1), from 4, 9
-  exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ)) (by parley_side) s9)
+  exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ)) s4a s9)
 
 end Parley.Proofs.Hammack.OddAndQuarticCoprime.OddAndQuarticCoprime

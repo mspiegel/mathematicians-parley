@@ -30,7 +30,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FourXPlusSixLimit.FourXPlusSixLimit
 
-set_option maxHeartbeats 400000 in
 theorem four_x_plus_six_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x + 6) :
     Filter.Tendsto f (nhdsWithin (-1) ((Set.univ : Set ℝ) \ {-1})) (nhds 2) := by
   -- 1. proof
@@ -58,7 +57,7 @@ theorem four_x_plus_six_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x 
       -- 1.2.7. join 1.2.4, 1.2.6
       have s1_2_7 : 2 - ε < f x ∧ f x < 2 + ε := by parley_set_side
       -- 1.2.8. mun:abs-difference-lt x := f(x), c := 2, δ := ε, from 1.2.7
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr ⟨s1_2_7.1, s1_2_7.2⟩
     -- 1.3. exhibit, from 1.1, 1.2
     exact ⟨ε / 4, ⟨s1_1, s1_2⟩⟩
   -- 2. def:limit-at D := ℝ, c := −1, L := 2, from 1

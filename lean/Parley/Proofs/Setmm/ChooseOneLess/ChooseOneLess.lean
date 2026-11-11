@@ -44,7 +44,7 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_1a : 0 ≤ N := by parley_order
     have s2_1b : N ≤ N + 1 := by parley_order
     -- 2.2. def:range-between k := N, a := 0, b := N + 1, from 2.1
-    have s2_2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side)
+    have s2_2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr ⟨s2_1a, s2_1b⟩
     -- 2.3. algebra
     have s2_3 : N + 1 - N = 1 := by parley_ring
     -- 2.4. calculation
@@ -52,7 +52,7 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
       calc (LeanBridges.Counting.factorial (N + 1 - N) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
     -- 2.5. def:factorial n := N
-    have s2_5 : (LeanBridges.Counting.factorial (N + 1) : ℤ) = (LeanBridges.Counting.factorial N : ℤ) * (N + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N) (by parley_side))
+    have s2_5 : (LeanBridges.Counting.factorial (N + 1) : ℤ) = (LeanBridges.Counting.factorial N : ℤ) * (N + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N) hH1)
     -- 2.6. calculation
     try qify
     calc (LeanBridges.Counting.choose (N + 1) N : ℚ) = (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((LeanBridges.Counting.factorial (N + 1 - N) : ℚ) * (LeanBridges.Counting.factorial N : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N + 1) (by parley_side) (k := N)) s2_2

@@ -8,10 +8,12 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -38,7 +40,7 @@ theorem two_power_bound (d : ℤ) (hH1 : 0 < d) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ m hK hIH =>
       -- 1.2. mun:exponent-step a := 2
-      have s1_2 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (by parley_side))
+      have s1_2 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.3. inequalities
       have s1_3 : 2 ^ m.toNat * 2 ≥ (m + 1) * 2 := by parley_order
       -- 1.4. inequalities, from K
@@ -46,6 +48,6 @@ theorem two_power_bound (d : ℤ) (hH1 : 0 < d) :
       -- 1.5. transitivity, from 1.2, 1.3, 1.4
       parley_order
   -- 2. instantiate m := d in line 1
-  exact (s1 d (by parley_side))
+  exact (s1 d hH1)
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound

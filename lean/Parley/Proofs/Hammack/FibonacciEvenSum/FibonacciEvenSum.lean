@@ -35,7 +35,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciEvenSum.FibonacciEvenSum
 
-set_option maxHeartbeats 600000 in
 theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F (2 * k) : ℤ)) = F (2 * n + 1) - 1 := by
   -- 1. thm:fibonacci-natural
@@ -108,6 +107,6 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
         _ = F (2 * m + 1) - 1 + F (2 * (m + 1)) := by (have h := congrArg (fun t : ℤ => F (2 * m + 1) - 1 + t) s4_12; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = F (2 * (m + 1) + 1) - 1 := by linear_combination (norm := parley_norm) (-1) * s4_15
   -- 5. instantiate m := n in line 4, from D2
-  exact (s4 n (by parley_side))
+  exact (s4 n hH1)
 
 end Parley.Proofs.Hammack.FibonacciEvenSum.FibonacciEvenSum

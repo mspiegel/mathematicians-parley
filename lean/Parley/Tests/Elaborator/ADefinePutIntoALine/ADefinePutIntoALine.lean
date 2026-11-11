@@ -21,8 +21,8 @@ theorem a_define_put_into_a_line {α : Type*} (A : Set α) (B : Set α) :
   set C : Set α := A ∩ B with hD1
   -- 1. mun:intersection-subset Y := A, Z := B, from D1
   have s1 : C ⊆ A := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B))
   -- 2. substitute C = A ∩ B (D1) into line 1
   parley_subst_at hD1 s1

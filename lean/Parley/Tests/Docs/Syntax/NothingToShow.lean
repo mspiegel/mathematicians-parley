@@ -24,9 +24,9 @@ theorem nothing_to_show {α : Type*} (V : Set α) (n : ℤ) (hH1 : 0 ≤ n) (v :
   -- 1.1. proof
   intro hC2
   -- 1.1.1. restate C2
-  have s1_1_1 : x = v (0 : ℤ) := by parley_set_side
+  have s1_1_1 : x = v (0 : ℤ) := by exact hC2.1.2
   -- 1.1.2. restate C2
-  have s1_1_2 : ¬ x = v (0 : ℤ) := by parley_set_side
+  have s1_1_2 : ¬ x = v (0 : ℤ) := by exact hC2.2
   exact absurd s1_1_1 s1_1_2
 
 end Parley.Tests.Docs.Syntax.NothingToShow

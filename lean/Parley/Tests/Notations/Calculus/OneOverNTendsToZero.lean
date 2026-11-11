@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Tests.Notations.Calculus.OneOverNTendsToZero
 
-set_option maxHeartbeats 400000 in
 theorem one_over_n_tends_to_zero :
     Filter.Tendsto (fun n : ℤ => (1 / (n : ℝ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. proof
@@ -42,10 +41,10 @@ theorem one_over_n_tends_to_zero :
       -- 1.2.1. mun:reciprocal-order x := N, y := n, from A2
       have r238_1 : N > 0 := by parley_order
       have r238_2 : n > 0 := by parley_order
-      have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_2))).mp (by parley_side)
       -- 1.2.2. mun:reciprocal-positive x := n
       have r243_1 : n > 0 := by parley_order
-      have s1_2_2 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by parley_side))
+      have s1_2_2 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r243_1))
       -- 1.2.3. inequalities
       have s1_2_3 : 0 - ε < 0 := by parley_order
       -- 1.2.4. transitivity, from 1.2.3, 1.2.2
@@ -55,7 +54,7 @@ theorem one_over_n_tends_to_zero :
       -- 1.2.6. transitivity, from 1.2.1, 1.2.5
       have s1_2_6 : 1 / (n : ℝ) < 0 + ε := by parley_order
       -- 1.2.7. mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from 1.2.4, 1.2.6
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / (n : ℝ)) (c := (0 : ℝ)) (δ := ε))).mpr (by parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / (n : ℝ)) (c := (0 : ℝ)) (δ := ε))).mpr ⟨s1_2_4, s1_2_6⟩
     -- 1.3. exhibit, from 1.2
     exact ⟨N, s1_1a, s1_2⟩
   -- 2. proof

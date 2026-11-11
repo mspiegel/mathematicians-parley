@@ -1,0 +1,501 @@
+theorem proofs/wiedijk/reals-uncountable/decimal-number
+block of 2: 2.1, 2.2, 2.3, 2.4
+  part 0 owes N(0) ∈ ℤ
+  part 1 owes N(k + 1) ∈ ℤ
+block of 3: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14, 3.15, 3.16, 3.17, 3.18, 3.19, 3.20, 3.21, 3.22
+  the block owes L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
+block of 4: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6
+  the block owes L(k) ∈ ℝ and U(k) ∈ ℝ and L(k) ≤ U(k)
+block of 5: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11, 5.12, 5.13, 5.14, 5.15
+  part 0 owes for all p ∈ ℕ₀, L(p) ≤ L(p + 0) and U(p + 0) ≤ U(p)
+  part 1 owes for all p ∈ ℕ₀, L(p) ≤ L(p + (g + 1)) and U(p + (g + 1)) ≤ U(p)
+block of 6: 6.1, 6.2, 6.3, 6.4
+  the block owes L(j) ≤ U(k)
+block of 6.4: 6.4.1, 6.4.2, 6.4.3, 6.4.4, 6.4.5, 6.4.6, 6.4.7, 6.4.8, 6.4.9, 6.4.10, 6.4.11, 6.4.12
+  part 0 owes L(j) ≤ U(k)
+  part 1 owes L(j) ≤ U(k)
+block of 8: 8.1, 8.2
+  the block owes L(k) ∈ S
+block of 10: 10.1, 10.2
+  the block owes U(k) is an upper bound of S
+block of 10.1: 10.1.1, 10.1.2, 10.1.3, 10.1.4
+  the block owes y ≤ U(k)
+block of 15: 15.1, 15.2, 15.3
+  the block owes L(k) ≤ c and c ≤ U(k)
+block of 16: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9, 16.10, 16.11, 16.12, 16.13, 16.14, 16.15, 16.16, 16.17, 16.18, 16.19, 16.20, 16.21, 16.22, 16.23, 16.24
+  the block owes D(c, n) = d(n) or D(c, n) = s(d(n))
+block of 16.24: 16.24.1, 16.24.2, 16.24.3, 16.24.4, 16.24.5, 16.24.6, 16.24.7, 16.24.8, 16.24.9, 16.24.10, 16.24.11, 16.24.12, 16.24.13
+  part 0 owes D(c, n) = d(n) or D(c, n) = s(d(n))
+  part 1 owes D(c, n) = d(n) or D(c, n) = s(d(n))
+step 2.3 cites stdlib/numbers/pos-int-nat group 0; m := k + 1; concludes 0 AsWritten; from no line; supplied by unstated, requires 1; letters m cz from cn0; facing none; met as written
+step 3.2 cites stdlib/numbers/pos-int-nat group 0; m := k + 1; concludes 0 AsWritten; from no line; supplied by unstated, requires 1; letters m cz from cn0; facing none; met as written
+step 3.10 cites stdlib/numbers/power-nat group 0; a := 10, m := k + 1; concludes 0 AsWritten; from no line; supplied by unstated, unstated; letters a cn from cn, m cn0 from cn0; facing none; met as written
+step 3.11 cites stdlib/numbers/exponent-step group 0; a := 10, m := k; concludes 0 AsWritten; from no line; supplied by unstated, once K1 sentence 0; letters a cc from cn, m cn0 from cn0; facing straight; met as written
+step 3.16 cites stdlib/numbers/divide-le group 0; c := 10^(k + 1), x := 10 · N(k), y := N(k + 1); concludes 0 AsWritten; from no line; supplied by requires 1, requires 2, unstated, 3.9 sentence 0 part 0, requires 3; letters c cr from cn, x cr from cr, y cr from cr; facing none; met as written
+step 3.17 cites stdlib/numbers/divide-le group 0; c := 10^(k + 1), x := N(k + 1) + 1, y := 10 · (N(k) + 1); concludes 0 AsWritten; from no line; supplied by requires 1, requires 2, unstated, 3.9 sentence 0 part 1, requires 3; letters c cr from cn, x cr from cr, y cr from cr; facing none; met as written
+step 4.1 cites stdlib/numbers/power-nat group 0; a := 10, m := k; concludes 0 AsWritten; from no line; supplied by unstated, once K2 sentence 0; letters a cn from cn, m cn0 from cn0; facing none; met as written
+step 6.3 cites stdlib/reasoning/excluded-middle group 0; P := j ≤ k; concludes 0 AsWritten; from no line; supplied by ; letters P none from none; facing none; met as written
+step 6.4.1 cites stdlib/numbers/nat0-as-int group 0; n := k − j; concludes 0 Backward; from no line; supplied by ; letters n none from cz; facing none; met as written; unfolded [k − j ∈ ℤ by unstated, 0 ≤ k − j by requires 1]
+step 6.4.8 cites stdlib/numbers/nat0-as-int group 0; n := j − k; concludes 0 Backward; from no line; supplied by ; letters n none from cz; facing none; met as written; unfolded [j − k ∈ ℤ by unstated, 0 ≤ j − k by requires 1]
+step 7 cites stdlib/sets/set-builder-subset group 0; P := property-of(there is k ∈ ℕ₀ with y = N(k) / 10^k), X := ℝ; concludes 0 AsWritten; from no line; supplied by ; letters P none from none, X none from none, the set cr; facing none; met renamed
+step 8.2 cites stdlib/sets/set-builder group 0; P := property-of(there is k ∈ ℕ₀ with y = N(k) / 10^k), X := ℝ, u := L(k), bound a := k; concludes 0 Backward; from 8.1 sentence 0; supplied by ; letters P none from none, X none from none, the set cr, u none from cr; facing none; met renamed; unfolded [L(k) ∈ ℝ by requires 1, witness k with k ∈ ℕ₀ by once K8 sentence 0; L(k) = N(k) / 10^k by 8.1 sentence 0]
+step 10.1.1 cites stdlib/sets/set-builder group 0; P := property-of(there is k ∈ ℕ₀ with y = N(k) / 10^k), X := ℝ, u := y, bound t := y; concludes ; from Y sentence 0; supplied by ; letters P none from none, X none from none, the set cr, u none from none; facing ; met 
+step 10.2 cites stdlib/calculus/upper-bound group 0; S := S, u := U(k), bound s := y; concludes 0 Backward; from 10.1 sentence 0; supplied by ; letters S none from none, u none from none; facing none; met as written; unfolded [for all s ∈ S, s ≤ U(k) by 10.1 sentence 0]
+step 12 cites stdlib/calculus/completeness group 0; S := S, bound u := U(0); concludes ; from no line; supplied by 7 sentence 0, 9 sentence 0, 11 sentence 0; letters S none from none; facing ; met 
+step 13 cites stdlib/calculus/least-upper-bound group 0; S := S, c := c; concludes 0 Forward, 0 Forward; from 12 sentence 1; supplied by ; letters S none from none, c none from cr; facing none, none; met apart, apart
+step 14 cites stdlib/calculus/upper-bound group 0; S := S, u := c; concludes 0 Forward; from 13 sentence 0; supplied by ; letters S none from none, u none from cr; facing none; met renamed
+step 16.1 cites stdlib/numbers/nat-minus-one group 0; n := n; concludes 0 AsWritten; from no line; supplied by once K6 sentence 0; letters n cn from cn; facing none; met as written
+step 16.6 cites stdlib/numbers/power-nat group 0; a := 10, m := n; concludes 0 AsWritten; from no line; supplied by unstated, once K6 sentence 0 implied by WiderSystem; letters a cn from cn, m cn0 from cn; facing none; met as written
+step 16.8 cites stdlib/numbers/multiply-le group 0; c := 10^n, x := N(n) / 10^n, y := c; concludes 0 AsWritten; from no line; supplied by requires 1, once 12 sentence 0, unstated, 16.7 sentence 0 part 0, requires 2; letters c cr from cn, x cr from cr, y cr from cr; facing none; met as written
+step 16.9 cites stdlib/numbers/multiply-le group 0; c := 10^n, x := c, y := (N(n) + 1) / 10^n; concludes 0 AsWritten; from no line; supplied by once 12 sentence 0, requires 1, unstated, 16.7 sentence 0 part 1, requires 2; letters c cr from cn, x cr from cr, y cr from cr; facing none; met as written
+step 16.14 cites stdlib/numbers/floor-integer group 0; x := 10^n · c; concludes 0 AsWritten; from no line; supplied by unstated; letters x cr from cr; facing none; met as written
+step 16.15 cites stdlib/numbers/floor-below group 0; x := 10^n · c; concludes 0 AsWritten; from no line; supplied by unstated; letters x cr from cr; facing none; met as written
+step 16.16 cites stdlib/numbers/floor-above group 0; x := 10^n · c; concludes 0 AsWritten; from no line; supplied by unstated; letters x cr from cr; facing none; met as written
+step 16.19 cites stdlib/numbers/integer-step group 0; m := N(n), n := ⌊10^n · c⌋ + 1; concludes 0 AsWritten; from no line; supplied by 16.5 sentence 0, requires 1, 16.17 sentence 0; letters m cz from cz, n cz from cz; facing none; met as written
+step 16.21 cites stdlib/numbers/nat0-as-int group 0; n := d(n); concludes 0 Backward; from no line; supplied by ; letters n none from cz; facing none; met as written; unfolded [d(n) ∈ ℤ by requires 1, 0 ≤ d(n) by requires 2]
+step 16.23 cites stdlib/reasoning/excluded-middle group 0; P := ⌊10^n · c⌋ ≤ N(n); concludes 0 AsWritten; from no line; supplied by ; letters P none from none; facing none; met as written
+step 16.24.6 cites stdlib/reasoning/or-left group 0; P := D(c, n) = d(n), Q := D(c, n) = s(d(n)); concludes 0 AsWritten; from no line; supplied by 16.24.5 sentence 0; letters P none from none, Q none from none; facing none; met as written
+step 16.24.8 cites stdlib/numbers/integer-step group 0; m := N(n), n := ⌊10^n · c⌋; concludes 0 AsWritten; from no line; supplied by 16.5 sentence 0, 16.14 sentence 0, 16.24.7 sentence 0; letters m cz from cz, n cz from cz; facing none; met as written
+step 16.24.13 cites stdlib/reasoning/or-right group 0; P := D(c, n) = d(n), Q := D(c, n) = s(d(n)); concludes 0 AsWritten; from no line; supplied by 16.24.12 sentence 0; letters P none from none, Q none from none; facing none; met as written
+requires line on line 310 cites stdlib/numbers/divide-le group 0; c := 10^k, x := N(k), y := N(k) + 1; concludes 0 AsWritten; from no line; supplied by requires 1, unstated, unstated, 4.4 sentence 0, requires 2; letters c cr from cn, x cr from cr, y cr from cr; facing none; met as written
+requires line on line 645 cites stdlib/divisibility/mod-remainder group 0; a := ⌊10^n · c⌋, m := 10, r := d(n), bound q := q; concludes 0 Backward; from 16.24.4 sentence 0; supplied by 16.14 sentence 0, unstated, requires 1, requires 2; letters a cz from cz, m cn from cn, r cn0 from cn0; facing straight; met as written; unfolded [witness q with q ∈ ℤ by unstated; q · 10 + d(n) = ⌊10^n · c⌋ by unstated]
+requires line on line 680 cites stdlib/divisibility/mod-multiple group 0; m := 10, q := N(n − 1), r := d(n) + 1; concludes 0 AsWritten; from no line; supplied by requires 1, unstated, 16.4 sentence 0; letters m cn from cn, q cz from cz, r cz from cz; facing straight; met as written
+set S holds numbers of cr
+step 3.5 chains 10 · N(k) ≤ 10 · N(k) + d(k + 1) | N(k + 1) = 10 · N(k) + d(k + 1)
+step 3.8 chains N(k + 1) + 1 = 10 · N(k) + d(k + 1) + 1 | 10 · N(k) + d(k + 1) + 1 ≤ 10 · (N(k) + 1)
+step 5.9 chains L(p) ≤ L(p + g) | L(p + g) ≤ L(p + g + 1)
+step 5.12 chains U(p + g + 1) ≤ U(p + g) | U(p + g) ≤ U(p)
+step 6.4.5 chains L(j) ≤ L(k) | L(k) ≤ U(k)
+step 6.4.12 chains L(j) ≤ U(j) | U(j) ≤ U(k)
+step 16.12 chains 10^n · (N(n) / 10^n) = N(n) | 10^n · (N(n) / 10^n) ≤ 10^n · c
+step 16.13 chains 10^n · c ≤ 10^n · ((N(n) + 1) / 10^n) | 10^n · ((N(n) + 1) / 10^n) = N(n) + 1
+step 16.17 chains N(n) ≤ 10^n · c | 10^n · c < ⌊10^n · c⌋ + 1
+step 16.18 chains ⌊10^n · c⌋ ≤ 10^n · c | 10^n · c ≤ N(n) + 1
+step 16.24.4 exhibits in sentence 0 q := N(n − 1); facts by 16.4 sentence 0, 16.24.3 sentence 0
+step 17 exhibits in sentence 0 x := c; facts by once 12 sentence 0, 16 sentence 0
+step 3.3 instantiates H2 sentence 0, conditions taken off [], guards [n by 3.2 sentence 0]
+step 5.2 instantiates IH2 sentence 0, conditions taken off [], guards [p by once P2 sentence 0]
+step 5.3 instantiates 3 sentence 0, conditions taken off [], guards [k by unstated]
+step 5.4 instantiates 4 sentence 0, conditions taken off [], guards [k by once P2 sentence 0]
+step 5.5 instantiates 4 sentence 0, conditions taken off [], guards [k by unstated]
+step 5.6 instantiates 4 sentence 0, conditions taken off [], guards [k by unstated]
+step 6.1 instantiates 4 sentence 0, conditions taken off [], guards [k by once J1 sentence 0]
+step 6.2 instantiates 4 sentence 0, conditions taken off [], guards [k by once K3 sentence 0]
+step 6.4.2 instantiates 5 sentence 0, conditions taken off [], guards [g by 6.4.1 sentence 0, p by once J1 sentence 0]
+step 6.4.9 instantiates 5 sentence 0, conditions taken off [], guards [g by 6.4.8 sentence 0, p by once K3 sentence 0]
+step 9 instantiates 8 sentence 0, conditions taken off [], guards [k by unstated]
+step 10.1.2 instantiates 6 sentence 0, conditions taken off [], guards [j by once 10.1.1 sentence 0, k by once K4 sentence 0]
+step 11 instantiates 10 sentence 0, conditions taken off [], guards [k by unstated]
+step 15.1 instantiates 14 sentence 0, conditions taken off [], guards [y by 8 sentence 1]
+step 15.2 instantiates 13 sentence 1, conditions taken off [10 sentence 1], guards [u by requires 1]
+step 16.4 instantiates 2 sentence 0, conditions taken off [], guards [k by 16.1 sentence 0]
+step 16.7 instantiates 15 sentence 0, conditions taken off [], guards [k by once K6 sentence 0 implied by WiderSystem]
+a row of step 3.20 links from 3.18 sentence 0
+a row of step 3.21 links from 3.19 sentence 0
+a row of step 10.1.3 links from 10.1.1 sentence 1
+a row of step 16.24.5 links from 16.20 sentence 0
+a row of step 16.24.12 links from 16.24.10 sentence 0
+a row of step 16.24.12 links from 16.24.11 sentence 0
+requires line 1 of step 5.9 restates 5.4 sentence 0
+requires line 2 of step 5.9 restates 5.5 sentence 0
+requires line 3 of step 5.9 restates 5.6 sentence 0
+requires line 1 of step 5.12 restates 5.4 sentence 1
+requires line 2 of step 5.12 restates 5.5 sentence 1
+requires line 3 of step 5.12 restates 5.6 sentence 1
+requires line 1 of step 6.4.5 restates 6.1 sentence 0
+requires line 1 of step 6.4.8 restates 6.4.7 sentence 0
+requires line 1 of step 6.4.12 restates 6.2 sentence 1
+requires line 1 of step 8.2 restates 4 sentence 1 part 0
+requires line 1 of step 15.2 restates 4 sentence 1 part 1
+requires line 1 of step 16.2 restates 16.1 sentence 0
+requires line 2 of step 16.21 restates H2 sentence 1 part 0
+requires line 1 of step 16.24.5 restates 16.21 sentence 0
+requires line 2 of step 16.24.9 restates 16.5 sentence 0 implied by WiderSystem
+requires line 1 of step 16.24.12 restates 16.22 sentence 0
+a row of step 10.1.3 links facing straight
+a row of step 16.24.5 links facing straight
+a row of step 16.24.12 links facing straight
+a row of step 16.24.12 links facing turned
+step 8.1 has its define's argument in the domain by K8 sentence 0
+step 12 obtains sentence 1 part 0 is part 0
+read 31: ℕ  as  number-systems:ℕ  a set
+read 31: ℝ  as  number-systems:ℝ  a set
+read 34: ℤ  as  number-systems:ℤ  a set
+read 138: there is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n))  as  there-is:thereis∈with(name:x, number-systems:ℝ, for-all:forall∈,(name:n, number-systems:ℕ, disjunction:or(equality:=(application-to-two:(,)(name:D, name:x, name:n), application:()(name:d, name:n)), equality:=(application-to-two:(,)(name:D, name:x, name:n), application:()(name:s, application:()(name:d, name:n))))))  a statement
+read 145: d : ℕ → ℤ  as  function-type::→(name:d, number-systems:ℕ, number-systems:ℤ)  a statement
+read 146: for all n ∈ ℕ, 0 ≤ d(n) and d(n) ≤ 9  as  for-all:forall∈,(name:n, number-systems:ℕ, conjunction:and(order:≤(numeral:0, application:()(name:d, name:n)), order:≤(application:()(name:d, name:n), numeral:9)))  a statement
+read 147: there is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n))  as  there-is:thereis∈with(name:x, number-systems:ℝ, for-all:forall∈,(name:n, number-systems:ℕ, disjunction:or(equality:=(application-to-two:(,)(name:D, name:x, name:n), application:()(name:d, name:n)), equality:=(application-to-two:(,)(name:D, name:x, name:n), application:()(name:s, application:()(name:d, name:n))))))  a statement
+read 149: 0  as  numeral:0  a number
+read 149: 10·N(k) + d(k + 1)  as  additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1)))  a number
+read 149: ℕ₀  as  number-systems:ℕ₀  a set
+read 152: {y ∈ ℝ : there is k ∈ ℕ₀ with y = N(k)/10^k}  as  set-builder:{∈:}(name:y, number-systems:ℝ, there-is:thereis∈with(name:k, number-systems:ℕ₀, equality:=(name:y, multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k)))))  a set
+read 155: N(k)/10^k  as  multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k))  a number
+read 155: k  as  name:k  a number
+read 155: ℕ₀  as  number-systems:ℕ₀  a set
+read 158: (N(k) + 1)/10^k  as  multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k))  a number
+read 158: k  as  name:k  a number
+read 158: ℕ₀  as  number-systems:ℕ₀  a set
+read 161: N(0) = 0  as  equality:=(application:()(name:N, numeral:0), numeral:0)  a statement
+read 164: For all k ∈ ℕ₀, N(k) ∈ ℤ  as  for-all:forall∈,(name:k, number-systems:ℕ₀, membership:∈(application:()(name:N, name:k), number-systems:ℤ))  a statement
+read 165: 0  as  numeral:0  a number
+read 168: N(0) ∈ ℤ  as  membership:∈(application:()(name:N, numeral:0), number-systems:ℤ)  a statement
+read 172: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 175: N(k + 1) = 10·N(k) + d(k + 1)  as  equality:=(application:()(name:N, additive:+(name:k, numeral:1)), additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))))  a statement
+read 178: k + 1 ∈ ℕ  as  membership:∈(additive:+(name:k, numeral:1), number-systems:ℕ)  a statement
+read 180: 0 < k + 1  as  order:<(numeral:0, additive:+(name:k, numeral:1))  a statement
+read 182: N(k + 1) ∈ ℤ  as  membership:∈(application:()(name:N, additive:+(name:k, numeral:1)), number-systems:ℤ)  a statement
+read 184: d(k + 1) ∈ ℤ  as  membership:∈(application:()(name:d, additive:+(name:k, numeral:1)), number-systems:ℤ)  a statement
+read 186: For all k ∈ ℕ₀, L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)  as  for-all:forall∈,(name:k, number-systems:ℕ₀, conjunction:and(order:≤(application:()(name:L, name:k), application:()(name:L, additive:+(name:k, numeral:1))), order:≤(application:()(name:U, additive:+(name:k, numeral:1)), application:()(name:U, name:k))))  a statement
+read 189: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 191: N(k + 1) = 10·N(k) + d(k + 1)  as  equality:=(application:()(name:N, additive:+(name:k, numeral:1)), additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))))  a statement
+read 194: k + 1 ∈ ℕ  as  membership:∈(additive:+(name:k, numeral:1), number-systems:ℕ)  a statement
+read 196: 0 < k + 1  as  order:<(numeral:0, additive:+(name:k, numeral:1))  a statement
+read 198: 0 ≤ d(k + 1) and d(k + 1) ≤ 9  as  conjunction:and(order:≤(numeral:0, application:()(name:d, additive:+(name:k, numeral:1))), order:≤(application:()(name:d, additive:+(name:k, numeral:1)), numeral:9))  a statement
+read 199: k + 1  as  additive:+(name:k, numeral:1)  a number
+read 201: 10·N(k) ≤ 10·N(k) + d(k + 1)  as  order:≤(multiplicative:·(numeral:10, application:()(name:N, name:k)), additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))))  a statement
+read 203: 0 ≤ d(k + 1)  as  order:≤(numeral:0, application:()(name:d, additive:+(name:k, numeral:1)))  a statement
+read 204: 10·N(k)  as  multiplicative:·(numeral:10, application:()(name:N, name:k))  a number
+read 204: 10·N(k) ≤ 10·N(k) + d(k + 1)  as  order:≤(multiplicative:·(numeral:10, application:()(name:N, name:k)), additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))))  a statement
+read 205: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 206: d(k + 1) ∈ ℝ  as  membership:∈(application:()(name:d, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 208: 10·N(k) ≤ N(k + 1)  as  order:≤(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:N, additive:+(name:k, numeral:1)))  a statement
+read 210: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 211: d(k + 1) ∈ ℝ  as  membership:∈(application:()(name:d, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 213: 10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)  as  order:≤(additive:+(additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))), numeral:1), multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)))  a statement
+read 215: d(k + 1) ≤ 9  as  order:≤(application:()(name:d, additive:+(name:k, numeral:1)), numeral:9)  a statement
+read 216: 10·N(k) + 1  as  additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), numeral:1)  a number
+read 216: 10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)  as  order:≤(additive:+(additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))), numeral:1), multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)))  a statement
+read 217: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 218: d(k + 1) ∈ ℝ  as  membership:∈(application:()(name:d, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 220: N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1  as  equality:=(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), additive:+(additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))), numeral:1))  a statement
+read 222: N(k + 1) = 10·N(k) + d(k + 1)  as  equality:=(application:()(name:N, additive:+(name:k, numeral:1)), additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))))  a statement
+read 223: 1  as  numeral:1  a number
+read 223: N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1  as  equality:=(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), additive:+(additive:+(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:d, additive:+(name:k, numeral:1))), numeral:1))  a statement
+read 224: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 225: d(k + 1) ∈ ℝ  as  membership:∈(application:()(name:d, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 227: N(k + 1) + 1 ≤ 10·(N(k) + 1)  as  order:≤(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)))  a statement
+read 229: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 230: d(k + 1) ∈ ℝ  as  membership:∈(application:()(name:d, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 231: N(k + 1) ∈ ℝ  as  membership:∈(application:()(name:N, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 233: 10·N(k) ≤ N(k + 1) and N(k + 1) + 1 ≤ 10·(N(k) + 1)  as  conjunction:and(order:≤(multiplicative:·(numeral:10, application:()(name:N, name:k)), application:()(name:N, additive:+(name:k, numeral:1))), order:≤(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1))))  a statement
+read 236: 10^(k + 1) ∈ ℕ  as  membership:∈(power:^(numeral:10, additive:+(name:k, numeral:1)), number-systems:ℕ)  a statement
+read 237: 10  as  numeral:10  a number
+read 237: k + 1  as  additive:+(name:k, numeral:1)  a number
+read 239: 10^(k + 1) = 10^k·10  as  equality:=(power:^(numeral:10, additive:+(name:k, numeral:1)), multiplicative:·(power:^(numeral:10, name:k), numeral:10))  a statement
+read 240: 10  as  numeral:10  a number
+read 240: k  as  name:k  a number
+read 242: N(k)/10^k = (10·N(k))/(10^k·10)  as  equality:=(multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k)), multiplicative:/(multiplicative:·(numeral:10, application:()(name:N, name:k)), multiplicative:·(power:^(numeral:10, name:k), numeral:10)))  a statement
+read 244: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 246: N(k)/10^k = (10·N(k))/10^(k + 1)  as  equality:=(multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k)), multiplicative:/(multiplicative:·(numeral:10, application:()(name:N, name:k)), power:^(numeral:10, additive:+(name:k, numeral:1))))  a statement
+read 247: 10^(k + 1) = 10^k·10  as  equality:=(power:^(numeral:10, additive:+(name:k, numeral:1)), multiplicative:·(power:^(numeral:10, name:k), numeral:10))  a statement
+read 249: (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)  as  equality:=(multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k)), multiplicative:/(multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)), multiplicative:·(power:^(numeral:10, name:k), numeral:10)))  a statement
+read 251: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 253: (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)  as  equality:=(multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k)), multiplicative:/(multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)), power:^(numeral:10, additive:+(name:k, numeral:1))))  a statement
+read 254: 10^(k + 1) = 10^k·10  as  equality:=(power:^(numeral:10, additive:+(name:k, numeral:1)), multiplicative:·(power:^(numeral:10, name:k), numeral:10))  a statement
+read 256: (10·N(k))/10^(k + 1) ≤ N(k + 1)/10^(k + 1)  as  order:≤(multiplicative:/(multiplicative:·(numeral:10, application:()(name:N, name:k)), power:^(numeral:10, additive:+(name:k, numeral:1))), multiplicative:/(application:()(name:N, additive:+(name:k, numeral:1)), power:^(numeral:10, additive:+(name:k, numeral:1))))  a statement
+read 257: 10^(k + 1)  as  power:^(numeral:10, additive:+(name:k, numeral:1))  a number
+read 257: 10·N(k)  as  multiplicative:·(numeral:10, application:()(name:N, name:k))  a number
+read 257: N(k + 1)  as  application:()(name:N, additive:+(name:k, numeral:1))  a number
+read 258: 10·N(k) ∈ ℝ  as  membership:∈(multiplicative:·(numeral:10, application:()(name:N, name:k)), number-systems:ℝ)  a statement
+read 259: N(k + 1) ∈ ℝ  as  membership:∈(application:()(name:N, additive:+(name:k, numeral:1)), number-systems:ℝ)  a statement
+read 260: 10^(k + 1) > 0  as  order:>(power:^(numeral:10, additive:+(name:k, numeral:1)), numeral:0)  a statement
+read 262: (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)  as  order:≤(multiplicative:/(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), power:^(numeral:10, additive:+(name:k, numeral:1))), multiplicative:/(multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)), power:^(numeral:10, additive:+(name:k, numeral:1))))  a statement
+read 263: 10^(k + 1)  as  power:^(numeral:10, additive:+(name:k, numeral:1))  a number
+read 263: 10·(N(k) + 1)  as  multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1))  a number
+read 263: N(k + 1) + 1  as  additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1)  a number
+read 264: N(k + 1) + 1 ∈ ℝ  as  membership:∈(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), number-systems:ℝ)  a statement
+read 265: 10·(N(k) + 1) ∈ ℝ  as  membership:∈(multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)), number-systems:ℝ)  a statement
+read 266: 10^(k + 1) > 0  as  order:>(power:^(numeral:10, additive:+(name:k, numeral:1)), numeral:0)  a statement
+read 268: N(k)/10^k ≤ N(k + 1)/10^(k + 1)  as  order:≤(multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k)), multiplicative:/(application:()(name:N, additive:+(name:k, numeral:1)), power:^(numeral:10, additive:+(name:k, numeral:1))))  a statement
+read 269: N(k)/10^k = (10·N(k))/10^(k + 1)  as  equality:=(multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k)), multiplicative:/(multiplicative:·(numeral:10, application:()(name:N, name:k)), power:^(numeral:10, additive:+(name:k, numeral:1))))  a statement
+read 271: (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k  as  order:≤(multiplicative:/(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), power:^(numeral:10, additive:+(name:k, numeral:1))), multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k)))  a statement
+read 272: (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)  as  equality:=(multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k)), multiplicative:/(multiplicative:·(numeral:10, additive:+(application:()(name:N, name:k), numeral:1)), power:^(numeral:10, additive:+(name:k, numeral:1))))  a statement
+read 274: L(k) ≤ L(k + 1)  as  order:≤(application:()(name:L, name:k), application:()(name:L, additive:+(name:k, numeral:1)))  a statement
+read 276: L(k)  as  application:()(name:L, name:k)  a number
+read 276: N(k)/10^k  as  multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k))  a number
+read 277: N(k + 1)/10^(k + 1)  as  multiplicative:/(application:()(name:N, additive:+(name:k, numeral:1)), power:^(numeral:10, additive:+(name:k, numeral:1)))  a number
+read 278: L(k + 1)  as  application:()(name:L, additive:+(name:k, numeral:1))  a number
+read 280: U(k + 1) ≤ U(k)  as  order:≤(application:()(name:U, additive:+(name:k, numeral:1)), application:()(name:U, name:k))  a statement
+read 282: (N(k + 1) + 1)/10^(k + 1)  as  multiplicative:/(additive:+(application:()(name:N, additive:+(name:k, numeral:1)), numeral:1), power:^(numeral:10, additive:+(name:k, numeral:1)))  a number
+read 282: U(k + 1)  as  application:()(name:U, additive:+(name:k, numeral:1))  a number
+read 283: (N(k) + 1)/10^k  as  multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k))  a number
+read 284: U(k)  as  application:()(name:U, name:k)  a number
+read 286: L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)  as  conjunction:and(order:≤(application:()(name:L, name:k), application:()(name:L, additive:+(name:k, numeral:1))), order:≤(application:()(name:U, additive:+(name:k, numeral:1)), application:()(name:U, name:k)))  a statement
+read 289: For all k ∈ ℕ₀, L(k) ∈ ℝ and U(k) ∈ ℝ and L(k) ≤ U(k)  as  for-all:forall∈,(name:k, number-systems:ℕ₀, conjunction:and(conjunction:and(membership:∈(application:()(name:L, name:k), number-systems:ℝ), membership:∈(application:()(name:U, name:k), number-systems:ℝ)), order:≤(application:()(name:L, name:k), application:()(name:U, name:k))))  a statement
+read 292: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 294: 10^k ∈ ℕ  as  membership:∈(power:^(numeral:10, name:k), number-systems:ℕ)  a statement
+read 295: 10  as  numeral:10  a number
+read 295: k  as  name:k  a number
+read 297: L(k) ∈ ℝ  as  membership:∈(application:()(name:L, name:k), number-systems:ℝ)  a statement
+read 300: U(k) ∈ ℝ  as  membership:∈(application:()(name:U, name:k), number-systems:ℝ)  a statement
+read 303: N(k) ≤ N(k) + 1  as  order:≤(application:()(name:N, name:k), additive:+(application:()(name:N, name:k), numeral:1))  a statement
+read 305: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 307: L(k) ≤ U(k)  as  order:≤(application:()(name:L, name:k), application:()(name:U, name:k))  a statement
+read 309: L(k)  as  application:()(name:L, name:k)  a number
+read 309: N(k)/10^k  as  multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k))  a number
+read 310: (N(k) + 1)/10^k  as  multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k))  a number
+read 310: 10^k  as  power:^(numeral:10, name:k)  a number
+read 310: N(k)  as  application:()(name:N, name:k)  a number
+read 310: N(k) + 1  as  additive:+(application:()(name:N, name:k), numeral:1)  a number
+read 310: N(k)/10^k ≤ (N(k) + 1)/10^k  as  order:≤(multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k)), multiplicative:/(additive:+(application:()(name:N, name:k), numeral:1), power:^(numeral:10, name:k)))  a statement
+read 311: U(k)  as  application:()(name:U, name:k)  a number
+read 312: N(k) ∈ ℝ  as  membership:∈(application:()(name:N, name:k), number-systems:ℝ)  a statement
+read 313: 10^k > 0  as  order:>(power:^(numeral:10, name:k), numeral:0)  a statement
+read 315: L(k) ∈ ℝ  as  membership:∈(application:()(name:L, name:k), number-systems:ℝ)  a statement
+read 315: L(k) ≤ U(k)  as  order:≤(application:()(name:L, name:k), application:()(name:U, name:k))  a statement
+read 315: U(k) ∈ ℝ  as  membership:∈(application:()(name:U, name:k), number-systems:ℝ)  a statement
+read 318: For all g ∈ ℕ₀, for all p ∈ ℕ₀, L(p) ≤ L(p + g) and U(p + g) ≤ U(p)  as  for-all:forall∈,(name:g, number-systems:ℕ₀, for-all:forall∈,(name:p, number-systems:ℕ₀, conjunction:and(order:≤(application:()(name:L, name:p), application:()(name:L, additive:+(name:p, name:g))), order:≤(application:()(name:U, additive:+(name:p, name:g)), application:()(name:U, name:p)))))  a statement
+read 319: 0  as  numeral:0  a number
+read 324: p ∈ ℕ₀  as  membership:∈(name:p, number-systems:ℕ₀)  a statement
+read 326: L(p) ≤ L(p) and U(p) ≤ U(p)  as  conjunction:and(order:≤(application:()(name:L, name:p), application:()(name:L, name:p)), order:≤(application:()(name:U, name:p), application:()(name:U, name:p)))  a statement
+read 330: g ∈ ℕ₀  as  membership:∈(name:g, number-systems:ℕ₀)  a statement
+read 333: p ∈ ℕ₀  as  membership:∈(name:p, number-systems:ℕ₀)  a statement
+read 335: L(p) ≤ L(p + g) and U(p + g) ≤ U(p)  as  conjunction:and(order:≤(application:()(name:L, name:p), application:()(name:L, additive:+(name:p, name:g))), order:≤(application:()(name:U, additive:+(name:p, name:g)), application:()(name:U, name:p)))  a statement
+read 336: p  as  name:p  a number
+read 338: L(p + g) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p + g)  as  conjunction:and(order:≤(application:()(name:L, additive:+(name:p, name:g)), application:()(name:L, additive:+(additive:+(name:p, name:g), numeral:1))), order:≤(application:()(name:U, additive:+(additive:+(name:p, name:g), numeral:1)), application:()(name:U, additive:+(name:p, name:g))))  a statement
+read 339: p + g  as  additive:+(name:p, name:g)  a number
+read 341: L(p) ∈ ℝ  as  membership:∈(application:()(name:L, name:p), number-systems:ℝ)  a statement
+read 341: L(p) ≤ U(p)  as  order:≤(application:()(name:L, name:p), application:()(name:U, name:p))  a statement
+read 341: U(p) ∈ ℝ  as  membership:∈(application:()(name:U, name:p), number-systems:ℝ)  a statement
+read 342: p  as  name:p  a number
+read 344: L(p + g) ∈ ℝ  as  membership:∈(application:()(name:L, additive:+(name:p, name:g)), number-systems:ℝ)  a statement
+read 344: L(p + g) ≤ U(p + g)  as  order:≤(application:()(name:L, additive:+(name:p, name:g)), application:()(name:U, additive:+(name:p, name:g)))  a statement
+read 344: U(p + g) ∈ ℝ  as  membership:∈(application:()(name:U, additive:+(name:p, name:g)), number-systems:ℝ)  a statement
+read 345: p + g  as  additive:+(name:p, name:g)  a number
+read 347: L((p + g) + 1) ∈ ℝ  as  membership:∈(application:()(name:L, additive:+(additive:+(name:p, name:g), numeral:1)), number-systems:ℝ)  a statement
+read 347: L((p + g) + 1) ≤ U((p + g) + 1)  as  order:≤(application:()(name:L, additive:+(additive:+(name:p, name:g), numeral:1)), application:()(name:U, additive:+(additive:+(name:p, name:g), numeral:1)))  a statement
+read 347: U((p + g) + 1) ∈ ℝ  as  membership:∈(application:()(name:U, additive:+(additive:+(name:p, name:g), numeral:1)), number-systems:ℝ)  a statement
+read 349: (p + g) + 1  as  additive:+(additive:+(name:p, name:g), numeral:1)  a number
+read 351: L(p) ≤ L(p + g)  as  order:≤(application:()(name:L, name:p), application:()(name:L, additive:+(name:p, name:g)))  a statement
+read 354: L(p + g) ≤ L((p + g) + 1)  as  order:≤(application:()(name:L, additive:+(name:p, name:g)), application:()(name:L, additive:+(additive:+(name:p, name:g), numeral:1)))  a statement
+read 357: L(p) ≤ L((p + g) + 1)  as  order:≤(application:()(name:L, name:p), application:()(name:L, additive:+(additive:+(name:p, name:g), numeral:1)))  a statement
+read 359: L(p) ∈ ℝ  as  membership:∈(application:()(name:L, name:p), number-systems:ℝ)  a statement
+read 360: L(p + g) ∈ ℝ  as  membership:∈(application:()(name:L, additive:+(name:p, name:g)), number-systems:ℝ)  a statement
+read 361: L((p + g) + 1) ∈ ℝ  as  membership:∈(application:()(name:L, additive:+(additive:+(name:p, name:g), numeral:1)), number-systems:ℝ)  a statement
+read 363: U((p + g) + 1) ≤ U(p + g)  as  order:≤(application:()(name:U, additive:+(additive:+(name:p, name:g), numeral:1)), application:()(name:U, additive:+(name:p, name:g)))  a statement
+read 366: U(p + g) ≤ U(p)  as  order:≤(application:()(name:U, additive:+(name:p, name:g)), application:()(name:U, name:p))  a statement
+read 369: U((p + g) + 1) ≤ U(p)  as  order:≤(application:()(name:U, additive:+(additive:+(name:p, name:g), numeral:1)), application:()(name:U, name:p))  a statement
+read 371: U(p) ∈ ℝ  as  membership:∈(application:()(name:U, name:p), number-systems:ℝ)  a statement
+read 372: U(p + g) ∈ ℝ  as  membership:∈(application:()(name:U, additive:+(name:p, name:g)), number-systems:ℝ)  a statement
+read 373: U((p + g) + 1) ∈ ℝ  as  membership:∈(application:()(name:U, additive:+(additive:+(name:p, name:g), numeral:1)), number-systems:ℝ)  a statement
+read 375: L(p) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p)  as  conjunction:and(order:≤(application:()(name:L, name:p), application:()(name:L, additive:+(additive:+(name:p, name:g), numeral:1))), order:≤(application:()(name:U, additive:+(additive:+(name:p, name:g), numeral:1)), application:()(name:U, name:p)))  a statement
+read 378: (p + g) + 1 = p + (g + 1)  as  equality:=(additive:+(additive:+(name:p, name:g), numeral:1), additive:+(name:p, additive:+(name:g, numeral:1)))  a statement
+read 381: L(p) ≤ L(p + (g + 1)) and U(p + (g + 1)) ≤ U(p)  as  conjunction:and(order:≤(application:()(name:L, name:p), application:()(name:L, additive:+(name:p, additive:+(name:g, numeral:1)))), order:≤(application:()(name:U, additive:+(name:p, additive:+(name:g, numeral:1))), application:()(name:U, name:p)))  a statement
+read 382: (p + g) + 1 = p + (g + 1)  as  equality:=(additive:+(additive:+(name:p, name:g), numeral:1), additive:+(name:p, additive:+(name:g, numeral:1)))  a statement
+read 384: For all j ∈ ℕ₀, for all k ∈ ℕ₀, L(j) ≤ U(k)  as  for-all:forall∈,(name:j, number-systems:ℕ₀, for-all:forall∈,(name:k, number-systems:ℕ₀, order:≤(application:()(name:L, name:j), application:()(name:U, name:k))))  a statement
+read 387: j ∈ ℕ₀  as  membership:∈(name:j, number-systems:ℕ₀)  a statement
+read 388: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 390: L(j) ∈ ℝ  as  membership:∈(application:()(name:L, name:j), number-systems:ℝ)  a statement
+read 390: L(j) ≤ U(j)  as  order:≤(application:()(name:L, name:j), application:()(name:U, name:j))  a statement
+read 390: U(j) ∈ ℝ  as  membership:∈(application:()(name:U, name:j), number-systems:ℝ)  a statement
+read 391: j  as  name:j  a number
+read 393: L(k) ∈ ℝ  as  membership:∈(application:()(name:L, name:k), number-systems:ℝ)  a statement
+read 393: L(k) ≤ U(k)  as  order:≤(application:()(name:L, name:k), application:()(name:U, name:k))  a statement
+read 393: U(k) ∈ ℝ  as  membership:∈(application:()(name:U, name:k), number-systems:ℝ)  a statement
+read 394: k  as  name:k  a number
+read 396: j ≤ k or not (j ≤ k)  as  disjunction:or(order:≤(name:j, name:k), logical-not:not(order:≤(name:j, name:k)))  a statement
+read 397: j ≤ k  as  order:≤(name:j, name:k)  a statement
+read 399: L(j) ≤ U(k)  as  order:≤(application:()(name:L, name:j), application:()(name:U, name:k))  a statement
+read 403: j ≤ k  as  order:≤(name:j, name:k)  a statement
+read 405: k − j ∈ ℕ₀  as  membership:∈(additive:−(name:k, name:j), number-systems:ℕ₀)  a statement
+read 407: 0 ≤ k − j  as  order:≤(numeral:0, additive:−(name:k, name:j))  a statement
+read 407: −j  as  unary-minus:−(name:j)  a number
+read 409: L(j) ≤ L(j + (k − j)) and U(j + (k − j)) ≤ U(j)  as  conjunction:and(order:≤(application:()(name:L, name:j), application:()(name:L, additive:+(name:j, additive:−(name:k, name:j)))), order:≤(application:()(name:U, additive:+(name:j, additive:−(name:k, name:j))), application:()(name:U, name:j)))  a statement
+read 410: j  as  name:j  a number
+read 410: k − j  as  additive:−(name:k, name:j)  a number
+read 412: L(j) ≤ L(k) and U(k) ≤ U(j)  as  conjunction:and(order:≤(application:()(name:L, name:j), application:()(name:L, name:k)), order:≤(application:()(name:U, name:k), application:()(name:U, name:j)))  a statement
+read 414: L(j) ≤ L(j + (k − j)) and U(j + (k − j)) ≤ U(j)  as  conjunction:and(order:≤(application:()(name:L, name:j), application:()(name:L, additive:+(name:j, additive:−(name:k, name:j)))), order:≤(application:()(name:U, additive:+(name:j, additive:−(name:k, name:j))), application:()(name:U, name:j)))  a statement
+read 415: L(j) ≤ L(k) and U(k) ≤ U(j)  as  conjunction:and(order:≤(application:()(name:L, name:j), application:()(name:L, name:k)), order:≤(application:()(name:U, name:k), application:()(name:U, name:j)))  a statement
+read 415: the change from L(j) ≤ L(j + (k − j)) and U(j + (k − j)) ≤ U(j) to L(j) ≤ L(k) and U(k) ≤ U(j)  as  equality:=(additive:+(name:j, additive:−(name:k, name:j)), name:k)  a statement
+read 417: L(j) ≤ L(k)  as  order:≤(application:()(name:L, name:j), application:()(name:L, name:k))  a statement
+read 420: L(j) ≤ U(k)  as  order:≤(application:()(name:L, name:j), application:()(name:U, name:k))  a statement
+read 422: L(j) ∈ ℝ  as  membership:∈(application:()(name:L, name:j), number-systems:ℝ)  a statement
+read 425: not (j ≤ k)  as  logical-not:not(order:≤(name:j, name:k))  a statement
+read 427: k < j  as  order:<(name:k, name:j)  a statement
+read 430: 0 ≤ j − k  as  order:≤(numeral:0, additive:−(name:j, name:k))  a statement
+read 432: k < j  as  order:<(name:k, name:j)  a statement
+read 433: 0 < j − k  as  order:<(numeral:0, additive:−(name:j, name:k))  a statement
+read 433: −k  as  unary-minus:−(name:k)  a number
+read 434: 0 ≤ j − k  as  order:≤(numeral:0, additive:−(name:j, name:k))  a statement
+read 436: j − k ∈ ℕ₀  as  membership:∈(additive:−(name:j, name:k), number-systems:ℕ₀)  a statement
+read 438: 0 ≤ j − k  as  order:≤(numeral:0, additive:−(name:j, name:k))  a statement
+read 440: L(k) ≤ L(k + (j − k)) and U(k + (j − k)) ≤ U(k)  as  conjunction:and(order:≤(application:()(name:L, name:k), application:()(name:L, additive:+(name:k, additive:−(name:j, name:k)))), order:≤(application:()(name:U, additive:+(name:k, additive:−(name:j, name:k))), application:()(name:U, name:k)))  a statement
+read 441: j − k  as  additive:−(name:j, name:k)  a number
+read 441: k  as  name:k  a number
+read 443: L(k) ≤ L(j) and U(j) ≤ U(k)  as  conjunction:and(order:≤(application:()(name:L, name:k), application:()(name:L, name:j)), order:≤(application:()(name:U, name:j), application:()(name:U, name:k)))  a statement
+read 445: L(k) ≤ L(k + (j − k)) and U(k + (j − k)) ≤ U(k)  as  conjunction:and(order:≤(application:()(name:L, name:k), application:()(name:L, additive:+(name:k, additive:−(name:j, name:k)))), order:≤(application:()(name:U, additive:+(name:k, additive:−(name:j, name:k))), application:()(name:U, name:k)))  a statement
+read 446: L(k) ≤ L(j) and U(j) ≤ U(k)  as  conjunction:and(order:≤(application:()(name:L, name:k), application:()(name:L, name:j)), order:≤(application:()(name:U, name:j), application:()(name:U, name:k)))  a statement
+read 446: the change from L(k) ≤ L(k + (j − k)) and U(k + (j − k)) ≤ U(k) to L(k) ≤ L(j) and U(j) ≤ U(k)  as  equality:=(additive:+(name:k, additive:−(name:j, name:k)), name:j)  a statement
+read 448: U(j) ≤ U(k)  as  order:≤(application:()(name:U, name:j), application:()(name:U, name:k))  a statement
+read 451: L(j) ≤ U(k)  as  order:≤(application:()(name:L, name:j), application:()(name:U, name:k))  a statement
+read 453: U(k) ∈ ℝ  as  membership:∈(application:()(name:U, name:k), number-systems:ℝ)  a statement
+read 455: S ⊆ ℝ  as  subset:⊆(name:S, number-systems:ℝ)  a statement
+read 458: For all k ∈ ℕ₀, L(k) ∈ S  as  for-all:forall∈,(name:k, number-systems:ℕ₀, membership:∈(application:()(name:L, name:k), name:S))  a statement
+read 460: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 462: L(k) = N(k)/10^k  as  equality:=(application:()(name:L, name:k), multiplicative:/(application:()(name:N, name:k), power:^(numeral:10, name:k)))  a statement
+read 465: L(k) ∈ S  as  membership:∈(application:()(name:L, name:k), name:S)  a statement
+read 466: L(k)  as  application:()(name:L, name:k)  a number
+read 467: L(k) ∈ ℝ  as  membership:∈(application:()(name:L, name:k), number-systems:ℝ)  a statement
+read 469: L(0) ∈ S  as  membership:∈(application:()(name:L, numeral:0), name:S)  a statement
+read 470: 0  as  numeral:0  a number
+read 472: For all k ∈ ℕ₀, U(k) is an upper bound of S  as  for-all:forall∈,(name:k, number-systems:ℕ₀, stdlib/calculus/upper-bound:isanupperboundof(application:()(name:U, name:k), name:S))  a statement
+read 474: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 476: For all y ∈ S, y ≤ U(k)  as  for-all:forall∈,(name:y, name:S, order:≤(name:y, application:()(name:U, name:k)))  a statement
+read 478: y ∈ S  as  membership:∈(name:y, name:S)  a statement
+read 480: j ∈ ℕ₀  as  membership:∈(name:j, number-systems:ℕ₀)  a statement
+read 480: y = N(j)/10^j  as  equality:=(name:y, multiplicative:/(application:()(name:N, name:j), power:^(numeral:10, name:j)))  a statement
+read 481: y  as  name:y  a number
+read 483: L(j) ≤ U(k)  as  order:≤(application:()(name:L, name:j), application:()(name:U, name:k))  a statement
+read 484: j  as  name:j  a number
+read 484: k  as  name:k  a number
+read 486: y = L(j)  as  equality:=(name:y, application:()(name:L, name:j))  a statement
+read 488: N(j)/10^j  as  multiplicative:/(application:()(name:N, name:j), power:^(numeral:10, name:j))  a number
+read 488: y  as  name:y  a number
+read 489: L(j)  as  application:()(name:L, name:j)  a number
+read 491: y ≤ U(k)  as  order:≤(name:y, application:()(name:U, name:k))  a statement
+read 492: y = L(j)  as  equality:=(name:y, application:()(name:L, name:j))  a statement
+read 494: U(k) is an upper bound of S  as  stdlib/calculus/upper-bound:isanupperboundof(application:()(name:U, name:k), name:S)  a statement
+read 497: U(0) is an upper bound of S  as  stdlib/calculus/upper-bound:isanupperboundof(application:()(name:U, numeral:0), name:S)  a statement
+read 498: 0  as  numeral:0  a number
+read 500: c is a least upper bound of S  as  stdlib/calculus/least-upper-bound:isaleastupperboundof(name:c, name:S)  a statement
+read 500: c ∈ ℝ  as  membership:∈(name:c, number-systems:ℝ)  a statement
+read 502: U(0) ∈ ℝ  as  membership:∈(application:()(name:U, numeral:0), number-systems:ℝ)  a statement
+read 504: For all u ∈ ℝ, if u is an upper bound of S then c ≤ u  as  for-all:forall∈,(name:u, number-systems:ℝ, conditional:ifthen(stdlib/calculus/upper-bound:isanupperboundof(name:u, name:S), order:≤(name:c, name:u)))  a statement
+read 504: c is an upper bound of S  as  stdlib/calculus/upper-bound:isanupperboundof(name:c, name:S)  a statement
+read 508: For all y ∈ S, y ≤ c  as  for-all:forall∈,(name:y, name:S, order:≤(name:y, name:c))  a statement
+read 511: For all k ∈ ℕ₀, L(k) ≤ c and c ≤ U(k)  as  for-all:forall∈,(name:k, number-systems:ℕ₀, conjunction:and(order:≤(application:()(name:L, name:k), name:c), order:≤(name:c, application:()(name:U, name:k))))  a statement
+read 514: k ∈ ℕ₀  as  membership:∈(name:k, number-systems:ℕ₀)  a statement
+read 516: L(k) ≤ c  as  order:≤(application:()(name:L, name:k), name:c)  a statement
+read 517: L(k)  as  application:()(name:L, name:k)  a number
+read 519: c ≤ U(k)  as  order:≤(name:c, application:()(name:U, name:k))  a statement
+read 520: U(k)  as  application:()(name:U, name:k)  a number
+read 521: U(k) ∈ ℝ  as  membership:∈(application:()(name:U, name:k), number-systems:ℝ)  a statement
+read 523: L(k) ≤ c and c ≤ U(k)  as  conjunction:and(order:≤(application:()(name:L, name:k), name:c), order:≤(name:c, application:()(name:U, name:k)))  a statement
+read 526: For all n ∈ ℕ, D(c, n) = d(n) or D(c, n) = s(d(n))  as  for-all:forall∈,(name:n, number-systems:ℕ, disjunction:or(equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:d, name:n)), equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:s, application:()(name:d, name:n)))))  a statement
+read 528: n ∈ ℕ  as  membership:∈(name:n, number-systems:ℕ)  a statement
+read 530: n − 1 ∈ ℕ₀  as  membership:∈(additive:−(name:n, numeral:1), number-systems:ℕ₀)  a statement
+read 533: N((n − 1) + 1) = 10·N(n − 1) + d((n − 1) + 1)  as  equality:=(application:()(name:N, additive:+(additive:−(name:n, numeral:1), numeral:1)), additive:+(multiplicative:·(numeral:10, application:()(name:N, additive:−(name:n, numeral:1))), application:()(name:d, additive:+(additive:−(name:n, numeral:1), numeral:1))))  a statement
+read 535: n − 1 ∈ ℕ₀  as  membership:∈(additive:−(name:n, numeral:1), number-systems:ℕ₀)  a statement
+read 537: N(n) = 10·N(n − 1) + d(n)  as  equality:=(application:()(name:N, name:n), additive:+(multiplicative:·(numeral:10, application:()(name:N, additive:−(name:n, numeral:1))), application:()(name:d, name:n)))  a statement
+read 539: N((n − 1) + 1) = 10·N(n − 1) + d((n − 1) + 1)  as  equality:=(application:()(name:N, additive:+(additive:−(name:n, numeral:1), numeral:1)), additive:+(multiplicative:·(numeral:10, application:()(name:N, additive:−(name:n, numeral:1))), application:()(name:d, additive:+(additive:−(name:n, numeral:1), numeral:1))))  a statement
+read 540: N(n) = 10·N(n − 1) + d(n)  as  equality:=(application:()(name:N, name:n), additive:+(multiplicative:·(numeral:10, application:()(name:N, additive:−(name:n, numeral:1))), application:()(name:d, name:n)))  a statement
+read 540: the change from N((n − 1) + 1) = 10·N(n − 1) + d((n − 1) + 1) to N(n) = 10·N(n − 1) + d(n)  as  equality:=(additive:+(additive:−(name:n, numeral:1), numeral:1), name:n)  a statement
+read 542: N(n − 1) ∈ ℤ  as  membership:∈(application:()(name:N, additive:−(name:n, numeral:1)), number-systems:ℤ)  a statement
+read 543: n − 1  as  additive:−(name:n, numeral:1)  a number
+read 545: N(n) ∈ ℤ  as  membership:∈(application:()(name:N, name:n), number-systems:ℤ)  a statement
+read 547: d(n) ∈ ℤ  as  membership:∈(application:()(name:d, name:n), number-systems:ℤ)  a statement
+read 549: 10^n ∈ ℕ  as  membership:∈(power:^(numeral:10, name:n), number-systems:ℕ)  a statement
+read 550: 10  as  numeral:10  a number
+read 550: n  as  name:n  a number
+read 552: L(n) ≤ c and c ≤ U(n)  as  conjunction:and(order:≤(application:()(name:L, name:n), name:c), order:≤(name:c, application:()(name:U, name:n)))  a statement
+read 553: n  as  name:n  a number
+read 555: 10^n·(N(n)/10^n) ≤ 10^n·c  as  order:≤(multiplicative:·(power:^(numeral:10, name:n), multiplicative:/(application:()(name:N, name:n), power:^(numeral:10, name:n))), multiplicative:·(power:^(numeral:10, name:n), name:c))  a statement
+read 556: 10^n  as  power:^(numeral:10, name:n)  a number
+read 556: N(n)/10^n  as  multiplicative:/(application:()(name:N, name:n), power:^(numeral:10, name:n))  a number
+read 556: c  as  name:c  a number
+read 557: N(n)/10^n ∈ ℝ  as  membership:∈(multiplicative:/(application:()(name:N, name:n), power:^(numeral:10, name:n)), number-systems:ℝ)  a statement
+read 558: 10^n > 0  as  order:>(power:^(numeral:10, name:n), numeral:0)  a statement
+read 560: 10^n·c ≤ 10^n·((N(n) + 1)/10^n)  as  order:≤(multiplicative:·(power:^(numeral:10, name:n), name:c), multiplicative:·(power:^(numeral:10, name:n), multiplicative:/(additive:+(application:()(name:N, name:n), numeral:1), power:^(numeral:10, name:n))))  a statement
+read 561: (N(n) + 1)/10^n  as  multiplicative:/(additive:+(application:()(name:N, name:n), numeral:1), power:^(numeral:10, name:n))  a number
+read 561: 10^n  as  power:^(numeral:10, name:n)  a number
+read 561: c  as  name:c  a number
+read 562: (N(n) + 1)/10^n ∈ ℝ  as  membership:∈(multiplicative:/(additive:+(application:()(name:N, name:n), numeral:1), power:^(numeral:10, name:n)), number-systems:ℝ)  a statement
+read 563: 10^n > 0  as  order:>(power:^(numeral:10, name:n), numeral:0)  a statement
+read 565: 10^n·(N(n)/10^n) = N(n)  as  equality:=(multiplicative:·(power:^(numeral:10, name:n), multiplicative:/(application:()(name:N, name:n), power:^(numeral:10, name:n))), application:()(name:N, name:n))  a statement
+read 567: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 569: 10^n·((N(n) + 1)/10^n) = N(n) + 1  as  equality:=(multiplicative:·(power:^(numeral:10, name:n), multiplicative:/(additive:+(application:()(name:N, name:n), numeral:1), power:^(numeral:10, name:n))), additive:+(application:()(name:N, name:n), numeral:1))  a statement
+read 571: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 573: N(n) ≤ 10^n·c  as  order:≤(application:()(name:N, name:n), multiplicative:·(power:^(numeral:10, name:n), name:c))  a statement
+read 575: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 577: 10^n·c ≤ N(n) + 1  as  order:≤(multiplicative:·(power:^(numeral:10, name:n), name:c), additive:+(application:()(name:N, name:n), numeral:1))  a statement
+read 579: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 581: ⌊10^n·c⌋ ∈ ℤ  as  membership:∈(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), number-systems:ℤ)  a statement
+read 582: 10^n·c  as  multiplicative:·(power:^(numeral:10, name:n), name:c)  a number
+read 584: ⌊10^n·c⌋ ≤ 10^n·c  as  order:≤(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), multiplicative:·(power:^(numeral:10, name:n), name:c))  a statement
+read 585: 10^n·c  as  multiplicative:·(power:^(numeral:10, name:n), name:c)  a number
+read 587: 10^n·c < ⌊10^n·c⌋ + 1  as  order:<(multiplicative:·(power:^(numeral:10, name:n), name:c), additive:+(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:1))  a statement
+read 588: 10^n·c  as  multiplicative:·(power:^(numeral:10, name:n), name:c)  a number
+read 590: N(n) < ⌊10^n·c⌋ + 1  as  order:<(application:()(name:N, name:n), additive:+(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:1))  a statement
+read 592: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 593: ⌊10^n·c⌋ ∈ ℝ  as  membership:∈(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), number-systems:ℝ)  a statement
+read 595: ⌊10^n·c⌋ ≤ N(n) + 1  as  order:≤(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), additive:+(application:()(name:N, name:n), numeral:1))  a statement
+read 597: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 598: ⌊10^n·c⌋ ∈ ℝ  as  membership:∈(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), number-systems:ℝ)  a statement
+read 600: N(n) + 1 ≤ ⌊10^n·c⌋ + 1  as  order:≤(additive:+(application:()(name:N, name:n), numeral:1), additive:+(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:1))  a statement
+read 601: N(n)  as  application:()(name:N, name:n)  a number
+read 601: ⌊10^n·c⌋ + 1  as  additive:+(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:1)  a number
+read 602: ⌊10^n·c⌋ + 1 ∈ ℤ  as  membership:∈(additive:+(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:1), number-systems:ℤ)  a statement
+read 604: D(c, n) = ⌊10^n·c⌋ mod 10  as  equality:=(application-to-two:(,)(name:D, name:c, name:n), mod:mod(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:10))  a statement
+read 607: d(n) ∈ ℕ₀  as  membership:∈(application:()(name:d, name:n), number-systems:ℕ₀)  a statement
+read 609: d(n) ∈ ℤ  as  membership:∈(application:()(name:d, name:n), number-systems:ℤ)  a statement
+read 610: 0 ≤ d(n)  as  order:≤(numeral:0, application:()(name:d, name:n))  a statement
+read 612: d(n) + 1 ∈ ℤ  as  membership:∈(additive:+(application:()(name:d, name:n), numeral:1), number-systems:ℤ)  a statement
+read 615: ⌊10^n·c⌋ ≤ N(n) or not (⌊10^n·c⌋ ≤ N(n))  as  disjunction:or(order:≤(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), application:()(name:N, name:n)), logical-not:not(order:≤(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), application:()(name:N, name:n))))  a statement
+read 616: ⌊10^n·c⌋ ≤ N(n)  as  order:≤(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), application:()(name:N, name:n))  a statement
+read 618: D(c, n) = d(n) or D(c, n) = s(d(n))  as  disjunction:or(equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:d, name:n)), equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:s, application:()(name:d, name:n))))  a statement
+read 622: ⌊10^n·c⌋ ≤ N(n)  as  order:≤(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), application:()(name:N, name:n))  a statement
+read 624: N(n) ≤ ⌊10^n·c⌋  as  order:≤(application:()(name:N, name:n), floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)))  a statement
+read 626: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 627: ⌊10^n·c⌋ ∈ ℝ  as  membership:∈(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), number-systems:ℝ)  a statement
+read 629: ⌊10^n·c⌋ = N(n)  as  equality:=(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), application:()(name:N, name:n))  a statement
+read 631: ⌊10^n·c⌋ ∈ ℝ  as  membership:∈(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), number-systems:ℝ)  a statement
+read 632: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 634: N(n − 1)·10 + d(n) = ⌊10^n·c⌋  as  equality:=(additive:+(multiplicative:·(application:()(name:N, additive:−(name:n, numeral:1)), numeral:10), application:()(name:d, name:n)), floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)))  a statement
+read 636: N(n − 1) ∈ ℝ  as  membership:∈(application:()(name:N, additive:−(name:n, numeral:1)), number-systems:ℝ)  a statement
+read 637: d(n) ∈ ℝ  as  membership:∈(application:()(name:d, name:n), number-systems:ℝ)  a statement
+read 639: There is q ∈ ℤ with q·10 + d(n) = ⌊10^n·c⌋  as  there-is:thereis∈with(name:q, number-systems:ℤ, equality:=(additive:+(multiplicative:·(name:q, numeral:10), application:()(name:d, name:n)), floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c))))  a statement
+read 642: D(c, n) = d(n)  as  equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:d, name:n))  a statement
+read 644: D(c, n)  as  application-to-two:(,)(name:D, name:c, name:n)  a number
+read 644: ⌊10^n·c⌋ mod 10  as  mod:mod(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:10)  a number
+read 645: 10  as  numeral:10  a number
+read 645: d(n)  as  application:()(name:d, name:n)  a number
+read 645: ⌊10^n·c⌋  as  floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c))  a number
+read 645: ⌊10^n·c⌋ mod 10 = d(n)  as  equality:=(mod:mod(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:10), application:()(name:d, name:n))  a statement
+read 646: d(n) ∈ ℕ₀  as  membership:∈(application:()(name:d, name:n), number-systems:ℕ₀)  a statement
+read 647: d(n) < 10  as  order:<(application:()(name:d, name:n), numeral:10)  a statement
+read 649: D(c, n) = d(n) or D(c, n) = s(d(n))  as  disjunction:or(equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:d, name:n)), equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:s, application:()(name:d, name:n))))  a statement
+read 653: not (⌊10^n·c⌋ ≤ N(n))  as  logical-not:not(order:≤(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), application:()(name:N, name:n)))  a statement
+read 655: N(n) < ⌊10^n·c⌋  as  order:<(application:()(name:N, name:n), floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)))  a statement
+read 658: N(n) + 1 ≤ ⌊10^n·c⌋  as  order:≤(additive:+(application:()(name:N, name:n), numeral:1), floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)))  a statement
+read 659: N(n)  as  application:()(name:N, name:n)  a number
+read 659: ⌊10^n·c⌋  as  floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c))  a number
+read 661: ⌊10^n·c⌋ = N(n) + 1  as  equality:=(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), additive:+(application:()(name:N, name:n), numeral:1))  a statement
+read 663: ⌊10^n·c⌋ ∈ ℝ  as  membership:∈(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), number-systems:ℝ)  a statement
+read 664: N(n) ∈ ℝ  as  membership:∈(application:()(name:N, name:n), number-systems:ℝ)  a statement
+read 666: D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10  as  equality:=(application-to-two:(,)(name:D, name:c, name:n), mod:mod(additive:+(multiplicative:·(application:()(name:N, additive:−(name:n, numeral:1)), numeral:10), additive:+(application:()(name:d, name:n), numeral:1)), numeral:10))  a statement
+read 668: D(c, n) = ⌊10^n·c⌋ mod 10  as  equality:=(application-to-two:(,)(name:D, name:c, name:n), mod:mod(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), numeral:10))  a statement
+read 669: D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10  as  equality:=(application-to-two:(,)(name:D, name:c, name:n), mod:mod(additive:+(multiplicative:·(application:()(name:N, additive:−(name:n, numeral:1)), numeral:10), additive:+(application:()(name:d, name:n), numeral:1)), numeral:10))  a statement
+read 669: the change from D(c, n) = ⌊10^n·c⌋ mod 10 to D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10  as  equality:=(floor:⌊⌋(multiplicative:·(power:^(numeral:10, name:n), name:c)), additive:+(multiplicative:·(application:()(name:N, additive:−(name:n, numeral:1)), numeral:10), additive:+(application:()(name:d, name:n), numeral:1)))  a statement
+read 670: N(n − 1) ∈ ℝ  as  membership:∈(application:()(name:N, additive:−(name:n, numeral:1)), number-systems:ℝ)  a statement
+read 671: d(n) ∈ ℝ  as  membership:∈(application:()(name:d, name:n), number-systems:ℝ)  a statement
+read 673: s(d(n)) = (d(n) + 1) mod 10  as  equality:=(application:()(name:s, application:()(name:d, name:n)), mod:mod(additive:+(application:()(name:d, name:n), numeral:1), numeral:10))  a statement
+read 675: d(n) ∈ ℤ  as  membership:∈(application:()(name:d, name:n), number-systems:ℤ)  a statement
+read 677: D(c, n) = s(d(n))  as  equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:s, application:()(name:d, name:n)))  a statement
+read 679: (N(n − 1)·10 + (d(n) + 1)) mod 10  as  mod:mod(additive:+(multiplicative:·(application:()(name:N, additive:−(name:n, numeral:1)), numeral:10), additive:+(application:()(name:d, name:n), numeral:1)), numeral:10)  a number
+read 679: D(c, n)  as  application-to-two:(,)(name:D, name:c, name:n)  a number
+read 680: (N(n − 1)·10 + (d(n) + 1)) mod 10 = (d(n) + 1) mod 10  as  equality:=(mod:mod(additive:+(multiplicative:·(application:()(name:N, additive:−(name:n, numeral:1)), numeral:10), additive:+(application:()(name:d, name:n), numeral:1)), numeral:10), mod:mod(additive:+(application:()(name:d, name:n), numeral:1), numeral:10))  a statement
+read 680: (d(n) + 1) mod 10  as  mod:mod(additive:+(application:()(name:d, name:n), numeral:1), numeral:10)  a number
+read 680: 10  as  numeral:10  a number
+read 680: N(n − 1)  as  application:()(name:N, additive:−(name:n, numeral:1))  a number
+read 680: d(n) + 1  as  additive:+(application:()(name:d, name:n), numeral:1)  a number
+read 681: s(d(n))  as  application:()(name:s, application:()(name:d, name:n))  a number
+read 682: d(n) + 1 ∈ ℤ  as  membership:∈(additive:+(application:()(name:d, name:n), numeral:1), number-systems:ℤ)  a statement
+read 684: D(c, n) = d(n) or D(c, n) = s(d(n))  as  disjunction:or(equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:d, name:n)), equality:=(application-to-two:(,)(name:D, name:c, name:n), application:()(name:s, application:()(name:d, name:n))))  a statement
+read 687: There is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n))  as  there-is:thereis∈with(name:x, number-systems:ℝ, for-all:forall∈,(name:n, number-systems:ℕ, disjunction:or(equality:=(application-to-two:(,)(name:D, name:x, name:n), application:()(name:d, name:n)), equality:=(application-to-two:(,)(name:D, name:x, name:n), application:()(name:s, application:()(name:d, name:n))))))  a statement
+step 2.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 3.22 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 4.6 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 5.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 1, element: "0" }] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [Dropped { operation: "additive", literal: "+", hole: 1, element: "0" }] }]
+step 5.15 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 6.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 6.4.5 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 6.4.12 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 8.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 10.1.4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 10.2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 15.3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }, Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 16.24 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 16.24.6 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 16.24.13 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 17 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

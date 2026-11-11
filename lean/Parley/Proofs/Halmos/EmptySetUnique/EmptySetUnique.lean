@@ -23,7 +23,7 @@ theorem empty_set_unique {α : Type*} (A : Set α) (hH2 : ¬ (∃ a ∈ A, True)
     -- 1.1. exhibit, from K
     have s1_1 : ∃ a ∈ A, True := ⟨x, by parley_set_side, trivial⟩
     -- 1.2. restate H2
-    have s1_2 : ¬ (∃ a ∈ A, True) := by parley_set_side
+    have s1_2 : ¬ (∃ a ∈ A, True) := by exact hH2
     exact absurd s1_1 s1_2
   -- 2. mun:empty-subset X := A
   have s2 : ∅ ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_empty_subset (X := A))

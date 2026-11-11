@@ -16,7 +16,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SubsetAndIntersection.SubsetIffIntersection
 
-set_option maxHeartbeats 400000 in
 theorem subset_iff_intersection {α : Type*} (A : Set α) (B : Set α) :
     (A ⊆ B ↔ A ∩ B = A) := by
   -- the theorem. both directions
@@ -36,7 +35,7 @@ theorem subset_iff_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 3.1. mun:in-subset X := A, Y := B, u := t, from D1, K2
       have s3_1 : t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) hD1 hK2)
       -- 3.2. def:intersection u := t, Y := A, Z := B, from K2, 3.1
-      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mpr ⟨hK2, s3_1⟩
     -- 4. def:subset, from 3
     have s4 : A ⊆ A ∩ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := A ∩ B))).mpr s3
     -- 5. mun:subset-antisymmetric, from 2, 4

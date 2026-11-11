@@ -23,7 +23,7 @@ namespace Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayInAReq
 theorem a_congruence_the_other_way_in_a_requires_line (n : ℤ) (hH1 : 0 < n) (x : ℤ) (hH2 : x ∈ Finset.Icc (0 : ℤ) (n - 1)) (y : ℤ) (hH3 : y ∈ Finset.Icc (0 : ℤ) (n - 1)) (hH4 : y ≡ x [ZMOD n]) :
     x = y := by
   -- 1. mun:congruent-in-range, from H2, H3
-  have r41_1 : x ≡ y [ZMOD n] := by parley_side
-  exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) (by parley_side) (x := x) hH2 (y := y) hH3 r41_1)
+  have r41_1 : x ≡ y [ZMOD n] := by exact hH4.symm
+  exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) hH1 (x := x) hH2 (y := y) hH3 r41_1)
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayInARequiresLine

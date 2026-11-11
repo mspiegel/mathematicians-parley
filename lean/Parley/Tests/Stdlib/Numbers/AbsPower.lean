@@ -24,6 +24,6 @@ namespace Parley.Tests.Stdlib.Numbers.AbsPower
 theorem abs_power (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
     abs (x ^ n.toNat) = abs x ^ n.toNat := by
   -- 1. mun:numbers-abs-power
-  exact (Parley.Items.Stdlib.Numbers.mun_abs_power (x := x) (n := n) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_abs_power (x := x) (n := n) hH2)
 
 end Parley.Tests.Stdlib.Numbers.AbsPower

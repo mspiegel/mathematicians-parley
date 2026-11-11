@@ -17,7 +17,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SubsetIffDifferenceEmpty.SubsetIffDifferenceEmpty
 
-set_option maxHeartbeats 400000 in
 theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
     (A ⊆ B ↔ A \ B = ∅) := by
   -- the theorem. both directions
@@ -44,7 +43,7 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
       intro t hK2
       by_contra hS
       -- 4.1. def:difference u := t, Y := A, Z := B, from K2, S
-      have s4_1 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
+      have s4_1 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr ⟨hK2, hS⟩
       -- 4.2. substitute A ∖ B = ∅ (D2) into line 4.1
       have s4_2 : t ∈ (∅ : Set α) := by parley_subst_at hD2 s4_1
       -- 4.3. inspection

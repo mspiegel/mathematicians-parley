@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Proofs.Hammack.IrrationalBetweenRationalsByHalfRootTwo.IrrationalBetweenRationals
 
-set_option maxHeartbeats 400000 in
 theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. inequalities
@@ -45,7 +44,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 6. real arithmetic
   have s6 : Real.sqrt (2 : ℝ) < 2 := by parley_real
   -- 7. mun:product-positive x := √2, y := (s − r)/2, from 1, 5
-  have s7 : Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.sqrt (2 : ℝ)) (y := ((s : ℝ) - (r : ℝ)) / 2) (by parley_side) (by parley_side))
+  have s7 : Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.sqrt (2 : ℝ)) (y := ((s : ℝ) - (r : ℝ)) / 2) s5 (by parley_side))
   -- 8. mun:less-scaled x := √2, y := 2, c := (s − r)/2, from 1, 6
   have s8 : ((s : ℝ) - (r : ℝ)) / 2 * Real.sqrt (2 : ℝ) < ((s : ℝ) - (r : ℝ)) / 2 * 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := ((s : ℝ) - (r : ℝ)) / 2) (by parley_side))).mp s6
   -- 9. inequalities

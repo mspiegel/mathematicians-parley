@@ -35,7 +35,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous
 
-set_option maxHeartbeats 600000 in
 theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ)) (hH3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = x ^ (2 * n).toNat / (1 + x ^ 2)) :
     ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
   set u : ℝ → ℝ := fun x : ℝ => x ^ (2 * n).toNat with hD1
@@ -71,7 +70,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
   -- 14. thm:continuous-power D := [0, 1], n := 2n, from 1, 2, 7
   have s14 : ContinuousOn u (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := u) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (n := 2 * n) (by parley_set_side) s2)
   -- 15. thm:continuous-constant D := [0, 1], c := 1, from 1, 3, 11
-  have s15 : ContinuousOn o (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_constant (g := o) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (c := (1 : ℝ)) (by parley_set_side))
+  have s15 : ContinuousOn o (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_constant (g := o) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (c := (1 : ℝ)) s3)
   -- 16. thm:continuous-square D := [0, 1], from 1, 4, 12
   have s16 : ContinuousOn s (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_square (g := s) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 s4)
   -- 17. thm:continuous-sum D := [0, 1], f := o, g := s, from 1, 5, 11, 12, 13, 15, 16
@@ -93,7 +92,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
   have s19 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = u x / v x := by
     intro x hK2
     -- 19.1. instantiate x := x in H3, from D1, D4, K2
-    exact (hH3 x (by parley_set_side))
+    exact (hH3 x hK2)
   -- 20. thm:continuous-quotient D := [0, 1], F := g, f := u, g := v, from 1, 7, 13, 14, 17, 18, 19
   exact (Parley.Items.Stdlib.Calculus.thm_continuous_quotient (F := g) (f := u) (g := v) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 s18 s19 s14 s17)
 

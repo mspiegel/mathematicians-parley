@@ -27,6 +27,6 @@ theorem floor_of_integer (A : ℤ) :
   -- 2. inequalities
   have s2 : A < A + 1 := by parley_order
   -- 3. mun:floor-between x := A, k := A, from 1, 2
-  exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ)) (k := A))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ)) (k := A))).mpr ⟨by exact_mod_cast s1, by exact_mod_cast s2⟩
 
 end Parley.Proofs.Setmm.FloorBasics.FloorOfInteger

@@ -36,7 +36,7 @@ theorem choose_all (N : ℤ) (hH1 : 0 ≤ N) :
   have s1a : 0 ≤ N := by parley_order
   have s1b : N ≤ N := by parley_order
   -- 2. def:range-between k := N, a := 0, b := N, from 1
-  have s2 : N ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
+  have s2 : N ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N))).mpr ⟨s1a, s1b⟩
   -- 3. algebra
   have s3 : N - N = 0 := by parley_ring
   -- 4. calculation
@@ -45,7 +45,7 @@ theorem choose_all (N : ℤ) (hH1 : 0 ≤ N) :
       _ = 1 := by norm_num
   -- 5. calculation
   try qify
-  calc (LeanBridges.Counting.choose N N : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - N) : ℚ) * (LeanBridges.Counting.factorial N : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := N)) s2
+  calc (LeanBridges.Counting.choose N N : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - N) : ℚ) * (LeanBridges.Counting.factorial N : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := N)) s2
     _ = (LeanBridges.Counting.factorial N : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by
         have e_w : (LeanBridges.Counting.factorial (N - N) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s4; push_cast at h; linear_combination (norm := parley_norm) h
         (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial N : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)

@@ -58,6 +58,6 @@ theorem sum_of_eight_i_minus_five (n : ℤ) (hH1 : 0 < n) :
         _ = 4 * (k + 1) ^ 2 - (k + 1) := by parley_ring
   -- 2. calculation
   calc (∑ i ∈ Finset.Icc (1 : ℤ) n, (8 * i - 5 : ℤ)) = S n := by simp (disch := omega) only [hD1]
-    _ = 4 * n ^ 2 - n := by exact (s1 n (by parley_side))
+    _ = 4 * n ^ 2 - n := by exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.SumOfEightIMinusFive.SumOfEightIMinusFive

@@ -45,6 +45,6 @@ theorem power_of_two_at_least_four (m : ℤ) (hH1 : 0 < m) :
         _ = 2 ^ (k + 1).toNat + 2 ^ (k + 1).toNat := by parley_ring
         _ ≥ 4 := by exact s1_4
   -- 2. instantiate k := m in line 1
-  exact (s1 m (by parley_side))
+  exact (s1 m hH1)
 
 end Parley.Proofs.Hammack.ProductOfOneMinusHalves.PowerOfTwoAtLeastFour

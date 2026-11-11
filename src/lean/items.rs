@@ -1358,7 +1358,6 @@ pub fn declaration(
     ));
     binders.extend(sentence.binders.iter().map(Binder::doc));
     Declaration {
-        heartbeats: None,
         name: short.to_string(),
         binders,
         says: sentence.prop.clone(),

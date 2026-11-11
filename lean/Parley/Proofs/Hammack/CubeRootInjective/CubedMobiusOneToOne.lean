@@ -51,14 +51,14 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
     have s1_4 : t - 1 ≠ 0 := by intro h; exact s1_2 (by linear_combination (norm := parley_norm) h)
     -- 1.5. calculation
     have s1_5 : ((s + 1) / (s - 1)) ^ 3 = ((t + 1) / (t - 1)) ^ 3 := by
-      calc ((s + 1) / (s - 1)) ^ 3 = f s := by exact (hH2 s (by parley_set_side)).symm
+      calc ((s + 1) / (s - 1)) ^ 3 = f s := by exact (hH2 s hK1).symm
         _ = f t := by parley_set_side
-        _ = ((t + 1) / (t - 1)) ^ 3 := by exact (hH2 t (by parley_set_side))
+        _ = ((t + 1) / (t - 1)) ^ 3 := by exact (hH2 t hK2)
     -- 1.6. thm:cube-injective a := (s + 1)/(s − 1), b := (t + 1)/(t − 1), from 1.5
     have s1_6 : (s + 1) / (s - 1) = (t + 1) / (t - 1) := by exact (Parley.Proofs.Hammack.CubeRootInjective.CubeInjective.cube_injective (a := (s + 1) / (s - 1)) (b := (t + 1) / (t - 1)) (by parley_set_side))
     -- 1.7. algebra, from 1.3, 1.4, 1.6
     linear_combination (norm := parley_field) (-((1 / 2 : ℝ) * s * t) + (1 / 2 : ℝ) * s + (1 / 2 : ℝ) * t - (1 / 2 : ℝ)) * s1_6
   -- 2. def:one-to-one, from H1, 1
-  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mpr ⟨hH1, s1⟩
 
 end Parley.Proofs.Hammack.CubeRootInjective.CubedMobiusOneToOne

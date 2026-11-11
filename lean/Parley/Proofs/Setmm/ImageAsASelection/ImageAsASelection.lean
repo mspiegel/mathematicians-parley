@@ -19,7 +19,6 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageAsASelection.ImageAsASelection
 
-set_option maxHeartbeats 400000 in
 theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
     F '' (A ∩ X) = {y ∈ B | ∃ x ∈ X, F x = y} := by
   -- 1. proof
@@ -38,7 +37,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 1.6. exhibit, from 1.2
     have s1_6 : ∃ x ∈ X, F x = u := ⟨s, s1_2a, s1_2b.symm⟩
     -- 1.7. def:set-builder, from 1.5, 1.6
-    exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : α => ∃ x ∈ X, F x = y)) (X := B) (u := u))).mpr ⟨s1_5, s1_6⟩
   -- 2. def:subset, from 1
   have s2 : F '' (A ∩ X) ⊆ {y ∈ B | ∃ x ∈ X, F x = y} := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := {y ∈ B | ∃ x ∈ X, F x = y}))).mpr s1
   -- 3. proof

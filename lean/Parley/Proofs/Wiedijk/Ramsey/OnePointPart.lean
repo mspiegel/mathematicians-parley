@@ -24,7 +24,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.OnePointPart
 
-set_option maxHeartbeats 400000 in
 theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Finite) (hH3 : 1 ≤ (X.ncard : ℤ)) :
     (∃ W ∈ 𝒫 X, 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ G)) := by
   -- 1. inequalities, from H3

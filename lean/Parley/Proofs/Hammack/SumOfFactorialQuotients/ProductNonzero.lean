@@ -22,7 +22,7 @@ theorem product_nonzero (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH4 : y ≠ 0) :
   -- 1. algebra, from S
   have s1 : x * y = 0 * y := by linear_combination (norm := parley_norm) hS
   -- 2. mun:multiply-cancel a := x, b := 0, c := y, from H4, 1
-  have s2 : x = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side))
+  have s2 : x = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) hH4)
   exact hH3 s2
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.ProductNonzero

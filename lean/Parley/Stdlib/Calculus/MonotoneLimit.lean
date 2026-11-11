@@ -34,7 +34,6 @@ public section
 
 namespace Parley.Stdlib.Calculus.MonotoneLimit
 
-set_option maxHeartbeats 800000 in
 theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x (n + 1)) (B : ℝ) (hH4 : ∀ n : ℤ, 0 < n → x n ≤ B) :
     (∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) := by
   -- 1. mun:subset-self
@@ -51,7 +50,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
     -- 4.1. obtain k: def:image u := s, from H1, K1, 1
     obtain ⟨k, s4_1a, s4_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (u := s) (W := Set.univ) (by parley_whole_side) (by parley_whole_side))).mp (by parley_set_side)
     -- 4.2. instantiate n := k in H4
-    have s4_2 : x k ≤ B := by exact (hH4 k (by parley_set_side))
+    have s4_2 : x k ≤ B := by exact (hH4 k s4_1a)
     -- 4.3. transitivity, from 4.1, 4.2
     parley_order
   -- 5. def:upper-bound, from 4
@@ -87,7 +86,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.2.2. def:upper-bound, from 10.2.1
       have s10_2_2 : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ c - ε := by parley_set_side
       -- 10.2.3. instantiate u := c − ε in line 7, from 10.2.2
-      have s10_2_3 : c ≤ c - ε := by exact (s7b (c - ε) (by parley_set_side))
+      have s10_2_3 : c ≤ c - ε := by exact (s7b (c - ε) s10_2_2)
       -- 10.2.4. inequalities, from 10.1
       have s10_2_4 : ¬ c ≤ c - ε := by parley_set_side
       exact s10_2_4 s10_2_3
@@ -106,13 +105,13 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.7.1. inequalities
       have s10_7_1 : N ≤ n := by parley_order
       -- 10.7.2. instantiate m := N in line 9, from 10.7.1
-      have s10_7_2 : x N ≤ x n := by exact ((s9 n (by parley_set_side)) N (by parley_set_side) (by parley_set_side))
+      have s10_7_2 : x N ≤ x n := by exact ((s9 n hK2) N s10_4a s10_7_1)
       -- 10.7.3. mun:value-in-image s := n, from H1, 1
       have s10_7_3 : x n ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by
         have hI : x n ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by parley_instance_cast ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)))
         exact hI
       -- 10.7.4. instantiate s := x(n) in line 8, from 10.7.3
-      have s10_7_4 : x n ≤ c := by exact (s8 (x n) (by parley_set_side))
+      have s10_7_4 : x n ≤ c := by exact (s8 (x n) s10_7_3)
       -- 10.7.5. transitivity, from 10.5, 10.7.2
       have s10_7_5 : c - ε < x n := by parley_order
       -- 10.7.6. transitivity, from 10.7.4, 10.6
@@ -120,7 +119,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.7.7. join 10.7.5, 10.7.6
       have s10_7_7 : c - ε < x n ∧ x n < c + ε := by parley_set_side
       -- 10.7.8. mun:abs-difference-lt x := x(n), δ := ε, from 10.7.7
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr ⟨s10_7_7.1, s10_7_7.2⟩
     -- 10.8. exhibit, from 10.7
     exact ⟨N, s10_4a, s10_7⟩
   -- 11. def:tends-to L := c, from 10

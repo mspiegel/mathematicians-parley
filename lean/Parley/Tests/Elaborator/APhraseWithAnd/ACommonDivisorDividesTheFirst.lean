@@ -19,6 +19,6 @@ theorem a_common_divisor_divides_the_first (a : ℤ) (b : ℤ) (d : ℤ) (hH4 : 
   -- 2. D1, from 1
   have s2 : (True ∧ d ∣ a) ∧ d ∣ b := by parley_side
   -- 3. restate 2
-  parley_side
+  exact s2.1.2
 
 end Parley.Tests.Elaborator.APhraseWithAnd.ACommonDivisorDividesTheFirst

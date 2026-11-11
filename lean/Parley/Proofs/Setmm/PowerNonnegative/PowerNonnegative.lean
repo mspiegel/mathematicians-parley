@@ -27,7 +27,6 @@ public section
 
 namespace Parley.Proofs.Setmm.PowerNonnegative.PowerNonnegative
 
-set_option maxHeartbeats 400000 in
 theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
     0 ≤ a ^ n.toNat := by
   -- 1. induction on m starting at 0
@@ -45,7 +44,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_3
     | succ m hK hIH =>
       -- 1.4. mun:exponent-step
-      have s1_4 : a ^ (m + 1).toNat = a ^ m.toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m) (by parley_side))
+      have s1_4 : a ^ (m + 1).toNat = a ^ m.toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m) hK)
       -- 1.5. axi:trichotomy x := a
       have s1_5 : (a < 0 ∨ a = 0) ∨ 0 < a := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a))
       -- 1.6. cases, from 1.5
@@ -63,12 +62,12 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
         parley_order
       · skip
         -- 1.6.5. mun:multiply-le x := 0, y := a^m, c := a, from C3, IH
-        have s1_6_5 : a * 0 ≤ a * a ^ m.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m.toNat) (c := a) (by parley_side) (by parley_side))
+        have s1_6_5 : a * 0 ≤ a * a ^ m.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m.toNat) (c := a) hIH hC3)
         -- 1.6.6. inequalities
         have s1_6_6 : 0 ≤ a ^ m.toNat * a := by parley_order
         -- 1.6.7. transitivity, from 1.6.6, 1.4
         parley_order
   -- 2. instantiate m := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH2)
 
 end Parley.Proofs.Setmm.PowerNonnegative.PowerNonnegative

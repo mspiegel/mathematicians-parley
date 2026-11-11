@@ -22,14 +22,13 @@ public section
 
 namespace Parley.Proofs.Hammack.CubeRootInjective.CubeInjective
 
-set_option maxHeartbeats 400000 in
 theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
     a = b := by
   -- the theorem. contradiction
   by_contra (hS : a ≠ b)
   -- 1. mun:square-positive x := a − b
   have r19_1 : a - b ≠ 0 := by parley_side
-  have s1 : (a - b) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a - b) (by parley_side))
+  have s1 : (a - b) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a - b) r19_1)
   -- 2. mun:square-nonneg x := a + b
   have s2 : (a + b) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b))
   -- 3. inequalities

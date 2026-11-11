@@ -30,7 +30,6 @@ public section
 
 namespace Parley.Proofs.Hammack.TwoXMinusSevenLimit.TwoXMinusSevenLimit
 
-set_option maxHeartbeats 400000 in
 theorem two_x_minus_seven_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * x - 7) :
     Filter.Tendsto f (nhdsWithin 8 ((Set.univ : Set ℝ) \ {8})) (nhds 9) := by
   -- 1. proof
@@ -58,7 +57,7 @@ theorem two_x_minus_seven_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * 
       -- 1.2.7. join 1.2.4, 1.2.6
       have s1_2_7 : 9 - ε < f x ∧ f x < 9 + ε := by parley_set_side
       -- 1.2.8. mun:abs-difference-lt x := f(x), c := 9, δ := ε, from 1.2.7
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (9 : ℝ)) (δ := ε))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (9 : ℝ)) (δ := ε))).mpr ⟨s1_2_7.1, s1_2_7.2⟩
     -- 1.3. exhibit, from 1.1, 1.2
     exact ⟨ε / 2, ⟨s1_1, s1_2⟩⟩
   -- 2. def:limit-at D := ℝ, c := 8, L := 9, from 1

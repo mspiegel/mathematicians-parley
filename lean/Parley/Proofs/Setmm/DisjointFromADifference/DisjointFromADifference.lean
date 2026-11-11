@@ -27,7 +27,7 @@ theorem disjoint_from_a_difference {α : Type*} (A : Set α) (B : Set α) (C : S
     -- 1.1. mun:in-subset X := C, Y := A, u := t, from K1, K2
     have s1_1 : t ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := C) (Y := A) (u := t) hK1 hK2)
     -- 1.2. def:difference u := t, Y := A, Z := B, from S, 1.1
-    have s1_2 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
+    have s1_2 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr ⟨s1_1, hS⟩
     -- 1.3. mun:disjoint-member Y := A ∖ B, Z := C, from H4, 1.2
     have s1_3 : ¬ t ∈ C := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A \ B) (Z := C) (u := t) hH4 s1_2)
     exact s1_3 hK2

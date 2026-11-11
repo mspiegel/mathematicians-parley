@@ -29,9 +29,9 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     intro hC1
     -- 1. obtain q: mun:mod-remainder a := A − B, m := N, r := 0, from C1
     have r20_1 : 0 < N := by parley_order
-    obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) (by parley_side) (r := (0 : ℤ)) (by parley_side) r20_1)).mp hC1
+    obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by parley_side) r20_1)).mp hC1
     -- 2. mun:mod-multiple r := B, m := N
-    have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) (by parley_side) (q := q))
+    have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) hH3 (q := q))
     -- 3. substitute
     have c1 : q * N + B = A := by linear_combination (norm := parley_norm) s1
     have row1 : A % N = B % N := by (have h := Eq.subst (motive := (fun t : ℤ => t % N = B % N)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -39,7 +39,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
   · skip
     intro hC2
     -- 4. mun:mod-equal-congruent, from C2
-    have s4 : A ≡ B [ZMOD N] := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) (by parley_side) hC2)
+    have s4 : A ≡ B [ZMOD N] := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := A) (y := B) (n := N) hH3 hC2)
     -- 5. def:congruent-mod, from 4
     have s5 : N ∣ A - B := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := N) (a := A) (b := B))).mp s4
     -- 6. obtain k: def:divides d := N, n := A − B, from 5
@@ -50,6 +50,6 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     have s8 : ∃ q : ℤ, q * N = A - B := ⟨k, s7⟩
     -- 9. mun:mod-remainder a := A − B, m := N, r := 0, from 8
     have r50_1 : 0 < N := by parley_order
-    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) (by parley_side) (r := (0 : ℤ)) (by parley_side) r50_1)).mpr (by simpa only [add_zero] using s8)
+    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by parley_side) r50_1)).mpr (by simpa only [add_zero] using s8)
 
 end Parley.Proofs.Setmm.DifferenceRemainderZero.DifferenceRemainderZero

@@ -18,7 +18,6 @@ public section
 
 namespace Parley.Proofs.Hammack.OntoImageOfPreimage.OntoImageOfPreimage
 
-set_option maxHeartbeats 800000 in
 theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) :
     (Set.MapsTo f A B ∧ Set.SurjOn f A B ↔ (∀ Y ∈ 𝒫 B, f '' (A ∩ (A ∩ f ⁻¹' Y)) = Y)) := by
   -- the theorem. both directions
@@ -54,13 +53,13 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 2.5.1. mun:in-subset X := Y, Y := B, u := y, from K1, K4
       have s2_5_1 : y ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := B) (u := y) hK1 hK4)
       -- 2.5.2. instantiate y := y in line 1, from 2.5.1
-      have s2_5_2 : ∃ x ∈ A, y = f x := by exact (s1 y (by parley_set_side))
+      have s2_5_2 : ∃ x ∈ A, y = f x := by exact (s1 y s2_5_1)
       -- 2.5.3. obtain x from line 2.5.2
       obtain ⟨x, s2_5_3a, s2_5_3b⟩ := s2_5_2
       -- 2.5.4. substitute y = f(x) (line 2.5.3) into K4
       have s2_5_4 : f x ∈ Y := by parley_subst_at s2_5_3b hK4
       -- 2.5.5. def:preimage u := x, Z := Y, from 2.5.3, 2.5.4
-      have s2_5_5 : x ∈ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := x) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
+      have s2_5_5 : x ∈ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := x) (W := Set.univ) (by parley_set_side))).mpr ⟨s2_5_3a, by parley_set_side⟩
       -- 2.5.6. mun:value-in-image Y := f⁻¹[Y], s := x, from 2.2, 2.5.5
       have s2_5_6 : f x ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (by parley_set_side))
       -- 2.5.7. substitute y = f(x) (line 2.5.3) into line 2.5.6
@@ -80,7 +79,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       have s3_2 : y ∈ ({y} : Set α) := ((Parley.Items.Stdlib.Sets.def_singleton (a := y) (x := y))).mpr (by parley_set_side)
       -- 3.3. substitute
       have s3_3 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by
-        have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by exact (hD2 ({y} : Set α) (by parley_set_side)).symm
+        have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by exact (hD2 ({y} : Set α) s3_1).symm
         have row1 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by parley_subst_at c1 s3_2
         exact row1
       -- 3.4. proof
@@ -97,6 +96,6 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 3.8. exhibit, from 3.6, 3.7
       exact ⟨s, s3_7, s3_6b⟩
     -- 4. def:onto, from H3, 3
-    exact ((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_onto (X := A) (Y := B) (f := f) (by parley_set_side))).mpr ⟨hH3, s3⟩
 
 end Parley.Proofs.Hammack.OntoImageOfPreimage.OntoImageOfPreimage

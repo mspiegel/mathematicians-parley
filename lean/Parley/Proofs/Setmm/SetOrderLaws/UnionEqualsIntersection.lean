@@ -20,7 +20,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SetOrderLaws.UnionEqualsIntersection
 
-set_option maxHeartbeats 400000 in
 theorem union_equals_intersection {α : Type*} (A : Set α) (B : Set α) :
     (A ∪ B = A ∩ B ↔ A = B) := by
   -- the theorem. both directions

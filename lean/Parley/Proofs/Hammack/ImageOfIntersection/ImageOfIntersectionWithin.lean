@@ -17,7 +17,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin
 
-set_option maxHeartbeats 400000 in
 theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (W : Set α) (hH4 : W ⊆ A) (X : Set α) (hH5 : X ⊆ A) :
     f '' (A ∩ (W ∩ X)) ⊆ f '' (A ∩ W) ∩ f '' (A ∩ X) := by
   -- 1. proof
@@ -47,7 +46,7 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     -- 3.6. substitute y = f(s) (line 3.1) into line 3.4
     have s3_6 : y ∈ f '' (A ∩ X) := by parley_subst_at s3_1b s3_4
     -- 3.7. def:intersection u := y, Y := f[W], Z := f[X], from 3.5, 3.6
-    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr ⟨s3_5, s3_6⟩
   -- 4. def:subset, from 3
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (W ∩ X))) (Y := f '' (A ∩ W) ∩ f '' (A ∩ X)))).mpr s3
 

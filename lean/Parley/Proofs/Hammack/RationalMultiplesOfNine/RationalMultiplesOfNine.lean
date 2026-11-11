@@ -23,7 +23,6 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalMultiplesOfNine.RationalMultiplesOfNine
 
-set_option maxHeartbeats 400000 in
 theorem rational_multiples_of_nine :
     (fun n : ℚ => 9 * n) '' (Set.univ : Set ℚ) = (fun n : ℚ => 3 * n) '' (Set.univ : Set ℚ) := by
   -- 1. proof

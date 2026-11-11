@@ -16,6 +16,6 @@ namespace Parley.Tests.Stdlib.Numbers.NatPlusNat0
 theorem nat_plus_nat0 (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 ≤ q) :
     0 < p + q := by
   -- 1. mun:numbers-nat-plus-nat0 a := p, b := q
-  exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := p) (by parley_side) (b := q) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := p) hH1 (b := q) hH2)
 
 end Parley.Tests.Stdlib.Numbers.NatPlusNat0

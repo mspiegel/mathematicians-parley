@@ -18,7 +18,6 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfImageOfPreimage.PreimageOfImageOfPreimage
 
-set_option maxHeartbeats 400000 in
 theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (Y : Set α) (hH4 : Y ⊆ B) :
     A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) = A ∩ f ⁻¹' Y := by
   -- 1. proof
@@ -42,7 +41,7 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     -- 3.4. substitute f(u) = f(s) (line 3.2) into line 3.3
     have s3_4 : f u ∈ Y := by parley_subst_at s3_2b s3_3b
     -- 3.5. def:preimage Z := Y, from 3.1, 3.4
-    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr ⟨s3_1a, by parley_set_side⟩
   -- 4. def:subset, from 3
   have s4 : A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) ⊆ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))) (Y := A ∩ f ⁻¹' Y))).mpr s3
   -- 5. proof
@@ -54,7 +53,7 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     -- 5.2. mun:value-in-image Y := f⁻¹[Y], from K3, 2
     have s5_2 : f u ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := u) (W := Set.univ) s2 hK3 (by parley_set_side))
     -- 5.3. def:preimage Z := f[f⁻¹[Y]], from 5.1, 5.2
-    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ (A ∩ f ⁻¹' Y))) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr ⟨s5_1a, by parley_set_side⟩
   -- 6. def:subset, from 5
   have s6 : A ∩ f ⁻¹' Y ⊆ A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' Y) (Y := A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y)))))).mpr s5
   -- 7. mun:subset-antisymmetric, from 4, 6

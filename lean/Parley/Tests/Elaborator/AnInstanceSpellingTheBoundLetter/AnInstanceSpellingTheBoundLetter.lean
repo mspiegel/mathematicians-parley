@@ -34,6 +34,6 @@ theorem an_instance_spelling_the_bound_letter (x : ℤ → ℝ) (A : ℝ) (hH3 :
   -- 1.2. def:tends-to L := A, from H3
   have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp hH3
   -- 1.3. instantiate ε := ε/2 in line 1.2, from 1.1
-  exact (s1_2 (ε / 2) (by parley_side))
+  exact (s1_2 (ε / 2) s1_1)
 
 end Parley.Tests.Elaborator.AnInstanceSpellingTheBoundLetter.AnInstanceSpellingTheBoundLetter

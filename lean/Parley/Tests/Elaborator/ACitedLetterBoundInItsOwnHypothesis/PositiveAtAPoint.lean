@@ -15,6 +15,6 @@ namespace Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAt
 theorem positive_at_a_point (n : ℤ) (hH1 : 0 < n) (f : ℤ → ℝ) (hH3 : ∀ n : ℤ, 0 < n → f n > 0) :
     f n > 0 := by
   -- 1. instantiate n := n in H3
-  exact (hH3 n (by parley_side))
+  exact (hH3 n hH1)
 
 end Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAtAPoint

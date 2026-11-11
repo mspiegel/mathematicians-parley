@@ -16,7 +16,6 @@ public section
 
 namespace Parley.Proofs.Hammack.UnionDistributesOverIntersection.UnionDistributesOverIntersection
 
-set_option maxHeartbeats 600000 in
 theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     A ∪ B ∩ C = (A ∪ B) ∩ (A ∪ C) := by
   -- 1. proof
@@ -32,7 +31,7 @@ theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set �
       -- 1.2.2. mun:in-union-left u := t, Y := A, Z := C, from C1
       have s1_2_2 : t ∈ A ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := C) (u := t) hC1)
       -- 1.2.3. def:intersection u := t, Y := A ∪ B, Z := A ∪ C, from 1.2.1, 1.2.2
-      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mpr ⟨s1_2_1, s1_2_2⟩
     · skip
       -- 1.2.4. def:intersection u := t, Y := B, Z := C, from C2
       have s1_2_4a : t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp hC2).1
@@ -42,7 +41,7 @@ theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set �
       -- 1.2.6. mun:in-union-right u := t, Y := A, Z := C, from 1.2.4
       have s1_2_6 : t ∈ A ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := C) (u := t) s1_2_4b)
       -- 1.2.7. def:intersection u := t, Y := A ∪ B, Z := A ∪ C, from 1.2.5, 1.2.6
-      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := t))).mpr ⟨s1_2_5, s1_2_6⟩
   -- 2. def:subset, from 1
   have s2 : A ∪ B ∩ C ⊆ (A ∪ B) ∩ (A ∪ C) := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∪ B ∩ C) (Y := (A ∪ B) ∩ (A ∪ C)))).mpr s1
   -- 3. proof
@@ -68,7 +67,7 @@ theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set �
       -- 3.5.3. mun:disjunctive-syllogism-left, from C4, 3.3
       have s3_5_3 : t ∈ C := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := t ∈ A) (Q := t ∈ C) s3_3 hC4)
       -- 3.5.4. def:intersection u := t, Y := B, Z := C, from 3.5.2, 3.5.3
-      have s3_5_4 : t ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr (by parley_set_side)
+      have s3_5_4 : t ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr ⟨s3_5_2, s3_5_3⟩
       -- 3.5.5. mun:in-union-right u := t, Y := A, Z := B ∩ C, from 3.5.4
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B ∩ C) (u := t) s3_5_4)
   -- 4. def:subset, from 3

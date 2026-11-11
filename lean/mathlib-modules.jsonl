@@ -79,6 +79,8 @@
 {"key":"congrArg","kind":"const","modules":[]}
 {"key":"deriv","kind":"const","modules":["Mathlib.Analysis.Calculus.Deriv.Basic"]}
 {"key":"div_one","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"ge_iff_le.mp","kind":"const","modules":[]}
+{"key":"gt_iff_lt.mp","kind":"const","modules":[]}
 {"key":"if_neg","kind":"const","modules":[]}
 {"key":"if_pos","kind":"const","modules":[]}
 {"key":"implies_true","kind":"const","modules":[]}
@@ -447,6 +449,9 @@
 {"key":"fun y : α => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun y : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun z : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"ge_iff_le.mp a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"gt_iff_lt.mp (sorry : Prop)","kind":"term","modules":[]}
+{"key":"gt_iff_lt.mp a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"if h : (sorry : Prop) then a else (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if_neg (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if_neg a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
@@ -1011,8 +1016,11 @@
 {"key":"⟨a, a, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, by skip, (sorry : Prop)⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
-{"key":"⟨a, by skip, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨a, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨by skip, (sorry : ℤ), (sorry : ℤ), a, a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨by skip, (sorry : ℤ), (sorry : ℤ), a⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨by skip, (sorry : ℤ), (sorry : ℤ), by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"⟨by skip, (sorry : ℤ), a, by skip⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨by skip, a⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"⟨by skip, by skip⟩","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"𝒫 (sorry : Set ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}

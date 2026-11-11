@@ -26,6 +26,6 @@ theorem a_line_is_continuous (g : ℝ → ℝ) (hH1 : Set.MapsTo g (Set.Icc (0 :
     ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
   -- 1. thm:continuous-linear D := [0, 1], m := 2, from H2
   have r91_1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
-  exact (Parley.Items.Stdlib.Calculus.thm_continuous_linear (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r91_1 (m := (2 : ℝ)) (by parley_set_side))
+  exact (Parley.Items.Stdlib.Calculus.thm_continuous_linear (g := g) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r91_1 (m := (2 : ℝ)) hH2)
 
 end Parley.Tests.Notations.Calculus.ALineIsContinuous

@@ -28,7 +28,6 @@ public section
 
 namespace Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower
 
-set_option maxHeartbeats 400000 in
 theorem nine_power_is_three_power (m : ℤ) :
     (9 ^ m : ℚ) = 3 ^ (2 * m) := by
   -- 1. mun:nonneg-or-neg x := m
@@ -46,22 +45,22 @@ theorem nine_power_is_three_power (m : ℤ) :
     rcases s1 with hC1 | hC2
     · skip
       -- 4.1. mun:nat0-as-int
-      have r124_1 : 0 ≤ m := by parley_side
+      have r124_1 : 0 ≤ m := by exact hC1
       have s4_1 : 0 ≤ m := by
-        have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr (by parley_side))
+        have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨by parley_side, r124_1⟩)
         exact hI
       -- 4.2. thm:nine-power-from-zero n := m, from 4.1
-      (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := m) (by parley_side)); simp only [parley_zpow_toNat (n := m) (h := s4_1)] at h ⊢; exact_mod_cast h)
+      (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := m) s4_1); simp only [parley_zpow_toNat (n := m) (h := s4_1)] at h ⊢; exact_mod_cast h)
     · skip
       -- 4.3. inequalities
       have s4_3 : -m > 0 := by parley_order
       -- 4.4. mun:nat0-as-int
       have r139_1 : -m ≥ 0 := by parley_side
       have s4_4 : 0 ≤ -m := by
-        have hI : 0 ≤ -m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr (by parley_side))
+        have hI : 0 ≤ -m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr ⟨by parley_side, r139_1⟩)
         exact hI
       -- 4.5. thm:nine-power-from-zero n := −m, from 4.4
-      have s4_5 : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := -m) (by parley_side)); simp only [parley_zpow_toNat (n := -m) (h := s4_4)] at h ⊢; exact_mod_cast h)
+      have s4_5 : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := -m) s4_4); simp only [parley_zpow_toNat (n := -m) (h := s4_4)] at h ⊢; exact_mod_cast h)
       -- 4.6. thm:positive-power-is-real a := 9
       have r146_1 : (9 : ℤ) > 0 := by parley_arith
       -- 4.7. thm:positive-power-is-real a := 3
@@ -89,8 +88,8 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.13. inequalities
       have s4_13 : (3 ^ m : ℚ) ≠ 0 := by parley_side
       -- 4.14. algebra, from 4.6, 4.7, 4.11
-      have r186_1 : (9 ^ m : ℚ) ≠ 0 := by parley_side
-      have r186_2 : (3 ^ m : ℚ) ≠ 0 := by parley_side
+      have r186_1 : (9 ^ m : ℚ) ≠ 0 := by exact s4_12
+      have r186_2 : (3 ^ m : ℚ) ≠ 0 := by exact s4_13
       linear_combination (norm := parley_field) (-((3 ^ m) ^ 2 * 9 ^ m)) * s4_11
   -- 5. thm:positive-power-is-real a := 3
   have r191_1 : (3 : ℤ) > 0 := by parley_arith

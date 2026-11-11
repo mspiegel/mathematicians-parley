@@ -143,13 +143,6 @@ macro "parley_field" : tactic =>
     -- divided by in ℝ, written the other way round, ↑n * 3 - 1: the facts
     -- cast up and both normalised, field_simp sees they are one.
     | ((try rify at *); ring_nf at *; field_simp; ring1; done)
-    -- Divisors field_simp does not clear, 3n − 1 beside a fact that says it
-    -- is not 0: the fractions are joined and multiplied out one at a time,
-    -- each divisor shown not 0 from the facts.
-    | ((try push_cast at *); (try rify at *);
-        simp (disch := simp_all) only [div_add_div, div_sub_div, div_eq_div_iff, eq_div_iff,
-          div_eq_iff, mul_one_div, mul_div_assoc', div_mul_eq_mul_div, div_add', add_div',
-          div_sub', sub_div']; ring1; done)
     | (parley_clear <;> ring1; done)
     -- A divisor of integers cast up, (k : ℂ) + 1 of k ∈ ℕ₀: not 0 by the
     -- facts of the integers, the cast moved (`parley_cast_ne`).

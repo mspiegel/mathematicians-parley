@@ -20,6 +20,6 @@ namespace Parley.Tests.Stdlib.Numbers.AbsQuotient
 theorem abs_quotient (x : ℝ) (y : ℝ) (hH3 : y ≠ 0) :
     abs (x / y) = abs x / abs y := by
   -- 1. mun:numbers-abs-quotient, from H3
-  exact (Parley.Items.Stdlib.Numbers.mun_abs_quotient (x := x) (y := y) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_abs_quotient (x := x) (y := y) hH3)
 
 end Parley.Tests.Stdlib.Numbers.AbsQuotient

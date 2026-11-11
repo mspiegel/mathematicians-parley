@@ -62,7 +62,7 @@ theorem binomial_sum_with_powers_of_two (n : ℤ) (hH1 : 0 ≤ n) :
   try qify
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, (2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => 2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat)) (a := (0 : ℤ)) (b := n) (by parley_side))
     _ = (1 + 2) ^ n.toNat := by
-        have hI : (1 + 2) ^ n.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (2 : ℝ)) (n := n) (by parley_side)))
+        have hI : (1 + 2) ^ n.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (2 : ℝ)) (n := n) hH1))
         exact hI.symm
     _ = 3 ^ n.toNat := by (have h := congrArg (fun t : ℤ => t ^ n.toNat) s4; push_cast at h ⊢; all_goals exact_mod_cast h)
 

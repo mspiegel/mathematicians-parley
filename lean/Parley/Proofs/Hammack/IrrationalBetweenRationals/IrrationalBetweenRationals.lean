@@ -34,7 +34,6 @@ public section
 
 namespace Parley.Proofs.Hammack.IrrationalBetweenRationals.IrrationalBetweenRationals
 
-set_option maxHeartbeats 800000 in
 theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. def:sqrt x := 2
@@ -50,17 +49,17 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
       _ = Real.sqrt (2 : ℝ) ^ 2 := by exact s1b.symm
   -- 4. mun:square-less x := 0, y := √2, from 1, 3
   have r33_1 : (0 : ℤ) ≥ 0 := by parley_arith
-  have s4 : 0 < Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))).mpr s3
+  have s4 : 0 < Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) s1a)).mpr s3
   -- 5. calculation
   have s5 : Real.sqrt (2 : ℝ) ^ 2 < 2 ^ 2 := by
     calc Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact s1b
       _ < 2 ^ 2 := by norm_num
   -- 6. mun:square-less x := √2, y := 2, from 1, 5
   have r42_1 : (2 : ℤ) ≥ 0 := by parley_arith
-  have s6 : Real.sqrt (2 : ℝ) < 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (by parley_side) (by parley_side))).mpr s5
+  have s6 : Real.sqrt (2 : ℝ) < 2 := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) s1a (by parley_side))).mpr s5
   -- 7. mun:product-positive x := 1/2, y := √2, from 4
   have r46_1 : (1 / 2 : ℚ) > 0 := by parley_arith
-  have s7 : 0 < 1 / 2 * Real.sqrt (2 : ℝ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (1 / 2 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))
+  have s7 : 0 < 1 / 2 * Real.sqrt (2 : ℝ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (1 / 2 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by parley_side) s4)
   -- 8. calculation
   have r50_1 : (1 / 2 : ℚ) > 0 := by parley_arith
   have s8 : 1 / 2 * Real.sqrt (2 : ℝ) < 1 := by
@@ -71,7 +70,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   set u : ℝ := (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) with hD1
   have hD1_kind : True := by parley_side
   -- 10. mun:product-positive x := s − r, y := (1/2)·√2, from 7, 9
-  have s10 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))
+  have s10 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) s7)
   -- 11. inequalities
   have s11 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > (r : ℝ) := by parley_order
   -- 12. transitivity, from 11, D1
@@ -100,9 +99,9 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.6. transitivity, from 17.4, 17.5
     have s17_6 : s - r = (c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ) := by parley_side
     -- 17.7. mun:product-positive x := q, y := d, from 17.2, 17.3
-    have s17_7 : q * d > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) (by parley_side) (by parley_side))
+    have s17_7 : q * d > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) s17_2a s17_3a)
     -- 17.8. mun:product-positive x := s − r, y := q·d, from 9, 17.7
-    have s17_8 : (s - r) * ((q : ℚ) * (d : ℚ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side))
+    have s17_8 : (s - r) * ((q : ℚ) * (d : ℚ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) s9 (by exact_mod_cast gt_iff_lt.mp s17_7))
     -- 17.9. substitute s − r = c/d − p/q (line 17.6) into line 17.8
     have s17_9 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) > 0 := by (have h := Eq.subst (motive := (fun t : ℚ => t * ((q : ℚ) * (d : ℚ)) > 0)) s17_6 s17_8; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.10. algebra
@@ -114,8 +113,8 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     have hD2_pos := hD2_kind
     -- 17.12. algebra, from D1
     have s17_12 : u - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
-      try simp only [hD1] at *
-      try push_cast at *
+      try simp only [hD1] at ⊢
+      try push_cast at ⊢
       parley_ring
     -- 17.13. substitute
     have s17_13 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
@@ -144,7 +143,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp s2).2
     exact s17_18 s17_17
   -- 18. def:irrational x := u, from 17
-  have s18 : Irrational u := ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr (by parley_side)
+  have s18 : Irrational u := ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr ⟨by parley_side, s17⟩
   -- 19. exhibit, from 12, 16, 18
   exact ⟨u, ⟨⟨s18, s12⟩, s16⟩⟩
 

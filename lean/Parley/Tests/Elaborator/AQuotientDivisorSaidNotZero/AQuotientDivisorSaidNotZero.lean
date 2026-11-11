@@ -22,10 +22,10 @@ theorem a_quotient_divisor_said_not_zero (ε : ℝ) (d : ℝ) (n : ℤ) (hH3 : 0
   -- 1. inequalities
   have s1 : 2 * d ≠ 0 := by parley_side
   -- 2. inequalities
-  have r17_1 : 2 * d ≠ 0 := by parley_side
+  have r17_1 : 2 * d ≠ 0 := by exact s1
   have s2 : 0 - ε / (2 * d) < 0 := by parley_order
   -- 3. transitivity, from 2, H5
-  have r23_1 : 2 * d ≠ 0 := by parley_side
+  have r23_1 : 2 * d ≠ 0 := by exact s1
   parley_order
 
 end Parley.Tests.Elaborator.AQuotientDivisorSaidNotZero.AQuotientDivisorSaidNotZero

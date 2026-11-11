@@ -32,7 +32,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   -- 3. inequalities
   have s3 : K - abs C ≥ 0 := by parley_order
   -- 4. mun:product-nonneg x := K − |C|, y := |u|, from 1, 3
-  have s4 : (K - abs C) * abs u ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) (by parley_side) (by parley_side))
+  have s4 : (K - abs C) * abs u ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) s3 s1)
   -- 5. substitute
   have s5 : K * abs u - abs C * abs u ≥ 0 := by
     have c1 : (K - abs C) * abs u = K * abs u - abs C * abs u := by parley_ring
@@ -43,6 +43,6 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   -- 7. calculation
   calc abs (C * u) = abs C * abs u := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))
     _ ≤ K * abs u := by exact s6
-    _ < K * d := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) (by parley_side))).mp hH7
+    _ < K * d := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) hH5)).mp hH7
 
 end Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall

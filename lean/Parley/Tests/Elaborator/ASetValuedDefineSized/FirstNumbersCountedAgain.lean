@@ -22,6 +22,6 @@ namespace Parley.Tests.Elaborator.ASetValuedDefineSized.FirstNumbersCountedAgain
 theorem first_numbers_counted_again (m : ℤ) (hH1 : 0 ≤ m) :
     ((Set.Icc (1 : ℤ) m : Set ℤ).ncard : ℤ) = m := by
   -- 1. thm:first-numbers-counted
-  exact (Parley.Tests.Elaborator.ASetValuedDefineSized.FirstNumbersCounted.first_numbers_counted (m := m) (by parley_set_side))
+  exact (Parley.Tests.Elaborator.ASetValuedDefineSized.FirstNumbersCounted.first_numbers_counted (m := m) hH1)
 
 end Parley.Tests.Elaborator.ASetValuedDefineSized.FirstNumbersCountedAgain

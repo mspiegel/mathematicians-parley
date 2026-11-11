@@ -6,11 +6,13 @@ public import FactorialTactics
 public import Functions
 public import SetTactics
 public import Tactics
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -31,7 +33,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.Ramsey
 
-set_option maxHeartbeats 600000 in
 theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (r : ℤ) (hH1 : 0 < r) (s : ℤ) (hH2 : 0 < s) (hH4 : V.Finite) (hH7 : ∀ Y ∈ 𝒫 V, (Y.ncard : ℤ) = 2 → Y ∈ E ∨ Y ∈ F) (hH8 : (LeanBridges.Counting.choose (r + s - 2) (r - 1) : ℤ) ≤ (V.ncard : ℤ)) :
     (∃ W ∈ 𝒫 V, r ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ s ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by
   -- 1. induction on k starting at 1
@@ -48,9 +49,9 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
       -- 1.2. mun:finite-part, from H4, K2
       have s1_2 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hK2)
       -- 1.3. calculation
-      have r559_1 : 0 ≤ j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := j) (by parley_set_side))
+      have r559_1 : 0 ≤ j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := j) hK1)
       have s1_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
-        calc (1 : ℤ) = (LeanBridges.Counting.choose (j - 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := j - 1) (by parley_set_side)).symm
+        calc (1 : ℤ) = (LeanBridges.Counting.choose (j - 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := j - 1) r559_1).symm
           _ = (LeanBridges.Counting.choose (j - 1) (1 - 1 : ℤ) : ℤ) := by norm_num
           _ = (LeanBridges.Counting.choose (1 + j - 2) (1 - 1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (1 - 1 : ℤ) : ℤ)) s1_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ ≤ (X.ncard : ℤ) := by parley_set_side)
@@ -76,7 +77,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         have s1_8_2 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hK4)
         -- 1.8.3. calculation
         have s1_8_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
-          calc (1 : ℤ) = (LeanBridges.Counting.choose k k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := k) (by parley_set_side)).symm
+          calc (1 : ℤ) = (LeanBridges.Counting.choose k k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK3))).symm
             _ = (LeanBridges.Counting.choose k (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose k t : ℤ)) s1_7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
             _ = (LeanBridges.Counting.choose (k + 1 + 1 - 2) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) s1_8_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
             _ ≤ (X.ncard : ℤ) := by parley_set_side)
@@ -111,10 +112,10 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
             _ = (LeanBridges.Counting.choose (k + 1 + (j + 1) - 2) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) s1_8_12.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
             _ ≤ (X.ncard : ℤ) := by parley_set_side
         -- 1.8.13.2. thm:ramsey-step, from H4, H7, K6, 1.8.8, 1.8.11, 1.8.13.1
-        exact (Parley.Proofs.Wiedijk.Ramsey.RamseyStep.ramsey_step (V := V) (E := E) (F := F) (k := k) (by parley_set_side) (j := j) (by parley_set_side) hH4 (by parley_set_side) (X := X) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
+        exact (Parley.Proofs.Wiedijk.Ramsey.RamseyStep.ramsey_step (V := V) (E := E) (F := F) (k := k) (lt_of_lt_of_le zero_lt_one hK3) (j := j) (lt_of_lt_of_le zero_lt_one hK5) hH4 (by parley_set_side) (X := X) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
   -- 2. mun:subset-self
   have s2 : V ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := V))
   -- 3. instantiate k := r, j := s, X := V in line 1, from H8, 2
-  exact (s1 r (by parley_set_side) s (by parley_set_side) V (by parley_set_side) (by parley_set_side))
+  exact (s1 r hH1 s hH2 V s2 (by parley_set_side))
 
 end Parley.Proofs.Wiedijk.Ramsey.Ramsey

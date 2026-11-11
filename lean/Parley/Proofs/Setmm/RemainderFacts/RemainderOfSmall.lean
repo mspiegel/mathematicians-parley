@@ -31,7 +31,7 @@ namespace Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall
 theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH5 : A < B) :
     LeanBridges.Divisibility.mod A B = A := by
   -- 1. mun:quotient-nonneg x := A, y := B, from H3, H4
-  have s1 : 0 ≤ A / B := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := A) (y := B) (by parley_side) (by parley_side))
+  have s1 : 0 ≤ A / B := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := A) (y := B) hH4 hH3)
   -- 2. algebra
   have r51_1 : B ≠ 0 := by parley_side
   have s2 : B * (A / B) = A := by parley_ring
@@ -39,10 +39,10 @@ theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH
   have r55_1 : B ≠ 0 := by parley_side
   have s3 : B * (A / B) < B := by parley_order
   -- 4. mun:less-scaled x := A/B, y := 1, c := B, from H3, 3
-  have s4 : A / B < 1 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (1 : ℝ)) (c := B) (by parley_side))).mpr (by simpa only [mul_one] using s3)
+  have s4 : A / B < 1 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (1 : ℝ)) (c := B) hH3)).mpr (by simpa only [mul_one] using s3)
   -- 5. mun:floor-between x := A/B, k := 0, from 1, 4
   have r62_1 : B ≠ 0 := by parley_side
-  have s5 : ⌊A / B⌋ = 0 := ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := A / B) (k := (0 : ℤ)))).mpr (by parley_side)
+  have s5 : ⌊A / B⌋ = 0 := ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := A / B) (k := (0 : ℤ)))).mpr ⟨by exact_mod_cast s1, by parley_side⟩
   -- 6. calculation
   calc LeanBridges.Divisibility.mod A B = A - B * (⌊A / B⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
     _ = A - B * 0 := by

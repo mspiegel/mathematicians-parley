@@ -14,6 +14,6 @@ namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedJoined
 theorem an_equation_turned_joined (a : ℝ) (b : ℝ) (hH3 : b = a) :
     a = b := by
   -- 1. restate H3
-  parley_side
+  exact hH3.symm
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedJoined

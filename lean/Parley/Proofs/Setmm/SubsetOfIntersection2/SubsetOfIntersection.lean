@@ -14,7 +14,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfIntersection2.SubsetOfIntersection
 
-set_option maxHeartbeats 400000 in
 theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     (A ⊆ B ∧ A ⊆ C ↔ A ⊆ B ∩ C) := by
   -- the theorem. both directions
@@ -31,7 +30,7 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
       -- 1.3. join 1.1, 1.2
       have s1_3 : u ∈ B ∧ u ∈ C := by parley_set_side
       -- 1.4. def:intersection, from 1.3
-      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr ⟨s1_3.1, s1_3.2⟩
     -- 2. def:subset, from 1
     exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr s1
   · skip
@@ -48,12 +47,12 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
     have s4 : ∀ u ∈ A, u ∈ B := by
       intro u hK3
       -- 4.1. restate 3
-      parley_set_side
+      exact (s3 u hK3).1
     -- 5. proof
     have s5 : ∀ u ∈ A, u ∈ C := by
       intro u hK4
       -- 5.1. restate 3
-      parley_set_side
+      exact (s3 u hK4).2
     -- 6. def:subset, from 4
     have s6 : A ⊆ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4
     -- 7. def:subset X := A, Y := C, from 5

@@ -16,7 +16,6 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceLaws.SplitByMembership
 
-set_option maxHeartbeats 400000 in
 theorem split_by_membership {α : Type*} (A : Set α) (B : Set α) :
     A ∩ B ∪ A \ B = A := by
   -- 1. proof
@@ -30,12 +29,12 @@ theorem split_by_membership {α : Type*} (A : Set α) (B : Set α) :
       -- 1.2.1. def:intersection, from C1
       have s1_2_1 : u ∈ A ∧ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp hC1
       -- 1.2.2. restate 1.2.1
-      parley_set_side
+      exact s1_2_1.1
     · skip
       -- 1.2.3. def:difference, from C2
       have s1_2_3 : u ∈ A ∧ ¬ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp hC2
       -- 1.2.4. restate 1.2.3
-      parley_set_side
+      exact s1_2_3.1
   -- 2. def:subset, from 1
   have s2 : A ∩ B ∪ A \ B ⊆ A := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B ∪ A \ B) (Y := A))).mpr s1
   -- 3. proof
@@ -49,14 +48,14 @@ theorem split_by_membership {α : Type*} (A : Set α) (B : Set α) :
       -- 3.2.1. join K2, C3
       have s3_2_1 : u ∈ A ∧ u ∈ B := by parley_set_side
       -- 3.2.2. def:intersection, from 3.2.1
-      have s3_2_2 : u ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mpr (by parley_set_side)
+      have s3_2_2 : u ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mpr ⟨s3_2_1.1, s3_2_1.2⟩
       -- 3.2.3. mun:in-union-left, from 3.2.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A ∩ B) (Z := A \ B) (u := u) s3_2_2)
     · skip
       -- 3.2.4. join K2, C4
       have s3_2_4 : u ∈ A ∧ ¬ u ∈ B := by parley_set_side
       -- 3.2.5. def:difference, from 3.2.4
-      have s3_2_5 : u ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr (by parley_set_side)
+      have s3_2_5 : u ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr ⟨s3_2_4.1, s3_2_4.2⟩
       -- 3.2.6. mun:in-union-right, from 3.2.5
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A ∩ B) (Z := A \ B) (u := u) s3_2_5)
   -- 4. def:subset, from 3

@@ -21,7 +21,7 @@ theorem contrapositive (a : ℝ) (b : ℝ) :
   -- 1. mun:modus-ponens, from K1, S
   have s1 : b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0) (Q := b = 0) hK1 hS)
   -- 2. restate K2
-  have s2 : b ≠ 0 := by parley_side
+  have s2 : b ≠ 0 := by exact hK2
   exact s2 s1
 
 end Parley.Proofs.Setmm.Contrapositive.Contrapositive

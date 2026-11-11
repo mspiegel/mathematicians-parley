@@ -23,7 +23,7 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInARequiresLineC
 theorem a_range_bound_in_a_requires_line_citing_an_item (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 : ℤ) n) :
     0 < n - k + 1 := by
   -- 1. mun:nat0-successor k := n − k
-  have r52_1 : 0 ≤ n - k := by exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) (by parley_side) (Finset.mem_Icc.mp hH2).2)
-  exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) (by parley_side))
+  have r52_1 : 0 ≤ n - k := by exact (Parley.Items.Stdlib.Numbers.mun_difference_nat0 (m := k) (by parley_side) (n := n) hH1 (Finset.mem_Icc.mp hH2).2)
+  exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := n - k) r52_1)
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInARequiresLineCitingAnItem

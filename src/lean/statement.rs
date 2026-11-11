@@ -30,7 +30,8 @@ pub enum Binder {
         says: Printed,
         /// The line it is as the checker read it, where one is: what a
         /// citation compares the lines it cites with, to name the one that
-        /// says it (`Proof::instance`).
+        /// says it (`Proof::instance`). For a letter's number system, `n ∈
+        /// ℕ`, the membership, whose `says` is the bound `0 < n`.
         line: Option<Node>,
     },
 }
@@ -495,10 +496,12 @@ pub fn binders(
                     Route::Built(s) => s,
                     Route::Declined(d) => return Route::Declined(d),
                 };
+                // Its line is the membership, as the checker records where
+                // a citation's value is in the system (`Cited::supplied`).
                 out.push(Binder::Fact {
                     name: a.name.clone(),
                     says,
-                    line: None,
+                    line: Some(a.node.clone()),
                 });
             }
             continue;

@@ -19,7 +19,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Subsets.PowersetSplit
 
-set_option maxHeartbeats 600000 in
 theorem powerset_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) :
     𝒫 X = 𝒫 (X \ ({a} : Set α)) ∪ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := by
   -- 1. proof

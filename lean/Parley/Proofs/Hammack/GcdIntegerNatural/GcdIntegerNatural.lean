@@ -4,6 +4,7 @@ public import NormTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -21,17 +22,16 @@ public section
 
 namespace Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural
 
-set_option maxHeartbeats 400000 in
 theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     0 < (Int.gcd a b : ℤ) ∧ (Int.gcd a b : ℤ) ∣ a ∧ (Int.gcd a b : ℤ) ∣ b := by
   -- 1. thm:gcd-mod
-  have s1 : (Int.gcd (a % b) b : ℤ) = (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a) (b := b) (by parley_side))
+  have s1 : (Int.gcd (a % b) b : ℤ) = (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a) (b := b) hH2)
   -- 2. mun:mod-natural
-  have s2 : 0 ≤ a % b := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := b) (by parley_side))
+  have s2 : 0 ≤ a % b := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := b) hH2)
   -- 3. mun:mod-less
-  have s3 : a % b < b := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := b) (by parley_side))
+  have s3 : a % b < b := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := b) hH2)
   -- 4. obtain q: mun:mod-remainder m := b, r := a mod b, from 2, 3
-  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := b) (by parley_side) (r := a % b) (by parley_side) s3)).mp (by parley_side)
+  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := b) hH2 (r := a % b) s2 s3)).mp (by parley_side)
   -- 5. axi:excluded-middle P := a mod b = 0
   have s5 : a % b = 0 ∨ a % b ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0))
   -- 6. cases, from 5
@@ -43,7 +43,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
         calc (Int.gcd a b : ℤ) = (Int.gcd (a % b) b : ℤ) := by exact s1.symm
           _ = (Int.gcd (0 : ℤ) b : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t b : ℤ)) hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd b (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := (0 : ℤ)) (b := b))
-          _ = b := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := b) (by parley_side))
+          _ = b := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := b) (le_of_lt hH2))
       -- 6.2. mun:divides-self n := b
       have s6_2 : b ∣ b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := b))
       -- 6.3. algebra, from C1, 4
@@ -61,13 +61,13 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       exact ⟨s6_6a, s6_6b, s6_6c⟩
     · skip
       -- 6.7. mun:nat0-nonzero m := a mod b, from C2, 2
-      have s6_7 : 0 < a % b := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := a % b) (by parley_side) hC2)
+      have s6_7 : 0 < a % b := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := a % b) s2 hC2)
       -- 6.8. def:gcd a := a mod b, from 6.7
-      have s6_8a : 0 < (Int.gcd (a % b) b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a % b) (by parley_side) (b := b) (by parley_side))
-      have s6_8b : (Int.gcd (a % b) b : ℤ) ∣ a % b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a % b) (by parley_side) (b := b) (by parley_side))
-      have s6_8c : (Int.gcd (a % b) b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a % b) (by parley_side) (b := b) (by parley_side))
+      have s6_8a : 0 < (Int.gcd (a % b) b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a % b) s6_7 (b := b) hH2)
+      have s6_8b : (Int.gcd (a % b) b : ℤ) ∣ a % b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a % b) s6_7 (b := b) hH2)
+      have s6_8c : (Int.gcd (a % b) b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a % b) s6_7 (b := b) hH2)
       -- 6.9. substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
-      have r80_1 : 0 < a % b := by parley_side
+      have r80_1 : 0 < a % b := by exact s6_7
       have s6_9a : 0 < (Int.gcd a b : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s1 s6_8a; push_cast at h ⊢; all_goals exact_mod_cast h)
       have s6_9b : (Int.gcd a b : ℤ) ∣ a % b := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a % b)) s1 s6_8b; push_cast at h ⊢; all_goals exact_mod_cast h)
       have s6_9c : (Int.gcd a b : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ b)) s1 s6_8c; push_cast at h ⊢; all_goals exact_mod_cast h)

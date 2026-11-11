@@ -30,7 +30,6 @@ public section
 
 namespace Parley.Proofs.Hammack.LinearLimit.LinearLimit
 
-set_option maxHeartbeats 400000 in
 theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
     Filter.Tendsto f (nhdsWithin 5 ((Set.univ : Set ℝ) \ {5})) (nhds 37) := by
   -- 1. proof
@@ -58,7 +57,7 @@ theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
       -- 1.2.7. join 1.2.4, 1.2.6
       have s1_2_7 : 37 - ε < f x ∧ f x < 37 + ε := by parley_set_side
       -- 1.2.8. mun:abs-difference-lt x := f(x), c := 37, δ := ε, from 1.2.7
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (37 : ℝ)) (δ := ε))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (37 : ℝ)) (δ := ε))).mpr ⟨s1_2_7.1, s1_2_7.2⟩
     -- 1.3. exhibit, from 1.1, 1.2
     exact ⟨ε / 8, ⟨s1_1, s1_2⟩⟩
   -- 2. def:limit-at D := ℝ, c := 5, L := 37, from 1

@@ -18,6 +18,6 @@ namespace Parley.Tests.Stdlib.Numbers.CrossMultipliedOrder
 theorem cross_multiplied_order (a : ℝ) (b : ℝ) (hH3 : b > 0) (c : ℝ) (d : ℝ) (hH6 : d > 0) :
     (a * b < c * d ↔ a / d < c / b) := by
   -- 1. mun:numbers-cross-multiplied-order, from H3, H6
-  exact (Parley.Items.Stdlib.Numbers.mun_cross_multiplied_order (a := a) (b := b) (by parley_side) (c := c) (d := d) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_cross_multiplied_order (a := a) (b := b) hH3 (c := c) (d := d) hH6)
 
 end Parley.Tests.Stdlib.Numbers.CrossMultipliedOrder

@@ -31,6 +31,6 @@ theorem congruent_same_gcd (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a 
   -- 3. algebra, from 2
   have s3 : a = k * n + b := by linear_combination (norm := parley_norm) s2
   -- 4. thm:gcd-with-remainder b := n, q := k, r := b, from 3
-  exact (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) (by parley_side) (q := k) (r := b) s3)
+  exact (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) hH3 (q := k) (r := b) s3)
 
 end Parley.Proofs.Hammack.CongruentSameGcd.CongruentSameGcd

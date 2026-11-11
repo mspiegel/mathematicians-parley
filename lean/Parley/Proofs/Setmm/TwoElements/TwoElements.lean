@@ -24,7 +24,6 @@ public section
 
 namespace Parley.Proofs.Setmm.TwoElements.TwoElements
 
-set_option maxHeartbeats 600000 in
 theorem two_elements {α : Type*} (V : Set α) :
     (V.encard = ((2 : ℕ) : ℕ∞) ↔ (∃ a ∈ V, ∃ b ∈ V, ¬ a = b ∧ V = ({a, b} : Set α))) := by
   -- the theorem. both directions
@@ -60,7 +59,7 @@ theorem two_elements {α : Type*} (V : Set α) :
         exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_1
       · skip
         -- 7.2.3. mun:remove-member u := t, Y := V, a := b, from C3, K1
-        have s7_2_3 : t ∈ V \ ({b} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := t))).mpr (by parley_set_side)
+        have s7_2_3 : t ∈ V \ ({b} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := t))).mpr ⟨hK1, hC3⟩
         -- 7.2.4. axi:excluded-middle P := t = a
         have s7_2_4 : t = a ∨ ¬ t = a := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := t = a))
         -- 7.2.5. cases, from 7.2.4
@@ -72,7 +71,7 @@ theorem two_elements {α : Type*} (V : Set α) :
           exact ((Parley.Items.Stdlib.Sets.def_pair (u := a) (w := b) (x := t))).mpr s7_2_5_1
         · skip
           -- 7.2.5.3. mun:remove-member u := t, Y := V ∖ {b}, from C5, 7.2.3
-          have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side)
+          have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr ⟨s7_2_3, hC5⟩
           -- 7.2.5.4. substitute
           have s7_2_5_4 : t ∈ (∅ : Set α) := by parley_count_after (by
             have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by parley_set_side))

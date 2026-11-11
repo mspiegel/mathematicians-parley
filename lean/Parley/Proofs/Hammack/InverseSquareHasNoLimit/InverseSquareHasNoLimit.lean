@@ -43,7 +43,6 @@ public section
 
 namespace Parley.Proofs.Hammack.InverseSquareHasNoLimit.InverseSquareHasNoLimit
 
-set_option maxHeartbeats 1000000 in
 theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (Set.univ : Set ℝ)) (hH2 : ∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), f x = 1 / x ^ 2) :
     ¬ (∃ L : ℝ, Filter.Tendsto f (nhdsWithin 0 (((Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) \ {0})) (nhds L)) := by
   -- the theorem. contradiction
@@ -62,7 +61,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   have s5 : p ≠ 0 := by parley_set_side
   -- 6. mun:quotient-positive x := 2, y := p, from 4
   have r44_1 : (2 : ℤ) > 0 := by parley_arith
-  have s6 : 2 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side))
+  have s6 : 2 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) s4a)
   -- 7. obtain m: thm:archimedean-natural x := 2/p, from 5
   obtain ⟨m, s7a, s7b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / p))
   -- 8. inequalities
@@ -80,32 +79,32 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.3. mun:reciprocal-order x := m, y := j, from A1
     have r72_1 : m > 0 := by parley_set_side
     have r72_2 : j > 0 := by parley_set_side
-    have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by parley_set_side) (y := (j : ℚ)) (by parley_set_side))).mp (by parley_set_side)
+    have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (j : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by parley_set_side)
     -- 10.4. inequalities
-    have r77_1 : p ≠ 0 := by parley_set_side
+    have r77_1 : p ≠ 0 := by exact s5
     have s10_4 : (m : ℝ) ≥ 2 / p := by parley_order
     -- 10.5. mun:reciprocal-order x := 2/p, y := m, from 10.4
     have r83_1 : 2 / p > 0 := by parley_set_side
     have r83_2 : m > 0 := by parley_set_side
-    have r83_3 : p ≠ 0 := by parley_set_side
-    have s10_5 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_set_side) (y := (m : ℝ)) (by parley_set_side))).mp s10_4
+    have r83_3 : p ≠ 0 := by exact s5
+    have s10_5 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) r83_1 (y := (m : ℝ)) (by exact_mod_cast gt_iff_lt.mp r83_2))).mp s10_4
     -- 10.6. algebra
-    have r89_1 : p ≠ 0 := by parley_set_side
+    have r89_1 : p ≠ 0 := by exact s5
     have s10_6 : 1 / (2 / p) = p / 2 := by parley_ring
     -- 10.7. transitivity, from 10.3, 10.5, 10.6, 8
-    have r93_1 : p ≠ 0 := by parley_set_side
+    have r93_1 : p ≠ 0 := by exact s5
     have s10_7 : 1 / (j : ℝ) < p := by parley_order
     set t : ℝ := 1 / (j : ℝ) with hD1
     have hD1_kind : True := by parley_set_side
     -- 10.8. mun:reciprocal-positive x := j, from D1, 10.1
     have s10_8 : t > 0 := by
-      try simp only [hD1] at *
-      try push_cast at *
-      exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (j : ℝ)) (by parley_set_side))
+      try simp only [hD1] at ⊢
+      try push_cast at ⊢
+      exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (j : ℝ)) (by exact_mod_cast gt_iff_lt.mp s10_1))
     -- 10.9. inequalities
     have s10_9 : t ≠ 0 := by parley_set_side
     -- 10.10. mun:remove-member u := t, from 10.9
-    have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr (by parley_set_side)
+    have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr ⟨by parley_set_side, s10_9⟩
     -- 10.11. def:abs x := t
     have r112_1 : t ≥ 0 := by parley_set_side
     have s10_11 : abs t = t := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) (by parley_set_side)
@@ -114,25 +113,25 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.13. transitivity, from 10.11, 10.12
     have s10_13 : abs t < p := by parley_order
     -- 10.14. instantiate x := t in line 4, from 10.9, 10.10, 10.13
-    have s10_14 : abs (f t - L) < 1 := by exact (s4b t (by parley_set_side) (by parley_set_side))
+    have s10_14 : abs (f t - L) < 1 := by exact (s4b t s10_10 (by parley_set_side))
     -- 10.15. instantiate x := t in H2, from 10.10
-    have s10_15 : f t = 1 / t ^ 2 := by exact (hH2 t (by parley_set_side))
+    have s10_15 : f t = 1 / t ^ 2 := by exact (hH2 t s10_10)
     -- 10.16. algebra, from D1
     have s10_16 : t * (j : ℝ) = 1 := by
-      try simp only [hD1] at *
-      try push_cast at *
+      try simp only [hD1] at ⊢
+      try push_cast at ⊢
       parley_ring
     set T : ℝ := t ^ 2 with hD2
     have hD2_kind : True := by parley_set_side
     -- 10.17. mun:square-positive x := t, from D2, 10.9
     have s10_17 : T > 0 := by
-      try simp only [hD2] at *
-      try push_cast at *
-      exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := t) (by parley_set_side))
+      try simp only [hD2] at ⊢
+      try push_cast at ⊢
+      exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := t) s10_9)
     -- 10.18. algebra, from D2, 10.16
     have s10_18 : (j : ℝ) ^ 2 * T = 1 := by
-      try simp only [hD2] at *
-      try push_cast at *
+      try simp only [hD2] at s10_16 ⊢
+      try push_cast at s10_16 ⊢
       linear_combination (norm := parley_norm) ((j : ℝ) * t + 1) * s10_16
     -- 10.19. algebra, from 10.18
     have r141_1 : T ≠ 0 := by parley_set_side
@@ -145,10 +144,10 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     (have h := Eq.subst (motive := (fun u : ℝ => abs (u - L) < 1)) s10_21 s10_14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. instantiate j := m in line 10
   have r154_1 : m ≥ m := by parley_order
-  have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by exact (s10 m (by parley_set_side) (by parley_set_side))
+  have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by exact (s10 m s7a r154_1)
   -- 12. instantiate j := m + 1 in line 10
   have r158_1 : m + 1 ≥ m := by parley_order
-  have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by exact_mod_cast (s10 (m + 1) (by parley_set_side) (by parley_set_side))
+  have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by exact_mod_cast (s10 (m + 1) (by parley_set_side) r158_1)
   -- 13. mun:abs-difference-lt x := m², c := L, δ := 1, from 11
   have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s11
   -- 14. mun:abs-difference-lt x := (m + 1)², c := L, δ := 1, from 12

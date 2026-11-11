@@ -38,13 +38,12 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock
 
-set_option maxHeartbeats 600000 in
 theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by
   -- 1. mun:exponent-step a := 2, m := j
-  have s1 : (2 ^ (j + 1).toNat : ℤ) = 2 ^ j.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := j) (by parley_side))
+  have s1 : (2 ^ (j + 1).toNat : ℤ) = 2 ^ j.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := j) hH1)
   -- 2. mun:power-nat a := 2, m := j
-  have s2 : (0 : ℤ) < 2 ^ j.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := j) (by parley_side))
+  have s2 : (0 : ℤ) < 2 ^ j.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := j) hH1)
   -- 3. mun:power-nat a := 2, m := j + 1
   have s3 : (0 : ℤ) < 2 ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := j + 1) (by parley_side))
   -- 4. inequalities, from 2
@@ -71,7 +70,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
     -- 9.3. mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
     have r59_1 : k > 0 := by parley_side
     have r59_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by parley_order
-    exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by parley_side) (y := (2 ^ (j + 1).toNat : ℚ)) (by parley_side))).mp (by parley_side)
+    exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (2 ^ (j + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by parley_side)
   -- 10. proof
   -- what this block shows, Lean's types give
   -- 11. mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 9
@@ -81,7 +80,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 13. transitivity, from 12, 1
   have s13 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by parley_order
   -- 14. mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
-  have r88_1 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by parley_side
+  have r88_1 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact s13
   have s14 : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by
     have hI : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))))
     exact hI

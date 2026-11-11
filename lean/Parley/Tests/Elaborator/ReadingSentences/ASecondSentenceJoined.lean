@@ -14,6 +14,6 @@ namespace Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceJoined
 theorem a_second_sentence_joined (a : ℝ) (b : ℝ) (hH3a : a = 1) (hH3b : b = 2) :
     b = 2 := by
   -- 1. restate H3
-  parley_side
+  exact hH3b
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceJoined

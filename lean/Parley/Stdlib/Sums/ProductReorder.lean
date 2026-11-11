@@ -31,7 +31,6 @@ public section
 
 namespace Parley.Stdlib.Sums.ProductReorder
 
-set_option maxHeartbeats 600000 in
 theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (f : ℤ → ℤ) (hH3 : Set.MapsTo f X X ∧ Set.InjOn f X) :
     (∏ᶠ x ∈ X, (f x : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) := by
   -- 1. def:one-to-one Y := X, from H3
@@ -51,9 +50,9 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
     -- 5.1. def:image u := y, W := X, Y := X, from K2, 2
     exact ((Parley.Items.Stdlib.Functions.def_image (X := X) (Y := X) (f := f) (u := y) (W := Set.univ) s2 (by parley_set_side))).mp hK2
   -- 6. def:onto Y := f[X], from 4, 5
-  have s6 : Set.MapsTo f X (f '' (X ∩ X)) ∧ Set.SurjOn f X (f '' (X ∩ X)) := ((Parley.Items.Stdlib.Functions.def_onto (X := X) (Y := f '' (X ∩ X)) (f := f) (by parley_set_side))).mpr (by parley_set_side)
+  have s6 : Set.MapsTo f X (f '' (X ∩ X)) ∧ Set.SurjOn f X (f '' (X ∩ X)) := ((Parley.Items.Stdlib.Functions.def_onto (X := X) (Y := f '' (X ∩ X)) (f := f) (by parley_set_side))).mpr ⟨s4, s5⟩
   -- 7. def:one-to-one Y := f[X], from 1, 4
-  have s7 : Set.MapsTo f X (f '' (X ∩ X)) ∧ Set.InjOn f X := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := X) (Y := f '' (X ∩ X)) (f := f) (by parley_set_side))).mpr (by parley_set_side)
+  have s7 : Set.MapsTo f X (f '' (X ∩ X)) ∧ Set.InjOn f X := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := X) (Y := f '' (X ∩ X)) (f := f) (by parley_set_side))).mpr ⟨s4, s1.2⟩
   -- 8. def:one-to-one-onto Y := f[X], from 6, 7
   have s8 : Set.MapsTo f X (f '' (X ∩ X)) ∧ Set.InjOn f X ∧ Set.SurjOn f X (f '' (X ∩ X)) := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := X) (Y := f '' (X ∩ X)) (f := f) (by parley_set_side))).mpr (by parley_set_side)
   -- 9. def:bijection Y := f[X], from 8
@@ -79,7 +78,7 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
     -- 16.2. def:image u := y, W := X, Y := X, from 2, 16.1
     exact ((Parley.Items.Stdlib.Functions.def_image (X := X) (Y := X) (f := f) (u := y) (W := Set.univ) s2 (by parley_set_side))).mp s16_1
   -- 17. def:onto Y := X, from 1, 16
-  have s17 : Set.MapsTo f X X ∧ Set.SurjOn f X X := ((Parley.Items.Stdlib.Functions.def_onto (X := X) (Y := X) (f := f) (by parley_set_side))).mpr (by parley_set_side)
+  have s17 : Set.MapsTo f X X ∧ Set.SurjOn f X X := ((Parley.Items.Stdlib.Functions.def_onto (X := X) (Y := X) (f := f) (by parley_set_side))).mpr ⟨s1.1, s16⟩
   -- 18. def:one-to-one-onto Y := X, from H3, 17
   have s18 : Set.MapsTo f X X ∧ Set.InjOn f X ∧ Set.SurjOn f X X := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := X) (Y := X) (f := f) (by parley_set_side))).mpr (by parley_set_side)
   -- 19. proof

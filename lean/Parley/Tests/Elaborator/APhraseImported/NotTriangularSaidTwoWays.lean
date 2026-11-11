@@ -18,6 +18,6 @@ namespace Parley.Tests.Elaborator.APhraseImported.NotTriangularSaidTwoWays
 theorem not_triangular_said_two_ways (hH1 : ¬ ((0 : ℤ) < 4 ∧ (∃ k : ℤ, 0 < k ∧ 4 = (k : ℚ) * ((k : ℚ) + 1) / 2))) :
     ¬ ((0 : ℤ) < 4 ∧ (∃ k : ℤ, 0 < k ∧ 4 = (k : ℚ) * ((k : ℚ) + 1) / 2)) := by
   -- 1. restate H1
-  parley_side
+  exact hH1
 
 end Parley.Tests.Elaborator.APhraseImported.NotTriangularSaidTwoWays

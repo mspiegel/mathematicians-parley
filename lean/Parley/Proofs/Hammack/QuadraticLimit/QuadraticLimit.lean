@@ -39,7 +39,6 @@ public section
 
 namespace Parley.Proofs.Hammack.QuadraticLimit.QuadraticLimit
 
-set_option maxHeartbeats 600000 in
 theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 1) :
     Filter.Tendsto f (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 5) := by
   -- 1. proof
@@ -52,8 +51,8 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     have s1_1 : 0 < ε / 12 := by parley_order
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
     have r36_1 : (0 : ℤ) < 1 := by parley_arith
-    have r36_2 : 0 < ε / 12 := by parley_set_side
-    have s1_2 : 0 < min 1 (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr (by parley_set_side)
+    have r36_2 : 0 < ε / 12 := by exact s1_1
+    have s1_2 : 0 < min 1 (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr ⟨by parley_set_side, r36_2⟩
     -- 1.3. inequalities, from D1, 1.2
     have s1_3 : m > 0 := by parley_order
     -- 1.4. proof
@@ -62,8 +61,8 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
       intro hA2
       -- 1.4.1. mun:lt-min z := |x − 1|, x := 1, y := ε/12, from A2, D1
       have s1_4_1 : abs (x - 1) < 1 ∧ abs (x - 1) < ε / 12 := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp hA2.2
       -- 1.4.2. mun:abs-difference-lt c := 1, δ := 1, from 1.4.1
       have s1_4_2 : 1 - 1 < x ∧ x < 1 + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
@@ -96,9 +95,9 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
       -- 1.4.14. calculation
       have r99_1 : ε / 12 > 0 := by parley_set_side
       calc abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := by exact s1_4_13
-        _ < abs (4 * x + 4) * (ε / 12) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 1)) (y := ε / 12) (c := abs (4 * x + 4)) (by parley_set_side))).mp s1_4_1.2
+        _ < abs (4 * x + 4) * (ε / 12) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 1)) (y := ε / 12) (c := abs (4 * x + 4)) s1_4_9.1)).mp s1_4_1.2
         _ = ε / 12 * abs (4 * x + 4) := by parley_ring
-        _ ≤ ε / 12 * 12 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (4 * x + 4)) (y := (12 : ℝ)) (c := ε / 12) (by parley_set_side) (by parley_set_side))
+        _ ≤ ε / 12 * 12 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (4 * x + 4)) (y := (12 : ℝ)) (c := ε / 12) s1_4_10 r99_1)
         _ = ε := by parley_ring
     -- 1.5. exhibit, from 1.3, 1.4
     exact ⟨m, ⟨s1_3, s1_4⟩⟩

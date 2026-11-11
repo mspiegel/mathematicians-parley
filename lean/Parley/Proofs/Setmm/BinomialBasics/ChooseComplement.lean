@@ -30,7 +30,6 @@ public section
 
 namespace Parley.Proofs.Setmm.BinomialBasics.ChooseComplement
 
-set_option maxHeartbeats 400000 in
 theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     (LeanBridges.Counting.choose N K : ℤ) = (LeanBridges.Counting.choose N (N - K) : ℤ) := by
   -- 1. axi:excluded-middle P := K ∈ {0, …, N}
@@ -46,23 +45,23 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     have s2_3a : 0 ≤ N - K := by parley_order
     have s2_3b : N - K ≤ N := by parley_order
     -- 2.4. def:range-between k := N − K, a := 0, b := N, from 2.3
-    have s2_4 : N - K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
+    have s2_4 : N - K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_3a, s2_3b⟩
     -- 2.5. algebra
     have s2_5 : N - (N - K) = K := by parley_ring
     -- 2.6. substitute N − (N − K) = K (line 2.5)
     have s2_6 : (LeanBridges.Counting.factorial (N - (N - K)) : ℤ) = (LeanBridges.Counting.factorial K : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.7. mun:factorial-nat n := N − K, from 2.2
-    have s2_7 : 0 < (LeanBridges.Counting.factorial (N - K) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) (by parley_side))
+    have s2_7 : 0 < (LeanBridges.Counting.factorial (N - K) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) s2_2)
     -- 2.8. mun:factorial-nat n := K, from 2.1
-    have s2_8 : 0 < (LeanBridges.Counting.factorial K : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) (by parley_side))
+    have s2_8 : 0 < (LeanBridges.Counting.factorial K : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) s2_1)
     -- 2.9. calculation
     try qify
-    calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := K)) hC1
+    calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := K)) hC1
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial K : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by parley_ring
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - (N - K)) : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by
           have e_w : (LeanBridges.Counting.factorial K : ℚ) = (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_6.symm; push_cast at h; linear_combination (norm := parley_norm) h
           (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial (N - K) : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := by exact ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (by parley_side) (k := N - K)) s2_4).symm
+      _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := by exact ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := N - K)) s2_4).symm
   · skip
     -- 2.10. contradiction
     have s2_10 : ¬ N - K ∈ Finset.Icc (0 : ℤ) N := by
@@ -75,12 +74,12 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
       -- 2.10.3. inequalities
       have s2_10_3 : K ≤ N := by parley_order
       -- 2.10.4. def:range-between k := K, a := 0, b := N, from 2.10.2, 2.10.3
-      have s2_10_4 : K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := K) (a := (0 : ℤ)) (b := N))).mpr (by parley_side)
+      have s2_10_4 : K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := K) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_10_2, s2_10_3⟩
       -- 2.10.5. restate C2
-      have s2_10_5 : ¬ K ∈ Finset.Icc (0 : ℤ) N := by parley_side
+      have s2_10_5 : ¬ K ∈ Finset.Icc (0 : ℤ) N := by exact hC2
       exact s2_10_5 s2_10_4
     -- 2.11. calculation
-    calc (LeanBridges.Counting.choose N K : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := K) hC2)
-      _ = (LeanBridges.Counting.choose N (N - K) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) (by parley_side) (k := N - K) s2_10).symm
+    calc (LeanBridges.Counting.choose N K : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) hH1 (k := K) hC2)
+      _ = (LeanBridges.Counting.choose N (N - K) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := N) hH1 (k := N - K) s2_10).symm
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseComplement

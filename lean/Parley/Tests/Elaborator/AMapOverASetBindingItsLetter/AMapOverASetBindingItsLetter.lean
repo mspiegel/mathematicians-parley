@@ -47,14 +47,13 @@ public section
 
 namespace Parley.Tests.Elaborator.AMapOverASetBindingItsLetter.AMapOverASetBindingItsLetter
 
-set_option maxHeartbeats 1200000 in
 theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ, x ∈ {x : ℝ | x > 0} → g x = Real.sqrt x) :
     ContinuousOn g {x : ℝ | x > 0} := by
   set D : Set ℝ := {x : ℝ | x > 0} with hD1
   -- 1. mun:set-builder-subset, from D1
   have s1 : D ⊆ (Set.univ : Set ℝ) := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     have hI : {t : ℝ | 0 < t} ⊆ (Set.univ : Set ℝ) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ))))
     exact hI
   -- 2. proof
@@ -62,8 +61,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     intro x hK1
     -- 2.1. def:set-builder, from D1, K1
     have s2_1 : x > 0 := by
-      try simp only [hD1] at *
-      try push_cast at *
+      try simp only [hD1] at ⊢
+      try push_cast at ⊢
       have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
       exact hI
     -- 2.2. inequalities
@@ -84,8 +83,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     intro hA1
     -- 4.1. def:set-builder, from D1, K2
     have s4_1 : c > 0 := by
-      try simp only [hD1] at *
-      try push_cast at *
+      try simp only [hD1] at ⊢
+      try push_cast at ⊢
       have hI : 0 < c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2)
       exact hI
     -- 4.2. inequalities
@@ -117,7 +116,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_4_8 : ¬ c > 0 := by parley_set_side
       exact s4_4_8 s4_1
     -- 4.5. mun:less-scaled x := 0, y := √c, c := ε, from A1, 4.3, 4.4
-    have s4_5 : ε * 0 < ε * Real.sqrt c := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (0 : ℝ)) (y := Real.sqrt c) (c := ε) (by parley_set_side))).mp s4_4
+    have s4_5 : ε * 0 < ε * Real.sqrt c := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (0 : ℝ)) (y := Real.sqrt c) (c := ε) hA1)).mp s4_4
     -- 4.6. membership, from 4.3
     -- 4.7. inequalities, from 4.3, 4.5
     have s4_7 : ε * Real.sqrt c > 0 := by parley_order
@@ -127,8 +126,8 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       intro hA2
       -- 4.8.1. def:set-builder, from D1, K4
       have s4_8_1 : x > 0 := by
-        try simp only [hD1] at *
-        try push_cast at *
+        try simp only [hD1] at ⊢
+        try push_cast at ⊢
         have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
         exact hI
       -- 4.8.2. inequalities
@@ -166,7 +165,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
           _ = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := by exact s4_8_15
           _ = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by exact s4_8_16
       -- 4.8.18. mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
-      have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) (by parley_set_side) (by parley_set_side))
+      have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) s4_8_12 s4_8_3a)
       -- 4.8.19. algebra, from 4.3, 4.8.3
       have s4_8_19 : abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linear_combination (norm := parley_norm) 0
       -- 4.8.20. transitivity, from 4.8.17, 4.8.19
@@ -180,7 +179,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.24. transitivity, from 4.8.22, A2, 4.8.23
       have s4_8_24 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) < Real.sqrt c * ε := by parley_order
       -- 4.8.25. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.24
-      have s4_8_25 : abs (Real.sqrt x - Real.sqrt c) < ε := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) (by parley_set_side))).mpr s4_8_24
+      have s4_8_25 : abs (Real.sqrt x - Real.sqrt c) < ε := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) s4_4)).mpr s4_8_24
       -- 4.8.26. substitute g(x) = √x (line 4.8.8) into line 4.8.25
       have s4_8_26 : abs (g x - Real.sqrt c) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs (t - Real.sqrt c) < ε)) s4_8_8.symm s4_8_25; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.8.27. substitute g(c) = √c (line 4.8.9) into line 4.8.26
@@ -188,7 +187,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     -- 4.9. exhibit, from 4.6, 4.7, 4.8
     exact ⟨ε * Real.sqrt c, ⟨s4_7, s4_8⟩⟩
   -- 5. def:continuous-on f := g, from 1, 4
-  have r222_1 : Set.MapsTo g D (Set.univ : Set ℝ) := by parley_set_side
+  have r222_1 : Set.MapsTo g D (Set.univ : Set ℝ) := by exact s3
   exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1)).mpr s4
 
 end Parley.Tests.Elaborator.AMapOverASetBindingItsLetter.AMapOverASetBindingItsLetter

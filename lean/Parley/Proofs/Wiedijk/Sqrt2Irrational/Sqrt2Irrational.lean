@@ -38,7 +38,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational
 
-set_option maxHeartbeats 400000 in
 theorem sqrt2_irrational :
     Irrational (Real.sqrt (2 : ℝ)) := by
   -- 1. def:sqrt x := 2
@@ -83,6 +82,6 @@ theorem sqrt2_irrational :
     have s2_14 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r156_1, s2_12⟩, s2_13⟩⟩
     exact s2_1c s2_14
   -- 3. def:irrational x := √2, from 2
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mpr ⟨by parley_side, s2⟩
 
 end Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational

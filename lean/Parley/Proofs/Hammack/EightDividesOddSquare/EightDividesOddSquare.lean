@@ -25,7 +25,6 @@ public section
 
 namespace Parley.Proofs.Hammack.EightDividesOddSquare.EightDividesOddSquare
 
-set_option maxHeartbeats 400000 in
 theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     (8 : ℤ) ∣ n ^ 2 - 1 := by
   -- 1. obtain k: def:odd, from H2

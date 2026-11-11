@@ -22,6 +22,6 @@ namespace Parley.Tests.Stdlib.Counting.BinomialTwo
 theorem binomial_two (m : ℤ) (hH1 : 0 ≤ m) :
     (LeanBridges.Counting.choose m (2 : ℤ) : ℚ) = (m : ℚ) * ((m : ℚ) - 1) / 2 := by
   -- 1. mun:counting-binomial-two n := m
-  exact (Parley.Items.Stdlib.Counting.mun_binomial_two (n := m) (by parley_side))
+  exact (Parley.Items.Stdlib.Counting.mun_binomial_two (n := m) hH1)
 
 end Parley.Tests.Stdlib.Counting.BinomialTwo

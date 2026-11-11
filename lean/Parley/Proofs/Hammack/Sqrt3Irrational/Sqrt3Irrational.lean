@@ -36,7 +36,6 @@ public section
 
 namespace Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational
 
-set_option maxHeartbeats 400000 in
 theorem sqrt3_irrational :
     Irrational (Real.sqrt (3 : ℝ)) := by
   -- 1. def:sqrt x := 3
@@ -72,6 +71,6 @@ theorem sqrt3_irrational :
     have s2_11 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(3 : ℤ), ⟨⟨r179_1, s2_5⟩, s2_10⟩⟩
     exact s2_1c s2_11
   -- 3. def:irrational x := √3, from 2
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (3 : ℝ)))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (3 : ℝ)))).mpr ⟨by parley_side, s2⟩
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational

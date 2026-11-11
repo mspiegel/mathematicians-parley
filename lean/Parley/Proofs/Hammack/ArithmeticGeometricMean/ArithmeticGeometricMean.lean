@@ -25,7 +25,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ArithmeticGeometricMean.ArithmeticGeometricMean
 
-set_option maxHeartbeats 400000 in
 theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0) :
     a + b ≥ 2 * Real.sqrt (a * b) := by
   -- 1. inequalities
@@ -33,7 +32,7 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 2. inequalities
   have s2 : b ≥ 0 := by parley_order
   -- 3. mun:product-nonneg x := a, y := b, from 1, 2
-  have s3 : a * b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side))
+  have s3 : a * b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) s1 s2)
   -- 4. def:sqrt x := a·b, from 3
   have s4a : Real.sqrt (a * b) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a * b) s3)
   have s4b : Real.sqrt (a * b) ^ 2 = a * b := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := a * b) s3)
@@ -48,7 +47,7 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5.4. inequalities
   have s5_4 : a + b ≥ 0 := by parley_order
   -- 5.5. mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.2, 5.4
-  have s5_5 : (a + b) ^ 2 < (2 * Real.sqrt (a * b)) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) (by parley_side) (by parley_side))).mp s5_1
+  have s5_5 : (a + b) ^ 2 < (2 * Real.sqrt (a * b)) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) s5_4 s5_2)).mp s5_1
   -- 5.6. substitute
   have s5_6 : (a + b) ^ 2 < 4 * (a * b) := by
     have c1 : (2 * Real.sqrt (a * b)) ^ 2 = 4 * (a * b) := by linear_combination (norm := parley_norm) (4) * s4b

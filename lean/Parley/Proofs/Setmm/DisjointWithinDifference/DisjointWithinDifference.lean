@@ -15,7 +15,6 @@ public section
 
 namespace Parley.Proofs.Setmm.DisjointWithinDifference.DisjointWithinDifference
 
-set_option maxHeartbeats 400000 in
 theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) :
     (A ∩ B = ∅ ↔ A ⊆ C \ B) := by
   -- the theorem. both directions
@@ -30,7 +29,7 @@ theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : S
       -- 1.2. mun:disjoint-member Y := A, Z := B, u := t, from D1, K
       have s1_2 : ¬ t ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := t) hD1 hK)
       -- 1.3. def:difference u := t, Y := C, Z := B, from 1.1, 1.2
-      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := t))).mpr ⟨s1_1, s1_2⟩
     -- 2. def:subset X := A, Y := C ∖ B, from 1
     exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C \ B))).mpr s1
   · skip
@@ -41,11 +40,11 @@ theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : S
     have s4 : ∀ s ∈ A, ¬ s ∈ B := by
       intro s hK
       -- 4.1. instantiate t := s in line 3, from K
-      have s4_1 : s ∈ C \ B := by exact (s3 s (by parley_set_side))
+      have s4_1 : s ∈ C \ B := by exact (s3 s hK)
       -- 4.2. def:difference u := s, Y := C, Z := B, from 4.1
       have s4_2 : s ∈ C ∧ ¬ s ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := B) (u := s))).mp s4_1
       -- 4.3. restate 4.2
-      parley_set_side
+      exact s4_2.2
     -- 5. calculation
     calc A ∩ B = B ∩ A := by exact (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := A) (Z := B))
       _ = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A) s4)

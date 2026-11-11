@@ -14,6 +14,7 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -40,7 +41,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.FibonacciEvenIffThreeDivides
 
-set_option maxHeartbeats 1600000 in
 theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (Even (F n) ↔ (3 : ℤ) ∣ n) := by
   -- 1. thm:fibonacci-natural
@@ -147,9 +147,9 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.2. mun:mod-less a := n, b := 3
     have s5_2 : n % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := n) (b := (3 : ℤ)) (by parley_side))
     -- 5.3. thm:residue-mod-three r := n mod 3, from 5.1, 5.2
-    have s5_3 : (n % (3 : ℤ) = 0 ∨ n % (3 : ℤ) = 1) ∨ n % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := n % (3 : ℤ)) (by parley_side) s5_2)
+    have s5_3 : (n % (3 : ℤ) = 0 ∨ n % (3 : ℤ) = 1) ∨ n % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := n % (3 : ℤ)) s5_1 s5_2)
     -- 5.4. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 5.1, 5.2
-    obtain ⟨q, s5_4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by parley_side) (r := n % (3 : ℤ)) (by parley_side) s5_2)).mp (by parley_side)
+    obtain ⟨q, s5_4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by parley_side) (r := n % (3 : ℤ)) s5_1 s5_2)).mp (by parley_side)
     -- 5.5. algebra, from 5.4
     have s5_5 : q * 3 = n - n % (3 : ℤ) := by linear_combination (norm := parley_norm) s5_4
     -- 5.6. inequalities, from H1
@@ -173,7 +173,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
         _ ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (-1 : ℤ)) (n := q) s5_11)
     -- 5.13. mun:nat0-as-int n := q, from 5.12
     have s5_13 : 0 ≤ q := by
-      have hI : 0 ≤ q := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr (by parley_side))
+      have hI : 0 ≤ q := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr ⟨by parley_side, s5_12⟩)
       exact hI
     -- 5.14. cases, from 5.3
     rcases s5_3 with (hC1 | hC2) | hC3
@@ -190,7 +190,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.14.5. algebra, from 5.14.4
       have s5_14_5 : n = 3 * q + 1 := by linear_combination (norm := parley_norm) (-1) * s5_14_4
       -- 5.14.6. instantiate k := q in line 4, from 5.13
-      have s5_14_6 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q (by parley_side))
+      have s5_14_6 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
       -- 5.14.7. instantiate k := 3q + 1 in line 2
       have r277_1 : 0 ≤ 3 * q + 1 := by parley_side
       -- 5.14.8. substitute n = 3q + 1 (line 5.14.5) into P1
@@ -204,7 +204,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.14.11. algebra, from 5.14.10
       have s5_14_11 : n = 3 * q + 2 := by linear_combination (norm := parley_norm) (-1) * s5_14_10
       -- 5.14.12. instantiate k := q in line 4, from 5.13
-      have s5_14_12 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q (by parley_side))
+      have s5_14_12 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
       -- 5.14.13. instantiate k := 3q + 2 in line 2
       have r301_1 : 0 ≤ 3 * q + 2 := by parley_side
       -- 5.14.14. substitute n = 3q + 2 (line 5.14.11) into P1
@@ -230,7 +230,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.20. mun:pos-int-nat m := k, from 5.19
     have s5_20 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s5_19)
     -- 5.21. instantiate k := k in line 4, from 5.20
-    have s5_21 : (Even (F (3 * k)) ∧ Odd (F (3 * k + 1))) ∧ Odd (F (3 * k + 2)) := by exact (s4 k (by parley_side))
+    have s5_21 : (Even (F (3 * k)) ∧ Odd (F (3 * k + 1))) ∧ Odd (F (3 * k + 2)) := by exact (s4 k (le_of_lt s5_20))
     -- 5.22. substitute n = 3·k (line 5.15) into line 5.21
     (have h := Eq.subst (motive := (fun t : ℤ => Even (F t))) s5_15.symm s5_21.1.1; push_cast at h ⊢; all_goals exact_mod_cast h)
 

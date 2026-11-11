@@ -25,7 +25,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionTwo
 
-set_option maxHeartbeats 400000 in
 theorem inclusion_exclusion_two {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B.Finite) :
     ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + (B.ncard : ℤ) - ((A ∩ B).ncard : ℤ) := by
   -- 1. mun:difference-subset X := B, Y := A

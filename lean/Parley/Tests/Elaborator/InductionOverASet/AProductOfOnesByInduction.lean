@@ -27,7 +27,7 @@ namespace Parley.Tests.Elaborator.InductionOverASet.AProductOfOnesByInduction
 theorem a_product_of_ones_by_induction {α : Type*} (X : Set α) (hH2 : X.Finite) :
     (∏ᶠ x ∈ X, (1 : ℤ)) = 1 := by
   -- 1. induction on Y starting at ∅
-  have r14_1 : X.Finite := by parley_set_side
+  have r14_1 : X.Finite := by exact hH2
   have s1 : ∀ Y ∈ 𝒫 X, (∏ᶠ y ∈ Y, (1 : ℤ)) = 1 := by
     refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
@@ -45,6 +45,6 @@ theorem a_product_of_ones_by_induction {α : Type*} (X : Set α) (hH2 : X.Finite
       parley_set_side
   -- 2. instantiate Y := X in line 1
   have r39_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  exact (s1 X (by parley_set_side))
+  exact (s1 X r39_1)
 
 end Parley.Tests.Elaborator.InductionOverASet.AProductOfOnesByInduction

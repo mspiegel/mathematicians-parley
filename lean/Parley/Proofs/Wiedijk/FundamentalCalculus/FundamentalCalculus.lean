@@ -45,7 +45,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus
 
-set_option maxHeartbeats 600000 in
 theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Set.MapsTo f (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ContinuousOn f (Set.Icc a b : Set ℝ)) (F : ℝ → ℝ) (hH6 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH7 : ContinuousOn F (Set.Icc a b : Set ℝ)) (hH8 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x) (hH9 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv F) x = f x) :
     (∫ t in a..b, (f t : ℝ)) = F b - F a := by
   set G : ℝ → ℝ := fun x : ℝ => ∫ t in a..x, (f t : ℝ) with hD1
@@ -53,11 +52,11 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 1. def:interval x := a
   have r78_1 : a ≤ a := by parley_order
   have r78_2 : a ≤ b := by parley_set_side
-  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr (by parley_set_side)
+  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r78_1⟩, r78_2⟩
   -- 2. def:interval x := b
   have r83_1 : a ≤ b := by parley_set_side
   have r83_2 : b ≤ b := by parley_order
-  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr (by parley_set_side)
+  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r83_1⟩, r83_2⟩
   -- 3. mun:interval-real
   have s3 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   -- 4. mun:open-within-closed
@@ -80,35 +79,35 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 10. mun:function-into, from 9
   have s10 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := H) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 11. thm:area-function, from H3, H5, 5
-  have r120_1 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
+  have r120_1 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s11 : ContinuousOn G (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_area_function_1 (f := f) (G := G) (a := a) (b := b) hH3 hH5 s5)
   -- 12. thm:area-function, from H3, H5, 5
-  have r124_1 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
+  have r124_1 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s12 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ G x := by exact (Parley.Items.Stdlib.Calculus.thm_area_function_2 (f := f) (G := G) (a := a) (b := b) hH3 hH5 s5)
   -- 13. thm:area-function, from H3, H5, 5
-  have r128_1 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
+  have r128_1 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s13 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv G) x = f x := by exact (Parley.Items.Stdlib.Calculus.thm_area_function_3 (f := f) (G := G) (a := a) (b := b) hH3 hH5 s5)
   -- 14. thm:continuous-difference D := [a, b], F := H, f := G, g := F, from H7, 3, 6, 11
-  have r132_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have r132_2 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
+  have r132_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
+  have r132_2 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s14 : ContinuousOn H (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_difference (F := H) (f := G) (g := F) (D := (Set.Icc a b : Set ℝ)) s3 s6 s11 hH7)
   -- 15. thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from H8, 3, 6, 12
-  have r137_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by parley_set_side
-  have r137_2 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have r137_3 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
+  have r137_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact s4
+  have r137_2 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
+  have r137_3 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s15 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ H x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_difference_1 (F := H) (f := G) (g := F) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s3 r137_1 s6 s12 hH8)
   -- 16. thm:derivative-difference D := [a, b], U := (a, b), F := H, f := G, g := F, from H8, 3, 6, 12
-  have r143_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by parley_set_side
-  have r143_2 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
-  have r143_3 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
+  have r143_1 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by exact s4
+  have r143_2 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
+  have r143_3 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s16 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = (deriv G) x - (deriv F) x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_difference_2 (F := H) (f := G) (g := F) (D := (Set.Icc a b : Set ℝ)) (U := (Set.Ioo a b : Set ℝ)) s3 r143_1 s6 s12 hH8)
   -- 17. proof
   have s17 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = 0 := by
     intro x hK1
     -- 17.1. substitute G′(x) = f(x) (line 13) into line 16
-    have s17_1 : (deriv H) x = f x - (deriv F) x := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv H) x = t - (deriv F) x)) (s13 x (by parley_set_side)) (s16 x (by parley_set_side)); push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s17_1 : (deriv H) x = f x - (deriv F) x := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv H) x = t - (deriv F) x)) (s13 x hK1) (s16 x hK1); push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.2. substitute F′(x) = f(x) (H9) into line 17.1
-    have s17_2 : (deriv H) x = f x - f x := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv H) x = f x - t)) (hH9 x (by parley_set_side)) s17_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s17_2 : (deriv H) x = f x - f x := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv H) x = f x - t)) (hH9 x hK1) s17_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 17.3. mun:in-subset, from K1, 4
     have s17_3 : x ∈ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Icc a b : Set ℝ)) (u := x) s4 hK1)
     -- 17.4. algebra, from 17.2
@@ -122,7 +121,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 21. D1, from 2
   have s21 : G b = (∫ t in a..b, (f t : ℝ)) := by simp (disch := omega) only [hD1]
   -- 22. calculation
-  have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
+  have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
   have s22 : G b - F b = G a - F a := by
     calc G b - F b = H b := by exact s19
       _ = H a := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds.zero_derivative_ends (a := a) (b := b) hH3 (H := H) (by parley_set_side) s14 s15 s17)

@@ -43,6 +43,6 @@ theorem even_power_of_minus_one (k : ℤ) (hH1 : 0 ≤ k) :
         _ = 1 * (-1) ^ 2 := by (have h := congrArg (fun t : ℤ => t * (-1) ^ 2) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 := by norm_num
   -- 2. instantiate j := k in line 1
-  exact (s1 k (by parley_side))
+  exact (s1 k hH1)
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne

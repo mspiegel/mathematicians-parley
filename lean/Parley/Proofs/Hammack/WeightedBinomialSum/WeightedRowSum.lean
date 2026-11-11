@@ -35,11 +35,10 @@ public section
 
 namespace Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum
 
-set_option maxHeartbeats 400000 in
 theorem weighted_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (k * (LeanBridges.Counting.choose (m + 1) k : ℤ) : ℤ)) = (m + 1) * 2 ^ m.toNat := by
   -- 1. thm:weighted-term
-  have s1 : ∀ k : ℤ, k ∈ Finset.Icc 1 (m + 1) → k * (LeanBridges.Counting.choose (m + 1) k : ℤ) = (m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ) := by intro k h_k; (exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m) (by parley_side) (k := k) (by parley_side)))
+  have s1 : ∀ k : ℤ, k ∈ Finset.Icc 1 (m + 1) → k * (LeanBridges.Counting.choose (m + 1) k : ℤ) = (m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ) := by intro k h_k; (exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m) hH1 (k := k) (by parley_side)))
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. proof
@@ -51,7 +50,7 @@ theorem weighted_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
   -- 6. calculation
   have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (k - 1) : ℤ) : ℤ)) = 2 ^ m.toNat := by
     calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (k - 1) : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℤ) : ℤ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); simp only [Int.cast_one, Int.cast_zero, zero_add] at h ⊢; exact_mod_cast h.symm)
-      _ = 2 ^ m.toNat := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.BinomialRowSum.binomial_row_sum (m := m) (by parley_side))
+      _ = 2 ^ m.toNat := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.BinomialRowSum.binomial_row_sum (m := m) hH1)
   -- 7. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (k * (LeanBridges.Counting.choose (m + 1) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ) : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + 1) k : ℤ))) (u := (fun k : ℤ => (m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ))) (a := (1 : ℤ)) (b := m + 1) s1)
     _ = (m + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (k - 1) : ℤ) : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_scaled (t := (fun k : ℤ => (LeanBridges.Counting.choose m (k - 1) : ℤ))) (a := (1 : ℤ)) (b := m + 1) (c := m + 1)).symm

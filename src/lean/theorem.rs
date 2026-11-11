@@ -19,6 +19,7 @@ use super::statement::{binders, introduces, Asked, Binder};
 use super::templates::Templates;
 use crate::checker::record::{
     Cited, Contradicted, Facing, FirstAt, Negating, Supplied, SuppliedBy, Supposed,
+    Unfolded,
 };
 use crate::checker::{CheckedCorpus, CheckedTheorem};
 use crate::citing::Way;
@@ -784,6 +785,15 @@ fn number_types(term: &Printed) -> std::collections::BTreeSet<super::templates::
     out
 }
 
+/// Lean's statement of a "for all" line once each of its leading letters is
+/// given its value (`lean_instance`).
+struct LeanInstance {
+    /// Each condition taken off, outermost first, at the values.
+    conditions: Vec<Printed>,
+    /// What is left once they are.
+    left: Printed,
+}
+
 /// What Lean's statement of a "for all" line, `line`, says once each of its
 /// leading letters is given its value of `given` in order, a guard's proof
 /// after a value that has one, and then `conditions` of its conditions'
@@ -794,7 +804,7 @@ fn lean_instance(
     line: &Printed,
     given: &[(Printed, bool)],
     conditions: usize,
-) -> Route<Printed> {
+) -> Route<LeanInstance> {
     use super::doc::TermKind;
     let bare = |t: Printed| match t.kind {
         TermKind::Paren(inner) => *inner,
@@ -826,13 +836,21 @@ fn lean_instance(
             };
         }
     }
+    let mut taken = Vec::new();
     for _ in 0..conditions {
-        at = match arrow_rhs(at) {
-            Some(rest) => rest,
-            None => return Route::no("a line Lean states with fewer conditions"),
+        let TermKind::Infix { op, lhs, rhs } = bare(at).kind else {
+            return Route::no("a line Lean states with fewer conditions");
         };
+        if op.symbol != "→" {
+            return Route::no("a line Lean states with fewer conditions");
+        }
+        taken.push(super::doc::forms::substituted_all(&lhs, &values));
+        at = *rhs;
     }
-    Route::Built(super::doc::forms::substituted_all(&at, &values))
+    Route::Built(LeanInstance {
+        conditions: taken,
+        left: super::doc::forms::substituted_all(&at, &values),
+    })
 }
 
 /// What turns Lean's bound for a membership of ℕ or ℕ₀, `0 < x` or `0 ≤ x`,
@@ -1530,6 +1548,77 @@ fn exists_at(
         }
         _ => (None, None),
     }
+}
+
+/// The symbol of the relation `statement` states, `<` of `0 < x`; None for
+/// a statement that is no relation of two sides.
+fn relation_symbol(statement: &Printed) -> Option<&'static str> {
+    match &unparenthesized(statement).kind {
+        super::doc::TermKind::Infix { op, .. } => Some(op.symbol),
+        _ => None,
+    }
+}
+
+/// `proof` of an order turned by `lemma`, `gt_iff_lt.mp h` of `h : a > b`
+/// saying `b < a`.
+fn turned_order(lemma: &str, proof: Printed) -> Printed {
+    Printed::applied(
+        lemma,
+        super::doc::Source::Core,
+        vec![proof],
+        super::doc::LeanType::Prop,
+    )
+}
+
+/// `term` with its outer brackets taken off.
+fn unparenthesized(term: &Printed) -> Printed {
+    match &term.kind {
+        super::doc::TermKind::Paren(inner) => unparenthesized(inner),
+        _ => term.clone(),
+    }
+}
+
+/// How many statements Lean's `statement` joins by "and", each function
+/// applied taken as its body at its value: `L k ∈ Set.univ ∧ (fun y => ∃ k,
+/// …) (L k)` joins two.
+fn lean_conjuncts(statement: &Printed) -> usize {
+    let at = super::doc::forms::beta_reduced(&unparenthesized(statement));
+    match &at.kind {
+        super::doc::TermKind::Infix { op, lhs, rhs } if op.symbol == "∧" => {
+            lean_conjuncts(lhs) + lean_conjuncts(rhs)
+        }
+        _ => 1,
+    }
+}
+
+/// Whether `part` is a fact that a term is in a number system that is a
+/// Lean type, ℤ or ℝ, which Lean states by the term's type and not as a
+/// fact.
+fn type_membership(part: &Unfolded) -> bool {
+    let Unfolded::Fact { fact, .. } = part else {
+        return false;
+    };
+    match (fact.notation(), fact.children.as_slice()) {
+        (crate::notations::MEMBERSHIP, [_, set]) => matches!(
+            super::expr::system_of(set),
+            Some(super::expr::System::Type(_))
+        ),
+        _ => false,
+    }
+}
+
+/// The proofs `first`, then `rest`, as one anonymous constructor: `rest`'s
+/// own parts where it is one, as Lean's "and" and "there is" nest to the
+/// right; `first`'s one proof alone where `rest` adds nothing.
+fn joined(mut first: Vec<Printed>, rest: Printed) -> Printed {
+    match rest.kind {
+        super::doc::TermKind::Listed {
+            brackets: super::doc::Brackets::Angle,
+            items,
+        } => first.extend(items),
+        _ => first.push(rest),
+    }
+    super::expr::anonymous(first)
 }
 
 /// The side of an "if and only if" or an "if" a forward reading starts
@@ -2748,18 +2837,6 @@ pub fn theorem(
             .chain(binders.iter().map(Binder::doc))
             .collect();
     let says = all_of(&props);
-    // Lean's budget for one declaration, 200000 heartbeats, for each 10
-    // steps of the proof: a long proof is many steps, each of the usual
-    // cost, which the one default would cut off part way. A proof of 37
-    // steps citing items over ℚ and ℝ took 16 seconds and more than one;
-    // Ramsey's 26, citing "for all" statements over sets, between two and
-    // four hundred thousand; the cubic formula's 42, whose algebra clears
-    // divisions by terms of i and √3, between six and nine hundred
-    // thousand.
-    let heartbeats = match thm.steps.len().div_ceil(10) {
-        0 | 1 => None,
-        n => Some(200_000 * n as u64),
-    };
     // The names the statement wrote out, named again for the proof.
     // Only those the theorem's page writes: a file's other defines are its
     // other theorems'.
@@ -2809,7 +2886,6 @@ pub fn theorem(
     };
     proof.close(1, closing, thm.conclusion_line, Spot::Statement);
     let decl = super::doc::file::Declaration {
-        heartbeats,
         name: snake(&thm.name),
         binders: decl_binders,
         says,
@@ -3261,10 +3337,12 @@ impl<'a> Proof<'a> {
             };
             let name = format!("r{}_{}", step.line, k + 1);
             // A requires line is a line in scope from here, as a step's
-            // claim is: what names an integer it says one is.
+            // claim is: what names an integer it says one is. It says what
+            // its `have` states, whatever writer later reads it.
             if let Route::Built(node) = self.tree(&r.fact) {
-                self.trees
-                    .insert(name.clone(), vec![LineSentence::only(node, name.clone())]);
+                let mut line = LineSentence::only(node, name.clone());
+                line.says = Some(fact.clone());
+                self.trees.insert(name.clone(), vec![line]);
             }
             self.push_at(
                 depth,
@@ -3594,10 +3672,20 @@ impl<'a> Proof<'a> {
                 term: at,
             });
             // The line, restated under its own name, says from here on what
-            // it says of the named number (`store`).
+            // it says of the number it was restated through, and of no other
+            // the step names: `parley_witness_at` puts that one alone
+            // (`store`).
+            let term = self.writer.grammar.print(&c.term);
+            let mut through = self.writer.with_letters(self.writer.letters.clone());
+            through.integers.extend(
+                atoms
+                    .iter()
+                    .filter(|a| a.said.term == term)
+                    .map(|a| a.said.clone()),
+            );
             for s in self.trees.values_mut().flatten() {
                 if s.name.as_deref() == Some(c.name.as_str()) {
-                    s.says = inner.formula(&s.node).built();
+                    s.says = through.formula(&s.node).built();
                 }
             }
         }
@@ -4695,6 +4783,17 @@ impl<'a> Proof<'a> {
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
         use super::tactics as t;
+        // A restate step, or a requires line of lines alone, whose claim the
+        // checker found a line states (`restated`): that line, met as a
+        // whole before any "for all" of the claim is taken apart.
+        if matches!(
+            reason.just.head,
+            Head::Method(Method::Restate) | Head::Lines
+        ) {
+            if let Some(proof) = self.restated_proof(reason.just.line, node) {
+                return Route::Built(proof);
+            }
+        }
         match &reason.just.head {
             Head::Item { .. } => self.citation(reason, k, node),
             Head::Method(m) => {
@@ -5148,7 +5247,8 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let mut lines: Vec<Tactic> = written_out(&defines);
+                let mut lines: Vec<Tactic> =
+                    written_out(&defines, &self.rewritten_at());
                 lines.extend(haves);
                 return Route::Built(haves_then(lines, proof));
             }
@@ -6068,6 +6168,22 @@ impl<'a> Proof<'a> {
         ])))
     }
 
+    /// The proof of a claim the checker found a line states
+    /// (`CheckedTheorem::restated`): the line, its sentence or part, read at
+    /// a block's letter where the line says it for all, or what it implies
+    /// (`line_says`), met with the claim as Lean states it (`proof_meeting`).
+    /// None where the record has no place, or Lean states the two apart.
+    fn restated_proof(&self, line: usize, node: &Node) -> Option<super::doc::Proof> {
+        let at = self.rec.restated.get(&line)?;
+        let (proof, says) = self.line_says(at).built()?;
+        let claim = self.claim_as_stated(line, node)?;
+        if !super::doc::forms::relation_types_agree(&says, &claim) {
+            return None;
+        }
+        self.proof_meeting(proof, &says, &claim)
+            .map(|p| super::doc::Proof::By(p.closer()))
+    }
+
     /// The proof that a define's argument is in its domain, as the record
     /// says (`define_domains`): the line's sentence or part that says it, or,
     /// of a claim said of every member, the member's own fact, `member`,
@@ -6802,10 +6918,65 @@ impl<'a> Proof<'a> {
             }
             SuppliedBy::Unstated => return None,
         };
-        if !super::doc::forms::relation_types_agree(&says, wanted) {
+        use super::doc::forms;
+        // A line in another type than Lean asks, `(10^(k + 1) : ℤ) > 0` for
+        // `0 < (10^(k + 1) : ℚ)`, is taken across by `exact_mod_cast`, where
+        // the cast table says `norm_cast` moves a cast of the two types
+        // through the relation, every cast of what Lean asks moves, and the
+        // two are alike but for their casts. `exact_mod_cast` compares the
+        // relations as written, so a line saying `>` where Lean asks `<` is
+        // turned first (`gt_iff_lt`). ℚ's order is not taken to ℝ's:
+        // `norm_cast` does not take a fact of numerals across there, `(0 :
+        // ℚ) ≤ 3^m` for `(0 : ℝ) ≤ 3^m`; an equation it takes.
+        if forms::relation_types_apart(&says, wanted) {
+            use super::{doc::LeanType, templates::Num};
+            let rational_to_real = forms::relation_type(&says)
+                == Some(LeanType::Num(Num::Rat))
+                && forms::relation_type(wanted) == Some(LeanType::Num(Num::Real))
+                && !matches!(relation_symbol(wanted), Some("=" | "≠"));
+            let lifts = !rational_to_real
+                && forms::relation_type(wanted).is_some_and(|to| {
+                    super::casts::norm_cast_lifts_relation(&says, &to)
+                })
+                && super::casts::norm_cast_moves_all(wanted);
+            forms::meets(&says, wanted, &self.set_values()).filter(|_| lifts)?;
+            let proof = match (relation_symbol(&says), relation_symbol(wanted)) {
+                (Some(">"), Some("<")) => turned_order("gt_iff_lt.mp", proof),
+                (Some("≥"), Some("≤")) => turned_order("ge_iff_le.mp", proof),
+                (Some("<"), Some(">")) => turned_order("gt_iff_lt.mpr", proof),
+                (Some("≤"), Some("≥")) => turned_order("ge_iff_le.mpr", proof),
+                _ => proof,
+            };
+            return Some(super::tactics::by_term(super::doc::Proof::By(
+                super::tactics::exact_mod_cast(proof),
+            )));
+        }
+        // One whose type is known on one side alone is not known to meet it.
+        if !forms::relation_types_agree(&says, wanted) {
             return None;
         }
         self.proof_meeting(proof, &says, wanted).map(Proved::term)
+    }
+
+    /// The proof that the value an instantiation gives `letter` is in its
+    /// domain, from where the checker found that supplied
+    /// (`Instantiated::guards`), the membership as Lean writes it; by
+    /// `parley_side` where no line supplies it, or the line says it
+    /// otherwise than Lean asks.
+    fn value_guard(
+        &self,
+        recorded: &crate::checker::record::Instantiated,
+        letter: &str,
+    ) -> Printed {
+        recorded
+            .guards
+            .iter()
+            .find(|g| g.letter == letter)
+            .and_then(|g| {
+                let wanted = self.writer.formula(&g.written).built()?;
+                self.supplied_proof(&g.by, &wanted)
+            })
+            .unwrap_or_else(|| side_term(&[]))
     }
 
     /// Puts what ends a block, a part or a theorem at `depth`: its last
@@ -8310,8 +8481,8 @@ impl<'a> Proof<'a> {
     }
 
     /// `instantiate`: the "for all" line at the values given, each guard
-    /// left to `parley_side`, and an "if" in it applied where the claim is
-    /// what it gives.
+    /// proved from where the checker found it supplied (`value_guard`), and
+    /// an "if" in it applied where the claim is what it gives.
     fn instantiate(
         &self,
         just: &Justification,
@@ -8440,7 +8611,7 @@ impl<'a> Proof<'a> {
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                args.push(side_term(&[]));
+                args.push(self.value_guard(recorded, &letter.text));
                 body = inner;
                 continue;
             }
@@ -8456,7 +8627,7 @@ impl<'a> Proof<'a> {
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                args.push(side_term(&[]));
+                args.push(self.value_guard(recorded, &letter.text));
                 body = inner;
                 continue;
             }
@@ -8478,23 +8649,31 @@ impl<'a> Proof<'a> {
                     given.push((p.clone(), guarded));
                     args.push(p);
                     if guarded {
-                        args.push(side_term(&[]));
+                        args.push(self.value_guard(recorded, &letter.text));
                     }
                 }
                 Route::Declined(d) => return Route::Declined(d),
             }
             body = inner;
         }
-        // Each condition the checker took off on the way to the claim, by
-        // `parley_side`.
-        args.extend((0..recorded.conditions).map(|_| side_term(&[])));
+        let taken_off = recorded.conditions.len();
         let instance = match self.writer.formula(line) {
-            Route::Built(l) => lean_instance(&l, &given, recorded.conditions),
+            Route::Built(l) => lean_instance(&l, &given, taken_off),
             Route::Declined(d) => Route::Declined(d),
         };
+        // Each condition the checker took off on the way to the claim, from
+        // where it found it supplied, as Lean states it at the values.
+        for (k, condition) in recorded.conditions.iter().enumerate() {
+            let proof = match &instance {
+                Route::Built(i) => self.supplied_proof(&condition.by, &i.conditions[k]),
+                Route::Declined(_) => None,
+            };
+            args.push(proof.unwrap_or_else(|| side_term(&[])));
+        }
+        let instance = instance.map(|i| i.left);
         // What is left of the line once its letters are given and its
         // conditions taken off, at the values, as the step's lines write it.
-        let left = (0..recorded.conditions).try_fold(body, |at, _| {
+        let left = (0..taken_off).try_fold(body, |at, _| {
             node_consequent(at).filter(|_| at.notation() != BICONDITIONAL)
         });
         let written = left.and_then(|at| self.written_at_values(at, &binding));
@@ -9883,6 +10062,12 @@ impl<'a> Proof<'a> {
             &put,
             &self.sources.checked.grammar.binders(),
         );
+        // The guard is the block's `let` line that puts the letter in the
+        // set (`ReadAt::opened_by`), `hK7`, where Lean names that line.
+        let guard = match (guard, self.line_part(&read_at.opened_by)) {
+            (Some(_), Route::Built(line)) => Some(line.proof),
+            (guard, _) => guard,
+        };
         let mut args = vec![super::tactics::hyp(&super::names::letter(at))];
         args.extend(guard);
         let at_letter = args.into_iter().fold(cited.proof.clone(), applied_to);
@@ -10222,6 +10407,39 @@ impl<'a> Proof<'a> {
                 .or_else(|| self.rec.substituted.get(&line)),
             (false, None) => self.rec.substituted.get(&line),
         }
+    }
+
+    /// Where a step's defines are written out (`written_out`): each line the
+    /// step names, by the hypothesis that proves it, and the goal. Not every
+    /// line in scope, which would rewrite lines the step does not use, a
+    /// define's own equation among them, to `True`.
+    fn rewritten_at(&self) -> Vec<super::doc::Location> {
+        use super::doc::{Location, TermKind};
+        // The hypothesis a line's proof is, or projects from, `s1` of `s1.2`.
+        fn root(p: &Printed) -> Option<&str> {
+            match &p.kind {
+                TermKind::Letter(name) => Some(name),
+                TermKind::Paren(inner) | TermKind::Field { inner, .. } => root(inner),
+                _ => None,
+            }
+        }
+        let named = self.named_now.borrow();
+        let mut out: Vec<Location> = Vec::new();
+        for r in named.iter().flatten() {
+            if self.thm.defines.iter().any(|d| d.label == *r) {
+                continue;
+            }
+            for s in self.trees.get(r).into_iter().flatten() {
+                if let Some(name) = root(&s.proof) {
+                    let at = Location::Hypothesis(name.to_string());
+                    if !out.contains(&at) {
+                        out.push(at);
+                    }
+                }
+            }
+        }
+        out.push(Location::Goal);
+        out
     }
 
     /// Whether a substitution's place in `start` is written in the type of
@@ -10760,38 +10978,6 @@ impl<'a> Proof<'a> {
                 v.notation(),
                 crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
             ) && used.contains(&super::names::letter(letter.as_ref()).as_str())
-        })
-    }
-
-    /// Whether each number letter of an item's hypothesis takes its value
-    /// at the letter's own type, with no cast. The item asks its hypothesis
-    /// in its own letters' types: a number given a letter of another type,
-    /// or of the general one, is cast, and the line, written in its own
-    /// types, says something else in Lean, though the two read alike with
-    /// their types left out.
-    fn takes_values_uncast(
-        &self,
-        hypothesis: &Node,
-        binding: &crate::matching::Binding,
-        binders: &[Binder],
-    ) -> bool {
-        hypothesis.names().iter().all(|page| {
-            let Some(Binder::Letter { ty, general, .. }) = binders
-                .iter()
-                .find(|b| matches!(b, Binder::Letter { page: p, .. } if p == page))
-            else {
-                return true;
-            };
-            let LetterType::Number(n) = ty else {
-                return true;
-            };
-            let value = binding.get(&crate::formula::symbol::Symbol::of(page));
-            !general
-                && value.is_some_and(|v| {
-                    self.writer.carrier(v).built()
-                        == Some((*n).max(super::templates::Num::Int))
-                        && *n != super::templates::Num::Nat
-                })
         })
     }
 
@@ -11365,11 +11551,11 @@ impl<'a> Proof<'a> {
                     .push(proof_arg(super::tactics::by_term(super::doc::Proof::By(
                         super::tactics::bridge(BridgeTactic::WholeSide, vec![]),
                     )))),
-                // A hypothesis a cited line says, as Lean writes both: the
-                // line by its name.
                 // A hypothesis the checker found a line or a requires line
-                // supplies (`Cited::supplied`): that line by its name, met
-                // with the hypothesis as Lean asks it at the values given.
+                // supplies (`Cited::supplied`), a letter's number system
+                // among them: that line by its name, met with the
+                // hypothesis as Lean asks it at the values given, as it
+                // stands or by its casts (`supplied_proof`).
                 Binder::Fact {
                     line: Some(line),
                     says,
@@ -11380,9 +11566,6 @@ impl<'a> Proof<'a> {
                         .iter()
                         .find(|s| {
                             crate::matching::alike_top(&s.want, line, self.sources.ctx)
-                        })
-                        .filter(|_| {
-                            self.takes_values_uncast(line, binding, &sentence.binders)
                         })
                         .and_then(|s| self.supplied_proof(&s.by, &wanted));
                     args.push(proof_arg(proof.unwrap_or_else(|| side_term(&[]))));
@@ -11809,15 +11992,11 @@ impl<'a> Proof<'a> {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
             }
             Way::Backward => {
-                let witness = match self.witnesses(
-                    sentence,
-                    &statement,
-                    cited,
-                    &reason.just.refs,
-                ) {
-                    Route::Built(w) => w,
-                    Route::Declined(d) => return Route::Declined(d),
-                };
+                let witness =
+                    match self.witnesses(&statement, cited, k, &reason.just.refs) {
+                        Route::Built(w) => w,
+                        Route::Declined(d) => return Route::Declined(d),
+                    };
                 // What the definition's left side says, read in the claim's
                 // own words where the two say one thing otherwise: an item
                 // over any ring says "∈ ℕ₀" `∃ m : ℕ, ↑m = x`, a claim of
@@ -12079,25 +12258,30 @@ impl<'a> Proof<'a> {
                 ),
             ),
         };
-        Route::Built(haves_then(written_out(&defines), closed))
+        // The goal alone: each line the item is given puts the defines in
+        // itself, where it is passed (`supplied_proof`).
+        Route::Built(haves_then(
+            written_out(&defines, &[super::doc::Location::Goal]),
+            closed,
+        ))
     }
 
-    /// The proof of the right side of a definition a step folds: its
-    /// witnesses, where it is a "there is", and its body at them, or the
-    /// side whole, by the line the checker read it from (`Cited::firsts`),
-    /// as Lean has it in `statement`, the definition at the citation's
-    /// values; left to `parley_side` where no line says it.
+    /// The proof of the right side of a definition a step folds, the `k`th
+    /// sentence the citation concludes: its parts as the checker took them
+    /// apart at the citation's values (`Cited::unfolded`), each proved where
+    /// the checker found it supplied (`unfolded_proofs`); or the side whole,
+    /// by the line the checker read it from (`Cited::firsts`), as Lean has
+    /// it in `statement`, the definition at the citation's values, where a
+    /// witness is a letter the line cited binds. Left to `parley_side`
+    /// where no line says it.
     fn witnesses(
         &self,
-        sentence: &Sentence,
         statement: &Printed,
         cited: &crate::checker::record::Cited,
+        k: usize,
         refs: &[String],
     ) -> Route<Printed> {
-        let [_, right] = sentence.says.children.as_slice() else {
-            return Route::no("a definition of other than two sides");
-        };
-        let mut lean_body = right_side(statement);
+        let lean_body = right_side(statement);
         // A witness that is a letter bound by the line cited, the k of its
         // "there is k", is no value in scope: the line says the right side
         // whole.
@@ -12113,64 +12297,130 @@ impl<'a> Proof<'a> {
             .bound
             .values()
             .any(|v| v.is_name() && bound_here.contains(v.text.as_str()));
+        let whole = || Route::Built(self.shown_by_line(cited, lean_body.as_ref(), &[]));
         if bound_by_line {
-            return Route::Built(self.shown_by_line(cited, lean_body.as_ref(), &[]));
+            return whole();
         }
-        let mut parts = Vec::new();
+        let (Some(Some(parts)), Some(lean)) = (cited.unfolded.get(k), &lean_body)
+        else {
+            return whole();
+        };
         // What a line said of a witness the page wrote as a fraction that
         // is an integer, put in scope where the witness's facts are proved.
         let mut known = Vec::new();
-        let mut body = right;
-        while body.notation() == crate::notations::THERE_IS {
-            let [letter, set, inner] = body.children.as_slice() else {
-                break;
-            };
-            let Some(value) = cited.bound.get(&letter.text) else {
-                return Route::no(format!("no witness for {}", letter.text));
-            };
-            let system = super::expr::system_of(set);
-            let Some(s) = system else {
-                // A witness in a set: the value, a number at its own type
-                // or a member as the writer writes one, and that it is in
-                // the set.
-                let term = match self.writer.carrier(value) {
-                    Route::Built(at) if self.writer.is_number(value) => {
-                        self.writer.number_fixed(value, at)
-                    }
-                    _ => self.writer.set_term(value),
-                };
-                let term = match term {
-                    Route::Built(p) => p,
-                    Route::Declined(d) => return Route::Declined(d),
-                };
-                let (guard, next) = exists_at(lean_body.as_ref(), &term);
-                parts.push(term);
-                parts.push(self.shown_by_line(cited, guard.as_ref(), &known));
-                lean_body = next;
-                body = inner;
-                continue;
-            };
-            let ty = super::expr::letter_type(s);
-            let (guard, next) = match self.witness(value, ty) {
-                Route::Built(w) => {
-                    let at = exists_at(lean_body.as_ref(), &w.term);
-                    parts.push(w.term);
-                    known.extend(w.known);
-                    at
-                }
-                Route::Declined(d) => return Route::Declined(d),
-            };
-            if system == Some(super::expr::System::Positive) {
-                parts.push(self.shown_by_line(cited, guard.as_ref(), &known));
+        match self.unfolded_proof(lean, parts.iter().collect(), &mut known) {
+            Some(proof) => Route::Built(proof),
+            None => whole(),
+        }
+    }
+
+    /// The proof of `lean`, Lean's statement of a definition's right side or
+    /// of a "there is"'s body at its witness, from `parts`, the checker's
+    /// parts of the same (`Cited::unfolded`), taken in order, one to each
+    /// statement Lean joins by "and". Where the page asks more parts than
+    /// Lean states, a membership of a number system that is a Lean type, x
+    /// ∈ ℝ, is one Lean does not state, and is left out. None where the two
+    /// do not then take the same number of parts, or a "there is" meets no
+    /// "there is" of Lean's.
+    fn unfolded_proof(
+        &self,
+        lean: &Printed,
+        mut parts: Vec<&Unfolded>,
+        known: &mut Vec<Tactic>,
+    ) -> Option<Printed> {
+        let wanted = lean_conjuncts(lean);
+        while parts.len() > wanted {
+            let at = parts.iter().position(|p| type_membership(p))?;
+            parts.remove(at);
+        }
+        if parts.len() != wanted {
+            return None;
+        }
+        let mut parts = parts.into_iter();
+        let proof = self.unfolded_tree(lean, &mut parts, known)?;
+        parts.next().is_none().then_some(proof)
+    }
+
+    /// The proof of `lean`, its statements joined by "and" each proved by the
+    /// next of `parts`: a fact from where the checker found it supplied, as
+    /// Lean states it; a "there is" by its witness, its guard where Lean
+    /// writes one, an integer's of ℕ or ℕ₀ or a member's of a set, and its
+    /// body at the witness (`unfolded_proof`), the membership the first of
+    /// the body's parts where Lean writes it there.
+    fn unfolded_tree<'u>(
+        &self,
+        lean: &Printed,
+        parts: &mut impl Iterator<Item = &'u Unfolded>,
+        known: &mut Vec<Tactic>,
+    ) -> Option<Printed> {
+        let lean = super::doc::forms::beta_reduced(&unparenthesized(lean));
+        if let super::doc::TermKind::Infix { op, lhs, rhs } = &lean.kind {
+            if op.symbol == "∧" {
+                let left = self.unfolded_tree(lhs, parts, known)?;
+                let right = self.unfolded_tree(rhs, parts, known)?;
+                return Some(joined(vec![left], right));
             }
-            lean_body = next;
-            body = inner;
         }
-        if parts.is_empty() {
-            return Route::Built(self.shown_by_line(cited, lean_body.as_ref(), &[]));
+        match parts.next()? {
+            Unfolded::Fact { by, .. } => Some(self.unfolded_fact(&lean, by, known)),
+            Unfolded::Witness {
+                value,
+                member,
+                body,
+            } => {
+                let Unfolded::Fact { fact, by } = member.as_ref() else {
+                    return None;
+                };
+                let [_, set] = fact.children.as_slice() else {
+                    return None;
+                };
+                let system = super::expr::system_of(set);
+                let term = match system {
+                    Some(s) => {
+                        let w =
+                            self.witness(value, super::expr::letter_type(s)).built()?;
+                        known.extend(w.known);
+                        w.term
+                    }
+                    // A witness in a set: a number at its own type or a
+                    // member as the writer writes one.
+                    None => match self.writer.carrier(value) {
+                        Route::Built(at) if self.writer.is_number(value) => {
+                            self.writer.number_fixed(value, at).built()?
+                        }
+                        _ => self.writer.set_term(value).built()?,
+                    },
+                };
+                let (guard, at) = exists_at(Some(&lean), &term);
+                let at = at?;
+                let mut proofs = vec![term];
+                let mut inner: Vec<&Unfolded> = body.iter().collect();
+                match guard {
+                    Some(guard) => proofs.push(self.unfolded_fact(&guard, by, known)),
+                    None => inner.insert(0, member),
+                }
+                let body = self.unfolded_proof(&at, inner, known)?;
+                Some(joined(proofs, body))
+            }
         }
-        parts.push(self.shown_by_line(cited, lean_body.as_ref(), &known));
-        Route::Built(super::expr::anonymous(parts))
+    }
+
+    /// The proof of one fact of a definition's right side, `wanted` as Lean
+    /// states it at the citation's values: from where the checker found it
+    /// supplied; by `parley_side` where no line supplies it, the line says
+    /// it otherwise than Lean asks, or a witness's facts are put in scope
+    /// first.
+    fn unfolded_fact(
+        &self,
+        wanted: &Printed,
+        by: &SuppliedBy,
+        known: &[Tactic],
+    ) -> Printed {
+        if !known.is_empty() {
+            return side_term(known);
+        }
+        self.supplied_proof(by, wanted)
+            .unwrap_or_else(|| side_term(&[]))
     }
 
     /// A witness of a "there is" over `ty`: the value as Lean computes it
@@ -14107,26 +14357,22 @@ struct CitedDefine {
     param: Option<String>,
 }
 
-/// The tactic lines that write the defines out wherever they stand, and
-/// push in the casts that leaves; none where no define is cited.
-fn written_out(defines: &[CitedDefine]) -> Vec<Tactic> {
+/// The tactic lines that write the defines out at `at`, the lines the step
+/// uses and the goal (`Proof::rewritten_at`), and push in the casts that
+/// leaves; none where no define is cited.
+fn written_out(defines: &[CitedDefine], at: &[super::doc::Location]) -> Vec<Tactic> {
     use super::tactics as t;
     if defines.is_empty() {
         return Vec::new();
     }
-    let everywhere = || TacticArg::At(vec![super::doc::Location::Everywhere]);
+    let there = || TacticArg::At(at.to_vec());
     let rewrites = defines
         .iter()
         .map(|d| t::forwards(t::hyp(&d.proof)))
         .collect();
     vec![
-        Tactic::Try(Box::new(t::simp_only(
-            false,
-            None,
-            rewrites,
-            Some(everywhere()),
-        ))),
-        Tactic::Try(Box::new(t::push_cast(Some(everywhere())))),
+        Tactic::Try(Box::new(t::simp_only(false, None, rewrites, Some(there())))),
+        Tactic::Try(Box::new(t::push_cast(Some(there())))),
     ]
 }
 

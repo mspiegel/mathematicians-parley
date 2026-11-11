@@ -15,7 +15,6 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceLaws.DifferenceOfIntersection
 
-set_option maxHeartbeats 400000 in
 theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
     A \ (A ∩ B) = A \ B := by
   -- 1. proof
@@ -29,12 +28,12 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 1.2.1. join S1, 1.1
       have s1_2_1 : u ∈ A ∧ u ∈ B := by parley_set_side
       -- 1.2.2. def:intersection, from 1.2.1
-      have s1_2_2 : u ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mpr (by parley_set_side)
+      have s1_2_2 : u ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mpr ⟨s1_2_1.1, s1_2_1.2⟩
       exact s1_1.2 s1_2_2
     -- 1.3. join 1.1, 1.2
     have s1_3 : u ∈ A ∧ ¬ u ∈ B := by parley_set_side
     -- 1.4. def:difference, from 1.3
-    exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr ⟨s1_3.1, s1_3.2⟩
   -- 2. def:subset, from 1
   have s2 : A \ (A ∩ B) ⊆ A \ B := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ (A ∩ B)) (Y := A \ B))).mpr s1
   -- 3. proof
@@ -48,12 +47,12 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
       -- 3.2.1. def:intersection, from S2
       have s3_2_1 : u ∈ A ∧ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp hS2
       -- 3.2.2. restate 3.2.1
-      have s3_2_2 : u ∈ B := by parley_set_side
+      have s3_2_2 : u ∈ B := by exact s3_2_1.2
       exact s3_1.2 s3_2_2
     -- 3.3. join 3.1, 3.2
     have s3_3 : u ∈ A ∧ ¬ u ∈ A ∩ B := by parley_set_side
     -- 3.4. def:difference, from 3.3
-    exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mpr ⟨s3_3.1, s3_3.2⟩
   -- 4. def:subset, from 3
   have s4 : A \ B ⊆ A \ (A ∩ B) := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B) (Y := A \ (A ∩ B)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

@@ -15,7 +15,6 @@ public section
 
 namespace Parley.Proofs.Hammack.IntersectionOverUnion.IntersectionOverUnion
 
-set_option maxHeartbeats 400000 in
 theorem intersection_over_union {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     A ∩ (B ∪ C) = A ∩ B ∪ A ∩ C := by
   -- 1. proof
@@ -30,12 +29,12 @@ theorem intersection_over_union {α : Type*} (A : Set α) (B : Set α) (C : Set 
     rcases s1_2 with hC1 | hC2
     · skip
       -- 1.3.1. def:intersection u := t, Y := A, Z := B, from C1, 1.1
-      have s1_3_1 : t ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
+      have s1_3_1 : t ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mpr ⟨s1_1a, hC1⟩
       -- 1.3.2. mun:in-union-left u := t, Y := A ∩ B, Z := A ∩ C, from 1.3.1
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A ∩ B) (Z := A ∩ C) (u := t) s1_3_1)
     · skip
       -- 1.3.3. def:intersection u := t, Y := A, Z := C, from C2, 1.1
-      have s1_3_3 : t ∈ A ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := t))).mpr (by parley_set_side)
+      have s1_3_3 : t ∈ A ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := t))).mpr ⟨s1_1a, hC2⟩
       -- 1.3.4. mun:in-union-right u := t, Y := A ∩ B, Z := A ∩ C, from 1.3.3
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A ∩ B) (Z := A ∩ C) (u := t) s1_3_3)
   -- 2. def:subset, from 1
@@ -54,7 +53,7 @@ theorem intersection_over_union {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 3.2.2. mun:in-union-left u := t, Y := B, Z := C, from 3.2.1
       have s3_2_2 : t ∈ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := B) (Z := C) (u := t) s3_2_1b)
       -- 3.2.3. def:intersection u := t, Y := A, Z := B ∪ C, from 3.2.1, 3.2.2
-      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mpr ⟨s3_2_1a, s3_2_2⟩
     · skip
       -- 3.2.4. def:intersection u := t, Y := A, Z := C, from C4
       have s3_2_4a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := C) (u := t))).mp hC4).1
@@ -62,7 +61,7 @@ theorem intersection_over_union {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 3.2.5. mun:in-union-right u := t, Y := B, Z := C, from 3.2.4
       have s3_2_5 : t ∈ B ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := B) (Z := C) (u := t) s3_2_4b)
       -- 3.2.6. def:intersection u := t, Y := A, Z := B ∪ C, from 3.2.4, 3.2.5
-      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B ∪ C) (u := t))).mpr ⟨s3_2_4a, s3_2_5⟩
   -- 4. def:subset, from 3
   have s4 : A ∩ B ∪ A ∩ C ⊆ A ∩ (B ∪ C) := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ B ∪ A ∩ C) (Y := A ∩ (B ∪ C)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

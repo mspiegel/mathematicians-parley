@@ -27,7 +27,7 @@ namespace Parley.Proofs.Setmm.ArithmeticGeometricMean.ArithmeticGeometricMean
 theorem arithmetic_geometric_mean (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B ≥ 0) :
     Real.sqrt (A * B) ≤ (A + B) / 2 := by
   -- 1. mun:product-nonneg x := A, y := B, from H3, H4
-  have s1 : A * B ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A) (y := B) (by parley_side) (by parley_side))
+  have s1 : A * B ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A) (y := B) hH3 hH4)
   -- 2. def:sqrt x := A·B, from 1
   have s2 : Real.sqrt (A * B) ^ 2 = A * B := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A * B) s1)
   -- 3. def:sqrt x := A·B, from 1
@@ -45,6 +45,6 @@ theorem arithmetic_geometric_mean (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B �
   -- 9. transitivity, from 2, 8, 6
   have s9 : Real.sqrt (A * B) ^ 2 ≤ ((A + B) / 2) ^ 2 := by parley_order
   -- 10. mun:square-le x := √(A·B), y := (A + B)/2, from 3, 5, 9
-  exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) (by parley_side) (by parley_side))).mpr s9
+  exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) s3 s5)).mpr s9
 
 end Parley.Proofs.Setmm.ArithmeticGeometricMean.ArithmeticGeometricMean

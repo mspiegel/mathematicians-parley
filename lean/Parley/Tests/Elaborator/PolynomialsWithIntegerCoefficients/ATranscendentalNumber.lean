@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.PolynomialsWithIntegerCoefficients.ATranscende
 theorem a_transcendental_number (α : ℝ) (hH2 : Transcendental ℤ (α : ℂ)) :
     Transcendental ℤ (α : ℂ) := by
   -- 1. restate H2
-  parley_side
+  exact hH2
 
 end Parley.Tests.Elaborator.PolynomialsWithIntegerCoefficients.ATranscendentalNumber

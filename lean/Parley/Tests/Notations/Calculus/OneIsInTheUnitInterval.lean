@@ -22,6 +22,6 @@ theorem one_is_in_the_unit_interval :
   -- 1. def:interval a := 0, b := 1, x := 1
   have r164_1 : (0 : ℤ) ≤ 1 := by parley_arith
   have r164_2 : (1 : ℤ) ≤ 1 := by parley_arith
-  exact ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
 
 end Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval

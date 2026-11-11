@@ -28,7 +28,6 @@ public section
 
 namespace Parley.Stdlib.Calculus.FirstTermsBounded
 
-set_option maxHeartbeats 600000 in
 theorem first_terms_bounded (x : ℤ → ℝ) :
     (∀ K : ℤ, 0 < K → (∃ C : ℝ, ∀ m : ℤ, m ∈ Finset.Icc 1 K → abs (x m) ≤ C)) := by
   -- 1. induction on K starting at 1
@@ -64,13 +63,13 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
     have hD_kind : True := by trivial
     -- 1.6. mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
     have s1_6 : C ≤ E := by
-      try simp only [hD] at *
-      try push_cast at *
+      try simp only [hD] at ⊢
+      try push_cast at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs (x (K + 1))))
     -- 1.7. mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
     have s1_7 : abs (x (K + 1)) ≤ E := by
-      try simp only [hD] at *
-      try push_cast at *
+      try simp only [hD] at ⊢
+      try push_cast at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs (x (K + 1))))
     -- 1.8. proof
     have s1_8 : ∀ m : ℤ, m ∈ Finset.Icc 1 (K + 1) → abs (x m) ≤ E := by
@@ -90,9 +89,9 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         -- 1.8.4.2. inequalities
         have s1_8_4_2 : m ≤ K := by parley_order
         -- 1.8.4.3. def:range n := K, k := m, from 1.8.4.2
-        have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr (by parley_side)
+        have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr ⟨by parley_side, s1_8_4_2⟩
         -- 1.8.4.4. instantiate i := m in line 1.4, from 1.8.4.3
-        have s1_8_4_4 : abs (x m) ≤ C := by exact (s1_4 m (by parley_side))
+        have s1_8_4_4 : abs (x m) ≤ C := by exact (s1_4 m s1_8_4_3)
         -- 1.8.4.5. transitivity, from 1.8.4.4, 1.6
         parley_order
       · skip

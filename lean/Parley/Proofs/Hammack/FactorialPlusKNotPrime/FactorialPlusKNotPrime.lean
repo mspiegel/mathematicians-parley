@@ -11,6 +11,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -31,7 +32,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FactorialPlusKNotPrime.FactorialPlusKNotPrime
 
-set_option maxHeartbeats 400000 in
 theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k ∈ Finset.Icc (2 : ℤ) n) :
     ¬ Nat.Prime ((LeanBridges.Counting.factorial n : ℤ) + k).toNat := by
   -- 1. mun:range-bounds a := 2, b := n, from H2
@@ -42,11 +42,11 @@ theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k �
   -- 3. mun:pos-int-nat m := k, from 2
   have s3 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s2)
   -- 4. mun:factorial-nat
-  have s4 : 0 < (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n) (by parley_side))
+  have s4 : 0 < (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n) (le_of_lt hH1))
   -- 5. mun:nat-closure a := n!, b := k, from 3
-  have s5 : 0 < (LeanBridges.Counting.factorial n : ℤ) + k := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_1 (a := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (b := k) (by parley_side))
+  have s5 : 0 < (LeanBridges.Counting.factorial n : ℤ) + k := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_1 (a := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (b := k) s3)
   -- 6. mun:factorial-divisible m := k, from 1, 3
-  have s6 : k ∣ (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := n) (by parley_side) (m := k) (by parley_side) s1b)
+  have s6 : k ∣ (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := n) hH1 (m := k) s3 s1b)
   -- 7. mun:divides-self n := k
   have s7 : k ∣ k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := k))
   -- 8. mun:divides-sum d := k, a := n!, b := k, from 6, 7
@@ -54,11 +54,11 @@ theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k �
   -- 9. contradiction
   intro hS
   -- 9.1. def:prime p := n! + k, from S
-  have r47_1 : 0 < (LeanBridges.Counting.factorial n : ℤ) + k := by parley_side
-  have s9_1a : (LeanBridges.Counting.factorial n : ℤ) + k > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (LeanBridges.Counting.factorial n : ℤ) + k) (by parley_side))).mp hS).1
-  have s9_1b : ∀ d : ℤ, 0 < d → d ∣ (LeanBridges.Counting.factorial n : ℤ) + k → d = 1 ∨ d = (LeanBridges.Counting.factorial n : ℤ) + k := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (LeanBridges.Counting.factorial n : ℤ) + k) (by parley_side))).mp hS).2
+  have r47_1 : 0 < (LeanBridges.Counting.factorial n : ℤ) + k := by exact s5
+  have s9_1a : (LeanBridges.Counting.factorial n : ℤ) + k > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (LeanBridges.Counting.factorial n : ℤ) + k) r47_1)).mp hS).1
+  have s9_1b : ∀ d : ℤ, 0 < d → d ∣ (LeanBridges.Counting.factorial n : ℤ) + k → d = 1 ∨ d = (LeanBridges.Counting.factorial n : ℤ) + k := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (LeanBridges.Counting.factorial n : ℤ) + k) r47_1)).mp hS).2
   -- 9.2. instantiate d := k in line 9.1, from 3
-  have s9_2 : k ∣ (LeanBridges.Counting.factorial n : ℤ) + k → k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k := by exact (s9_1b k (by parley_side))
+  have s9_2 : k ∣ (LeanBridges.Counting.factorial n : ℤ) + k → k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k := by exact (s9_1b k s3)
   -- 9.3. mun:modus-ponens P := k divides n! + k, from 8, 9.2
   have s9_3 : k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := k ∣ (LeanBridges.Counting.factorial n : ℤ) + k) (Q := k = 1 ∨ k = (LeanBridges.Counting.factorial n : ℤ) + k) s9_2 s8)
   -- 9.4. cases, from 9.3

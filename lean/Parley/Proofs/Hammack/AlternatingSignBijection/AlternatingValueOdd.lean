@@ -30,9 +30,9 @@ namespace Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd
 theorem alternating_value_odd (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f n : ℚ) = ((-1) ^ n.toNat * (2 * (n : ℚ) - 1) + 1) / 4) (m : ℤ) (hH3 : 0 < m) (hH4 : Odd m) :
     (f m : ℚ) = (1 - (m : ℚ)) / 2 := by
   -- 1. thm:sign-of-odd n := m, from H4
-  have s1 : ((-1) ^ m.toNat : ℤ) = -1 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.SignOfOdd.sign_of_odd (n := m) (by parley_side) hH4)
+  have s1 : ((-1) ^ m.toNat : ℤ) = -1 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.SignOfOdd.sign_of_odd (n := m) hH3 hH4)
   -- 2. calculation
-  calc (f m : ℚ) = ((-1) ^ m.toNat * (2 * (m : ℚ) - 1) + 1) / 4 := by exact (hH2 m (by parley_side))
+  calc (f m : ℚ) = ((-1) ^ m.toNat * (2 * (m : ℚ) - 1) + 1) / 4 := by exact (hH2 m hH3)
     _ = (-1 * (2 * (m : ℚ) - 1) + 1) / 4 := by
         have e_w : ((-1) ^ m.toNat : ℚ) = -1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
         (have h := congrArg (fun t : ℚ => (t * (2 * (m : ℚ) - 1) + 1) / 4) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)

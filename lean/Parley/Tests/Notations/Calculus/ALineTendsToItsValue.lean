@@ -30,7 +30,6 @@ public section
 
 namespace Parley.Tests.Notations.Calculus.ALineTendsToItsValue
 
-set_option maxHeartbeats 400000 in
 theorem a_line_tends_to_its_value (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = 2 * x + 1) :
     Filter.Tendsto g (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 3) := by
   -- 1. proof
@@ -62,7 +61,7 @@ theorem a_line_tends_to_its_value (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = 2 
       -- 1.2.9. join 1.2.6, 1.2.8
       have s1_2_9 : 3 - ε < g x ∧ g x < 3 + ε := by parley_set_side
       -- 1.2.10. mun:abs-difference-lt x := g(x), c := 3, δ := ε, from 1.2.9
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := g x) (c := (3 : ℝ)) (δ := ε))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := g x) (c := (3 : ℝ)) (δ := ε))).mpr ⟨s1_2_9.1, s1_2_9.2⟩
     -- 1.3. exhibit, from 1.1, 1.2
     exact ⟨ε / 2, ⟨s1_1, s1_2⟩⟩
   -- 2. def:limit-at D := ℝ, c := 1, L := 3, from 1

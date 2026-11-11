@@ -18,7 +18,6 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageOfUnion.ImageOfUnion
 
-set_option maxHeartbeats 600000 in
 theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH3 : Set.MapsTo F A Y) (B : Set α) (hH4 : B ⊆ A) (C : Set α) (hH5 : C ⊆ A) :
     F '' (A ∩ (B ∪ C)) = F '' (A ∩ B) ∪ F '' (A ∩ C) := by
   -- 1. mun:union-subset, from H4, H5

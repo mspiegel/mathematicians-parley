@@ -177,6 +177,48 @@ const SITES: &[Site] = &[
         list: false,
         why: "an instance whose power the line writes as the integer power 2^((n + 1)! + (i − n)) and the instance to the exponent's toNat: converted, the exponent's fact named from the record, line 2.1 the step cites (forms_converted)",
     },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
+        step: "5.14.6",
+        holds: "exact (s5_9 a hK8)",
+        list: false,
+        why: "a restate of a \"for all\" line read at the block's letter (CheckedTheorem::restated), its guard the let line that puts the letter in its range (ReadAt::opened_by)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
+        step: "16.21",
+        holds: "have r607_2 : 0 ≤ d n := by exact (hH2 n hK6).1",
+        list: false,
+        why: "a requires line reasoned from lines alone, a part of a \"for all\" line read at the block's letter (CheckedTheorem::restated)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
+        step: "5.15.1",
+        holds: "exact (s5_5 (f a) (s5_13 a hK9))",
+        list: false,
+        why: "an instantiation's value put in its domain by a \"for all\" line the step names, read at the block's letter (Instantiated::guards)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
+        step: "15.2",
+        holds: "exact (s13b (U k : ℝ) (s10 k hK5))",
+        list: false,
+        why: "an instantiation's condition, \"if u is an upper bound of S\", met by a line the step names read at the block's letter (Instantiated::conditions)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
+        step: "6.4.1",
+        holds: ".mpr ⟨by parley_set_side, r405_1⟩",
+        list: false,
+        why: "a definition read backwards, its right side's parts each from where the checker found it (Cited::unfolded): k − j an integer, which no line states, and 0 ≤ k − j, the step's requires line",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
+        step: "3.16",
+        holds: "(by exact_mod_cast s3_9.1) (by exact_mod_cast gt_iff_lt.mp r256_3)",
+        list: false,
+        why: "hypotheses supplied by lines in ℤ where the item asks them in ℚ: taken across by exact_mod_cast, which the cast table says moves the order, the line saying > turned to the < Lean asks first",
+    },
 ];
 
 /// The lines of the step `step` in `text`: from its comment to the next

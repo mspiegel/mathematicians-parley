@@ -35,7 +35,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SignHasNoLimit.SignHasNoLimit
 
-set_option maxHeartbeats 600000 in
 theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (Set.univ : Set ℝ)) (hH2 : ∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), f x = abs x / x) :
     ¬ (∃ L : ℝ, Filter.Tendsto f (nhdsWithin 0 (((Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) \ {0})) (nhds L)) := by
   -- the theorem. contradiction
@@ -55,7 +54,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 6. inequalities
   have s6 : p / 2 ≠ 0 := by parley_set_side
   -- 7. mun:remove-member u := p/2, from 6
-  have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr (by parley_set_side)
+  have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr ⟨by parley_set_side, s6⟩
   -- 8. def:abs x := p/2
   have r48_1 : p / 2 ≥ 0 := by parley_set_side
   have s8 : abs (p / 2) = p / 2 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := p / 2)) (by parley_set_side)
@@ -64,11 +63,11 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 10. transitivity, from 8, 9
   have s10 : abs (p / 2) < p := by parley_order
   -- 11. instantiate x := p/2 in line 4, from 6, 7, 10
-  have s11 : abs (f (p / 2) - L) < 1 := by exact (s4b (p / 2) (by parley_set_side) (by parley_set_side))
+  have s11 : abs (f (p / 2) - L) < 1 := by exact (s4b (p / 2) s7 (by parley_set_side))
   -- 12. calculation
-  have r65_1 : p / 2 ≠ 0 := by parley_set_side
+  have r65_1 : p / 2 ≠ 0 := by exact s6
   have s12 : f (p / 2) = 1 := by
-    calc f (p / 2) = abs (p / 2) / (p / 2) := by exact (hH2 (p / 2) (by parley_set_side))
+    calc f (p / 2) = abs (p / 2) / (p / 2) := by exact (hH2 (p / 2) s7)
       _ = 1 := by linear_combination (norm := parley_field) ((4) / ((p) * (2))) * s8
   -- 13. mun:abs-difference-lt x := f(p/2), c := L, δ := 1, from 11
   have s13 : f (p / 2) < L + 1 := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (p / 2)) (c := L) (δ := (1 : ℝ)))).mp s11).2
@@ -79,7 +78,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 16. inequalities
   have s16 : -p / 2 ≠ 0 := by parley_set_side
   -- 17. mun:remove-member u := (−p)/2, from 16
-  have s17 : -p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr (by parley_set_side)
+  have s17 : -p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr ⟨by parley_set_side, s16⟩
   -- 18. mun:abs-negative x := p/2
   have s18 : abs (-(p / 2)) = abs (p / 2) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := p / 2))
   -- 19. substitute
@@ -90,11 +89,11 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 20. transitivity, from 19, 8, 9
   have s20 : abs (-p / 2) < p := by parley_order
   -- 21. instantiate x := (−p)/2 in line 4, from 16, 17, 20
-  have s21 : abs (f (-p / 2) - L) < 1 := by exact (s4b (-p / 2) (by parley_set_side) (by parley_set_side))
+  have s21 : abs (f (-p / 2) - L) < 1 := by exact (s4b (-p / 2) s17 (by parley_set_side))
   -- 22. calculation
-  have r106_1 : -p / 2 ≠ 0 := by parley_set_side
+  have r106_1 : -p / 2 ≠ 0 := by exact s16
   have s22 : f (-p / 2) = -1 := by
-    calc f (-p / 2) = abs (-p / 2) / (-p / 2) := by exact (hH2 (-p / 2) (by parley_set_side))
+    calc f (-p / 2) = abs (-p / 2) / (-p / 2) := by exact (hH2 (-p / 2) s17)
       _ = -1 := by linear_combination (norm := parley_field) ((4) / ((-p) * (2))) * s8 + ((2) / ((-p))) * s19
   -- 23. mun:abs-difference-lt x := f((−p)/2), c := L, δ := 1, from 21
   have s23 : L - 1 < f (-p / 2) := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (-p / 2)) (c := L) (δ := (1 : ℝ)))).mp s21).1

@@ -25,7 +25,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfUnion.SizeOfUnion
 
-set_option maxHeartbeats 400000 in
 theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B.Finite) :
     ((A ∪ B).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by
   -- 1. mun:difference-subset X := B, Y := A
@@ -47,7 +46,7 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
     have s7_1a : s ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).1
     have s7_1b : ¬ s ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp hK).2
     -- 7.2. restate 7.1
-    parley_set_side
+    exact s7_1b
   -- 8. mun:disjoint-empty Y := A, Z := B ∖ A, from 7
   have s8 : A ∩ (B \ A) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) s7)
   -- 9. mun:card-disjoint-union X := A, Y := B ∖ A, m := |A|, n := |B ∖ A|, from 3, 5, 8

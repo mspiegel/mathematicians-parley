@@ -22,6 +22,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundFillingAnIt
 theorem a_membership_bound_filling_an_item (k : ℤ) (hH1 : 0 < k) :
     k ^ 2 > 0 := by
   -- 1. mun:square-positive x := k, from H1
-  exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := k) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := k) hH1.ne')
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundFillingAnItem

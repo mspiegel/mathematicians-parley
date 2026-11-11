@@ -25,16 +25,15 @@ public section
 
 namespace Parley.Proofs.Hammack.GcdWithSuccessorTwoFromMinusOne.GcdWithSuccessorTwoFromMinusOne
 
-set_option maxHeartbeats 400000 in
 theorem gcd_with_successor_two_from_minus_one (n : ℤ) (hH2 : n ≥ -1) :
     (Int.gcd n (n + 2) : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by
   -- 1. mun:pos-int-nat m := n + 2
   have r19_1 : 0 < n + 2 := by parley_order
   have s1 : 0 < n + 2 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n + 2) r19_1)
   -- 2. thm:gcd-integer-natural a := n, b := n + 2, from 1
-  have s2a : 0 < (Int.gcd n (n + 2) : ℤ) := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := n) (b := n + 2) (by parley_set_side)).1
-  have s2b : (Int.gcd n (n + 2) : ℤ) ∣ n := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := n) (b := n + 2) (by parley_set_side)).2.1
-  have s2c : (Int.gcd n (n + 2) : ℤ) ∣ n + 2 := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := n) (b := n + 2) (by parley_set_side)).2.2
+  have s2a : 0 < (Int.gcd n (n + 2) : ℤ) := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := n) (b := n + 2) s1).1
+  have s2b : (Int.gcd n (n + 2) : ℤ) ∣ n := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := n) (b := n + 2) s1).2.1
+  have s2c : (Int.gcd n (n + 2) : ℤ) ∣ n + 2 := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := n) (b := n + 2) s1).2.2
   -- 3. mun:divides-difference d := gcd(n, n + 2), a := n + 2, b := n, from 2
   have s3 : (Int.gcd n (n + 2) : ℤ) ∣ n + 2 - n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (Int.gcd n (n + 2) : ℤ)) (a := n + 2) (b := n) s2c s2b)
   -- 4. substitute
@@ -43,7 +42,7 @@ theorem gcd_with_successor_two_from_minus_one (n : ℤ) (hH2 : n ≥ -1) :
     have row1 : (Int.gcd n (n + 2) : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd n (n + 2) : ℤ) ∣ t)) c1 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 5. mun:divides-le e := gcd(n, n + 2), m := 2, from 2, 4
-  have s5 : (Int.gcd n (n + 2) : ℤ) ≤ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd n (n + 2) : ℤ)) (by parley_set_side) (m := (2 : ℤ)) (by parley_set_side) s4)
+  have s5 : (Int.gcd n (n + 2) : ℤ) ≤ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd n (n + 2) : ℤ)) s2a (m := (2 : ℤ)) (by parley_set_side) s4)
   -- 6. mun:le-cases x := gcd(n, n + 2), y := 2, from 5
   have s6 : (Int.gcd n (n + 2) : ℤ) < 2 ∨ (Int.gcd n (n + 2) : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (Int.gcd n (n + 2) : ℤ)) (y := (2 : ℤ)))).mp s5
   -- 7. cases, from 6

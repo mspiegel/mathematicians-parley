@@ -26,6 +26,6 @@ namespace Parley.Tests.Stdlib.Counting.Absorption
 theorem absorption (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 : ℤ) n) :
     (LeanBridges.Counting.choose (n + 1) (k + 1) : ℚ) = (LeanBridges.Counting.choose n k : ℚ) * (((n : ℚ) + 1) / ((k : ℚ) + 1)) := by
   -- 1. thm:counting-absorption, from H2
-  exact (Parley.Items.Stdlib.Counting.thm_absorption (n := n) (by parley_side) (k := k) hH2)
+  exact (Parley.Items.Stdlib.Counting.thm_absorption (n := n) hH1 (k := k) hH2)
 
 end Parley.Tests.Stdlib.Counting.Absorption

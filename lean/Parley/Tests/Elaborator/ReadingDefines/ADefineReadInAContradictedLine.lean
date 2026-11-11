@@ -25,8 +25,8 @@ theorem a_define_read_in_a_contradicted_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
   intro hS
   -- 2.1. algebra, from D1, S
   have s2_1 : a + 1 = 0 := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at hS ⊢
+    try push_cast at hS ⊢
     linear_combination (norm := parley_norm) hS
   exact s1 s2_1
 

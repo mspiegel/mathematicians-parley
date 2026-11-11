@@ -41,9 +41,9 @@ theorem irrational_times_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : S
       have row1 : ∃ m : ℚ, (m : ℝ) = A := by (have h := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 3.3. restate 1
-    have s3_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_set_side
+    have s3_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by exact s1
     exact s3_3 s3_2
   -- 4. def:difference u := A·B, from 2, 3
-  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A * B))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A * B))).mpr ⟨by parley_set_side, by parley_set_side⟩
 
 end Parley.Proofs.Setmm.IrrationalTimesRational.IrrationalTimesRational

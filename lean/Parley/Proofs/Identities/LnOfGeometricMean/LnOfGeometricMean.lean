@@ -30,7 +30,7 @@ namespace Parley.Proofs.Identities.LnOfGeometricMean.LnOfGeometricMean
 theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     Real.log (Real.sqrt (x * y)) = (Real.log x + Real.log y) / 2 := by
   -- 1. mun:product-positive, from H3, H4
-  have s1 : x * y > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) (by parley_side) (by parley_side))
+  have s1 : x * y > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) hH3 hH4)
   -- 2. def:sqrt x := x·y
   have r21_1 : x * y ≥ 0 := by parley_side
   have s2a : Real.sqrt (x * y) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x * y) r21_1)
@@ -41,9 +41,9 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. mun:factor-positive a := √(x·y), b := √(x·y), from 2, 3
-  have s4 : Real.sqrt (x * y) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) (by parley_side) (by parley_side))
+  have s4 : Real.sqrt (x * y) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) s2a (by parley_side))
   -- 5. restate 2
-  have s5 : Real.sqrt (x * y) ^ 2 = x * y := by parley_side
+  have s5 : Real.sqrt (x * y) ^ 2 = x * y := by exact s2b
   -- 6. calculation
   have s6 : 2 * Real.log (Real.sqrt (x * y)) = Real.log x + Real.log y := by
     calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by

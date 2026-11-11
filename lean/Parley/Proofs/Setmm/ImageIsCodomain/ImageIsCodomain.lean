@@ -26,7 +26,7 @@ theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α)
   have s2 : ∀ y ∈ B, y ∈ F '' (A ∩ A) := by
     intro y hK1
     -- 2.1. obtain x from H4
-    obtain ⟨x, s2_1a, s2_1b⟩ := (hH4 y (by parley_set_side))
+    obtain ⟨x, s2_1a, s2_1b⟩ := (hH4 y hK1)
     -- 2.2. mun:value-in-image Y := A, s := x, from 2.1
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
     have s2_2 : F x ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) r25_1 s2_1a (by parley_set_side))

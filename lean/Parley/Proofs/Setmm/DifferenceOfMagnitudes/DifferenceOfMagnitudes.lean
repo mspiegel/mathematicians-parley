@@ -18,7 +18,6 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceOfMagnitudes.DifferenceOfMagnitudes
 
-set_option maxHeartbeats 400000 in
 theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     abs (abs A - abs B) ≤ abs (A - B) := by
   -- 1. thm:triangle-inequality a := A − B, b := B

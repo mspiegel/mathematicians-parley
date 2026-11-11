@@ -35,7 +35,6 @@ public section
 
 namespace Parley.Proofs.Hammack.TwoOverSquareLimit.TwoOverSquareLimit
 
-set_option maxHeartbeats 600000 in
 theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a n = 5 + 2 / (n : ℝ) ^ 2) :
     Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds 5) := by
   -- 1. proof
@@ -56,7 +55,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       have s1_3_2 : n ≥ 1 := by parley_order
       -- 1.3.3. mun:multiply-le x := 1, y := n, c := n, from 1.3.2
       have r41_1 : n > 0 := by parley_side
-      have s1_3_3 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))
+      have s1_3_3 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) s1_3_2 r41_1)
       -- 1.3.4. algebra
       have s1_3_4 : n * n = n ^ 2 := by parley_ring
       -- 1.3.5. transitivity, from 1.3.3, 1.3.4
@@ -66,11 +65,11 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.7. mun:reciprocal-order x := n, y := n², from 1.3.5
       have r54_1 : n > 0 := by parley_side
       have r54_2 : n ^ 2 > 0 := by parley_side
-      have s1_3_7 : 1 / (n : ℚ) ^ 2 ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by parley_side) (y := (n : ℚ) ^ 2) (by parley_side))).mp (by parley_side)
+      have s1_3_7 : 1 / (n : ℚ) ^ 2 ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r54_1) (y := (n : ℚ) ^ 2) (by exact_mod_cast gt_iff_lt.mp r54_2))).mp (by parley_side)
       -- 1.3.8. mun:reciprocal-order x := N, y := n, from A2
       have r59_1 : N > 0 := by parley_order
       have r59_2 : n > 0 := by parley_side
-      have s1_3_8 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ)) (by parley_side))).mp (by parley_side)
+      have s1_3_8 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by parley_side)
       -- 1.3.9. inequalities
       have s1_3_9 : 2 * (1 / (n : ℚ) ^ 2) ≤ 2 * (1 / (n : ℚ)) := by parley_order
       -- 1.3.10. inequalities
@@ -78,11 +77,11 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.11. inequalities
       have s1_3_11 : 2 * (1 / (N : ℝ)) < ε := by parley_order
       -- 1.3.12. algebra, from H2
-      have s1_3_12 : a n - 5 = 2 * (1 / (n : ℝ) ^ 2) := by linear_combination (norm := parley_field) (hH2 n (by parley_side))
+      have s1_3_12 : a n - 5 = 2 * (1 / (n : ℝ) ^ 2) := by linear_combination (norm := parley_field) (hH2 n hK2)
       -- 1.3.13. transitivity, from 1.3.12, 1.3.9, 1.3.10, 1.3.11
       have s1_3_13 : a n - 5 < ε := by parley_order
       -- 1.3.14. mun:reciprocal-positive x := n², from 1.3.6
-      have s1_3_14 : 1 / (n : ℚ) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) ^ 2) (by parley_side))
+      have s1_3_14 : 1 / (n : ℚ) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) ^ 2) (by exact_mod_cast gt_iff_lt.mp s1_3_6))
       -- 1.3.15. inequalities
       have s1_3_15 : 2 * (1 / (n : ℚ) ^ 2) > 0 := by parley_order
       -- 1.3.16. transitivity, from 1.3.15, 1.3.12

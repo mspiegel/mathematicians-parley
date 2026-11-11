@@ -12,7 +12,6 @@ public section
 
 namespace Parley.Proofs.Setmm.OrOverAnd.OrOverAnd
 
-set_option maxHeartbeats 400000 in
 theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
     (a = 0 ∨ b = 0 ∧ c = 0 ↔ (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0)) := by
   -- the theorem. both directions
@@ -42,9 +41,9 @@ theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
   · skip
     intro hD2
     -- 2. restate D2
-    have s2 : a = 0 ∨ b = 0 := by parley_side
+    have s2 : a = 0 ∨ b = 0 := by exact hD2.1
     -- 3. restate D2
-    have s3 : a = 0 ∨ c = 0 := by parley_side
+    have s3 : a = 0 ∨ c = 0 := by exact hD2.2
     -- 4. axi:excluded-middle P := a = 0
     have s4 : a = 0 ∨ a ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a = 0))
     -- 5. cases, from 4

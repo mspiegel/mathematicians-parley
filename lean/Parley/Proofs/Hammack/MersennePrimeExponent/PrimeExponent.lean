@@ -38,14 +38,13 @@ public section
 
 namespace Parley.Proofs.Hammack.MersennePrimeExponent.PrimeExponent
 
-set_option maxHeartbeats 1000000 in
 theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1 : ℤ).toNat) :
     Nat.Prime n.toNat := by
   -- 1. mun:prime-nat p := 2^n − 1, from H2
   have s1 : (0 : ℤ) < 2 ^ n.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ n.toNat - 1 : ℤ)) hH2)
   -- 2. def:prime p := 2^n − 1, from H2, 1
-  have s2a : (2 ^ n.toNat - 1 : ℤ) > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).1
-  have s2b : ∀ c : ℤ, 0 < c → c ∣ (2 ^ n.toNat - 1 : ℤ) → c = 1 ∨ c = 2 ^ n.toNat - 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) (by parley_side))).mp hH2).2
+  have s2a : (2 ^ n.toNat - 1 : ℤ) > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) s1)).mp hH2).1
+  have s2b : ∀ c : ℤ, 0 < c → c ∣ (2 ^ n.toNat - 1 : ℤ) → c = 1 ∨ c = 2 ^ n.toNat - 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ n.toNat - 1 : ℤ)) s1)).mp hH2).2
   -- 3. contradiction
   have s3 : n > 1 := by
     by_contra hS1
@@ -81,7 +80,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       have s4_3_1 : e ≤ 0 := by parley_order
       -- 4.3.2. mun:multiply-le x := e, y := 0, c := d, from 4.3.1
       have r219_1 : d > 0 := by parley_order
-      have s4_3_2 : d * e ≤ d * 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := e) (y := (0 : ℤ)) (c := d) (by parley_side) (by parley_side))
+      have s4_3_2 : d * e ≤ d * 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := e) (y := (0 : ℤ)) (c := d) s4_3_1 r219_1)
       -- 4.3.3. substitute n = d·e (line 4.2) into line 4.3.2
       have s4_3_3 : n ≤ d * 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≤ d * 0)) s4_2.symm s4_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.3.4. substitute
@@ -109,7 +108,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     have r251_1 : 1 < d := by parley_order
     have s4_7 : 1 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) r251_1)
     -- 4.8. obtain q: thm:power-multiple-quotient m := e, from 4.4
-    obtain ⟨q, s4_8a, ⟨s4_8b, s4_8c⟩⟩ := (Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient.power_multiple_quotient (d := d) (by parley_side) (m := e) (by parley_side))
+    obtain ⟨q, s4_8a, ⟨s4_8b, s4_8c⟩⟩ := (Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient.power_multiple_quotient (d := d) hK1 (m := e) s4_4)
     -- 4.9. calculation
     have s4_9 : 2 ^ n.toNat - 1 = (2 ^ d.toNat - 1) * q := by
       try qify
@@ -118,7 +117,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     -- 4.10. def:divides d := 2^d − 1, n := 2^n − 1, from 4.9
     have s4_10 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ d.toNat - 1 : ℤ)) (n := (2 ^ n.toNat - 1 : ℤ)))).mpr ⟨q, s4_9⟩
     -- 4.11. thm:two-power-bound
-    have s4_11 : 2 ^ d.toNat ≥ d + 1 := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side))
+    have s4_11 : 2 ^ d.toNat ≥ d + 1 := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) hK1)
     -- 4.12. inequalities
     have s4_12 : 2 ^ d.toNat - 1 ≥ d := by parley_order
     -- 4.13. transitivity, from 4.7, 4.12
@@ -129,7 +128,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     have r283_1 : (0 : ℤ) < 2 ^ d.toNat - 1 := by parley_order
     have s4_15 : (0 : ℤ) < 2 ^ d.toNat - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ d.toNat - 1 : ℤ)) r283_1)
     -- 4.16. instantiate c := 2^d − 1 in line 2, from 4.15
-    have s4_16 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) → (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by exact (s2b (2 ^ d.toNat - 1 : ℤ) (by parley_side))
+    have s4_16 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) → (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by exact (s2b (2 ^ d.toNat - 1 : ℤ) s4_15)
     -- 4.17. mun:modus-ponens, from 4.10, 4.16
     have s4_17 : (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ)) (Q := (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1) s4_16 s4_10)
     -- 4.18. cases, from 4.17
@@ -150,7 +149,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         have s4_18_5 : 2 ≤ q := by parley_order
         -- 4.18.6. mun:multiply-le x := 2, y := q, c := 2^d − 1, from 4.18.5
         have r321_1 : (2 ^ d.toNat - 1 : ℤ) > 0 := by parley_order
-        have s4_18_6 : (2 ^ d.toNat - 1) * 2 ≤ (2 ^ d.toNat - 1) * q := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := q) (c := (2 ^ d.toNat - 1 : ℤ)) (by parley_side) (by parley_side))
+        have s4_18_6 : (2 ^ d.toNat - 1) * 2 ≤ (2 ^ d.toNat - 1) * q := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := q) (c := (2 ^ d.toNat - 1 : ℤ)) s4_18_5 r321_1)
         -- 4.18.7. calculation
         have s4_18_7 : 2 ^ d.toNat - 1 = (2 ^ d.toNat - 1) * q := by
           calc (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by parley_side
@@ -166,6 +165,6 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         exact absurd s4_18_7 s4_18_11
     exact s4_1b s4_18
   -- 5. def:prime p := n, from 3, 4
-  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := n) (by parley_side))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := n) hH1)).mpr ⟨s3, s4⟩
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.PrimeExponent

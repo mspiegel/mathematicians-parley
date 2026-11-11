@@ -62,9 +62,9 @@ theorem sqrt_two_plus_sqrt_three :
     -- 4.4. def:irrational x := √6·2 + 5, from 3
     have s4_4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ) * 2 + 5))).mp s3).2
     -- 4.5. restate 4.4
-    have s4_5 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by parley_side
+    have s4_5 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by exact s4_4
     exact s4_5 s4_3
   -- 5. def:irrational x := √2 + √3, from 4
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr ⟨by parley_side, s4⟩
 
 end Parley.Proofs.Identities.SqrtTwoPlusSqrtThree.SqrtTwoPlusSqrtThree

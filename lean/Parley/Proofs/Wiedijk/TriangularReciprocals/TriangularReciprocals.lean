@@ -40,7 +40,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.TriangularReciprocals.TriangularReciprocals
 
-set_option maxHeartbeats 600000 in
 theorem triangular_reciprocals :
     Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) = 2 := by
   -- 1. proof
@@ -78,29 +77,29 @@ theorem triangular_reciprocals :
       -- 6.2.2. mun:reciprocal-order x := N, y := n + 1, from 6.2.1
       have r79_1 : N > 0 := by parley_order
       have r79_2 : n + 1 > 0 := by parley_order
-      have s6_2_2 : 1 / ((n : ℚ) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by parley_side) (y := (n : ℚ) + 1) (by parley_side))).mp (by parley_side)
+      have s6_2_2 : 1 / ((n : ℚ) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r79_1) (y := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r79_2))).mp (by parley_side)
       -- 6.2.3. mun:reciprocal-positive x := n + 1
       have r84_1 : n + 1 > 0 := by parley_order
-      have s6_2_3 : 1 / ((n : ℚ) + 1) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) + 1) (by parley_side))
+      have s6_2_3 : 1 / ((n : ℚ) + 1) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r84_1))
       -- 6.2.4. transitivity, from 6.2.2, 6.1
       have s6_2_4 : 1 / ((n : ℝ) + 1) < ε / 2 := by parley_order
       -- 6.2.5. inequalities
       have s6_2_5 : 2 - ε < 2 - 2 / ((n : ℝ) + 1) := by parley_order
       -- 6.2.6. transitivity, from 6.2.5, 5
-      have s6_2_6 : 2 - ε < (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) := by have := (s5 n (by parley_side)); parley_order
+      have s6_2_6 : 2 - ε < (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) := by have := (s5 n hK7); parley_order
       -- 6.2.7. inequalities
       have s6_2_7 : 2 - 2 / ((n : ℚ) + 1) < 2 := by parley_order
       -- 6.2.8. inequalities, from A1, 6.2.7
       have s6_2_8 : 2 - 2 / ((n : ℝ) + 1) < 2 + ε := by parley_order
       -- 6.2.9. transitivity, from 5, 6.2.8
-      have s6_2_9 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) < 2 + ε := by have := (s5 n (by parley_side)); parley_order
+      have s6_2_9 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) < 2 + ε := by have := (s5 n hK7); parley_order
       -- 6.2.10. mun:abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 6.2.6, 6.2.9
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) (c := (2 : ℝ)) (δ := ε))).mpr ⟨s6_2_6, s6_2_9⟩
     -- 6.3. exhibit, from 6.2
     exact ⟨N, s6_1a, s6_2⟩
   -- 7. def:tends-to L := 2, from 6
   have s7 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ) : ℝ)) Filter.atTop (nhds 2) := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ))) (L := (2 : ℝ)))).mpr s6
   -- 8. def:series-sum L := 2, from 7
-  exact (Parley.Items.Stdlib.Calculus.def_series_sum (t := (fun k : ℤ => 1 / ((k : ℝ) * ((k : ℝ) + 1) / 2))) (L := (2 : ℝ)) (by parley_side))
+  exact (Parley.Items.Stdlib.Calculus.def_series_sum (t := (fun k : ℤ => 1 / ((k : ℝ) * ((k : ℝ) + 1) / 2))) (L := (2 : ℝ)) s7)
 
 end Parley.Proofs.Wiedijk.TriangularReciprocals.TriangularReciprocals

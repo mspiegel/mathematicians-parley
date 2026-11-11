@@ -16,6 +16,6 @@ namespace Parley.Tests.Stdlib.Numbers.QuotientPositive
 theorem quotient_positive (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     x / y > 0 := by
   -- 1. mun:numbers-quotient-positive, from H3, H4
-  exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := x) (y := y) (by parley_side) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := x) (y := y) hH3 hH4)
 
 end Parley.Tests.Stdlib.Numbers.QuotientPositive

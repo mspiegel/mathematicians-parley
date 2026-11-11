@@ -30,12 +30,12 @@ theorem sqrt_of_product (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
   have s2a : Real.sqrt b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := b) hH4)
   have s2b : Real.sqrt b ^ 2 = b := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := b) hH4)
   -- 3. mun:product-nonneg x := a, y := b, from H3, H4
-  have s3 : a * b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side))
+  have s3 : a * b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) hH3 hH4)
   -- 4. def:sqrt x := a·b, from 3
   have s4a : Real.sqrt (a * b) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := a * b) s3)
   have s4b : Real.sqrt (a * b) ^ 2 = a * b := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := a * b) s3)
   -- 5. mun:product-nonneg x := √a, y := √b, from 1, 2
-  have s5 : Real.sqrt a * Real.sqrt b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt a) (y := Real.sqrt b) (by parley_side) (by parley_side))
+  have s5 : Real.sqrt a * Real.sqrt b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt a) (y := Real.sqrt b) s1a s2a)
   -- 6. calculation
   have s6 : (Real.sqrt a * Real.sqrt b) ^ 2 = a * b := by
     calc (Real.sqrt a * Real.sqrt b) ^ 2 = Real.sqrt a ^ 2 * Real.sqrt b ^ 2 := by linear_combination (norm := parley_norm) 0
@@ -46,6 +46,6 @@ theorem sqrt_of_product (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
     calc Real.sqrt (a * b) ^ 2 = a * b := by exact s4b
       _ = (Real.sqrt a * Real.sqrt b) ^ 2 := by exact s6.symm
   -- 8. mun:square-equal x := √(a·b), y := √a·√b, from 1, 2, 4, 5, 7
-  exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (a * b)) (y := Real.sqrt a * Real.sqrt b) (by parley_side) (by parley_side))).mp s7
+  exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (a * b)) (y := Real.sqrt a * Real.sqrt b) s4a s5)).mp s7
 
 end Parley.Proofs.Identities.SqrtOfProduct.SqrtOfProduct

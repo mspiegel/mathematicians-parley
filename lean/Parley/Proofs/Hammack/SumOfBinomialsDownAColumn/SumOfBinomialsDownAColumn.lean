@@ -15,6 +15,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -70,6 +71,6 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
         _ = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by exact s1_6
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose k r : ℤ) : ℤ)) = S n := by simp (disch := omega) only [hD1]
-    _ = (LeanBridges.Counting.choose (n + 1) (r + 1) : ℤ) := by exact (s1 n (by parley_side))
+    _ = (LeanBridges.Counting.choose (n + 1) (r + 1) : ℤ) := by exact (s1 n (le_of_lt hH1))
 
 end Parley.Proofs.Hammack.SumOfBinomialsDownAColumn.SumOfBinomialsDownAColumn

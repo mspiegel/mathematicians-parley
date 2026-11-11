@@ -29,6 +29,6 @@ namespace Parley.Tests.Stdlib.Calculus.ASeriesFromItsZerothTerm
 theorem a_series_from_its_zeroth_term (s : ℤ → ℝ) (hH2 : Filter.Tendsto (fun m : ℤ => (∑ j ∈ Finset.Icc (0 : ℤ) m, (s j : ℝ) : ℝ)) Filter.atTop (nhds 3)) :
     Filter.limUnder Filter.atTop (fun n : ℤ => ∑ j ∈ Finset.Icc (0 : ℤ) n, (s j : ℝ)) = 3 := by
   -- 1. def:series-sum-from-zero t := s, L := 3, from H2
-  exact (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side))
+  exact (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) hH2)
 
 end Parley.Tests.Stdlib.Calculus.ASeriesFromItsZerothTerm

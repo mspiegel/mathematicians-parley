@@ -25,6 +25,6 @@ theorem coset_member {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (g : G)
   -- 2. axi:group-identity a := g, from H3
   have s2 : g * (1 : G) = g := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := g) hH3)
   -- 3. def:coset u := g, from H2, H3, 1, 2
-  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g) (H := H) hH2 hH3)).mpr ⟨(1 : G), by parley_set_side, s2.symm⟩
+  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g) (H := H) hH2 hH3)).mpr ⟨(1 : G), s1, s2.symm⟩
 
 end Parley.Proofs.Wiedijk.Lagrange.CosetMember

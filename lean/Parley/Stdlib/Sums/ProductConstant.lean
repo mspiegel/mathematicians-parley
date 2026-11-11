@@ -33,11 +33,10 @@ public section
 
 namespace Parley.Stdlib.Sums.ProductConstant
 
-set_option maxHeartbeats 400000 in
 theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
     (∏ᶠ x ∈ X, (c : ℝ)) = c ^ X.ncard := by
   -- 1. induction on Y starting at ∅
-  have r74_1 : X.Finite := by parley_set_side
+  have r74_1 : X.Finite := by exact hH2
   have s1 : ∀ Y ∈ 𝒫 X, (∏ᶠ x ∈ Y, (c : ℝ)) = c ^ Y.ncard := by
     refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
@@ -74,6 +73,6 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       exact row1
   -- 2. instantiate Y := X in line 1
   have r124_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  exact (s1 X (by parley_set_side))
+  exact (s1 X r124_1)
 
 end Parley.Stdlib.Sums.ProductConstant

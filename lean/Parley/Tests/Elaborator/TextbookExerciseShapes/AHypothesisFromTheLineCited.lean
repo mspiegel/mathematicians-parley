@@ -7,6 +7,7 @@ public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -22,12 +23,12 @@ namespace Parley.Tests.Elaborator.TextbookExerciseShapes.AHypothesisFromTheLineC
 theorem a_hypothesis_from_the_line_cited (k : ℤ) (hH1 : 0 < k) :
     ((LeanBridges.Counting.factorial k : ℤ) ≠ 0 ∧ (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0) := by
   -- 1. mun:factorial-nonzero n := k
-  have s1 : (LeanBridges.Counting.factorial k : ℤ) ≠ 0 := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := k) (by parley_side))
+  have s1 : (LeanBridges.Counting.factorial k : ℤ) ≠ 0 := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := k) (le_of_lt hH1))
   -- 2. mun:factorial-nat n := k
-  have s2 : 0 < (LeanBridges.Counting.factorial k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k) (by parley_side))
+  have s2 : 0 < (LeanBridges.Counting.factorial k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k) (le_of_lt hH1))
   -- 3. thm:product-nonzero x := k!, y := k, from H1, 2
   have s3 : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by
-    have hI : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by parley_instance_cast ((Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side)))
+    have hI : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by parley_instance_cast ((Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by exact_mod_cast s2.ne') (by exact_mod_cast hH1.ne')))
     exact hI
   -- 4. join 1, 3
   have s4 : (LeanBridges.Counting.factorial k : ℤ) ≠ 0 ∧ (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by parley_side

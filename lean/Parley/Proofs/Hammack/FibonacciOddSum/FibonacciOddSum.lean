@@ -37,7 +37,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciOddSum.FibonacciOddSum
 
-set_option maxHeartbeats 600000 in
 theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F (2 * k - 1) : ℤ)) = F (2 * n) := by
   -- 1. thm:fibonacci-natural
@@ -109,6 +108,6 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         _ = F (2 * m) + F (2 * m + 1) := by (have h := congrArg (fun t : ℤ => F (2 * m) + t) s5_11; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = F (2 * (m + 1)) := by exact s5_13.symm
   -- 6. instantiate m := n in line 5, from D2
-  exact (s5 n (by parley_side))
+  exact (s5 n hH1)
 
 end Parley.Proofs.Hammack.FibonacciOddSum.FibonacciOddSum

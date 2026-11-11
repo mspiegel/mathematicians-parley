@@ -20,7 +20,6 @@ public section
 
 namespace Parley.Proofs.Hammack.LcmEqualsFirst.LcmEqualsFirst
 
-set_option maxHeartbeats 400000 in
 theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     (a = (Int.lcm a b : ℤ) ↔ b ∣ a) := by
   -- 1. def:lcm
@@ -63,9 +62,9 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 5.8. mun:pos-int-nat m := lcm(a, b), from 5.7
     have s5_8 : 0 < (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7)
     -- 5.9. mun:divides-le e := lcm(a, b), m := a, from 5.5, 5.8
-    have s5_9 : (Int.lcm a b : ℤ) ≤ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.lcm a b : ℤ)) (by parley_side) (m := a) (by parley_side) s5_5)
+    have s5_9 : (Int.lcm a b : ℤ) ≤ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.lcm a b : ℤ)) s5_8 (m := a) hH1 s5_5)
     -- 5.10. mun:divides-le e := a, m := lcm(a, b), from 2, 5.8
-    have s5_10 : a ≤ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) (by parley_side) (m := (Int.lcm a b : ℤ)) (by parley_side) s2)
+    have s5_10 : a ≤ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) hH1 (m := (Int.lcm a b : ℤ)) s5_8 s2)
     -- 5.11. antisymmetry, from 5.9, 5.10
     parley_side
 

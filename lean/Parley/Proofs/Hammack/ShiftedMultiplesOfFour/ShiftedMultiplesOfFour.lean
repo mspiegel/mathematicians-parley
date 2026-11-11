@@ -22,7 +22,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ShiftedMultiplesOfFour.ShiftedMultiplesOfFour
 
-set_option maxHeartbeats 400000 in
 theorem shifted_multiples_of_four :
     (fun k : ℤ => 4 * k + 5) '' (Set.univ : Set ℤ) = (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by
   -- 1. proof

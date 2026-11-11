@@ -15,7 +15,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfAUnionWithADisjointSet.SubsetOfAUnionWithADisjointSet
 
-set_option maxHeartbeats 400000 in
 theorem subset_of_a_union_with_a_disjoint_set {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ∩ B = ∅) :
     (A ⊆ B ∪ C ↔ A ⊆ C) := by
   -- the theorem. both directions
@@ -35,7 +34,7 @@ theorem subset_of_a_union_with_a_disjoint_set {α : Type*} (A : Set α) (B : Set
       rcases s1_3 with hC1 | hC2
       · skip
         -- 1.4.1. restate C1
-        have s1_4_1 : t ∈ B := by parley_set_side
+        have s1_4_1 : t ∈ B := by exact hC1
         exact absurd s1_4_1 s1_1
       · skip
         exact hC2

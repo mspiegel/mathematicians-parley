@@ -27,8 +27,8 @@ theorem two_does_not_divide_odd (A : ℤ) :
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := B))).mp hS
   -- 2. algebra, from D1, 1
   have s2 : 2 * (k - A) = 1 := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at s1 ⊢
+    try push_cast at s1 ⊢
     linear_combination (norm := parley_norm) (-1) * s1
   -- 3. def:divides d := 2, n := 1, from 2
   have s3 : (2 : ℤ) ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, s2.symm⟩

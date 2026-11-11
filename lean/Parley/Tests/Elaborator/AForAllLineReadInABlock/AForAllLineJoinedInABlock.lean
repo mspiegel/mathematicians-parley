@@ -23,6 +23,6 @@ theorem a_for_all_line_joined_in_a_block :
   -- 2. proof
   intro z
   -- 2.1. restate 1
-  parley_side
+  exact (s1 z)
 
 end Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineJoinedInABlock

@@ -12,6 +12,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -20,6 +21,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -43,7 +45,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.LiouvilleNumber.ScaledSumInteger
 
-set_option maxHeartbeats 400000 in
 theorem scaled_sum_integer :
     (∀ n : ℤ, 0 < n → (∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)))) := by
   -- the theorem. induction on n starting at 1
@@ -60,14 +61,14 @@ theorem scaled_sum_integer :
     exact ⟨(1 : ℤ), by exact_mod_cast (s3).symm⟩
   | succ n hK hIH =>
     -- 5. thm:partial-sum-step
-    have s5 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + 1) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n) (by parley_side))
+    have s5 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + 1) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n) (lt_of_lt_of_le zero_lt_one hK))
     -- 6. def:factorial
-    have s6 : (LeanBridges.Counting.factorial (n + 1) : ℤ) = (LeanBridges.Counting.factorial n : ℤ) * (n + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n) (by parley_side))
+    have s6 : (LeanBridges.Counting.factorial (n + 1) : ℤ) = (LeanBridges.Counting.factorial n : ℤ) * (n + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
     -- 7. calculation
     have s7 : (2 ^ LeanBridges.Counting.factorial (n + 1) : ℤ) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by
       calc (2 ^ LeanBridges.Counting.factorial (n + 1) : ℤ) = 2 ^ ((LeanBridges.Counting.factorial n : ℤ) * (n + 1)).toNat := by parley_subst s6
         _ = (2 ^ LeanBridges.Counting.factorial n) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_of_power (a := (2 : ℤ)) (m := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (n := n + 1) (by parley_side))
-        _ = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 ^ LeanBridges.Counting.factorial n : ℤ)) (m := n) (by parley_side))
+        _ = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 ^ LeanBridges.Counting.factorial n : ℤ)) (m := n) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
     -- 8. algebra, from 5
     have s8 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 := by linear_combination (norm := parley_field) (2 ^ LeanBridges.Counting.factorial (n + 1)) * s5
     -- 9. substitute

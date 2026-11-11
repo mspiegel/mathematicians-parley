@@ -53,9 +53,9 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
     try push_cast at hK1
     try have hK1_bounds := Finset.mem_Icc.mp hK1
     -- 1.1. thm:bernoulli-difference n := k + 1, x := n
-    have r20_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) (by parley_side))
+    have r20_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) hH1)
     have s1_1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by
-      have hI : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by parley_instance ((Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) (by parley_side) (x := (n : ℂ))))
+      have hI : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by parley_instance ((Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) r20_1 (x := (n : ℂ))))
       exact hI
     -- 1.2. substitute
     have c1 : k + 1 - 1 = k := by parley_ring
@@ -68,7 +68,7 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
       _ = (∑ n ∈ Finset.Icc (0 : ℤ) m, (Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) : ℂ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise_complex (t := (fun n : ℤ => ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat)) (u := (fun n : ℤ => Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) (by parley_side))
       _ = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli (k + 1).toNat) := by exact_mod_cast (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1)
   -- 3. algebra, from 2
-  have r36_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) (by parley_side))
+  have r36_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) hH1)
   linear_combination (norm := parley_field) ((1) / (((k : ℂ) + 1))) * s2
 
 end Parley.Proofs.Wiedijk.SumOfPowers.SumOfPowers

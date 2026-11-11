@@ -34,7 +34,7 @@ theorem prime_divides_a_factor (a : ℤ) (b : ℤ) (p : ℤ) (hH4 : Nat.Prime p.
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := p ∣ a) (Q := p ∣ b) hC1)
   · skip
     -- 3.2. mun:prime-coprime, from C2, H4, 1
-    have s3_2 : (Int.gcd p a : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := p) (by parley_side) hH4 (a := a) hC2)
+    have s3_2 : (Int.gcd p a : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := p) s1 hH4 (a := a) hC2)
     -- 3.3. substitute
     have s3_3 : (Int.gcd a p : ℤ) = 1 := by
       have c1 : (Int.gcd p a : ℤ) = (Int.gcd a p : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := p) (b := a))
@@ -46,7 +46,7 @@ theorem prime_divides_a_factor (a : ℤ) (b : ℤ) (p : ℤ) (hH4 : Nat.Prime p.
       have row1 : p ∣ b * a := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 hH5; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 3.5. thm:coprime-divides x := b, c := a, n := p, from 1, 3.3, 3.4
-    have s3_5 : p ∣ b := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := b) (c := a) (n := p) (by parley_side) s3_4 s3_3)
+    have s3_5 : p ∣ b := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := b) (c := a) (n := p) s1 s3_4 s3_3)
     -- 3.6. mun:or-right P := p divides a, from 3.5
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := p ∣ a) (Q := p ∣ b) s3_5)
 

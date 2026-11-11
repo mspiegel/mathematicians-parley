@@ -18,7 +18,6 @@ public section
 
 namespace Parley.Proofs.Hammack.CongruentModTen.CongruentModTen
 
-set_option maxHeartbeats 400000 in
 theorem congruent_mod_ten (a : ℤ) (b : ℤ) :
     (a ≡ b [ZMOD (10 : ℤ)] ↔ a ≡ b [ZMOD (2 : ℤ)] ∧ a ≡ b [ZMOD (5 : ℤ)]) := by
   -- the theorem. both directions

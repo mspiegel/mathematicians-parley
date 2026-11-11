@@ -41,7 +41,7 @@ theorem a_square_is_not_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x
     have hI : ∀ s : ℝ, ∀ t : ℝ, f s = f t → s = t := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2)
     exact hI
   -- 4.2. instantiate s := −1, t := 1 in line 4.1, from 3
-  have s4_2 : (-1 : ℝ) = 1 := by exact (s4_1 (-1 : ℝ) (1 : ℝ) (by parley_set_side))
+  have s4_2 : (-1 : ℝ) = 1 := by exact (s4_1 (-1 : ℝ) (1 : ℝ) s3)
   exact absurd s4_2 (by norm_num)
 
 end Parley.Tests.Notations.Functions.ASquareIsNotOneToOne

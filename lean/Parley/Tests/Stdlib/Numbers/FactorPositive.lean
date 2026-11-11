@@ -15,6 +15,6 @@ namespace Parley.Tests.Stdlib.Numbers.FactorPositive
 theorem factor_positive (u : ℝ) (v : ℝ) (hH3 : u ≥ 0) (hH4 : u * v > 0) :
     v > 0 := by
   -- 1. mun:numbers-factor-positive a := u, b := v, from H3, H4
-  exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := u) (b := v) (by parley_side) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := u) (b := v) hH3 (by parley_side))
 
 end Parley.Tests.Stdlib.Numbers.FactorPositive

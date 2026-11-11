@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.ACancelledFactorAgainstADroppedOne.TheOneDropp
 theorem the_one_dropped_on_the_right (x : ℝ) (k : ℝ) (hH3 : x ≠ 0) (hH4 : 2 * k * x = x) :
     2 * k = 1 := by
   -- 1. mun:multiply-cancel a := 2·k, b := 1, c := x, from H3, H4
-  exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := 2 * k) (b := (1 : ℝ)) (c := x) (by parley_side) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := 2 * k) (b := (1 : ℝ)) (c := x) (by parley_side) hH3)
 
 end Parley.Tests.Elaborator.ACancelledFactorAgainstADroppedOne.TheOneDroppedOnTheRight

@@ -24,7 +24,6 @@ public section
 
 namespace Parley.Proofs.Hammack.DivergentHasNoLimit.DivergentHasNoLimit
 
-set_option maxHeartbeats 400000 in
 theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n > N → a n > M)) :
     ¬ (∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds L)) := by
   -- the theorem. contradiction
@@ -51,9 +50,9 @@ theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℤ
   -- 10. inequalities
   have s10 : P + Q > Q := by parley_order
   -- 11. instantiate n := P + Q in line 4, from 8
-  have s11 : abs (a (P + Q) - L) < 1 := by exact (s4b (P + Q) (by parley_side) (by parley_side))
+  have s11 : abs (a (P + Q) - L) < 1 := by exact (s4b (P + Q) (by parley_side) s8)
   -- 12. instantiate n := P + Q in line 6, from 10
-  have s12 : a (P + Q) > L + 1 := by exact (s6b (P + Q) (by parley_side) (by parley_side))
+  have s12 : a (P + Q) > L + 1 := by exact (s6b (P + Q) (by parley_side) s10)
   -- 13. mun:abs-difference-lt x := a(P + Q), c := L, δ := 1, from 11
   have s13 : L - 1 < a (P + Q) ∧ a (P + Q) < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a (P + Q)) (c := L) (δ := (1 : ℝ)))).mp s11
   -- 14. inequalities

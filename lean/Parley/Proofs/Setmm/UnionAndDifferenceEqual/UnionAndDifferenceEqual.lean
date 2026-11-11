@@ -17,7 +17,6 @@ public section
 
 namespace Parley.Proofs.Setmm.UnionAndDifferenceEqual.UnionAndDifferenceEqual
 
-set_option maxHeartbeats 600000 in
 theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) (hH5 : A ∩ B = ∅) :
     (A ∪ B = C ↔ C \ A = B) := by
   -- the theorem. both directions
@@ -38,11 +37,11 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
       rcases s1_3 with hC1 | hC2
       · skip
         -- 1.4.1. restate 1.1
-        have s1_4_1 : ¬ u ∈ A := by parley_set_side
+        have s1_4_1 : ¬ u ∈ A := by exact s1_1b
         exact absurd hC1 s1_4_1
       · skip
         -- 1.4.2. restate C2
-        parley_set_side
+        exact hC2
     -- 2. def:subset X := C ∖ A, Y := B, from 1
     have s2 : C \ A ⊆ B := ((Parley.Items.Stdlib.Sets.def_subset (X := C \ A) (Y := B))).mpr s1
     -- 3. proof
@@ -59,7 +58,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
         have s3_3_1 : ¬ u ∈ B := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := A) (Z := B) (u := u) hH5 hS)
         exact s3_3_1 hK2
       -- 3.4. def:difference Y := C, Z := A, from 3.2, 3.3
-      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mpr ⟨s3_2, s3_3⟩
     -- 4. def:subset X := B, Y := C ∖ A, from 3
     have s4 : B ⊆ C \ A := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := C \ A))).mpr s3
     -- 5. mun:subset-antisymmetric X := C ∖ A, Y := B, from 2, 4
@@ -84,7 +83,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
         exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := B) (u := u) hC3)
       · skip
         -- 9.2.2. def:difference Y := C, Z := A, from C4, K3
-        have s9_2_2 : u ∈ C \ A := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mpr (by parley_set_side)
+        have s9_2_2 : u ∈ C \ A := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mpr ⟨hK3, hC4⟩
         -- 9.2.3. substitute C ∖ A = B (D2) into line 9.2.2
         have s9_2_3 : u ∈ B := by parley_subst_at hD2 s9_2_2
         -- 9.2.4. mun:in-union-right Y := A, Z := B, from 9.2.3

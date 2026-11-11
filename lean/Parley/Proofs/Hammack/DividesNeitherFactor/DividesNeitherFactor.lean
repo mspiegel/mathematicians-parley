@@ -23,7 +23,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
     -- 1.1. mun:divides-multiple e := x, a := y, x := z, from S1
     have s1_1 : x ∣ y * z := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) hS1)
     -- 1.2. restate H5
-    have s1_2 : ¬ x ∣ y * z := by parley_side
+    have s1_2 : ¬ x ∣ y * z := by exact hH5
     exact s1_2 s1_1
   -- 2. contradiction
   have s2 : ¬ x ∣ z := by
@@ -36,7 +36,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
       have row1 : x ∣ y * z := by (have h := Eq.subst (motive := (fun t : ℤ => x ∣ t)) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.3. restate H5
-    have s2_3 : ¬ x ∣ y * z := by parley_side
+    have s2_3 : ¬ x ∣ y * z := by exact hH5
     exact s2_3 s2_2
   -- 3. join 1, 2
   have s3 : ¬ x ∣ y ∧ ¬ x ∣ z := by parley_side

@@ -22,7 +22,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Lagrange.CosetInclusion
 
-set_option maxHeartbeats 400000 in
 theorem coset_inclusion {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (a : G) (hH3 : a ∈ (Set.univ : Set G)) (x : G) (hH4 : x ∈ (a * ·) '' (H : Set G)) :
     (x * ·) '' (H : Set G) ⊆ (a * ·) '' (H : Set G) := by
   -- 1. mun:subgroup-within, from H2
@@ -50,7 +49,7 @@ theorem coset_inclusion {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (a :
         _ = a * h * c := by parley_subst s2b
         _ = a * (h * c) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := h) (c := c) hH3 s5 s6_2)
     -- 6.5. def:coset g := a, from H2, H3, 6.3, 6.4
-    exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := a) (u := u) (H := H) hH2 hH3)).mpr ⟨h * c, by parley_set_side, s6_4⟩
+    exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := a) (u := u) (H := H) hH2 hH3)).mpr ⟨h * c, s6_3, s6_4⟩
   -- 7. def:subset, from 6
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := (x * ·) '' (H : Set G)) (Y := (a * ·) '' (H : Set G)))).mpr s6
 

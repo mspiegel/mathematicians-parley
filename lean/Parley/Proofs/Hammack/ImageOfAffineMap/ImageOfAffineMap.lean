@@ -22,7 +22,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ImageOfAffineMap.ImageOfAffineMap
 
-set_option maxHeartbeats 400000 in
 theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 5) :
     f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) = (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by
   -- 1. mun:subset-self

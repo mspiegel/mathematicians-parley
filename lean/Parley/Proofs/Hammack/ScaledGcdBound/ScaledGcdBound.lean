@@ -23,7 +23,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ScaledGcdBound.ScaledGcdBound
 
-set_option maxHeartbeats 600000 in
 theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 0)) (hH5 : c ≠ 0) :
     c * (Int.gcd a b : ℤ) ≤ (Int.gcd (c * a) (c * b) : ℤ) := by
   -- 1. thm:gcd-positive x := a, y := b, from H4
@@ -54,16 +53,16 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
     -- 11.2. mun:pos-int-nat m := c, from 11.1
     have s11_2 : 0 < c := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c) s11_1)
     -- 11.3. mun:nat-closure a := c, b := gcd(a, b), from 1, 11.2
-    have s11_3 : 0 < c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_2 (a := c) (by parley_side) (b := (Int.gcd a b : ℤ)) (by parley_side))
+    have s11_3 : 0 < c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_2 (a := c) s11_2 (b := (Int.gcd a b : ℤ)) s1)
     -- 11.4. mun:divides-le e := c·gcd(a, b), m := gcd(c·a, c·b), from 5, 9, 11.3
-    exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := c * (Int.gcd a b : ℤ)) (by parley_side) (m := (Int.gcd (c * a) (c * b) : ℤ)) (by parley_side) s9)
+    exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := c * (Int.gcd a b : ℤ)) s11_3 (m := (Int.gcd (c * a) (c * b) : ℤ)) s5 s9)
   · skip
     -- 11.5. inequalities
     have s11_5 : 0 < -c := by parley_order
     -- 11.6. inequalities, from 1
     have s11_6 : 0 < (Int.gcd a b : ℤ) := by parley_order
     -- 11.7. mun:product-positive x := −c, y := gcd(a, b), from 11.5, 11.6
-    have s11_7 : 0 < -c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := -c) (y := (Int.gcd a b : ℤ)) (by parley_side) (by parley_side))
+    have s11_7 : 0 < -c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := -c) (y := (Int.gcd a b : ℤ)) s11_5 s11_6)
     -- 11.8. substitute
     have s11_8 : 0 < -(c * (Int.gcd a b : ℤ)) := by
       have c1 : -c * (Int.gcd a b : ℤ) = -(c * (Int.gcd a b : ℤ)) := by parley_ring

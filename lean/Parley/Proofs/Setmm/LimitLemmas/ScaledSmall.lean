@@ -22,7 +22,6 @@ public section
 
 namespace Parley.Proofs.Setmm.LimitLemmas.ScaledSmall
 
-set_option maxHeartbeats 400000 in
 theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u < ε / (2 * (abs C + 1))) :
     abs (C * u) < ε := by
   -- 1. mun:abs-real x := C
@@ -40,14 +39,14 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   have r89_1 : d ≠ 0 := by parley_side
   have s6 : abs u ≤ ε / (2 * d) := by parley_order
   -- 7. mun:multiply-le x := |u|, y := ε/(2·d), c := d, from 3, 6
-  have s7 : d * abs u ≤ d * (ε / (2 * d)) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) (by parley_side) (by parley_side))
+  have s7 : d * abs u ≤ d * (ε / (2 * d)) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) s6 s3)
   -- 8. algebra
-  have r98_1 : 2 * d ≠ 0 := by parley_side
+  have r98_1 : 2 * d ≠ 0 := by exact s4
   have s8 : d * (ε / (2 * d)) = ε / 2 := by parley_ring
   -- 9. algebra, from D1
   have s9 : d * abs u = abs C * abs u + abs u := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     parley_ring
   -- 10. thm:abs-nonneg x := u
   have s10 : abs u ≥ 0 := by exact (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u))

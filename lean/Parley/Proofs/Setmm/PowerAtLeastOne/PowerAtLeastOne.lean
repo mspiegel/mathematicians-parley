@@ -41,14 +41,14 @@ theorem power_at_least_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 1 ≤ a) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_2
     | succ m hK hIH =>
       -- 2.3. mun:exponent-step
-      have s2_3 : a ^ (m + 1).toNat = a ^ m.toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m) (by parley_side))
+      have s2_3 : a ^ (m + 1).toNat = a ^ m.toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m) hK)
       -- 2.4. mun:multiply-le x := 1, y := a^m, c := a, from IH, 1
-      have s2_4 : a * 1 ≤ a * a ^ m.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := a ^ m.toNat) (c := a) (by parley_side) (by parley_side))
+      have s2_4 : a * 1 ≤ a * a ^ m.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := a ^ m.toNat) (c := a) hIH s1)
       -- 2.5. inequalities
       have s2_5 : a ≤ a ^ m.toNat * a := by parley_order
       -- 2.6. transitivity, from H3, 2.5, 2.3
       parley_order
   -- 3. instantiate m := n in line 2
-  exact (s2 n (by parley_side))
+  exact (s2 n hH2)
 
 end Parley.Proofs.Setmm.PowerAtLeastOne.PowerAtLeastOne

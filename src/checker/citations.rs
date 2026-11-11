@@ -12,8 +12,8 @@ use super::library::{
     SaidFrom, Search,
 };
 use super::record::{
-    Cited, Exhibit, Facing, FirstAt, Instantiated, ItemLetter, ObtainedPart, Supplied,
-    SuppliedBy,
+    Cited, Condition, Exhibit, Facing, FirstAt, Guard, Instantiated, ItemLetter,
+    ObtainedPart, Supplied, SuppliedBy, Unfolded,
 };
 use super::structure::letters_in_scope;
 use super::Report;
@@ -23,7 +23,7 @@ use crate::citing::{
     obtained, obtains, range_system, readings, said_once, said_otherwise, search,
     stood_for, substitution_unsaid, supply, taken, taken_ways, type_said_otherwise,
     with_parts, witnesses_unsaid, Bound, CodomainAsk, Concluded, Group, Introduced,
-    Library, Parts, Sites, Taken, Ways,
+    Library, Parts, Sites, Taken, Way, Ways,
 };
 use crate::corpus::proof::{chain_reasons, reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -272,6 +272,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let facings = facings(&groups, taken, &parts.claims, known, library);
     let meetings = meetings(&groups, taken, &parts.claims, known, library);
     let within = parts_within(&groups, taken, &parts.claims, known, library);
+    let unfolded = unfolded(step, &groups[taken.group], taken, &item, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -286,7 +287,112 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         binding: rules_by_name(&taken.binding, step, known, library),
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
+        unfolded,
     })
+}
+
+/// For each sentence `taken` concludes read backwards, what the right side
+/// of its `↔` asks at the citation's values, with where each fact stands
+/// among the lines `refs` names, the step's requires lines, or the `let`
+/// lines in scope (`Cited::unfolded`); None for one read otherwise.
+fn unfolded(
+    step: &Step,
+    group: &Group,
+    taken: &Taken,
+    item: &str,
+    known: &Known,
+    library: &Library,
+) -> Vec<Option<Vec<Unfolded>>> {
+    taken
+        .concluded
+        .iter()
+        .map(|c| {
+            if c.way != Way::Backward {
+                return None;
+            }
+            let said = group.gives.get(c.sentence)?;
+            let [_, right] = said.children.as_slice() else {
+                return None;
+            };
+            if said.notation() != BICONDITIONAL {
+                return None;
+            }
+            let at = filled(right, &taken.binding, &library.ctx);
+            let witnesses = Binding::new();
+            Some(unfolded_parts(
+                step,
+                &at,
+                &taken.bound,
+                &witnesses,
+                item,
+                known,
+                library,
+            ))
+        })
+        .collect()
+}
+
+/// The parts of `node`, a definition's right side at a citation's values,
+/// joined by "and" (`conjuncts`): a "there is" whose letter the citation
+/// gives a witness in `bound` taken apart into the witness's membership and
+/// the parts of its body, any other part a fact; each fact placed as a
+/// citation's hypothesis is (`supplied_at`). `outer` holds the witnesses of
+/// the "there is"es around `node`, put in each fact as it is recorded and
+/// not in `node` first, where putting a witness that names a letter of an
+/// inner "there is" would rename that letter apart from its witness.
+fn unfolded_parts(
+    step: &Step,
+    node: &Node,
+    bound: &Binding,
+    outer: &Binding,
+    item: &str,
+    known: &Known,
+    library: &Library,
+) -> Vec<Unfolded> {
+    let fact = |fact: Node, at: &Binding| {
+        let fact = substitute_apart(&fact, at, &library.ctx);
+        let by = supplied_at(
+            step,
+            &step.just.refs,
+            Some(item),
+            vec![(fact.clone(), None)],
+            &Binding::new(),
+            None,
+            known,
+            library,
+        )
+        .pop()
+        .map_or(SuppliedBy::Unstated, |s| s.by);
+        Unfolded::Fact { fact, by }
+    };
+    conjuncts(node, library)
+        .into_iter()
+        .map(|part| {
+            let (letter, domain, body) =
+                match (part.notation(), part.children.as_slice()) {
+                    (THERE_IS, [letter, domain, body]) => (letter, domain, Some(body)),
+                    (THERE_IS_SOME, [letter, domain]) => (letter, domain, None),
+                    _ => return fact(part.clone(), outer),
+                };
+            let Some(value) = bound.get(&letter.text) else {
+                return fact(part.clone(), outer);
+            };
+            let value = substitute_apart(value, outer, &library.ctx);
+            let mut inner = outer.clone();
+            inner.insert(letter.text, value.clone());
+            // The domain may name the witnesses before this one.
+            let member = bound_in(Bound::Member, letter, domain, library.env.g);
+            let member = fact(member, &inner);
+            let body = body.map_or_else(Vec::new, |b| {
+                unfolded_parts(step, b, bound, &inner, item, known, library)
+            });
+            Unfolded::Witness {
+                value,
+                member: Box::new(member),
+                body,
+            }
+        })
+        .collect()
 }
 
 /// For each sentence `taken` concludes, which way the item's equation read
@@ -648,6 +754,7 @@ pub fn cited_requires(
     let facings = facings(&groups, &taken, &parts.claims, known, library);
     let meetings = meetings(&groups, &taken, &parts.claims, known, library);
     let within = parts_within(&groups, &taken, &parts.claims, known, library);
+    let unfolded = unfolded(step, &groups[taken.group], &taken, &item, known, library);
     Some(Cited {
         item,
         group: taken.group,
@@ -662,6 +769,7 @@ pub fn cited_requires(
         binding: taken.binding,
         bound: taken.bound,
         written: parts.seed,
+        unfolded,
     })
 }
 
@@ -727,6 +835,39 @@ fn fact_at(
                 .and_then(|s| placed(r, s, &says, own))
         })
     })
+}
+
+/// Where each `restate` step's claim of one sentence, and each requires line
+/// reasoned from lines alone, stands in a line it names
+/// (`CheckedTheorem::restated`): a sentence, a part of one, a "for all"
+/// read at a block's letter, or what a line implies (`fact_at`). By the
+/// line of the justification; one no line it names states, a fact only the
+/// lines together give, is left out.
+pub fn restatements(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, FirstAt> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Restate) && step.claim.sentences().len() == 1 {
+            let at = known.whole_as_written(&step.claim).and_then(|claim| {
+                fact_at(step, &step.just.refs, None, &claim, known, library)
+            });
+            if let Some(at) = at {
+                out.insert(step.just.line, at);
+            }
+        }
+        for req in step.requires.iter().filter(|r| r.is_lines()) {
+            let at = known.whole_as_written(&req.fact).and_then(|fact| {
+                fact_at(step, req.lines(), None, &fact, known, library)
+            });
+            if let Some(at) = at {
+                out.insert(req.line, at);
+            }
+        }
+    }
+    out
 }
 
 /// Where `fact`, a membership the page says once, stands among the lines
@@ -3363,7 +3504,8 @@ pub fn check_kinds(
 /// = |S|. Such a line is asked for as surely as an item's hypothesis is
 /// (`SYNTAX.md`: a requires line rests on the lines above it).
 fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
-    const ASKING: [&str; 3] = ["membership", "inequalities", "algebra"];
+    const ASKING: [Method; 3] =
+        [Method::Membership, Method::Inequalities, Method::Algebra];
     let Some(said) = known.whole(step, &req.fact) else {
         return false;
     };
@@ -3375,7 +3517,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
     // an order. t = u names both sides too, and a line below may say of one
     // what it says of the other, so there a term the line below holds whole
     // is one it rests on.
-    let (held, asking, whole): (Vec<&Node>, &[&str], bool) = match said.notation() {
+    let (held, asking, whole): (Vec<&Node>, &[Method], bool) = match said.notation() {
         MEMBERSHIP if said.children.len() == 2 => {
             (vec![&said.children[0]], &ASKING, false)
         }
@@ -3390,7 +3532,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                     .iter()
                     .filter(|c| c.notation() != NUMERAL)
                     .collect(),
-                &["membership", "algebra"],
+                &[Method::Membership, Method::Algebra],
                 false,
             )
         }
@@ -3399,7 +3541,7 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
                 .iter()
                 .filter(|c| c.notation() != NUMERAL)
                 .collect(),
-            &["inequalities"],
+            &[Method::Inequalities],
             false,
         ),
         EQUALITY if said.children.len() == 2 => (
@@ -3424,15 +3566,11 @@ fn built_on(req: &crate::corpus::Requires, step: &Step, known: &Known) -> bool {
         .skip_while(|r| r.line != req.line)
         .skip(1)
         .filter(|r| {
-            let how = str::trim(&r.how);
             // A manipulation, `weakening, from 8`, is a row of `inequalities`
             // and asks its atoms real as that method does.
-            let manipulated = asking.contains(&"inequalities")
+            let manipulated = asking.contains(&Method::Inequalities)
                 && matches!(&r.by, Ok(by) if matches!(by.head, Head::Manipulation(_)));
-            manipulated
-                || asking
-                    .iter()
-                    .any(|m| how == *m || how.starts_with(&format!("{m},")))
+            manipulated || asking.iter().any(|m| r.is(*m))
         })
         .filter_map(|r| known.whole(step, &r.fact).map(|n| (r, n)))
         .any(|(r, n)| {
@@ -5515,15 +5653,7 @@ pub fn check_instantiated(
             continue;
         };
         let parts = known.parts(step, library);
-        // A value that does not read is the elaborator's to report.
-        let written: IndexMap<String, Node> = step
-            .just
-            .values
-            .read(known.env.g, &known.sorts)
-            .unwrap_or_default()
-            .into_iter()
-            .map(|v| (v.name, v.value))
-            .collect();
+        let written = values_written(step, known);
         let defined = known.citing_step(step);
         let mut said: Vec<(Option<Node>, Option<Node>)> = known
             .says(&line, &defined)
@@ -5566,49 +5696,31 @@ pub fn check_instantiated(
             {
                 continue;
             }
-            // A domain may name the letters bound before it, and only those.
-            // What is compared is read with defined names written out; what
-            // a message says is the page's own spelling.
-            let mut outer = Binding::new();
-            let mut outer_written = Binding::new();
-            for (b, w) in binders.iter().zip(binders_of(&as_written)) {
-                let Some(value) = parts.seed.get(&b.letter.text) else {
-                    continue;
-                };
-                let domain = substitute_apart(&b.domain, &outer, &library.ctx);
-                outer.insert(b.letter.text, value.clone());
-                let want = bound_in(b.how, value, &domain, library.env.g);
-                let value_written = written
-                    .get(b.letter.text.as_str())
-                    .cloned()
-                    .unwrap_or_else(|| value.clone());
-                let domain_written =
-                    substitute_apart(&w.domain, &outer_written, &library.ctx);
-                outer_written.insert(w.letter.text, value_written.clone());
+            for m in
+                value_memberships(&read, &as_written, &parts.seed, &written, library)
+            {
                 // A function's type is its membership of the functions
                 // between its sets (`type_said_otherwise`), so `g : X → Y`
                 // supplies g for "for all f : X → Y" (`SYNTAX.md`).
                 let supplied = parts.facts.iter().any(|f| {
-                    known.alike(f, &want)
+                    known.alike(f, &m.read)
                         || type_said_otherwise(f, library)
-                            .is_some_and(|member| known.alike(&member, &want))
+                            .is_some_and(|member| known.alike(&member, &m.read))
                 });
                 if supplied {
-                    wants.push(want);
+                    wants.push(m.read);
                     continue;
                 }
                 judged = false;
-                let needed =
-                    bound_in(b.how, &value_written, &domain_written, library.env.g);
                 report.say(
                     &thm.path,
                     step.just.line,
                     format!(
                         "step {} puts {} for {} in line {target}, so it needs {}, and nothing it cites or requires says it",
                         step.number,
-                        known.print(&value_written),
-                        b.letter.text,
-                        known.print(&needed)
+                        known.print(&m.value),
+                        m.letter,
+                        known.print(&m.written)
                     ),
                 );
             }
@@ -5646,6 +5758,133 @@ pub fn check_instantiated(
             }
         }
     }
+}
+
+/// The values `step` writes, each by the letter it is given to, as the page
+/// writes them. A value that does not read is the elaborator's to report,
+/// and is left out.
+fn values_written(step: &Step, known: &Known) -> IndexMap<String, Node> {
+    step.just
+        .values
+        .read(known.env.g, &known.sorts)
+        .unwrap_or_default()
+        .into_iter()
+        .map(|v| (v.name, v.value))
+        .collect()
+}
+
+/// A value an instantiation puts in a domain of the sentence it reads, and
+/// the membership that asks.
+struct ValueMembership {
+    /// The letter of the sentence the value is given to.
+    letter: String,
+    /// The value as the page writes it.
+    value: Node,
+    /// The membership as it is compared, defined names written out.
+    read: Node,
+    /// The membership as the page writes it.
+    written: Node,
+}
+
+/// The membership each value of `seed` asks of its domain in `read`, a
+/// sentence of the line an instantiation names, outermost letter first.
+/// `as_written` is the same sentence as the page writes it, and `written`
+/// the values as the step writes them. A domain may name the letters bound
+/// before it, and only those.
+fn value_memberships(
+    read: &Node,
+    as_written: &Node,
+    seed: &Binding,
+    written: &IndexMap<String, Node>,
+    library: &Library,
+) -> Vec<ValueMembership> {
+    let mut outer = Binding::new();
+    let mut outer_written = Binding::new();
+    let mut out = Vec::new();
+    for (b, w) in binders_of(read).iter().zip(binders_of(as_written)) {
+        let Some(value) = seed.get(&b.letter.text) else {
+            continue;
+        };
+        let domain = substitute_apart(&b.domain, &outer, &library.ctx);
+        outer.insert(b.letter.text, value.clone());
+        let value_written = written
+            .get(b.letter.text.as_str())
+            .cloned()
+            .unwrap_or_else(|| value.clone());
+        let domain_written = substitute_apart(&w.domain, &outer_written, &library.ctx);
+        outer_written.insert(w.letter.text, value_written.clone());
+        out.push(ValueMembership {
+            letter: b.letter.text.to_string(),
+            read: bound_in(b.how, value, &domain, library.env.g),
+            written: bound_in(b.how, &value_written, &domain_written, library.env.g),
+            value: value_written,
+        });
+    }
+    out
+}
+
+/// Where each value `step` puts in a domain of `said`, the sentence it
+/// instantiates, is shown to be in it (`Instantiated::guards`): among the
+/// lines the step names, its requires lines, or the `let` line that says
+/// it once, as a citation's hypothesis is (`supplied_at`).
+fn value_guards(
+    step: &Step,
+    said: &super::library::Said,
+    seed: &Binding,
+    known: &Known,
+    library: &Library,
+) -> Vec<Guard> {
+    let written = values_written(step, known);
+    value_memberships(&said.cited, &said.written, seed, &written, library)
+        .into_iter()
+        .map(|m| {
+            let by = supplied_at(
+                step,
+                &step.just.refs,
+                None,
+                vec![(m.read, None)],
+                &Binding::new(),
+                None,
+                known,
+                library,
+            )
+            .pop()
+            .map_or(SuppliedBy::Unstated, |s| s.by);
+            Guard {
+                letter: m.letter,
+                written: m.written,
+                by,
+            }
+        })
+        .collect()
+}
+
+/// Where each condition an instantiation takes off, `conditions`, stands
+/// (`Instantiated::conditions`): among the lines the step names, or its
+/// requires lines, as a citation's hypothesis is (`supplied_at`).
+fn conditions_supplied(
+    step: &Step,
+    conditions: &[Node],
+    known: &Known,
+    library: &Library,
+) -> Vec<Condition> {
+    let supplying = conditions.iter().map(|c| (c.clone(), None)).collect();
+    supplied_at(
+        step,
+        &step.just.refs,
+        None,
+        supplying,
+        &Binding::new(),
+        None,
+        known,
+        library,
+    )
+    .into_iter()
+    .map(|s| Condition {
+        read: s.want,
+        by: s.by,
+    })
+    .collect()
 }
 
 /// Whether `part` is an equation whose two sides are one term.
@@ -5794,8 +6033,11 @@ fn instance_reading(
                 super::citations::placed(&target, said, &says, own).map(|at| {
                     Instantiated {
                         at,
-                        conditions: conditions.len(),
+                        conditions: conditions_supplied(
+                            step, conditions, known, library,
+                        ),
                         meeting: meeting.clone(),
+                        guards: value_guards(step, said, seed, known, library),
                     }
                 });
             // A condition of several parts is met where each part is. An
@@ -5979,7 +6221,7 @@ pub fn check_repeated(
                 .filter(|(j, o)| {
                     *j < i
                         || (*j > i
-                            && str::trim(&o.how).starts_with("from ")
+                            && o.is_lines()
                             && !same_fact(known, &o.fact, &req.fact))
                 })
                 .map(|(_, o)| o.clone())
@@ -6068,10 +6310,7 @@ pub fn check_from_lines(
             )
         }));
     for (step, reqs) in lines {
-        for req in reqs {
-            if !str::trim(&req.how).starts_with("from ") {
-                continue;
-            }
+        for req in reqs.iter().filter(|r| r.is_lines()) {
             let read_off = |without: &[&str]| -> bool {
                 let Some(parts) = requires_parts(step, req, without, known, library)
                 else {

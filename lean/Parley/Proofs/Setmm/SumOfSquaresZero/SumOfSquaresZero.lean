@@ -20,7 +20,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SumOfSquaresZero.SumOfSquaresZero
 
-set_option maxHeartbeats 400000 in
 theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
     (A = 0 ∧ B = 0 ↔ A ^ 2 + B ^ 2 = 0) := by
   -- the theorem. both directions

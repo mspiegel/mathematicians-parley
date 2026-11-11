@@ -32,6 +32,6 @@ theorem floor_add_integer (A : ℝ) (N : ℤ) :
   -- 5. inequalities
   have s5 : A + (N : ℝ) < (⌊A⌋ : ℝ) + (N : ℝ) + 1 := by parley_order
   -- 6. mun:floor-between x := A + N, k := ⌊A⌋ + N, from 4, 5
-  exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := A + (N : ℝ)) (k := ⌊A⌋ + N))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := A + (N : ℝ)) (k := ⌊A⌋ + N))).mpr ⟨by exact_mod_cast s4, by exact_mod_cast s5⟩
 
 end Parley.Proofs.Setmm.FloorBasics.FloorAddInteger

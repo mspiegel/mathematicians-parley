@@ -40,16 +40,16 @@ theorem binomial_of_two (m : ℤ) (hH1 : 0 ≤ m) :
         _ = 0 * (0 - 1) := by norm_num
     | succ j hK hIH =>
       -- 1.4. thm:pascal n := j, k := 2
-      have s1_4 : (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) (by parley_side) (k := (2 : ℤ)))
+      have s1_4 : (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) hK (k := (2 : ℤ)))
       -- 1.5. substitute 2 − 1 = 1 (arithmetic) into line 1.4
       have s1_5 : (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ) := by
         have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ))) e_arith s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.6. thm:binomial-of-one m := j
-      have s1_6 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = j := by exact (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := j) (by parley_side))
+      have s1_6 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = j := by exact (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := j) hK)
       -- 1.7. algebra, from IH, 1.5, 1.6
       linear_combination (norm := parley_norm) hIH + (-2) * s1_5 + (2) * s1_6
   -- 2. instantiate j := m in line 1
-  exact (s1 m (by parley_side))
+  exact (s1 m hH1)
 
 end Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo

@@ -18,7 +18,7 @@ theorem a_supposition_denying_its_claim_written_otherwise (a : ℝ) (hH2 : a = 1
   by_contra h_hS
   have hS : 1 ≠ a := Ne.symm h_hS
   -- 1.1. restate S
-  have s1_1 : 1 ≠ a := by parley_side
+  have s1_1 : 1 ≠ a := by exact hS
   exact s1_1 hH2.symm
 
 end Parley.Tests.Elaborator.ASuppositionWrittenOtherwise.ASuppositionDenyingItsClaimWrittenOtherwise

@@ -50,7 +50,7 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_5 : (9 : ℤ) ∣ ((4 ^ (3 * m).toNat + 8) * 64 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (9 : ℤ)) (a := (4 ^ (3 * m).toNat + 8 : ℤ)) (x := (64 : ℤ)) hIH)
       -- 1.6. def:divides d := 9, n := 504
       have r37_1 : (504 : ℤ) = 9 * 56 := by parley_arith
-      have s1_6 : (9 : ℤ) ∣ (504 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (504 : ℤ)))).mpr ⟨(56 : ℤ), by parley_side⟩
+      have s1_6 : (9 : ℤ) ∣ (504 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (9 : ℤ)) (n := (504 : ℤ)))).mpr ⟨(56 : ℤ), r37_1⟩
       -- 1.7. mun:divides-difference d := 9, a := (4^(3m) + 8)·64, b := 504, from 1.5, 1.6
       have s1_7 : (9 : ℤ) ∣ ((4 ^ (3 * m).toNat + 8) * 64 - 504 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (9 : ℤ)) (a := ((4 ^ (3 * m).toNat + 8) * 64 : ℤ)) (b := (504 : ℤ)) s1_5 s1_6)
       -- 1.8. substitute
@@ -58,6 +58,6 @@ theorem divisible_by_nine (n : ℤ) (hH1 : 0 ≤ n) :
       have row1 : (9 : ℤ) ∣ (4 ^ (3 * (m + 1)).toNat + 8 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (9 : ℤ) ∣ t)) c1 s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate m := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.DivisibleByNine.DivisibleByNine

@@ -22,6 +22,6 @@ theorem a_triangular_number_is_natural (x : ℝ) (hH2 : (∃ m : ℤ, 0 < m ∧ 
   -- 1. D1 n := x, from H2
   have s1 : (∃ m : ℤ, 0 < m ∧ (m : ℝ) = x) ∧ (∃ k : ℤ, 0 < k ∧ x = (k : ℝ) * ((k : ℝ) + 1) / 2) := by parley_side
   -- 2. restate 1
-  parley_side
+  exact s1.1
 
 end Parley.Tests.Elaborator.APhraseDefined.ATriangularNumberIsNatural

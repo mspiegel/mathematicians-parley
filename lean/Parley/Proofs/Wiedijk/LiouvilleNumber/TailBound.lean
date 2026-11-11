@@ -50,14 +50,13 @@ public section
 
 namespace Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound
 
-set_option maxHeartbeats 600000 in
 theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
     (∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + j).toNat) := by
   have hD1_kind : 0 < (LeanBridges.Counting.factorial (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side))
   set A : ℤ := (LeanBridges.Counting.factorial (n + 1) : ℤ) with hD1
   have hD1_pos := hD1_kind
   -- 1. thm:factorial-gap
-  have s1 : ∀ j : ℤ, 0 ≤ j → (LeanBridges.Counting.factorial (n + 1) : ℤ) + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) (by parley_side))
+  have s1 : ∀ j : ℤ, 0 ≤ j → (LeanBridges.Counting.factorial (n + 1) : ℤ) + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap.factorial_gap (n := n) hH1)
   -- 2. thm:partial-sum-real m := n
   -- 3. induction on j starting at 0
   have s3 : ∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat := by
@@ -72,9 +71,9 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       simpa only [add_zero] using s3_2
     | succ j hK hIH =>
       -- 3.3. mun:nat-plus-nat0 a := n, b := j
-      have s3_3 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) (by parley_side) (b := j) (by parley_side))
+      have s3_3 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) hH1 (b := j) hK)
       -- 3.4. mun:nat-plus-nat0 a := n + j, b := 1, from 3.3
-      have s3_4 : 0 < n + j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) (by parley_side) (b := (1 : ℤ)) (by parley_side))
+      have s3_4 : 0 < n + j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) s3_3 (b := (1 : ℤ)) (by parley_side))
       -- 3.5. mun:power-positive a := 2, m := (n + j + 1)!
       have r142_1 : (2 : ℤ) > 0 := by parley_arith
       have s3_5 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (h := Nat.cast_nonneg _), zpow_natCast] at h ⊢; exact_mod_cast h)
@@ -89,7 +88,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.10. algebra, from D0, 3.9
       have s3_10 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by linear_combination (norm := parley_field) s3_9
       -- 3.11. instantiate j := j in line 1, from D1
-      have s3_11 : A + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (s1 j (by parley_side))
+      have s3_11 : A + j ≤ (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (s1 j hK)
       -- 3.12. substitute
       have s3_12 : A + j ≤ (LeanBridges.Counting.factorial (n + j + 1) : ℤ) := by
         have c1 : n + 1 + j = n + j + 1 := by parley_ring
@@ -97,12 +96,12 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         exact row1
       -- 3.13. mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.12
       have r170_1 : (1 : ℤ) ≤ 2 := by parley_arith
-      have s3_13 : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) (by parley_side) s3_12)
+      have s3_13 : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) r170_1 s3_12)
       -- 3.14. mun:power-positive a := 2, m := A + j
       have r174_1 : (2 : ℤ) > 0 := by parley_arith
       have s3_14 : (2 ^ (A + j).toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)); simp only [parley_zpow_toNat (n := A + j) (h := add_nonneg (le_of_lt hD1_pos) (hK))] at h ⊢; exact_mod_cast h)
       -- 3.15. mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.5, 3.13, 3.14
-      have s3_15 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) ≤ 1 / 2 ^ (A + j).toNat := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 ^ (A + j).toNat : ℚ)) (by parley_side) (y := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by parley_side))).mp (by parley_side)
+      have s3_15 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) ≤ 1 / 2 ^ (A + j).toNat := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 ^ (A + j).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s3_14) (y := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by exact_mod_cast gt_iff_lt.mp s3_5))).mp (by parley_side)
       -- 3.16. algebra
       have s3_16 : A + j + 1 = A + (j + 1) := by parley_ring
       -- 3.17. calculation

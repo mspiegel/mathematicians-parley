@@ -20,15 +20,14 @@ public section
 
 namespace Parley.Stdlib.Divisibility.LeastCombinationDivides
 
-set_option maxHeartbeats 400000 in
 theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d : ℤ) (hH4 : 0 < d) (u : ℤ) (v : ℤ) (x₀ : ℤ) (y₀ : ℤ) (hH9 : c = a * u + b * v) (hH10 : d = a * x₀ + b * y₀) (hH11 : ∀ x : ℤ, ∀ y : ℤ, 0 < a * x + b * y → d ≤ a * x + b * y) :
     d ∣ c := by
   -- 1. mun:mod-natural a := c, b := d
-  have s1 : 0 ≤ c % d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) (by parley_side))
+  have s1 : 0 ≤ c % d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := c) (b := d) hH4)
   -- 2. mun:mod-less a := c, b := d
-  have s2 : c % d < d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side))
+  have s2 : c % d < d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) hH4)
   -- 3. obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 1, 2
-  obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) (by parley_side) (r := c % d) (by parley_side) s2)).mp (by parley_side)
+  obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) hH4 (r := c % d) s1 s2)).mp (by parley_side)
   -- 4. algebra, from H9, H10, 3
   have s4 : c % d = a * (u - q * x₀) + b * (v - q * y₀) := by linear_combination (norm := parley_norm) hH9 + (-q) * hH10 + s3
   -- 5. contradiction
@@ -40,7 +39,7 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
     -- 5.2. substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.1
     have s5_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s4 s5_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 5.3. instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 5.2
-    have s5_3 : d ≤ a * (u - q * x₀) + b * (v - q * y₀) := by exact (hH11 (u - q * x₀) (v - q * y₀) (by parley_side))
+    have s5_3 : d ≤ a * (u - q * x₀) + b * (v - q * y₀) := by exact (hH11 (u - q * x₀) (v - q * y₀) s5_2)
     -- 5.4. substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.3
     have s5_4 : d ≤ c % d := by (have h := Eq.subst (motive := (fun t : ℤ => d ≤ t)) s4.symm s5_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 5.5. inequalities, from 2

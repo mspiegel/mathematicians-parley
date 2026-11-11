@@ -27,7 +27,7 @@ theorem places_before_last (p : ℤ) (N : ℤ) (hH3 : 1 ≤ p) (hH4 : p + 1 = N)
   -- 2. mun:pos-int-nat m := p, from 1
   have s2 : 0 < p := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s1)
   -- 3. mun:range-without-last n := p, from 2
-  have s3 : (Set.Icc (1 : ℤ) p : Set ℤ) = (Set.Icc (1 : ℤ) (p + 1) : Set ℤ) \ ({p + 1} : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_without_last (n := p) (by parley_set_side))
+  have s3 : (Set.Icc (1 : ℤ) p : Set ℤ) = (Set.Icc (1 : ℤ) (p + 1) : Set ℤ) \ ({p + 1} : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_without_last (n := p) s2)
   -- 4. substitute p + 1 = N (H4) into line 3
   (have h := Eq.subst (motive := (fun t : ℤ => (Set.Icc (1 : ℤ) p : Set ℤ) = (Set.Icc (1 : ℤ) t : Set ℤ) \ ({t} : Set ℤ))) hH4 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
 

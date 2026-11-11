@@ -32,7 +32,7 @@ theorem rational_as_irrational_product (r : ℚ) (hH2 : r ≠ 0) :
   -- 2. algebra, from H2
   have s2 : r / 2 ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) ((4) / ((2))) * h)
   -- 3. thm:irrational-product A := √2, B := r/2, from 1
-  have r17_1 : r / 2 ≠ 0 := by parley_side
+  have r17_1 : r / 2 ≠ 0 := by exact s2
   have s3 : Irrational (Real.sqrt (2 : ℝ) * ((r : ℝ) / 2)) := by
     have hI : Irrational (Real.sqrt (2 : ℝ) * ((r : ℝ) / 2)) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (2 : ℝ)) (B := r / 2) r17_1 s1))
     exact hI

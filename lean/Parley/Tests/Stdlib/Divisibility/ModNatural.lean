@@ -16,6 +16,6 @@ namespace Parley.Tests.Stdlib.Divisibility.ModNatural
 theorem mod_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     0 ≤ a % b := by
   -- 1. mun:divisibility-mod-natural
-  exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := b) (by parley_side))
+  exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := b) hH2)
 
 end Parley.Tests.Stdlib.Divisibility.ModNatural

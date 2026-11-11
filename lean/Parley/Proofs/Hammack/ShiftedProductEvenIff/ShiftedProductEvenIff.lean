@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ShiftedProductEvenIff.ShiftedProductEvenIff
 
-set_option maxHeartbeats 600000 in
 theorem shifted_product_even_iff (a : ℤ) (b : ℤ) :
     (Even ((a - 3) * b ^ 2) ↔ Odd a ∨ Even b) := by
   -- the theorem. both directions

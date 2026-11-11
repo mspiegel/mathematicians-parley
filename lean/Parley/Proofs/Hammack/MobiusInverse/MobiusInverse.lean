@@ -23,7 +23,6 @@ public section
 
 namespace Parley.Proofs.Hammack.MobiusInverse.MobiusInverse
 
-set_option maxHeartbeats 400000 in
 theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) ∧ Set.InjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ∧ Set.SurjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ))) (hH2 : ∀ x ∈ (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ), f x = (5 * x + 1) / (x - 2)) :
     (∀ y ∈ (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ), (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = (2 * y + 1) / (y - 5)) := by
   -- 1. def:one-to-one-onto, from H1
@@ -39,7 +38,7 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
     have hI : y ≠ 5 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (5 : ℝ)) (u := y))).mp hK1).2)
     exact hI
   -- 4.2. obtain x from line 3
-  obtain ⟨x, s4_2a, s4_2b⟩ := (s3 y (by parley_set_side))
+  obtain ⟨x, s4_2a, s4_2b⟩ := (s3 y hK1)
   -- 4.3. mun:remove-member u := x, Y := ℝ, a := 2, from 4.2
   have s4_3 : x ≠ 2 := by
     have hI : x ≠ 2 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := x))).mp s4_2a).2)
@@ -47,7 +46,7 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
   -- 4.4. calculation
   have s4_4 : y = (5 * x + 1) / (x - 2) := by
     calc y = f x := by parley_set_side
-      _ = (5 * x + 1) / (x - 2) := by exact (hH2 x (by parley_set_side))
+      _ = (5 * x + 1) / (x - 2) := by exact (hH2 x s4_2a)
   -- 4.5. mun:inverse-value g := f, y := x, from 1, 4.2
   have s4_5 : (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) (f x) = x := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a)
   -- 4.6. substitute y = f(x) (line 4.2) into line 4.5

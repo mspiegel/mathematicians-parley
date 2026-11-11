@@ -19,7 +19,6 @@ public section
 
 namespace Parley.Proofs.Hammack.ScaledGcdBound.GcdPositive
 
-set_option maxHeartbeats 400000 in
 theorem gcd_positive (x : ℤ) (y : ℤ) (hH3 : ¬ (x = 0 ∧ y = 0)) :
     0 < (Int.gcd x y : ℤ) := by
   -- 1. mun:gcd-integer

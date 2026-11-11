@@ -23,7 +23,6 @@ public section
 
 namespace Parley.Proofs.Setmm.RemainderByTwo.RemainderByTwo
 
-set_option maxHeartbeats 400000 in
 theorem remainder_by_two (N : ℤ) :
     (N % (2 : ℤ) = 1 ↔ ¬ (2 : ℤ) ∣ N) := by
   -- the theorem. both directions

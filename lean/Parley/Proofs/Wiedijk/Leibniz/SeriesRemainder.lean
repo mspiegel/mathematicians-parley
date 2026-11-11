@@ -87,7 +87,7 @@ theorem series_remainder :
   | succ n hK hIH =>
     -- 2.5. mun:sum-last, from 1
     have s2_5 : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℚ) + 1) + 1) := by
-      have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℚ) + 1) + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => (-1) ^ j.toNat / (2 * (j : ℚ) + 1))) (n := n) (by parley_side)))
+      have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℚ) + 1) + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => (-1) ^ j.toNat / (2 * (j : ℚ) + 1))) (n := n) hK))
       exact hI
     -- 2.6. thm:integral-recurrence n := n + 1
     have s2_6 : (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * ((n : ℝ) + 1) + 1) - (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by

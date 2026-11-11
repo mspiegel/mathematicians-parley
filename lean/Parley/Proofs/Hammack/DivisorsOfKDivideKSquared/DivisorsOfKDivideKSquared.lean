@@ -43,9 +43,9 @@ theorem divisors_of_k_divide_k_squared (k : ℤ) :
     -- 1.3. algebra, from 1.1, 1.2
     have s1_3 : k ^ 2 = t * (c * k) := by linear_combination (norm := parley_norm) (k) * s1_2
     -- 1.4. def:divides d := t, n := k², from 1.1, 1.3
-    have s1_4 : t ∣ k ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k ^ 2))).mpr ⟨c * k, s1_3⟩
+    have s1_4 : t ∣ k ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k ^ 2))).mpr (by parley_set_side)
     -- 1.5. def:set-builder, from 1.1, 1.4
-    have hI : t ∈ {a : ℤ | a ∣ k ^ 2} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side))
+    have hI : t ∈ {a : ℤ | a ∣ k ^ 2} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr ⟨by parley_set_side, s1_4⟩)
     exact hI
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := {n : ℤ | n ∣ k}) (Y := {n : ℤ | n ∣ k ^ 2}))).mpr s1

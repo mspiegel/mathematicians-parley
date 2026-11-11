@@ -16,6 +16,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -70,6 +71,6 @@ theorem geometric_sum_base_two (n : ℤ) (hH1 : 0 < n) :
         _ = 2 ^ (k + 1 + 1).toNat - 1 := by (have h := congrArg (fun t : ℤ => t - 1) s1_3.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, (2 ^ k.toNat : ℤ)) = S n := by simp (disch := omega) only [hD1]
-    _ = 2 ^ (n + 1).toNat - 1 := by exact (s1 n (by parley_side))
+    _ = 2 ^ (n + 1).toNat - 1 := by exact (s1 n (le_of_lt hH1))
 
 end Parley.Proofs.Hammack.GeometricSumBaseTwo.GeometricSumBaseTwo

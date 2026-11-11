@@ -31,7 +31,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.PythagoreanTriples.EvenLeg
 
-set_option maxHeartbeats 400000 in
 theorem even_leg (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 : 0 < c) (hH4 : a ^ 2 + b ^ 2 = c ^ 2) :
     (Even a ∨ Even b) := by
   -- 1. mun:even-or-odd n := a

@@ -13,7 +13,6 @@ public section
 
 namespace Parley.Proofs.Hammack.NinePowersAndThreePowers.PositivePowerIsReal
 
-set_option maxHeartbeats 400000 in
 theorem positive_power_is_real (a : ℝ) (m : ℤ) (hH3 : a > 0) :
     True := by
   -- 1. mun:nonneg-or-neg x := m

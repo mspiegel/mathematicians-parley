@@ -21,7 +21,6 @@ public section
 
 namespace Parley.Proofs.Setmm.PrimeDividesProduct.PrimeDividesProduct
 
-set_option maxHeartbeats 400000 in
 theorem prime_divides_product (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (M : ℤ) (N : ℤ) :
     (P ∣ M * N ↔ P ∣ M ∨ P ∣ N) := by
   -- 1. algebra
@@ -41,11 +40,11 @@ theorem prime_divides_product (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) 
       -- 2.2.2. calculation
       have s2_2_2 : (Int.gcd M P : ℤ) = 1 := by
         calc (Int.gcd M P : ℤ) = (Int.gcd P M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := M) (b := P))
-          _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := P) (by parley_side) hH2 (a := M) hC2)
+          _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := P) hH1 hH2 (a := M) hC2)
       -- 2.2.3. substitute M·N = N·M (line 1) into D1
       have s2_2_3 : P ∣ N * M := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s1 hD1; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.2.4. thm:coprime-divides x := N, c := M, n := P, from 2.2.2, 2.2.3
-      have s2_2_4 : P ∣ N := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) (by parley_side) s2_2_3 s2_2_2)
+      have s2_2_4 : P ∣ N := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) hH1 s2_2_3 s2_2_2)
       -- 2.2.5. mun:or-right P := P divides M, Q := P divides N, from 2.2.4
       exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := P ∣ M) (Q := P ∣ N) s2_2_4)
   · skip

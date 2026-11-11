@@ -28,6 +28,6 @@ theorem multiple_has_no_remainder (A : ℤ) (M : ℝ) (hH3 : M > 0) :
   have r16_1 : (0 : ℤ) ≤ 0 := by parley_arith
   calc LeanBridges.Divisibility.mod ((A : ℝ) * M) M = LeanBridges.Divisibility.mod (M * (A : ℝ)) M := by (have h := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = LeanBridges.Divisibility.mod (0 : ℝ) M := by simpa only [zero_add] using (Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := (0 : ℝ)) (M := M) (by parley_side) (K := A))
-    _ = 0 := by exact (Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := (0 : ℝ)) (B := M) (by parley_side) (by parley_side) (by parley_side))
+    _ = 0 := by exact (Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := (0 : ℝ)) (B := M) (by parley_side) (by parley_side) hH3)
 
 end Parley.Proofs.Setmm.RemainderRules.MultipleHasNoRemainder

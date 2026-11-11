@@ -41,9 +41,9 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       intro x hK3
       intro hA2
       -- 1.1.1.1. instantiate x := x in H4, from K3
-      have s1_1_1_1 : f x = k := by exact (hH4 x (by parley_set_side))
+      have s1_1_1_1 : f x = k := by exact (hH4 x hK3)
       -- 1.1.1.2. instantiate x := a in H4, from K1
-      have s1_1_1_2 : f a = k := by exact (hH4 a (by parley_set_side))
+      have s1_1_1_2 : f a = k := by exact (hH4 a hK1)
       -- 1.1.1.3. algebra, from 1.1.1.1, 1.1.1.2
       have s1_1_1_3 : f x - f a = 0 := by linear_combination (norm := parley_norm) s1_1_1_1 + (-1) * s1_1_1_2
       -- 1.1.1.4. calculation

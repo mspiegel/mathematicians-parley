@@ -48,6 +48,15 @@ exactly what the check refuses.
   letter, for a membership said once (`SaidOnce`); or no line (`Unstated`).
   A hypothesis the citation's values make true is still placed where a line
   states it. Lean names that line as the item's argument.
+- `Cited::unfolded`: for each conclusion a citation reads backwards, what
+  the right side of its `↔` asks at the citation's values (`Unfolded`), its
+  parts joined by "and" in order. A "there is" whose letter the citation
+  gives a witness is the witness, that it is in the letter's domain, and the
+  parts of its body at it; any other part is a fact. Each fact carries where
+  it stands, placed as a hypothesis is (`SuppliedBy`). For `def:set-builder
+  u := L(k)` with P "there is a ∈ ℕ₀ with y = N(a)/10^a" and witness k:
+  L(k) ∈ ℝ, unstated; then k, with k ∈ ℕ₀ by the `let` line, and L(k) =
+  N(k)/10^k by line 8.1. Lean builds `.mpr ⟨…⟩` from it.
 - `Cited::item_letters`: for each letter of a cited item the binding fills,
   the Parley number system the item takes it in, by its own hypothesis
   `x ∈ S`, and the narrowest the page says its value is in once
@@ -90,11 +99,21 @@ exactly what the check refuses.
   written. Each pairing carries the body's part as the checker read it
   (`owed_written`), since the checker counts parts as the page writes them.
 - `instantiated`: for each instantiation, a step's, a calculation row's or a
-  requires line's, three facts (`Instantiated`). The first is the sentence
-  of the line instantiated (`FirstAt`). The second is how many conditions
-  are taken off on the way to the claim. The third is how what is left meets
-  the claim. Lean instantiates that sentence and closes the step by that
+  requires line's, four facts (`Instantiated`). The first is the sentence
+  of the line instantiated (`FirstAt`). The second is each condition taken
+  off on the way to the claim, with where the line that meets it stands
+  (`Condition`). The third is how what is left meets the claim. The fourth
+  is each value the step puts in a domain, with where its membership stands
+  (`Guard`): f(a) ∈ {2, …, p − 2} of `a := f(a)`, by line 5.13 read at the
+  block's a. Lean instantiates that sentence, passes each guard and
+  condition from the line that states it, and closes the step by that
   meeting.
+- `restated`: for each `restate` step whose claim is one sentence, and each
+  requires line reasoned from lines alone, where the claim stands in a line
+  it names (`FirstAt`), by the line of the justification: a sentence, a
+  part of one, a "for all" read at a block's letter, or what a line
+  implies. A fact only the lines together give has no entry. Lean proves
+  the step by that line, `s5_9 a hK8`.
 - `link_places`: for each link of a calculation that cites a line, where in
   the line the link stands (`FirstAt`), by the link's line. A link read off
   a chain, `a = c` of `a = b = c`, stands at the chain's sentence, with the
@@ -224,7 +243,9 @@ exactly what the check refuses.
 - `read_at`: each "for all" a line a step may cite says that the step reads
   at the letter of a block around it, with that letter, by the step's index:
   "for all x ∈ ℝ, x < x + 1" read at the y of the block's `let y ∈ ℝ`. Lean
-  reads a cited "for all" at that letter and at no other.
+  reads a cited "for all" at that letter and at no other. Each reading
+  records the `let` line that puts the letter in its set
+  (`ReadAt::opened_by`), which Lean passes as the reading's guard, `hK7`.
 - `statement_bounds`, `bounds`: what the statement's hypotheses, and the
   lines in scope above each step, bound below, y − 3 ≥ 0 of `y ≥ 3` or
   x ≥ 1 of `x ∈ ℕ` (`citing::bounds`), read with the letters in scope,

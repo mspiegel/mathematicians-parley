@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayJoined
 theorem a_congruence_the_other_way_joined (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : b ≡ a [ZMOD n]) :
     a ≡ b [ZMOD n] := by
   -- 1. restate H4
-  parley_side
+  exact hH4.symm
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayJoined

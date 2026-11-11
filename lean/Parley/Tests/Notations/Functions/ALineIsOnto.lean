@@ -34,6 +34,6 @@ theorem a_line_is_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x + 1) :
     -- 2.3. exhibit, from 2.2
     exact ⟨(y - 1) / 2, s2_2⟩
   -- 3. def:onto, from 1, 2
-  exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
 
 end Parley.Tests.Notations.Functions.ALineIsOnto

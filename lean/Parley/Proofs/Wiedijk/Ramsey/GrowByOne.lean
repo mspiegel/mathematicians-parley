@@ -27,7 +27,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.GrowByOne
 
-set_option maxHeartbeats 600000 in
 theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set α)) (hH2 : X.Finite) (k : ℤ) (hH5 : 0 < k) (j : ℤ) (hH6 : 0 < j) (v : α) (hH7 : v ∈ X) (N : Set α) (hH8 : N ⊆ X \ ({v} : Set α)) (hH9 : ∀ w ∈ N, ({v, w} : Set α) ∈ E) (W : Set α) (hH10 : W ⊆ N) (hH11 : k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) :
     (∃ U ∈ 𝒫 X, k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by
   -- 1. mun:difference-subset
@@ -62,14 +61,14 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
       rcases s4_6_1 with hC2 | hC3
       · skip
         -- 4.6.2.1. instantiate Y := Y in line 4.1, from C2, K2
-        exact (s4_1.2 Y (by parley_set_side) (by parley_set_side))
+        exact (s4_1.2 Y hC2 (by parley_set_side))
       · skip
         -- 4.6.2.2. obtain w from C3
         obtain ⟨w, s4_6_2_2a, s4_6_2_2b⟩ := hC3
         -- 4.6.2.3. mun:in-subset, from H10, 4.6.2.2
         have s4_6_2_3 : w ∈ N := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := W) (Y := N) (u := w) hH10 s4_6_2_2a)
         -- 4.6.2.4. instantiate w := w in H9, from 4.6.2.3
-        have s4_6_2_4 : ({v, w} : Set α) ∈ E := by exact (hH9 w (by parley_set_side))
+        have s4_6_2_4 : ({v, w} : Set α) ∈ E := by exact (hH9 w s4_6_2_3)
         -- 4.6.2.5. substitute Y = {v, w} (line 4.6.2.2) into line 4.6.2.4
         parley_subst_at s4_6_2_2b s4_6_2_4
     -- 4.7. mun:singleton-subset, from H7

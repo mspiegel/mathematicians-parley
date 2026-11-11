@@ -30,7 +30,7 @@ theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (
     have row1 : n ∣ (x - y) * c := by (have h := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. thm:coprime-divides x := x − y, from H6, 2
-  have s3 : n ∣ x - y := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) s2 hH6)
+  have s3 : n ∣ x - y := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) hH4 s2 hH6)
   -- 4. def:congruent-mod a := x, b := y, from 3
   exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x) (b := y))).mpr s3
 

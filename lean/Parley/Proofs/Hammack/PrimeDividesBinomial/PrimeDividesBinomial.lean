@@ -31,28 +31,27 @@ public section
 
 namespace Parley.Proofs.Hammack.PrimeDividesBinomial.PrimeDividesBinomial
 
-set_option maxHeartbeats 400000 in
 theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prime p.toNat) (hH4 : 0 < k) (hH5 : k < p) :
     p ∣ (LeanBridges.Counting.choose p k : ℤ) := by
   -- 1. mun:pos-int-nat m := k, from H4
   have s1 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) hH4)
   -- 2. mun:nat-minus-one n := p
-  have s2 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) (by parley_side))
+  have s2 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
   -- 3. inequalities, from 1
   have s3 : 1 ≤ k := by parley_order
   -- 4. inequalities
   have s4 : k ≤ p - 1 + 1 := by parley_order
   -- 5. def:range-between a := 1, b := (p − 1) + 1, from 3, 4
-  have s5 : k ∈ Finset.Icc (1 : ℤ) (p - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (1 : ℤ)) (b := p - 1 + 1))).mpr (by parley_side)
+  have s5 : k ∈ Finset.Icc (1 : ℤ) (p - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (1 : ℤ)) (b := p - 1 + 1))).mpr ⟨s3, s4⟩
   -- 6. thm:weighted-term m := p − 1, from 2, 5
-  have s6 : k * (LeanBridges.Counting.choose (p - 1 + 1) k : ℤ) = (p - 1 + 1) * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := p - 1) (by parley_side) (k := k) s5)
+  have s6 : k * (LeanBridges.Counting.choose (p - 1 + 1) k : ℤ) = (p - 1 + 1) * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := p - 1) s2 (k := k) s5)
   -- 7. substitute
   have s7 : k * (LeanBridges.Counting.choose p k : ℤ) = p * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by
     have c1 : p - 1 + 1 = p := by parley_ring
     have row1 : k * (LeanBridges.Counting.choose p k : ℤ) = p * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => k * (LeanBridges.Counting.choose t k : ℤ) = t * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ))) c1 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 8. mun:binomial-nat0 n := p − 1, k := k − 1, from 2
-  have s8 : 0 ≤ (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := p - 1) (by parley_side) (k := k - 1))
+  have s8 : 0 ≤ (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := p - 1) s2 (k := k - 1))
   -- 9. mun:divides-self n := p
   have s9 : p ∣ p := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := p))
   -- 10. mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 9
@@ -68,18 +67,18 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
   have s13 : ¬ p ∣ k := by
     intro hS
     -- 13.1. mun:divides-le e := p, m := k, from S, 1
-    have s13_1 : p ≤ k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := k) (by parley_side) hS)
+    have s13_1 : p ≤ k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) hH1 (m := k) s1 hS)
     -- 13.2. inequalities, from H5
     have s13_2 : ¬ p ≤ k := by parley_side
     exact s13_2 s13_1
   -- 14. mun:prime-coprime a := k, from H3, 13
-  have s14 : (Int.gcd p k : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := p) (by parley_side) hH3 (a := k) s13)
+  have s14 : (Int.gcd p k : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := p) hH1 hH3 (a := k) s13)
   -- 15. substitute
   have s15 : (Int.gcd k p : ℤ) = 1 := by
     have c1 : (Int.gcd p k : ℤ) = (Int.gcd k p : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := p) (b := k))
     have row1 : (Int.gcd k p : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t = 1)) c1 s14; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 16. thm:coprime-divides x := C(p, k), c := k, n := p, from 12, 15
-  exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose p k : ℤ)) (c := k) (n := p) (by parley_side) s12 s15)
+  exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose p k : ℤ)) (c := k) (n := p) hH1 s12 s15)
 
 end Parley.Proofs.Hammack.PrimeDividesBinomial.PrimeDividesBinomial

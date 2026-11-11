@@ -48,6 +48,6 @@ theorem minus_one_even_power_natural (n : ℤ) (hH1 : 0 ≤ n) :
         _ = -1 * -1 := by (have h := congrArg (fun t : ℤ => t * -1) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 := by norm_num
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Setmm.MinusOneEvenPower.MinusOneEvenPowerNatural

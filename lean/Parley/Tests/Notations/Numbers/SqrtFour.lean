@@ -35,6 +35,6 @@ theorem sqrt_four :
   -- 3. mun:square-equal x := √4, y := 2, from 2
   have r97_1 : Real.sqrt (4 : ℝ) ≥ 0 := by parley_side
   have r97_2 : (2 : ℤ) ≥ 0 := by parley_arith
-  exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (4 : ℝ)) (y := (2 : ℝ)) (by parley_side) (by parley_side))).mp s2
+  exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (4 : ℝ)) (y := (2 : ℝ)) r97_1 (by parley_side))).mp s2
 
 end Parley.Tests.Notations.Numbers.SqrtFour

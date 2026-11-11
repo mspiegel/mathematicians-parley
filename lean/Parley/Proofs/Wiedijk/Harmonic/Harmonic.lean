@@ -40,7 +40,7 @@ theorem harmonic :
   -- 1.3. obtain N: thm:harmonic-unbounded M := B
   obtain ⟨N, s1_3a, s1_3b⟩ := (Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded.harmonic_unbounded (M := B))
   -- 1.4. instantiate m := N in line 1.2
-  have s1_4 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (1 / (k : ℝ) : ℝ)) ≤ B := by exact (s1_2 N (by parley_side))
+  have s1_4 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (1 / (k : ℝ) : ℝ)) ≤ B := by exact (s1_2 N s1_3a)
   -- 1.5. inequalities, from 1.4
   have s1_5 : ¬ (∑ k ∈ Finset.Icc (1 : ℤ) N, (1 / (k : ℝ) : ℝ)) > B := by parley_side
   exact s1_5 s1_3b

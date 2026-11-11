@@ -37,7 +37,7 @@ theorem lowest_terms (x : ℚ) :
     -- 2.4. mun:divides-one, from 2.3
     have r83_1 : 0 < d := by parley_order
     have r83_2 : 0 < d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := d) r83_1)
-    have s2_4 : d = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := d) (by parley_side) s2_3)
+    have s2_4 : d = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := d) r83_2 s2_3)
     -- 2.5. inequalities
     have s2_5 : d ≠ 1 := by parley_side
     exact s2_5 s2_4

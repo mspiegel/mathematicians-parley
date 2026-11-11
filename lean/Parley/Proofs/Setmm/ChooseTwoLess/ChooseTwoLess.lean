@@ -15,6 +15,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -33,7 +34,6 @@ public section
 
 namespace Parley.Proofs.Setmm.ChooseTwoLess.ChooseTwoLess
 
-set_option maxHeartbeats 400000 in
 theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose (N + 1) (N - 1) : ℚ) = ((N : ℚ) + 1) * (N : ℚ) / 2 := by
   -- 1. def:nat0 n := N
@@ -44,7 +44,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. mun:nat-minus-one n := N, from C1
-    have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) (by parley_side))
+    have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) hC1)
     -- 2.2. def:nat0 n := N − 1, from 2.1
     have s2_2 : 0 < N - 1 ∨ N - 1 = 0 := by
       have hI : 0 < N - 1 ∨ N - 1 = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side))
@@ -53,12 +53,12 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
     rcases s2_2 with hC3 | hC4
     · skip
       -- 2.3.1. mun:factorial-nat n := N − 1, from C3
-      have s2_3_1 : 0 < (LeanBridges.Counting.factorial (N - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - 1) (by parley_side))
+      have s2_3_1 : 0 < (LeanBridges.Counting.factorial (N - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - 1) (le_of_lt hC3))
       -- 2.3.2. inequalities, from C1
       have s2_3_2a : 0 ≤ N - 1 := by parley_order
       have s2_3_2b : N - 1 ≤ N + 1 := by parley_order
       -- 2.3.3. def:range-between k := N − 1, a := 0, b := N + 1, from 2.3.2
-      have s2_3_3 : N - 1 ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - 1) (a := (0 : ℤ)) (b := N + 1))).mpr (by parley_side)
+      have s2_3_3 : N - 1 ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - 1) (a := (0 : ℤ)) (b := N + 1))).mpr ⟨s2_3_2a, s2_3_2b⟩
       -- 2.3.4. algebra
       have s2_3_4 : N + 1 - (N - 1) = 2 := by parley_ring
       -- 2.3.5. def:factorial n := 1
@@ -78,10 +78,10 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
           _ = 1 * 2 := by exact s2_3_7
           _ = 2 := by norm_num
       -- 2.3.9. thm:factorial-by-predecessor, from C1
-      have s2_3_9 : (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by exact (Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor.factorial_by_predecessor (N := N) (by parley_side))
+      have s2_3_9 : (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by exact (Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor.factorial_by_predecessor (N := N) hC1)
       -- 2.3.10. calculation
       have s2_3_10 : (LeanBridges.Counting.factorial (N + 1) : ℤ) = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N * (N + 1) := by
-        calc (LeanBridges.Counting.factorial (N + 1) : ℤ) = (LeanBridges.Counting.factorial N : ℤ) * (N + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N) (by parley_side))
+        calc (LeanBridges.Counting.factorial (N + 1) : ℤ) = (LeanBridges.Counting.factorial N : ℤ) * (N + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N) hH1)
           _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N * (N + 1) := by (have h := congrArg (fun t : ℤ => t * (N + 1)) s2_3_9; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.3.11. calculation
       calc (LeanBridges.Counting.choose (N + 1) (N - 1) : ℚ) = (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((LeanBridges.Counting.factorial (N + 1 - (N - 1)) : ℚ) * (LeanBridges.Counting.factorial (N - 1) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N + 1) (by parley_side) (k := N - 1)) s2_3_3

@@ -37,14 +37,14 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
       -- 1.1.1. exhibit, from S2
       have s1_1_1 : ∃ a ∈ A, True := ⟨s, by parley_set_side, trivial⟩
       -- 1.1.2. restate S
-      have s1_1_2 : ¬ (∃ a ∈ A, True) := by parley_set_side
+      have s1_1_2 : ¬ (∃ a ∈ A, True) := by exact hS
       exact s1_1_2 s1_1_1
     -- 1.2. calculation
     have s1_2 : A = ∅ := by
       calc A = A ∩ A := by exact (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)).symm
         _ = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := A) s1_1)
     -- 1.3. restate H2
-    have s1_3 : ¬ A = ∅ := by parley_set_side
+    have s1_3 : ¬ A = ∅ := by exact hH2
     exact s1_3 s1_2
   -- 2. obtain a from line 1
   obtain ⟨a, s2, _⟩ := s1

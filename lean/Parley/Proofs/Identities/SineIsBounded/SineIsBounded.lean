@@ -28,7 +28,6 @@ public section
 
 namespace Parley.Proofs.Identities.SineIsBounded.SineIsBounded
 
-set_option maxHeartbeats 400000 in
 theorem sine_is_bounded (x : ℝ) :
     (-1 ≤ Real.sin x ∧ Real.sin x ≤ 1) := by
   -- 1. mun:sin-cos-squares a := x
@@ -53,7 +52,7 @@ theorem sine_is_bounded (x : ℝ) :
     -- 6.3. mun:square-less x := 1, y := sin(x), from 6.1
     have r40_1 : (1 : ℤ) ≥ 0 := by parley_arith
     have r40_2 : Real.sin x ≥ 0 := by parley_side
-    have s6_3 : 1 ^ 2 < Real.sin x ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := Real.sin x) (by parley_side) (by parley_side))).mp s6_1
+    have s6_3 : 1 ^ 2 < Real.sin x ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := Real.sin x) (by parley_side) r40_2)).mp s6_1
     -- 6.4. inequalities, from 6.3
     have s6_4 : ¬ Real.sin x ^ 2 ≤ 1 := by parley_side
     exact s6_4 s5
@@ -69,7 +68,7 @@ theorem sine_is_bounded (x : ℝ) :
     -- 7.4. mun:square-less x := 1, y := −sin(x), from 7.2
     have r63_1 : (1 : ℤ) ≥ 0 := by parley_arith
     have r63_2 : -Real.sin x ≥ 0 := by parley_side
-    have s7_4 : 1 ^ 2 < (-Real.sin x) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := -Real.sin x) (by parley_side) (by parley_side))).mp s7_2
+    have s7_4 : 1 ^ 2 < (-Real.sin x) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := -Real.sin x) (by parley_side) r63_2)).mp s7_2
     -- 7.5. algebra
     have s7_5 : (-Real.sin x) ^ 2 = Real.sin x ^ 2 := by parley_ring
     -- 7.6. transitivity, from 7.4, 7.5

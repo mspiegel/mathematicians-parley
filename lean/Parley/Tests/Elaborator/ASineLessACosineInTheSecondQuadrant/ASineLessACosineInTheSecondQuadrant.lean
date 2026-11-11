@@ -37,7 +37,6 @@ public section
 
 namespace Parley.Tests.Elaborator.ASineLessACosineInTheSecondQuadrant.ASineLessACosineInTheSecondQuadrant
 
-set_option maxHeartbeats 600000 in
 theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2 ≤ x) (hH3 : x ≤ Real.pi) :
     Real.sin x - Real.cos x ≥ 1 := by
   -- 1. real arithmetic
@@ -47,7 +46,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 3. inequalities
   have s3 : 0 ≤ x := by parley_order
   -- 4. def:interval, from H3, 3
-  have s4 : x ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := Real.pi))).mpr (by parley_set_side)
+  have s4 : x ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by parley_set_side, s3⟩, hH3⟩
   -- 5. mun:sin-nonneg a := x, from 4
   have s5 : 0 ≤ Real.sin x := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_nonneg (a := x) s4)
   -- 6. inequalities
@@ -57,7 +56,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 8. inequalities, from H3, 7
   have s8 : x - Real.pi / 2 ≤ Real.pi := by parley_order
   -- 9. def:interval, from 6, 8
-  have s9 : x - Real.pi / 2 ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x - Real.pi / 2) (a := (0 : ℝ)) (b := Real.pi))).mpr (by parley_set_side)
+  have s9 : x - Real.pi / 2 ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x - Real.pi / 2) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by parley_set_side, s6⟩, s8⟩
   -- 10. mun:sin-nonneg a := x − π/2, from 9
   have s10 : 0 ≤ Real.sin (x - Real.pi / 2) := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_nonneg (a := x - Real.pi / 2) s9)
   -- 11. thm:cos-add a := x − π/2, b := π/2
@@ -84,7 +83,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 20. inequalities, from 5, 19
   have s20 : 0 ≤ Real.sin x - Real.cos x := by parley_order
   -- 21. mun:product-nonneg x := sin(x), y := sin(x − π/2), from 5, 10
-  have s21 : Real.sin x * Real.sin (x - Real.pi / 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) (by parley_set_side) (by parley_set_side))
+  have s21 : Real.sin x * Real.sin (x - Real.pi / 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) s5 s10)
   -- 22. mun:sin-cos-squares a := x
   have s22 : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by
     have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
@@ -97,7 +96,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   have s25 : 1 ^ 2 ≤ (Real.sin x - Real.cos x) ^ 2 := by parley_order
   -- 26. mun:square-le x := 1, y := sin(x) − cos(x), from 20, 25
   have r104_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have s26 : 1 ≤ Real.sin x - Real.cos x := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) (by parley_set_side))).mpr s25
+  have s26 : 1 ≤ Real.sin x - Real.cos x := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) s20)).mpr s25
   exact s26
 
 end Parley.Tests.Elaborator.ASineLessACosineInTheSecondQuadrant.ASineLessACosineInTheSecondQuadrant

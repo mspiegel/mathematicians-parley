@@ -32,7 +32,7 @@ namespace Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoEven
 theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (4 : ℤ)] ∨ a ≡ (1 : ℤ) [ZMOD (4 : ℤ)]) :
     Even (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) := by
   -- 1. thm:choose-two-formula n := a
-  have s1 : (LeanBridges.Counting.choose a (2 : ℤ) : ℚ) = (a : ℚ) * ((a : ℚ) - 1) / 2 := by exact (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) (by parley_side))
+  have s1 : (LeanBridges.Counting.choose a (2 : ℤ) : ℚ) = (a : ℚ) * ((a : ℚ) - 1) / 2 := by exact (Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula.choose_two_formula (n := a) hH1)
   -- 2. cases, from H2
   rcases hH2 with hC1 | hC2
   · skip

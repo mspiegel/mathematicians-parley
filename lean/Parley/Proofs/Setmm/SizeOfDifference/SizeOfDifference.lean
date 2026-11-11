@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference
 
-set_option maxHeartbeats 400000 in
 theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B ⊆ A) :
     ((A \ B).ncard : ℤ) = (A.ncard : ℤ) - (B.ncard : ℤ) := by
   -- 1. mun:difference-subset X := A, Y := B
@@ -46,7 +45,7 @@ theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finit
     have s6_1a : s ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).1
     have s6_1b : ¬ s ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := s))).mp hK).2
     -- 6.2. restate 6.1
-    parley_set_side
+    exact s6_1b
   -- 7. mun:disjoint-empty Y := B, Z := A ∖ B, from 6
   have s7 : B ∩ (A \ B) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A \ B) s6)
   -- 8. mun:card-disjoint-union X := B, Y := A ∖ B, m := |B|, n := |A ∖ B|, from 4, 5, 7

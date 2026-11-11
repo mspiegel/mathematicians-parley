@@ -44,12 +44,12 @@ theorem choose_two_formula (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.3. calculation
       have s1_3 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by
         calc (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) = (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by
-              have hI : (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) := by parley_instance_cast ((Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs.choose_two_pairs (n := k) (by parley_side)))
+              have hI : (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) := by parley_instance_cast ((Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs.choose_two_pairs (n := k) hK))
               exact hI.symm
           _ = (k : ℚ) + (k : ℚ) * ((k : ℚ) - 1) / 2 := by (have h := congrArg (fun t : ℚ => (k : ℚ) + t) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by parley_ring
       (have h := s1_3; push_cast at h ⊢; all_goals exact h)
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoFormula

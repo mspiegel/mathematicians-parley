@@ -30,7 +30,6 @@ public section
 
 namespace Parley.Proofs.Hammack.IdentityPlusTwoLimit.IdentityPlusTwoLimit
 
-set_option maxHeartbeats 400000 in
 theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 2) :
     Filter.Tendsto f (nhdsWithin 0 ((Set.univ : Set ℝ) \ {0})) (nhds 2) := by
   -- 1. proof
@@ -56,7 +55,7 @@ theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 
       -- 1.1.7. join 1.1.4, 1.1.6
       have s1_1_7 : 2 - ε < f x ∧ f x < 2 + ε := by parley_set_side
       -- 1.1.8. mun:abs-difference-lt x := f(x), c := 2, δ := ε, from 1.1.7
-      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr ⟨s1_1_7.1, s1_1_7.2⟩
     -- 1.2. exhibit, from A1, 1.1
     exact ⟨ε, ⟨hA1, s1_1⟩⟩
   -- 2. def:limit-at D := ℝ, c := 0, L := 2, from 1

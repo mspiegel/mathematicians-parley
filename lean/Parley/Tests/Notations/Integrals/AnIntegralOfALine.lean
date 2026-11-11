@@ -47,12 +47,11 @@ public section
 
 namespace Parley.Tests.Notations.Integrals.AnIntegralOfALine
 
-set_option maxHeartbeats 400000 in
 theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ)) (hH2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), f x = 2 * x) (F : ℝ → ℝ) (hH3 : Set.MapsTo F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ)) (hH4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), F x = x ^ 2) :
     (∫ t in 0..1, (f t : ℝ)) = 1 := by
   -- 1. thm:continuous-linear D := [0, 1], m := 2, from H2
   have r20_1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
-  have s1 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_linear (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r20_1 (m := (2 : ℝ)) (by parley_set_side))
+  have s1 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_linear (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r20_1 (m := (2 : ℝ)) hH2)
   -- 2. thm:continuous-square D := [0, 1], from H4
   have r24_1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   have s2 : ContinuousOn F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_square (g := F) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r24_1 hH4)
@@ -69,27 +68,27 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
     -- 5.1. mun:in-subset, from K1, 3
     have s5_1 : x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (u := x) s3 hK1)
     -- 5.2. instantiate x := x in H2, from 5.1
-    have s5_2 : f x = 2 * x := by exact (hH2 x (by parley_set_side))
+    have s5_2 : f x = 2 * x := by exact (hH2 x s5_1)
     -- 5.3. instantiate x := x in line 4, from K1
-    have s5_3 : (deriv F) x = 2 * x := by exact (s4b x (by parley_set_side))
+    have s5_3 : (deriv F) x = 2 * x := by exact (s4b x hK1)
     -- 5.4. calculation
     calc (deriv F) x = 2 * x := by exact s5_3
       _ = f x := by exact s5_2.symm
   -- 6. thm:fundamental-calculus a := 0, b := 1, from 1, 2, 4, 5
   have r54_1 : (0 : ℤ) < 1 := by parley_arith
-  have s6 : (∫ t in 0..1, (f t : ℝ)) = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := f) (by parley_set_side) (by parley_set_side) (F := F) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
+  have s6 : (∫ t in 0..1, (f t : ℝ)) = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := f) (by parley_set_side) s1 (F := F) (by parley_set_side) s2 s4a s5)
   -- 7. def:interval a := 0, b := 1, x := 1
   have r58_1 : (0 : ℤ) ≤ 1 := by parley_arith
   have r58_2 : (1 : ℤ) ≤ 1 := by parley_arith
-  have s7 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
+  have s7 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
   -- 8. def:interval a := 0, b := 1, x := 0
   have r63_1 : (0 : ℤ) ≤ 0 := by parley_arith
   have r63_2 : (0 : ℤ) ≤ 1 := by parley_arith
-  have s8 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr (by parley_set_side)
+  have s8 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
   -- 9. instantiate x := 1 in H4, from 7
-  have s9 : F 1 = 1 ^ 2 := by exact (hH4 (1 : ℝ) (by parley_set_side))
+  have s9 : F 1 = 1 ^ 2 := by exact (hH4 (1 : ℝ) s7)
   -- 10. instantiate x := 0 in H4, from 8
-  have s10 : F 0 = 0 ^ 2 := by exact (hH4 (0 : ℝ) (by parley_set_side))
+  have s10 : F 0 = 0 ^ 2 := by exact (hH4 (0 : ℝ) s8)
   -- 11. substitute F(1) = 1² (line 9) into line 6
   have s11 : (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - F 0 := by (have h := Eq.subst (motive := (fun u : ℝ => (∫ t in 0..1, (f t : ℝ)) = u - F 0)) s9 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. substitute F(0) = 0² (line 10) into line 11

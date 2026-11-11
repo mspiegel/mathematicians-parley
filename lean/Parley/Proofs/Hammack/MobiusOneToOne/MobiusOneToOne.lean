@@ -42,14 +42,14 @@ theorem mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
       exact hI
     -- 1.3. calculation
     have s1_3 : (5 * s + 1) / (s - 2) = (5 * t + 1) / (t - 2) := by
-      calc (5 * s + 1) / (s - 2) = f s := by exact (hH2 s (by parley_set_side)).symm
+      calc (5 * s + 1) / (s - 2) = f s := by exact (hH2 s hK1).symm
         _ = f t := by parley_set_side
-        _ = (5 * t + 1) / (t - 2) := by exact (hH2 t (by parley_set_side))
+        _ = (5 * t + 1) / (t - 2) := by exact (hH2 t hK2)
     -- 1.4. algebra, from 1.3
     have r29_1 : s - 2 ≠ 0 := by parley_set_side
     have r29_2 : t - 2 ≠ 0 := by parley_set_side
     linear_combination (norm := parley_field) (-((1 / 11 : ℝ) * s * t) + (2 / 11 : ℝ) * s + (2 / 11 : ℝ) * t - (4 / 11 : ℝ)) * s1_3
   -- 2. def:one-to-one, from H1, 1
-  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr ⟨hH1, s1⟩
 
 end Parley.Proofs.Hammack.MobiusOneToOne.MobiusOneToOne

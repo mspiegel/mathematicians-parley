@@ -73,6 +73,6 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
             (have h := congrArg (fun t : ℚ => (t - 3) / 2) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (3 ^ k.toNat : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num
-    _ = (3 ^ (n + 1).toNat - 3) / 2 := by exact (s1 n (by parley_side))
+    _ = (3 ^ (n + 1).toNat - 3) / 2 := by exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.GeometricSumBaseThree.GeometricSumBaseThree

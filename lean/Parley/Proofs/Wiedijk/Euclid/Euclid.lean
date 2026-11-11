@@ -26,7 +26,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Euclid.Euclid
 
-set_option maxHeartbeats 1200000 in
 theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → ℤ) (b : ℤ → ℤ) (hD1 : a 0 = M ∧ b 0 = N ∧ (∀ k : ℤ, 0 ≤ k → a (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) (a k) (b k) ∧ b (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) 0 (a k % b k))) :
     a N = (Int.gcd M N : ℤ) := by
   -- 1. D1
@@ -70,9 +69,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 3.5.7. D1, from C2
           have s3_5_7 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
           -- 3.5.8. mun:nat0-nonzero, from C2, IH1
-          have s3_5_8 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2)
+          have s3_5_8 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) hIH1.2 hC2)
           -- 3.5.9. mun:mod-natural, from 3.5.8
-          have s3_5_9 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
+          have s3_5_9 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) s3_5_8)
           -- 3.5.10. substitute a(k + 1) = b(k) (line 3.5.6) into IH1
           have s3_5_10 : 0 ≤ a (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s3_5_6.symm hIH1.2; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 3.5.11. substitute b(k + 1) = a(k) mod b(k) (line 3.5.7) into line 3.5.9
@@ -111,16 +110,16 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 4.3.5. D1, from C4
         have s4_3_5 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC4] at h; (try ring_nf at h ⊢); linarith
         -- 4.3.6. mun:nat0-nonzero, from C4, 3
-        have s4_3_6 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4)
+        have s4_3_6 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (s3 k hK2).2 hC4)
         -- 4.3.7. mun:nat0-int, from 3
         -- 4.3.8. mun:gcd-commutes
-        have r155_2 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
+        have r155_2 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) s4_3_6)
         have s4_3_8 : (Int.gcd (b k) (a k % b k) : ℤ) = (Int.gcd (a k % b k) (b k) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := b k) (b := a k % b k))
         -- 4.3.9. calculation
         calc (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd (b k) (b (k + 1)) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t (b (k + 1)) : ℤ)) s4_3_4; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd (b k) (a k % b k) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (b k) t : ℤ)) s4_3_5; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd (a k % b k) (b k) : ℤ) := by exact s4_3_8
-          _ = (Int.gcd (a k) (b k) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) (by parley_side))
+          _ = (Int.gcd (a k) (b k) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) s4_3_6)
           _ = (Int.gcd M N : ℤ) := by parley_side
   -- 5. induction on k starting at 0
   have s5 : ∀ k : ℤ, 0 ≤ k → b k + k ≤ N ∨ b k = 0 := by
@@ -147,12 +146,12 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 5.4.3. D1, from C6
         have s5_4_3 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC6] at h; (try ring_nf at h ⊢); linarith
         -- 5.4.4. mun:nat0-nonzero, from C6, 3
-        have s5_4_4 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6)
+        have s5_4_4 : 0 < b k := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (s3 k hK3).2 hC6)
         -- 5.4.5. mun:nat0-int, from 3
         -- 5.4.6. mun:mod-less, from 5.4.4, 5.4.5
-        have s5_4_6 : a k % b k < b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a k) (b := b k) (by parley_side))
+        have s5_4_6 : a k % b k < b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a k) (b := b k) s5_4_4)
         -- 5.4.7. mun:mod-natural, from 5.4.4, 5.4.5
-        have s5_4_7 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) (by parley_side))
+        have s5_4_7 : 0 ≤ a k % b k := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a k) (b := b k) s5_4_4)
         -- 5.4.8. substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.6
         have s5_4_8 : b (k + 1) < b k := by (have h := Eq.subst (motive := (fun t : ℤ => t < b k)) s5_4_3.symm s5_4_6; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 5.4.9. substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.7
@@ -168,22 +167,22 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 5.4.14. mun:or-left, from 5.4.13
         exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13)
   -- 6. instantiate k := N in line 3
-  have s6 : 0 ≤ a N ∧ 0 ≤ b N := by exact (s3 N (by parley_side))
+  have s6 : 0 ≤ a N ∧ 0 ≤ b N := by exact (s3 N hH2)
   -- 7. instantiate k := N in line 5
-  have s7 : b N + N ≤ N ∨ b N = 0 := by exact (s5 N (by parley_side))
+  have s7 : b N + N ≤ N ∨ b N = 0 := by exact (s5 N hH2)
   -- 8. contradiction
   have s8 : b N = 0 := by
     by_contra (hS : b N ≠ 0)
     -- 8.1. mun:disjunctive-syllogism, from S, 7
     have s8_1 : b N + N ≤ N := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b N + N ≤ N) (Q := b N = 0) s7 hS)
     -- 8.2. mun:nat0-nonzero, from S, 6
-    have s8_2 : 0 < b N := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) (by parley_side) hS)
+    have s8_2 : 0 < b N := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) s6.2 hS)
     -- 8.3. inequalities, from 8.2
     have s8_3 : ¬ b N + N ≤ N := by parley_side
     exact s8_3 s8_1
   -- 9. calculation
-  calc a N = (Int.gcd (a N) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := a N) (by parley_side)).symm
+  calc a N = (Int.gcd (a N) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := a N) s6.1).symm
     _ = (Int.gcd (a N) (b N) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a N) t : ℤ)) s8.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = (Int.gcd M N : ℤ) := by exact (s4 N (by parley_side))
+    _ = (Int.gcd M N : ℤ) := by exact (s4 N hH2)
 
 end Parley.Proofs.Wiedijk.Euclid.Euclid

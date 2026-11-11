@@ -29,7 +29,6 @@ public section
 
 namespace Parley.Proofs.Hammack.EvenLegIntegers.EvenLegIntegers
 
-set_option maxHeartbeats 400000 in
 theorem even_leg_integers (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 + b ^ 2 = c ^ 2) :
     (Even a ∨ Even b) := by
   -- 1. mun:even-or-odd n := a

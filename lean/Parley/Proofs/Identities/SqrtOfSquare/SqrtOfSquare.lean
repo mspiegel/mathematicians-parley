@@ -41,6 +41,6 @@ theorem sqrt_of_square (x : ℝ) :
     calc Real.sqrt (x ^ 2) ^ 2 = x ^ 2 := by exact s2b
       _ = abs x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_abs_square (x := x)).symm
   -- 5. mun:square-equal x := √(x²), y := |x|, from 2, 3, 4
-  exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (x ^ 2)) (y := abs x) (by parley_side) (by parley_side))).mp s4
+  exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (x ^ 2)) (y := abs x) s2a s3)).mp s4
 
 end Parley.Proofs.Identities.SqrtOfSquare.SqrtOfSquare

@@ -19,7 +19,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SquaresKeepOrder.SquaresKeepOrder
 
-set_option maxHeartbeats 400000 in
 theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
     a ^ 2 ≤ b ^ 2 := by
   -- 1. axi:trichotomy x := b − a
@@ -45,7 +44,7 @@ theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
     -- 2.7. transitivity, from H3, H4
     have s2_7 : b ≥ 0 := by parley_order
     -- 2.8. mun:square-less x := a, y := b, from H3, 2.6, 2.7
-    have s2_8 : a ^ 2 < b ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a) (y := b) (by parley_side) (by parley_side))).mp s2_6
+    have s2_8 : a ^ 2 < b ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a) (y := b) hH3 s2_7)).mp s2_6
     -- 2.9. inequalities
     parley_order
 

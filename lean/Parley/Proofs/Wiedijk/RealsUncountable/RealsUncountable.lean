@@ -38,7 +38,7 @@ theorem reals_uncountable :
   -- 5. obtain m from line 4
   obtain ⟨m, s5a, s5b⟩ := s4
   -- 6. instantiate n := m in line 3
-  have s6 : x ≠ f m := by exact (s3 m (by parley_set_side)).symm
+  have s6 : x ≠ f m := by exact (s3 m s5a).symm
   exact s6 s5b
 
 end Parley.Proofs.Wiedijk.RealsUncountable.RealsUncountable

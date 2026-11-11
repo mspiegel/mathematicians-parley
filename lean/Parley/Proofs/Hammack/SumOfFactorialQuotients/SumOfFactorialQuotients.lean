@@ -79,12 +79,12 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
             have e_w : (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) = (LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => 1 - 1 / (LeanBridges.Counting.factorial (k + 1) : ℚ) + ((k : ℚ) + 1) / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 - 1 / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by
-            have hI : 1 - 1 / (LeanBridges.Counting.factorial (k + 1) : ℚ) + ((k : ℚ) + 1) / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by parley_instance_real ((Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (LeanBridges.Counting.factorial (k + 1) : ℝ)) (by parley_side)))
+            have hI : 1 - 1 / (LeanBridges.Counting.factorial (k + 1) : ℚ) + ((k : ℚ) + 1) / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by parley_instance_real ((Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (LeanBridges.Counting.factorial (k + 1) : ℝ)) (by exact_mod_cast s2_5.ne')))
             exact hI
         _ = 1 - 1 / (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by
             have e_w : (LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1) = (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4.symm; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => 1 - 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 3. instantiate k := n in line 2
-  exact (s2 n (by parley_side))
+  exact (s2 n hH1)
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.SumOfFactorialQuotients

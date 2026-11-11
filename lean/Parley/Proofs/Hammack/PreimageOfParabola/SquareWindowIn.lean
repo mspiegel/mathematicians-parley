@@ -26,10 +26,10 @@ theorem square_window_in (t : ℝ) (hH2 : 3 ≤ t) (hH3 : t ≤ 4) :
   have s1 : t ≥ 0 := by parley_order
   -- 2. mun:square-le x := 3, y := t, from H2, 1
   have r22_1 : (3 : ℤ) ≥ 0 := by parley_arith
-  have s2 : 3 ^ 2 ≤ t ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (3 : ℝ)) (y := t) (by parley_side) (by parley_side))).mp hH2
+  have s2 : 3 ^ 2 ≤ t ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (3 : ℝ)) (y := t) (by parley_side) s1)).mp hH2
   -- 3. mun:square-le x := t, y := 4, from H3, 1
   have r26_1 : (4 : ℤ) ≥ 0 := by parley_arith
-  have s3 : t ^ 2 ≤ 4 ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := t) (y := (4 : ℝ)) (by parley_side) (by parley_side))).mp hH3
+  have s3 : t ^ 2 ≤ 4 ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := t) (y := (4 : ℝ)) s1 (by parley_side))).mp hH3
   -- 4. inequalities
   have s4 : 12 ≤ t ^ 2 + 3 := by parley_order
   -- 5. inequalities

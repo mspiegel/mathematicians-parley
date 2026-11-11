@@ -22,6 +22,6 @@ namespace Parley.Tests.Stdlib.Numbers.ExponentSumInteger
 theorem exponent_sum_integer (a : ℝ) (hH2 : a ≠ 0) (m : ℤ) (n : ℤ) :
     a ^ (m + n) = a ^ m * a ^ n := by
   -- 1. mun:numbers-exponent-sum-integer, from H2
-  exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := a) (by parley_side) (m := m) (n := n))
+  exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := a) hH2 (m := m) (n := n))
 
 end Parley.Tests.Stdlib.Numbers.ExponentSumInteger

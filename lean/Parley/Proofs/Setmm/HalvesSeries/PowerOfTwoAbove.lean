@@ -9,10 +9,12 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -38,14 +40,14 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k
-      have s1_2 : (0 : ℤ) < 2 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k) (by parley_side))
+      have s1_2 : (0 : ℤ) < 2 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.3. inequalities, from IH, 1.2
       have s1_3 : k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by parley_order
       -- 1.4. calculation
       calc k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by exact s1_3
         _ = 2 ^ k.toNat * 2 := by parley_ring
-        _ = 2 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (by parley_side)).symm
+        _ = 2 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK))).symm
   -- 2. instantiate k := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove

@@ -32,7 +32,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.RealsUncountable.SequenceMissesReal
 
-set_option maxHeartbeats 600000 in
 theorem sequence_misses_real (f : ℤ → ℝ) :
     (∃ x : ℝ, ∀ n : ℤ, 0 < n → f n ≠ x) := by
   set e : ℤ → ℤ := fun n : ℤ => (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) with hD7
@@ -62,7 +61,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
   have s5 : ∀ n : ℤ, 0 < n → 0 ≤ e n ∧ e n ≤ 9 := by
     intro n hK4
     -- 5.1. inequalities, from 2
-    have s5_1 : 0 ≤ e n ∧ e n ≤ 9 := by have := (s2 n (by parley_side)); parley_side
+    have s5_1 : 0 ≤ e n ∧ e n ≤ 9 := by have := (s2 n hK4); parley_side
     exact ⟨(s5_1).1, (s5_1).2⟩
   -- 6. obtain x: thm:decimal-number d := e, from 5
   obtain ⟨x, s6⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.DecimalNumber.decimal_number (d := e) s5)
@@ -71,17 +70,17 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
     intro n hK5
     intro hS
     -- 7.1. instantiate n := n in line 6
-    have s7_1 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = e n ∨ ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = (e n + 1) % (10 : ℤ) := by exact (s6 n (by parley_side))
+    have s7_1 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = e n ∨ ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = (e n + 1) % (10 : ℤ) := by exact (s6 n hK5)
     -- 7.2. cases, from 7.1
     have s7_2 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by
       rcases s7_1 with hC1 | hC2
       · skip
         -- 7.2.1. substitute D(x, n) = e(n) (C1) into line 2
-        have at0 := (s2 n (by parley_side)).1.2
+        have at0 := (s2 n hK5).1.2
         parley_subst_at hC1 at0
       · skip
         -- 7.2.2. substitute D(x, n) = s(e(n)) (C2) into line 2
-        have at0 := (s2 n (by parley_side)).2
+        have at0 := (s2 n hK5).2
         parley_subst_at hC2 at0
     -- 7.3. substitute f(n) = x (S)
     have s7_3 : ⌊10 ^ n.toNat * x⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by (have h := congrArg (fun t : ℝ => ((⌊10 ^ n.toNat * t⌋ % (10 : ℤ) : ℤ) : ℝ)) hS.symm; push_cast at h ⊢; all_goals exact_mod_cast h)

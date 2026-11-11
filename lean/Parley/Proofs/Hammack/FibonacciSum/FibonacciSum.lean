@@ -34,7 +34,6 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciSum.FibonacciSum
 
-set_option maxHeartbeats 600000 in
 theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F k : ℤ)) = F (n + 2) - 1 := by
   -- 1. thm:fibonacci-natural
@@ -93,6 +92,6 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.18. algebra, from IH2, 4.13, 4.15
       linear_combination (norm := parley_norm) hIH2 + s4_13 + (-1) * s4_15
   -- 5. instantiate m := n in line 4
-  exact (s4 n (by parley_side))
+  exact (s4 n hH1)
 
 end Parley.Proofs.Hammack.FibonacciSum.FibonacciSum

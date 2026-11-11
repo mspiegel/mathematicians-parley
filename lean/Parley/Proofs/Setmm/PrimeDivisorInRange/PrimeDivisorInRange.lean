@@ -35,9 +35,9 @@ theorem prime_divisor_in_range (N : ℤ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   -- 5. inequalities, from 1
   have s5 : I > 1 := by parley_order
   -- 6. obtain p: thm:prime-factor m := I, from 4, 5
-  obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) (by parley_side) s5)
+  obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) s4 s5)
   -- 7. mun:divides-le e := p, m := I, from 4, 6
-  have s7 : p ≤ I := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) s6c)
+  have s7 : p ≤ I := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) s6a (m := I) s4 s6c)
   -- 8. transitivity, from 7, 2
   have s8 : p ≤ N := by parley_order
   -- 9. exhibit, from 6, 8

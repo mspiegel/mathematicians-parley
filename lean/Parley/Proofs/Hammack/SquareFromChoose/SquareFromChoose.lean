@@ -10,8 +10,10 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -27,7 +29,6 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareFromChoose.SquareFromChoose
 
-set_option maxHeartbeats 400000 in
 theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
     n ^ 2 = 2 * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) := by
   -- 1. induction on m starting at 1
@@ -46,18 +47,18 @@ theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
       linear_combination (norm := parley_norm) (-2) * s1_2 + (-1) * s1_3
     | succ m hK hIH =>
       -- 1.5. thm:pascal n := m, k := 2
-      have s1_5 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m) (by parley_side) (k := (2 : ℤ)))
+      have s1_5 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (k := (2 : ℤ)))
       -- 1.6. substitute 2 − 1 = 1 (arithmetic) into line 1.5
       have s1_6 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by
         have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m t : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ))) e_arith s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.7. thm:choose-one n := m
-      have s1_7 : (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = m := by exact (Parley.Proofs.Hammack.SquareFromChoose.ChooseOne.choose_one (n := m) (by parley_side))
+      have s1_7 : (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = m := by exact (Parley.Proofs.Hammack.SquareFromChoose.ChooseOne.choose_one (n := m) (lt_of_lt_of_le zero_lt_one hK))
       -- 1.8. thm:choose-one n := m + 1
       have s1_8 : (LeanBridges.Counting.choose (m + 1) (1 : ℤ) : ℤ) = m + 1 := by exact (Parley.Proofs.Hammack.SquareFromChoose.ChooseOne.choose_one (n := m + 1) (by parley_side))
       -- 1.9. algebra, from IH, 1.6, 1.7, 1.8
       linear_combination (norm := parley_norm) hIH + (2) * s1_6 + (-1) * s1_7 + (-1) * s1_8
   -- 2. instantiate m := n in line 1
-  exact (s1 n (by parley_side))
+  exact (s1 n hH1)
 
 end Parley.Proofs.Hammack.SquareFromChoose.SquareFromChoose

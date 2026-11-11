@@ -59,6 +59,6 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
               exact hI
       (have h := s2_2; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate k := n in line 2
-  exact (s2 n (by parley_side))
+  exact (s2 n hH1)
 
 end Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalProductSum

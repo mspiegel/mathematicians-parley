@@ -32,7 +32,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.DeMoivre.DeMoivre
 
-set_option maxHeartbeats 400000 in
 theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
     ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ n.toNat = (Real.cos ((n : ℝ) * x) : ℂ) + Complex.I * (Real.sin ((n : ℝ) * x) : ℂ) := by
   -- 1. def:i
@@ -70,7 +69,7 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
       have s2_7 : (k : ℝ) * x + x = ((k : ℝ) + 1) * x := by parley_ring
       -- 2.8. calculation
       have s2_8 : ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ (k + 1).toNat = (Real.cos (((k : ℝ) + 1) * x) : ℂ) + Complex.I * (Real.sin (((k : ℝ) + 1) * x) : ℂ) := by
-        calc ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ (k + 1).toNat = ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ k.toNat * ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) (m := k) (by parley_side))
+        calc ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ (k + 1).toNat = ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ k.toNat * ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) (m := k) hK)
           _ = ((Real.cos ((k : ℝ) * x) : ℂ) + Complex.I * (Real.sin ((k : ℝ) * x) : ℂ)) * ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) := by (have h := congrArg (fun t : ℂ => t * ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ))) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + Complex.I * Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by parley_ring
           _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + -1 * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by (have h := congrArg (fun t : ℂ => (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + t * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ))) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -84,6 +83,6 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
           _ = (Real.cos (((k : ℝ) + 1) * x) : ℂ) + Complex.I * (Real.sin (((k : ℝ) + 1) * x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       (have h := s2_8; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate k := n in line 2
-  exact (s2 n (by parley_side))
+  exact (s2 n hH2)
 
 end Parley.Proofs.Wiedijk.DeMoivre.DeMoivre

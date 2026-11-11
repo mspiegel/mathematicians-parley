@@ -18,7 +18,6 @@ public section
 
 namespace Parley.Proofs.Setmm.RationalClosure.RationalReciprocal
 
-set_option maxHeartbeats 400000 in
 theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
     True := by
   -- 1. obtain p, q: def:rational x := A
@@ -35,7 +34,7 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
       calc A = 0 / (q : ℚ) := by exact s2_1
         _ = 0 := by parley_ring
     -- 2.3. restate H2
-    have s2_3 : A ≠ 0 := by parley_side
+    have s2_3 : A ≠ 0 := by exact hH2
     exact s2_3 s2_2
   -- 3. axi:trichotomy x := p
   have s3 : (p < 0 ∨ p = 0) ∨ 0 < p := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := p))

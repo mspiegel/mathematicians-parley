@@ -27,6 +27,6 @@ theorem a_clique_is_large {α : Type*} (X : Set α) (E : Set (Set α)) (hH3 : �
   -- 1. D1 n := k + 1, from H6
   have s1 : (((k + 1).toNat : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E) := by parley_set_side
   -- 2. restate 1
-  parley_set_side
+  exact s1.1
 
 end Parley.Tests.Elaborator.APhraseWithAWherePart.ACliqueIsLarge

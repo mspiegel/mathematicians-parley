@@ -23,7 +23,6 @@ public section
 
 namespace Parley.Proofs.Hammack.MultiplesOfAProduct.MultiplesOfAProduct
 
-set_option maxHeartbeats 400000 in
 theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
     {x : ℤ | m * n ∣ x} ⊆ {x : ℤ | m ∣ x} ∩ {x : ℤ | n ∣ x} := by
   -- 1. proof
@@ -41,7 +40,7 @@ theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
     have s1_4 : m ∣ t := ((Parley.Items.Stdlib.Divisibility.def_divides (d := m) (n := t))).mpr ⟨n * c, s1_3⟩
     -- 1.5. def:set-builder, from 1.1, 1.4
     have s1_5 : t ∈ {x : ℤ | m ∣ x} := by
-      have hI : t ∈ {a : ℤ | m ∣ a} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side))
+      have hI : t ∈ {a : ℤ | m ∣ a} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mpr ⟨by parley_set_side, s1_4⟩)
       exact hI
     -- 1.6. algebra, from 1.2
     have s1_6 : t = n * (m * c) := by linear_combination (norm := parley_norm) s1_2
@@ -49,10 +48,10 @@ theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
     have s1_7 : n ∣ t := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := t))).mpr ⟨m * c, s1_6⟩
     -- 1.8. def:set-builder, from 1.1, 1.7
     have s1_8 : t ∈ {x : ℤ | n ∣ x} := by
-      have hI : t ∈ {a : ℤ | n ∣ a} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mpr (by parley_set_side))
+      have hI : t ∈ {a : ℤ | n ∣ a} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => n ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mpr ⟨by parley_set_side, s1_7⟩)
       exact hI
     -- 1.9. def:intersection u := t, from 1.5, 1.8
-    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := {x : ℤ | m ∣ x}) (Z := {x : ℤ | n ∣ x}) (u := t))).mpr (by parley_set_side)
+    exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := {x : ℤ | m ∣ x}) (Z := {x : ℤ | n ∣ x}) (u := t))).mpr ⟨s1_5, s1_8⟩
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := {x : ℤ | m * n ∣ x}) (Y := {x : ℤ | m ∣ x} ∩ {x : ℤ | n ∣ x}))).mpr s1
 

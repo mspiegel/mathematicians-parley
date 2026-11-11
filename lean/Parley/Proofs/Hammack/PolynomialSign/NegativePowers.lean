@@ -27,7 +27,7 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   -- 2. mun:square-nonneg
   have s2 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 3. mun:product-nonneg x := x², y := −x, from 1, 2
-  have s3 : x ^ 2 * -x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 2) (y := -x) (by parley_side) (by parley_side))
+  have s3 : x ^ 2 * -x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 2) (y := -x) s2 s1)
   -- 4. inequalities
   have s4 : x ^ 3 ≤ 0 := by parley_order
   -- 5. mun:square-nonneg x := x²
@@ -37,7 +37,7 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   -- 7. transitivity, from 6, 5
   have s7 : x ^ 4 ≥ 0 := by parley_order
   -- 8. mun:product-nonneg x := x⁴, y := −x, from 1, 7
-  have s8 : x ^ 4 * -x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) (by parley_side) (by parley_side))
+  have s8 : x ^ 4 * -x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) s7 s1)
   -- 9. inequalities
   have s9 : x ^ 5 ≤ 0 := by parley_order
   -- 10. join 2, 4, 7, 9

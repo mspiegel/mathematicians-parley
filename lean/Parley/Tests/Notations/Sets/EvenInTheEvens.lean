@@ -26,7 +26,7 @@ theorem even_in_the_evens :
   -- 1. arithmetic
   have s1 : Even (4 : ℤ) := by parley_arith
   -- 2. def:set-builder u := 4, from D1, 1
-  have hI : (4 : ℤ) ∈ {t : ℤ | 0 < t ∧ Even t} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => Even x)) (X := {n : ℤ | 0 < n}) (u := (4 : ℤ)))).mpr (by parley_set_side))
+  have hI : (4 : ℤ) ∈ {t : ℤ | 0 < t ∧ Even t} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => Even x)) (X := {n : ℤ | 0 < n}) (u := (4 : ℤ)))).mpr ⟨by parley_set_side, s1⟩)
   exact hI
 
 end Parley.Tests.Notations.Sets.EvenInTheEvens

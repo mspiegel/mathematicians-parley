@@ -34,17 +34,17 @@ theorem remainder_nonnegative (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
   -- 3. mun:floor-below x := A/B, from D1, 1
   have s3 : (q : ℝ) ≤ A / B := by
-    try simp only [hD1] at *
-    try push_cast at *
+    try simp only [hD1] at ⊢
+    try push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B))
   -- 4. calculation
   have s4 : B * (q : ℝ) ≤ A := by
-    calc B * (q : ℝ) ≤ B * (A / B) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) (by parley_side) (by parley_side))
+    calc B * (q : ℝ) ≤ B * (A / B) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) s3 hH3)
       _ = A := by parley_ring
   -- 5. inequalities
   have s5 : 0 ≤ A - B * (q : ℝ) := by parley_order

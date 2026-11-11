@@ -20,6 +20,6 @@ namespace Parley.Tests.Stdlib.Divisibility.GcdMod
 theorem gcd_mod (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     (Int.gcd (a % b) b : ℤ) = (Int.gcd a b : ℤ) := by
   -- 1. thm:divisibility-gcd-mod
-  exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a) (b := b) (by parley_side))
+  exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a) (b := b) hH2)
 
 end Parley.Tests.Stdlib.Divisibility.GcdMod

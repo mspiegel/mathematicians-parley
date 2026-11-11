@@ -37,7 +37,7 @@ theorem common_multiple_exists (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) :
   -- 6. def:set-image u := (p·q)·p, from 5
   have s6 : p * q * p ∈ (fun n : ℤ => q * n) '' {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => q * n)) (Y := {n : ℤ | 0 < n}) (u := p * q * p) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side)
   -- 7. def:intersection u := (p·q)·p, from 3, 6
-  have s7 : p * q * p ∈ (fun n : ℤ => p * n) '' {n : ℤ | 0 < n} ∩ (fun n : ℤ => q * n) '' {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => p * n) '' {n : ℤ | 0 < n}) (Z := (fun n : ℤ => q * n) '' {n : ℤ | 0 < n}) (u := p * q * p))).mpr (by parley_set_side)
+  have s7 : p * q * p ∈ (fun n : ℤ => p * n) '' {n : ℤ | 0 < n} ∩ (fun n : ℤ => q * n) '' {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Sets.def_intersection (Y := (fun n : ℤ => p * n) '' {n : ℤ | 0 < n}) (Z := (fun n : ℤ => q * n) '' {n : ℤ | 0 < n}) (u := p * q * p))).mpr ⟨s3, s6⟩
   -- 8. contradiction
   intro hS
   -- 8.1. substitute {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ} = ∅ (S) into line 7

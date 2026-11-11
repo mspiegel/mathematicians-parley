@@ -30,7 +30,7 @@ theorem one_is_the_least_bound_of_the_unit_interval :
     -- 3.1. def:upper-bound S := [0, 1], from A1
     have s3_1 : ∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ u := by parley_set_side
     -- 3.2. instantiate s := 1 in line 3.1, from 2
-    exact (s3_1 (1 : ℝ) (by parley_set_side))
+    exact (s3_1 (1 : ℝ) s2)
   -- 4. join 1, 3
   have s4 : (∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1) ∧ (∀ u : ℝ, (∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ u) → 1 ≤ u) := by parley_set_side
   -- 5. def:least-upper-bound c := 1, S := [0, 1], from 4

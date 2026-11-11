@@ -21,8 +21,8 @@ theorem common_divisor_at_most_gcd (K : ℤ) (hH1 : 0 < K) (M : ℤ) (hH2 : 0 < 
   -- 1. thm:divides-gcd d := K, a := M, b := N, from H4, H5
   have s1 : K ∣ (Int.gcd M N : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := K) (a := M) (b := N) hH4 hH5)
   -- 2. def:gcd a := M, b := N
-  have s2 : 0 < (Int.gcd M N : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := M) (by parley_side) (b := N) (by parley_side))
+  have s2 : 0 < (Int.gcd M N : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := M) hH2 (b := N) hH3)
   -- 3. mun:divides-le e := K, m := gcd(M, N), from 1, 2
-  exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := K) (by parley_side) (m := (Int.gcd M N : ℤ)) (by parley_side) s1)
+  exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := K) hH1 (m := (Int.gcd M N : ℤ)) s2 s1)
 
 end Parley.Proofs.Setmm.CommonDivisorAtMostGcd.CommonDivisorAtMostGcd

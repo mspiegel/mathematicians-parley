@@ -16,7 +16,6 @@ public section
 
 namespace Parley.Proofs.Hammack.DifferenceOfIntersection.DifferenceOfIntersection
 
-set_option maxHeartbeats 600000 in
 theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     A \ (B ∩ C) = A \ B ∪ A \ C := by
   -- 1. proof
@@ -34,15 +33,15 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : S
       have s1_3_1 : ¬ t ∈ C := by
         intro hS1
         -- 1.3.1.1. def:intersection u := t, Y := B, Z := C, from C1, S1
-        have s1_3_1_1 : t ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr (by parley_set_side)
+        have s1_3_1_1 : t ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr ⟨hC1, hS1⟩
         exact s1_1b s1_3_1_1
       -- 1.3.2. def:difference u := t, Y := A, Z := C, from 1.1, 1.3.1
-      have s1_3_2 : t ∈ A \ C := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mpr (by parley_set_side)
+      have s1_3_2 : t ∈ A \ C := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mpr ⟨s1_1a, s1_3_1⟩
       -- 1.3.3. mun:in-union-right u := t, Y := A ∖ B, Z := A ∖ C, from 1.3.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) s1_3_2)
     · skip
       -- 1.3.4. def:difference u := t, Y := A, Z := B, from C2, 1.1
-      have s1_3_4 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side)
+      have s1_3_4 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr ⟨s1_1a, hC2⟩
       -- 1.3.5. mun:in-union-left u := t, Y := A ∖ B, Z := A ∖ C, from 1.3.4
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) s1_3_4)
   -- 2. def:subset, from 1
@@ -65,7 +64,7 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : S
         have s3_2_2_1 : t ∈ B := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp hS2).1
         exact s3_2_1b s3_2_2_1
       -- 3.2.3. def:difference u := t, Y := A, Z := B ∩ C, from 3.2.1, 3.2.2
-      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∩ C) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∩ C) (u := t))).mpr ⟨s3_2_1a, s3_2_2⟩
     · skip
       -- 3.2.4. def:difference u := t, Y := A, Z := C, from C4
       have s3_2_4a : t ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mp hC4).1
@@ -77,7 +76,7 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : S
         have s3_2_5_1 : t ∈ C := by exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp hS3).2
         exact s3_2_4b s3_2_5_1
       -- 3.2.6. def:difference u := t, Y := A, Z := B ∩ C, from 3.2.4, 3.2.5
-      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∩ C) (u := t))).mpr (by parley_set_side)
+      exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∩ C) (u := t))).mpr ⟨s3_2_4a, s3_2_5⟩
   -- 4. def:subset, from 3
   have s4 : A \ B ∪ A \ C ⊆ A \ (B ∩ C) := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B ∪ A \ C) (Y := A \ (B ∩ C)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

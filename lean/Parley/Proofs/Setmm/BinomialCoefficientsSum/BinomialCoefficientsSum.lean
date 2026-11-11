@@ -66,7 +66,7 @@ theorem binomial_coefficients_sum (N : ℤ) (hH1 : 0 ≤ N) :
   try qify
   calc (2 ^ N.toNat : ℚ) = (1 + 1) ^ N.toNat := by (have h := congrArg (fun t : ℤ => t ^ N.toNat) s2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by
-        have hI : (1 + 1) ^ N.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) (by parley_side)))
+        have hI : (1 + 1) ^ N.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) hH1))
         exact hI
     _ = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat)) (u := (fun k : ℤ => (LeanBridges.Counting.choose N k : ℚ))) (a := (0 : ℤ)) (b := N) s1)
 

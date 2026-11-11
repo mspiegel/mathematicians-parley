@@ -15,7 +15,6 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfUnionAndDifference.SubsetOfUnionAndDifference
 
-set_option maxHeartbeats 400000 in
 theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     (A ⊆ B ∪ C ↔ A \ B ⊆ C) := by
   -- the theorem. both directions
@@ -36,11 +35,11 @@ theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C
       rcases s1_3 with hC1 | hC2
       · skip
         -- 1.4.1. restate 1.1
-        have s1_4_1 : ¬ u ∈ B := by parley_set_side
+        have s1_4_1 : ¬ u ∈ B := by exact s1_1b
         exact absurd hC1 s1_4_1
       · skip
         -- 1.4.2. restate C2
-        parley_set_side
+        exact hC2
     -- 2. def:subset X := A ∖ B, Y := C, from 1
     exact ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B) (Y := C))).mpr s1
   · skip
@@ -59,7 +58,7 @@ theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C
         exact ((Parley.Items.Stdlib.Sets.def_union (Y := B) (Z := C) (u := u))).mpr s3_2_1
       · skip
         -- 3.2.3. def:difference Y := A, Z := B, from C2, K2
-        have s3_2_3 : u ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr (by parley_set_side)
+        have s3_2_3 : u ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr ⟨hK2, hC2⟩
         -- 3.2.4. mun:in-subset X := A ∖ B, Y := C, from D2, 3.2.3
         have s3_2_4 : u ∈ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A \ B) (Y := C) (u := u) hD2 s3_2_3)
         -- 3.2.5. mun:or-right, from 3.2.4

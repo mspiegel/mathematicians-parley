@@ -20,7 +20,6 @@ public section
 
 namespace Parley.Proofs.Hammack.TwoCurves.TwoCurves
 
-set_option maxHeartbeats 400000 in
 theorem two_curves (x : ℝ) (y : ℝ) :
     (x ^ 3 + x ^ 2 * y = y ^ 2 + x * y ↔ y = x ^ 2 ∨ y = -x) := by
   -- the theorem. both directions
@@ -42,7 +41,7 @@ theorem two_curves (x : ℝ) (y : ℝ) :
       -- 3.3. algebra, from 1
       have s3_3 : (y - x ^ 2) * (y + x) = 0 * (y + x) := by linear_combination (norm := parley_norm) s1
       -- 3.4. mun:multiply-cancel a := y − x², b := 0, c := y + x, from C2, 3.3
-      have s3_4 : y - x ^ 2 = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := y - x ^ 2) (b := (0 : ℝ)) (c := y + x) (by parley_side) (by parley_side))
+      have s3_4 : y - x ^ 2 = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := y - x ^ 2) (b := (0 : ℝ)) (c := y + x) (by parley_side) hC2)
       -- 3.5. algebra, from 3.4
       have s3_5 : y = x ^ 2 := by linear_combination (norm := parley_norm) s3_4
       -- 3.6. mun:or-left, from 3.5

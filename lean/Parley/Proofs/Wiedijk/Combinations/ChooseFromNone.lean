@@ -32,7 +32,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Combinations.ChooseFromNone
 
-set_option maxHeartbeats 600000 in
 theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = ((0 : ℕ) : ℕ∞)) :
     ({S ∈ 𝒫 X | (S.ncard : ℤ) = j}.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1
@@ -52,14 +51,14 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         calc ((∅ : Set α).ncard : ℤ) = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
           _ = j := by parley_set_side
       -- 3.3. def:part-builder u := ∅, from D1, 3.1, 3.2
-      have s3_3 : ∅ ∈ F := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := ∅))).mpr (by parley_set_side)
+      have s3_3 : ∅ ∈ F := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := ∅))).mpr ⟨s3_1, by parley_set_side⟩
       -- 3.4. proof
       have s3_4 : ∀ R ∈ F, R ∈ ({∅} : Set (Set α)) := by
         intro R hK1
         -- 3.4.1. def:part-builder u := R, from D1, K1
         have s3_4_1 : R ⊆ X := by
-          try simp only [hD1] at *
-          try push_cast at *
+          try simp only [hD1] at ⊢
+          try push_cast at ⊢
           exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).1
         -- 3.4.2. substitute X = ∅ (line 1) into line 3.4.1
         have s3_4_2 : R ⊆ ∅ := by parley_subst_at s1 s3_4_1
@@ -93,7 +92,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
             _ = ((∅ : Set α).ncard : ℤ) := by parley_subst s3_9_2
             _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
         -- 3.9.4. restate C2
-        have s3_9_4 : j ≠ 0 := by parley_set_side
+        have s3_9_4 : j ≠ 0 := by exact hC2
         exact s3_9_4 s3_9_3
       -- 3.10. mun:part-builder-empty, from D1, 3.9
       have s3_10 : F = ∅ := ((Parley.Items.Stdlib.Sets.mun_part_builder_empty (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X))).mpr (by parley_set_side)
@@ -107,7 +106,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         -- 3.11.3. antisymmetry, from 3.11.1, 3.11.2
         have s3_11_3 : j = 0 := by parley_set_side
         -- 3.11.4. restate C2
-        have s3_11_4 : j ≠ 0 := by parley_set_side
+        have s3_11_4 : j ≠ 0 := by exact hC2
         exact s3_11_4 s3_11_3
       -- 3.12. calculation
       calc (F.ncard : ℤ) = ((∅ : Set (Set α)).ncard : ℤ) := by parley_subst s3_10

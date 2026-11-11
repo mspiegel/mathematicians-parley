@@ -41,7 +41,7 @@ namespace Parley.Tests.Elaborator.AFunctionSayingItsKind.AFunctionSayingItsKind
 theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
     (∀ k : ℤ, k ∈ Finset.Icc 1 n → (∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1))) := by
   -- 1. mun:nat-minus-one
-  have s1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side))
+  have s1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) hH1)
   have hD1_kind : ∀ k : ℤ, k ∈ Finset.Icc 1 n → (∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ)) := by intro k h_k; exact (by
     have whole1 : ((k : ℝ) : ℝ) ^ (n - 1).toNat = (k : ℝ) ^ (n - 1) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]
     exact ⟨((k ^ (n - 1).toNat) % n), by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [whole1]; all_goals ring))⟩)
@@ -55,13 +55,13 @@ theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
     have whole1 : ((k : ℚ) : ℚ) ^ (n - 1).toNat = (k : ℚ) ^ (n - 1) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]
     exact ⟨(k ^ (n - 1).toNat), by (push_cast; simp only [whole1]; all_goals ring)⟩
   -- 2.2. mun:mod-less, from 2.1
-  have s2_2 : LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) < (n : ℝ) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s2_1); push_cast at h; exact h : ((Classical.choose s2_1 : ℤ) : ℝ) = (k : ℝ) ^ (n - 1))]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); (exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) (by parley_side)))
+  have s2_2 : LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) < (n : ℝ) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s2_1); push_cast at h; exact h : ((Classical.choose s2_1 : ℤ) : ℝ) = (k : ℝ) ^ (n - 1))]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); (exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) hH1))
   -- 2.3. mun:range-from-bounds, from 2.2
   have r29_1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by
     have whole1 : ∃ m : ℤ, (m : ℝ) = (k : ℝ) ^ (n - 1) := by obtain ⟨m, hm⟩ := s2_1; exact ⟨m, by have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h⟩
     refine ⟨((Classical.choose whole1 : ℤ) % n), ?_, by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))⟩
-    (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := n) (by parley_side)))
-  have s2_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1) := by rw [← (Classical.choose_spec r29_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r29_1).1; (try rw [← (Classical.choose_spec r29_1).2] at s2_2; norm_cast at s2_2); (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) (by parley_side) (x := (Classical.choose r29_1)) (by parley_side) (by parley_side))⟩)
+    (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := n) hH1))
+  have s2_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1) := by rw [← (Classical.choose_spec r29_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r29_1).1; (try rw [← (Classical.choose_spec r29_1).2] at s2_2; norm_cast at s2_2); (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := (Classical.choose r29_1)) (by parley_side) (by parley_side))⟩)
   -- 2.4. D1, from K1
   have s2_4 : (f k : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by simp (disch := omega) only [hD1]
   -- 2.5. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.3

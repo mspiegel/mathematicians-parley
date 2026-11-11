@@ -24,7 +24,6 @@ public section
 
 namespace Parley.Proofs.Setmm.FactorialPlusOne.FactorialPlusOne
 
-set_option maxHeartbeats 400000 in
 theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH3 : 1 < N) (hH4 : N ≤ M) :
     ¬ (∃ m : ℤ, (m : ℚ) = ((LeanBridges.Counting.factorial M : ℚ) + 1) / (N : ℚ)) := by
   -- the theorem. contradiction
@@ -36,7 +35,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- 3. mun:pos-int-nat m := M, from 2
   have s3 : 0 < M := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2)
   -- 4. mun:factorial-divisible n := M, m := N, from H4, 3
-  have s4 : N ∣ (LeanBridges.Counting.factorial M : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) (by parley_side) (m := N) (by parley_side) hH4)
+  have s4 : N ∣ (LeanBridges.Counting.factorial M : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) s3 (m := N) hH2 hH4)
   -- 5. algebra
   have s5 : (LeanBridges.Counting.factorial M : ℚ) + 1 = (N : ℚ) * (((LeanBridges.Counting.factorial M : ℚ) + 1) / (N : ℚ)) := by parley_ring
   -- 6. exhibit, from S, 5
@@ -51,7 +50,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
     have row1 : N ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => N ∣ t)) c1 s8; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 10. mun:divides-one d := N, from 9
-  have s10 : N = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) (by parley_side) s9)
+  have s10 : N = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) hH2 s9)
   -- 11. inequalities
   have s11 : N ≠ 1 := by parley_side
   exact s11 s10

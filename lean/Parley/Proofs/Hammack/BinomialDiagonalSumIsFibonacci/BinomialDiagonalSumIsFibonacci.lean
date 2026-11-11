@@ -41,7 +41,6 @@ public section
 
 namespace Parley.Proofs.Hammack.BinomialDiagonalSumIsFibonacci.BinomialDiagonalSumIsFibonacci
 
-set_option maxHeartbeats 800000 in
 theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = F (n + 1) := by
   set S : ℤ → ℤ := fun m : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ) with hD2
@@ -113,20 +112,20 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       -- 2.17. calculation
       have s2_17 : S (j + 1 + 1) = S (j + 1) + S j := by
         calc S (j + 1 + 1) = (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1 + 1), ((LeanBridges.Counting.choose (j + 1 + 1 - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
-          _ = (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), ((LeanBridges.Counting.choose (j + 1 - k) k : ℤ) : ℤ)) + (∑ k ∈ Finset.Icc (0 : ℤ) j, ((LeanBridges.Counting.choose (j - k) k : ℤ) : ℤ)) := by exact (Parley.Proofs.Hammack.FibonacciBinomialStep.FibonacciBinomialStep.fibonacci_binomial_step (m := j) (by parley_side))
+          _ = (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), ((LeanBridges.Counting.choose (j + 1 - k) k : ℤ) : ℤ)) + (∑ k ∈ Finset.Icc (0 : ℤ) j, ((LeanBridges.Counting.choose (j - k) k : ℤ) : ℤ)) := by exact (Parley.Proofs.Hammack.FibonacciBinomialStep.FibonacciBinomialStep.fibonacci_binomial_step (m := j) hK)
           _ = S (j + 1) + (∑ k ∈ Finset.Icc (0 : ℤ) j, ((LeanBridges.Counting.choose (j - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
           _ = S (j + 1) + S j := by simp (disch := omega) only [hD2]
       -- 2.18. instantiate i := j + 1 in line 1
       have s2_18 : 0 ≤ F (j + 1) ∧ 0 ≤ G (j + 1) := by exact (s1 (j + 1) (by parley_side))
       -- 2.19. instantiate i := j in line 1
-      have s2_19 : 0 ≤ F j ∧ 0 ≤ G j := by exact (s1 j (by parley_side))
+      have s2_19 : 0 ≤ F j ∧ 0 ≤ G j := by exact (s1 j hK)
       -- 2.20. D1
       have s2_20 : G (j + 1 + 1) = F (j + 1) + G (j + 1) := by have h := (hD1.2.2 ((j + 1 + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 2.21. D1
       have s2_21 : F (j + 1) = G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 2.22. calculation
-      have r151_1 : 0 ≤ G (j + 1) := by parley_side
-      have r151_2 : 0 ≤ G j := by parley_side
+      have r151_1 : 0 ≤ G (j + 1) := by exact s2_18.2
+      have r151_2 : 0 ≤ G j := by exact s2_19.2
       have s2_22 : S (j + 1 + 1) = G (j + 1 + 1) := by
         calc S (j + 1 + 1) = S (j + 1) + S j := by exact s2_17
           _ = G (j + 1) + S j := by (have h := congrArg (fun t : ℤ => t + S j) hIH.2; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -139,7 +138,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       have s2_23b : S (j + 1 + 1) = G (j + 1 + 1) := by parley_side
       exact ⟨s2_23a, s2_23b⟩
   -- 3. instantiate j := n in line 2
-  have s3 : S n = G n ∧ S (n + 1) = G (n + 1) := by exact (s2 n (by parley_side))
+  have s3 : S n = G n ∧ S (n + 1) = G (n + 1) := by exact (s2 n hH1)
   -- 4. calculation
   have s4 : S n = G n := by exact s3.1
   -- 5. D1

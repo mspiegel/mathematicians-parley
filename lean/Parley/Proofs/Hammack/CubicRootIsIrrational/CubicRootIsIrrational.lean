@@ -37,7 +37,6 @@ public section
 
 namespace Parley.Proofs.Hammack.CubicRootIsIrrational.CubicRootIsIrrational
 
-set_option maxHeartbeats 800000 in
 theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     Irrational x := by
   -- 1. contradiction
@@ -121,6 +120,6 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     have s1_7 : Odd (1 : ℤ) := by parley_arith
     exact s1_6 s1_7
   -- 2. def:irrational, from 1
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr ⟨by parley_side, s1⟩
 
 end Parley.Proofs.Hammack.CubicRootIsIrrational.CubicRootIsIrrational

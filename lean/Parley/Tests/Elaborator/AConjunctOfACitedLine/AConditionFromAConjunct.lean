@@ -21,6 +21,6 @@ theorem a_condition_from_a_conjunct (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (
   -- 1. mun:remove-member, from H6
   have s1 : y ∈ (Set.Ioo a b : Set ℝ) ∧ y ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := y))).mp hH6
   -- 2. instantiate x := y in H5, from 1
-  exact (hH5 y (by parley_set_side) (by parley_set_side))
+  exact (hH5 y s1.1 s1.2)
 
 end Parley.Tests.Elaborator.AConjunctOfACitedLine.AConditionFromAConjunct

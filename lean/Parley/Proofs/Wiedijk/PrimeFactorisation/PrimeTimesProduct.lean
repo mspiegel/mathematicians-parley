@@ -41,7 +41,6 @@ public section
 
 namespace Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct
 
-set_option maxHeartbeats 800000 in
 theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r : ℤ) (hH3 : 0 < r) (hH4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) :
     (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by
   -- 1. D1, from H4
@@ -73,9 +72,9 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have s4_2_1 : h i = g i := by simp (disch := omega) only [hD2, if_pos hC1]
       -- 4.2.2. def:range-between k := i, a := 1, b := j, from C1
       have r69_1 : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2)
-      have s4_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side)
+      have s4_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr ⟨r69_1, hC1⟩
       -- 4.2.3. instantiate i := i in line 2, from 4.2.2
-      have s4_2_3 : Nat.Prime (g i).toNat := by exact (s2d i (by parley_set_side))
+      have s4_2_3 : Nat.Prime (g i).toNat := by exact (s2d i s4_2_2)
       -- 4.2.4. substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
       have r76_1 : 0 < g i := by
         have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)))
@@ -100,7 +99,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have s5_2_1 : h i = g i := by simp (disch := omega) only [hD2, if_pos hC3]
       -- 5.2.2. def:range-between k := i, a := 1, b := j, from C3
       have r105_1 : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3)
-      have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side)
+      have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr ⟨r105_1, hC3⟩
       -- 5.2.3. mun:function-value f := g, from 5.2.2
       have s5_2_3 : 0 < g i := by
         have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)))
@@ -115,14 +114,14 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 6. mun:function-into, from 5
   have s6 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (1 : ℤ) (j + 1) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
   -- 7. mun:product-termwise a := 1, b := j, t := h, u := g, from 3
-  have r128_1 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by parley_set_side
+  have r128_1 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact s6
   have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) s3 (by parley_set_side) (by parley_set_side))
   -- 8. inequalities
   have s8 : ¬ j + 1 ≤ j := by parley_set_side
   -- 9. def:range-between k := j + 1, a := 1, b := j + 1
   have r135_1 : 1 ≤ j + 1 := by parley_order
   have r135_2 : j + 1 ≤ j + 1 := by parley_order
-  have s9 : j + 1 ∈ Finset.Icc (1 : ℤ) (j + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := j + 1) (a := (1 : ℤ)) (b := j + 1))).mpr (by parley_set_side)
+  have s9 : j + 1 ∈ Finset.Icc (1 : ℤ) (j + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := j + 1) (a := (1 : ℤ)) (b := j + 1))).mpr ⟨r135_1, r135_2⟩
   -- 10. D2, from 8, 9
   have s10 : h (j + 1) = p := by simp (disch := omega) only [hD2, if_neg s8]
   -- 11. substitute r = ∏(i ∈ {1, …, j}) g(i) (line 2)

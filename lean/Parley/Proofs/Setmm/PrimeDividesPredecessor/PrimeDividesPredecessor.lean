@@ -21,7 +21,7 @@ namespace Parley.Proofs.Setmm.PrimeDividesPredecessor.PrimeDividesPredecessor
 theorem prime_divides_predecessor (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (A : ℤ) (hH4 : P ∣ A - 1) :
     ¬ P ∣ A := by
   -- 1. def:prime p := P, from H2
-  have s1 : P > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) (by parley_side))).mp hH2).1
+  have s1 : P > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) hH1)).mp hH2).1
   -- 2. contradiction
   intro hS
   -- 2.1. mun:divides-difference d := P, a := A, b := A − 1, from H4, S
@@ -32,7 +32,7 @@ theorem prime_divides_predecessor (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toN
     have row1 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 2.3. mun:divides-one d := P, from 2.2
-  have s2_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) (by parley_side) s2_2)
+  have s2_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) hH1 s2_2)
   -- 2.4. inequalities
   have s2_4 : P ≠ 1 := by parley_side
   exact s2_4 s2_3

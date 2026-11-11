@@ -24,7 +24,7 @@ namespace Parley.Proofs.Hammack.BinetFormula.PowerRecurrence
 theorem power_recurrence (x : ℝ) (hH2 : x ^ 2 = x + 1) (k : ℤ) (hH3 : 0 ≤ k) :
     x ^ (k + 1 + 1).toNat = x ^ (k + 1).toNat + x ^ k.toNat := by
   -- 1. mun:exponent-step a := x, m := k
-  have s1 : x ^ (k + 1).toNat = x ^ k.toNat * x := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := k) (by parley_side))
+  have s1 : x ^ (k + 1).toNat = x ^ k.toNat * x := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := k) hH3)
   -- 2. mun:exponent-step a := x, m := k + 1
   have s2 : x ^ (k + 1 + 1).toNat = x ^ (k + 1).toNat * x := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := k + 1) (by parley_side))
   -- 3. calculation

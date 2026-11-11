@@ -31,7 +31,6 @@ public section
 
 namespace Parley.Stdlib.Divisibility.ProductCoprime
 
-set_option maxHeartbeats 400000 in
 theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (n : ℤ) (hH3 : 0 < n) (hH4 : ∀ y ∈ X, (Int.gcd y n : ℤ) = 1) :
     (Int.gcd (∏ᶠ x ∈ X, (x : ℤ)) n : ℤ) = 1 := by
   -- 1. proof
@@ -41,7 +40,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
     -- 1.2. membership, from 1.1
     exact trivial
   -- 2. induction on Y starting at ∅
-  have r617_1 : X.Finite := by parley_set_side
+  have r617_1 : X.Finite := by exact hH2
   have s2 : ∀ Y ∈ 𝒫 X, (Int.gcd (∏ᶠ x ∈ Y, (x : ℤ)) n : ℤ) = 1 := by
     refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
@@ -64,19 +63,19 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       -- 2.6. mun:finite-part, from H2, K
       have s2_6 : Y.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := Y) hH2 hK)
       -- 2.7. instantiate y := a in H4, from 2.5
-      have s2_7 : (Int.gcd a n : ℤ) = 1 := by exact (hH4 a (by parley_set_side))
+      have s2_7 : (Int.gcd a n : ℤ) = 1 := by exact (hH4 a s2_5.1)
       -- 2.8. mun:subset-transitive X := Y, Y := X, Z := ℤ, from H1, K
       have s2_8 : Y ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := Y) (Y := X) (Z := (Set.univ : Set ℤ)) hK (by parley_whole_side))
       -- 2.9. mun:product-integer X := Y, from 2.6, 2.8
       -- 2.10. mun:in-subset, from H1, 2.5
       -- 2.11. mun:coprime-product x := ∏(x ∈ Y) x, y := a, from IH, 2.7, 2.9, 2.10
-      have s2_11 : (Int.gcd ((∏ᶠ x ∈ Y, (x : ℤ)) * a) n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := ∏ᶠ x ∈ Y, (x : ℤ)) (y := a) (n := n) (by parley_set_side) hIH s2_7)
+      have s2_11 : (Int.gcd ((∏ᶠ x ∈ Y, (x : ℤ)) * a) n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := ∏ᶠ x ∈ Y, (x : ℤ)) (y := a) (n := n) hH3 hIH s2_7)
       -- 2.12. substitute
       have c1 : (∏ᶠ x ∈ Y, (x : ℤ)) * a = (∏ᶠ x ∈ (Y ∪ ({a} : Set ℤ)), (x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := (fun x : ℤ => x)) (X := X) (Y := Y) (a := a) (by parley_set_side) s2_6 s2_5.1 s2_5.2).symm
       have row1 : (Int.gcd (∏ᶠ x ∈ (Y ∪ ({a} : Set ℤ)), (x : ℤ)) n : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd t n : ℤ) = 1)) c1 s2_11; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 3. instantiate Y := X in line 2
   have r668_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
-  exact (s2 X (by parley_set_side))
+  exact (s2 X r668_1)
 
 end Parley.Stdlib.Divisibility.ProductCoprime

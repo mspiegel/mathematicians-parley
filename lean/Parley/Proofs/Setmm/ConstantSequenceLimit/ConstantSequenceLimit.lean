@@ -37,7 +37,7 @@ theorem constant_sequence_limit (c : ℝ) (x : ℤ → ℝ) (hH3 : ∀ n : ℤ, 
       intro n hK2
       intro hA2
       -- 1.1.1. algebra, from H3
-      have s1_1_1 : x n - c = 0 := by linear_combination (norm := parley_norm) (hH3 n (by parley_side))
+      have s1_1_1 : x n - c = 0 := by linear_combination (norm := parley_norm) (hH3 n hK2)
       -- 1.1.2. calculation
       have s1_1_2 : abs (x n - c) = 0 := by
         calc abs (x n - c) = abs 0 := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
