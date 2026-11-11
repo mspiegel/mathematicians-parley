@@ -10936,9 +10936,18 @@ impl<'a> Proof<'a> {
         // counts in the form the step writes them; a calculation's row is
         // written as the calculation writes it.
         let of_numbers = node.children.iter().all(|c| self.writer.is_number(c));
-        let stated = match self.worked_in.get() {
-            Some(_) => None,
-            None => self.stated_claim(reason.just.line, node),
+        // A row of a calculation is the claim as the calculation states it
+        // (`row_stated`), its counts in the form the rows take them, as the
+        // comparison above reads it.
+        let row = self
+            .row_stated
+            .borrow()
+            .clone()
+            .filter(|_| node.notation() == EQUALITY || node.notation() == ORDER);
+        let stated = match (row, self.worked_in.get()) {
+            (Some(row), _) => Some(row),
+            (None, Some(_)) => None,
+            (None, None) => self.stated_claim(reason.just.line, node),
         };
         let claim_lean = match (self.worked_in.get(), &stated) {
             (_, Some(said)) => Some(said.clone()),

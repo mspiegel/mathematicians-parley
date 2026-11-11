@@ -146,10 +146,13 @@ in", where the record has none or the motive does not state it as written:
 
 **Casts.** Where two statements are alike but for casts, the closer comes
 from the cast table (`src/lean/casts.rs`). For each operation the writer
-writes and each widening between ℕ, ℤ, ℚ, ℝ and ℂ, the table says whether
-`push_cast` moves a cast through the operation and whether `norm_cast` does.
+writes and each widening between ℕ, ℤ, ℚ, ℝ and ℂ, and from ℕ to ℕ∞ where a
+calculation's rows take counts, the table says whether `push_cast` moves a
+cast through the operation and whether `norm_cast` does.
 `parley build lean` writes `lean/Parley/Tests/CastTable.lean` from it, with
-an example for each entry, so `lake build` holds every entry true.
+an example for each entry, so `lake build` holds every entry true. A
+calculation's row is met with what it cites as the calculation states it,
+its counts in the form the rows take them.
 
 The closer is chosen as follows:
 - `exact_mod_cast` where `norm_cast` moves every cast in both statements and

@@ -59,12 +59,39 @@ pub enum CastOp {
     NumeralQuotient,
 }
 
-/// What `push_cast` and `norm_cast` do with a cast from one number type to
-/// another around one operation.
+/// A type the table casts between: a number type, or ℕ∞, where a count of
+/// any set is, and a calculation's rows over counts are taken.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Carrier {
+    Num(Num),
+    ENat,
+}
+
+impl Carrier {
+    /// How Lean writes the type.
+    pub fn lean(self) -> &'static str {
+        match self {
+            Carrier::Num(n) => n.lean(),
+            Carrier::ENat => "ℕ∞",
+        }
+    }
+
+    /// The type a term is in, where the table knows it.
+    fn of(ty: &super::doc::LeanType) -> Option<Carrier> {
+        match ty {
+            super::doc::LeanType::Num(n) => Some(Carrier::Num(*n)),
+            super::doc::LeanType::ENat => Some(Carrier::ENat),
+            _ => None,
+        }
+    }
+}
+
+/// What `push_cast` and `norm_cast` do with a cast from one type to another
+/// around one operation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct CastFacts {
-    pub from: Num,
-    pub to: Num,
+    pub from: Carrier,
+    pub to: Carrier,
     pub push_cast: bool,
     pub norm_cast: bool,
 }
@@ -107,7 +134,7 @@ impl OpTable {
     }
 }
 
-const fn moves_both(from: Num, to: Num) -> CastFacts {
+const fn moves_both(from: Carrier, to: Carrier) -> CastFacts {
     CastFacts {
         from,
         to,
@@ -116,7 +143,7 @@ const fn moves_both(from: Num, to: Num) -> CastFacts {
     }
 }
 
-const fn moves_by_norm_cast(from: Num, to: Num) -> CastFacts {
+const fn moves_by_norm_cast(from: Carrier, to: Carrier) -> CastFacts {
     CastFacts {
         from,
         to,
@@ -125,7 +152,7 @@ const fn moves_by_norm_cast(from: Num, to: Num) -> CastFacts {
     }
 }
 
-const fn stops(from: Num, to: Num) -> CastFacts {
+const fn stops(from: Carrier, to: Carrier) -> CastFacts {
     CastFacts {
         from,
         to,
@@ -134,7 +161,13 @@ const fn stops(from: Num, to: Num) -> CastFacts {
     }
 }
 
-use Num::{Complex as C, Int as Z, Nat as N, Rat as Q, Real as R};
+const N: Carrier = Carrier::Num(Num::Nat);
+const Z: Carrier = Carrier::Num(Num::Int);
+const Q: Carrier = Carrier::Num(Num::Rat);
+const R: Carrier = Carrier::Num(Num::Real);
+const C: Carrier = Carrier::Num(Num::Complex);
+/// ℕ∞, where a count of any set is.
+const E: Carrier = Carrier::ENat;
 
 /// Every widening between the number types the writer casts between.
 const WIDENINGS: &[CastFacts] = &[
@@ -174,6 +207,23 @@ const ORDERED: &[CastFacts] = &[
     moves_by_norm_cast(Z, Q),
     moves_by_norm_cast(Z, R),
     moves_by_norm_cast(Q, R),
+    moves_by_norm_cast(N, E),
+];
+
+/// The widenings a sum is taken through: every one between number types,
+/// and a count's from ℕ to ℕ∞, where a calculation adds counts.
+const ADDED: &[CastFacts] = &[
+    moves_both(N, Z),
+    moves_both(N, Q),
+    moves_both(N, R),
+    moves_both(N, C),
+    moves_both(Z, Q),
+    moves_both(Z, R),
+    moves_both(Z, C),
+    moves_both(Q, R),
+    moves_both(Q, C),
+    moves_both(R, C),
+    moves_both(N, E),
 ];
 
 const TABLES: &[OpTable] = &[
@@ -182,7 +232,7 @@ const TABLES: &[OpTable] = &[
         binders: "(a b : {S})",
         lhs: "((a + b : {S}) : {T})",
         rhs: "(a : {T}) + (b : {T})",
-        facts: WIDENINGS,
+        facts: ADDED,
     },
     OpTable {
         op: CastOp::Sub,
@@ -345,6 +395,7 @@ const TABLES: &[OpTable] = &[
             moves_by_norm_cast(Q, R),
             moves_by_norm_cast(Q, C),
             moves_by_norm_cast(R, C),
+            moves_by_norm_cast(N, E),
         ],
     },
     OpTable {
@@ -373,7 +424,7 @@ const TABLES: &[OpTable] = &[
 /// What `push_cast` and `norm_cast` do with a cast from `from` to `to`
 /// around `op`; None where the table has no entry, which a closer takes as
 /// moving by neither.
-pub fn facts(op: CastOp, from: Num, to: Num) -> Option<CastFacts> {
+pub fn facts(op: CastOp, from: Carrier, to: Carrier) -> Option<CastFacts> {
     TABLES
         .iter()
         .filter(|t| t.op == op)
@@ -619,14 +670,16 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
             moves_all(inner, over, by)
         }
         TermKind::Cast { inner, to } => {
-            let (Some(from), LeanType::Num(to)) = (num(inner), to) else {
+            let (Some(from), Some(to)) =
+                (inner.ty.as_ref().and_then(Carrier::of), Carrier::of(to))
+            else {
                 return inner.ty.as_ref() == Some(to) && moves_all(inner, over, by);
             };
-            if from == *to {
+            if from == to {
                 return moves_all(inner, over, by);
             }
             let through = over.iter().all(|op| {
-                op.is_some_and(|op| facts(op, from, *to).is_some_and(|f| by.moves(f)))
+                op.is_some_and(|op| facts(op, from, to).is_some_and(|f| by.moves(f)))
             });
             through && moves_all(inner, &[], by)
         }
@@ -643,13 +696,7 @@ fn moves_all(term: &Term, over: &[Option<CastOp>], by: Mover) -> bool {
             if op.symbol == "/" && numeral(lhs) && numeral(rhs) =>
         {
             let quotient = |f: CastFacts| by.moves(f);
-            [
-                (Num::Int, Num::Rat),
-                (Num::Int, Num::Real),
-                (Num::Rat, Num::Real),
-            ]
-            .iter()
-            .all(|(from, to)| {
+            [(Z, Q), (Z, R), (Q, R)].iter().all(|(from, to)| {
                 facts(CastOp::NumeralQuotient, *from, *to).is_some_and(quotient)
             })
         }

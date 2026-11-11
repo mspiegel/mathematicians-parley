@@ -50,6 +50,10 @@ example (a b : ℚ) : ((a + b : ℚ) : ℂ) = (a : ℂ) + (b : ℂ) := by norm_c
 example (a b : ℝ) : ((a + b : ℝ) : ℂ) = (a : ℂ) + (b : ℂ) := by push_cast; try rfl
 example (a b : ℝ) : ((a + b : ℝ) : ℂ) = (a : ℂ) + (b : ℂ) := by norm_cast
 
+-- Add ℕ to ℕ∞: push_cast moves, norm_cast moves
+example (a b : ℕ) : ((a + b : ℕ) : ℕ∞) = (a : ℕ∞) + (b : ℕ∞) := by push_cast; try rfl
+example (a b : ℕ) : ((a + b : ℕ) : ℕ∞) = (a : ℕ∞) + (b : ℕ∞) := by norm_cast
+
 -- Sub ℤ to ℚ: push_cast moves, norm_cast moves
 example (a b : ℤ) : ((a - b : ℤ) : ℚ) = (a : ℚ) - (b : ℚ) := by push_cast; try rfl
 example (a b : ℤ) : ((a - b : ℤ) : ℚ) = (a : ℚ) - (b : ℚ) := by norm_cast
@@ -384,6 +388,12 @@ example : True := by
   trivial
 example (a b : ℝ) : ((a : ℝ) : ℂ) = ((b : ℝ) : ℂ) ↔ a = b := by norm_cast
 
+-- Eq ℕ to ℕ∞: push_cast stops, norm_cast moves
+example : True := by
+  fail_if_success (have : ∀ (a b : ℕ), ((a : ℕ) : ℕ∞) = ((b : ℕ) : ℕ∞) ↔ a = b := by intro a b; push_cast; try rfl)
+  trivial
+example (a b : ℕ) : ((a : ℕ) : ℕ∞) = ((b : ℕ) : ℕ∞) ↔ a = b := by norm_cast
+
 -- Lt ℕ to ℤ: push_cast stops, norm_cast moves
 example : True := by
   fail_if_success (have : ∀ (a b : ℕ), ((a : ℕ) : ℤ) < ((b : ℕ) : ℤ) ↔ a < b := by intro a b; push_cast; try rfl)
@@ -420,6 +430,12 @@ example : True := by
   trivial
 example (a b : ℚ) : ((a : ℚ) : ℝ) < ((b : ℚ) : ℝ) ↔ a < b := by norm_cast
 
+-- Lt ℕ to ℕ∞: push_cast stops, norm_cast moves
+example : True := by
+  fail_if_success (have : ∀ (a b : ℕ), ((a : ℕ) : ℕ∞) < ((b : ℕ) : ℕ∞) ↔ a < b := by intro a b; push_cast; try rfl)
+  trivial
+example (a b : ℕ) : ((a : ℕ) : ℕ∞) < ((b : ℕ) : ℕ∞) ↔ a < b := by norm_cast
+
 -- Le ℕ to ℤ: push_cast stops, norm_cast moves
 example : True := by
   fail_if_success (have : ∀ (a b : ℕ), ((a : ℕ) : ℤ) ≤ ((b : ℕ) : ℤ) ↔ a ≤ b := by intro a b; push_cast; try rfl)
@@ -455,6 +471,12 @@ example : True := by
   fail_if_success (have : ∀ (a b : ℚ), ((a : ℚ) : ℝ) ≤ ((b : ℚ) : ℝ) ↔ a ≤ b := by intro a b; push_cast; try rfl)
   trivial
 example (a b : ℚ) : ((a : ℚ) : ℝ) ≤ ((b : ℚ) : ℝ) ↔ a ≤ b := by norm_cast
+
+-- Le ℕ to ℕ∞: push_cast stops, norm_cast moves
+example : True := by
+  fail_if_success (have : ∀ (a b : ℕ), ((a : ℕ) : ℕ∞) ≤ ((b : ℕ) : ℕ∞) ↔ a ≤ b := by intro a b; push_cast; try rfl)
+  trivial
+example (a b : ℕ) : ((a : ℕ) : ℕ∞) ≤ ((b : ℕ) : ℕ∞) ↔ a ≤ b := by norm_cast
 
 -- Prod ℕ to ℤ: push_cast moves, norm_cast moves
 example (s : Finset ℕ) (f : ℕ → ℕ) : ((∏ i ∈ s, f i : ℕ) : ℤ) = ∏ i ∈ s, (f i : ℤ) := by push_cast; try rfl
