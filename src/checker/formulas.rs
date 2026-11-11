@@ -6719,11 +6719,19 @@ fn recursion_value(
     Ok(Some((term, index)))
 }
 
-/// The value a term by cases takes where the facts say which case, or why
-/// no case is said. A term not by cases is its own value.
+/// The value a term by cases takes where the facts say which case, with the
+/// conditions passed to reach it, or why no case is said. A term not by
+/// cases is its own value, passing none.
 enum Case {
-    Value(Node),
+    Value { value: Node, passed: Vec<Passed> },
     Unsaid(&'static str),
+}
+
+/// A condition passed on the way to a case: whether it holds or fails, and
+/// the fact that says so.
+struct Passed {
+    holds: bool,
+    fact: Node,
 }
 
 /// A condition is said where a fact is it, or denies it, as one formula
@@ -6735,20 +6743,29 @@ fn case_taken(
     known: &Known,
 ) -> Case {
     let mut node = node.clone();
+    let mut passed = Vec::new();
     while node.notation() == BY_CASES && node.children.len() == 3 {
         let (value, condition, rest) = (
             node.children[0].clone(),
             node.children[1].clone(),
             node.children[2].clone(),
         );
-        if facts.iter().any(|f| known.alike(f, &condition)) {
-            return Case::Value(value);
+        if let Some(f) = facts.iter().find(|f| known.alike(f, &condition)) {
+            passed.push(Passed {
+                holds: true,
+                fact: f.clone(),
+            });
+            return Case::Value { value, passed };
         }
-        if facts.iter().any(|f| {
+        if let Some(f) = facts.iter().find(|f| {
             wrappers.contains(&f.notation())
                 && !f.children.is_empty()
                 && known.alike(&f.children[0], &condition)
         }) {
+            passed.push(Passed {
+                holds: false,
+                fact: f.clone(),
+            });
             node = rest;
             continue;
         }
@@ -6756,7 +6773,53 @@ fn case_taken(
             "no line it cites says whether a case's condition holds or fails",
         );
     }
-    Case::Value(node)
+    Case::Value {
+        value: node,
+        passed,
+    }
+}
+
+/// How a step's equation is a define's value: its two sides one term as
+/// written, whatever case holds; one side's case, taken by the conditions
+/// passed, alike the other side; or neither, with why where a condition is
+/// unsaid. The check (`check_define_citation`) and the record
+/// (`define_cases`) both read a step by this.
+enum Given {
+    AsWritten,
+    Taken {
+        passed: Vec<Passed>,
+        /// How the case's value meets the other side (`Known::alike_how`).
+        meeting: Option<Meeting>,
+    },
+    Not(Option<&'static str>),
+}
+
+fn value_given(
+    left: &Node,
+    right: &Node,
+    facts: &[Node],
+    wrappers: &FxIndexSet<NotationId>,
+    known: &Known,
+) -> Given {
+    // Written out, the two sides one term: the claim is the define's
+    // value as the define writes it, whatever case holds, as
+    // `e(n) = s(D(f(n), n))` is where s is by cases.
+    if known.alike(left, right) {
+        return Given::AsWritten;
+    }
+    let mut why: Option<&'static str> = None;
+    for (one, other) in [(left, right), (right, left)] {
+        match case_taken(one, facts, wrappers, known) {
+            Case::Unsaid(reason) => why = why.or(Some(reason)),
+            Case::Value { value, passed } => {
+                if known.alike(&value, other) {
+                    let meeting = known.alike_how(&value, other);
+                    return Given::Taken { passed, meeting };
+                }
+            }
+        }
+    }
+    Given::Not(why)
 }
 
 /// What is wrong with a step's claim, read as one equation a define by
@@ -6831,7 +6894,7 @@ fn recursion_equation(
                 why = Some(reason.to_string());
                 continue;
             }
-            Case::Value(got) => {
+            Case::Value { value: got, .. } => {
                 if known.alike(&got, other) {
                     return None;
                 }
@@ -7046,29 +7109,9 @@ pub fn check_define_citation(
         }
         let (left, right) =
             (&parts.claims[0].children[0], &parts.claims[0].children[1]);
-        let mut why: Option<&str> = None;
-        // Written out, the two sides one term: the claim is the define's
-        // value as the define writes it, whatever case holds, as
-        // `e(n) = s(D(f(n), n))` is where s is by cases.
-        let mut gives = known.alike(left, right);
-        for (one, other) in [(left, right), (right, left)] {
-            if gives {
-                break;
-            }
-            match case_taken(one, &parts.facts, &wrappers, known) {
-                Case::Unsaid(reason) => {
-                    why = why.or(Some(reason));
-                    continue;
-                }
-                Case::Value(got) => {
-                    if known.alike(&got, other) {
-                        gives = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if !gives {
+        if let Given::Not(why) =
+            value_given(left, right, &parts.facts, &wrappers, known)
+        {
             let tail = why.map(|w| format!(": {w}")).unwrap_or_default();
             report.say(
                 &thm.path,
@@ -7077,4 +7120,73 @@ pub fn check_define_citation(
             );
         }
     }
+}
+
+/// Of each step citing a define by cases whose value it claims in one case,
+/// the conditions it passes to reach it, each placed in the line the step
+/// cites that says it holds or fails, and how the case's value meets the
+/// other side (`CheckedTheorem::define_cases`), as `check_define_citation`
+/// reads the step; by the step's line.
+pub fn define_cases(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, crate::checker::record::TakenCase> {
+    let wrappers = wrappers(library.env);
+    let mut out = IndexMap::new();
+    for step in thm.steps.iter().filter(|s| s.just.head == Head::Define) {
+        let label = step.just.defined.as_deref().unwrap_or_default();
+        if recursion_cited(thm, label).is_some() {
+            continue;
+        }
+        let parts = known.parts(step, library);
+        let [claim] = parts.claims.as_slice() else {
+            continue;
+        };
+        if !library.ctx.equations.contains(&claim.notation()) {
+            continue;
+        }
+        let Given::Taken { passed, meeting } = value_given(
+            &claim.children[0],
+            &claim.children[1],
+            &parts.facts,
+            &wrappers,
+            known,
+        ) else {
+            continue;
+        };
+        if passed.is_empty() {
+            continue;
+        }
+        let passed = passed
+            .iter()
+            .map(|p| crate::checker::record::PassedCondition {
+                holds: p.holds,
+                said_by: fact_placed(step, &p.fact, known),
+            })
+            .collect();
+        out.insert(
+            step.just.line,
+            crate::checker::record::TakenCase { passed, meeting },
+        );
+    }
+    out
+}
+
+/// Where in a line the step cites the fact stands, the first line that says
+/// it, placed as a citation's facts are (`FirstAt`); None where no line the
+/// step cites says it, a requires line's fact among them.
+fn fact_placed(
+    step: &Step,
+    fact: &Node,
+    known: &Known,
+) -> Option<crate::checker::record::FirstAt> {
+    let scope = known.scope(step);
+    let defined = known.citing_step(step);
+    step.just.refs.iter().find_map(|r| {
+        let stated = scope.get(r)?;
+        let says = known.says(stated, &defined);
+        let s = says.iter().find(|s| known.alike(&s.cited, fact))?;
+        super::citations::placed(r, s, &says, known.sentence_count(stated))
+    })
 }

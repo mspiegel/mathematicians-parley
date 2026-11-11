@@ -43,7 +43,7 @@ theorem a_line_is_one_to_one_and_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x 
   have s3 : ∀ y : ℝ, ∃ x : ℝ, y = f x := by
     intro y
     -- 3.1. D1
-    have s3_1 : f ((y - 1) / 2) = 2 * ((y - 1) / 2) + 1 := by (try simp only [hD1]); first | done | parley_set_side
+    have s3_1 : f ((y - 1) / 2) = 2 * ((y - 1) / 2) + 1 := by simp (disch := omega) only [hD1]
     -- 3.2. algebra, from 3.1
     have s3_2 : y = f ((y - 1) / 2) := by linear_combination (norm := parley_norm) ((-2) / ((2))) * s3_1
     -- 3.3. exhibit, from 3.2

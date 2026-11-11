@@ -112,6 +112,14 @@ exactly what the check refuses.
   is left (`None`). A claim "for all x ∈ S, A = B" is read at its body.
   Lean closes it by `simp only [hD]`, adding `push_cast; norm_num` where
   that meeting, arithmetic left, or Lean's casts ask more.
+- `define_cases`: for each step citing a define by cases whose value it
+  claims in one case, the conditions it passes to reach that case, in the
+  define's order. Each condition holds, for the case it gives, or fails,
+  for the cases after it, with where a line the step cites says so
+  (`FirstAt`). It also records how the case's value meets the claim's other
+  side. The check that the step's claim is the define's value reads the
+  step the same way (`value_given`). Lean puts each condition by
+  `if_pos h` or `if_neg h`, h that line.
 - `links`: the relation each line a `transitivity` step cites gives its
   chain. Metamath reads it; Lean writes the chain by linear arithmetic.
 

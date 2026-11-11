@@ -667,6 +667,7 @@ fn theorem_record(
     record.obtained_parts = citations::obtained_parts(thm, c.library, &c.known[i]);
     record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);
     record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
+    record.define_cases = formulas::define_cases(thm, c.library, &c.known[i]);
     record.link_places = formulas::link_places(thm, c.library, &c.known[i]);
     record.substituted = citations::substitutions(thm, c.library, &c.known[i]);
     record.asserted = library::let_assertions(&c.known[i]);

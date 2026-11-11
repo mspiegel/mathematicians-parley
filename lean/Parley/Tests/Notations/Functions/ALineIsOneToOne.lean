@@ -31,9 +31,9 @@ theorem a_line_is_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x +
     intro t
     intro hA1
     -- 2.1. D1
-    have s2_1 : f s = 2 * s + 1 := by (try simp only [hD1]); first | done | parley_set_side
+    have s2_1 : f s = 2 * s + 1 := by simp (disch := omega) only [hD1]
     -- 2.2. D1
-    have s2_2 : f t = 2 * t + 1 := by (try simp only [hD1]); first | done | parley_set_side
+    have s2_2 : f t = 2 * t + 1 := by simp (disch := omega) only [hD1]
     -- 2.3. calculation
     have s2_3 : 2 * s + 1 = 2 * t + 1 := by
       calc 2 * s + 1 = f s := by exact s2_1.symm

@@ -25,7 +25,6 @@ public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Prime
@@ -59,7 +58,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
     have s3_1 : i ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := j) (k := i) hK1)
     -- 3.2. D2, from 3.1
     have r49_1 : i ∈ Finset.Icc (1 : ℤ) (j + 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_extended (a := (1 : ℤ)) (b := j) (k := i) hK1)
-    first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+    simp (disch := omega) only [hD2, if_pos s3_1]
   -- 4. proof
   have s4 : ∀ i : ℤ, i ∈ Finset.Icc 1 (j + 1) → Nat.Prime (h i).toNat := by
     intro i hK2
@@ -71,7 +70,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
     rcases s4_1 with hC1 | hC2
     · skip
       -- 4.2.1. D2, from C1, K2
-      have s4_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      have s4_2_1 : h i = g i := by simp (disch := omega) only [hD2, if_pos hC1]
       -- 4.2.2. def:range-between k := i, a := 1, b := j, from C1
       have r69_1 : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK2)
       have s4_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side)
@@ -84,7 +83,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) (s4_2_1).symm s4_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 4.2.5. D2, from C2, K2
-      have s4_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      have s4_2_5 : h i = p := by simp (disch := omega) only [hD2, if_neg hC2]
       -- 4.2.6. substitute h(i) = p (line 4.2.5) into H2
       (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) (s4_2_5).symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. proof
@@ -98,7 +97,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
     rcases s5_1 with hC3 | hC4
     · skip
       -- 5.2.1. D2, from C3, K3
-      have s5_2_1 : h i = g i := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      have s5_2_1 : h i = g i := by simp (disch := omega) only [hD2, if_pos hC3]
       -- 5.2.2. def:range-between k := i, a := 1, b := j, from C3
       have r105_1 : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3)
       have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr (by parley_set_side)
@@ -110,7 +109,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) (s5_2_1).symm s5_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 5.2.5. D2, from C4, K3
-      have s5_2_5 : h i = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+      have s5_2_5 : h i = p := by simp (disch := omega) only [hD2, if_neg hC4]
       -- 5.2.6. substitute h(i) = p (line 5.2.5) into H1
       (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) (s5_2_5).symm hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. mun:function-into, from 5
@@ -125,7 +124,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   have r135_2 : j + 1 ≤ j + 1 := by parley_order
   have s9 : j + 1 ∈ Finset.Icc (1 : ℤ) (j + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := j + 1) (a := (1 : ℤ)) (b := j + 1))).mpr (by parley_set_side)
   -- 10. D2, from 8, 9
-  have s10 : h (j + 1) = p := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s10 : h (j + 1) = p := by simp (disch := omega) only [hD2, if_neg s8]
   -- 11. substitute r = ∏(i ∈ {1, …, j}) g(i) (line 2)
   have s11 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) = r * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) (s2c).symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. calculation

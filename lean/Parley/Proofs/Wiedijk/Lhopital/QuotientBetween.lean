@@ -21,7 +21,6 @@ public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -59,23 +58,23 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 5. algebra
   have s5 : c = c := by parley_ring
   -- 6. D1, from H3, 5
-  have s6 : F c = 0 := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+  have s6 : F c = 0 := by simp (disch := omega) only [hD1, if_pos s5]
   -- 7. D2, from H3, 5
-  have s7 : G c = 0 := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+  have s7 : G c = 0 := by simp (disch := omega) only [hD2, if_pos s5]
   -- 8. proof
   have s8 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), F t = f t := by
     intro t hK1
     -- 8.1. mun:remove-member, from K1
     have s8_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK1
     -- 8.2. D1, from 8.1
-    first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
+    simp (disch := omega) only [hD1, if_neg s8_1.2]
   -- 9. proof
   have s9 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), G t = g t := by
     intro t hK2
     -- 9.1. mun:remove-member, from K2
     have s9_1 : t ∈ (Set.Ioo a b : Set ℝ) ∧ t ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := t))).mp hK2
     -- 9.2. D2, from 9.1
-    first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
+    simp (disch := omega) only [hD2, if_neg s9_1.2]
   -- 10. proof
   have s10 : ∀ t ∈ (Set.Ioo a b : Set ℝ), True := by
     intro t hK3

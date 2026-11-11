@@ -79,6 +79,8 @@
 {"key":"congrArg","kind":"const","modules":[]}
 {"key":"deriv","kind":"const","modules":["Mathlib.Analysis.Calculus.Deriv.Basic"]}
 {"key":"div_one","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"if_neg","kind":"const","modules":[]}
+{"key":"if_pos","kind":"const","modules":[]}
 {"key":"implies_true","kind":"const","modules":[]}
 {"key":"ite","kind":"const","modules":["Mathlib.Tactic.Positivity.Basic"]}
 {"key":"ite_eq_left","kind":"const","modules":[]}
@@ -445,6 +447,8 @@
 {"key":"fun y : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun z : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"if h : (sorry : Prop) then a else (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"if_neg a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"if_pos a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_left a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ite_eq_right a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"le_of_lt (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}

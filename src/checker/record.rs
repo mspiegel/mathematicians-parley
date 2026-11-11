@@ -214,6 +214,30 @@ pub struct GroupFacts {
     pub set_systems: Vec<IndexMap<String, crate::rules::System>>,
 }
 
+/// A condition of a define by cases that a step citing it passes: `t = c`
+/// of "F(t) = 0 if t = c, f(t) otherwise".
+#[derive(Clone, Debug)]
+pub struct PassedCondition {
+    /// Whether it holds, giving its case, or fails, passing to the next.
+    pub holds: bool,
+    /// The fact that says so, where a line the step cites states it; None
+    /// where it comes from a requires line or is not found in one.
+    pub said_by: Option<FirstAt>,
+}
+
+/// The case of a define by cases a step takes, as the checker read it.
+#[derive(Clone, Debug)]
+pub struct TakenCase {
+    /// The conditions passed to reach it, in the define's order: each
+    /// failing, for the cases before it, and the last holding, unless the
+    /// case is the one written `otherwise`.
+    pub passed: Vec<PassedCondition>,
+    /// How the case's value meets the claim's other side (`Known::alike_how`):
+    /// as it stands, or with arithmetic left; None where they met only as
+    /// `Known::alike` reads them.
+    pub meeting: Option<crate::matching::Meeting>,
+}
+
 /// A theorem as the checker reads it.
 #[derive(Clone, Debug, Default)]
 pub struct CheckedTheorem {
@@ -296,6 +320,10 @@ pub struct CheckedTheorem {
     /// where they do not meet and arithmetic is left. By the link's or the
     /// step's line (`formulas::define_link_meetings`).
     pub define_links: IndexMap<usize, Option<crate::matching::Meeting>>,
+    /// Of each step citing a define by cases whose value it claims in one
+    /// case, how it reaches that case and meets it. By the step's line
+    /// (`formulas::define_cases`).
+    pub define_cases: IndexMap<usize, TakenCase>,
     /// Where in the line each calculation link cites the link stands, by
     /// the link's line (`formulas::link_places`). A link read off a chain,
     /// a = c of a = b = c, is placed at the chain's sentence with the pair it

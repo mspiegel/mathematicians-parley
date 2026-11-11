@@ -28,7 +28,7 @@ theorem a_line_is_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x + 1) :
   have s2 : ∀ y : ℝ, ∃ x : ℝ, y = f x := by
     intro y
     -- 2.1. D1
-    have s2_1 : f ((y - 1) / 2) = 2 * ((y - 1) / 2) + 1 := by (try simp only [hD1]); first | done | parley_set_side
+    have s2_1 : f ((y - 1) / 2) = 2 * ((y - 1) / 2) + 1 := by simp (disch := omega) only [hD1]
     -- 2.2. algebra, from 2.1
     have s2_2 : y = f ((y - 1) / 2) := by linear_combination (norm := parley_norm) ((-2) / ((2))) * s2_1
     -- 2.3. exhibit, from 2.2

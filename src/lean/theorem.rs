@@ -4391,18 +4391,26 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// Whether the define of that label gives its value by cases, as the
+    /// page reads its line (the `by-cases` notation).
+    fn define_by_cases(&self, label: &str) -> bool {
+        let Some(d) = self.thm.defines.iter().find(|d| d.label == label) else {
+            return false;
+        };
+        self.rec
+            .page
+            .entries()
+            .filter(|(key, _)| key.line == d.line)
+            .any(|(_, n)| n.walk().iter().any(|m| &*m.notation_name() == "by-cases"))
+    }
+
     /// The recursion a step cites by its label, the header's or one the
     /// proof lets, whose hypotheses are written alike; None for a citation
     /// of any other define.
     fn recursion_cited(&self, just: &Justification) -> Option<CitedRecursion> {
         let label = just.defined.as_deref()?;
         let d = self.thm.defines.iter().find(|d| d.label == label)?;
-        let by_cases = self
-            .rec
-            .page
-            .entries()
-            .filter(|(key, _)| key.line == d.line)
-            .any(|(_, n)| n.walk().iter().any(|m| &*m.notation_name() == "by-cases"));
+        let by_cases = self.define_by_cases(label);
         match crate::corpus::define_parts(&d.text) {
             Route::Built(crate::corpus::DefineParts::Recursion(rule)) => {
                 Some(CitedRecursion {
@@ -4667,8 +4675,32 @@ impl<'a> Proof<'a> {
                         })
                 }
                 // A function the header lets by its value: its equation
-                // put in, f(a) its value at a, and the claim closed.
+                // put in, f(a) its value at a, and the claim closed, as it
+                // stands where the checker met the claim's sides with the
+                // value written out (`define_links`), and once worked out
+                // where it recorded arithmetic left. Not of a value by cases,
+                // whose case the record does not say, nor of a claim "for
+                // all", where the equation's condition, its argument in the
+                // function's domain, is to be shown of the claim's letter
+                // and `omega` does not show it.
                 None => match self.header_function_cited(reason.just) {
+                    Some(hyp)
+                        if self.rec.define_links.contains_key(&reason.just.line)
+                            && !reason
+                                .just
+                                .defined
+                                .as_deref()
+                                .is_some_and(|l| self.define_by_cases(l))
+                            && node.notation() != crate::notations::FOR_ALL =>
+                    {
+                        let met = &self.rec.define_links[&reason.just.line];
+                        let alone = met.as_ref().is_some_and(unfolds_alone);
+                        Route::Built(Proof::By(unfolded_by(
+                            &[hyp],
+                            alone,
+                            node.notation() == crate::notations::FOR_ALL,
+                        )))
+                    }
                     Some(hyp) => Route::Built(Proof::By(Tactic::Seq(vec![
                         t::try_(t::simp_only(
                             false,
@@ -4727,6 +4759,32 @@ impl<'a> Proof<'a> {
                                 alone && !cast,
                                 node.notation() == crate::notations::FOR_ALL,
                             )));
+                        }
+                        // A define by cases at the case the checker took
+                        // (`define_cases`): each condition it passed put by
+                        // the line that says it, `if_pos` where it holds and
+                        // `if_neg` where it fails, and the case's value met
+                        // with the other side as the record met them.
+                        if let (Some(taken), false, true) = (
+                            self.rec.define_cases.get(&reason.just.line),
+                            unfold.is_empty(),
+                            by_cases,
+                        ) {
+                            if let Route::Built(conditions) = self.conditions_put(taken)
+                            {
+                                let alone =
+                                    taken.meeting.as_ref().is_some_and(unfolds_alone);
+                                let mut rules: Vec<super::doc::Rule> = unfold
+                                    .iter()
+                                    .map(|d| t::forwards(t::hyp(d)))
+                                    .collect();
+                                rules.extend(conditions);
+                                return Route::Built(Proof::By(simp_unfolded(
+                                    rules,
+                                    alone,
+                                    node.notation() == crate::notations::FOR_ALL,
+                                )));
+                            }
                         }
                         let mut ways = match unfold.is_empty() {
                             true => Vec::new(),
@@ -5673,6 +5731,41 @@ impl<'a> Proof<'a> {
         };
         self.implied_proof(&found, rule, &says)
             .map(|proof| (proof, says))
+    }
+
+    /// The rewrites that take a define by cases to the case the checker
+    /// took (`define_cases`): `if_pos h` of each condition passed that
+    /// holds and `if_neg h` of each that fails, h the line that says so.
+    fn conditions_put(
+        &self,
+        taken: &crate::checker::record::TakenCase,
+    ) -> Route<Vec<super::doc::Rule>> {
+        let mut out = Vec::new();
+        for condition in &taken.passed {
+            let Some(at) = &condition.said_by else {
+                return Route::no("a case's condition said by no line the step cites");
+            };
+            let found = match self.line_part(at) {
+                Route::Built(f) => f,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            if at.implied.is_some() {
+                return Route::no(
+                    "a case's condition a line implies without saying it",
+                );
+            }
+            let lemma = match condition.holds {
+                true => "if_pos",
+                false => "if_neg",
+            };
+            out.push(super::tactics::forwards(Printed::applied(
+                lemma,
+                super::doc::Source::Core,
+                vec![found.proof],
+                super::doc::LeanType::Prop,
+            )));
+        }
+        Route::Built(out)
     }
 
     /// The sentence or part of a line `at` names, as the page writes it, with
@@ -14169,8 +14262,19 @@ fn unfolds_alone(met: &crate::matching::Meeting) -> bool {
 /// its body leaves.
 fn unfolded_by(defines: &[String], alone: bool, for_all: bool) -> Tactic {
     use super::tactics as t;
-    let mut rules: Vec<super::doc::Rule> =
+    let rules: Vec<super::doc::Rule> =
         defines.iter().map(|d| t::forwards(t::hyp(d))).collect();
+    simp_unfolded(rules, alone, for_all)
+}
+
+/// `unfolded_by` with the rules given: the defines' equations and any
+/// rewrite that goes with them, a case's `if_pos h`.
+fn simp_unfolded(
+    mut rules: Vec<super::doc::Rule>,
+    alone: bool,
+    for_all: bool,
+) -> Tactic {
+    use super::tactics as t;
     if for_all {
         rules.push(t::forwards(t::lemma("implies_true")));
     }

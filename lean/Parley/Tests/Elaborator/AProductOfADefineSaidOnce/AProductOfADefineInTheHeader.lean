@@ -28,7 +28,7 @@ theorem a_product_of_a_define_in_the_header (p : ℤ) (hH1 : 0 < p) (e : ℤ →
   have s1 : (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ)))
   -- 2. D1
   have r44_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_side
-  have s2 : e 1 = p := by (try simp only [hD1]); first | done | parley_side
+  have s2 : e 1 = p := by simp (disch := omega) only [hD1]
   -- 3. calculation
   calc (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := by exact s1
     _ = p := by exact s2

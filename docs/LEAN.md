@@ -449,7 +449,13 @@ in Lean's statement and named again by `set` at the head of the proof.
 A step or a calculation row a define proves is `simp only [hD]`, with
 `push_cast; norm_num` after it where the checker met the two sides otherwise
 than as written, or where Lean casts a set's letter and the sides are not
-alike once it is read as its value. A definition read backwards is
+alike once it is read as its value. A function the header lets is put in
+the same way, by its hypothesis, except in a claim "for all", where its
+domain is to be shown of the claim's letter, which `omega` does not do. A
+define by cases is put at the case the checker took (`define_cases`):
+`simp only [hD, if_pos h₁, if_neg h₂]`, each condition by the line that
+says it, and `push_cast; norm_num` after it where the case's value meets the
+other side otherwise than as written. A definition read backwards is
 `(…).mpr w` alone where Lean states its left side as it writes the claim.
 
 ## How a block ends

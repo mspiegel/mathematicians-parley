@@ -72,7 +72,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s2_3a : Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) s2_2)
     have s2_3b : Real.sqrt x ^ 2 = x := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x) s2_2)
     -- 2.4. D2, from K1
-    have s2_4 : g x = Real.sqrt x := by (try simp only [hD2]); first | done | parley_set_side
+    have s2_4 : g x = Real.sqrt x := by simp (disch := omega) only [hD2]
     -- 2.5. substitute g(x) = √x (line 2.4) into line 2.3
     exact trivial
   -- 3. mun:function-into, from 2
@@ -141,9 +141,9 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.6. membership, from 4.3, 4.8.3
       -- 4.8.7. mun:abs-real x := √x − √c, from 4.8.6
       -- 4.8.8. D2, from K4
-      have s4_8_8 : g x = Real.sqrt x := by (try simp only [hD2]); first | done | parley_set_side
+      have s4_8_8 : g x = Real.sqrt x := by simp (disch := omega) only [hD2]
       -- 4.8.9. D2, from K2
-      have s4_8_9 : g c = Real.sqrt c := by (try simp only [hD2]); first | done | parley_set_side
+      have s4_8_9 : g c = Real.sqrt c := by simp (disch := omega) only [hD2]
       -- 4.8.10. algebra, from 4.3, 4.8.3
       have s4_8_10 : (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = x - c := by linear_combination (norm := parley_norm) (-1) * s4_3b + s4_8_3b
       -- 4.8.11. inequalities, from 4.3, 4.8.3

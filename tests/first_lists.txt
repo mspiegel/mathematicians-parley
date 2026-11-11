@@ -32,10 +32,6 @@
 1	lean/Parley/Proofs/Wiedijk/Leibniz/PowerIntegral.lean	19.3	row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.4	substitute: equation put in
 2	lean/Parley/Proofs/Wiedijk/Leibniz/SeriesRemainder.lean	2.8	substitute: equation put in
-1	lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	6	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	7	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	8.2	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/Lhopital/QuotientBetween.lean	9.2	define by cases: the case not recorded
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtLeast.lean	2.3	row: equation put in
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/LaterAtMost.lean	2.5	row: equation put in
 1	lean/Parley/Proofs/Wiedijk/LiouvilleNumber/PartialSumsIncrease.lean	2.8	substitute: equation put in
@@ -45,12 +41,6 @@
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	4.2	substitute: equation put in
 2	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EuclidPerfect.lean	9	named numbers put in; row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/PerfectNumbers/EulerPerfect.lean	31	substitute: equation put in
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	10	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	3.2	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	4.2.1	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	4.2.5	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.1	define by cases: the case not recorded
-1	lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeTimesProduct.lean	5.2.5	define by cases: the case not recorded
 1	lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean	10.1.3	row: read off a cited line
 1	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	1.2	row: equation put in
 1	lean/Parley/Proofs/Wiedijk/SumOfPowers/SumOfPowers.lean	2	cited: casts push_cast does not move
@@ -66,17 +56,10 @@
 2	lean/Parley/Stdlib/Sums/ProductConstant.lean	1.3	cited: claim counts a set; row: equation put in
 1	lean/Parley/Tests/Elaborator/ADefineAtEveryMemberOfARange/ADefineAtEveryMemberOfARange.lean	1	header function put in
 1	lean/Parley/Tests/Elaborator/ADefineFillingACitedFunction/ADefineFillingACitedFunction.lean	1	header function put in
-1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	2.4	header function put in
-1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.8	header function put in
-1	lean/Parley/Tests/Elaborator/ADefinitionFoldedWithoutItsPair/ADefinitionFoldedWithoutItsPair.lean	4.8.9	header function put in
 1	lean/Parley/Tests/Elaborator/AForAllLineReadInABlock/AForAllLineInACalculationLink.lean	1.1	row: read off a cited line
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.2	cited: item and claim in different types
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.3	cited: other shape, met otherwise than written
 1	lean/Parley/Tests/Elaborator/AFunctionSayingItsKind/AFunctionSayingItsKind.lean	2.6	substitute: equation put in
-1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	2.4	header function put in
-1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.8	header function put in
-1	lean/Parley/Tests/Elaborator/AMapOverASetBindingItsLetter/AMapOverASetBindingItsLetter.lean	4.8.9	header function put in
-1	lean/Parley/Tests/Elaborator/AProductOfADefineSaidOnce/AProductOfADefineInTheHeader.lean	2	header function put in
 1	lean/Parley/Tests/Elaborator/AnIdentityASubstitutionMakes/AnIdentityASubstitutionMakesAtAValue.lean	1	substitute: equation put in
 1	lean/Parley/Tests/Elaborator/ReadingDefines/ADefineAppliedAsASubstitutedEquation.lean	1	header function put in
 1	lean/Parley/Tests/Elaborator/ReadingDefines/ADefineAppliedSubstitutedIntoALine.lean	1	header function put in
@@ -88,14 +71,6 @@
 1	lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	10	substitute: equation put in
 1	lean/Parley/Tests/Notations/Counting/FactorialOfFour.lean	5	substitute: equation put in
 1	lean/Parley/Tests/Notations/Counting/FactorialOfTwo.lean	5	substitute: equation put in
-1	lean/Parley/Tests/Notations/Functions/ALineIsOneToOne.lean	2.1	header function put in
-1	lean/Parley/Tests/Notations/Functions/ALineIsOneToOne.lean	2.2	header function put in
-1	lean/Parley/Tests/Notations/Functions/ALineIsOneToOneAndOnto.lean	3.1	header function put in
-1	lean/Parley/Tests/Notations/Functions/ALineIsOnto.lean	2.1	header function put in
-1	lean/Parley/Tests/Notations/Functions/ASquareIsNotOneToOne.lean	1	header function put in
-1	lean/Parley/Tests/Notations/Functions/ASquareIsNotOneToOne.lean	2	header function put in
-1	lean/Parley/Tests/Notations/Functions/ASquareIsNotOnto.lean	1.4	header function put in
-1	lean/Parley/Tests/Notations/Functions/AValueOfALine.lean	1	header function put in
 1	lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	5	substitute: equation put in
 1	lean/Parley/Tests/Notations/Sums/OneToThreeSummed.lean	9	substitute: equation put in
 1	lean/Parley/Tests/Stdlib/Sums/Range.lean	1	cited: other shape, met otherwise than written

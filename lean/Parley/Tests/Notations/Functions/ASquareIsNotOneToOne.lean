@@ -26,9 +26,9 @@ namespace Parley.Tests.Notations.Functions.ASquareIsNotOneToOne
 theorem a_square_is_not_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x ^ 2) :
     ¬ (Set.MapsTo f (Set.univ : Set ℝ) (Set.univ : Set ℝ) ∧ Set.InjOn f (Set.univ : Set ℝ)) := by
   -- 1. D1
-  have s1 : f (-1) = (-1) ^ 2 := by (try simp only [hD1]); first | done | parley_set_side
+  have s1 : f (-1) = (-1) ^ 2 := by simp (disch := omega) only [hD1]
   -- 2. D1
-  have s2 : f 1 = 1 ^ 2 := by (try simp only [hD1]); first | done | parley_set_side
+  have s2 : f 1 = 1 ^ 2 := by simp (disch := omega) only [hD1]
   -- 3. calculation
   have s3 : f (-1) = f 1 := by
     calc f (-1) = (-1) ^ 2 := by exact s1
