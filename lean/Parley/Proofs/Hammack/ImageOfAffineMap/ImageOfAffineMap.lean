@@ -30,7 +30,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
   have s2 : ∀ y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)), y ∈ (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) := by
     intro y hK1
     -- 2.1. obtain s: def:image u := y, Y := ℤ, from K1, 1
-    obtain ⟨s, _, s2_1⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (u := y) (W := Set.univ) (by parley_whole_side) (by parley_whole_side))).mp hK1
+    obtain ⟨s, _, s2_1⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (u := y) (W := Set.univ) s1 (by parley_whole_side))).mp hK1
     -- 2.2. instantiate x := s in H2
     have s2_2 : f s = 4 * s + 5 := by exact (hH2 s)
     -- 2.3. algebra, from 2.1, 2.2
@@ -49,7 +49,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     -- 4.2. instantiate x := m − 1 in H2
     have s4_2 : f (m - 1) = 4 * (m - 1) + 5 := by exact (hH2 (m - 1))
     -- 4.3. mun:value-in-image Y := ℤ, s := m − 1, from 1
-    have s4_3 : f (m - 1) ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (s := m - 1) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))
+    have s4_3 : f (m - 1) ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (s := m - 1) (W := Set.univ) s1 (by parley_whole_side) (by parley_whole_side))
     -- 4.4. substitute
     have c1 : f (m - 1) = y := by linear_combination (norm := parley_norm) (-1) * s4_1 + s4_2
     have row1 : y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)))) c1 s4_3; push_cast at h ⊢; all_goals exact_mod_cast h)

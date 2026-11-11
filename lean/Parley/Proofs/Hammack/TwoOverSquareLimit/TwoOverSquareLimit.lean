@@ -14,6 +14,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.LinearCombination
@@ -90,7 +91,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       have r99_2 : 0 ≤ a n - 5 := by parley_side
       have s1_3_17 : abs (a n - 5) = a n - 5 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a n - 5)) (by parley_side)
       -- 1.3.18. transitivity, from 1.3.17, 1.3.13
-      parley_order
+      exact Eq.trans_lt s1_3_17 s1_3_13
     -- 1.4. exhibit, from 1.3
     exact ⟨N, s1_2a, s1_3⟩
   -- 2. def:tends-to L := 5, from 1

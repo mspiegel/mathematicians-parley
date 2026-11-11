@@ -254,7 +254,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       try have hK7_bounds := Finset.mem_Icc.mp hK7
       -- 5.13.1. mun:in-subset, from K7, 5.12
       have s5_13_1 : a ∈ Finset.Icc (0 : ℤ) (p - 1) := by
-        have hI : a ∈ Finset.Icc (0 : ℤ) (p - 1) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (0 : ℤ) (p - 1) : Set ℤ)) (u := a) (by parley_whole_side) (by parley_whole_side)))
+        have hI : a ∈ Finset.Icc (0 : ℤ) (p - 1) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (0 : ℤ) (p - 1) : Set ℤ)) (u := a) s5_12 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK7)))
         exact hI
       -- 5.13.2. contradiction
       have s5_13_2 : f a ≠ 0 := by
@@ -364,12 +364,12 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_15_6 : f (f a) ≡ a [ZMOD p] := by exact (Parley.Items.Stdlib.Divisibility.thm_congruent_cancel (x := f (f a)) (y := a) (c := f a) (n := p) hH1 s5_15_4 s5_15_5)
       -- 5.15.7. mun:in-subset, from K9, 5.12
       have s5_15_7 : a ∈ Finset.Icc (0 : ℤ) (p - 1) := by
-        have hI : a ∈ Finset.Icc (0 : ℤ) (p - 1) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (0 : ℤ) (p - 1) : Set ℤ)) (u := a) (by parley_whole_side) (by parley_whole_side)))
+        have hI : a ∈ Finset.Icc (0 : ℤ) (p - 1) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (0 : ℤ) (p - 1) : Set ℤ)) (u := a) s5_12 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK9)))
         exact hI
       -- 5.15.8. mun:congruent-in-range, from 5.15.1, 5.15.6, 5.15.7
       exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := p) hH1 (x := f (f a)) s5_15_1 (y := a) s5_15_7 s5_15_6)
     -- 5.16. mun:function-into, from D1, 5.13
-    have s5_16 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (by parley_set_side) (by parley_whole_side))
+    have s5_16 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (by parley_set_side) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_13))
     -- 5.17. mun:range-finite
     have s5_17 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ).Finite := by exact (Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := p - 2))
     -- 5.18. mun:range-in-integers
@@ -377,7 +377,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.19. thm:paired-product, from 5.7, 5.14, 5.15, 5.17, 5.18
     have r628_1 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact s5_16
     have s5_19 : (∏ a ∈ Finset.Icc (2 : ℤ) (p - 2), (a : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by
-      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by parley_instance ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (by parley_whole_side) (by parley_whole_side) (n := p) hH1 (f := f) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)))
+      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by parley_instance ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (by parley_whole_side) s5_17 (n := p) hH1 (f := f) (by parley_whole_side) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_15) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_14) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_7)))
       exact hI
     -- 5.20. mun:nat-minus-one n := p
     have s5_20 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)

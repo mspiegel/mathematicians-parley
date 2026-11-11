@@ -2,7 +2,6 @@ module
 
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
@@ -25,6 +24,6 @@ theorem continuous_on_a_part (f : ℝ → ℝ) (hH2 : ContinuousOn f (Set.univ :
   -- 1. mun:subset-self X := ℝ
   have s1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   -- 2. mun:continuous-on-part D := ℝ, from H2, H3, 1
-  exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := f) (D := (Set.univ : Set ℝ)) (S := S) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))
+  exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := f) (D := (Set.univ : Set ℝ)) (S := S) s1 hH3 hH2)
 
 end Parley.Tests.Stdlib.Calculus.ContinuousOnAPart

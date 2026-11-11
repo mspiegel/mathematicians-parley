@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -163,7 +164,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 5.4.12. inequalities
         have s5_4_12 : b (k + 1) + (k + 1) ≤ b k + k := by parley_order
         -- 5.4.13. transitivity, from 5.4.12, 5.4.11
-        have s5_4_13 : b (k + 1) + (k + 1) ≤ N := by parley_order
+        have s5_4_13 : b (k + 1) + (k + 1) ≤ N := by exact le_trans s5_4_12 s5_4_11
         -- 5.4.14. mun:or-left, from 5.4.13
         exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_13)
   -- 6. instantiate k := N in line 3

@@ -23,9 +23,9 @@ requires line on line 57 cites stdlib/sums/sum-termwise group 0; a := 1, b := n,
 requires line on line 58 cites stdlib/sums/sum-telescopes group 0; a := 1, b := n, t := property-of(2 / k); concludes 0 AsWritten; from no line; supplied by unstated, once K5 sentence 0 implied by WiderSystem, requires 1; letters a cz from cn, b cz from cn, t none from none; facing straight; met renamed and identities dropped
 requires line 1 of step 6.2.10 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line; supplied by unstated, once K7 sentence 0 implied by WiderSystem; letters a cz from cn, b cz from cn, t none from none; facing none; met renamed
 requires line 1 of step 7 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line; supplied by unstated, unstated; letters a cz from cn, b cz from cn, t none from none; facing none; met renamed
-step 6.2.4 chains 1 / (n + 1) ≤ 1 / N | 1 / N < ε / 2
-step 6.2.6 chains 2 − ε < 2 − 2 / (n + 1) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
-step 6.2.9 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) | 2 − 2 / (n + 1) < 2 + ε
+step 6.2.4 chains 1 / (n + 1) ≤ 1 / N (6.2.2 sentence 0) | 1 / N < ε / 2 (6.1 sentence 1)
+step 6.2.6 chains 2 − ε < 2 − 2 / (n + 1) (6.2.5 sentence 0) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) (5 sentence 1, turned)
+step 6.2.9 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) (5 sentence 1) | 2 − 2 / (n + 1) < 2 + ε (6.2.8 sentence 0)
 step 6.3 exhibits in sentence 0 N := N; facts by once 6.1 sentence 0, 6.2 sentence 0
 requires line 1 of step 8 restates 2 sentence 0
 step 6.1 obtains sentence 1 part 0 is part 0

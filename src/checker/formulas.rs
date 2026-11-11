@@ -7,7 +7,9 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 
 use super::library::{Known, SaidFrom, Stated};
-use super::record::{CheckedTheorem, Contradicted, Negating, Supposed, Supposition};
+use super::record::{
+    ChainLink, CheckedTheorem, Contradicted, Negating, Supposed, Supposition,
+};
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::{
@@ -3608,6 +3610,9 @@ struct Related {
     /// without writing it has no written orientation (`METHODS.md`,
     /// inequalities, the first row).
     written: bool,
+    /// Whether it is read from the right side of the formula it is taken
+    /// from (`turned`).
+    turned: bool,
 }
 
 impl Related {
@@ -3632,6 +3637,7 @@ impl Related {
             rel,
             said: node.clone(),
             written: true,
+            turned: false,
         })
     }
 
@@ -3643,6 +3649,7 @@ impl Related {
             rel: self.rel.converse(),
             said: self.said.clone(),
             written: self.written,
+            turned: !self.turned,
         }
     }
 
@@ -4014,15 +4021,45 @@ fn reaching_claim(
 }
 
 /// The relation each line a `transitivity` step cites gives its chain, as
-/// written, by the line each step is on (`CheckedTheorem::links`); a step
-/// whose lines make no chain has none, and is among the theorem's problems.
-pub fn transitivity_links(thm: &Theorem, known: &Known) -> IndexMap<usize, Vec<Node>> {
+/// written, with where it stands in the line and whether the chain reads it
+/// from its right side, by the line each step is on
+/// (`CheckedTheorem::links`); a step whose lines make no chain has none, and
+/// is among the theorem's problems.
+pub fn transitivity_links(
+    thm: &Theorem,
+    known: &Known,
+    library: &Library,
+) -> IndexMap<usize, Vec<ChainLink>> {
     thm.steps
         .iter()
         .filter(|s| s.just.head.is(Method::Transitivity))
         .filter_map(|s| {
             let links = cited_links(thm, s, known, "transitivity").ok()?;
-            Some((s.line, links.into_iter().map(|l| l.said).collect()))
+            let chain = faced(thm, s, &links, known).ok()?;
+            let each = links.iter().zip(&chain).zip(&s.just.refs);
+            let linked = each
+                .map(|((link, read), r)| {
+                    // A define's equation stands in no line.
+                    let define = thm.defines.iter().any(|d| d.label == *r);
+                    let at = match define {
+                        true => None,
+                        false => super::citations::fact_at(
+                            s,
+                            std::slice::from_ref(r),
+                            None,
+                            &link.said,
+                            known,
+                            library,
+                        ),
+                    };
+                    ChainLink {
+                        said: link.said.clone(),
+                        at,
+                        turned: read.turned,
+                    }
+                })
+                .collect();
+            Some((s.line, linked))
         })
         .collect()
 }
@@ -4038,6 +4075,37 @@ fn chain_of(
     links: &[Related],
     known: &Known,
 ) -> Checked<Related> {
+    let number = &step.number;
+    let defect = |message: String| Problem::new(&thm.path, step.just.line, message);
+    let chain = faced(thm, step, links, known)?;
+    let Some(rel) = chain_rel(&chain) else {
+        return Err(defect(format!(
+            "step {number} chains orders going up and going down, which say nothing of its ends"
+        )));
+    };
+    // The skeleton refuses a `transitivity` with no `from`.
+    let (first, last) = (
+        chain.first().expect("a chain's first line"),
+        chain.last().expect("a chain's last line"),
+    );
+    Ok(Related {
+        left: first.left.clone(),
+        right: last.right.clone(),
+        rel,
+        said: last.said.clone(),
+        written: true,
+        turned: false,
+    })
+}
+
+/// The links of a `transitivity` step's chain, each read the way the chain
+/// goes (`chain_of`): its right side the next one's left side.
+fn faced(
+    thm: &Theorem,
+    step: &Step,
+    links: &[Related],
+    known: &Known,
+) -> Checked<Vec<Related>> {
     let number = &step.number;
     let defect = |message: String| Problem::new(&thm.path, step.just.line, message);
     let mut chain: Vec<Related> = Vec::new();
@@ -4069,23 +4137,7 @@ fn chain_of(
         };
         chain.push(link);
     }
-    let Some(rel) = chain_rel(&chain) else {
-        return Err(defect(format!(
-            "step {number} chains orders going up and going down, which say nothing of its ends"
-        )));
-    };
-    // The skeleton refuses a `transitivity` with no `from`.
-    let (first, last) = (
-        chain.first().expect("a chain's first line"),
-        chain.last().expect("a chain's last line"),
-    );
-    Ok(Related {
-        left: first.left.clone(),
-        right: last.right.clone(),
-        rel,
-        said: last.said.clone(),
-        written: true,
-    })
+    Ok(chain)
 }
 
 /// A `transitivity` step (`METHODS.md`, transitivity): the lines it cites
@@ -4360,6 +4412,7 @@ pub fn check_antisymmetry(
             rel: Rel::Eq,
             said: claim.clone(),
             written: true,
+            turned: false,
         };
         if !Related::of(&claim).is_some_and(|c| c.says(&equation, known)) {
             report.say(

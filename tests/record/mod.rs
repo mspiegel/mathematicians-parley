@@ -90,7 +90,15 @@ pub fn printed_but(
             .iter()
             .find(|s| s.just.line == *line || s.line == *line)
             .map_or_else(|| format!("line {line}"), |s| format!("step {}", s.number));
-        let links: Vec<String> = links.iter().map(|l| g.print(l)).collect();
+        // Each link, where it stands, and whether the chain reads it turned.
+        let links: Vec<String> = links
+            .iter()
+            .map(|l| {
+                let at = l.at.as_ref().map_or_else(|| "no line".to_string(), place);
+                let turned = if l.turned { ", turned" } else { "" };
+                format!("{} ({at}{turned})", g.print(&l.said))
+            })
+            .collect();
         writeln!(out, "{at} chains {}", links.join(" | ")).unwrap();
     }
     for (line, values) in &record.exhibited {

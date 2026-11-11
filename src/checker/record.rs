@@ -299,8 +299,8 @@ pub struct CheckedTheorem {
     pub cited_requires: IndexMap<usize, Cited>,
     /// The relation each line a `transitivity` step cites gives its chain,
     /// in the order cited, by the line the step is on: the line's own, or
-    /// of a line saying several, the one that meets the chain.
-    pub links: IndexMap<usize, Vec<Node>>,
+    /// of a line saying several, the one that meets the chain (`ChainLink`).
+    pub links: IndexMap<usize, Vec<ChainLink>>,
     /// What each `exhibit` step shows, by the line the step is on: for each
     /// sentence of its claim, the values of its "there is" and where each
     /// fact it says of them stands (`citations::exhibit_values`).
@@ -703,6 +703,19 @@ pub struct ObtainedPart {
     pub owed_written: Node,
     /// How the two meet (`Known::alike_how`).
     pub meeting: crate::matching::Meeting,
+}
+
+/// One link of a `transitivity` step's chain (`CheckedTheorem::links`).
+#[derive(Clone, Debug)]
+pub struct ChainLink {
+    /// The relation the cited line gives the chain, as the line writes it.
+    pub said: Node,
+    /// Where it stands in the line; None for a define's equation, which no
+    /// line states.
+    pub at: Option<FirstAt>,
+    /// Whether the chain reads it from its right side: `b = a` as `a = b`,
+    /// `b > a` as `a < b`.
+    pub turned: bool,
 }
 
 /// How an `instantiate` step's instance of the line it names reaches its

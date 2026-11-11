@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
@@ -64,7 +65,7 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.16. inequalities, from 1.12, 1.14
     have s1_16 : x (P + Q) < B + r / 2 := by parley_order
     -- 1.17. transitivity, from 1.15, 1.16
-    have s1_17 : A - r / 2 < B + r / 2 := by parley_order
+    have s1_17 : A - r / 2 < B + r / 2 := by exact lt_trans s1_15 s1_16
     -- 1.18. inequalities
     parley_order
   -- 2. contradiction

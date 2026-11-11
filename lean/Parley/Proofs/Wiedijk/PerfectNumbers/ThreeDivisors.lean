@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -15,6 +14,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Ineq
@@ -51,7 +51,7 @@ theorem three_divisors (m : ℤ) (hH1 : 0 < m) (e : ℤ) (hH2 : 0 < e) (hH3 : e 
   -- 6. mun:triple-subset, from 3, 4, 5
   have s6 : ({(1 : ℤ), e, m} : Set ℤ) ⊆ {d : ℤ | 0 < d ∧ d ∣ m} := by exact (Parley.Items.Stdlib.Sets.mun_triple_subset (X := {d : ℤ | 0 < d ∧ d ∣ m}) (a := (1 : ℤ)) (b := e) (c := m) s3 s4 s5)
   -- 7. transitivity, from H4, H5
-  have s7 : 1 < m := by parley_order
+  have s7 : 1 < m := by exact lt_trans hH4 hH5
   -- 8. calculation
   have r302_1 : 1 ≠ e := by parley_set_side
   have r302_2 : 1 ≠ m := by parley_set_side

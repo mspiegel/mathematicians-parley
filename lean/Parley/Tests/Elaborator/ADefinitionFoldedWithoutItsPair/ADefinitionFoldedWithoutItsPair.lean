@@ -23,6 +23,8 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -175,7 +177,7 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       -- 4.8.22. algebra, from 4.3
       have s4_8_22 : ε * Real.sqrt c = Real.sqrt c * ε := by linear_combination (norm := parley_norm) 0
       -- 4.8.23. transitivity, from 4.8.21, A2, 4.8.22
-      have s4_8_23 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) < Real.sqrt c * ε := by parley_order
+      have s4_8_23 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) < Real.sqrt c * ε := by exact LT.lt.trans_eq (lt_of_le_of_lt s4_8_21 hA2) s4_8_22
       -- 4.8.24. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.23
       have s4_8_24 : abs (Real.sqrt x - Real.sqrt c) < ε := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) s4_4)).mpr s4_8_23
       -- 4.8.25. substitute g(x) = √x (line 4.8.8) into line 4.8.24

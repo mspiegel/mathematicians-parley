@@ -1,8 +1,8 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInATransitivi
 theorem an_equation_turned_in_a_transitivity (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : b = a) (hH5 : b < c) :
     a < c := by
   -- 1. transitivity, from H4, H5
-  parley_order
+  exact Eq.trans_lt hH4.symm hH5
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInATransitivity

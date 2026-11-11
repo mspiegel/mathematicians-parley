@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -11,6 +10,7 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -31,6 +31,6 @@ theorem a_rounding_error_at_most_a_half (A : ℝ) (hH2 : (⌊A + 1 / 2⌋ : ℝ)
   -- 3. def:abs x := ⌊A + 1/2⌋ − A, from H2, 2
   have s3 : abs ((⌊A + 1 / 2⌋ : ℝ) - A) = (⌊A + 1 / 2⌋ : ℝ) - A := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hH2
   -- 4. transitivity, from 3, H3
-  parley_order
+  exact Eq.trans_le s3 hH3
 
 end Parley.Tests.Elaborator.FloorInABound.ARoundingErrorAtMostAHalf

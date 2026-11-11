@@ -662,7 +662,7 @@ fn theorem_record(
         .map(|step| citations::cited(step, c.library, &c.known[i]))
         .collect();
     record.cited_requires = citations::requires_cited(thm, c.library, &c.known[i]);
-    record.links = formulas::transitivity_links(thm, &c.known[i]);
+    record.links = formulas::transitivity_links(thm, &c.known[i], c.library);
     record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
     record.obtained_parts = citations::obtained_parts(thm, c.library, &c.known[i]);
     record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);

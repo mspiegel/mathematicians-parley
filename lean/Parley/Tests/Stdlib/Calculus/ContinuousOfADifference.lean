@@ -27,6 +27,6 @@ theorem continuous_of_a_difference (f : ℝ → ℝ) (hH2 : ContinuousOn f (Set.
   -- 1. mun:subset-self X := ℝ
   have s1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   -- 2. thm:continuous-difference D := ℝ, from H2, H4, H6, 1
-  exact (Parley.Items.Stdlib.Calculus.thm_continuous_difference (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))
+  exact (Parley.Items.Stdlib.Calculus.thm_continuous_difference (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) s1 (by parley_whole_side) hH2 hH4)
 
 end Parley.Tests.Stdlib.Calculus.ContinuousOfADifference

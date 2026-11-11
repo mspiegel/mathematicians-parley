@@ -26,7 +26,7 @@ theorem reals_uncountable :
   -- the theorem. contradiction
   intro hS
   -- 1. obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
-  obtain ⟨f, _, s1⟩ := (Parley.Items.Stdlib.Functions.mun_bijection_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (by parley_whole_side))
+  obtain ⟨f, _, s1⟩ := (Parley.Items.Stdlib.Functions.mun_bijection_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) hS)
   -- 2. def:onto, from 1
   have s2 : ∀ y : ℝ, ∃ n : ℤ, 0 < n ∧ y = f n := by
     have hI : ∀ y : ℝ, ∃ x : ℤ, 0 < x ∧ y = f x := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2)

@@ -11,6 +11,8 @@ public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
@@ -84,7 +86,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
       have s4_6_10 : abs c * abs (a n - L) ≤ abs c * abs (a n - L) + abs (a n - L) := by parley_order
       -- 4.6.11. transitivity, from 4.6.9, 4.6.10, 4.6.7, 4.6.5, 4.6.6
       have r95_2 : abs c + 1 ≠ 0 := by exact s3
-      parley_order
+      exact LT.lt.trans_eq (lt_of_le_of_lt (LE.le.trans_eq (Eq.trans_le s4_6_9 s4_6_10) s4_6_7.symm) s4_6_5) s4_6_6
     -- 4.7. exhibit, from 4.6
     exact ⟨N, s4_5a, s4_6⟩
   -- 5. def:tends-to L := c·L, from 4

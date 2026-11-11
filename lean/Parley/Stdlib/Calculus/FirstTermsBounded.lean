@@ -11,6 +11,7 @@ public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Abs
@@ -93,12 +94,12 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         -- 1.8.4.4. instantiate i := m in line 1.4, from 1.8.4.3
         have s1_8_4_4 : abs (x m) ≤ C := by exact (s1_4 m s1_8_4_3)
         -- 1.8.4.5. transitivity, from 1.8.4.4, 1.6
-        parley_order
+        exact le_trans s1_8_4_4 s1_6
       · skip
         -- 1.8.4.6. substitute m = K + 1 (C2)
         have s1_8_4_6 : abs (x m) = abs (x (K + 1)) := by (have h := congrArg (fun t : ℤ => abs (x t)) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 1.8.4.7. transitivity, from 1.8.4.6, 1.7
-        parley_order
+        exact Eq.trans_le s1_8_4_6 s1_7
     -- 1.9. exhibit, from 1.8
     exact ⟨E, s1_8⟩
 

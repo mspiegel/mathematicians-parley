@@ -20,6 +20,8 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -42,7 +44,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 1. real arithmetic
   have s1 : 0 < Real.pi / 2 := by parley_real
   -- 2. transitivity, from H2, 1
-  have s2 : 0 < x := by parley_order
+  have s2 : 0 < x := by exact lt_of_lt_of_le s1 hH2
   -- 3. inequalities
   have s3 : 0 ≤ x := by parley_order
   -- 4. def:interval, from H3, 3
@@ -79,7 +81,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 18. algebra, from 17
   have s18 : Real.sin (x - Real.pi / 2) = -Real.cos x := by linear_combination (norm := parley_norm) s17
   -- 19. transitivity, from 10, 18
-  have s19 : 0 ≤ -Real.cos x := by parley_order
+  have s19 : 0 ≤ -Real.cos x := by exact LE.le.trans_eq s10 s18
   -- 20. inequalities, from 5, 19
   have s20 : 0 ≤ Real.sin x - Real.cos x := by parley_order
   -- 21. mun:product-nonneg x := sin(x), y := sin(x − π/2), from 5, 10

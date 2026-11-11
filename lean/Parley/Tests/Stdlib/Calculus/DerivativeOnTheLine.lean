@@ -37,15 +37,15 @@ theorem derivative_on_the_line (f : ℝ → ℝ) (hH2 : ∀ x ∈ (Set.univ : Se
   have s2 : IsOpen (Set.univ : Set ℝ) := by exact Parley.Items.Stdlib.Calculus.mun_reals_open
   -- 3. thm:derivative-linear D := ℝ, U := ℝ, m := 3, from H4, 1, 2
   have s3 : ∀ x ∈ (Set.univ : Set ℝ), DifferentiableAt ℝ g x := by
-    have hI : ∀ x ∈ (Set.univ : Set ℝ), DifferentiableAt ℝ g x := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_linear_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (m := (3 : ℝ)) (by parley_whole_side)))
+    have hI : ∀ x ∈ (Set.univ : Set ℝ), DifferentiableAt ℝ g x := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_linear_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 s2 (m := (3 : ℝ)) (by parley_whole_side)))
     exact hI
   -- 4. thm:derivative-linear D := ℝ, U := ℝ, m := 3, from H4, 1, 2
   have s4 : ∀ x : ℝ, (deriv g) x = 3 := by
-    have hI : ∀ x : ℝ, (deriv g) x = 3 := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (m := (3 : ℝ)) (by parley_whole_side)))
+    have hI : ∀ x : ℝ, (deriv g) x = 3 := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 s2 (m := (3 : ℝ)) (by parley_whole_side)))
     exact hI
   -- 5. thm:derivative-sum D := ℝ, U := ℝ, from H2, H6, 1, 3
   have s5 : ∀ x : ℝ, (deriv F) x = (deriv f) x + (deriv g) x := by
-    have hI : ∀ x : ℝ, (deriv F) x = (deriv f) x + (deriv g) x := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)))
+    have hI : ∀ x : ℝ, (deriv F) x = (deriv f) x + (deriv g) x := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)))
     exact hI
   -- 6. proof
   intro x

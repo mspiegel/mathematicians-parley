@@ -10,6 +10,7 @@ public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -75,7 +76,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
       -- 10.3.2. instantiate i := m in line 6, from 10.3.1
       have s10_3_2 : abs (x m) ≤ C := by exact (s6 m s10_3_1)
       -- 10.3.3. transitivity, from 10.3.2, 8
-      parley_order
+      exact le_trans s10_3_2 s8
     · skip
       -- 10.3.4. inequalities, from C2
       have s10_3_4 : N < m := by parley_order
@@ -93,9 +94,9 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
       -- 10.3.9. inequalities
       have s10_3_9 : abs (x m - L) + abs L < abs L + 1 := by parley_order
       -- 10.3.10. transitivity, from 10.3.8, 10.3.9
-      have s10_3_10 : abs (x m) < abs L + 1 := by parley_order
+      have s10_3_10 : abs (x m) < abs L + 1 := by exact lt_of_le_of_lt s10_3_8 s10_3_9
       -- 10.3.11. transitivity, from 10.3.10, 9
-      have s10_3_11 : abs (x m) < B := by parley_order
+      have s10_3_11 : abs (x m) < B := by exact lt_of_lt_of_le s10_3_10 s9
       -- 10.3.12. inequalities
       parley_order
   -- 11. exhibit, from 10

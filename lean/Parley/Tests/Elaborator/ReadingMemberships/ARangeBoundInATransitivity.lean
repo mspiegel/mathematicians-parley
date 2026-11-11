@@ -1,11 +1,13 @@
 module
 
-public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.SetLike.Basic
+public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -19,6 +21,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInATransitivity
 theorem a_range_bound_in_a_transitivity (n : ℤ) (m : ℤ) (k : ℤ) (hH3 : k ∈ Finset.Icc (1 : ℤ) n) (hH4 : n < m) :
     k < m := by
   -- 1. transitivity, from H3, H4
-  parley_order
+  exact lt_of_le_of_lt (Finset.mem_Icc.mp hH3).2 hH4
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInATransitivity

@@ -219,6 +219,27 @@ const SITES: &[Site] = &[
         list: false,
         why: "hypotheses supplied by lines in ℤ where the item asks them in ℚ: taken across by exact_mod_cast, which the cast table says moves the order, the line saying > turned to the < Lean asks first",
     },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
+        step: "5.15.7",
+        holds: "s5_12 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK9)",
+        list: false,
+        why: "an item's hypotheses over a range the citation gives, taken from the lines the checker found them in before parley_whole_side: the subset as line 5.12 states it, and the membership the let line writes as a Finset.Icc met as the Set.Icc Lean asks (Meets::Ranges)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/BoundedBySquare/BoundedBySquare.lean",
+        step: "6.5",
+        holds: "exact le_trans s6_4 s6_3",
+        list: false,
+        why: "a transitivity chain whose links stand in lines, all in one type: composed by the lemma for each pair of relations (CheckedTheorem::links)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
+        step: "16.17",
+        holds: "exact_mod_cast lt_of_le_of_lt s16_12 s16_16",
+        list: false,
+        why: "a transitivity chain in ℝ whose claim is in ℤ: composed, then taken to the claim's type by exact_mod_cast",
+    },
 ];
 
 /// The lines of the step `step` in `text`: from its comment to the next

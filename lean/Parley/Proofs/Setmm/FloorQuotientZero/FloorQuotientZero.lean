@@ -13,6 +13,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -50,6 +51,6 @@ theorem floor_quotient_zero (A : ℤ) (hH1 : 0 ≤ A) (B : ℤ) (hH2 : 0 < B) :
     -- 3.5. mun:less-scaled x := A/B, y := 1, c := B, from H2, 3.4
     have s3_5 : (B : ℝ) * ((A : ℝ) / (B : ℝ)) < (B : ℝ) := by simpa only [mul_one] using ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (A : ℝ) / (B : ℝ)) (y := (1 : ℝ)) (c := (B : ℝ)) (by exact_mod_cast gt_iff_lt.mp hH2))).mp s3_4.2
     -- 3.6. transitivity, from 1, 3.5
-    parley_order
+    exact_mod_cast Eq.trans_lt s1.symm s3_5
 
 end Parley.Proofs.Setmm.FloorQuotientZero.FloorQuotientZero

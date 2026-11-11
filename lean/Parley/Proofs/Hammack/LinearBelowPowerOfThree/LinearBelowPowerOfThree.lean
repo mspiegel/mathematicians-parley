@@ -13,6 +13,7 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -48,7 +49,7 @@ theorem linear_below_power_of_three (n : ℤ) (hH1 : 0 < n) :
       -- 1.5. inequalities
       have s1_5 : 2 * (k + 1) + 1 ≤ 6 * k + 3 := by parley_order
       -- 1.6. transitivity, from 1.5, 1.3, 1.2
-      parley_order
+      exact LE.le.trans_eq (le_trans s1_5 s1_3) s1_2.symm
   -- 2. instantiate k := n in line 1
   exact (s1 n hH1)
 

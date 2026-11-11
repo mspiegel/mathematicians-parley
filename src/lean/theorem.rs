@@ -5266,6 +5266,13 @@ impl<'a> Proof<'a> {
             // An order is left to the ways of orders alone; a chain of
             // equations, A = B = C, to `parley_side`.
             Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
+                // A chain whose links the checker placed, all in one type:
+                // composed link by link (`chain_composed`).
+                if just.head.is(Method::Transitivity) {
+                    if let Some(composed) = self.chain_composed(just, node) {
+                        return Route::Built(composed);
+                    }
+                }
                 // A cited "for all", a(n) = 1 − 1/2ⁿ for every n, is read
                 // at the claim's letter, which linear arithmetic can use.
                 let mut steps: Vec<Tactic> = self
@@ -6429,6 +6436,10 @@ impl<'a> Proof<'a> {
                 super::doc::LeanType::Prop,
             )),
             Meets::Identities(rules) => Proved::Simplified { rules, line: proof },
+            Meets::Ranges => Proved::Simplified {
+                rules: vec!["Finset.mem_Icc", "Set.mem_Icc"],
+                line: proof,
+            },
             Meets::Casts { .. } => {
                 match forms::casts_differ(says, wanted, &self.set_values()) {
                     Some(apart) => cast_proved(apart, proof, says, wanted)?,
@@ -8478,6 +8489,96 @@ impl<'a> Proof<'a> {
             .flatten()
             .find(|s| self.writer.grammar.print(&s.node) == printed)
             .map(|s| s.proof.clone())
+    }
+
+    /// A `transitivity` step's chain composed link by link
+    /// (`CheckedTheorem::links`): each link the line the checker placed it
+    /// in, read the way the chain goes, an equation read from its right side
+    /// by `.symm` and an order by its converse, which Lean takes as the same
+    /// statement; a chain going down taken as its links going up from the
+    /// last; and the links joined by the lemma for each pair of relations,
+    /// `lt_of_le_of_lt` of `≤` then `<`. Closed by `exact`, or by
+    /// `exact_mod_cast` where the claim is in another type than the links.
+    /// None where a link stands in no line, or the links are not all in one
+    /// type, or the chain is of equations alone, which the claim may write
+    /// either way round.
+    fn chain_composed(
+        &self,
+        just: &Justification,
+        node: &Node,
+    ) -> Option<super::doc::Proof> {
+        use super::doc::forms;
+        let converse = |s: &str| -> Option<&'static str> {
+            match s {
+                "=" => Some("="),
+                "<" => Some(">"),
+                ">" => Some("<"),
+                "≤" => Some("≥"),
+                "≥" => Some("≤"),
+                _ => None,
+            }
+        };
+        let mut read: Vec<(Printed, &'static str)> = Vec::new();
+        let mut ty = None;
+        // The links are kept by the line the step is on.
+        let step = &self.thm.steps[self.step_now.get()?];
+        for link in self.rec.links.get(&step.line)? {
+            let (proof, says) = self.line_says(link.at.as_ref()?).built()?;
+            let symbol = relation_symbol(&says)?;
+            let t = forms::relation_type(&says)?;
+            if *ty.get_or_insert(t.clone()) != t {
+                return None;
+            }
+            // Only a relation of the five makes a link.
+            let turned = converse(symbol)?;
+            read.push(match (link.turned, symbol) {
+                (true, "=") => (super::tactics::symm(proof), "="),
+                (true, _) => (proof, turned),
+                (false, s) => (proof, s),
+            });
+        }
+        if read.iter().any(|(_, s)| matches!(*s, ">" | "≥")) {
+            read = read
+                .into_iter()
+                .rev()
+                .map(|(p, s)| match s {
+                    "=" => Some((super::tactics::symm(p), "=")),
+                    s => Some((p, converse(s)?)),
+                })
+                .collect::<Option<_>>()?;
+        }
+        let mut links = read.into_iter();
+        let (mut proof, mut rel) = links.next()?;
+        for (next, s) in links {
+            let (lemma, joined) = match (rel, s) {
+                ("=", "=") => ("Eq.trans", "="),
+                ("=", "≤") => ("Eq.trans_le", "≤"),
+                ("=", "<") => ("Eq.trans_lt", "<"),
+                ("≤", "=") => ("LE.le.trans_eq", "≤"),
+                ("≤", "≤") => ("le_trans", "≤"),
+                ("≤", "<") => ("lt_of_le_of_lt", "<"),
+                ("<", "=") => ("LT.lt.trans_eq", "<"),
+                ("<", "≤") => ("lt_of_lt_of_le", "<"),
+                ("<", "<") => ("lt_trans", "<"),
+                _ => return None,
+            };
+            proof = Printed::applied(
+                lemma,
+                super::doc::Source::Mathlib,
+                vec![proof, next],
+                super::doc::LeanType::Prop,
+            );
+            rel = joined;
+        }
+        if rel == "=" {
+            return None;
+        }
+        let claim = self.claim_as_stated(just.line, node)?;
+        let tactic = match forms::relation_type(&claim) == ty {
+            true => Tactic::Exact(proof),
+            false => super::tactics::exact_mod_cast(proof),
+        };
+        Some(super::doc::Proof::By(tactic))
     }
 
     /// `instantiate`: the "for all" line at the values given, each guard
@@ -11545,32 +11646,36 @@ impl<'a> Proof<'a> {
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
-                // A hypothesis of a set the citation gives all of ℝ or a
-                // range: what the lines say, read as the item asks it.
-                Binder::Fact { says, .. } if self.given_whole(says, binding) => args
-                    .push(proof_arg(super::tactics::by_term(super::doc::Proof::By(
-                        super::tactics::bridge(BridgeTactic::WholeSide, vec![]),
-                    )))),
                 // A hypothesis the checker found a line or a requires line
                 // supplies (`Cited::supplied`), a letter's number system
                 // among them: that line by its name, met with the
                 // hypothesis as Lean asks it at the values given, as it
-                // stands or by its casts (`supplied_proof`).
-                Binder::Fact {
-                    line: Some(line),
-                    says,
-                    ..
-                } => {
+                // stands or by its casts (`supplied_proof`). Where none
+                // does, and the citation gives the hypothesis's set all of
+                // ℝ or a range, what the lines say read as the item asks
+                // it (`parley_whole_side`); else `parley_side`.
+                Binder::Fact { line, says, .. } => {
                     let wanted = super::doc::forms::substituted_all(says, &given);
-                    let proof = supplied
-                        .iter()
-                        .find(|s| {
-                            crate::matching::alike_top(&s.want, line, self.sources.ctx)
-                        })
-                        .and_then(|s| self.supplied_proof(&s.by, &wanted));
-                    args.push(proof_arg(proof.unwrap_or_else(|| side_term(&[]))));
+                    let proof = line.as_ref().and_then(|line| {
+                        supplied
+                            .iter()
+                            .find(|s| {
+                                crate::matching::alike_top(
+                                    &s.want,
+                                    line,
+                                    self.sources.ctx,
+                                )
+                            })
+                            .and_then(|s| self.supplied_proof(&s.by, &wanted))
+                    });
+                    let search = || match self.given_whole(says, binding) {
+                        true => super::tactics::by_term(super::doc::Proof::By(
+                            super::tactics::bridge(BridgeTactic::WholeSide, vec![]),
+                        )),
+                        false => side_term(&[]),
+                    };
+                    args.push(proof_arg(proof.unwrap_or_else(search)));
                 }
-                Binder::Fact { .. } => args.push(proof_arg(side_term(&[]))),
             }
         }
         // A type variable the item's sentence holds and none of its letters
@@ -14160,7 +14265,7 @@ impl<'a> Proof<'a> {
                     spot.clone(),
                 );
             }
-            Some(Meets::Identities(_) | Meets::Casts { .. }) | None => {
+            Some(Meets::Identities(_) | Meets::Ranges | Meets::Casts { .. }) | None => {
                 return Route::no(format!(
                     "the supposition {}, which is not what `{open}` gives, {}",
                     says.text(),

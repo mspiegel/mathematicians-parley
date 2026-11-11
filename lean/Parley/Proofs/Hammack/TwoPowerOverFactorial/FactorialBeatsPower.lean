@@ -16,6 +16,7 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -69,7 +70,7 @@ theorem factorial_beats_power (n : ℤ) (hH1 : 0 < n) :
       -- 1.13. algebra, from 1.6
       have s1_13 : 2 * (LeanBridges.Counting.factorial k : ℤ) * (k + 1) = 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by linear_combination (norm := parley_norm) (-2) * s1_6
       -- 1.14. transitivity, from 1.7, 1.8, 1.12, 1.13
-      have s1_14 : 2 ^ (k + 1).toNat ≤ 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by parley_order
+      have s1_14 : 2 ^ (k + 1).toNat ≤ 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by exact LE.le.trans_eq (le_trans (Eq.trans_le s1_7 s1_8) s1_12) s1_13
       -- 1.15. calculation
       have r78_1 : k + 1 > 0 := by parley_order
       have s1_15 : (k + 1) * 2 ^ (k + 1).toNat ≤ 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by

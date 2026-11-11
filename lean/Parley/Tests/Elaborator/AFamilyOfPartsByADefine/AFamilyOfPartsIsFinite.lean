@@ -38,6 +38,6 @@ theorem a_family_of_parts_is_finite (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0
     -- 2.2. def:part-builder u := c, from 2.1
     exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mp (by parley_set_side)).1
   -- 3. mun:parts-finite A := {1, …, m + n}, K := K(m, n), from 1, 2
-  exact (Parley.Items.Stdlib.Counting.mun_parts_finite (A := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (K := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | (1 : ℤ) ∈ c}) (by parley_whole_side) (by parley_whole_side))
+  exact (Parley.Items.Stdlib.Counting.mun_parts_finite (A := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (K := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | (1 : ℤ) ∈ c}) s1 (by parley_whole_side))
 
 end Parley.Tests.Elaborator.AFamilyOfPartsByADefine.AFamilyOfPartsIsFinite

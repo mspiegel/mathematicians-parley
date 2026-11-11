@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -43,12 +44,12 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 3. thm:limit-unfolded D := ℝ, from H5
   have r51_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s3 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by
-    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) (by parley_whole_side)))
+    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) hH5))
     exact hI
   -- 4. thm:limit-unfolded D := ℝ, L := M, from H6
   have r55_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s4 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by
-    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) (by parley_whole_side)))
+    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) hH6))
     exact hI
   -- 5. instantiate ε := (M − L)/3 in line 3, from 2
   have s5 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < (M - L) / 3) := by exact (s3 ((M - L) / 3) s2)
@@ -86,17 +87,17 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 19. inequalities
   have s19 : c + m ≤ c + q := by parley_order
   -- 20. transitivity, from 15, 18
-  have s20 : c + m / 2 < c + p := by parley_order
+  have s20 : c + m / 2 < c + p := by exact lt_of_lt_of_le s15 s18
   -- 21. transitivity, from 15, 19
-  have s21 : c + m / 2 < c + q := by parley_order
+  have s21 : c + m / 2 < c + q := by exact lt_of_lt_of_le s15 s19
   -- 22. inequalities
   have s22 : c - p < c := by parley_order
   -- 23. inequalities
   have s23 : c - q < c := by parley_order
   -- 24. transitivity, from 22, 12
-  have s24 : c - p < c + m / 2 := by parley_order
+  have s24 : c - p < c + m / 2 := by exact lt_trans s22 s12
   -- 25. transitivity, from 23, 12
-  have s25 : c - q < c + m / 2 := by parley_order
+  have s25 : c - q < c + m / 2 := by exact lt_trans s23 s12
   -- 26. inequalities, from D2, 20, 24
   have s26 : c - p < x₁ ∧ x₁ < c + p := by parley_set_side
   -- 27. inequalities, from D2, 21, 25
@@ -114,7 +115,7 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 33. mun:abs-difference-lt x := f(x₁), c := M, δ := (M − L)/3, from 31
   have s33 : M - (M - L) / 3 < f x₁ := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x₁) (c := M) (δ := (M - L) / 3))).mp s31).1
   -- 34. transitivity, from 33, 32
-  have s34 : M - (M - L) / 3 < L + (M - L) / 3 := by parley_order
+  have s34 : M - (M - L) / 3 < L + (M - L) / 3 := by exact lt_trans s33 s32
   -- 35. inequalities
   have s35 : M ≤ L := by parley_order
   exact hS s35

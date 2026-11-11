@@ -1,8 +1,8 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -19,6 +19,6 @@ theorem a_for_all_line_in_a_transitivity (b : ℝ) (hH2 : ∀ x : ℝ, x < x + 1
   intro y
   intro hA1
   -- 1.1. transitivity, from H2, A1
-  have := (hH2 y); parley_order
+  exact lt_trans (hH2 y) hA1
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineInATransitivity

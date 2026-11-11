@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -59,7 +60,7 @@ theorem rounding_error (A : ℝ) :
         try push_cast at ⊢
         exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC1
       -- 10.2. transitivity, from 10.1, 5
-      parley_order
+      exact Eq.trans_le s10_1 s5
     · skip
       -- 10.3. def:abs x := e, from C2, D1
       have s10_3 : abs e = -e := by
@@ -67,7 +68,7 @@ theorem rounding_error (A : ℝ) :
         try push_cast at ⊢
         exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (⌊A + 1 / 2⌋ : ℝ) - A)) hC2
       -- 10.4. transitivity, from 10.3, 8
-      parley_order
+      exact Eq.trans_le s10_3 s8
   -- 11. substitute e = ⌊A + 1/2⌋ − A (D1) into line 10
   (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ 1 / 2)) hD1 s10; push_cast at h ⊢; all_goals exact_mod_cast h)
 

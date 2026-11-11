@@ -1,10 +1,10 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
@@ -35,7 +35,7 @@ theorem convergent_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fu
     -- 2.2. mun:abs-bounds x := x(m)
     have s2_2 : x m ≤ abs (x m) := by exact (Parley.Stdlib.Numbers.AbsBounds.abs_bounds (x := x m)).1
     -- 2.3. transitivity, from 2.2, 2.1
-    parley_order
+    exact le_trans s2_2 s2_1
   -- 3. exhibit, from 2
   exact ⟨B, s2⟩
 

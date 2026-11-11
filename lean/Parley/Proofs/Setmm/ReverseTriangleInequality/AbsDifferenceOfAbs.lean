@@ -5,6 +5,7 @@ public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -42,13 +43,13 @@ theorem abs_difference_of_abs (A : ℝ) (B : ℝ) :
     -- 7.1. def:abs x := |A| − |B|, from C1
     have s7_1 : abs (abs A - abs B) = abs A - abs B := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) hC1
     -- 7.2. transitivity, from 7.1, 1
-    parley_order
+    exact Eq.trans_le s7_1 s1
   · skip
     -- 7.3. def:abs x := |A| − |B|, from C2
     have s7_3 : abs (abs A - abs B) = -(abs A - abs B) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) hC2
     -- 7.4. inequalities
     have s7_4 : -(abs A - abs B) ≤ abs (A - B) := by parley_order
     -- 7.5. transitivity, from 7.3, 7.4
-    parley_order
+    exact Eq.trans_le s7_3 s7_4
 
 end Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceOfAbs

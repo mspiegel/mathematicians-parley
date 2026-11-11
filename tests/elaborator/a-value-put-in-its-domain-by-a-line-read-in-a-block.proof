@@ -1,0 +1,13 @@
+theorem a-value-put-in-its-domain-by-a-line-read-in-a-block
+  note        Inside the block letting x ∈ {1, …, 9}, line H1 says
+              10 − x ∈ {1, …, 9}, which instantiating H2 at 10 − x asks.
+  assume for all x ∈ {1, …, 9}, 10 − x ∈ {1, …, 9}                    (H1)
+  assume for all y ∈ {1, …, 9}, y ≤ 9                                 (H2)
+  then for all x ∈ {1, …, 9}, 10 − x ≤ 9
+
+1.  For all x ∈ {1, …, 9}, 10 − x ≤ 9.
+    proof
+    let x ∈ {1, …, 9}                                                 (K1)
+
+    1.1.  10 − x ≤ 9
+          instantiate y := 10 − x in H2, from H1

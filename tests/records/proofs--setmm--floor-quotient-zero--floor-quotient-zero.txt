@@ -7,8 +7,8 @@ step 3.2 cites stdlib/numbers/less-scaled group 0; c := B, x := A / B, y := 1; c
 step 3.3 cites stdlib/numbers/floor-between group 0; k := 0, x := A / B; concludes 0 Backward; from 2 sentence 0, 3.2 sentence 0; supplied by unstated, unstated; letters k cz from cn0, x cr from cq; facing straight; met as written; unfolded [0 ≤ A / B by 2 sentence 0, A / B < 0 + 1 by 3.2 sentence 0]
 step 3.4 cites stdlib/numbers/floor-between group 0; k := 0, x := A / B; concludes 0 Forward, 0 Forward; from C2 sentence 0; supplied by unstated, unstated; letters k cz from cn0, x cr from cq; facing none, none; met identities dropped, apart
 step 3.5 cites stdlib/numbers/less-scaled group 0; c := B, x := A / B, y := 1; concludes 0 Forward; from 3.4 sentence 0 part 1; supplied by unstated, unstated, H2 sentence 0 implied by WiderSystem, H2 sentence 0 implied by SystemFact { lemma: "nngt0" }; letters c cr from cn, x cr from cq, y cr from cn; facing none; met identities dropped
-step 3.1 chains B · (A / B) = A | A < B
-step 3.6 chains B · (A / B) = A | B · (A / B) < B
+step 3.1 chains B · (A / B) = A (1 sentence 0) | A < B (C1 sentence 0)
+step 3.6 chains B · (A / B) = A (1 sentence 0, turned) | B · (A / B) < B (3.5 sentence 0)
 read 5: A < B ↔ ⌊A/B⌋ = 0  as  biconditional:↔(order:<(name:A, name:B), equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0))  a statement
 read 10: A ∈ ℕ₀  as  membership:∈(name:A, number-systems:ℕ₀)  a statement
 read 11: B ∈ ℕ  as  membership:∈(name:B, number-systems:ℕ)  a statement

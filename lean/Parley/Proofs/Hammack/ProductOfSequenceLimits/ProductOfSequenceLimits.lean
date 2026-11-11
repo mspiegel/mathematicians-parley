@@ -12,6 +12,7 @@ public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
@@ -128,7 +129,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.8. inequalities
       have s9_20_8 : abs (a n - L) + abs L < abs L + 1 := by parley_order
       -- 9.20.9. transitivity, from 9.20.7, 9.20.8
-      have s9_20_9 : abs (a n) < abs L + 1 := by parley_order
+      have s9_20_9 : abs (a n) < abs L + 1 := by exact lt_of_le_of_lt s9_20_7 s9_20_8
       -- 9.20.10. substitute s = |L| + 1 (D1) into line 9.20.9
       have s9_20_10 : abs (a n) < s := by (have h := Eq.subst (motive := (fun u : ℝ => abs (a n) < u)) hD1.symm s9_20_9; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 9.20.11. calculation

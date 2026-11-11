@@ -1,15 +1,14 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
@@ -34,17 +33,17 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
   -- 2. mun:range-within, from 1
   have s2 : (Set.Icc (1 : ℤ) i : Set ℤ) ⊆ (Set.Icc (1 : ℤ) N : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_within (a := (1 : ℤ)) (k := i) (n := N) s1b)
   -- 3. mun:subset-transitive, from H5, 2
-  have s3 : T ⊆ (Set.Icc (1 : ℤ) N : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (Z := (Set.Icc (1 : ℤ) N : Set ℤ)) (by parley_whole_side) (by parley_whole_side))
+  have s3 : T ⊆ (Set.Icc (1 : ℤ) N : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (Z := (Set.Icc (1 : ℤ) N : Set ℤ)) hH5 s2)
   -- 4. proof
   have s4 : ∀ t ∈ T, c t < c j := by
     intro t hK1
     -- 4.1. mun:in-subset, from H5, K1
     have s4_1 : t ∈ Finset.Icc (1 : ℤ) i := by
-      have hI : t ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) (by parley_whole_side) hK1))
+      have hI : t ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) hH5 hK1))
       exact hI
     -- 4.2. mun:in-subset, from K1, 3
     have s4_2 : t ∈ Finset.Icc (1 : ℤ) N := by
-      have hI : t ∈ Finset.Icc (1 : ℤ) N := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) (by parley_whole_side) hK1))
+      have hI : t ∈ Finset.Icc (1 : ℤ) N := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) s3 hK1))
       exact hI
     -- 4.3. mun:range-bounds a := 1, b := i, k := t, from 4.1
     have s4_3 : t ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := i) (k := t) s4_1)
@@ -56,7 +55,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       -- 4.5.1. instantiate p := t, q := i in H7, from C1, H6, K1
       have s4_5_1 : c t < c i := by exact (hH7 t hK1 i hH6 hC1)
       -- 4.5.2. transitivity, from 4.5.1, H9
-      parley_order
+      exact lt_trans s4_5_1 hH9
     · skip
       -- 4.5.3. substitute t = i (C2) into H9
       (have h := Eq.subst (motive := (fun u : ℤ => c u < c j)) hC2.symm hH9; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -73,7 +72,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
   · skip
     -- 5.3.1. mun:in-subset, from C3, H5
     have s5_3_1 : q ∈ Finset.Icc (1 : ℤ) i := by
-      have hI : q ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) (by parley_whole_side) hC3))
+      have hI : q ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) hH5 hC3))
       exact hI
     -- 5.3.2. mun:range-bounds a := 1, b := i, k := q, from 5.3.1
     have s5_3_2 : q ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := i) (k := q) s5_3_1)
@@ -88,7 +87,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
       -- 5.3.3.3. substitute p = j (line 5.3.3.2) into K4
       have s5_3_3_3 : j < q := by (have h := Eq.subst (motive := (fun t : ℤ => t < q)) s5_3_3_2 hK4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 5.3.3.4. transitivity, from 5.3.3.3, 5.3.2, H8
-      have s5_3_3_4 : j < j := by parley_order
+      have s5_3_3_4 : j < j := by exact lt_trans (lt_of_lt_of_le s5_3_3_3 s5_3_2) hH8
       -- 5.3.3.5. inequalities
       have s5_3_3_5 : ¬ j < j := by parley_set_side
       exact absurd s5_3_3_4 s5_3_3_5

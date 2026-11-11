@@ -3639,8 +3639,8 @@ impl<'a> Elaborator<'a> {
             // The relation the checker read the line as giving the chain:
             // the line's own, or one of several it says.
             let (link, proof) = match chosen.get(i) {
-                Some(sentence) => {
-                    let part = self.term(sentence)?;
+                Some(link) => {
+                    let part = self.term(&link.said)?;
                     let define = self.thm.defines.iter().any(|d| d.label == *r);
                     if part == held.claim {
                         (part, carried)

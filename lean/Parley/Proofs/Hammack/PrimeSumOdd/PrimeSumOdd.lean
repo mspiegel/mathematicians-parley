@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -14,6 +13,7 @@ public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -40,7 +40,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
   -- 2. mun:integer-step m := 1, n := p, from 1
   have s2 : 1 + 1 ≤ p := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := p) s1)
   -- 3. transitivity, from 2, H5
-  have s3 : 1 + 1 < q := by parley_order
+  have s3 : 1 + 1 < q := by exact lt_of_le_of_lt s2 hH5
   -- 4. def:prime p := q, from H4
   have s4 : ∀ d : ℤ, 0 < d → d ∣ q → d = 1 ∨ d = q := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := q) hH2)).mp hH4).2
   -- 5. mun:even-or-odd n := q

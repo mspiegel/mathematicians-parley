@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -31,7 +32,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- 1. inequalities, from H2
   have s1 : 0 < N := by parley_order
   -- 2. transitivity, from 1, H4
-  have s2 : 0 < M := by parley_order
+  have s2 : 0 < M := by exact lt_of_lt_of_le s1 hH4
   -- 3. mun:pos-int-nat m := M, from 2
   have s3 : 0 < M := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := M) s2)
   -- 4. mun:factorial-divisible n := M, m := N, from H4, 3

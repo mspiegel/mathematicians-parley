@@ -31,7 +31,7 @@ namespace Parley.Proofs.Hammack.ChooseTwoThenChooseTheRest.ChooseTwoThenChooseTh
 theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) (hH3 : 2 ≤ k) (hH4 : k ≤ n) :
     (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℤ) = (LeanBridges.Counting.choose n k : ℤ) * (LeanBridges.Counting.choose k (2 : ℤ) : ℤ) := by
   -- 1. transitivity, from H3, H4
-  have s1 : 2 ≤ n := by parley_order
+  have s1 : 2 ≤ n := by exact le_trans hH3 hH4
   -- 2. inequalities, from 1
   have s2a : (0 : ℤ) ≤ 2 := by parley_order
   have s2b : 2 ≤ n := by parley_order

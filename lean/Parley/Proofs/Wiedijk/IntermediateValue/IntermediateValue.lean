@@ -4,7 +4,6 @@ public import InstanceTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Tactic.Init
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -13,6 +12,7 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -52,7 +52,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   -- 5. mun:subset-transitive X := S, Y := [a, b], Z := ℝ, from 3, 4
-  have s5 : S ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 (by parley_whole_side))
+  have s5 : S ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s3 s4)
   -- 6. proof
   have s6 : ∀ s ∈ S, s ≤ b := by
     intro s hK1
@@ -131,9 +131,9 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.11. inequalities
       have s16_11 : δ / 2 < δ := by parley_order
       -- 16.12. transitivity, from 16.10, 16.11
-      have s16_12 : x₁ - c < δ := by parley_order
+      have s16_12 : x₁ - c < δ := by exact lt_of_le_of_lt s16_10 s16_11
       -- 16.13. transitivity, from 11, 16.8
-      have s16_13 : a < x₁ := by parley_order
+      have s16_13 : a < x₁ := by exact lt_of_le_of_lt s11 s16_8
       -- 16.14. inequalities
       have s16_14 : a ≤ x₁ := by parley_order
       -- 16.15. def:interval x := x₁, from 16.9, 16.14
@@ -141,7 +141,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.16. inequalities
       have s16_16 : c - δ < c := by parley_order
       -- 16.17. transitivity, from 16.16, 16.8
-      have s16_17 : c - δ < x₁ := by parley_order
+      have s16_17 : c - δ < x₁ := by exact lt_trans s16_16 s16_8
       -- 16.18. inequalities
       have s16_18 : x₁ < c + δ := by parley_order
       -- 16.19. mun:abs-difference-lt x := x₁, from 16.17, 16.18
@@ -151,7 +151,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.21. thm:abs-bounds x := f(x₁) − f(c)
       have s16_21 : f x₁ - f c ≤ abs (f x₁ - f c) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f x₁ - f c)).1
       -- 16.22. transitivity, from 16.21, 16.20
-      have s16_22 : f x₁ - f c < -f c := by parley_order
+      have s16_22 : f x₁ - f c < -f c := by exact lt_of_le_of_lt s16_21 s16_20
       -- 16.23. inequalities
       have s16_23 : f x₁ < 0 := by parley_order
       -- 16.24. def:set-builder u := x₁, from D1, 16.15, 16.23
@@ -194,7 +194,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         -- 16.29.7. thm:abs-bounds x := f(s) − f(c)
         have s16_29_7 : -(f s - f c) ≤ abs (f s - f c) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := f s - f c)).2
         -- 16.29.8. transitivity, from 16.29.7, 16.29.6
-        have s16_29_8 : -(f s - f c) < f c := by parley_order
+        have s16_29_8 : -(f s - f c) < f c := by exact lt_of_le_of_lt s16_29_7 s16_29_6
         -- 16.29.9. inequalities
         have s16_29_9 : 0 ≤ f s := by parley_order
         -- 16.29.10. inequalities, from 16.29.9

@@ -3,7 +3,6 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -34,7 +33,7 @@ theorem prefix_unchanged (T : Set ℤ) (i : ℤ) (p : ℤ) (hH4 : i < p) :
     have s1_2 : ¬ p ≤ i := by parley_set_side
     exact s1_2 s1_1
   -- 2. mun:singleton-outside a := p, Y := {1, …, i}, from 1
-  have s2 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side))
+  have s2 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1))
   -- 3. calculation
   have s3 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := by
     calc (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T ∪ (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T) (Z := ({p} : Set ℤ)))
@@ -43,7 +42,7 @@ theorem prefix_unchanged (T : Set ℤ) (i : ℤ) (p : ℤ) (hH4 : i < p) :
   -- 4. mun:difference-subset X := {1, …, i}, Y := T
   have s4 : (Set.Icc (1 : ℤ) i : Set ℤ) \ T ⊆ (Set.Icc (1 : ℤ) i : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T))
   -- 5. mun:not-in-subset a := p, Y := {1, …, i} ∖ T, Z := {1, …, i}, from 1, 4
-  have s5 : ¬ p ∈ (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by exact (Parley.Items.Stdlib.Sets.mun_not_in_subset (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (Z := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by parley_whole_side) (by parley_whole_side))
+  have s5 : ¬ p ∈ (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by exact (Parley.Items.Stdlib.Sets.mun_not_in_subset (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (Z := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1) s4)
   -- 6. calculation
   have s6 : (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by
     calc (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = ((Set.Icc (1 : ℤ) i : Set ℤ) \ T) \ ({p} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_by_union (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T) (Z := ({p} : Set ℤ)))

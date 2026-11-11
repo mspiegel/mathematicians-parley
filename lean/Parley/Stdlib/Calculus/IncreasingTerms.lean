@@ -53,7 +53,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
       -- 1.6.4. instantiate n := n in H2
       have s1_6_4 : x n ≤ x (n + 1) := by exact (hH2 n (lt_of_lt_of_le zero_lt_one hK))
       -- 1.6.5. transitivity, from 1.6.3, 1.6.4
-      parley_order
+      exact le_trans s1_6_3 s1_6_4
     · skip
       -- 1.6.6. substitute m = n + 1 (C2)
       have s1_6_6 : x m = x (n + 1) := by (have h := congrArg (fun t : ℤ => x t) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)

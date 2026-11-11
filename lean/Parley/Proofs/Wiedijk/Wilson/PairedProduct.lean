@@ -5,7 +5,6 @@ public import NormTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -64,9 +63,9 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   -- 5. mun:finite-part, from H2, 3
   have s5 : L.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := L) hH2 s3)
   -- 6. mun:subset-transitive, from H1, 3
-  have s6 : L ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := L) (Y := X) (Z := (Set.univ : Set ℤ)) s3 (by parley_whole_side))
+  have s6 : L ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := L) (Y := X) (Z := (Set.univ : Set ℤ)) s3 hH1)
   -- 7. mun:subset-transitive, from H1, 4
-  have s7 : U ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := U) (Y := X) (Z := (Set.univ : Set ℤ)) s4 (by parley_whole_side))
+  have s7 : U ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := U) (Y := X) (Z := (Set.univ : Set ℤ)) s4 hH1)
   -- 8. proof
   have s8 : ∀ x ∈ L, f x ∈ U := by
     intro x hK1

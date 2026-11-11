@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import InstanceTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -60,9 +59,9 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     try push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)))
   -- 4. mun:finite-part, from 1, 3
-  have s4 : S.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (Y := S) (by parley_whole_side) (by parley_whole_side))
+  have s4 : S.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (Y := S) s1 s3)
   -- 5. mun:subset-transitive, from 2, 3
-  have s5 : S ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (Z := (Set.univ : Set ℤ)) (by parley_whole_side) (by parley_whole_side))
+  have s5 : S ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := S) (Y := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (Z := (Set.univ : Set ℤ)) s3 s2)
   -- 6. proof
   have s6 : ∀ r ∈ S, f r ∈ S := by
     intro r hK1
@@ -87,7 +86,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     have r80_2 : 0 ≤ r * a % n := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := r * a) (b := n) hH1)
     have s6_4 : r * a % n ∈ Finset.Icc (0 : ℤ) (n - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := r * a % n) r80_2 s6_3)
     -- 6.5. def:set-builder u := (r·a) mod n, from D1, 6.2, 6.4
-    have s6_5 : r * a % n ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr ⟨by parley_set_side, s6_2⟩
+    have s6_5 : r * a % n ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r * a % n))).mpr ⟨by simpa only [Finset.mem_Icc, Set.mem_Icc] using s6_4, s6_2⟩
     -- 6.6. D2, from K1
     have s6_6 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 6.7. substitute f(r) = (r·a) mod n (line 6.6) into line 6.5

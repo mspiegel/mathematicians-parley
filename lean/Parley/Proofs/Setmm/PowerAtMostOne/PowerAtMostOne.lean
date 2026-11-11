@@ -13,6 +13,8 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -66,7 +68,7 @@ theorem power_at_most_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) (h
         -- 1.6.6. inequalities
         have s1_6_6 : a * a ^ m.toNat ≤ a := by parley_order
         -- 1.6.7. transitivity, from 1.3, 1.4, 1.6.6, H4
-        parley_order
+        exact le_trans (Eq.trans_le (Eq.trans s1_3 s1_4) s1_6_6) hH4
   -- 2. instantiate m := n in line 1
   exact (s1 n hH2)
 

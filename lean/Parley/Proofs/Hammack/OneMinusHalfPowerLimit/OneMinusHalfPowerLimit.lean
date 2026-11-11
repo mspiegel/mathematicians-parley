@@ -20,6 +20,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
@@ -63,7 +64,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 1.5. algebra
       have s1_5 : (2 * 2 ^ k.toNat : ℤ) = 2 ^ k.toNat * 2 := by parley_ring
       -- 1.6. transitivity, from 1.3, 1.4, 1.5, 1.2
-      parley_order
+      exact LE.le.trans_eq (LE.le.trans_eq (le_trans s1_3 s1_4) s1_5) s1_2.symm
   -- 2. proof
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - 1) < ε)) := by
     intro ε
@@ -92,7 +93,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.6. inequalities
       have s2_2_6 : 1 - ε < 1 - 1 / 2 ^ n.toNat := by parley_order
       -- 2.2.7. transitivity, from 2.2.6, H2
-      have s2_2_7 : 1 - ε < a n := by have := (hH2 n hK2); parley_order
+      have s2_2_7 : 1 - ε < a n := by exact LT.lt.trans_eq s2_2_6 (hH2 n hK2).symm
       -- 2.2.8. mun:reciprocal-positive x := 2^n, from 2.2.2
       have s2_2_8 : (1 / 2 ^ n.toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_2_2))
       -- 2.2.9. inequalities

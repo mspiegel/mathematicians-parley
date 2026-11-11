@@ -13,6 +13,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -82,7 +83,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.3. thm:divisor-exceeds-root, from C, H3, 1.5
         have s1_11_3 : p < d * d := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) hH1 (d := d) hK s1_5 hC (by parley_side))
         -- 1.11.4. transitivity, from 1.11.2, 1.1
-        have s1_11_4 : d * d ≤ p := by parley_order
+        have s1_11_4 : d * d ≤ p := by exact LE.le.trans_eq s1_11_2 s1_1.symm
         -- 1.11.5. inequalities, from 1.11.4
         have s1_11_5 : ¬ p < d * d := by parley_side
         exact absurd s1_11_3 s1_11_5
@@ -98,7 +99,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.10. thm:divisor-exceeds-root d := e, from H3, 1.9, 1.11.9
         have s1_11_10 : p < e * e := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) hH1 (d := e) (by parley_side) s1_9 s1_11_9 (by parley_side))
         -- 1.11.11. transitivity, from 1.11.7, 1.11.8
-        have s1_11_11 : e * e ≤ p := by parley_order
+        have s1_11_11 : e * e ≤ p := by exact LE.le.trans_eq s1_11_7 s1_11_8.symm
         -- 1.11.12. inequalities, from 1.11.11
         have s1_11_12 : ¬ p < e * e := by parley_side
         exact absurd s1_11_10 s1_11_12

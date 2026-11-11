@@ -4,6 +4,7 @@ public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -24,7 +25,7 @@ theorem difference_not_zero (A : ℝ) (B : ℝ) (hH3 : abs A < B) :
   -- 2. inequalities, from 1
   have s2 : A ≤ abs A := by parley_order
   -- 3. transitivity, from 2, H3
-  have s3 : A < B := by parley_order
+  have s3 : A < B := by exact lt_of_le_of_lt s2 hH3
   -- 4. inequalities
   parley_side
 

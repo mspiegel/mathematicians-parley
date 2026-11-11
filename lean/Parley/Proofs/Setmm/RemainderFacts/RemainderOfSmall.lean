@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Divisibility
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -14,6 +13,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -37,7 +37,7 @@ theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH
   have s2 : B * (A / B) = A := by parley_ring
   -- 3. transitivity, from 2, H5
   have r55_1 : B ≠ 0 := by parley_side
-  have s3 : B * (A / B) < B := by parley_order
+  have s3 : B * (A / B) < B := by exact Eq.trans_lt s2 hH5
   -- 4. mun:less-scaled x := A/B, y := 1, c := B, from H3, 3
   have s4 : A / B < 1 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (1 : ℝ)) (c := B) hH3)).mpr (by simpa only [mul_one] using s3)
   -- 5. mun:floor-between x := A/B, k := 0, from 1, 4

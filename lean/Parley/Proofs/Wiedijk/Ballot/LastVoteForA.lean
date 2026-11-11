@@ -7,7 +7,6 @@ public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.SetLike.Basic
@@ -87,7 +86,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       have hI : (c.ncard : ℤ) = m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mp (by parley_set_side)).2)
       exact hI
     -- 6.5. mun:difference-shrinks, from 6.4
-    have s6_5 : c \ ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_shrinks (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (Z := ({m + n} : Set ℤ)) (by parley_whole_side))
+    have s6_5 : c \ ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_shrinks (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (Z := ({m + n} : Set ℤ)) s6_4a)
     -- 6.6. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 2) into line 6.5
     have s6_6 : c \ ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) := by parley_subst_at s2 s6_5
     -- 6.7. algebra, from 6.4
@@ -107,7 +106,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       have s6_10_2 : i < m + n := by parley_order
       -- 6.10.3. mun:in-subset X := {1, …, (m − 1) + n}, Y := {1, …, m + n}, u := i, from K2, 4
       have s6_10_3 : i ∈ Finset.Icc (1 : ℤ) (m + n) := by
-        have hI : i ∈ Finset.Icc (1 : ℤ) (m + n) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)))
+        have hI : i ∈ Finset.Icc (1 : ℤ) (m + n) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) s4 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK2)))
         exact hI
       -- 6.10.4. instantiate i := i in line 6.3, from 6.10.3
       have s6_10_4 : (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by exact (s6_3 i s6_10_3)
@@ -150,19 +149,19 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.3. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 2) into line 8.2
     have s8_3 : T ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by parley_subst_at s2 s8_2a
     -- 8.4. mun:subset-of-difference, from 8.3
-    have s8_4 : ¬ m + n ∈ T := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := T) (a := m + n) (by parley_whole_side))
+    have s8_4 : ¬ m + n ∈ T := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := T) (a := m + n) s8_3)
     -- 8.5. mun:subset-transitive, from 4, 8.2
-    have s8_5 : T ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := T) (Y := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (by parley_whole_side) (by parley_whole_side))
+    have s8_5 : T ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := T) (Y := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) s8_2a s4)
     -- 8.6. mun:range-end n := m + n
     have s8_6 : m + n ∈ Finset.Icc (1 : ℤ) (m + n) := by exact (Parley.Items.Stdlib.Sums.mun_range_end (n := m + n) (by parley_set_side))
     -- 8.7. mun:singleton-subset, from 8.6
-    have s8_7 : ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (a := m + n) (by parley_whole_side))
+    have s8_7 : ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (a := m + n) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s8_6))
     -- 8.8. mun:union-subset, from 8.5, 8.7
-    have s8_8 : T ∪ ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := T) (Y := ({m + n} : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (by parley_whole_side) (by parley_whole_side))
+    have s8_8 : T ∪ ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := T) (Y := ({m + n} : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) s8_5 s8_7)
     -- 8.9. mun:range-finite a := 1, b := (m − 1) + n
     have s8_9 : (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ).Finite := by exact (Parley.Items.Stdlib.Sums.mun_range_finite (a := (1 : ℤ)) (b := m - 1 + n))
     -- 8.10. mun:finite-part X := {1, …, (m − 1) + n}, Y := T, from 8.2, 8.9
-    have s8_10 : T.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := T) (by parley_whole_side) (by parley_whole_side))
+    have s8_10 : T.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := T) s8_9 s8_2a)
     -- 8.11. mun:card-add-one, from 8.4, 8.10
     have s8_11 : ((T ∪ ({m + n} : Set ℤ)).ncard : ℤ) = (T.ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := T) (a := m + n) s8_10 s8_4)
     -- 8.12. algebra, from 8.2, 8.11

@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -45,6 +46,6 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   have s9 : x * (4 - x) / (x * (4 - x)) = 1 := by parley_ring
   -- 10. transitivity, from 9, 8
   have r46_1 : 0 ≠ x * (4 - x) := by parley_side
-  parley_order
+  exact Eq.trans_le s9.symm s8
 
 end Parley.Proofs.Hammack.FourOverProduct.FourOverProduct

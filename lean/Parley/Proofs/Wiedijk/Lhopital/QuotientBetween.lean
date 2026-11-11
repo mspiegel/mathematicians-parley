@@ -51,7 +51,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 2. mun:difference-subset
   have s2 : (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.Ioo a b : Set ℝ)) (Y := ({c} : Set ℝ)))
   -- 3. mun:subset-transitive X := (a, b) ∖ {c}, Y := (a, b), Z := ℝ, from 1, 2
-  have s3 : (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (Y := (Set.Ioo a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s2 (by parley_whole_side))
+  have s3 : (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (Y := (Set.Ioo a b : Set ℝ)) (Z := (Set.univ : Set ℝ)) s2 s1)
   -- 4. mun:subset-self
   have s4 : (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)))
   -- 5. algebra

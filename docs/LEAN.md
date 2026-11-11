@@ -91,7 +91,9 @@ How a line proves a statement elsewhere comes from the record. A block's last
 step meets what it owes, a supposition what it denies, a contradicting step
 its line, and an instance its claim, in the way the checker found them alike.
 Each meeting gives one tactic: the line itself, its `.symm` or `Ne.symm`, or
-`simpa only [add_zero, …] using` it. The writer decides only what comes from
+`simpa only [add_zero, …] using` it; or, where the line writes a range as
+`Finset.Icc` and the statement as `Set.Icc`, `simpa only [Finset.mem_Icc,
+Set.mem_Icc] using` it. The writer decides only what comes from
 its own choice of casts and `toNat`. Two statements apart only there close by
 `exact_mod_cast`, or by `simpa using` where neither type is narrower.
 
@@ -484,13 +486,14 @@ no line states the fact.
 
 | method | Lean |
 |---|---|
-| a citation | the item's theorem at the citation's values, each hypothesis by the line the checker found it supplied by (`Cited::supplied`), the number-system fact of an item letter's binder among them, `parley_side` where none states it; `.mp` from the line the reading starts from, `.mpr` with the right side built from its parts (`Cited::unfolded`): each witness, and each fact by the line that states it, as Lean states the part; the side whole by `parley_side` where Lean's statement does not take apart as the page's does |
+| a citation | the item's theorem at the citation's values, each hypothesis by the line the checker found it supplied by (`Cited::supplied`), the number-system fact of an item letter's binder among them, `parley_side` where none states it; a hypothesis whose set the citation gives as all of ℝ or a range is taken from its line all the same, and only where none states it read by `parley_whole_side`; `.mp` from the line the reading starts from, `.mpr` with the right side built from its parts (`Cited::unfolded`): each witness, and each fact by the line that states it, as Lean states the part; the side whole by `parley_side` where Lean's statement does not take apart as the page's does |
 | obtain | `obtain ⟨k, …⟩ :=` the item's or the line's "there is"; a part the checker met otherwise than as written, or that Lean casts otherwise, is obtained under a name of its own and stated after as the page says it |
 | exhibit | `⟨w, h⟩`, each fact of the values by the line the checker found it stated by (`Exhibit::shown`); `parley_side` where none does |
 | instantiate | the sentence the checker instantiated, at the values given, a letter given none at the block's letter, each guard and condition by the line the checker found it supplied by (`Instantiated::guards`, `Instantiated::conditions`), `parley_side` where none states it; closed by the instance's meeting with the claim, or, where Lean states the two otherwise, by `linear_combination`, `linarith` or `exact`, and `parley_side` where the instance is in a field the claim is not |
 | algebra | `ring`; from cited lines, `linear_combination` with the multipliers the method's decision finds, the defines written out only at the lines it cites and at its goal (`Proof::rewritten_at`), so a line it does not cite keeps its letters |
 | arithmetic, real arithmetic | `parley_arith` |
-| inequalities, transitivity, antisymmetry, rows | linear arithmetic, `parley_side` |
+| transitivity | the links the checker placed (`CheckedTheorem::links`), each read the way the chain goes, `.symm` of an equation it reads turned, joined by the lemma for each pair of relations (`le_trans`, `lt_of_le_of_lt`, `Eq.trans_le`, …), a chain going down taken up from its last link; `exact`, or `exact_mod_cast` where the claim is in another type than the links; `parley_order` where a link stands in no line, the links are in two types, or the chain is of equations alone |
+| inequalities, antisymmetry, rows | linear arithmetic, `parley_side` |
 | restate | the line the checker found the claim in (`CheckedTheorem::restated`), a "for all" read at a block's letter with its `let` line as the guard (`ReadAt::opened_by`); `parley_side` where no one line states it |
 | membership, join, inspection | `parley_side`; an integer the cited lines give, as a witness |
 | substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); else `parley_subst`, the equation either way round; rows one at a time |

@@ -97,7 +97,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.13. inequalities
       have s1_13 : r < m := by parley_order
       -- 1.14. transitivity, from 1.13, 1.4
-      have s1_14 : r < N + 1 := by parley_order
+      have s1_14 : r < N + 1 := by exact lt_of_lt_of_le s1_13 s1_4
       -- 1.15. mun:integer-step m := r, n := N + 1, from 1.14
       have s1_15 : r + 1 ≤ N + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := r) (n := N + 1) s1_14)
       -- 1.16. inequalities

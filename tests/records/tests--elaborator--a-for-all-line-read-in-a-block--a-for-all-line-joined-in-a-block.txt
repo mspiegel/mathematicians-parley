@@ -1,0 +1,17 @@
+theorem tests/elaborator/a-for-all-line-read-in-a-block/a-for-all-line-joined-in-a-block
+block of 1: 1.1
+  the block owes x · 1 = x
+block of 2: 2.1
+  the block owes z · 1 = z
+step 2.1 restates 1 sentence 1
+read 35: for all z ∈ ℤ, z·1 = z  as  for-all:forall∈,(name:z, number-systems:ℤ, equality:=(multiplicative:·(name:z, numeral:1), name:z))  a statement
+read 38: for all z ∈ ℤ, z·1 = z  as  for-all:forall∈,(name:z, number-systems:ℤ, equality:=(multiplicative:·(name:z, numeral:1), name:z))  a statement
+read 40: For all x ∈ ℤ, x·1 = x  as  for-all:forall∈,(name:x, number-systems:ℤ, equality:=(multiplicative:·(name:x, numeral:1), name:x))  a statement
+read 42: x ∈ ℤ  as  membership:∈(name:x, number-systems:ℤ)  a statement
+read 44: x·1 = x  as  equality:=(multiplicative:·(name:x, numeral:1), name:x)  a statement
+read 47: For all z ∈ ℤ, z·1 = z  as  for-all:forall∈,(name:z, number-systems:ℤ, equality:=(multiplicative:·(name:z, numeral:1), name:z))  a statement
+read 49: z ∈ ℤ  as  membership:∈(name:z, number-systems:ℤ)  a statement
+read 51: z·1 = z  as  equality:=(multiplicative:·(name:z, numeral:1), name:z)  a statement
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 2.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

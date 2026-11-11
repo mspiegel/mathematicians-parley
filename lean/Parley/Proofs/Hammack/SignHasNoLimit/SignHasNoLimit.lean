@@ -13,6 +13,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
@@ -61,7 +62,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 9. inequalities
   have s9 : p / 2 < p := by parley_order
   -- 10. transitivity, from 8, 9
-  have s10 : abs (p / 2) < p := by parley_order
+  have s10 : abs (p / 2) < p := by exact Eq.trans_lt s8 s9
   -- 11. instantiate x := p/2 in line 4, from 6, 7, 10
   have s11 : abs (f (p / 2) - L) < 1 := by exact (s4b (p / 2) s7 (by parley_set_side))
   -- 12. calculation
@@ -72,7 +73,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 13. mun:abs-difference-lt x := f(p/2), c := L, δ := 1, from 11
   have s13 : f (p / 2) < L + 1 := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (p / 2)) (c := L) (δ := (1 : ℝ)))).mp s11).2
   -- 14. transitivity, from 12, 13
-  have s14 : 1 < L + 1 := by parley_order
+  have s14 : 1 < L + 1 := by exact Eq.trans_lt s12.symm s13
   -- 15. inequalities
   have s15 : 0 < L := by parley_order
   -- 16. inequalities
@@ -87,7 +88,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     have row1 : abs (-p / 2) = abs (p / 2) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (p / 2))) c1 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 20. transitivity, from 19, 8, 9
-  have s20 : abs (-p / 2) < p := by parley_order
+  have s20 : abs (-p / 2) < p := by exact Eq.trans_lt (Eq.trans s19 s8) s9
   -- 21. instantiate x := (−p)/2 in line 4, from 16, 17, 20
   have s21 : abs (f (-p / 2) - L) < 1 := by exact (s4b (-p / 2) s17 (by parley_set_side))
   -- 22. calculation
@@ -98,7 +99,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 23. mun:abs-difference-lt x := f((−p)/2), c := L, δ := 1, from 21
   have s23 : L - 1 < f (-p / 2) := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (-p / 2)) (c := L) (δ := (1 : ℝ)))).mp s21).1
   -- 24. transitivity, from 23, 22
-  have s24 : L - 1 < -1 := by parley_order
+  have s24 : L - 1 < -1 := by exact LT.lt.trans_eq s23 s22
   -- 25. inequalities
   have s25 : L < 0 := by parley_order
   -- 26. inequalities

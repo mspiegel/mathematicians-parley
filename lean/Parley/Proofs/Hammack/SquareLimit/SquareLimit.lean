@@ -6,7 +6,6 @@ public import NormTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -16,6 +15,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
@@ -77,7 +77,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.7. transitivity, from 1.4.3, 1.4.5
       have s1_4_7 : 0 < abs (x + 3) := by parley_order
       -- 1.4.8. transitivity, from 1.4.5, 1.4.6
-      have s1_4_8 : abs (x + 3) < 7 := by parley_order
+      have s1_4_8 : abs (x + 3) < 7 := by exact Eq.trans_lt s1_4_5 s1_4_6
       -- 1.4.9. join 1.4.7, 1.4.8
       have s1_4_9 : 0 < abs (x + 3) ∧ abs (x + 3) < 7 := by parley_set_side
       -- 1.4.10. inequalities
@@ -102,6 +102,6 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     exact ⟨m, ⟨s1_3, s1_4⟩⟩
   -- 2. def:limit-at D := ℝ, c := 3, L := 7, from 1
   have r106_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (3 : ℝ)) (L := (7 : ℝ)))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r106_1 (c := (3 : ℝ)) (L := (7 : ℝ)))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.SquareLimit.SquareLimit

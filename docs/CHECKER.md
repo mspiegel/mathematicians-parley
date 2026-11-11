@@ -171,8 +171,12 @@ exactly what the check refuses.
   every member of a set inside the domain, the member itself (`Member`).
   Lean puts the function's equation at that argument, `hD1 _ h`, h that
   line or, after `intro j h_j`, the member's fact or a range's lower bound.
-- `links`: the relation each line a `transitivity` step cites gives its
-  chain. Metamath reads it; Lean writes the chain by linear arithmetic.
+- `links`: for each `transitivity` step, by the line the step is on, each
+  link of its chain (`ChainLink`): the relation the cited line gives, where
+  it stands in the line (`FirstAt`; none for a define's equation), and
+  whether the chain reads it from its right side, `b = a` as `a = b`,
+  `b > a` as `a < b`. Metamath reads the relations; Lean composes the chain
+  from the links.
 
 ## Blocks
 

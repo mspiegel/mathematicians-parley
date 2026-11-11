@@ -20,6 +20,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
@@ -85,7 +86,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.5. inequalities
           have s1_7_5 : i < 2 * i := by parley_order
           -- 1.7.6. transitivity, from 1.7.5, 1.7.1, 1.5
-          have s1_7_6 : i < N + 1 := by parley_order
+          have s1_7_6 : i < N + 1 := by exact lt_of_lt_of_le (LT.lt.trans_eq s1_7_5 s1_7_1.symm) s1_5
           -- 1.7.7. mun:integer-step m := i, n := N + 1, from 1.7.6
           have s1_7_7 : i + 1 ≤ N + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := N + 1) s1_7_6)
           -- 1.7.8. inequalities

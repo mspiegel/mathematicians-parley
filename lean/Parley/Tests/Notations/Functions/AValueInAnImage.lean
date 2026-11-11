@@ -29,7 +29,7 @@ theorem a_value_in_an_image (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * x + 
   -- 2. mun:pair-subset a := 1, b := 2, X := ℝ
   have s2 : ({(1 : ℝ), (2 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (b := (2 : ℝ)) (by parley_whole_side) (by parley_whole_side))
   -- 3. mun:value-in-image, from 1, 2
-  have s3 : f 1 ∈ f '' ((Set.univ : Set ℝ) ∩ ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) (f := f) (s := (1 : ℝ)) (W := Set.univ) (by parley_whole_side) (by parley_set_side) (by parley_whole_side))
+  have s3 : f 1 ∈ f '' ((Set.univ : Set ℝ) ∩ ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) (f := f) (s := (1 : ℝ)) (W := Set.univ) s2 (by parley_set_side) (by parley_whole_side))
   -- 4. instantiate x := 1 in H2
   have s4 : f 1 = 2 * 1 + 1 := by exact (hH2 (1 : ℝ))
   -- 5. calculation

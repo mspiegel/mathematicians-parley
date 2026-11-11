@@ -4,6 +4,8 @@ public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -45,7 +47,7 @@ theorem abs_bounds (x : ℝ) :
       -- 2.8. inequalities
       have s2_8 : 0 < -x := by parley_order
       -- 2.9. transitivity, from C2, 2.8, 2.6
-      have s2_9 : x < abs x := by parley_order
+      have s2_9 : x < abs x := by exact LT.lt.trans_eq (lt_trans hC2 s2_8) s2_6.symm
       -- 2.10. inequalities
       have s2_10 : x ≤ abs x := by parley_order
       -- 2.11. join 2.7, 2.10

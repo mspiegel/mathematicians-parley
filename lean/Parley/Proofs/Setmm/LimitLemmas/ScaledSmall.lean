@@ -7,6 +7,8 @@ public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -54,12 +56,12 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   have s11 : abs C * abs u ≤ abs C * abs u + abs u := by parley_order
   -- 12. transitivity, from 11, 9, 7, 8
   have r114_1 : d ≠ 0 := by parley_side
-  have s12 : abs C * abs u ≤ ε / 2 := by parley_order
+  have s12 : abs C * abs u ≤ ε / 2 := by exact LE.le.trans_eq (le_trans (LE.le.trans_eq s11 s9.symm) s7) s8
   -- 13. mun:abs-product x := C, y := u
   have s13 : abs (C * u) = abs C * abs u := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))
   -- 14. inequalities
   have s14 : ε / 2 < ε := by parley_order
   -- 15. transitivity, from 13, 12, 14
-  parley_order
+  exact lt_of_le_of_lt (Eq.trans_le s13 s12) s14
 
 end Parley.Proofs.Setmm.LimitLemmas.ScaledSmall

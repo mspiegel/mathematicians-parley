@@ -11,6 +11,8 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -47,7 +49,7 @@ theorem power_at_least_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 1 ≤ a) :
       -- 2.5. inequalities
       have s2_5 : a ≤ a ^ m.toNat * a := by parley_order
       -- 2.6. transitivity, from H3, 2.5, 2.3
-      parley_order
+      exact LE.le.trans_eq (le_trans hH3 s2_5) s2_3.symm
   -- 3. instantiate m := n in line 2
   exact (s2 n hH2)
 

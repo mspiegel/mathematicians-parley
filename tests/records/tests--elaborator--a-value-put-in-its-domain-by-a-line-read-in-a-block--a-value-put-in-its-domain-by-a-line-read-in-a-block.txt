@@ -1,0 +1,14 @@
+theorem tests/elaborator/a-value-put-in-its-domain-by-a-line-read-in-a-block/a-value-put-in-its-domain-by-a-line-read-in-a-block
+block of 1: 1.1
+  the block owes 10 − x ≤ 9
+step 1.1 instantiates H2 sentence 0, conditions taken off [], guards [y by H1 sentence 1]
+read 1: for all x ∈ {1, …, 9}, 10 − x ≤ 9  as  for-all:forall∈,(name:x, integer-range:{,…,}(numeral:1, numeral:9), order:≤(additive:−(numeral:10, name:x), numeral:9))  a statement
+read 4: for all x ∈ {1, …, 9}, 10 − x ∈ {1, …, 9}  as  for-all:forall∈,(name:x, integer-range:{,…,}(numeral:1, numeral:9), membership:∈(additive:−(numeral:10, name:x), integer-range:{,…,}(numeral:1, numeral:9)))  a statement
+read 5: for all y ∈ {1, …, 9}, y ≤ 9  as  for-all:forall∈,(name:y, integer-range:{,…,}(numeral:1, numeral:9), order:≤(name:y, numeral:9))  a statement
+read 6: for all x ∈ {1, …, 9}, 10 − x ≤ 9  as  for-all:forall∈,(name:x, integer-range:{,…,}(numeral:1, numeral:9), order:≤(additive:−(numeral:10, name:x), numeral:9))  a statement
+read 8: For all x ∈ {1, …, 9}, 10 − x ≤ 9  as  for-all:forall∈,(name:x, integer-range:{,…,}(numeral:1, numeral:9), order:≤(additive:−(numeral:10, name:x), numeral:9))  a statement
+read 10: x ∈ {1, …, 9}  as  membership:∈(name:x, integer-range:{,…,}(numeral:1, numeral:9))  a statement
+read 12: 10 − x ≤ 9  as  order:≤(additive:−(numeral:10, name:x), numeral:9)  a statement
+read 13: 10 − x  as  additive:−(numeral:10, name:x)  a number
+step 1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+step 1.1 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

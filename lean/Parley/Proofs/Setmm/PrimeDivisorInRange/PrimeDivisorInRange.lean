@@ -7,6 +7,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -39,7 +40,7 @@ theorem prime_divisor_in_range (N : ℤ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   -- 7. mun:divides-le e := p, m := I, from 4, 6
   have s7 : p ≤ I := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) s6a (m := I) s4 s6c)
   -- 8. transitivity, from 7, 2
-  have s8 : p ≤ N := by parley_order
+  have s8 : p ≤ N := by exact le_trans s7 s2
   -- 9. exhibit, from 6, 8
   exact ⟨p, s6a, ⟨⟨s6b, s8⟩, s6c⟩⟩
 

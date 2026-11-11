@@ -8,6 +8,8 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,12 +49,12 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
         -- 6.1.1. def:abs x := A, from C1
         have s6_1_1 : abs A = A := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) hC1
         -- 6.1.2. transitivity, from 6.1.1, D1
-        parley_order
+        exact Eq.trans_le s6_1_1 hD1.1
       · skip
         -- 6.1.3. def:abs x := A, from C2
         have s6_1_3 : abs A = -A := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) hC2
         -- 6.1.4. transitivity, from 6.1.3, D1
-        parley_order
+        exact Eq.trans_le s6_1_3 hD1.2
     -- 6.2. contradiction
     by_contra hS1
     -- 6.2.1. inequalities, from S1
@@ -85,11 +87,11 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     -- 6.4. inequalities, from 1
     have s6_4 : A ≤ abs A := by parley_order
     -- 6.5. transitivity, from 6.4, 6.3
-    have s6_5 : A ≤ B := by parley_order
+    have s6_5 : A ≤ B := by exact le_trans s6_4 s6_3
     -- 6.6. inequalities, from 1
     have s6_6 : -A ≤ abs A := by parley_order
     -- 6.7. transitivity, from 6.6, 6.3
-    have s6_7 : -A ≤ B := by parley_order
+    have s6_7 : -A ≤ B := by exact le_trans s6_6 s6_3
     -- 6.8. join 6.5, 6.7
     have s6_8 : A ≤ B ∧ -A ≤ B := by parley_side
     exact ⟨(s6_8).1, (s6_8).2⟩

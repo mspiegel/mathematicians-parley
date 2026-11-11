@@ -52,7 +52,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s5 : 1 ≤ (LeanBridges.Counting.choose (k + j) k : ℤ) := by parley_order
   -- 6. transitivity, from 5, H9
   have r319_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
-  have s6 : 1 ≤ (X.ncard : ℤ) := by parley_count_int; (parley_order)
+  have s6 : 1 ≤ (X.ncard : ℤ) := by parley_count_int; (exact le_trans s5 hH9)
   -- 7. inequalities, from 6
   have r323_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
   have s7 : 0 < (X.ncard : ℤ) := by parley_count_int; (parley_order)
@@ -147,7 +147,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have r434_2 : 0 ≤ (B.ncard : ℤ) := by exact s19
       have r434_3 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact s25
       have r434_4 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) := by exact s26
-      have s30_5 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + ((R.ncard : ℤ) + 1) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_order
+      have s30_5 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + ((R.ncard : ℤ) + 1) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by exact le_trans s30_4 s28
       -- 30.6. inequalities
       have r441_1 : 0 ≤ (R.ncard : ℤ) := by exact s18
       have r441_2 : 0 ≤ (B.ncard : ℤ) := by exact s19

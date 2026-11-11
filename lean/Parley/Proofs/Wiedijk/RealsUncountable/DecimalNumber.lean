@@ -26,6 +26,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -74,13 +75,13 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 3.4. inequalities
     have s3_4 : 10 * N k ≤ 10 * N k + d (k + 1) := by parley_order
     -- 3.5. transitivity, from 3.4, 3.1
-    have s3_5 : 10 * N k ≤ N (k + 1) := by parley_order
+    have s3_5 : 10 * N k ≤ N (k + 1) := by exact LE.le.trans_eq s3_4 s3_1.symm
     -- 3.6. inequalities
     have s3_6 : 10 * N k + d (k + 1) + 1 ≤ 10 * (N k + 1) := by parley_order
     -- 3.7. inequalities
     have s3_7 : N (k + 1) + 1 = 10 * N k + d (k + 1) + 1 := by parley_set_side
     -- 3.8. transitivity, from 3.7, 3.6
-    have s3_8 : N (k + 1) + 1 ≤ 10 * (N k + 1) := by parley_order
+    have s3_8 : N (k + 1) + 1 ≤ 10 * (N k + 1) := by exact Eq.trans_le s3_7 s3_6
     -- 3.9. join 3.5, 3.8
     have s3_9 : 10 * N k ≤ N (k + 1) ∧ N (k + 1) + 1 ≤ 10 * (N k + 1) := by parley_set_side
     -- 3.10. mun:power-nat a := 10, m := k + 1
@@ -167,13 +168,13 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 5.8. inequalities, from 5.3, 5.5, 5.6
       have s5_8 : L (p + g) ≤ L (p + g + 1) := by parley_order
       -- 5.9. transitivity, from 5.7, 5.8
-      have s5_9 : L p ≤ L (p + g + 1) := by parley_order
+      have s5_9 : L p ≤ L (p + g + 1) := by exact le_trans s5_7 s5_8
       -- 5.10. inequalities, from 5.3, 5.5, 5.6
       have s5_10 : U (p + g + 1) ≤ U (p + g) := by parley_order
       -- 5.11. inequalities, from 5.2, 5.4, 5.5
       have s5_11 : U (p + g) ≤ U p := by parley_order
       -- 5.12. transitivity, from 5.10, 5.11
-      have s5_12 : U (p + g + 1) ≤ U p := by parley_order
+      have s5_12 : U (p + g + 1) ≤ U p := by exact le_trans s5_10 s5_11
       -- 5.13. join 5.9, 5.12
       have s5_13 : L p ≤ L (p + g + 1) ∧ U (p + g + 1) ≤ U p := by parley_set_side
       -- 5.14. algebra
@@ -209,7 +210,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.4. inequalities, from 6.1, 6.2, 6.4.3
       have s6_4_4 : L j ≤ L k := by parley_order
       -- 6.4.5. transitivity, from 6.4.4, 6.2
-      parley_order
+      exact le_trans s6_4_4 s6_2
     · skip
       -- 6.4.6. inequalities, from C6
       have s6_4_6 : k < j := by parley_order
@@ -230,7 +231,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.11. inequalities, from 6.1, 6.2, 6.4.10
       have s6_4_11 : U j ≤ U k := by parley_order
       -- 6.4.12. transitivity, from 6.1, 6.4.11
-      parley_order
+      exact le_trans s6_1 s6_4_11
   -- 7. mun:set-builder-subset, from D4
   have s7 : S ⊆ (Set.univ : Set ℝ) := by
     try simp only [hD4] at ⊢
@@ -329,9 +330,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.16. mun:floor-above x := 10^n·c
     have s16_16 : 10 ^ n.toNat * c < (⌊10 ^ n.toNat * c⌋ : ℝ) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := 10 ^ n.toNat * c))
     -- 16.17. transitivity, from 16.12, 16.16
-    have s16_17 : N n < ⌊10 ^ n.toNat * c⌋ + 1 := by parley_order
+    have s16_17 : N n < ⌊10 ^ n.toNat * c⌋ + 1 := by exact_mod_cast lt_of_le_of_lt s16_12 s16_16
     -- 16.18. transitivity, from 16.15, 16.13
-    have s16_18 : ⌊10 ^ n.toNat * c⌋ ≤ N n + 1 := by parley_order
+    have s16_18 : ⌊10 ^ n.toNat * c⌋ ≤ N n + 1 := by exact_mod_cast le_trans s16_15 s16_13
     -- 16.19. mun:integer-step m := N(n), n := ⌊10^n·c⌋ + 1, from 16.5, 16.17
     have s16_19 : N n + 1 ≤ ⌊10 ^ n.toNat * c⌋ + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := N n) (n := ⌊10 ^ n.toNat * c⌋ + 1) s16_17)
     -- 16.20. D1

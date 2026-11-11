@@ -5,7 +5,6 @@ public import NormTactics
 public import SetTactics
 public import Sets
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -65,7 +64,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       -- 2.7. instantiate y := a in H4, from 2.5
       have s2_7 : (Int.gcd a n : ℤ) = 1 := by exact (hH4 a s2_5.1)
       -- 2.8. mun:subset-transitive X := Y, Y := X, Z := ℤ, from H1, K
-      have s2_8 : Y ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := Y) (Y := X) (Z := (Set.univ : Set ℤ)) hK (by parley_whole_side))
+      have s2_8 : Y ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := Y) (Y := X) (Z := (Set.univ : Set ℤ)) hK hH1)
       -- 2.9. mun:product-integer X := Y, from 2.6, 2.8
       -- 2.10. mun:in-subset, from H1, 2.5
       -- 2.11. mun:coprime-product x := ∏(x ∈ Y) x, y := a, from IH, 2.7, 2.9, 2.10

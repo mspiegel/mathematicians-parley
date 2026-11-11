@@ -48,7 +48,7 @@ requires line 2 of step 5.4.12 cites stdlib/numbers/nat0-real group 0; m := b(k)
 requires line 1 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line; supplied by 5.4.9 sentence 0; letters m cn0 from cn0; facing none; met as written
 requires line 2 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line; supplied by 3 sentence 1 part 1; letters m cn0 from cn0; facing none; met as written
 requires line on line 269 cites stdlib/divisibility/gcd-zero group 0; n := a(N); concludes 0 AsWritten; from no line; supplied by 6 sentence 0 part 0; letters n cn0 from cn0; facing turned; met turned
-step 5.4.13 chains b(k + 1) + (k + 1) ≤ b(k) + k | b(k) + k ≤ N
+step 5.4.13 chains b(k + 1) + (k + 1) ≤ b(k) + k (5.4.12 sentence 0) | b(k) + k ≤ N (5.4.11 sentence 0)
 step 6 instantiates 3 sentence 0, conditions taken off [], guards [k by once H2 sentence 0]
 step 7 instantiates 5 sentence 0, conditions taken off [], guards [k by once H2 sentence 0]
 a row of step 9 instantiates 4 sentence 0, conditions taken off [], guards [k by once H2 sentence 0]

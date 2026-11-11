@@ -5,7 +5,6 @@ public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -58,9 +57,9 @@ theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     -- 2.6. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.4
     have s2_6 : T ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by parley_subst_at s1 s2_4
     -- 2.7. mun:subset-of-difference, from 2.5
-    have s2_7 : ¬ m + n ∈ S := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := S) (a := m + n) (by parley_whole_side))
+    have s2_7 : ¬ m + n ∈ S := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := S) (a := m + n) s2_5)
     -- 2.8. mun:subset-of-difference, from 2.6
-    have s2_8 : ¬ m + n ∈ T := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := T) (a := m + n) (by parley_whole_side))
+    have s2_8 : ¬ m + n ∈ T := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := T) (a := m + n) s2_6)
     -- 2.9. mun:difference-of-union
     have s2_9 : (S ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) = S \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := S) (a := m + n))
     -- 2.10. substitute S ∪ {m + n} = T ∪ {m + n} (K3) into line 2.9

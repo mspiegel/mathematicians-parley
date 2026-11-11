@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -70,7 +71,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.13. inequalities, from 1.3
       have s1_13 : j ≤ q := by parley_order
       -- 1.14. transitivity, from 1.13, 1.12, 1.11
-      have s1_14 : j ≤ 2 ^ d.toNat * q := by parley_order
+      have s1_14 : j ≤ 2 ^ d.toNat * q := by exact LE.le.trans_eq (le_trans s1_13 s1_12) s1_11
       -- 1.15. inequalities
       have s1_15 : 2 ^ d.toNat * q + 1 ≥ j + 1 := by parley_order
       -- 1.16. exhibit, from 1.6, 1.15

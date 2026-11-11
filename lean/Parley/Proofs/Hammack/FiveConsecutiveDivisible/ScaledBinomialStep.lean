@@ -10,6 +10,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -32,7 +33,7 @@ theorem scaled_binomial_step (m : ℤ) (hH1 : 0 ≤ m) (i : ℤ) (hH2 : 0 ≤ i)
   -- 2. inequalities, from H1
   have s2 : i + 1 ≤ m + i + 1 := by parley_order
   -- 3. transitivity, from 1, 2
-  have s3 : j ≤ m + i + 1 := by parley_order
+  have s3 : j ≤ m + i + 1 := by exact Eq.trans_le s1 s2
   -- 4. def:range-between k := j, a := 1, b := (m + i) + 1, from 3
   have r33_1 : 1 ≤ j := by parley_order
   have s4 : j ∈ Finset.Icc (1 : ℤ) (m + i + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := j) (a := (1 : ℤ)) (b := m + i + 1))).mpr ⟨r33_1, s3⟩

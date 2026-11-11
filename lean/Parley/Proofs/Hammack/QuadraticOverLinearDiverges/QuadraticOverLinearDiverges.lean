@@ -13,6 +13,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -69,7 +70,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 <
     -- 1.2.13. inequalities
     have s1_2_13 : M < (n : ℝ) / 3 := by parley_order
     -- 1.2.14. transitivity, from 1.2.13, 1.2.11
-    parley_order
+    exact lt_trans s1_2_13 s1_2_11
   -- 1.3. exhibit, from 1.2
   exact ⟨N, s1_1a, s1_2⟩
 

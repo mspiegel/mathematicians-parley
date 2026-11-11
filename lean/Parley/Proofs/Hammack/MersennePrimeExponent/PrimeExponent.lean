@@ -146,7 +146,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         -- 4.18.4. inequalities, from 4.8
         have s4_18_4 : e ≤ q := by parley_order
         -- 4.18.5. transitivity, from 4.18.3, 4.18.4
-        have s4_18_5 : 2 ≤ q := by parley_order
+        have s4_18_5 : 2 ≤ q := by exact le_trans s4_18_3 s4_18_4
         -- 4.18.6. mun:multiply-le x := 2, y := q, c := 2^d − 1, from 4.18.5
         have r321_1 : (2 ^ d.toNat - 1 : ℤ) > 0 := by parley_order
         have s4_18_6 : (2 ^ d.toNat - 1) * 2 ≤ (2 ^ d.toNat - 1) * q := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := q) (c := (2 ^ d.toNat - 1 : ℤ)) s4_18_5 r321_1)
@@ -159,7 +159,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         -- 4.18.9. inequalities
         have s4_18_9 : (2 ^ d.toNat - 1 : ℤ) < (2 ^ d.toNat - 1) * 2 := by parley_order
         -- 4.18.10. transitivity, from 4.18.9, 4.18.6
-        have s4_18_10 : 2 ^ d.toNat - 1 < (2 ^ d.toNat - 1) * q := by parley_order
+        have s4_18_10 : 2 ^ d.toNat - 1 < (2 ^ d.toNat - 1) * q := by exact lt_of_lt_of_le s4_18_9 s4_18_6
         -- 4.18.11. inequalities
         have s4_18_11 : 2 ^ d.toNat - 1 ≠ (2 ^ d.toNat - 1) * q := by parley_side
         exact absurd s4_18_7 s4_18_11

@@ -36,6 +36,6 @@ theorem cauchy_inside_a_larger_domain (a : ℝ) (b : ℝ) (hH3 : a < b) (h : ℝ
   -- 2. mun:subset-self X := ℝ
   have s2 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   -- 3. thm:cauchy-mean-value D := ℝ, f := h, g := k, from H3, H6, H7, H8, H9, 1, 2
-  exact (Parley.Items.Stdlib.Calculus.thm_cauchy_mean_value (f := h) (g := k) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (a := a) (b := b) hH3 (by parley_whole_side) hH6 hH7 (by parley_whole_side) (by parley_whole_side))
+  exact (Parley.Items.Stdlib.Calculus.thm_cauchy_mean_value (f := h) (g := k) (D := (Set.univ : Set ℝ)) s2 (a := a) (b := b) hH3 s1 hH6 hH7 (by parley_whole_side) (by parley_whole_side))
 
 end Parley.Tests.Stdlib.Calculus.CauchyInsideALargerDomain

@@ -19,6 +19,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
@@ -49,7 +50,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 4. inequalities, from 2
   have s4 : (2 ^ j.toNat : ℤ) ≤ 2 ^ j.toNat * 2 := by parley_order
   -- 5. transitivity, from 4, 1
-  have s5 : (2 ^ j.toNat : ℤ) ≤ 2 ^ (j + 1).toNat := by parley_order
+  have s5 : (2 ^ j.toNat : ℤ) ≤ 2 ^ (j + 1).toNat := by exact LE.le.trans_eq s4 s1.symm
   -- 6. proof
   -- what this block shows, Lean's types give
   -- 7. mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 5, 6
@@ -66,7 +67,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
     have s9_1a : 2 ^ j.toNat + 1 ≤ k := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) (k := k) hK2)
     have s9_1b : k ≤ 2 ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) (k := k) hK2)
     -- 9.2. transitivity, from 8, 9.1
-    have s9_2 : k > 0 := by parley_order
+    have s9_2 : k > 0 := by exact lt_of_lt_of_le s8 s9_1a
     -- 9.3. mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
     have r59_1 : k > 0 := by parley_side
     have r59_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by parley_order
@@ -78,7 +79,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 12. inequalities, from 2
   have s12 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ j.toNat * 2 := by parley_order
   -- 13. transitivity, from 12, 1
-  have s13 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by parley_order
+  have s13 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact LE.le.trans_eq s12 s1.symm
   -- 14. mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
   have r88_1 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact s13
   have s14 : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by
@@ -91,10 +92,10 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
           (have h := congrArg (fun t : ℚ => (t - (2 ^ j.toNat + 1) + 1) * (1 / t)) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 / 2 := by parley_ring
   -- 16. transitivity, from 15, 14, 11
-  have s16 : 1 / 2 ≤ (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by parley_order
+  have s16 : 1 / 2 ≤ (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact Eq.trans_le (Eq.trans s15.symm s14.symm) s11
   -- 17. inequalities
   have s17 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by parley_order
   -- 18. transitivity, from 17, 7
-  parley_order
+  exact LE.le.trans_eq s17 s7.symm
 
 end Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock

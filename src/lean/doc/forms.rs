@@ -615,6 +615,10 @@ pub enum Meets {
     /// Alike once the identity elements are dropped, `x + 0` as `x`, by the
     /// rewrites named: `simpa only [..] using` it.
     Identities(Vec<&'static str>),
+    /// Alike once each integer range the one writes as a finite set,
+    /// `Finset.Icc a b`, is read as the set the other writes, `Set.Icc a
+    /// b`: `simpa only [Finset.mem_Icc, Set.mem_Icc] using` it.
+    Ranges,
     /// Alike once casts are pushed down onto the parts they cast, as
     /// `push_cast` takes them, the letters whose `set` equations `through`
     /// names put as their values first, which `push_cast` does not look
@@ -720,7 +724,34 @@ pub fn meets(given: &Term, line: &Term, values: &Values) -> Option<Meets> {
     if dropped_given == dropped_line {
         return Some(Meets::Identities(used.into_iter().collect()));
     }
+    if ranges_as_sets(&given) == ranges_as_sets(&line) {
+        return Some(Meets::Ranges);
+    }
     casts_alike(given_written, line_written, values, false)
+}
+
+/// The term with each integer range Lean writes as a finite set,
+/// `Finset.Icc a b`, read as the set it is, `Set.Icc a b`, a set's
+/// ascription to its own type taken off.
+fn ranges_as_sets(term: &Term) -> Term {
+    let is_set_range = |t: &Term| match &t.kind {
+        TermKind::App { head, .. } => {
+            matches!(&head.kind, TermKind::Const(c) if c.name == "Set.Icc")
+        }
+        _ => false,
+    };
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = ranges_as_sets(c);
+    }
+    match &mut out.kind {
+        TermKind::Cast { inner, .. } if is_set_range(inner) => {
+            return (**inner).clone()
+        }
+        TermKind::Const(c) if c.name == "Finset.Icc" => c.name = "Set.Icc".to_string(),
+        _ => {}
+    }
+    out
 }
 
 /// `Meets::Casts` where the two are alike once their casts are pushed

@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -31,7 +32,7 @@ theorem less_than_an_integer (A : ℝ) (B : ℤ) :
   · skip
     intro hC1
     -- 4.1. transitivity, from 2, C1
-    parley_order
+    exact_mod_cast lt_of_le_of_lt s2 hC1
   · skip
     intro hC2
     -- 4.2. mun:integer-step m := ⌊A⌋, n := B, from C2, 1

@@ -849,6 +849,7 @@ public import Parley.Tests.Elaborator.ATypeALineStates.IntoTheEmptySet
 public import Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesForATheorem
 public import Parley.Tests.Elaborator.AValueAtAPointSaidOnce.AnItemAtAValue
 public import Parley.Tests.Elaborator.AValueAtAPointSaidOnce.ARequiresLineAtAValue
+public import Parley.Tests.Elaborator.AValuePutInItsDomainByALineReadInABlock.AValuePutInItsDomainByALineReadInABlock
 public import Parley.Tests.Elaborator.AWitnessTheCheckerRead.ASetMemberBesideAnEquation
 public import Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMember
 public import Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.InequalitiesAtAMember

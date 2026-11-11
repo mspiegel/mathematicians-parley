@@ -5,6 +5,7 @@ public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
@@ -79,9 +80,9 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.8. mun:abs-difference-lt x := c(n), c := L, δ := ε, from 1.15.5
       have s1_15_8 : c n < L + ε := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := c n) (c := L) (δ := ε))).mp s1_15_5).2
       -- 1.15.9. transitivity, from 1.15.7, 1.15.6
-      have s1_15_9 : L - ε < b n := by parley_order
+      have s1_15_9 : L - ε < b n := by exact lt_of_lt_of_le s1_15_7 s1_15_6.1
       -- 1.15.10. transitivity, from 1.15.6, 1.15.8
-      have s1_15_10 : b n < L + ε := by parley_order
+      have s1_15_10 : b n < L + ε := by exact lt_of_le_of_lt s1_15_6.2 s1_15_8
       -- 1.15.11. join 1.15.9, 1.15.10
       have s1_15_11 : L - ε < b n ∧ b n < L + ε := by parley_side
       -- 1.15.12. mun:abs-difference-lt x := b(n), c := L, δ := ε, from 1.15.11

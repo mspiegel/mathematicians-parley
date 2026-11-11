@@ -77,7 +77,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have s4_2_3 : Nat.Prime (g i).toNat := by exact (s2d i s4_2_2)
       -- 4.2.4. substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
       have r76_1 : 0 < g i := by
-        have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)))
+        have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s4_2_2) (by parley_whole_side)))
         exact hI
       (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s4_2_1.symm s4_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
@@ -102,7 +102,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr ⟨r105_1, hC3⟩
       -- 5.2.3. mun:function-value f := g, from 5.2.2
       have s5_2_3 : 0 < g i := by
-        have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by parley_whole_side) (by parley_whole_side)))
+        have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_2_2) (by parley_whole_side)))
         exact hI
       -- 5.2.4. substitute h(i) = g(i) (line 5.2.1) into line 5.2.3
       (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s5_2_1.symm s5_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)

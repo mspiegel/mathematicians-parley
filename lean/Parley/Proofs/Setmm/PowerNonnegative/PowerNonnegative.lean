@@ -13,6 +13,7 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -66,7 +67,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
         -- 1.6.6. inequalities
         have s1_6_6 : 0 ≤ a ^ m.toNat * a := by parley_order
         -- 1.6.7. transitivity, from 1.6.6, 1.4
-        parley_order
+        exact LE.le.trans_eq s1_6_6 s1_4.symm
   -- 2. instantiate m := n in line 1
   exact (s1 n hH2)
 

@@ -84,7 +84,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.11. inequalities
       have s1_3_11 : 0 - ε < 0 := by parley_order
       -- 1.3.12. transitivity, from 1.3.11, 1.3.10
-      have s1_3_12 : 0 - ε < a n := by parley_order
+      have s1_3_12 : 0 - ε < a n := by exact lt_trans s1_3_11 s1_3_10
       -- 1.3.13. transitivity, from H2, 1.3.4, 1.3.6, 1.3.7
       have s1_3_13 : a n < ε := by have := (hH2 n hK2); parley_order
       -- 1.3.14. join 1.3.12, 1.3.13

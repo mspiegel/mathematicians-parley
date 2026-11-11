@@ -1,9 +1,9 @@
 module
 
 public import Divisibility
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -26,7 +26,7 @@ theorem remainder_under_a_larger_divisor (A : ℝ) (B : ℝ) (C : ℝ) (hH4 : B 
   -- 3. thm:remainder-below-divisor, from H4
   have s3 : LeanBridges.Divisibility.mod A B < B := by exact (Parley.Proofs.Setmm.RemainderBounds.RemainderBelowDivisor.remainder_below_divisor (A := A) (B := B) (by parley_side))
   -- 4. transitivity, from 3, H6
-  have s4 : LeanBridges.Divisibility.mod A B < C := by parley_order
+  have s4 : LeanBridges.Divisibility.mod A B < C := by exact lt_of_lt_of_le s3 hH6
   -- 5. thm:remainder-of-small A := A mod B, B := C, from H5, 1, 2, 4
   exact (Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := LeanBridges.Divisibility.mod A B) (B := C) (by parley_side) s2 s4)
 

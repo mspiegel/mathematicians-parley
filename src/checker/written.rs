@@ -148,10 +148,16 @@ pub fn written_out(
     for s in written.supposed.values_mut() {
         s.against = out(&s.against);
     }
+    let chained = written
+        .links
+        .values_mut()
+        .flatten()
+        .filter_map(|link| link.at.as_mut());
     for at in written
         .link_places
         .values_mut()
         .chain(written.restated.values_mut())
+        .chain(chained)
     {
         at.written = out(&at.written);
     }

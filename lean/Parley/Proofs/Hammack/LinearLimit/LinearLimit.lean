@@ -3,12 +3,12 @@ module
 public import OrderTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -49,11 +49,11 @@ theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
       -- 1.2.3. inequalities
       have s1_2_3 : 37 - ε < 8 * x - 3 := by parley_order
       -- 1.2.4. transitivity, from 1.2.3, 1.2.1
-      have s1_2_4 : 37 - ε < f x := by parley_order
+      have s1_2_4 : 37 - ε < f x := by exact LT.lt.trans_eq s1_2_3 s1_2_1.symm
       -- 1.2.5. inequalities
       have s1_2_5 : 8 * x - 3 < 37 + ε := by parley_order
       -- 1.2.6. transitivity, from 1.2.1, 1.2.5
-      have s1_2_6 : f x < 37 + ε := by parley_order
+      have s1_2_6 : f x < 37 + ε := by exact Eq.trans_lt s1_2_1 s1_2_5
       -- 1.2.7. join 1.2.4, 1.2.6
       have s1_2_7 : 37 - ε < f x ∧ f x < 37 + ε := by parley_set_side
       -- 1.2.8. mun:abs-difference-lt x := f(x), c := 37, δ := ε, from 1.2.7
@@ -62,6 +62,6 @@ theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
     exact ⟨ε / 8, ⟨s1_1, s1_2⟩⟩
   -- 2. def:limit-at D := ℝ, c := 5, L := 37, from 1
   have r62_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (5 : ℝ)) (L := (37 : ℝ)))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r62_1 (c := (5 : ℝ)) (L := (37 : ℝ)))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.LinearLimit.LinearLimit

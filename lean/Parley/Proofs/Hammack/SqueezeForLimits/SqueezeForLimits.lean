@@ -4,10 +4,10 @@ public import InstanceTactics
 public import OrderTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -38,12 +38,12 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
     -- 1.1. def:limit-at D := ℝ, f := g, from H7
     have r29_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
     have s1_1 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (g x - L) < ε)) := by
-      have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (g x - L) < ε)) := by parley_instance (((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mp hH7)
+      have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (g x - L) < ε)) := by parley_instance (((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) r29_1 (c := c) (L := L))).mp hH7)
       exact hI
     -- 1.2. def:limit-at D := ℝ, f := h, from H8
     have r33_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
     have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (h x - L) < ε)) := by
-      have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (h x - L) < ε)) := by parley_instance (((Parley.Items.Stdlib.Calculus.def_limit_at (f := h) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mp hH8)
+      have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (h x - L) < ε)) := by parley_instance (((Parley.Items.Stdlib.Calculus.def_limit_at (f := h) (D := (Set.univ : Set ℝ)) r33_1 (c := c) (L := L))).mp hH8)
       exact hI
     -- 1.3. instantiate ε := ε in line 1.1, from A1
     have s1_3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (g x - L) < ε) := by exact (s1_1 ε hA1)
@@ -98,9 +98,9 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
       -- 1.12.10. mun:abs-difference-lt x := h(x), c := L, δ := ε, from 1.12.8
       have s1_12_10 : h x < L + ε := by exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := h x) (c := L) (δ := ε))).mp s1_12_8).2
       -- 1.12.11. transitivity, from 1.12.9, 1.12.6
-      have s1_12_11 : L - ε < f x := by parley_order
+      have s1_12_11 : L - ε < f x := by exact lt_of_lt_of_le s1_12_9 s1_12_6.1
       -- 1.12.12. transitivity, from 1.12.6, 1.12.10
-      have s1_12_12 : f x < L + ε := by parley_order
+      have s1_12_12 : f x < L + ε := by exact lt_of_le_of_lt s1_12_6.2 s1_12_10
       -- 1.12.13. join 1.12.11, 1.12.12
       have s1_12_13 : L - ε < f x ∧ f x < L + ε := by parley_set_side
       -- 1.12.14. mun:abs-difference-lt x := f(x), c := L, δ := ε, from 1.12.13
@@ -109,6 +109,6 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
     exact ⟨n, ⟨s1_11, s1_12⟩⟩
   -- 2. def:limit-at D := ℝ, from 1
   have r129_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := c) (L := L))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r129_1 (c := c) (L := L))).mpr (by parley_set_side)
 
 end Parley.Proofs.Hammack.SqueezeForLimits.SqueezeForLimits

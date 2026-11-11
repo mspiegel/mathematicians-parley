@@ -20,6 +20,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
@@ -111,7 +112,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.12. transitivity, from D1, 10.7
     have s10_12 : t < p := by parley_order
     -- 10.13. transitivity, from 10.11, 10.12
-    have s10_13 : abs t < p := by parley_order
+    have s10_13 : abs t < p := by exact Eq.trans_lt s10_11 s10_12
     -- 10.14. instantiate x := t in line 4, from 10.9, 10.10, 10.13
     have s10_14 : abs (f t - L) < 1 := by exact (s4b t s10_10 (by parley_set_side))
     -- 10.15. instantiate x := t in H2, from 10.10

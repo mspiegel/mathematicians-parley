@@ -6,7 +6,6 @@ public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.SetLike.Basic
@@ -80,7 +79,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       have hI : (c.ncard : ℤ) = m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mp (by parley_set_side)).2)
       exact hI
     -- 6.5. mun:subset-into-difference, from 6.1, 6.4
-    have s6_5 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (a := m + n) (by parley_whole_side) s6_1b)
+    have s6_5 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (a := m + n) s6_4a s6_1b)
     -- 6.6. substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 6.5
     have s6_6 : c ⊆ (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) := by parley_subst_at s2 s6_5
     -- 6.7. proof
@@ -90,7 +89,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       try have hK2_bounds := Finset.mem_Icc.mp hK2
       -- 6.7.1. mun:in-subset X := {1, …, m + (n − 1)}, Y := {1, …, m + n}, u := i, from K2, 4
       have s6_7_1 : i ∈ Finset.Icc (1 : ℤ) (m + n) := by
-        have hI : i ∈ Finset.Icc (1 : ℤ) (m + n) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) (by parley_whole_side) (by parley_whole_side)))
+        have hI : i ∈ Finset.Icc (1 : ℤ) (m + n) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) s4 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK2)))
         exact hI
       -- 6.7.2. instantiate i := i in line 6.3, from 6.7.1
       exact (s6_3 i s6_7_1)
@@ -116,11 +115,11 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       have hI : (c.ncard : ℤ) = m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (u := c))).mp (by parley_set_side)).2)
       exact hI
     -- 8.3. mun:subset-transitive, from 4, 8.2
-    have s8_3 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := c) (Y := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (by parley_whole_side) (by parley_whole_side))
+    have s8_3 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := c) (Y := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) s8_2a s4)
     -- 8.4. substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 8.2
     have s8_4 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by parley_subst_at s2 s8_2a
     -- 8.5. mun:subset-of-difference, from 8.4
-    have s8_5 : ¬ m + n ∈ c := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (a := m + n) (by parley_whole_side))
+    have s8_5 : ¬ m + n ∈ c := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (a := m + n) s8_4)
     -- 8.6. substitute (m + n) − 1 = m + (n − 1) (line 5) into line 8.1
     have s8_6 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 t → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) s5.symm s8_1b; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 8.7. thm:lead-to-the-end, from H3, 8.2, 8.3, 8.6

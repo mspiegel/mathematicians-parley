@@ -799,7 +799,7 @@ fn firsts_at(
 /// Where `fact` stands among the lines `refs` names at `step`, each read as
 /// the citation of `item` reads them (`firsts_at`), or as the step reads
 /// them where it cites no item; None where no line names says it.
-fn fact_at(
+pub(super) fn fact_at(
     step: &Step,
     refs: &[String],
     item: Option<&str>,
