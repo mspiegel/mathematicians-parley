@@ -1,15 +1,16 @@
 module
 
 public import AlgebraTactics
-public import NormTactics
 public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -19,7 +20,6 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -27,8 +27,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -63,7 +61,7 @@ theorem triangular_reciprocals :
     -- 5.1. calculation
     have r55_1 : n + 1 ≥ 1 := by parley_order
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 / (k : ℚ) - 2 / ((k : ℚ) + 1) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2))) (u := (fun k : ℤ => 2 / (k : ℚ) - 2 / ((k : ℚ) + 1))) (a := (1 : ℤ)) (b := n) (by parley_side))
-      _ = 2 - 2 / ((n : ℚ) + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1) | exact_mod_cast ((Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1)).symm | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); parley_side)
+      _ = 2 - 2 / ((n : ℚ) + 1) := by (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); simp only [Int.cast_one, div_one] at h ⊢; exact_mod_cast h)
   -- 6. proof
   have s6 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) - 2) < ε)) := by
     intro ε

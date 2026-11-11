@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
+public import InstanceTactics
 public import NormTactics
 public import OrderTactics
 public import PowerTactics
@@ -114,7 +115,9 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
   -- 18. calculation
   have s18 : x * (∑ k ∈ Finset.Icc (0 : ℤ) m, (t k : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), (p k : ℝ)) := by
     calc x * (∑ k ∈ Finset.Icc (0 : ℤ) m, (t k : ℝ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) := by parley_side
-      _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), (p k : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := p) (u := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat)) (a := (0 : ℤ)) (b := m + 1) s17)
+      _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), (p k : ℝ)) := by
+          have hI : (∑ c ∈ Finset.Icc (0 : ℤ) (m + 1), (p c : ℝ)) = (∑ c ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m c : ℝ) * x ^ (m + 1 - c) * y ^ c.toNat : ℝ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_termwise (t := p) (u := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat)) (a := (0 : ℤ)) (b := m + 1) s17))
+          exact hI
   -- 19. proof
   have s19 : ∀ k : ℤ, k ∈ Finset.Icc 0 m → y * t k = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ (k + 1).toNat := by
     intro k hJ
@@ -167,7 +170,9 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m - (k - 1)) * y ^ (k - 1 + 1) : ℝ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ (k + 1).toNat)) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); have hb1 : ∀ k ∈ Finset.Icc (1 : ℤ) (m + 1), y ^ (k - 1 + 1) = y ^ ((k - 1 + 1)).toNat := fun k hk => parley_zpow_toNat (y) ((k - 1 + 1)) (by linarith [(Finset.mem_Icc.mp hk).1]); simp +contextual only [hb1, zero_add] at h ⊢; exact_mod_cast h)
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m - (k - 1)) * y ^ (k - 1 + 1))) (u := (fun k : ℤ => (LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat)) (a := (1 : ℤ)) (b := m + 1) s20)
       _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) := by parley_side
-      _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), (q k : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := q) (u := (fun k : ℤ => (LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat)) (a := (0 : ℤ)) (b := m + 1) s25)
+      _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), (q k : ℝ)) := by
+          have hI : (∑ c ∈ Finset.Icc (0 : ℤ) (m + 1), (q c : ℝ)) = (∑ c ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (c - 1) : ℝ) * x ^ (m + 1 - c) * y ^ c.toNat : ℝ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_termwise (t := q) (u := (fun k : ℤ => (LeanBridges.Counting.choose m (k - 1) : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat)) (a := (0 : ℤ)) (b := m + 1) s25))
+          exact hI
   -- 27. proof
   have s27 : ∀ k : ℤ, k ∈ Finset.Icc 0 (m + 1) → p k + q k = (LeanBridges.Counting.choose (m + 1) k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat := by
     intro k hJ

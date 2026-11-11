@@ -404,6 +404,16 @@ fn cast_texts(term: &Printed) -> Vec<String> {
         .collect()
 }
 
+/// How the checker met one conclusion of a citation with the claim.
+#[derive(Clone, Copy)]
+struct HowMet<'m> {
+    /// Which way the item's equation faces the claim (`Cited::facings`).
+    facing: Option<Facing>,
+    /// What was taken to meet them: identities dropped, parts paired out of
+    /// their places (`Cited::meetings`).
+    meeting: Option<&'m crate::matching::Meeting>,
+}
+
 /// The claim a citation is met with, as Lean prints it.
 #[derive(Clone, Copy)]
 struct StepClaim<'p> {
@@ -5868,10 +5878,11 @@ impl<'a> Proof<'a> {
         use super::doc::CountForm::{Extended, Natural};
         let meets = forms::meets(says, wanted, &self.set_values())?;
         // A count is taken from ℕ to ℕ∞ or ℤ only as `forms_converted`
-        // takes it: a line counting one way meets one counting another only
-        // as written.
+        // takes it: a line counting one way meets one counting another not
+        // by its casts. The other meetings compare the two read alike, so
+        // their counts are in one form.
         let counts = |t: &Printed| t.has_count(Natural) || t.has_count(Extended);
-        if (counts(says) || counts(wanted)) && meets != Meets::Same {
+        if (counts(says) || counts(wanted)) && matches!(meets, Meets::Casts { .. }) {
             return None;
         }
         Some(match meets {
@@ -6039,9 +6050,10 @@ impl<'a> Proof<'a> {
         claim: Option<StepClaim<'_>>,
         term: Printed,
         says: Option<&Printed>,
-        facing: Option<Facing>,
+        met: HowMet<'_>,
         bridge: Option<CitedBridge>,
     ) -> super::doc::Proof {
+        let HowMet { facing, meeting } = met;
         let claim_stated = claim.is_some_and(|c| c.stated);
         let claim = claim.map(|c| c.printed);
         // A claim Lean's types make true says nothing a term is met with; one
@@ -6103,6 +6115,77 @@ impl<'a> Proof<'a> {
             );
             if by_norm_cast && formed {
                 return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
+            }
+            // Two stated in different types, one statement once the narrower
+            // is cast up and the casts pushed down, with no form apart
+            // (`forms::lifted_alike`, `forms::differences`), where `norm_cast`
+            // moves every cast of both: `exact_mod_cast` takes the one up to
+            // the other. Not a fact of numerals alone, with no letter or
+            // function, which `norm_cast` does not take across every order;
+            // nor one alike only by a library function read at another type,
+            // `Real.exp` as `Complex.exp` of the cast, which `norm_cast` does
+            // not take either: no function is widened here.
+            let widen = |_: &str, _| None;
+            let named = |t: &Printed| {
+                t.walk().iter().any(|n| {
+                    matches!(
+                        n.kind,
+                        super::doc::TermKind::Letter(_)
+                            | super::doc::TermKind::Const(_)
+                    )
+                })
+            };
+            let lifted = super::doc::forms::lifted_alike(says, claim, &widen)
+                && super::doc::forms::differences(says, claim, &widen).is_empty()
+                && (named(says) || named(claim));
+            if !one_type
+                && lifted
+                && super::casts::norm_cast_moves_all(says)
+                && super::casts::norm_cast_moves_all(claim)
+            {
+                return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
+            }
+            // The checker paired the parts of a notation whose parts stand in
+            // any order out of their places, and took nothing else to meet
+            // the two (`Cited::meetings`, `permuted`): where the claim lists a
+            // set's members, Lean's `{w, u}` beside the item's `{u, w}`, the
+            // item taken in the claim's order.
+            let listed = claim.walk().iter().any(|n| {
+                matches!(
+                    n.kind,
+                    super::doc::TermKind::Listed {
+                        brackets: super::doc::Brackets::Brace,
+                        ..
+                    }
+                )
+            });
+            let only_permuted = meeting
+                .is_some_and(|m| m.permuted && m.identities.is_empty() && !m.respelled);
+            if listed && only_permuted {
+                return super::doc::Proof::By(reordered(
+                    &term,
+                    node.notation() == EQUALITY,
+                ));
+            }
+            // An item worked in a wider field than the claim's, ℂ for a claim
+            // in ℝ, taken down to it by the writer's own conversion, as an
+            // instance is (`instance_closed`).
+            let claimed = fields_of(claim);
+            let wider = fields_of(says)
+                .into_iter()
+                .filter(|n| !claimed.contains(n))
+                .max();
+            let down = match wider {
+                Some(super::templates::Num::Complex) => Some(BridgeTactic::OfComplex),
+                Some(super::templates::Num::Real) => Some(BridgeTactic::RatOfReal),
+                _ => None,
+            };
+            if let Some(down) = down {
+                use super::tactics as t;
+                return super::doc::Proof::By(t::on_h(
+                    &term,
+                    vec![t::bridge(down, vec![TacticArg::Term(t::hyp("h"))])],
+                ));
             }
             // The checker met the item's conclusion at its values with the
             // claim, so in one type the two differ only in spelling and
@@ -10630,6 +10713,10 @@ impl<'a> Proof<'a> {
         // an item over any ring given ℤ writes `n ^ (2 : ℤ)`, which ℤ has
         // no power for, and the comparison keeps casts.
         let mut agrees = false;
+        // An item that is the line once the identity elements the checker
+        // dropped are dropped from both (`Cited::meetings`), with nothing else
+        // apart: closed by those rewrites, as a conversion of them alone.
+        let mut by_identities = false;
         // What the reading gives, as Lean states it at the citation's values:
         // the sentence as written, or the side a forward reading reaches.
         let compared = match concluded.way {
@@ -10658,7 +10745,12 @@ impl<'a> Proof<'a> {
                 let templates = self.writer.templates;
                 let widen = |head: &str, at| templates.same_function_at(head, at);
                 use super::doc::forms;
-                turned = forms::turned_round(&compared, &claim);
+                // Which way the item's equation faces the claim, as the
+                // checker met them (`Cited::facings`).
+                turned = matches!(
+                    cited.facings.get(k).copied().flatten(),
+                    Some(Facing::Turned)
+                );
                 let claim = match turned {
                     true => forms::turned(&claim),
                     false => claim,
@@ -10802,6 +10894,22 @@ impl<'a> Proof<'a> {
                     && identities.is_empty()
                     && !claim.is_truth()
                     && forms::one_term_once_set(&compared, &claim, &self.set_values());
+                by_identities = found.is_empty()
+                    && !two_types
+                    && counted.is_empty()
+                    && powered.is_empty()
+                    && !cast_powers
+                    && bound.is_empty()
+                    && !identities.is_empty()
+                    && !claim.is_truth();
+                // An identity element Lean writes cast up, `((1 : ℤ) : ℚ)`,
+                // taken to the numeral first, so its rewrite meets it.
+                if by_identities {
+                    identities.extend(forms::cast_unit_lemmas(&compared));
+                    identities.extend(forms::cast_unit_lemmas(&claim_read));
+                    identities.sort_unstable();
+                    identities.dedup();
+                }
                 for d in found {
                     self.forms.borrow_mut().push(FormNote {
                         page_line: reason.just.line,
@@ -11047,28 +11155,32 @@ impl<'a> Proof<'a> {
             }
             _ => None,
         };
+        let conversion = Conversion {
+            finite: &finite,
+            whole: &powered,
+            bound: &bound,
+            cast_powers,
+            identities: &identities,
+            numeral_to_nat,
+        };
         let closed = match (self.writer.integer_power_witness(node), read_as_written) {
             _ if !counted.is_empty()
                 || !powered.is_empty()
                 || cast_powers
                 || !bound.is_empty() =>
             {
-                let conversion = Conversion {
-                    finite: &finite,
-                    whole: &powered,
-                    bound: &bound,
-                    cast_powers,
-                    identities: &identities,
-                    numeral_to_nat,
-                };
                 forms_converted(&term, &conversion, turned)
             }
             _ if agrees => Proof::By(Tactic::Exact(term)),
             (Some(witness), _) => Proof::By(Tactic::Exact(witness)),
             // The item read in the step's spelling and met with the claim
-            // (`docs/LEAN.md`, a citation); the closer's rules where it is
-            // not.
+            // (`docs/LEAN.md`, a citation); the recorded identities where
+            // they are all that stands apart; the closer's rules where
+            // neither holds.
             (None, Some(read)) => read,
+            (None, None) if by_identities => {
+                forms_converted(&term, &conversion, turned)
+            }
             (None, None) => self.closer(
                 node,
                 claim_lean.as_ref().map(|printed| StepClaim {
@@ -11077,7 +11189,10 @@ impl<'a> Proof<'a> {
                 }),
                 term,
                 says.as_ref(),
-                cited.facings.get(k).copied().flatten(),
+                HowMet {
+                    facing: cited.facings.get(k).copied().flatten(),
+                    meeting: cited.meetings.get(k).and_then(Option::as_ref),
+                },
                 cited_bridge(
                     cited,
                     sentence,
@@ -13599,6 +13714,66 @@ fn apart(
     }
 }
 
+/// The cited statement taken with its listed sets in the claim's order: an
+/// equation of sets member by member, which takes a listed set in any order
+/// and of any size; another relation, a membership or subset of a listed
+/// set, read in both as the members' equations it says, which `tauto` takes
+/// in any order. Where the claim reads as nothing left to show,
+/// `all_goals` runs `tauto` on no goal.
+fn reordered(cited: &Printed, equation: bool) -> Tactic {
+    use super::tactics as t;
+    let h = || t::hyp("h");
+    if !equation {
+        return t::on_h(
+            cited,
+            vec![
+                t::simp_only(
+                    false,
+                    None,
+                    vec![
+                        t::forwards(t::lemma("Set.mem_insert_iff")),
+                        t::forwards(t::lemma("Set.mem_singleton_iff")),
+                        t::forwards(t::lemma("Set.insert_subset_iff")),
+                        t::forwards(t::lemma("Set.singleton_subset_iff")),
+                    ],
+                    Some(t::at_h(true)),
+                ),
+                Tactic::AllGoals(Box::new(t::call("tauto", vec![]))),
+            ],
+        );
+    }
+    let x = t::hyp("x");
+    let applied = Printed {
+        kind: super::doc::TermKind::App {
+            head: Box::new(h()),
+            args: vec![super::doc::Arg::Explicit(x.clone())],
+            explicit: false,
+        },
+        ty: None,
+    };
+    t::on_h(
+        cited,
+        vec![
+            t::call("ext", vec![TacticArg::Term(x)]),
+            t::call(
+                "rw",
+                vec![t::rules(vec![t::lemma("Set.ext_iff")]), t::at_h(false)],
+            ),
+            t::call("specialize", vec![TacticArg::Term(applied)]),
+            t::simp_only(
+                false,
+                None,
+                vec![
+                    t::forwards(t::lemma("Set.mem_insert_iff")),
+                    t::forwards(t::lemma("Set.mem_singleton_iff")),
+                ],
+                Some(t::at_h(true)),
+            ),
+            t::call("tauto", vec![]),
+        ],
+    )
+}
+
 /// `parley_subst e`: the equation e put into the goal.
 fn subst_by(equation: &Printed) -> Tactic {
     use super::tactics as t;
@@ -14474,62 +14649,8 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
                     "listed-two" | "listed-three" | "listed-four"
                 )
             });
-            // An equation of sets, member by member, which takes a listed
-            // set in any order and of any size; another relation, its pairs
-            // turned round.
-            let reorder = match (listed, claim.notation() == EQUALITY) {
-                (true, true) => {
-                    let x = t::hyp("x");
-                    let applied = Printed {
-                        kind: super::doc::TermKind::App {
-                            head: Box::new(h()),
-                            args: vec![super::doc::Arg::Explicit(x.clone())],
-                            explicit: false,
-                        },
-                        ty: None,
-                    };
-                    Some(t::on_h(
-                        &cited,
-                        vec![
-                            t::call("ext", vec![TacticArg::Term(x)]),
-                            t::call(
-                                "rw",
-                                vec![
-                                    t::rules(vec![t::lemma("Set.ext_iff")]),
-                                    t::at_h(false),
-                                ],
-                            ),
-                            t::call("specialize", vec![TacticArg::Term(applied)]),
-                            t::simp_only(
-                                false,
-                                None,
-                                vec![
-                                    t::forwards(t::lemma("Set.mem_insert_iff")),
-                                    t::forwards(t::lemma("Set.mem_singleton_iff")),
-                                ],
-                                Some(t::at_h(true)),
-                            ),
-                            t::call("tauto", vec![]),
-                        ],
-                    ))
-                }
-                (true, false) => Some(t::on_h(
-                    &cited,
-                    vec![
-                        t::simp_only(
-                            false,
-                            None,
-                            vec![
-                                t::forwards(t::lemma("Set.pair_comm")),
-                                t::forwards(t::lemma("Set.insert_comm")),
-                            ],
-                            Some(t::at_h(true)),
-                        ),
-                        Tactic::Exact(h()),
-                    ],
-                )),
-                (false, _) => None,
-            };
+            let reorder =
+                listed.then(|| reordered(&cited, claim.notation() == EQUALITY));
             // A natural given as an integer's `toNat`, put back by `▸`: an
             // error elaborating that against the goal is logged and does not
             // fail the alternative, so the term is stated by a `have`, which

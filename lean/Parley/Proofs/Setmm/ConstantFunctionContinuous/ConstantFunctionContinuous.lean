@@ -15,8 +15,6 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
@@ -50,7 +48,7 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       have s1_1_1_3 : f x - f a = 0 := by linear_combination (norm := parley_norm) s1_1_1_1 + (-1) * s1_1_1_2
       -- 1.1.1.4. calculation
       calc abs (f x - f a) = abs 0 := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = 0 := by first | linear_combination (norm := parley_norm) Parley.Items.Stdlib.Numbers.mun_abs_zero | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_zero).symm | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; qify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; parley_set_side)
+        _ = 0 := by exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero
         _ < ε := by parley_set_side
     -- 1.1.2. exhibit, from 1.1.1
     have r45_1 : (1 : ℤ) > 0 := by parley_arith

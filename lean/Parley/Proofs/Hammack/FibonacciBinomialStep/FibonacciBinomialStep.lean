@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
@@ -14,6 +13,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -21,7 +21,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -29,8 +28,6 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -107,7 +104,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   have s19 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ)) := by
     calc (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by exact s15
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m - (k - 1)) (k - 1) : ℤ) : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose (m - (k - 1)) (k - 1) : ℤ))) (a := (1 : ℤ)) (b := m + 1) s17)
-      _ = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); parley_side)
+      _ = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_shift (t := (fun k : ℤ => (LeanBridges.Counting.choose (m - k) k : ℤ))) (a := (0 : ℤ)) (b := m) (c := (1 : ℤ))); simp only [Int.cast_one, Int.cast_zero, zero_add] at h ⊢; exact_mod_cast h.symm)
   -- 20. calculation
   calc (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) := by exact s7
     _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (a := (0 : ℤ)) (b := m + 1) s8)

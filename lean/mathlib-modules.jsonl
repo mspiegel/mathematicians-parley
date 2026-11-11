@@ -62,11 +62,11 @@
 {"key":"Set.finite_Icc","kind":"const","modules":["Mathlib.Order.Interval.Finset.Defs"]}
 {"key":"Set.finite_of_encard_eq_coe","kind":"const","modules":["Mathlib.Data.Set.Card"]}
 {"key":"Set.finite_of_ncard_ne_zero","kind":"const","modules":["Mathlib.Data.Set.Card"]}
-{"key":"Set.insert_comm","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
+{"key":"Set.insert_subset_iff","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
 {"key":"Set.mem_insert_iff","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
 {"key":"Set.mem_singleton_iff","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
 {"key":"Set.ncard","kind":"const","modules":["Mathlib.Data.Set.Card"]}
-{"key":"Set.pair_comm","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
+{"key":"Set.singleton_subset_iff","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
 {"key":"Set.toFinite","kind":"const","modules":["Mathlib.Basic.Finite.Defs"]}
 {"key":"Set.univ","kind":"const","modules":["Mathlib.Data.Set.Defs"]}
 {"key":"Transcendental","kind":"const","modules":["Mathlib.RingTheory.Algebraic.Defs"]}
@@ -78,6 +78,7 @@
 {"key":"add_zero","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"congrArg","kind":"const","modules":[]}
 {"key":"deriv","kind":"const","modules":["Mathlib.Analysis.Calculus.Deriv.Basic"]}
+{"key":"div_one","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
 {"key":"implies_true","kind":"const","modules":[]}
 {"key":"ite","kind":"const","modules":["Mathlib.Tactic.Positivity.Basic"]}
 {"key":"ite_eq_left","kind":"const","modules":[]}
@@ -484,6 +485,7 @@
 {"key":"{r ∈ (sorry : Set ℤ) | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{t : ℝ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{t : ℤ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"{t ∈ (sorry : Set (Set ℤ)) | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{t ∈ a | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{u : ℤ | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"{w ∈ a | (sorry : Prop)}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
@@ -927,6 +929,7 @@
 {"key":"∑ b ∈ (sorry : Set ℤ), (sorry : ℚ)","kind":"term","modules":["Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Defs","Mathlib.Data.Rat.Init","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
 {"key":"∑ b ∈ (sorry : Set ℤ), (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
 {"key":"∑ b ∈ (sorry : Set ℤ), (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.Group.Int.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"∑ c ∈ (sorry : Set ℤ), (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
 {"key":"∑ i ∈ (sorry : Set ℤ), (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.Group.Int.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
 {"key":"∑ j ∈ (sorry : Set ℤ), (sorry : ℚ)","kind":"term","modules":["Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Defs","Mathlib.Data.Rat.Init","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
 {"key":"∑ j ∈ (sorry : Set ℤ), (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.BigOperators","Mathlib.Tactic.Positivity.Finset","Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
@@ -1021,7 +1024,6 @@
 {"key":"norm_cast at h","kind":"tactic","modules":[]}
 {"key":"norm_num","kind":"tactic","modules":["Mathlib.Tactic.NormNum.Core"]}
 {"key":"omega","kind":"tactic","modules":[]}
-{"key":"positivity","kind":"tactic","modules":["Mathlib.Tactic.Positivity.Core"]}
 {"key":"push_cast","kind":"tactic","modules":[]}
 {"key":"push_cast at h","kind":"tactic","modules":[]}
 {"key":"qify","kind":"tactic","modules":["Mathlib.Tactic.Qify"]}
@@ -1048,7 +1050,6 @@
 {"key":"set a : ℤ → ℝ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
 {"key":"set a : ℤ → ℤ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Int.Notation"]}
 {"key":"simp (disch := skip) only [a]","kind":"tactic","modules":[]}
-{"key":"simp (disch := skip) only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp +contextual only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp only [a]","kind":"tactic","modules":[]}
 {"key":"simp only [a] at h","kind":"tactic","modules":[]}

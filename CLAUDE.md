@@ -75,6 +75,16 @@ there, and do not write the inference into the backend. A term has one
 written form in each backend. A second form for some contexts is a sign the
 fact belongs in the record.
 
+**The checker reads the page; a backend writes what it read** (`GOALS.md`
+decision 19). How a step meets what it cites (which way an equation faces,
+the identities dropped, the order of a listed set, the case of a define
+that applies) is the checker's to decide and record. A backend that
+compares two of the page's statements to learn how they meet is doing the
+checker's work again: read the record, and where the fact is missing,
+propose adding it there. A backend works out for itself only what its own
+target alone knows: how Lean types and prints a term, which casts its
+tactics move.
+
 ## The design documents
 
 Read the one that governs a change before making it.

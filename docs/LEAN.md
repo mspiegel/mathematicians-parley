@@ -154,12 +154,34 @@ an example for each entry, so `lake build` holds every entry true.
 The closer is chosen as follows:
 - `exact_mod_cast` where `norm_cast` moves every cast in both statements and
   they are stated in one type;
+- `exact_mod_cast` where the two are stated in different types, are one
+  statement once the narrower is cast up and every cast pushed down, with no
+  form apart, and `norm_cast` moves every cast of both; not of a fact of
+  numerals alone, which `norm_cast` does not take across every order;
 - `push_cast at h ⊢; exact h` where only `push_cast` moves them all and the
   line is in no narrower type;
 - otherwise, each side rewritten by the `set` equations its letters name,
   `push_cast at h ⊢` and then `exact h`, or `exact_mod_cast h` where the
   line is in a narrower type; lifting where neither is would read a
   division of casts one way on one side and another on the other.
+
+Before any of these, the step reads how the checker met the item with the
+claim (`Cited::meetings`, `Cited::facings`):
+- where the identity elements the checker dropped are all that stands
+  apart, the conversion of those alone: `simp only [their rewrites] at h ⊢`,
+  then `exact_mod_cast h`, or `h.symm` where the record has the item turned.
+  A `0` or `1` Lean writes cast up, `((1 : ℤ) : ℚ)` where a function applied
+  puts a numeral in for a letter it casts, is first taken to the numeral
+  (`Int.cast_one`), so the rewrite meets it;
+- where the checker paired the parts of a notation whose parts stand in any
+  order out of their places (`permuted`), took nothing else, and the claim
+  lists a set's members: the item taken in the claim's order. An equation of
+  sets is taken member by member (`ext`, `Set.ext_iff`, then `tauto`); a
+  membership or subset is read as the equations of members it says, then
+  `tauto`;
+- where the item is worked in a wider field than the claim's: read down to
+  the claim's, by `parley_of_complex` from ℂ and `parley_rat_of_real` from ℝ,
+  as an instance is.
 
 A step no rule decides keeps its `first |` list, and `tests/first_lists.txt`
 keeps each such list with its reason. `tests/lean_closers.rs` names a step

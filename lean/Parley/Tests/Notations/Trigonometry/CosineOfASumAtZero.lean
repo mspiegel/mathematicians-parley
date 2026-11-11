@@ -1,18 +1,14 @@
 module
 
 public import ComplexTactics
-public import NormTactics
 public import Tactics
 public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from tests/notations/trigonometry.proof by parley build lean. -/
@@ -24,7 +20,7 @@ namespace Parley.Tests.Notations.Trigonometry.CosineOfASumAtZero
 theorem cosine_of_a_sum_at_zero :
     Real.cos (0 + 0 : ℝ) = 1 := by
   -- 1. thm:cos-add a := 0, b := 0
-  have s1 : Real.cos (0 + 0 : ℝ) = Real.cos (0 : ℝ) * Real.cos (0 : ℝ) - Real.sin (0 : ℝ) * Real.sin (0 : ℝ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ)))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); parley_side)
+  have s1 : Real.cos (0 + 0 : ℝ) = Real.cos (0 : ℝ) * Real.cos (0 : ℝ) - Real.sin (0 : ℝ) * Real.sin (0 : ℝ) := by (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); parley_of_complex h)
   -- 2. mun:cos-zero
   have s2 : Real.cos (0 : ℝ) = 1 := by exact Parley.Items.Stdlib.Trigonometry.mun_cos_zero
   -- 3. mun:sin-zero

@@ -91,6 +91,19 @@ pub fn differences(item: &Term, line: &Term, widen: &Widen) -> Vec<FormDifferenc
     out
 }
 
+/// Whether the two are one statement once read as `differences` reads them,
+/// the narrower cast up to the wider and every cast pushed down, apart from
+/// the forms it reports (`alike`): what `exact_mod_cast` takes the one to the
+/// other by where `norm_cast` moves every cast of both.
+pub fn lifted_alike(item: &Term, line: &Term, widen: &Widen) -> bool {
+    let (item, line) = (unfolded(item), unfolded(line));
+    let (item, line) = (pushed(&item, widen), pushed(&line, widen));
+    let (item, line) = (in_naturals(&item), in_naturals(&line));
+    let line = lifted(&line, &item, widen).unwrap_or(line);
+    let item = lifted(&item, &line, widen).unwrap_or(item);
+    alike(&item, &line)
+}
+
 /// A relation between natural numbers cast to one type, `(a : ℤ) ≤ (b :
 /// ℤ)` or `(a : ℕ∞) = (1 : ℕ∞)`, as the relation in ℕ itself, `a ≤ b`,
 /// which `norm_cast` takes it to (`Nat.cast_le`, `Nat.cast_inj`); any
@@ -125,33 +138,6 @@ fn in_naturals(term: &Term) -> Term {
         }
     }
     term.clone()
-}
-
-/// Whether the line is the item's equation turned round: its left side
-/// alike the item's right and not its left, but for forms.
-pub fn turned_round(item: &Term, line: &Term) -> bool {
-    use super::term::Op;
-    match (&bare(item).kind, &bare(line).kind) {
-        (
-            TermKind::Infix {
-                op: a,
-                lhs: il,
-                rhs: ir,
-            },
-            TermKind::Infix {
-                op: b,
-                lhs: ll,
-                rhs: lr,
-            },
-        ) => {
-            *a == Op::EQUALS
-                && a == b
-                && alike(il, lr)
-                && alike(ir, ll)
-                && !alike(il, ll)
-        }
-        _ => false,
-    }
 }
 
 /// An equation with its sides swapped; any other term as it is.
@@ -313,6 +299,38 @@ pub fn casts_natural_exponent(term: &Term) -> bool {
         }
     }
     children(term).into_iter().any(casts_natural_exponent)
+}
+
+/// The rewrites that take each `0` or `1` Lean writes cast up, `((1 : ℤ) :
+/// ℚ)`, to the numeral in its own type: an identity element the checker
+/// dropped, `1 / 1`, stands so where a function applied puts a numeral in
+/// for a letter it casts, `(fun k => 1 / (k : ℚ)) 1`, and `div_one` meets
+/// it only once the cast is gone.
+pub fn cast_unit_lemmas(term: &Term) -> Vec<&'static str> {
+    let mut out: Vec<&'static str> = term
+        .walk()
+        .iter()
+        .filter_map(|n| {
+            let TermKind::Cast { inner, .. } = &n.kind else {
+                return None;
+            };
+            let TermKind::Numeral(digits) = &bare(inner).kind else {
+                return None;
+            };
+            Some(match (inner.ty.as_ref()?, digits.as_str()) {
+                (LeanType::Num(Num::Nat), "0") => "Nat.cast_zero",
+                (LeanType::Num(Num::Nat), "1") => "Nat.cast_one",
+                (LeanType::Num(Num::Int), "0") => "Int.cast_zero",
+                (LeanType::Num(Num::Int), "1") => "Int.cast_one",
+                (LeanType::Num(Num::Rat), "0") => "Rat.cast_zero",
+                (LeanType::Num(Num::Rat), "1") => "Rat.cast_one",
+                _ => return None,
+            })
+        })
+        .collect();
+    out.sort_unstable();
+    out.dedup();
+    out
 }
 
 /// The term with each identity element the rewrites `lemmas` drop taken

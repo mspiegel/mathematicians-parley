@@ -22,8 +22,6 @@ public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -105,7 +103,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.6. calculation
     calc (LeanBridges.Counting.choose (N + 1) (N - 1) : ℚ) = (LeanBridges.Counting.choose (1 : ℤ) (N - 1) : ℚ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (N - 1) : ℤ)) s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.choose (1 : ℤ) (-1 : ℤ) : ℚ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (1 : ℤ) t : ℤ)) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side)); parley_side)
+      _ = 0 := by exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_1 (n := (1 : ℤ)) (by parley_side))
       _ = ((N : ℚ) + 1) * (N : ℚ) / 2 := by
           have hC2_w : (N : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC2; push_cast at h; linear_combination (norm := parley_norm) h
           linear_combination (norm := parley_norm) ((-(N : ℚ) - 1) / ((2))) * hC2_w

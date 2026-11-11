@@ -61,9 +61,30 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Tests/Notations/Powers/EToARealPower.lean",
         step: "1",
-        holds: "first |",
-        list: true,
-        why: "a citation whose cast stands under a complex power e ^ y, which norm_cast does not move: no one tactic",
+        holds: "parley_of_complex h",
+        list: false,
+        why: "an item worked in ℂ, e ^ y at (y : ℂ), cited for a claim in ℝ: read down to ℝ, as an instance is",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/ChooseTwoEven/ChooseTwoFormula.lean",
+        step: "1.2",
+        holds: "exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3",
+        list: false,
+        why: "an item in ℤ for a claim in ℚ, one statement once the narrower is cast up, whose casts norm_cast all moves: exact_mod_cast",
+    },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/APairFromLines.lean",
+        step: "1",
+        holds: "Set.ext_iff",
+        list: false,
+        why: "the checker paired a listed set's members out of their places (its meeting's permuted), {w, u} for {u, w}: the equation of sets taken member by member",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean",
+        step: "2.2",
+        holds: "simp only [Int.cast_one, div_one] at h",
+        list: false,
+        why: "the identity the checker's meeting names, 1 / 1, all that stands apart, its 1 written cast up by the function applied: the cast taken off, then div_one",
     },
     Site {
         file: "lean/Parley/Tests/Notations/Numbers/SqrtFourNotIrrational.lean",

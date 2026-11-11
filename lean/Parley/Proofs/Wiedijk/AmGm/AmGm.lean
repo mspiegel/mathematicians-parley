@@ -1,7 +1,6 @@
 module
 
 public import ComplexTactics
-public import NormTactics
 public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -21,7 +20,6 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
-public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Eq
@@ -29,8 +27,6 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -72,7 +68,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
   have s5 : r ^ n.toNat = P := by
     try simp only [hD3] at *
     try push_cast at *
-    first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)); parley_side)
+    (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) (by parley_side)); parley_of_complex h)
   -- 6. contradiction
   have s6 : r ≤ M := by
     by_contra hS

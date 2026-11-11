@@ -13,7 +13,6 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -92,7 +91,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.6. inequalities
         have s1_11_6 : e ≤ d := by parley_order
         -- 1.11.7. mun:multiply-le x := e, y := d, c := e, from D1, 1.11.6
-        have s1_11_7 : e * e ≤ e * d := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side)); parley_side)
+        have s1_11_7 : e * e ≤ e * d := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side))
         -- 1.11.8. algebra, from 1.1
         have s1_11_8 : p = e * d := by linear_combination (norm := parley_norm) s1_1
         -- 1.11.9. def:divides d := e, n := p, from 1.11.8
