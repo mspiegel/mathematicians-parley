@@ -989,6 +989,10 @@ pub struct Supplied {
     /// The hypothesis as the item's group asks it, in the item's letters.
     pub want: Node,
     pub by: SuppliedBy,
+    /// Where the item writes the hypothesis, by which a backend that
+    /// states the item finds it among its own; None for a fact that is no
+    /// item's hypothesis, a value's domain or an exhibit's.
+    pub at: Option<crate::citing::HypothesisAt>,
 }
 
 /// Where the fact a hypothesis is supplied by stands.

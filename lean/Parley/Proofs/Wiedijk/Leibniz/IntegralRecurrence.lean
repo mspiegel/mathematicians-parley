@@ -100,7 +100,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   -- 11. thm:continuous-power D := [0, 1], n := 2n, from 2, 4, 8
   have s11 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s4 (n := 2 * n) (by parley_set_side) s2)
   -- 12. thm:integrand-continuous, from 3, 9
-  have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (by parley_set_side) (by parley_set_side))
+  have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (by parley_set_side) s3)
   -- 13. arithmetic
   have s13 : (0 : ℤ) < 1 := by parley_arith
   -- 14. D1

@@ -38,7 +38,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. thm:three-divides-square n := p, from C1
-      have s2_1 : (3 : ℤ) ∣ p := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) (by parley_side))
+      have s2_1 : (3 : ℤ) ∣ p := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := p) hC1)
       exact absurd s2_1 hS
     · skip
       exact hC2

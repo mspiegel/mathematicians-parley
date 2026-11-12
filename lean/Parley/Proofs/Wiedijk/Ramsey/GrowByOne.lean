@@ -56,7 +56,7 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
       intro Y hK1
       intro hK2
       -- 4.6.1. thm:two-point-parts, from K1, K2, 4.2
-      have s4_6_1 : Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α)) := by exact (Parley.Proofs.Wiedijk.Ramsey.TwoPointParts.two_point_parts (W := W) (v := v) s4_2 (Y := Y) (by parley_set_side) (by parley_set_side))
+      have s4_6_1 : Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α)) := by exact (Parley.Proofs.Wiedijk.Ramsey.TwoPointParts.two_point_parts (W := W) (v := v) s4_2 (Y := Y) hK1 (by parley_set_side))
       -- 4.6.2. cases, from 4.6.1
       rcases s4_6_1 with hC2 | hC3
       · skip

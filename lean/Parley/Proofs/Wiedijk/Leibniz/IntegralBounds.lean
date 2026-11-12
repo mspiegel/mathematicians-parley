@@ -73,7 +73,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 8. thm:continuous-power D := [0, 1], n := 2n, from 1, 2, 6
   have s8 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (n := 2 * n) (by parley_set_side) s2)
   -- 9. thm:integrand-continuous, from 3, 7
-  have s9 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (by parley_set_side) (by parley_set_side))
+  have s9 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (by parley_set_side) s3)
   -- 10. proof
   have s10 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x ≥ 0 := by
     intro x hK1

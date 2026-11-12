@@ -87,7 +87,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
           (have h := Eq.subst (motive := (fun t : ℝ => t < ε / (2 * (abs A + 1)))) e_w s5_4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 5.4.6. thm:scaled-small C := A, u := 1/n, from A1, 5.4.5
-      have s5_4_6 : abs (A * (1 / (n : ℝ))) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) (by parley_side) s5_4_5)
+      have s5_4_6 : abs (A * (1 / (n : ℝ))) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 s5_4_5)
       -- 5.4.7. substitute
       have c1 : A * (1 / (n : ℝ)) = A / (n : ℝ) := by parley_ring
       have row1 : abs (A / (n : ℝ)) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s5_4_6; push_cast at h ⊢; all_goals exact_mod_cast h)

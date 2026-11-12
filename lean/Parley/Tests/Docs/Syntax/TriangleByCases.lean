@@ -25,7 +25,7 @@ theorem triangle_by_cases (a : ℝ) (b : ℝ) :
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. thm:sum-nonneg-bounded, from C1
-    exact (Parley.Tests.Docs.Syntax.SumNonnegBounded.sum_nonneg_bounded (a := a) (b := b) (by parley_side))
+    exact (Parley.Tests.Docs.Syntax.SumNonnegBounded.sum_nonneg_bounded (a := a) (b := b) hC1)
   · skip
     -- 2.2. thm:sum-neg-bounded, from C2
     exact (Parley.Tests.Docs.Syntax.SumNegBounded.sum_neg_bounded (a := a) (b := b) hC2)

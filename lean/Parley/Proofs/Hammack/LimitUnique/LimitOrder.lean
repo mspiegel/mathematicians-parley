@@ -44,12 +44,12 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 3. thm:limit-unfolded D := ℝ, from H5
   have r51_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s3 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by
-    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := L) hH5))
+    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) r51_1 (f := f) (by parley_whole_side) (c := c) (L := L) hH5))
     exact hI
   -- 4. thm:limit-unfolded D := ℝ, L := M, from H6
   have r55_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s4 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by
-    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) (by parley_whole_side) (f := f) (by parley_whole_side) (c := c) (L := M) hH6))
+    have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - M) < ε)) := by parley_instance ((Parley.Proofs.Hammack.LimitUnique.LimitUnfolded.limit_unfolded (D := (Set.univ : Set ℝ)) r55_1 (f := f) (by parley_whole_side) (c := c) (L := M) hH6))
     exact hI
   -- 5. instantiate ε := (M − L)/3 in line 3, from 2
   have s5 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < (M - L) / 3) := by exact (s3 ((M - L) / 3) s2)

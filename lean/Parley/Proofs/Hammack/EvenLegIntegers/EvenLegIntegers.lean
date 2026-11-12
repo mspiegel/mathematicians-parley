@@ -58,7 +58,7 @@ theorem even_leg_integers (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 + b ^ 2 = c
       -- 2.2.5. def:even n := c², from 2.2.4
       have s2_2_5 : Even (c ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := c ^ 2))).mpr ⟨2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1, s2_2_4⟩
       -- 2.2.6. thm:even-square n := c, from 2.2.5
-      have s2_2_6 : Even c := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := c) (by parley_side))
+      have s2_2_6 : Even c := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := c) s2_2_5)
       -- 2.2.7. obtain r: def:even n := c, from 2.2.6
       obtain ⟨r, s2_2_7⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := c))).mp s2_2_6
       -- 2.2.8. substitute c = 2r (line 2.2.7) into line 2.2.3

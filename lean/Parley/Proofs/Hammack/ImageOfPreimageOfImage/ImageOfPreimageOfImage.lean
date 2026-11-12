@@ -41,7 +41,7 @@ theorem image_of_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f : �
   -- 4. def:subset, from 3
   have s4 : f '' (A ∩ (A ∩ f ⁻¹' (f '' (A ∩ X)))) ⊆ f '' (A ∩ X) := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (A ∩ f ⁻¹' (f '' (A ∩ X))))) (Y := f '' (A ∩ X)))).mpr s3
   -- 5. thm:subset-of-preimage-of-image, from H4
-  have s5 : X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by exact (Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage.subset_of_preimage_of_image (A := A) (B := Set.univ) (f := f) (by parley_set_side) (X := X) (by parley_set_side))
+  have s5 : X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by exact (Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage.subset_of_preimage_of_image (A := A) (B := Set.univ) (f := f) (by parley_set_side) (X := X) hH4)
   -- 6. mun:image-monotone Y := X, Z := f⁻¹[f[X]], from 5
   have s6 : f '' (A ∩ X) ⊆ f '' (A ∩ (A ∩ f ⁻¹' (f '' (A ∩ X)))) := by exact (Parley.Items.Stdlib.Functions.mun_image_monotone (X := A) (Y := X) (Z := A ∩ f ⁻¹' (f '' (A ∩ X))) (f := f) (W := Set.univ) s5 (by parley_set_side))
   -- 7. mun:subset-antisymmetric, from 4, 6

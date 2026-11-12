@@ -23,7 +23,7 @@ use crate::citing::{
     obtained, obtains, range_system, readings, said_once, said_otherwise, search,
     stood_for, substitution_unsaid, supply, taken, taken_ways, type_said_otherwise,
     with_parts, witnesses_unsaid, Bound, CodomainAsk, Concluded, Group, Introduced,
-    Library, Parts, Sites, Taken, Way, Ways,
+    Library, Parts, Sites, Supplying, Taken, Way, Ways,
 };
 use crate::corpus::proof::{chain_reasons, reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -355,7 +355,7 @@ fn unfolded_parts(
             step,
             &step.just.refs,
             Some(item),
-            vec![(fact.clone(), None)],
+            vec![Supplying::sought(fact.clone())],
             &Binding::new(),
             None,
             known,
@@ -566,7 +566,7 @@ fn item_letters(
 ) -> Vec<ItemLetter> {
     let letters = super::library::introduced(known, step);
     let item_system = |letter: Symbol| {
-        group.wants.iter().find_map(|(_, want)| {
+        group.asked().find_map(|want| {
             match (want.notation(), want.children.as_slice()) {
                 (MEMBERSHIP, [x, set])
                     if x.is_name()
@@ -1006,7 +1006,7 @@ fn supplied_at(
     step: &Step,
     refs: &[String],
     item: Option<&str>,
-    supplying: Vec<(Node, Option<Node>)>,
+    supplying: Vec<Supplying>,
     binding: &Binding,
     below: Option<usize>,
     known: &Known,
@@ -1028,7 +1028,7 @@ fn supplied_at(
     };
     supplying
         .into_iter()
-        .map(|(want, fact)| {
+        .map(|Supplying { want, fact, at }| {
             let fact = fact.unwrap_or_else(|| {
                 standard(&substitute_apart(&want, binding, ctx), ctx)
             });
@@ -1061,7 +1061,7 @@ fn supplied_at(
                         .map_or(SuppliedBy::Unstated, SuppliedBy::SaidOnce),
                 },
             };
-            Supplied { want, by }
+            Supplied { want, by, at }
         })
         .collect()
 }
@@ -1143,12 +1143,9 @@ fn missing_hypotheses(
         }
         let group = &groups[alone.group];
         let unmet: Vec<String> = group
-            .wants
-            .iter()
-            .filter(|(_, tree)| {
-                !supplied_alone(tree, group, parts, &alone.binding, library)
-            })
-            .map(|(_, tree)| library.env.g.print(&filled(tree, &fixed, &library.ctx)))
+            .asked()
+            .filter(|tree| !supplied_alone(tree, group, parts, &alone.binding, library))
+            .map(|tree| library.env.g.print(&filled(tree, &fixed, &library.ctx)))
             .collect();
         if !unmet.is_empty() {
             return Some(unmet);
@@ -1156,11 +1153,10 @@ fn missing_hypotheses(
     }
     let mut missing = None;
     for group in groups.iter() {
-        let want = &group.wants;
-        if want.is_empty() {
+        if group.wants.is_empty() {
             return None;
         }
-        let trees: Vec<Node> = want.iter().map(|(_, t)| t.clone()).collect();
+        let trees: Vec<Node> = group.asked().cloned().collect();
         let variables = group.letters(&trees);
         // Where a binder applies a function or a property to what it binds,
         // that is what decides it, here as in the conclusion.
@@ -1192,15 +1188,13 @@ fn missing_hypotheses(
                 .g
                 .print(&filled(tree, &parts.seed, &library.ctx))
         };
-        let unmet: Vec<String> = want
+        let unmet: Vec<String> = trees
             .iter()
-            .filter(|(_, tree)| {
-                !supplied_alone(tree, group, parts, &parts.seed, library)
-            })
-            .map(|(_, tree)| print(tree))
+            .filter(|tree| !supplied_alone(tree, group, parts, &parts.seed, library))
+            .map(print)
             .collect();
         missing = Some(if unmet.is_empty() {
-            want.iter().map(|(_, tree)| print(tree)).collect()
+            trees.iter().map(print).collect()
         } else {
             unmet
         });
@@ -1348,11 +1342,10 @@ fn ways_supplied(
         return Some(out);
     }
     for group in groups.iter() {
-        let want = &group.wants;
-        if want.is_empty() {
+        if group.wants.is_empty() {
             return None;
         }
-        let trees: Vec<Node> = want.iter().map(|(_, t)| t.clone()).collect();
+        let trees: Vec<Node> = group.asked().cloned().collect();
         let variables = group.letters(&trees);
         let mut sites = Sites::new();
         for t in &trees {
@@ -3917,9 +3910,9 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
         .filter(|t| t.asked.children[0].is_name())
         .collect();
     for group in groups.iter() {
-        let (want, gives) = (&group.wants, &group.gives);
+        let gives = &group.gives;
         let mut trees = gives.clone();
-        trees.extend(want.iter().map(|(_, t)| t.clone()));
+        trees.extend(group.asked().cloned());
         let mut sites = Sites::new();
         for t in &trees {
             binding_sites(t, &library.ctx, &[], &mut sites);
@@ -3939,7 +3932,7 @@ fn family_asks(step: &Step, known: &Known, library: &Library) -> FamilyAsks {
                 }
             }
         }
-        for (_, hyp) in want.iter() {
+        for hyp in group.asked() {
             for fact in &parts.facts {
                 pairs.push((hyp.clone(), fact));
             }
@@ -5613,7 +5606,8 @@ pub fn exhibit_values(
                 .map(|claim| {
                     let ex = exhibited(claim, library)?;
                     let values = shown_value(&ex, &facts, library, known)?;
-                    let asked = ex.wants.iter().map(|w| (w.clone(), None)).collect();
+                    let asked =
+                        ex.wants.iter().cloned().map(Supplying::sought).collect();
                     let shown = supplied_at(
                         step,
                         &step.just.refs,
@@ -5885,7 +5879,7 @@ fn value_guards(
                 step,
                 &step.just.refs,
                 None,
-                vec![(m.read, None)],
+                vec![Supplying::sought(m.read)],
                 &Binding::new(),
                 None,
                 known,
@@ -5911,7 +5905,7 @@ fn conditions_supplied(
     known: &Known,
     library: &Library,
 ) -> Vec<Condition> {
-    let supplying = conditions.iter().map(|c| (c.clone(), None)).collect();
+    let supplying = conditions.iter().cloned().map(Supplying::sought).collect();
     supplied_at(
         step,
         &step.just.refs,

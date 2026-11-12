@@ -55,7 +55,7 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
         _ = f t := by parley_set_side
         _ = ((t + 1) / (t - 1)) ^ 3 := by exact (hH2 t hK2)
     -- 1.6. thm:cube-injective a := (s + 1)/(s − 1), b := (t + 1)/(t − 1), from 1.5
-    have s1_6 : (s + 1) / (s - 1) = (t + 1) / (t - 1) := by exact (Parley.Proofs.Hammack.CubeRootInjective.CubeInjective.cube_injective (a := (s + 1) / (s - 1)) (b := (t + 1) / (t - 1)) (by parley_set_side))
+    have s1_6 : (s + 1) / (s - 1) = (t + 1) / (t - 1) := by exact (Parley.Proofs.Hammack.CubeRootInjective.CubeInjective.cube_injective (a := (s + 1) / (s - 1)) (b := (t + 1) / (t - 1)) s1_5)
     -- 1.7. algebra, from 1.3, 1.4, 1.6
     linear_combination (norm := parley_field) (-((1 / 2 : ℝ) * s * t) + (1 / 2 : ℝ) * s + (1 / 2 : ℝ) * t - (1 / 2 : ℝ)) * s1_6
   -- 2. def:one-to-one, from H1, 1

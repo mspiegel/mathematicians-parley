@@ -60,7 +60,7 @@ theorem sqrt2_irrational :
     -- 2.4. def:even n := p², from 2.3
     have s2_4 : Even (p ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 2))).mpr ⟨q ^ 2, s2_3⟩
     -- 2.5. thm:even-square n := p, from 2.4
-    have s2_5 : Even p := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := p) (by parley_side))
+    have s2_5 : Even p := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := p) s2_4)
     -- 2.6. obtain r: def:even n := p, from 2.5
     obtain ⟨r, s2_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := p))).mp s2_5
     -- 2.7. calculation
@@ -73,7 +73,7 @@ theorem sqrt2_irrational :
     -- 2.9. def:even n := q², from 2.8
     have s2_9 : Even (q ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 2))).mpr ⟨r ^ 2, s2_8⟩
     -- 2.10. thm:even-square n := q, from 2.9
-    have s2_10 : Even q := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := q) (by parley_side))
+    have s2_10 : Even q := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := q) s2_9)
     -- 2.11. obtain s: def:even n := q, from 2.10
     obtain ⟨s, s2_11⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := q))).mp s2_10
     -- 2.12. def:divides d := 2, n := p, from 2.6

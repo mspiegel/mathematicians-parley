@@ -46,7 +46,7 @@ theorem remainder_of_product (A : ℝ) (B : ℤ) (M : ℝ) (hH4 : M > 0) :
   -- 4. calculation
   calc LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M * (B : ℝ)) M = LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M := by (have h := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by
-        have hI : LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by parley_instance ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) (by parley_side) (K := -(q * B))))
+        have hI : LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by parley_instance ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) hH4 (K := -(q * B))))
         exact hI
 
 end Parley.Proofs.Setmm.RemainderRules.RemainderOfProduct

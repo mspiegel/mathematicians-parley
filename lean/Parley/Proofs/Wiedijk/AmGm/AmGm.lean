@@ -48,7 +48,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
   have s1 : P ≤ M ^ n.toNat := by
     try simp only [hD1, hD2] at ⊢
     try push_cast at ⊢
-    exact (Parley.Proofs.Wiedijk.AmGm.AmGmPower.am_gm_power (n := n) hH1 (a := a) (by parley_side))
+    exact (Parley.Proofs.Wiedijk.AmGm.AmGmPower.am_gm_power (n := n) hH1 (a := a) hH3)
   -- 2. mun:product-range-nonneg a := 1, b := n, from D1, H3
   have s2 : P ≥ 0 := by
     try simp only [hD1] at ⊢

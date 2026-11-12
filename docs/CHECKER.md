@@ -51,7 +51,11 @@ line's own. A list holds one entry for each step, in the proof's order.
   it implies (`Requires`); the `let` or `obtain` line that introduces a
   letter, for a membership said once (`SaidOnce`); or no line (`Unstated`).
   A hypothesis the citation's values make true is still placed where a line
-  states it. Lean names that line as the item's argument.
+  states it. Lean names that line as the item's argument. Each entry also
+  says where the item writes the hypothesis (`Supplied::at`): its
+  hypothesis line and the sentence of that line, each counted from 0. A
+  backend that states the item names its hypotheses by the same place, and
+  finds each one's entry by it.
 - `Cited::unfolded`: for each conclusion a citation reads backwards, what
   the right side of its `↔` asks at the citation's values (`Unfolded`), its
   parts joined by "and" in order. A "there is" whose letter the citation

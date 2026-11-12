@@ -123,7 +123,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.6. substitute (m + n) − 1 = m + (n − 1) (line 5) into line 8.1
     have s8_6 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 t → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) s5.symm s8_1b; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 8.7. thm:lead-to-the-end, from H3, 8.2, 8.3, 8.6
-    have s8_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd.lead_to_the_end (m := m) (le_of_lt hH1) (n := n) (le_of_lt hH2) (c := c) (by parley_set_side) hH3 (by parley_set_side) (by parley_set_side))
+    have s8_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd.lead_to_the_end (m := m) (le_of_lt hH1) (n := n) (le_of_lt hH2) (c := c) s8_3 hH3 (by parley_set_side) (by parley_set_side))
     -- 8.8. def:part-builder u := c, X := {1, …, m + n}, from 8.2, 8.3
     have s8_8 : c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mpr ⟨s8_3, by parley_set_side⟩
     -- 8.9. def:set-builder u := c, from D2, 8.7, 8.8

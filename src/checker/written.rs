@@ -339,7 +339,10 @@ pub fn group_written(
         wants: group
             .wants
             .iter()
-            .map(|(text, n)| (text.clone(), out(n)))
+            .map(|w| crate::citing::Want {
+                tree: out(&w.tree),
+                ..w.clone()
+            })
             .collect(),
         gives: group.gives.iter().map(out).collect(),
         functions: group.functions.clone(),
@@ -380,7 +383,7 @@ fn group_facts(
     grammar: &Grammar,
     ctx: &crate::matching::Context,
 ) -> super::record::GroupFacts {
-    let wants: Vec<Node> = group.wants.iter().map(|(_, n)| n.clone()).collect();
+    let wants: Vec<Node> = group.asked().cloned().collect();
     let none = crate::citing::Introduced::new();
     let set_systems = group
         .gives

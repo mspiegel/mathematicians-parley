@@ -30,6 +30,6 @@ namespace Parley.Tests.Notations.Sums.AProductScaledCited
 theorem a_product_scaled_cited (Y : Set ℤ) (hH1 : Y ⊆ (Set.univ : Set ℤ)) (hH2 : Y.Finite) :
     (∏ᶠ k ∈ Y, (k * 3 : ℤ)) = 3 ^ Y.ncard * (∏ᶠ k ∈ Y, (k : ℤ)) := by
   -- 1. thm:a-product-scaled X := Y, from H1, H2
-  exact (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) (by parley_set_side) hH2)
+  exact (Parley.Tests.Notations.Sums.AProductScaled.a_product_scaled (X := Y) hH1 hH2)
 
 end Parley.Tests.Notations.Sums.AProductScaledCited

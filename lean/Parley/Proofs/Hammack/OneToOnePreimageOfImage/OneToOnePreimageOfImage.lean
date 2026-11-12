@@ -46,7 +46,7 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
     -- 2.2. def:subset, from 2.1
     have s2_2 : A ∩ f ⁻¹' (f '' (A ∩ X)) ⊆ X := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (f '' (A ∩ X))) (Y := X))).mpr s2_1
     -- 2.3. thm:subset-of-preimage-of-image, from K1
-    have s2_3 : X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by exact (Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage.subset_of_preimage_of_image (A := A) (B := Set.univ) (f := f) (by parley_set_side) (X := X) (by parley_set_side))
+    have s2_3 : X ⊆ A ∩ f ⁻¹' (f '' (A ∩ X)) := by exact (Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage.subset_of_preimage_of_image (A := A) (B := Set.univ) (f := f) (by parley_set_side) (X := X) hK1)
     -- 2.4. mun:subset-antisymmetric, from 2.2, 2.3
     exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (f '' (A ∩ X))) (Y := X) s2_2 s2_3)
   · skip

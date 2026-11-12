@@ -88,9 +88,9 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
         have s4_6_w : (F (j + 1) : ℝ) = (G j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h; linear_combination (norm := parley_norm) h
         parley_subst_at hIH.2 s4_6_w
       -- 4.9. thm:power-recurrence x := φ, k := j, from 2
-      have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) (by parley_side) (k := j) hK)
+      have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) s2 (k := j) hK)
       -- 4.10. thm:power-recurrence x := ψ, k := j, from 3
-      have s4_10 : ψ ^ (j + 1 + 1).toNat = ψ ^ (j + 1).toNat + ψ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := ψ) (by parley_side) (k := j) hK)
+      have s4_10 : ψ ^ (j + 1 + 1).toNat = ψ ^ (j + 1).toNat + ψ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := ψ) s3 (k := j) hK)
       -- 4.11. calculation
       have r101_1 : Real.sqrt (5 : ℝ) ≠ 0 := by exact s1
       have s4_11 : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by

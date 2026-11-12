@@ -305,8 +305,18 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
     } else {
         firsts.join(", ")
     };
-    let supplied: Vec<String> =
-        cited.supplied.iter().map(|s| supplier(&s.by)).collect();
+    // Each by where the item writes it: hypothesis line, then sentence,
+    // each from 1.
+    let supplied: Vec<String> = cited
+        .supplied
+        .iter()
+        .map(|s| match s.at {
+            Some(at) => {
+                format!("{}.{} {}", at.line + 1, at.sentence + 1, supplier(&s.by))
+            }
+            None => supplier(&s.by),
+        })
+        .collect();
     // Each letter's number systems, the item's then its value's, in no
     // order.
     let mut letters: Vec<String> = cited

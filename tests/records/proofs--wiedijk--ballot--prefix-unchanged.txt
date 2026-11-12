@@ -1,13 +1,13 @@
 theorem proofs/wiedijk/ballot/prefix-unchanged
 block of 1: 1.1, 1.2
-step 1.1 cites stdlib/sums/range-bounds group 0; a := 1, b := i, k := p; concludes 1 AsWritten; from no line; supplied by unstated, once H2 sentence 0, S1 sentence 0; letters a cz from cn, b cz from cz, k none from cz; facing none; met as written
-step 2 cites stdlib/sets/singleton-outside group 0; Y := {1, …, i}, a := p; concludes 0 AsWritten; from no line; supplied by 1 sentence 0; letters Y none from none, a none from cz; facing straight; met as written
+step 1.1 cites stdlib/sums/range-bounds group 0; a := 1, b := i, k := p; concludes 1 AsWritten; from no line; supplied by 1.1 unstated, 2.1 once H2 sentence 0, 3.1 S1 sentence 0; letters a cz from cn, b cz from cz, k none from cz; facing none; met as written
+step 2 cites stdlib/sets/singleton-outside group 0; Y := {1, …, i}, a := p; concludes 0 AsWritten; from no line; supplied by 1.1 1 sentence 0; letters Y none from none, a none from cz; facing straight; met as written
 step 4 cites stdlib/sets/difference-subset group 0; X := {1, …, i}, Y := T; concludes 0 AsWritten; from no line; supplied by ; letters X none from none, Y none from none; facing none; met as written
-step 5 cites stdlib/sets/not-in-subset group 0; Y := {1, …, i} ∖ T, Z := {1, …, i}, a := p; concludes 0 AsWritten; from no line; supplied by 1 sentence 0, 4 sentence 0; letters Y none from none, Z none from none, a none from cz; facing none; met as written
+step 5 cites stdlib/sets/not-in-subset group 0; Y := {1, …, i} ∖ T, Z := {1, …, i}, a := p; concludes 0 AsWritten; from no line; supplied by 1.1 1 sentence 0, 2.1 4 sentence 0; letters Y none from none, Z none from none, a none from cz; facing none; met as written
 requires line on line 218 cites stdlib/sets/intersection-distributes group 0; X := {1, …, i}, Y := T, Z := {p}; concludes 0 AsWritten; from no line; supplied by ; letters X none from none, Y none from none, Z none from none; facing straight; met as written
 requires line on line 220 cites stdlib/sets/union-empty group 0; Y := {1, …, i} ∩ T; concludes 0 AsWritten; from no line; supplied by ; letters Y none from none; facing straight; met as written
 requires line on line 230 cites stdlib/sets/difference-by-union group 0; X := {1, …, i}, Y := T, Z := {p}; concludes 0 AsWritten; from no line; supplied by ; letters X none from none, Y none from none, Z none from none; facing straight; met as written
-requires line on line 231 cites stdlib/sets/difference-absent group 0; Y := {1, …, i} ∖ T, a := p; concludes 0 AsWritten; from no line; supplied by 5 sentence 0; letters Y none from none, a none from cz; facing straight; met as written
+requires line on line 231 cites stdlib/sets/difference-absent group 0; Y := {1, …, i} ∖ T, a := p; concludes 0 AsWritten; from no line; supplied by 1.1 5 sentence 0; letters Y none from none, a none from cz; facing straight; met as written
 set T holds numbers of cn
 step 1.2 sentence 0 part 0 adds [H4 sentence 0]
 step 7 joins in sentence 0 [3 sentence 0]

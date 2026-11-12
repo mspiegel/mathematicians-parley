@@ -112,7 +112,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
             _ = (LeanBridges.Counting.choose (k + 1 + (j + 1) - 2) (k + 1 - 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) s1_8_12.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
             _ ≤ (X.ncard : ℤ) := by parley_set_side
         -- 1.8.13.2. thm:ramsey-step, from H4, H7, K6, 1.8.8, 1.8.11, 1.8.13.1
-        exact (Parley.Proofs.Wiedijk.Ramsey.RamseyStep.ramsey_step (V := V) (E := E) (F := F) (k := k) (lt_of_lt_of_le zero_lt_one hK3) (j := j) (lt_of_lt_of_le zero_lt_one hK5) hH4 (by parley_set_side) (X := X) (by parley_set_side) (by parley_set_side) (by parley_set_side) (by parley_set_side))
+        exact (Parley.Proofs.Wiedijk.Ramsey.RamseyStep.ramsey_step (V := V) (E := E) (F := F) (k := k) (lt_of_lt_of_le zero_lt_one hK3) (j := j) (lt_of_lt_of_le zero_lt_one hK5) hH4 (by parley_set_side) (X := X) hK6 (by parley_set_side) (by parley_set_side) (by parley_set_side))
   -- 2. mun:subset-self
   have s2 : V ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := V))
   -- 3. instantiate k := r, j := s, X := V in line 1, from H8, 2

@@ -69,8 +69,8 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.5. thm:cauchy-quotient E := (a, b), U := (a, b) ∖ {u}, p := v, q := u, from C1, H10, H11, H12, 1, 2, 4.1, 4.4
       have r164_1 : ContinuousOn F (Set.Icc v u : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := F) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc v u : Set ℝ)) s1 s4_1 hH8)
       have r164_2 : ContinuousOn G (Set.Icc v u : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := G) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc v u : Set ℝ)) s1 s4_1 hH9)
-      have s4_5a : G v ≠ G u := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := v) (q := u) hC1 s4_1 s4_4 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r164_1 r164_2 hH10 hH11 hH12).1
-      have s4_5b : ∃ ξ ∈ (Set.Ioo v u : Set ℝ), (F u - F v) / (G u - G v) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := v) (q := u) hC1 s4_1 s4_4 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r164_1 r164_2 hH10 hH11 hH12).2
+      have s4_5a : G v ≠ G u := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) s1 (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) s2 (p := v) (q := u) hC1 s4_1 s4_4 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r164_1 r164_2 hH10 hH11 hH12).1
+      have s4_5b : ∃ ξ ∈ (Set.Ioo v u : Set ℝ), (F u - F v) / (G u - G v) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) s1 (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) s2 (p := v) (q := u) hC1 s4_1 s4_4 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r164_1 r164_2 hH10 hH11 hH12).2
       -- 4.6. restate 4.5
       have s4_6 : G v ≠ G u := by exact s4_5a
       -- 4.7. inequalities
@@ -121,8 +121,8 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.20. thm:cauchy-quotient E := (a, b), U := (a, b) ∖ {u}, p := u, q := v, from C2, H10, H11, H12, 1, 2, 4.16, 4.19
       have r246_1 : ContinuousOn F (Set.Icc u v : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := F) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc u v : Set ℝ)) s1 s4_16 hH8)
       have r246_2 : ContinuousOn G (Set.Icc u v : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_continuous_on_part (f := G) (D := (Set.Ioo a b : Set ℝ)) (S := (Set.Icc u v : Set ℝ)) s1 s4_16 hH9)
-      have s4_20a : G u ≠ G v := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := u) (q := v) hC2 s4_16 s4_19 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r246_1 r246_2 hH10 hH11 hH12).1
-      have s4_20b : ∃ ξ ∈ (Set.Ioo u v : Set ℝ), (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) (by parley_set_side) (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (by parley_set_side) (p := u) (q := v) hC2 s4_16 s4_19 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r246_1 r246_2 hH10 hH11 hH12).2
+      have s4_20a : G u ≠ G v := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) s1 (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) s2 (p := u) (q := v) hC2 s4_16 s4_19 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r246_1 r246_2 hH10 hH11 hH12).1
+      have s4_20b : ∃ ξ ∈ (Set.Ioo u v : Set ℝ), (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient.cauchy_quotient (E := (Set.Ioo a b : Set ℝ)) s1 (U := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) s2 (p := u) (q := v) hC2 s4_16 s4_19 (F := F) (by parley_set_side) (G := G) (by parley_set_side) r246_1 r246_2 hH10 hH11 hH12).2
       -- 4.21. restate 4.20
       have s4_21 : G u ≠ G v := by exact s4_20a
       -- 4.22. obtain ξ from line 4.20

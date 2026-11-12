@@ -22,12 +22,12 @@ theorem remainder_under_a_larger_divisor (A : ℝ) (B : ℝ) (C : ℝ) (hH4 : B 
     LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A B) C = LeanBridges.Divisibility.mod A B := by
   -- 1. thm:remainder-is-real, from H4
   -- 2. thm:remainder-nonnegative, from H4
-  have s2 : 0 ≤ LeanBridges.Divisibility.mod A B := by exact (Parley.Proofs.Setmm.RemainderBounds.RemainderNonnegative.remainder_nonnegative (A := A) (B := B) (by parley_side))
+  have s2 : 0 ≤ LeanBridges.Divisibility.mod A B := by exact (Parley.Proofs.Setmm.RemainderBounds.RemainderNonnegative.remainder_nonnegative (A := A) (B := B) hH4)
   -- 3. thm:remainder-below-divisor, from H4
-  have s3 : LeanBridges.Divisibility.mod A B < B := by exact (Parley.Proofs.Setmm.RemainderBounds.RemainderBelowDivisor.remainder_below_divisor (A := A) (B := B) (by parley_side))
+  have s3 : LeanBridges.Divisibility.mod A B < B := by exact (Parley.Proofs.Setmm.RemainderBounds.RemainderBelowDivisor.remainder_below_divisor (A := A) (B := B) hH4)
   -- 4. transitivity, from 3, H6
   have s4 : LeanBridges.Divisibility.mod A B < C := by exact lt_of_lt_of_le s3 hH6
   -- 5. thm:remainder-of-small A := A mod B, B := C, from H5, 1, 2, 4
-  exact (Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := LeanBridges.Divisibility.mod A B) (B := C) (by parley_side) s2 s4)
+  exact (Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := LeanBridges.Divisibility.mod A B) (B := C) hH5 s2 s4)
 
 end Parley.Proofs.Setmm.RemainderMore.RemainderUnderALargerDivisor

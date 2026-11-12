@@ -56,7 +56,7 @@ pub fn asks_of(
     let Some(taken) = groups.get(group) else {
         return Vec::new();
     };
-    let wants = taken.wants.iter().map(|(_, t)| t.clone());
+    let wants = taken.asked().cloned();
     let typed = library.function_types(name);
     let mut hypotheses = Vec::new();
     for asks in wants.chain(typed) {

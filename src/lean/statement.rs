@@ -7,6 +7,7 @@
 //! the two agree on the order of what is asked.
 
 use super::expr::{letter_type, system_of, LetterType, Printed, System, Writer};
+use crate::citing::HypothesisAt;
 use crate::formula::Node;
 use crate::notations::{IN, NUMBER_SYSTEMS};
 use crate::outcome::Route;
@@ -28,11 +29,12 @@ pub enum Binder {
     Fact {
         name: String,
         says: Printed,
-        /// The line it is as the checker read it, where one is: what a
-        /// citation compares the lines it cites with, to name the one that
-        /// says it (`Proof::instance`). For a letter's number system, `n ∈
-        /// ℕ`, the membership, whose `says` is the bound `0 < n`.
-        line: Option<Node>,
+        /// Where the statement writes it, where it says a fact the page
+        /// writes: the place a citation's record gives where the fact is
+        /// supplied by (`Supplied::at`). For a letter's number system, `n ∈
+        /// ℕ`, the membership's place, whose `says` is the bound `0 < n`.
+        /// None for a fact only Lean states, a map's `Set.MapsTo`.
+        at: Option<HypothesisAt>,
     },
 }
 
@@ -107,6 +109,8 @@ impl Binder {
 pub struct Asked<'n> {
     pub node: &'n Node,
     pub name: String,
+    /// Where the statement writes it (`citing::HypothesisAt`).
+    pub at: HypothesisAt,
 }
 
 /// The letter and system a fact `x ∈ S` introduces, S a number system;
@@ -445,17 +449,17 @@ pub fn binders(
                 general: false,
                 ty,
             });
-            let (says, line) = match fact {
+            let (says, at) = match fact {
                 Fact::Said(f) => (f, None),
                 Fact::Line => match writer.formula(a.node) {
-                    Route::Built(p) => (p, Some(a.node.clone())),
+                    Route::Built(p) => (p, Some(a.at)),
                     Route::Declined(d) => return Route::Declined(d),
                 },
             };
             out.push(Binder::Fact {
                 name: a.name.clone(),
                 says,
-                line,
+                at,
             });
             continue;
         }
@@ -501,7 +505,7 @@ pub fn binders(
                 out.push(Binder::Fact {
                     name: a.name.clone(),
                     says,
-                    line: Some(a.node.clone()),
+                    at: Some(a.at),
                 });
             }
             continue;
@@ -517,7 +521,7 @@ pub fn binders(
         out.push(Binder::Fact {
             name: a.name.clone(),
             says,
-            line: Some(a.node.clone()),
+            at: Some(a.at),
         });
         // A term of a wider type said to be an integer is, in what is
         // asked after, the integer this hypothesis gives. A letter is not:

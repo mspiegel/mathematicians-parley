@@ -67,11 +67,11 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   -- 9. algebra
   have s9 : a = a * 1 + b * 0 := by parley_ring
   -- 10. thm:least-combination-divides c := a, u := 1, v := 0, from 6, 7, 8, 9
-  have s10 : d ∣ a := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) hH1 (b := b) hH2 (c := a) hH1 (d := d) s6 (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 (by parley_set_side))
+  have s10 : d ∣ a := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) hH1 (b := b) hH2 (c := a) hH1 (d := d) s6 (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 s8)
   -- 11. algebra
   have s11 : b = a * 0 + b * 1 := by parley_ring
   -- 12. thm:least-combination-divides c := b, u := 0, v := 1, from 6, 7, 8, 11
-  have s12 : d ∣ b := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) hH1 (b := b) hH2 (c := b) hH2 (d := d) s6 (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s11 s7 (by parley_set_side))
+  have s12 : d ∣ b := by exact (Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides.least_combination_divides (a := a) hH1 (b := b) hH2 (c := b) hH2 (d := d) s6 (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s11 s7 s8)
   -- 13. def:gcd
   have s13a : 0 < (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a) hH1 (b := b) hH2)
   have s13b : (Int.gcd a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a) hH1 (b := b) hH2)

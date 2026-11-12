@@ -46,7 +46,7 @@ theorem remainder_of_sum (A : ℝ) (B : ℝ) (M : ℝ) (hH4 : M > 0) :
   -- 4. calculation
   calc LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M + B) M = LeanBridges.Divisibility.mod (A + B + M * -(q : ℝ)) M := by (have h := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = LeanBridges.Divisibility.mod (A + B) M := by
-        have hI : LeanBridges.Divisibility.mod (A + B + M * -(q : ℝ)) M = LeanBridges.Divisibility.mod (A + B) M := by parley_instance ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A + B) (M := M) (by parley_side) (K := -q)))
+        have hI : LeanBridges.Divisibility.mod (A + B + M * -(q : ℝ)) M = LeanBridges.Divisibility.mod (A + B) M := by parley_instance ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A + B) (M := M) hH4 (K := -q)))
         exact hI
 
 end Parley.Proofs.Setmm.RemainderRules.RemainderOfSum

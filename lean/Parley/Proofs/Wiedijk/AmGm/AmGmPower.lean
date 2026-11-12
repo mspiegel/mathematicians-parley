@@ -58,7 +58,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
     | base =>
       intro hC1
       -- 1.1. thm:first-terms m := 1, from C1, H3
-      have s1_1 : ∀ k : ℤ, k ∈ Finset.Icc 1 1 → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) hH1 (a := a) (by parley_side) (m := (1 : ℤ)) hC1).2
+      have s1_1 : ∀ k : ℤ, k ∈ Finset.Icc 1 1 → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) hH1 (a := a) hH3 (m := (1 : ℤ)) hC1).2
       -- 1.2. mun:product-single a := 1, from 1.1
       have s1_2 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = a 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := a) (a := (1 : ℤ)))
       -- 1.3. mun:sum-single a := 1, from 1.1
@@ -75,9 +75,9 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.7. mun:modus-ponens, from IH, 1.6
       have s1_7 : (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := j ≤ n) (Q := (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat) hIH s1_6)
       -- 1.8. thm:first-terms m := j, from H3, 1.6
-      have s1_8 : ∀ k : ℤ, k ∈ Finset.Icc 1 j → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) hH1 (a := a) (by parley_side) (m := j) s1_6).2
+      have s1_8 : ∀ k : ℤ, k ∈ Finset.Icc 1 j → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) hH1 (a := a) hH3 (m := j) s1_6).2
       -- 1.9. thm:first-terms m := j + 1, from C2, H3
-      have s1_9 : ∀ k : ℤ, k ∈ Finset.Icc 1 (j + 1) → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) hH1 (a := a) (by parley_side) (m := j + 1) hC2).2
+      have s1_9 : ∀ k : ℤ, k ∈ Finset.Icc 1 (j + 1) → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) hH1 (a := a) hH3 (m := j + 1) hC2).2
       -- 1.10. def:range k := j + 1, from C2
       have s1_10 : j + 1 ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr ⟨by parley_side, hC2⟩
       -- 1.11. instantiate k := j + 1 in H3, from 1.10

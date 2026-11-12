@@ -5958,7 +5958,7 @@ impl<'a> Elaborator<'a> {
         };
         let none = IndexMap::new();
         for group in groups.iter() {
-            for (_, tree) in &group.wants {
+            for tree in group.asked() {
                 let said = filled(tree, &written, &library.ctx);
                 let [left, right] = said.children.as_slice() else {
                     continue;

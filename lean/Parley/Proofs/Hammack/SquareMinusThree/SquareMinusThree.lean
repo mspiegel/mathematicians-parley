@@ -50,7 +50,7 @@ theorem square_minus_three (n : ℤ) :
       -- 3.4. thm:four-times-between j := m − k² + 1, r := 1
       have r96_1 : (1 : ℤ) > 0 := by parley_arith
       have r96_2 : (1 : ℤ) < 4 := by parley_arith
-      have s3_4 : 4 * (m - k ^ 2 + 1) ≠ 1 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) (by parley_side) r96_2)
+      have s3_4 : 4 * (m - k ^ 2 + 1) ≠ 1 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 + 1) (r := (1 : ℤ)) r96_1 r96_2)
       exact absurd s3_3 s3_4
     · skip
       -- 3.5. obtain k: def:odd, from C2
@@ -62,7 +62,7 @@ theorem square_minus_three (n : ℤ) :
       -- 3.8. thm:four-times-between j := k² + k − m, r := 2
       have r113_1 : (2 : ℤ) > 0 := by parley_arith
       have r113_2 : (2 : ℤ) < 4 := by parley_arith
-      have s3_8 : 4 * (k ^ 2 + k - m) ≠ 2 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by parley_side) r113_2)
+      have s3_8 : 4 * (k ^ 2 + k - m) ≠ 2 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) r113_1 r113_2)
       exact absurd s3_7 s3_8
   -- 4. restate 3
   have s4 : n ^ 2 - 3 ≠ 4 * m := by parley_side

@@ -378,7 +378,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.19. thm:paired-product, from 5.7, 5.14, 5.15, 5.17, 5.18
     have r628_1 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact s5_16
     have s5_19 : (∏ a ∈ Finset.Icc (2 : ℤ) (p - 2), (a : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by
-      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by parley_instance ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (by parley_whole_side) s5_17 (n := p) hH1 (f := f) (by parley_whole_side) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_15) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_14) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_7)))
+      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by parley_instance ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) s5_18 s5_17 (n := p) hH1 (f := f) (by parley_whole_side) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_15) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_14) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_7)))
       exact hI
     -- 5.20. mun:nat-minus-one n := p
     have s5_20 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)

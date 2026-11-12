@@ -24,6 +24,6 @@ theorem a_set_with_a_bound (S : Set ℝ) (hH1 : S ⊆ (Set.univ : Set ℝ)) (hH2
   -- 3. exhibit, from 2
   have s3 : ∃ u : ℝ, ∀ s ∈ S, s ≤ u := ⟨(1 : ℝ), s2⟩
   -- 4. axi:completeness, from H1, 1, 3
-  exact (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) hH1 s1 (by parley_set_side))
+  exact (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) hH1 s1 s3)
 
 end Parley.Tests.Docs.Grammar.ASetWithABound

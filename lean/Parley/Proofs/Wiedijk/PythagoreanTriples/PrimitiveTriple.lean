@@ -188,14 +188,14 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s42 : (Int.gcd s t : ℤ) ∣ (Int.gcd b c : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (Int.gcd s t : ℤ)) (a := b) (b := c) s41 s39)
   -- 43. substitute
   have s43 : (Int.gcd s t : ℤ) ∣ (1 : ℤ) := by
-    have c1 : (Int.gcd b c : ℤ) = 1 := by exact (Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime.leg_hypotenuse_coprime (a := a) hH1 (b := b) hH2 (c := c) hH3 (by parley_side) hH5)
+    have c1 : (Int.gcd b c : ℤ) = 1 := by exact (Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime.leg_hypotenuse_coprime (a := a) hH1 (b := b) hH2 (c := c) hH3 hH4 hH5)
     have row1 : (Int.gcd s t : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s t : ℤ) ∣ u)) c1 s42; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 44. mun:divides-one d := gcd(s, t), from 37, 43
   have s44 : (Int.gcd s t : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd s t : ℤ)) s37a s43)
   -- 45. thm:coprime-square, from 4, 29, 32, 36, 44
-  have s45a : s = (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) s32 (t := t) s29 (w := w) s4 s44 (by parley_side)).1
-  have s45b : t = (Int.gcd t w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) s32 (t := t) s29 (w := w) s4 s44 (by parley_side)).2
+  have s45a : s = (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) s32 (t := t) s29 (w := w) s4 s44 s36).1
+  have s45b : t = (Int.gcd t w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquare.coprime_square (s := s) s32 (t := t) s29 (w := w) s4 s44 s36).2
   have hD1_kind : 0 < (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := s) s32 (b := w) s4)
   set m : ℤ := (Int.gcd s w : ℤ) with hD1
   have hD1_pos := hD1_kind

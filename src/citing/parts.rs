@@ -92,9 +92,7 @@ pub fn typed_seed(parts: &mut Parts, name: &str, ours: &[Node], library: &Librar
         // cited line against nothing, and its sets are the let's: else `x ∈
         // D` would be met by k ∈ ℤ, said once, for a function on {1, …, n}.
         let named = groups.iter().flat_map(|g| g.iter()).any(|g| {
-            g.wants
-                .iter()
-                .map(|(_, n)| n)
+            g.asked()
                 .chain(&g.gives)
                 .any(|n| n.walk().iter().any(|m| typing(m, &f.text)))
         });

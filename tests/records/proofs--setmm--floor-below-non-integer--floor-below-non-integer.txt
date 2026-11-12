@@ -1,7 +1,7 @@
 theorem proofs/setmm/floor-below-non-integer/floor-below-non-integer
 block of 3: 3.1
-step 1 cites stdlib/numbers/floor-below group 0; x := A; concludes 0 AsWritten; from no line; supplied by once H1 sentence 0; letters x cr from cr; facing none; met as written
-step 2 cites stdlib/numbers/floor-integer group 0; x := A; concludes 0 AsWritten; from no line; supplied by once H1 sentence 0; letters x cr from cr; facing none; met as written
+step 1 cites stdlib/numbers/floor-below group 0; x := A; concludes 0 AsWritten; from no line; supplied by 1.1 once H1 sentence 0; letters x cr from cr; facing none; met as written
+step 2 cites stdlib/numbers/floor-integer group 0; x := A; concludes 0 AsWritten; from no line; supplied by 1.1 once H1 sentence 0; letters x cr from cr; facing none; met as written
 step 4 sentence 0 part 0 adds [1 sentence 0] split on [3 sentence 0]
 read 4: ⌊A⌋ < A  as  order:<(floor:⌊⌋(name:A), name:A)  a statement
 read 7: A ∈ ℝ  as  membership:∈(name:A, number-systems:ℝ)  a statement

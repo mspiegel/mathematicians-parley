@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAt
 theorem positive_at_three (g : ℤ → ℝ) (hH2 : ∀ k : ℤ, 0 < k → g k > 0) :
     g 3 > 0 := by
   -- 1. thm:positive-at-a-point n := 3, f := g, from H2
-  exact (Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAtAPoint.positive_at_a_point (n := (3 : ℤ)) (by parley_side) (f := g) (by parley_side))
+  exact (Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAtAPoint.positive_at_a_point (n := (3 : ℤ)) (by parley_side) (f := g) hH2)
 
 end Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAtThree

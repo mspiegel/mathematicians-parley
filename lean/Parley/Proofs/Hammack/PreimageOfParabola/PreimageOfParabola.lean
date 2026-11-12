@@ -57,8 +57,8 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
     rcases s1_6 with hC1 | hC2
     · skip
       -- 1.7.1. thm:square-window-out t := u, from C1, 1.1, 1.4, 1.5
-      have s1_7_1a : 3 ≤ u := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := u) (by parley_set_side) (by parley_set_side) (by parley_set_side)).1
-      have s1_7_1b : u ≤ 4 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := u) (by parley_set_side) (by parley_set_side) (by parley_set_side)).2
+      have s1_7_1a : 3 ≤ u := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := u) hC1 s1_4 s1_5).1
+      have s1_7_1b : u ≤ 4 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := u) hC1 s1_4 s1_5).2
       -- 1.7.2. def:interval a := 3, b := 4, x := u, from 1.1, 1.7.1
       have s1_7_2 : u ∈ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (3 : ℝ)) (b := (4 : ℝ)))).mpr ⟨⟨by parley_set_side, s1_7_1a⟩, s1_7_1b⟩
       -- 1.7.3. mun:in-union-right Y := [−4, −3], Z := [3, 4], from 1.7.2
@@ -77,8 +77,8 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
         calc (-u) ^ 2 + 3 = u ^ 2 + 3 := by exact s1_7_5
           _ ≤ 19 := by exact s1_5
       -- 1.7.8. thm:square-window-out t := −u, from 1.1, 1.7.4, 1.7.6, 1.7.7
-      have s1_7_8a : 3 ≤ -u := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) (by parley_set_side) (by parley_set_side) (by parley_set_side)).1
-      have s1_7_8b : -u ≤ 4 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) (by parley_set_side) (by parley_set_side) (by parley_set_side)).2
+      have s1_7_8a : 3 ≤ -u := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) s1_7_4 s1_7_6 s1_7_7).1
+      have s1_7_8b : -u ≤ 4 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) s1_7_4 s1_7_6 s1_7_7).2
       -- 1.7.9. inequalities
       have s1_7_9 : -4 ≤ u := by linarith only [s1_7_8b]
       -- 1.7.10. inequalities

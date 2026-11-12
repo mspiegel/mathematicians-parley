@@ -67,9 +67,9 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 9. algebra
   have s9 : a = a * 1 + b * 0 := by parley_ring
   -- 10. thm:least-combination-divides c := a, u := 1, v := 0, from 6, 7, 8, 9
-  have s10 : d ∣ a := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) hH2 (c := a) (d := d) s6 (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 (by parley_set_side))
+  have s10 : d ∣ a := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) hH2 (c := a) (d := d) s6 (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 s8)
   -- 11. thm:least-combination-divides c := b, u := 0, v := 1, from 1, 6, 7, 8
-  have s11 : d ∣ b := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) hH2 (c := b) (d := d) s6 (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s1 s7 (by parley_set_side))
+  have s11 : d ∣ b := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) hH2 (c := b) (d := d) s6 (u := (0 : ℤ)) (v := (1 : ℤ)) (x₀ := x₀) (y₀ := y₀) s1 s7 s8)
   -- 12. mun:gcd-integer
   have s12a : 0 ≤ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_1 (a := a) (b := b))
   have s12b : (Int.gcd a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_2 (a := a) (b := b))

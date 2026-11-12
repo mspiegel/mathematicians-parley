@@ -27,10 +27,30 @@ use crate::sorts::{sorts_of_statement, statement_definitions, Env};
 use super::supply::names_of;
 use crate::checker::record::ItemReading;
 
+/// Where an item writes a fact it asks: its hypothesis line, counted from 0
+/// among the item's, and the sentence of that line, or the part a `let`
+/// line asserts (`Introduction::asserted`), counted from 0. A backend
+/// that states the item names its hypotheses by the same place, and finds
+/// where a citation supplies each by it (`Supplied::at`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct HypothesisAt {
+    pub line: usize,
+    pub sentence: usize,
+}
+
+/// A fact a group asks.
+#[derive(Clone, Debug)]
+pub struct Want {
+    /// The text it was read from.
+    pub text: String,
+    pub tree: Node,
+    pub at: HypothesisAt,
+}
+
 /// One `then` group of an item.
 pub struct Group {
-    /// What it asks for, each fact with the text it was read from.
-    pub wants: Vec<(String, Node)>,
+    /// What it asks for, in the order the item writes it.
+    pub wants: Vec<Want>,
     /// The sentences it concludes.
     pub gives: Vec<Node>,
     /// The library's functions it applies, which are no letters of its: a
@@ -45,6 +65,11 @@ pub struct Group {
 }
 
 impl Group {
+    /// The facts it asks, read, in order.
+    pub fn asked(&self) -> impl Iterator<Item = &Node> {
+        self.wants.iter().map(|w| &w.tree)
+    }
+
     /// The letters free in what the group asks for and concludes: the
     /// item's own, which a citation gives values for, and not those a
     /// binder in it holds.
@@ -52,9 +77,7 @@ impl Group {
         &self,
         binders: &FxIndexMap<NotationId, Binds>,
     ) -> BTreeSet<String> {
-        self.wants
-            .iter()
-            .map(|(_, t)| t)
+        self.asked()
             .chain(&self.gives)
             .flat_map(|t| free_names(t, binders))
             .collect()
@@ -67,9 +90,7 @@ impl Group {
     fn bound_apart(self, binders: &FxIndexMap<NotationId, Binds>) -> Group {
         let free = self.free_names(binders);
         let used: BTreeSet<String> = self
-            .wants
-            .iter()
-            .map(|(_, t)| t)
+            .asked()
             .chain(&self.gives)
             .flat_map(|t| t.names())
             .collect();
@@ -77,7 +98,10 @@ impl Group {
         let wants = self
             .wants
             .iter()
-            .map(|(s, t)| (s.clone(), apart(t)))
+            .map(|w| Want {
+                tree: apart(&w.tree),
+                ..w.clone()
+            })
             .collect();
         let gives = self.gives.iter().map(apart).collect();
         Group {
@@ -97,7 +121,7 @@ impl Group {
 }
 
 /// Every fact the groups ask, in order.
-fn wants_of(groups: &[Group]) -> Vec<(String, Node)> {
+fn wants_of(groups: &[Group]) -> Vec<Want> {
     groups
         .iter()
         .flat_map(|g| g.wants.iter().cloned())
@@ -578,12 +602,16 @@ impl<'a> Library<'a> {
         let k = self.proved.get(proof)?;
         let (said, proved) = (self.read_record(i), self.read_proved(k));
         let (wants, proved_wants) = (wants_of(&said), wants_of(&proved));
-        for (n, ((text, a), (other, b))) in wants.iter().zip(&proved_wants).enumerate()
-        {
-            if !written_alike(std::slice::from_ref(a), std::slice::from_ref(b)) {
+        for (n, (a, b)) in wants.iter().zip(&proved_wants).enumerate() {
+            if !written_alike(
+                std::slice::from_ref(&a.tree),
+                std::slice::from_ref(&b.tree),
+            ) {
                 return Some(format!(
-                    "its fact {} is {text} where the proof's is {other}",
-                    n + 1
+                    "its fact {} is {} where the proof's is {}",
+                    n + 1,
+                    a.text,
+                    b.text
                 ));
             }
         }
@@ -631,21 +659,24 @@ impl<'a> Library<'a> {
         // citation may spell their letters as two.
         let names: BTreeSet<String> = read_facts
             .iter()
-            .map(|(_, t)| t)
+            .map(|w| &w.tree)
             .chain(&read_gives)
             .flat_map(|t| t.names())
             .collect();
         let own = defines_apart(&own, &names, &self.ctx.binders);
-        let facts: Vec<(String, Node)> = read_facts
+        let facts: Vec<Want> = read_facts
             .into_iter()
-            .map(|(text, tree)| (text, standard(&expand(&tree, &own), &self.ctx)))
+            .map(|w| Want {
+                tree: standard(&expand(&w.tree, &own), &self.ctx),
+                ..w
+            })
             .collect();
         let gives: Vec<Node> = read_gives
             .iter()
             .map(|t| standard(&expand(t, &own), &self.ctx))
             .collect();
         let functions = applied_functions(
-            gives.iter().chain(facts.iter().map(|(_, t)| t)),
+            gives.iter().chain(facts.iter().map(|w| &w.tree)),
             &lines,
             &k.sorts,
             self.env,
@@ -675,7 +706,7 @@ impl<'a> Library<'a> {
             let wants = self.facts(&lines, sorts);
             let gives = self.trees(&[Written::new(text, &item.path, *at)], sorts);
             let functions = applied_functions(
-                gives.iter().chain(wants.iter().map(|(_, t)| t)),
+                gives.iter().chain(wants.iter().map(|w| &w.tree)),
                 &lines,
                 sorts,
                 self.env,
@@ -712,16 +743,22 @@ impl<'a> Library<'a> {
     }
 
     /// What each hypothesis asks of a citation, by the sentence that says
-    /// it, read.
-    fn facts(&self, lines: &[(Intro, Written)], sorts: &Sorts) -> Vec<(String, Node)> {
+    /// it, read, and where it stands: `lines` are the item's hypotheses from
+    /// its first, in order.
+    fn facts(&self, lines: &[(Intro, Written)], sorts: &Sorts) -> Vec<Want> {
         let mut out = Vec::new();
-        let mut keep =
-            |text: String, tree: &Node| out.push((text, standard(tree, &self.ctx)));
-        for (kind, body) in lines {
+        for (line, (kind, body)) in lines.iter().enumerate() {
+            let mut keep = |sentence: usize, text: String, tree: &Node| {
+                out.push(Want {
+                    text,
+                    tree: standard(tree, &self.ctx),
+                    at: HypothesisAt { line, sentence },
+                })
+            };
             if *kind != Intro::Let {
-                for sentence in body.sentences() {
+                for (at, sentence) in body.sentences().iter().enumerate() {
                     if let Ok(tree) = sentence.read(self.env.g, sorts) {
-                        keep(sentence.text().to_string(), &tree);
+                        keep(at, sentence.text().to_string(), &tree);
                     }
                 }
                 continue;
@@ -749,16 +786,16 @@ impl<'a> Library<'a> {
                 | Form::Part { .. } => {
                     // A part that does not read is `check_statements`'s to
                     // report.
-                    for tree in
-                        introduced.asserted(self.env.g, sorts).unwrap_or_default()
-                    {
-                        keep(self.env.g.print(&tree), &tree);
+                    let asserted =
+                        introduced.asserted(self.env.g, sorts).unwrap_or_default();
+                    for (at, tree) in asserted.iter().enumerate() {
+                        keep(at, self.env.g.print(tree), tree);
                     }
                 }
                 _ => {
-                    for sentence in body.sentences() {
+                    for (at, sentence) in body.sentences().iter().enumerate() {
                         if let Ok(tree) = sentence.read(self.env.g, sorts) {
-                            keep(sentence.text().to_string(), &tree);
+                            keep(at, sentence.text().to_string(), &tree);
                         }
                     }
                 }

@@ -135,12 +135,12 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.11. calculation
       have r238_3 : 2 * s ≠ 0 := by exact s9_2
       have s9_20_11 : abs (a n * (b n - M)) < ε / 2 := by
-        calc abs (a n * (b n - M)) < s * (ε / (2 * s)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) (by parley_side) s9_20_10 s9_20_4)
+        calc abs (a n * (b n - M)) < s * (ε / (2 * s)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) s3 s9_20_10 s9_20_4)
           _ = ε / 2 := by parley_ring
       -- 9.20.12. calculation
       have r246_2 : 2 * t ≠ 0 := by exact s9_5
       have s9_20_12 : abs (M * (a n - L)) < ε / 2 := by
-        calc abs (M * (a n - L)) < t * (ε / (2 * t)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) (by parley_side) s8 s9_20_5.2)
+        calc abs (M * (a n - L)) < t * (ε / (2 * t)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) s6 s8 s9_20_5.2)
           _ = ε / 2 := by parley_ring
       -- 9.20.13. algebra
       have s9_20_13 : a n * b n - L * M = a n * (b n - M) + M * (a n - L) := by parley_ring

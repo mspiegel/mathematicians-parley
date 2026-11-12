@@ -53,8 +53,8 @@ theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
       have hI : (c.ncard : ℤ) = m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + m) : Set ℤ)) (u := c))).mp (by parley_set_side)).2)
       exact hI
     -- 2.2. thm:last-place n := m, from 2.1
-    have s2_2a : (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) \ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) (le_of_lt hH1) (n := m) (le_of_lt hH1) (c := c) (by parley_set_side) (by parley_set_side)).1
-    have s2_2b : (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) (le_of_lt hH1) (n := m) (le_of_lt hH1) (c := c) (by parley_set_side) (by parley_set_side)).2
+    have s2_2a : (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) \ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) (le_of_lt hH1) (n := m) (le_of_lt hH1) (c := c) s2_1a (by parley_set_side)).1
+    have s2_2b : (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) (le_of_lt hH1) (n := m) (le_of_lt hH1) (c := c) s2_1a (by parley_set_side)).2
     -- 2.3. D1, from S1
     have s2_3 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by parley_set_side
     -- 2.4. calculation

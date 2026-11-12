@@ -34,7 +34,7 @@ theorem images_of_parts_under_a_one_to_one_map {α : Type*} (A : Set α) (B : Se
       -- 1.3. mun:in-subset X := F[C], Y := F[D], u := F(t), from D1, 1.2
       have s1_3 : F t ∈ F '' (A ∩ D) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := F '' (A ∩ C)) (Y := F '' (A ∩ D)) (u := F t) hD1 s1_2)
       -- 1.4. thm:image-of-a-point-under-a-one-to-one-map X := t, Y := D, from H3, H5, 1.1
-      have s1_4 : F t ∈ F '' (A ∩ D) ↔ t ∈ D := by exact (Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap.image_of_a_point_under_a_one_to_one_map (A := A) (B := B) (F := F) hH3 (X := t) s1_1 (Y := D) (by parley_set_side))
+      have s1_4 : F t ∈ F '' (A ∩ D) ↔ t ∈ D := by exact (Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap.image_of_a_point_under_a_one_to_one_map (A := A) (B := B) (F := F) hH3 (X := t) s1_1 (Y := D) hH5)
       -- 1.5. mun:iff-from-left P := F(t) ∈ F[D], Q := t ∈ D, from 1.3, 1.4
       exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := F t ∈ F '' (A ∩ D)) (Q := t ∈ D) s1_4 s1_3)
     -- 2. def:subset, from 1

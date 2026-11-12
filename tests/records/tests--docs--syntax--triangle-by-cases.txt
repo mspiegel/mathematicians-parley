@@ -2,9 +2,9 @@ theorem tests/docs/syntax/triangle-by-cases
 block of 2: 2.1, 2.2
   part 0 owes |a + b| ≤ |a| + |b|
   part 1 owes |a + b| ≤ |a| + |b|
-step 1 cites stdlib/numbers/nonneg-or-neg group 0; x := a + b; concludes 0 AsWritten; from no line; supplied by unstated; letters x cr from cr; facing none; met as written
-step 2.1 cites tests/docs/syntax/sum-nonneg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line; supplied by once H1 sentence 0, once H2 sentence 0, C1 sentence 0; letters a cr from cr, b cr from cr; facing none; met as written
-step 2.2 cites tests/docs/syntax/sum-neg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line; supplied by once H1 sentence 0, once H2 sentence 0, C2 sentence 0; letters a cr from cr, b cr from cr; facing none; met as written
+step 1 cites stdlib/numbers/nonneg-or-neg group 0; x := a + b; concludes 0 AsWritten; from no line; supplied by 1.1 unstated; letters x cr from cr; facing none; met as written
+step 2.1 cites tests/docs/syntax/sum-nonneg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0, 3.1 C1 sentence 0; letters a cr from cr, b cr from cr; facing none; met as written
+step 2.2 cites tests/docs/syntax/sum-neg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line; supplied by 1.1 once H1 sentence 0, 2.1 once H2 sentence 0, 3.1 C2 sentence 0; letters a cr from cr, b cr from cr; facing none; met as written
 read 76: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
 read 78: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
 read 79: b ∈ ℝ  as  membership:∈(name:b, number-systems:ℝ)  a statement

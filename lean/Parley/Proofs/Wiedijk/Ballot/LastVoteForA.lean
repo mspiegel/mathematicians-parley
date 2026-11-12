@@ -191,7 +191,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.14. D1, from 8.13
     have s8_14 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := by parley_set_side
     -- 8.15. thm:lead-to-the-end c := T ∪ {m + n}, from H3, 8.8, 8.12, 8.14
-    have s8_15 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd.lead_to_the_end (m := m) (le_of_lt hH1) (n := n) (le_of_lt hH2) (c := T ∪ ({m + n} : Set ℤ)) (by parley_set_side) hH3 (by parley_set_side) (by parley_set_side))
+    have s8_15 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd.lead_to_the_end (m := m) (le_of_lt hH1) (n := n) (le_of_lt hH2) (c := T ∪ ({m + n} : Set ℤ)) s8_8 hH3 (by parley_set_side) (by parley_set_side))
     -- 8.16. def:part-builder u := T ∪ {m + n}, X := {1, …, m + n}, from 8.8, 8.12
     have s8_16 : T ∪ ({m + n} : Set ℤ) ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := T ∪ ({m + n} : Set ℤ)))).mpr ⟨s8_8, by parley_set_side⟩
     -- 8.17. def:set-builder u := T ∪ {m + n}, from D2, 8.15, 8.16

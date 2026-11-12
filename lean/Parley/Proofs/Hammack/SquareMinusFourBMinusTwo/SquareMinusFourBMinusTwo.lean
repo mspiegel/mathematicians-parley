@@ -42,7 +42,7 @@ theorem square_minus_four_b_minus_two (a : ℤ) (b : ℤ) :
   -- 3. def:even n := a², from 2
   have s3 : Even (a ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2))).mpr ⟨2 * b + 1, s2⟩
   -- 4. thm:even-square n := a, from 3
-  have s4 : Even a := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := a) (by parley_side))
+  have s4 : Even a := by exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := a) s3)
   -- 5. obtain k: def:even n := a, from 4
   obtain ⟨k, s5⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp s4
   -- 6. calculation

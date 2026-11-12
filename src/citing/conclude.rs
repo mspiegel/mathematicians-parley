@@ -613,7 +613,7 @@ impl Taken {
             return Vec::new();
         };
         let mut trees = group.gives.clone();
-        trees.extend(group.wants.iter().map(|(_, t)| t.clone()));
+        trees.extend(group.asked().cloned());
         let variables = group.letters(&trees);
         let mut sites = Sites::new();
         for t in &trees {
@@ -640,12 +640,12 @@ impl Taken {
         groups: &[Group],
         facts: &[Node],
         library: &Library,
-    ) -> Vec<(Node, Option<Node>)> {
+    ) -> Vec<Supplying> {
         let Some(group) = groups.get(self.group) else {
             return Vec::new();
         };
         let mut trees = group.gives.clone();
-        trees.extend(group.wants.iter().map(|(_, t)| t.clone()));
+        trees.extend(group.asked().cloned());
         let variables = group.letters(&trees);
         let mut sites = Sites::new();
         for t in &trees {
@@ -654,12 +654,46 @@ impl Taken {
         group
             .wants
             .iter()
-            .map(|(_, want)| {
-                let fact =
-                    supplier(want, facts, &self.binding, &variables, library, &sites);
-                (want.clone(), fact.cloned())
+            .map(|want| {
+                let fact = supplier(
+                    &want.tree,
+                    facts,
+                    &self.binding,
+                    &variables,
+                    library,
+                    &sites,
+                );
+                Supplying {
+                    want: want.tree.clone(),
+                    fact: fact.cloned(),
+                    at: Some(want.at),
+                }
             })
             .collect()
+    }
+}
+
+/// A fact a citation must supply, and what supplies it where that is
+/// already found.
+pub struct Supplying {
+    /// The fact as the item asks it, in the item's letters.
+    pub want: Node,
+    /// The fact that states it under the citation's binding (`supplier`);
+    /// None where it is still to be looked for.
+    pub fact: Option<Node>,
+    /// Where the item writes it, for a hypothesis of an item; None for a
+    /// fact that is none, a value's domain or an exhibit's.
+    pub at: Option<super::library::HypothesisAt>,
+}
+
+impl Supplying {
+    /// A fact that is no item's hypothesis, to be looked for.
+    pub fn sought(want: Node) -> Supplying {
+        Supplying {
+            want,
+            fact: None,
+            at: None,
+        }
     }
 }
 
@@ -845,7 +879,7 @@ struct Offer {
 
 impl Offer {
     fn of(group: &Group, library: &Library) -> Offer {
-        let (want, gives) = (&group.wants, &group.gives);
+        let gives = &group.gives;
         let mut candidates: Vec<(Node, Vec<Node>)> = Vec::new();
         let mut from = Vec::new();
         let mut ways = Vec::new();
@@ -871,15 +905,13 @@ impl Offer {
                 }
             }
         }
-        let need: Vec<Node> = want
-            .iter()
-            .flat_map(|(_, t)| conjuncts(t, library))
-            .collect();
-        for (_, t) in want {
+        let need: Vec<Node> =
+            group.asked().flat_map(|t| conjuncts(t, library)).collect();
+        for t in group.asked() {
             binding_sites(t, &library.ctx, &[], &mut sites);
         }
         let mut trees = gives.clone();
-        trees.extend(want.iter().map(|(_, t)| t.clone()));
+        trees.extend(group.asked().cloned());
         let variables = group.letters(&trees);
         let free = group.free_names(&library.ctx.binders);
         // A conclusion is a sentence, so one that is a bare letter of the
@@ -937,11 +969,8 @@ pub fn obtained(
     library: &Library,
 ) -> Route<Taken> {
     for (group, of) in groups.iter().enumerate() {
-        let (wants, gives) = (&of.wants, &of.gives);
-        let asked: Vec<Node> = wants
-            .iter()
-            .flat_map(|(_, t)| conjuncts(t, library))
-            .collect();
+        let gives = &of.gives;
+        let asked: Vec<Node> = of.asked().flat_map(|t| conjuncts(t, library)).collect();
         for (sentence, concl) in gives.iter().enumerate() {
             let mut sites = Sites::new();
             binding_sites(concl, &library.ctx, &[], &mut sites);
@@ -1107,9 +1136,9 @@ pub fn derives(
         return true;
     }
     for group in groups {
-        let (want, gives) = (&group.wants, &group.gives);
+        let gives = &group.gives;
         let mut trees = gives.clone();
-        trees.extend(want.iter().map(|(_, t)| t.clone()));
+        trees.extend(group.asked().cloned());
         let variables = group.letters(&trees);
         for concl in gives {
             let Some(binding) = match_tree(
@@ -1122,7 +1151,7 @@ pub fn derives(
             ) else {
                 continue;
             };
-            if want.iter().all(|(_, t)| {
+            if group.asked().all(|t| {
                 derives(
                     &substitute_apart(t, &binding, &library.ctx),
                     groups,

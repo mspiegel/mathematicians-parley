@@ -2480,7 +2480,7 @@ fn header_function(
         Binder::Fact {
             name: line_name(&d.label),
             says,
-            line: None,
+            at: None,
         },
     ])
 }
@@ -2708,7 +2708,7 @@ fn header_recursions(
         out.push(Binder::Fact {
             name: line_name(&d.label),
             says: rules_said(&k, starts, steps),
-            line: None,
+            at: None,
         });
     }
     Route::Built(out)
@@ -2716,12 +2716,22 @@ fn header_recursions(
 
 /// Hypothesis sentences, each its tree and its Lean name, as `binders`
 /// takes them.
-fn asked_of(written: &[(Node, String)]) -> Vec<Asked<'_>> {
+/// A hypothesis sentence of a theorem as its statement states it.
+struct StatedHypothesis {
+    /// The sentence with the defines written out (`defined_out`).
+    node: Node,
+    /// Its Lean name.
+    name: String,
+    at: crate::citing::HypothesisAt,
+}
+
+fn asked_of(written: &[StatedHypothesis]) -> Vec<Asked<'_>> {
     written
         .iter()
-        .map(|(node, name)| Asked {
-            node,
-            name: name.clone(),
+        .map(|h| Asked {
+            node: &h.node,
+            name: h.name.clone(),
+            at: h.at,
         })
         .collect()
 }
@@ -2851,16 +2861,23 @@ fn statement(
             _ => true,
         }
     };
-    let mut written_above: Vec<(Node, String)> = Vec::new();
-    let mut written_below: Vec<(Node, String)> = Vec::new();
-    for (label, s) in &said {
+    let mut written_above: Vec<StatedHypothesis> = Vec::new();
+    let mut written_below: Vec<StatedHypothesis> = Vec::new();
+    for (line, (label, s)) in said.iter().enumerate() {
         let into = match above(label) {
             true => &mut written_above,
             false => &mut written_below,
         };
         for s in s {
             if let Some(name) = &s.name {
-                into.push((defined_out(&s.node, rec, writer), name.clone()));
+                into.push(StatedHypothesis {
+                    node: defined_out(&s.node, rec, writer),
+                    name: name.clone(),
+                    at: crate::citing::HypothesisAt {
+                        line,
+                        sentence: s.at,
+                    },
+                });
             }
         }
     }
@@ -7384,36 +7401,43 @@ impl<'a> Proof<'a> {
     /// the part of one the citation names or the `let` line that says it
     /// once, or the step's requires line, or what one of those implies,
     /// meeting `wanted`, the hypothesis as Lean asks it at the citation's
-    /// values. None where no line supplies it, or the line says it
+    /// values. Declined where no line supplies it, or the line says it
     /// otherwise than Lean asks.
-    fn supplied_proof(&self, by: &SuppliedBy, wanted: &Printed) -> Option<Printed> {
+    fn supplied_proof(&self, by: &SuppliedBy, wanted: &Printed) -> Route<Printed> {
         if item_counts(wanted) {
-            return None;
+            return Route::no("a count Lean asks");
         }
         let (proof, says) = match by {
-            SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => {
-                self.line_says(at).built()?
-            }
+            SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => match self.line_says(at)
+            {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
+            },
             SuppliedBy::Requires { line, implied } => {
-                let step = &self.thm.steps[self.step_now.get()?];
+                let Some(step) = self.step_now.get() else {
+                    return Route::no("a requires line outside a step");
+                };
+                let step = &self.thm.steps[step];
                 let name = format!("r{}_{}", step.line, line + 1);
-                let [said] = self.trees.get(&name)?.as_slice() else {
-                    return None;
+                let Some([said]) = self.trees.get(&name).map(Vec::as_slice) else {
+                    return Route::no("a requires line not one sentence");
                 };
                 match implied {
-                    None => (
-                        super::tactics::hyp(&name),
-                        self.line_statement(&said.cited()).built()?,
-                    ),
+                    None => match self.line_statement(&said.cited()) {
+                        Route::Built(s) => (super::tactics::hyp(&name), s),
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
                     // What the line implies is what the checker found
                     // `wanted` to be.
-                    Some(rule) => (
-                        self.implied_proof(&said.cited(), *rule, wanted).built()?,
-                        wanted.clone(),
-                    ),
+                    Some(rule) => {
+                        match self.implied_proof(&said.cited(), *rule, wanted) {
+                            Route::Built(p) => (p, wanted.clone()),
+                            Route::Declined(d) => return Route::Declined(d),
+                        }
+                    }
                 }
             }
-            SuppliedBy::Unstated => return None,
+            SuppliedBy::Unstated => return Route::no("no line states it"),
         };
         use super::doc::forms;
         // A line in another type than Lean asks, `(10^(k + 1) : ℤ) > 0` for
@@ -7436,7 +7460,12 @@ impl<'a> Proof<'a> {
                     super::casts::norm_cast_lifts_relation(&says, &to)
                 })
                 && super::casts::norm_cast_moves_all(wanted);
-            forms::meets(&says, wanted, &self.set_values()).filter(|_| lifts)?;
+            if !lifts {
+                return Route::no("a line in another type no cast takes across");
+            }
+            if forms::meets(&says, wanted, &self.set_values()).is_none() {
+                return Route::no("a line in another type that does not meet it");
+            }
             let proof = match (relation_symbol(&says), relation_symbol(wanted)) {
                 (Some(">"), Some("<")) => turned_order("gt_iff_lt.mp", proof),
                 (Some("≥"), Some("≤")) => turned_order("ge_iff_le.mp", proof),
@@ -7444,15 +7473,18 @@ impl<'a> Proof<'a> {
                 (Some("≤"), Some("≥")) => turned_order("ge_iff_le.mpr", proof),
                 _ => proof,
             };
-            return Some(super::tactics::by_term(super::doc::Proof::By(
+            return Route::Built(super::tactics::by_term(super::doc::Proof::By(
                 super::tactics::exact_mod_cast(proof),
             )));
         }
         // One whose type is known on one side alone is not known to meet it.
         if !forms::relation_types_agree(&says, wanted) {
-            return None;
+            return Route::no("a line whose type is known on one side alone");
         }
-        self.proof_meeting(proof, &says, wanted).map(Proved::term)
+        match self.proof_meeting(proof, &says, wanted) {
+            Some(p) => Route::Built(p.term()),
+            None => Route::no("a line that does not meet it"),
+        }
     }
 
     /// The proof that the value an instantiation gives `letter` is in its
@@ -7471,7 +7503,7 @@ impl<'a> Proof<'a> {
             .find(|g| g.letter == letter)
             .and_then(|g| {
                 let wanted = self.writer.formula(&g.written).built()?;
-                self.supplied_proof(&g.by, &wanted)
+                self.supplied_proof(&g.by, &wanted).built()
             })
             .unwrap_or_else(|| side_term(&[]))
     }
@@ -8355,6 +8387,7 @@ impl<'a> Proof<'a> {
             return side_term(known);
         };
         self.supplied_proof(&shown.by, wanted)
+            .built()
             .unwrap_or_else(|| side_term(&[]))
     }
 
@@ -8609,7 +8642,7 @@ impl<'a> Proof<'a> {
                 let at = self.at_values(&s.want, &cited.binding);
                 let (value, system) = membership_of_whole(&at)?;
                 let wanted = self.writer.formula(&at).built()?;
-                let proof = self.supplied_proof(&s.by, &wanted)?;
+                let proof = self.supplied_proof(&s.by, &wanted).built()?;
                 Some(ShownWhole {
                     term: value.clone(),
                     proof: nonneg_of(system, proof),
@@ -9895,7 +9928,9 @@ impl<'a> Proof<'a> {
         // where it found it supplied, as Lean states it at the values.
         for (k, condition) in recorded.conditions.iter().enumerate() {
             let proof = match &instance {
-                Route::Built(i) => self.supplied_proof(&condition.by, &i.conditions[k]),
+                Route::Built(i) => {
+                    self.supplied_proof(&condition.by, &i.conditions[k]).built()
+                }
                 Route::Declined(_) => None,
             };
             args.push(proof.unwrap_or_else(|| side_term(&[])));
@@ -12884,26 +12919,21 @@ impl<'a> Proof<'a> {
                     }
                 }
                 // A hypothesis the checker found a line or a requires line
-                // supplies (`Cited::supplied`), a letter's number system
+                // supplies (`Cited::supplied`), found by where the item
+                // writes it (`Supplied::at`), a letter's number system
                 // among them: that line by its name, met with the
                 // hypothesis as Lean asks it at the values given, as it
                 // stands or by its casts (`supplied_proof`). Where none
                 // does, and the citation gives the hypothesis's set all of
                 // ℝ or a range, what the lines say read as the item asks
                 // it (`parley_whole_side`); else `parley_side`.
-                Binder::Fact { line, says, .. } => {
+                Binder::Fact { at, says, .. } => {
                     let wanted = super::doc::forms::substituted_all(says, &given);
-                    let proof = line.as_ref().and_then(|line| {
+                    let proof = at.as_ref().and_then(|at| {
                         supplied
                             .iter()
-                            .find(|s| {
-                                crate::matching::alike_top(
-                                    &s.want,
-                                    line,
-                                    self.sources.ctx,
-                                )
-                            })
-                            .and_then(|s| self.supplied_proof(&s.by, &wanted))
+                            .find(|s| s.at.as_ref() == Some(at))
+                            .and_then(|s| self.supplied_proof(&s.by, &wanted).built())
                     });
                     let search = || match self.given_whole(says, binding) {
                         true => super::tactics::by_term(super::doc::Proof::By(
@@ -13759,6 +13789,7 @@ impl<'a> Proof<'a> {
             return side_term(known);
         }
         self.supplied_proof(by, wanted)
+            .built()
             .unwrap_or_else(|| side_term(&[]))
     }
 

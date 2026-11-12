@@ -64,7 +64,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
       have s4_6_1 : abs (x n - L) < ε / (2 * (abs C + 1)) := by exact (s4_5b n hK2 hA2)
       -- 4.6.2. membership, from H1
       -- 4.6.3. thm:scaled-small u := x(n) − L, from A1, 4.6.1, 4.6.2
-      have s4_6_3 : abs (C * (x n - L)) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) (by parley_side) s4_6_1)
+      have s4_6_3 : abs (C * (x n - L)) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) hA1 s4_6_1)
       -- 4.6.4. substitute
       have c1 : C * (x n - L) = C * x n - C * L := by parley_ring
       have row1 : abs (C * x n - C * L) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s4_6_3; push_cast at h ⊢; all_goals exact_mod_cast h)

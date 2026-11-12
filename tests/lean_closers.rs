@@ -345,6 +345,13 @@ const SITES: &[Site] = &[
         list: false,
         why: "a transitivity chain in ℝ whose claim is in ℤ: composed, then taken to the claim's type by exact_mod_cast",
     },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/PreimageOfParabola/PreimageOfParabola.lean",
+        step: "1.7.1",
+        holds: "square_window_out (t := u) hC1 s1_4 s1_5).1",
+        list: false,
+        why: "a theorem proved on another page, cited: each hypothesis by the line the checker found it in, found by where the theorem writes it (Supplied::at)",
+    },
 ];
 
 /// The lines of the step `step` in `text`: from its comment to the next

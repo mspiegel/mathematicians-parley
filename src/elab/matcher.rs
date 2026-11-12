@@ -4668,7 +4668,7 @@ impl<'a> Elaborator<'a> {
                     .is_some_and(|v| v.notation() == crate::notations::PROPERTY_OF)
         };
         let mut nodes = Vec::new();
-        for s in group.wants.iter().map(|(_, w)| w).chain(&group.gives) {
+        for s in group.asked().chain(&group.gives) {
             for node in s.walk() {
                 if applied(&node) {
                     nodes.extend(

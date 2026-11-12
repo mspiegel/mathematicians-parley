@@ -167,12 +167,7 @@ fn general_kind(
     if free.iter().any(|f| f.fixed) {
         return None;
     }
-    let nodes: Vec<&Node> = group
-        .wants
-        .iter()
-        .map(|(_, n)| n)
-        .chain(std::iter::once(says))
-        .collect();
+    let nodes: Vec<&Node> = group.asked().chain(std::iter::once(says)).collect();
     // What the letters are numbers of, and what its functions give: a sum's
     // term t : {a, …, b} → ℝ is a function into any ring of the kind.
     let given = functions
@@ -348,9 +343,8 @@ fn free_letters(
     >,
 ) -> Vec<FreeLetter> {
     let stated: Vec<Node> = group
-        .wants
-        .iter()
-        .map(|(_, n)| n.clone())
+        .asked()
+        .cloned()
         .chain(std::iter::once(says.clone()))
         .collect();
     let statements = statement_letters(&stated, w);
@@ -410,9 +404,7 @@ fn free_letters(
         }
     }
     let introduced: Vec<String> = group
-        .wants
-        .iter()
-        .map(|(_, n)| n)
+        .asked()
         .chain(functions)
         .filter_map(|n| {
             super::statement::range_letter(n)
@@ -916,7 +908,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .and_then(|i| checked.library.record_sorts.get(&i));
             let lines: Vec<&Node> = functions
                 .iter()
-                .chain(group.wants.iter().map(|(_, n)| n))
+                .chain(group.asked())
                 .chain(std::iter::once(says))
                 .collect();
             let things = ThingTypes::read(&lines, sorts);
@@ -935,12 +927,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             }
             // A letter the sorts leave out that stands as a member of a set,
             // the u of "u ∈ Y ∖ Z", is a member of that set's kind.
-            let said: Vec<&Node> = group
-                .wants
-                .iter()
-                .map(|(_, n)| n)
-                .chain(std::iter::once(says))
-                .collect();
+            let said: Vec<&Node> = group.asked().chain(std::iter::once(says)).collect();
             // A set of numbers, which its sort does not say the type of, is
             // of the numbers the item puts it among: D of D ⊆ ℝ, D ∈ 𝒫ℝ.
             // Or of the numbers of a set it is joined with or taken from:
@@ -1077,10 +1064,11 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .wants
                 .iter()
                 .enumerate()
-                .filter(|(_, (text, _))| !groups_let.iter().any(|g| g.text == *text))
-                .map(|(i, (_, node))| Asked {
-                    node,
+                .filter(|(_, want)| !groups_let.iter().any(|g| g.text == want.text))
+                .map(|(i, want)| Asked {
+                    node: &want.tree,
                     name: format!("h{}", i + 1),
+                    at: want.at,
                 })
                 .collect();
             // A letter of the item that stands for a statement, the P of
@@ -1095,9 +1083,8 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 })
                 .collect();
             let stated: Vec<Node> = group
-                .wants
-                .iter()
-                .map(|(_, n)| n.clone())
+                .asked()
+                .cloned()
                 .chain(std::iter::once(says.clone()))
                 .collect();
             let said = statement_letters(&stated, writer);
@@ -1250,7 +1237,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         vec![map, a.clone(), b],
                         super::doc::LeanType::Prop,
                     ),
-                    line: None,
+                    at: None,
                 });
                 w.domains.insert(f.text.to_string(), a);
             }
@@ -1263,8 +1250,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             } else {
                 format!("{base}_{}", sentences.len() + 1)
             };
-            let mut stated: Vec<Node> =
-                group.wants.iter().map(|(_, n)| n.clone()).collect();
+            let mut stated: Vec<Node> = group.asked().cloned().collect();
             stated.push(says.clone());
             let arithmetic = super::readback::page_arithmetic(&w, &stated);
             sentences.push(Sentence {
