@@ -22,6 +22,9 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
@@ -320,9 +323,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.11. algebra
     have s16_11 : 10 ^ n.toNat * (((N n : ℚ) + 1) / 10 ^ n.toNat) = (N n : ℚ) + 1 := by parley_ring
     -- 16.12. transitivity, from 16.10, 16.8
-    have s16_12 : (N n : ℝ) ≤ 10 ^ n.toNat * c := by exact Eq.trans_le (show 10 ^ n.toNat * ((N n : ℝ) / 10 ^ n.toNat) = (N n : ℝ) by exact_mod_cast s16_10).symm s16_8
+    have s16_12 : (N n : ℝ) ≤ 10 ^ n.toNat * c := by exact Eq.trans_le (show 10 ^ n.toNat * ((N n : ℝ) / 10 ^ n.toNat) = (N n : ℝ) by have h := (Rat.cast_inj (α := ℝ)).mpr s16_10; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h).symm s16_8
     -- 16.13. transitivity, from 16.9, 16.11
-    have s16_13 : 10 ^ n.toNat * c ≤ (N n : ℝ) + 1 := by exact LE.le.trans_eq s16_9 (show 10 ^ n.toNat * (((N n : ℝ) + 1) / 10 ^ n.toNat) = (N n : ℝ) + 1 by exact_mod_cast s16_11)
+    have s16_13 : 10 ^ n.toNat * c ≤ (N n : ℝ) + 1 := by exact LE.le.trans_eq s16_9 (show 10 ^ n.toNat * (((N n : ℝ) + 1) / 10 ^ n.toNat) = (N n : ℝ) + 1 by have h := (Rat.cast_inj (α := ℝ)).mpr s16_11; simp only [Rat.cast_add, Rat.cast_mul, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)
     -- 16.14. mun:floor-integer x := 10^n·c
     -- 16.15. mun:floor-below x := 10^n·c
     have s16_15 : (⌊10 ^ n.toNat * c⌋ : ℝ) ≤ 10 ^ n.toNat * c := by exact (Parley.Items.Stdlib.Numbers.mun_floor_below (x := 10 ^ n.toNat * c))

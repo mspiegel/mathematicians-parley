@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
-public import OrderTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
@@ -22,6 +21,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Cast.Order.Ring
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.BigOperators
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
@@ -81,6 +85,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   -- 2.8. inequalities
   have s2_8 : 0 ≤ g := by linarith only [s2_6]
   -- 2.9. inequalities, from 2.7, 2.8
-  parley_order
+  have h : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) + 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) := by linarith only [s2_7, s2_8]
+  exact (Rat.cast_le (K := ℝ)).mp (by simp only [Rat.cast_sum, Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast]; exact h)
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtMost

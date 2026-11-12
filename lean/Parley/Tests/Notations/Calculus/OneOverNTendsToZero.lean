@@ -6,6 +6,9 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
@@ -49,11 +52,11 @@ theorem one_over_n_tends_to_zero :
       -- 1.2.3. inequalities
       have s1_2_3 : 0 - ε < 0 := by linarith only [hA1]
       -- 1.2.4. transitivity, from 1.2.3, 1.2.2
-      have s1_2_4 : 0 - ε < 1 / (n : ℝ) := by exact lt_trans s1_2_3 (show 1 / (n : ℝ) > 0 by exact_mod_cast s1_2_2)
+      have s1_2_4 : 0 - ε < 1 / (n : ℝ) := by exact lt_trans s1_2_3 (show 1 / (n : ℝ) > 0 by have h := (Rat.cast_lt (K := ℝ)).mpr s1_2_2; simp only [Rat.cast_div, Rat.cast_zero, Rat.cast_one, Rat.cast_intCast] at h; exact h)
       -- 1.2.5. inequalities, from 1.1
       have s1_2_5 : 1 / (N : ℝ) < ε := by linarith only [s1_1b]
       -- 1.2.6. transitivity, from 1.2.1, 1.2.5
-      have s1_2_6 : 1 / (n : ℝ) < 0 + ε := by linarith only [(show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by exact_mod_cast s1_2_1), s1_2_5]
+      have s1_2_6 : 1 / (n : ℝ) < 0 + ε := by linarith only [(show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_2_1; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h), s1_2_5]
       -- 1.2.7. mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from 1.2.4, 1.2.6
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / (n : ℝ)) (c := (0 : ℝ)) (δ := ε))).mpr ⟨s1_2_4, s1_2_6⟩
     -- 1.3. exhibit, from 1.2

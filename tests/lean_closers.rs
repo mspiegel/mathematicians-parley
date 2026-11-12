@@ -24,18 +24,18 @@ struct Site {
 
 const SITES: &[Site] = &[
     Site {
+        file: "lean/Parley/Proofs/Setmm/HalvesSeries/HalvesSeries.lean",
+        step: "3.2.5",
+        holds: "have h := (Rat.cast_le (K := ℝ)).mpr s3_2_4; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h",
+        list: false,
+        why: "a link of ℚ taken to ℝ: the relation cast whole, then pushed down by ℚ's cast lemmas, never through ℕ as exact_mod_cast would",
+    },
+    Site {
         file: "lean/Parley/Proofs/Hammack/InverseSquareHasNoLimit/InverseSquareHasNoLimit.lean",
         step: "10.12",
         holds: "exact Eq.trans_lt hD1 s10_7",
         list: false,
         why: "a chain whose first link is a define's equation: the define's hypothesis, as the checker placed the link (`links`)",
-    },
-    Site {
-        file: "lean/Parley/Proofs/Hammack/InverseSquareHasNoLimit/InverseSquareHasNoLimit.lean",
-        step: "10.7",
-        holds: "(show 1 / (j : ℝ) ≤ 1 / (m : ℝ) by exact_mod_cast s10_3)",
-        list: false,
-        why: "a chain's link in ℚ beside links in ℝ: taken up to ℝ by exact_mod_cast, its letters' casts read as ℤ to ℚ to ℝ",
     },
     Site {
         file: "lean/Parley/Proofs/Hammack/QuadraticOverLinearDiverges/QuadraticOverLinearDiverges.lean",

@@ -48,6 +48,21 @@
 {"key":"Or.elim","kind":"const","modules":[]}
 {"key":"Polynomial.aeval","kind":"const","modules":["Mathlib.Algebra.Polynomial.AlgebraMap"]}
 {"key":"Polynomial.bernoulli","kind":"const","modules":["Mathlib.NumberTheory.BernoulliPolynomials"]}
+{"key":"Rat.cast_add","kind":"const","modules":["Mathlib.Data.Rat.Cast.CharZero"]}
+{"key":"Rat.cast_div","kind":"const","modules":["Mathlib.Data.Rat.Cast.CharZero"]}
+{"key":"Rat.cast_inj","kind":"const","modules":["Mathlib.Data.Rat.Cast.CharZero"]}
+{"key":"Rat.cast_intCast","kind":"const","modules":["Mathlib.Data.Rat.Cast.Defs"]}
+{"key":"Rat.cast_le","kind":"const","modules":["Mathlib.Data.Rat.Cast.Order"]}
+{"key":"Rat.cast_lt","kind":"const","modules":["Mathlib.Data.Rat.Cast.Order"]}
+{"key":"Rat.cast_mul","kind":"const","modules":["Mathlib.Data.Rat.Cast.CharZero"]}
+{"key":"Rat.cast_natCast","kind":"const","modules":["Mathlib.Data.Rat.Cast.Defs"]}
+{"key":"Rat.cast_neg","kind":"const","modules":["Mathlib.Data.Rat.Cast.Defs"]}
+{"key":"Rat.cast_ofNat","kind":"const","modules":["Mathlib.Data.Rat.Cast.Defs"]}
+{"key":"Rat.cast_one","kind":"const","modules":["Mathlib.Data.Rat.Cast.Defs"]}
+{"key":"Rat.cast_pow","kind":"const","modules":["Mathlib.Data.Rat.Cast.Lemmas"]}
+{"key":"Rat.cast_sub","kind":"const","modules":["Mathlib.Data.Rat.Cast.CharZero"]}
+{"key":"Rat.cast_sum","kind":"const","modules":["Mathlib.Data.Rat.BigOperators"]}
+{"key":"Rat.cast_zero","kind":"const","modules":["Mathlib.Data.Rat.Cast.Defs"]}
 {"key":"Rat.den","kind":"const","modules":[]}
 {"key":"Rat.num","kind":"const","modules":[]}
 {"key":"Real.arctan","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan"]}
@@ -328,6 +343,9 @@
 {"key":"Or.elim (sorry : Prop) (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Polynomial.aeval (sorry : ℂ) a","kind":"term","modules":["Mathlib.Algebra.Algebra.Defs","Mathlib.Algebra.Algebra.Hom","Mathlib.Algebra.Polynomial.AlgebraMap","Mathlib.Algebra.Polynomial.Basic","Mathlib.Algebra.Ring.Defs","Mathlib.Basic.Complex.Basic","Mathlib.Basic.FunLike.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"Polynomial.bernoulli (sorry : ℕ)","kind":"term","modules":["Mathlib.NumberTheory.BernoulliPolynomials","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"Rat.cast_inj (α := (sorry : Prop))","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Data.Rat.Cast.CharZero"]}
+{"key":"Rat.cast_le (K := (sorry : Prop))","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Data.Rat.Cast.Order"]}
+{"key":"Rat.cast_lt (K := (sorry : Prop))","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Data.Rat.Cast.Order"]}
 {"key":"Rat.den (sorry : ℚ)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Rat.num (sorry : ℚ)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Real.arctan (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan"]}

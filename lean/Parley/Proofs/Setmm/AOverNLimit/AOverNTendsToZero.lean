@@ -13,6 +13,9 @@ public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
@@ -70,7 +73,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       have s5_4_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_2))).mp (by parley_side)
       -- 5.4.2. transitivity, from 5.4.1, 5.3
       have r62_1 : 2 * (abs A + 1) ≠ 0 := ne_of_gt (by linarith only [s3])
-      have s5_4_2 : 1 / (n : ℝ) < ε / (2 * (abs A + 1)) := by exact lt_of_le_of_lt (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by exact_mod_cast s5_4_1) s5_3b
+      have s5_4_2 : 1 / (n : ℝ) < ε / (2 * (abs A + 1)) := by exact lt_of_le_of_lt (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s5_4_1; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s5_3b
       -- 5.4.3. mun:reciprocal-positive x := n
       have r66_1 : n > 0 := by linarith only [hK3]
       have s5_4_3 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r66_1))

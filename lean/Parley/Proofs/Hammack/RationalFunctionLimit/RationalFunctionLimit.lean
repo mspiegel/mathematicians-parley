@@ -12,6 +12,10 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
@@ -107,15 +111,15 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have r135_2 : n > 0 := by parley_side
       have s1_2_26 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_2))).mp (by parley_side)
       -- 1.2.27. transitivity, from 1.2.26, 1.1
-      have s1_2_27 : 1 / (n : ℝ) < ε := by exact lt_of_le_of_lt (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by exact_mod_cast s1_2_26) s1_1b
+      have s1_2_27 : 1 / (n : ℝ) < ε := by exact lt_of_le_of_lt (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_2_26; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s1_1b
       -- 1.2.28. transitivity, from 1.2.8, 1.2.15, 1.2.27
-      have s1_2_28 : a n - 5 / 4 < ε := by exact lt_trans (Eq.trans_lt s1_2_8 (show (2 * (n : ℝ) - 3) / (8 * (n : ℝ) ^ 2 + 4) < 1 / (n : ℝ) by exact_mod_cast s1_2_15)) s1_2_27
+      have s1_2_28 : a n - 5 / 4 < ε := by exact lt_trans (Eq.trans_lt s1_2_8 (show (2 * (n : ℝ) - 3) / (8 * (n : ℝ) ^ 2 + 4) < 1 / (n : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr s1_2_15; simp only [Rat.cast_add, Rat.cast_sub, Rat.cast_mul, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) s1_2_27
       -- 1.2.29. inequalities
       have s1_2_29 : a n < 5 / 4 + ε := by linarith only [s1_2_28]
       -- 1.2.30. inequalities
       have s1_2_30 : -ε < -(1 / (n : ℝ)) := by linarith only [s1_2_27]
       -- 1.2.31. transitivity, from 1.2.30, 1.2.25, 1.2.8
-      have s1_2_31 : -ε < a n - 5 / 4 := by exact LT.lt.trans_eq (lt_trans s1_2_30 (show -(1 / (n : ℝ)) < (2 * (n : ℝ) - 3) / (8 * (n : ℝ) ^ 2 + 4) by exact_mod_cast s1_2_25)) s1_2_8.symm
+      have s1_2_31 : -ε < a n - 5 / 4 := by exact LT.lt.trans_eq (lt_trans s1_2_30 (show -(1 / (n : ℝ)) < (2 * (n : ℝ) - 3) / (8 * (n : ℝ) ^ 2 + 4) by have h := (Rat.cast_lt (K := ℝ)).mpr s1_2_25; simp only [Rat.cast_add, Rat.cast_sub, Rat.cast_mul, Rat.cast_div, Rat.cast_neg, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) s1_2_8.symm
       -- 1.2.32. inequalities
       have s1_2_32 : 5 / 4 - ε < a n := by linarith only [s1_2_31]
       -- 1.2.33. join 1.2.32, 1.2.29

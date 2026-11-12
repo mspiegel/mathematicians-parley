@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -23,6 +22,10 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
@@ -110,7 +113,7 @@ theorem halves_series :
       have r115_2 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s3_2_1]
       have s3_2_4 : 1 / 2 ^ n.toNat ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_1) (y := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_2))).mp (by parley_side)
       -- 3.2.5. transitivity, from 3.2.4, 3.1
-      have s3_2_5 : 1 / 2 ^ n.toNat < ε := by parley_order
+      have s3_2_5 : 1 / 2 ^ n.toNat < ε := by exact lt_of_le_of_lt (show 1 / 2 ^ n.toNat ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s3_2_4; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h) s3_1b
       -- 3.2.6. mun:reciprocal-positive x := 2^n
       have r123_1 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s3_2_1]
       have s3_2_6 : (1 / 2 ^ n.toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r123_1))
@@ -119,7 +122,7 @@ theorem halves_series :
       -- 3.2.8. inequalities
       have s3_2_8 : (-(1 / 2 ^ n.toNat) : ℚ) < 0 := by linarith only [s3_2_6]
       -- 3.2.9. transitivity, from 3.2.8, A1
-      have s3_2_9 : -(1 / 2 ^ n.toNat) < ε := by parley_order
+      have s3_2_9 : -(1 / 2 ^ n.toNat) < ε := by exact lt_trans (show (-(1 / 2 ^ n.toNat) : ℝ) < 0 by have h := (Rat.cast_lt (K := ℝ)).mpr s3_2_8; simp only [Rat.cast_div, Rat.cast_neg, Rat.cast_pow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat] at h; exact h) hA1
       -- 3.2.10. inequalities
       have s3_2_10 : 1 - 1 / 2 ^ n.toNat < 1 + ε := by linarith only [s3_2_9]
       -- 3.2.11. join 3.2.7, 3.2.10

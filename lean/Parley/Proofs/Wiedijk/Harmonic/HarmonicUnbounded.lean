@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -19,6 +18,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.BigOperators
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
@@ -79,7 +83,7 @@ theorem harmonic_unbounded (M : ℝ) :
   -- 5. inequalities
   have s5 : (N : ℝ) / 2 > M := by linarith only [s3b]
   -- 6. transitivity, from 4, 5
-  have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℝ) : ℝ)) > M := by parley_order
+  have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℝ) : ℝ)) > M := by exact lt_of_lt_of_le s5 (show (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℝ) : ℝ)) ≥ (N : ℝ) / 2 by have h := (Rat.cast_le (K := ℝ)).mpr s4; simp only [Rat.cast_sum, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)
   -- 7. exhibit, from 6
   exact ⟨(2 ^ N.toNat : ℤ), by parley_side, s6⟩
 

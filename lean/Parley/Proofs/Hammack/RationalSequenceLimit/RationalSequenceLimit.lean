@@ -7,6 +7,9 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
@@ -72,7 +75,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_12 : 5 * (1 / (9 * (n : ℚ) - 3)) > 0 := by linarith only [s1_2_11]
       -- 1.2.13. transitivity, from 1.2.12, 1.2.10
       have r82_1 : 9 * n - 3 ≠ 0 := by exact s1_2_9
-      have s1_2_13 : a n - 2 / 3 > 0 := by exact LT.lt.trans_eq (show 5 * (1 / (9 * (n : ℝ) - 3)) > 0 by exact_mod_cast s1_2_12) s1_2_10.symm
+      have s1_2_13 : a n - 2 / 3 > 0 := by exact LT.lt.trans_eq (show 5 * (1 / (9 * (n : ℝ) - 3)) > 0 by have h := (Rat.cast_lt (K := ℝ)).mpr s1_2_12; simp only [Rat.cast_sub, Rat.cast_mul, Rat.cast_div, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h) s1_2_10.symm
       -- 1.2.14. inequalities
       have s1_2_14 : a n > 2 / 3 := by linarith only [s1_2_13]
       -- 1.2.15. inequalities
@@ -94,7 +97,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_20 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r117_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r117_2))).mp (by parley_side)
       -- 1.2.21. transitivity, from 1.2.10, 1.2.18, 1.2.19, 1.2.20, 1.1
       have r122_1 : 9 * n - 3 ≠ 0 := by exact s1_2_9
-      have s1_2_21 : a n - 2 / 3 < ε := by exact lt_of_le_of_lt (le_trans (LE.le.trans_eq (Eq.trans_le s1_2_10 (show 5 * (1 / (9 * (n : ℝ) - 3)) ≤ 5 * (1 / (5 * (n : ℝ))) by exact_mod_cast s1_2_18)) (show 5 * (1 / (5 * (n : ℝ))) = 1 / (n : ℝ) by exact_mod_cast s1_2_19)) (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by exact_mod_cast s1_2_20)) s1_1b
+      have s1_2_21 : a n - 2 / 3 < ε := by exact lt_of_le_of_lt (le_trans (LE.le.trans_eq (Eq.trans_le s1_2_10 (show 5 * (1 / (9 * (n : ℝ) - 3)) ≤ 5 * (1 / (5 * (n : ℝ))) by have h := (Rat.cast_le (K := ℝ)).mpr s1_2_18; simp only [Rat.cast_sub, Rat.cast_mul, Rat.cast_div, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) (show 5 * (1 / (5 * (n : ℝ))) = 1 / (n : ℝ) by have h := (Rat.cast_inj (α := ℝ)).mpr s1_2_19; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_2_20; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h)) s1_1b
       -- 1.2.22. inequalities
       have s1_2_22 : a n < 2 / 3 + ε := by linarith only [s1_2_21]
       -- 1.2.23. join 1.2.16, 1.2.22

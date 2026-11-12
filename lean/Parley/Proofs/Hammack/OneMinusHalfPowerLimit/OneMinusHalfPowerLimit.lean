@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -19,6 +18,10 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
@@ -90,7 +93,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       have r72_2 : n > 0 := by parley_side
       have s2_2_4 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by parley_side)
       -- 2.2.5. transitivity, from 2.2.3, 2.2.4, 2.1
-      have s2_2_5 : 1 / 2 ^ n.toNat < ε := by parley_order
+      have s2_2_5 : 1 / 2 ^ n.toNat < ε := by exact lt_of_le_of_lt (le_trans (show 1 / 2 ^ n.toNat ≤ 1 / (n : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s2_2_3; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h) (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s2_2_4; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h)) s2_1b
       -- 2.2.6. inequalities
       have s2_2_6 : 1 - ε < 1 - 1 / 2 ^ n.toNat := by linarith only [s2_2_5]
       -- 2.2.7. transitivity, from 2.2.6, H2
@@ -102,7 +105,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.10. inequalities
       have s2_2_10 : 1 < 1 + ε := by linarith only [hA1]
       -- 2.2.11. transitivity, from H2, 2.2.9, 2.2.10
-      have s2_2_11 : a n < 1 + ε := by have := (hH2 n hK2); parley_order
+      have s2_2_11 : a n < 1 + ε := by exact lt_trans (Eq.trans_lt (hH2 n hK2) (show (1 - 1 / 2 ^ n.toNat : ℝ) < 1 by have h := (Rat.cast_lt (K := ℝ)).mpr s2_2_9; simp only [Rat.cast_sub, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h)) s2_2_10
       -- 2.2.12. join 2.2.7, 2.2.11
       have s2_2_12 : 1 - ε < a n ∧ a n < 1 + ε := by parley_side
       -- 2.2.13. mun:abs-difference-lt x := a(n), c := 1, δ := ε, from 2.2.12

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Field.Rat
@@ -18,7 +17,12 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
@@ -83,13 +87,13 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       have r156_1 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s1_3_8]
       have s1_3_9 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 ^ n.toNat : ℚ)) (y := (LeanBridges.Counting.factorial n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r156_1) (by exact_mod_cast gt_iff_lt.mp s1_3_1))
       -- 1.3.10. transitivity, from 1.3.9, H2
-      have s1_3_10 : 0 < a n := by have := (hH2 n hK2); parley_order
+      have s1_3_10 : 0 < a n := by exact LT.lt.trans_eq (show 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℝ) > 0 by have h := (Rat.cast_lt (K := ℝ)).mpr s1_3_9; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_zero, Rat.cast_ofNat, Rat.cast_natCast] at h; exact h) (hH2 n hK2).symm
       -- 1.3.11. inequalities
       have s1_3_11 : 0 - ε < 0 := by linarith only [hA1]
       -- 1.3.12. transitivity, from 1.3.11, 1.3.10
       have s1_3_12 : 0 - ε < a n := by exact lt_trans s1_3_11 s1_3_10
       -- 1.3.13. transitivity, from H2, 1.3.4, 1.3.6, 1.3.7
-      have s1_3_13 : a n < ε := by have := (hH2 n hK2); parley_order
+      have s1_3_13 : a n < ε := by exact lt_of_le_of_lt (le_trans (Eq.trans_le (hH2 n hK2) (show 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℝ) ≤ 4 / (n : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_4; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast, Rat.cast_natCast] at h; exact h)) (show 4 / (n : ℝ) ≤ 4 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_6; simp only [Rat.cast_div, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) s1_3_7
       -- 1.3.14. join 1.3.12, 1.3.13
       have s1_3_14 : 0 - ε < a n ∧ a n < ε := by parley_side
       -- 1.3.15. mun:abs-difference-lt x := a(n), c := 0, δ := ε, from 1.3.14

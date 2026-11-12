@@ -1384,33 +1384,176 @@ fn number_type(says: &Printed) -> Option<super::templates::Num> {
     }
 }
 
-/// Whether `norm_cast` carries the relation `narrow` states into `wide`,
-/// the same relation in a wider type. Not an order from ℚ to ℝ:
-/// - over a sum, a product or an integral, whose casts under the binder it
-///   does not bring out (`∑ k, (1 / 2 ^ k : ℚ) ≤ 2` stays apart from the
-///   same sum in ℝ);
-/// - with a power of a numeral among its terms, `1 / 2 ^ n.toNat`, which it
-///   rewrites in ℚ to a form it then does not cast (`(1 : ℚ) / ↑(2 ^ n)
-///   ≤ Rat.divInt 1 N` against the goal's `↑(Rat.divInt 1 N)`, measured on
-///   HalvesSeries).
-///
-/// `1 / (j : ℚ) ≤ 1 / (m : ℚ)` and `(j : ℚ) < 2` cross.
-fn cast_crosses(narrow: &Printed, wide: &Printed) -> bool {
-    use super::doc::TermKind;
+/// Whether the relation `narrow` states in ℚ is taken to `wide`, the same
+/// relation in ℝ.
+fn rat_crossing(narrow: &Printed, wide: &Printed) -> bool {
     use super::templates::Num;
-    let crossing = (number_type(narrow), number_type(wide));
-    let apart = |p: &Printed| {
-        p.walk().iter().any(|t| match &t.kind {
-            TermKind::Bound { .. } => true,
-            TermKind::Infix { op, lhs, .. } => {
-                op.symbol == "^" && matches!(lhs.kind, TermKind::Numeral(_))
-            }
-            _ => false,
-        })
+    (number_type(narrow), number_type(wide)) == (Some(Num::Rat), Some(Num::Real))
+}
+
+/// The lemma that casts a relation of ℚ to the same relation in a wider
+/// field, by the relation: `Rat.cast_le`, `Rat.cast_lt`, `Rat.cast_inj`.
+/// None of a disequality or anything else.
+fn rat_relation_lemma(says: &Printed) -> Option<&'static str> {
+    match relation_symbol(says)? {
+        "≤" | "≥" => Some("Rat.cast_le"),
+        "<" | ">" => Some("Rat.cast_lt"),
+        "=" => Some("Rat.cast_inj"),
+        _ => None,
+    }
+}
+
+/// `(Rat.cast_le (K := ℝ))`: the relation lemma `lemma` at the field `to`.
+fn rat_relation_at(lemma: &str, to: super::templates::Num) -> Printed {
+    use super::doc::{Arg, LeanType, Source, TermKind};
+    // Mathlib names the field `α` in `Rat.cast_inj` and `K` in the orders'.
+    let field = match lemma {
+        "Rat.cast_inj" => "α",
+        _ => "K",
     };
-    crossing != (Some(Num::Rat), Some(Num::Real))
-        || matches!(relation_symbol(wide), Some("=" | "≠"))
-        || !(apart(narrow) || apart(wide))
+    super::tactics::bracket(Printed::of(
+        TermKind::App {
+            head: Box::new(Printed::head(lemma, Source::Mathlib)),
+            args: vec![Arg::Named {
+                name: field.to_string(),
+                value: Printed::letter(to.lean(), LeanType::Prop),
+            }],
+            explicit: false,
+        },
+        LeanType::Prop,
+    ))
+}
+
+/// The lemmas that push a cast from ℚ through each operation `says`
+/// holds, down to its letters and numerals, in a fixed order: ℚ's own
+/// (`Rat.cast_div`, `Rat.cast_pow`, …), never a step through ℕ.
+fn rat_cast_lemmas(says: &Printed) -> Vec<super::doc::Rule> {
+    use super::doc::{BoundForm, TermKind};
+    const ORDER: [&str; 14] = [
+        "Rat.cast_sum",
+        "Rat.cast_prod",
+        "Rat.cast_add",
+        "Rat.cast_sub",
+        "Rat.cast_mul",
+        "Rat.cast_div",
+        "Rat.cast_neg",
+        "Rat.cast_pow",
+        "Rat.cast_inv",
+        "Rat.cast_zero",
+        "Rat.cast_one",
+        "Rat.cast_ofNat",
+        "Rat.cast_intCast",
+        "Rat.cast_natCast",
+    ];
+    let mut used = std::collections::BTreeSet::new();
+    for t in says.walk() {
+        let lemma = match &t.kind {
+            TermKind::Infix { op, .. } => match op.symbol {
+                "+" => "Rat.cast_add",
+                "-" => "Rat.cast_sub",
+                "*" => "Rat.cast_mul",
+                "/" => "Rat.cast_div",
+                "^" => "Rat.cast_pow",
+                _ => continue,
+            },
+            TermKind::Neg(_) => "Rat.cast_neg",
+            TermKind::Postfix { .. } => "Rat.cast_inv",
+            TermKind::Bound {
+                form: BoundForm::BigOp { product, .. },
+                ..
+            } => match product {
+                true => "Rat.cast_prod",
+                false => "Rat.cast_sum",
+            },
+            TermKind::Numeral(n) => match n.as_str() {
+                "0" => "Rat.cast_zero",
+                "1" => "Rat.cast_one",
+                _ => "Rat.cast_ofNat",
+            },
+            TermKind::Cast { inner, .. } => match &inner.ty {
+                Some(super::doc::LeanType::Num(super::templates::Num::Int)) => {
+                    "Rat.cast_intCast"
+                }
+                Some(super::doc::LeanType::Num(super::templates::Num::Nat)) => {
+                    "Rat.cast_natCast"
+                }
+                _ => continue,
+            },
+            _ => continue,
+        };
+        used.insert(lemma);
+    }
+    ORDER
+        .iter()
+        .filter(|l| used.contains(*l))
+        .map(|l| super::tactics::forwards(super::tactics::lemma(l)))
+        .collect()
+}
+
+/// A fact of ℚ, `proof` of `narrow`, stated in ℝ as `wide`: the relation
+/// cast whole by its lemma, then the cast pushed down by ℚ's cast lemmas
+/// alone. `exact_mod_cast` would first write a power of a numeral, `(2 :
+/// ℚ) ^ n`, as a cast of ℕ, which it cannot then move through a division,
+/// and leave the fact in ℚ and the goal in ℝ (measured on HalvesSeries).
+/// None of a relation with no such lemma.
+fn rat_to_real(proof: Printed, narrow: &Printed, wide: Printed) -> Option<Printed> {
+    use super::doc::{LeanType, Proof, TermKind};
+    use super::tactics as t;
+    let lemma = rat_relation_lemma(narrow)?;
+    let to = number_type(&wide)?;
+    let cast = Printed::of(
+        TermKind::App {
+            head: Box::new(fields(rat_relation_at(lemma, to), &["mpr"])),
+            args: vec![super::doc::Arg::Explicit(proof)],
+            explicit: false,
+        },
+        LeanType::Prop,
+    );
+    let steps = vec![
+        Tactic::Name {
+            name: "h".to_string(),
+            term: cast,
+        },
+        t::simp_only(false, None, rat_cast_lemmas(&wide), Some(t::at_h(false))),
+        Tactic::Exact(t::hyp("h")),
+    ];
+    Some(t::bracket(shown(wide, Proof::By(Tactic::Seq(steps)))))
+}
+
+/// A claim of ℚ, `narrow`, proved from `wide`, the same relation in ℝ,
+/// which `proof` proves: its relation lemma backwards, the goal's cast
+/// pushed down by ℚ's cast lemmas alone, as `rat_to_real` goes up. None of
+/// a relation with no such lemma.
+fn real_to_rat(
+    proof: super::doc::Proof,
+    narrow: &Printed,
+    wide: Printed,
+) -> Option<super::doc::Proof> {
+    use super::doc::{LeanType, Proof, TermKind};
+    use super::tactics as t;
+    let lemma = rat_relation_lemma(narrow)?;
+    let to = number_type(&wide)?;
+    let lemmas = rat_cast_lemmas(&wide);
+    let pushed = Proof::By(Tactic::Seq(vec![
+        t::simp_only(false, None, lemmas, None),
+        Tactic::Exact(t::hyp("h")),
+    ]));
+    let back = Printed::of(
+        TermKind::App {
+            head: Box::new(fields(rat_relation_at(lemma, to), &["mp"])),
+            args: vec![super::doc::Arg::Explicit(t::bracket(t::by_term(pushed)))],
+            explicit: false,
+        },
+        LeanType::Prop,
+    );
+    Some(Proof::Block(vec![
+        Tactic::Have {
+            name: "h".to_string(),
+            says: wide,
+            proof: Box::new(proof),
+        },
+        Tactic::Exact(back),
+    ]))
 }
 
 /// Whether `exact_mod_cast` takes the relation `narrow` states to the same
@@ -8875,6 +9018,23 @@ impl<'a> Proof<'a> {
         let Some(claim) = self.claim_as_stated(just.line, node) else {
             return Route::no("a chain's claim Lean does not state");
         };
+        // A claim of ℚ is taken back from the chain in ℝ by ℚ's cast lemmas
+        // (`real_to_rat`).
+        if let Some(to) = widest.filter(|w| number_type(&claim) != Some(*w)) {
+            let wide = match self.writer.closed_formula(node, to) {
+                Route::Built(w) => w,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            if rat_crossing(&claim, &wide) {
+                let chained = super::doc::Proof::Term(proof);
+                return match real_to_rat(chained, &claim, wide) {
+                    Some(p) => Route::Built(p),
+                    None => Route::no(
+                        "a chain's claim of ℚ taken from ℝ by no relation lemma",
+                    ),
+                };
+            }
+        }
         let tactic = match number_type(&claim) == widest {
             true => Tactic::Exact(proof),
             false => super::tactics::exact_mod_cast(proof),
@@ -8884,12 +9044,12 @@ impl<'a> Proof<'a> {
 
     /// A fact an order step or a chain adds, in the number type `to`: as
     /// it stands where Lean states it there, or where `to` is none; else
-    /// stated in `to` and taken up by `(show T by exact_mod_cast f)`, which
-    /// `linarith` reads before it runs, where an ascription's proof is
-    /// left to after. Only where `norm_cast` moves every cast of both
-    /// statements (the cast table) and does not carry an order from ℚ to
-    /// ℝ (`cast_crosses`), and never a define's kind, which the page writes
-    /// of the define's value and Lean proves of its letter.
+    /// stated in `to` and taken up within a `show T by …`, which `linarith`
+    /// reads before it runs, where an ascription's proof is left to after.
+    /// From ℚ to ℝ by ℚ's cast lemmas (`rat_to_real`); between other types
+    /// by `exact_mod_cast`, where `norm_cast` moves every cast
+    /// (`lifts_whole`). Never a define's kind, which the page writes of the
+    /// define's value and Lean proves of its letter.
     fn fact_in_type(
         &self,
         f: OrderFactTerm,
@@ -8906,7 +9066,14 @@ impl<'a> Proof<'a> {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
-        if !(cast_crosses(&f.says, &says) && lifts_whole(&f.says, to)) {
+        // From ℚ to ℝ by ℚ's cast lemmas (`rat_to_real`), not `norm_cast`.
+        if rat_crossing(&f.says, &says) {
+            return match rat_to_real(f.proof, &f.says, says) {
+                Some(p) => Route::Built(p),
+                None => Route::no("a fact of ℚ taken to ℝ by no relation lemma"),
+            };
+        }
+        if !lifts_whole(&f.says, to) {
             return Route::no(format!(
                 "a fact {} in a narrower type than norm_cast takes up to {}",
                 f.says.text(),
@@ -9123,18 +9290,25 @@ impl<'a> Proof<'a> {
                 Route::Built(s) => s,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            // `exact_mod_cast` takes the claim back where `norm_cast` moves
-            // every cast of both statements (the cast table).
-            if !(cast_crosses(&wanted, &says)
-                && super::casts::norm_cast_moves_all(&says)
-                && super::casts::norm_cast_moves_all(&wanted))
-            {
-                return Route::no("an order step's claim in a narrower type than norm_cast takes it to");
-            }
             let proof = match linear.kind {
                 TermKind::By(proof) => *proof,
                 _ => Proof::By(Tactic::Exact(linear)),
             };
+            // A claim of ℚ is taken back from ℝ by ℚ's cast lemmas
+            // (`real_to_rat`).
+            if rat_crossing(&wanted, &says) {
+                return match real_to_rat(proof, &wanted, says) {
+                    Some(p) => Route::Built(p),
+                    None => Route::no("a claim of ℚ taken from ℝ by no relation lemma"),
+                };
+            }
+            // `exact_mod_cast` takes the claim back where `norm_cast` moves
+            // every cast of both statements (the cast table).
+            if !(super::casts::norm_cast_moves_all(&says)
+                && super::casts::norm_cast_moves_all(&wanted))
+            {
+                return Route::no("an order step's claim in a narrower type than norm_cast takes it to");
+            }
             return Route::Built(Proof::By(super::tactics::exact_mod_cast(
                 super::tactics::bracket(shown(says, proof)),
             )));

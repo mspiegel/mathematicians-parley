@@ -13,6 +13,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Basic
@@ -83,7 +84,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 15. algebra
   have s15 : r + (s - r) = s := by parley_ring
   -- 16. transitivity, from D1, 14, 15
-  have s16 : u < (s : ℝ) := by exact LT.lt.trans_eq (Eq.trans_lt hD1 s14) (show (r : ℝ) + ((s : ℝ) - (r : ℝ)) = (s : ℝ) by exact_mod_cast s15)
+  have s16 : u < (s : ℝ) := by exact LT.lt.trans_eq (Eq.trans_lt hD1 s14) (show (r : ℝ) + ((s : ℝ) - (r : ℝ)) = (s : ℝ) by have h := (Rat.cast_inj (α := ℝ)).mpr s15; simp only [Rat.cast_add, Rat.cast_sub] at h; exact h)
   -- 17. contradiction
   have s17 : ¬ (∃ m : ℚ, (m : ℝ) = u) := by
     intro hS

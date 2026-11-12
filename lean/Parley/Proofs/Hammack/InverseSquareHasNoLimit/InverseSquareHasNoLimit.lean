@@ -16,6 +16,9 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
@@ -95,7 +98,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s10_6 : 1 / (2 / p) = p / 2 := by parley_ring
     -- 10.7. transitivity, from 10.3, 10.5, 10.6, 8
     have r93_1 : p ≠ 0 := by exact s5
-    have s10_7 : 1 / (j : ℝ) < p := by exact lt_of_le_of_lt (LE.le.trans_eq (le_trans (show 1 / (j : ℝ) ≤ 1 / (m : ℝ) by exact_mod_cast s10_3) s10_5) s10_6) s8
+    have s10_7 : 1 / (j : ℝ) < p := by exact lt_of_le_of_lt (LE.le.trans_eq (le_trans (show 1 / (j : ℝ) ≤ 1 / (m : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s10_3; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s10_5) s10_6) s8
     set t : ℝ := 1 / (j : ℝ) with hD1
     have hD1_kind : True := by parley_set_side
     -- 10.8. mun:reciprocal-positive x := j, from D1, 10.1

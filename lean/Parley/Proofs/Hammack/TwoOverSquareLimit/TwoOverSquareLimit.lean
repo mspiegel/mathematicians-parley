@@ -12,6 +12,10 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
@@ -81,13 +85,13 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.12. algebra, from H2
       have s1_3_12 : a n - 5 = 2 * (1 / (n : ℝ) ^ 2) := by linear_combination (norm := parley_field) (hH2 n hK2)
       -- 1.3.13. transitivity, from 1.3.12, 1.3.9, 1.3.10, 1.3.11
-      have s1_3_13 : a n - 5 < ε := by exact lt_of_le_of_lt (le_trans (Eq.trans_le s1_3_12 (show 2 * (1 / (n : ℝ) ^ 2) ≤ 2 * (1 / (n : ℝ)) by exact_mod_cast s1_3_9)) (show 2 * (1 / (n : ℝ)) ≤ 2 * (1 / (N : ℝ)) by exact_mod_cast s1_3_10)) s1_3_11
+      have s1_3_13 : a n - 5 < ε := by exact lt_of_le_of_lt (le_trans (Eq.trans_le s1_3_12 (show 2 * (1 / (n : ℝ) ^ 2) ≤ 2 * (1 / (n : ℝ)) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_9; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) (show 2 * (1 / (n : ℝ)) ≤ 2 * (1 / (N : ℝ)) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_10; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) s1_3_11
       -- 1.3.14. mun:reciprocal-positive x := n², from 1.3.6
       have s1_3_14 : 1 / (n : ℚ) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) ^ 2) (by exact_mod_cast gt_iff_lt.mp s1_3_6))
       -- 1.3.15. inequalities
       have s1_3_15 : 2 * (1 / (n : ℚ) ^ 2) > 0 := by linarith only [s1_3_14]
       -- 1.3.16. transitivity, from 1.3.15, 1.3.12
-      have s1_3_16 : 0 < a n - 5 := by exact LT.lt.trans_eq (show 2 * (1 / (n : ℝ) ^ 2) > 0 by exact_mod_cast s1_3_15) s1_3_12.symm
+      have s1_3_16 : 0 < a n - 5 := by exact LT.lt.trans_eq (show 2 * (1 / (n : ℝ) ^ 2) > 0 by have h := (Rat.cast_lt (K := ℝ)).mpr s1_3_15; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_pow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h) s1_3_12.symm
       -- 1.3.17. def:abs x := a(n) − 5
       have r99_2 : 0 ≤ a n - 5 := by linarith only [s1_3_16]
       have s1_3_17 : abs (a n - 5) = a n - 5 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a n - 5)) (by parley_side)
