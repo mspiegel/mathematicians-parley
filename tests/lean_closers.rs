@@ -24,6 +24,34 @@ struct Site {
 
 const SITES: &[Site] = &[
     Site {
+        file: "lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean",
+        step: "5",
+        holds: "by linarith only [s3b]",
+        list: false,
+        why: "rows from a line, each a linear move: linear arithmetic on the line the first row writes out, as the checker recorded it (`orders`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/FloorBelowNonInteger/FloorBelowNonInteger.lean",
+        step: "4",
+        holds: "exact Or.elim (Ne.lt_or_gt s3) (fun h1 => by linarith only [s1, h1]) (fun h1 => by linarith only [s1, h1])",
+        list: false,
+        why: "a disequality the combination takes both ways: split by Ne.lt_or_gt, each case linear arithmetic over the recorded facts",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/LimitUnique/LimitUnique.lean",
+        step: "3",
+        holds: "exact le_antisymm s1 s2",
+        list: false,
+        why: "antisymmetry: the line that says the claim's left side is at most its right, then the converse, as the checker paired them (`antisymmetric`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/RemainderBounds/RemainderNonnegative.lean",
+        step: "1",
+        holds: "ne_of_gt (by linarith only [hH3])",
+        list: false,
+        why: "rows ending in a weakening of `>` to `≠`: ne_of_gt of the order, linear arithmetic on the line",
+    },
+    Site {
         file: "lean/Parley/Proofs/Setmm/RemainderZero/NoRemainderIsWholeQuotient.lean",
         step: "3.4",
         holds: "(exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer",

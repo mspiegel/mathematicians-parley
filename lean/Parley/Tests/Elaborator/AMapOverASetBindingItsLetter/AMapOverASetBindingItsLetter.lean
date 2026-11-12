@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -25,6 +24,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -68,7 +68,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
       exact hI
     -- 2.2. inequalities
-    have s2_2 : x ≥ 0 := by parley_order
+    have s2_2 : x ≥ 0 := by linarith only [s2_1]
     -- 2.3. def:sqrt, from 2.1, 2.2
     have s2_3a : Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) s2_2)
     have s2_3b : Real.sqrt x ^ 2 = x := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x) s2_2)
@@ -90,7 +90,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have hI : 0 < c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2)
       exact hI
     -- 4.2. inequalities
-    have s4_2 : c ≥ 0 := by parley_order
+    have s4_2 : c ≥ 0 := by linarith only [s4_1]
     -- 4.3. def:sqrt x := c, from 4.1, 4.2
     have s4_3a : Real.sqrt c ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := c) s4_2)
     have s4_3b : Real.sqrt c ^ 2 = c := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := c) s4_2)
@@ -98,11 +98,11 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s4_4 : Real.sqrt c > 0 := by
       by_contra hS1
       -- 4.4.1. inequalities, from S1
-      have s4_4_1 : Real.sqrt c ≤ 0 := by parley_order
+      have s4_4_1 : Real.sqrt c ≤ 0 := by linarith only [hS1]
       -- 4.4.2. inequalities, from 4.3
-      have s4_4_2 : Real.sqrt c ≥ 0 := by parley_order
+      have s4_4_2 : Real.sqrt c ≥ 0 := by linarith only [s4_3a]
       -- 4.4.3. antisymmetry, from 4.4.1, 4.4.2
-      have s4_4_3 : Real.sqrt c = 0 := by parley_set_side
+      have s4_4_3 : Real.sqrt c = 0 := le_antisymm s4_4_1 s4_4_2
       -- 4.4.4. substitute √c = 0 (line 4.4.3)
       have s4_4_4 : Real.sqrt c ^ 2 = 0 ^ 2 := by (have h := congrArg (fun t : ℝ => t ^ 2) s4_4_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.4.5. arithmetic
@@ -113,15 +113,15 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
           _ = 0 ^ 2 := by exact s4_4_4
           _ = 0 := by parley_set_side
       -- 4.4.7. inequalities
-      have s4_4_7 : c ≤ 0 := by parley_order
+      have s4_4_7 : c ≤ 0 := by linarith only [s4_4_6]
       -- 4.4.8. inequalities, from 4.4.7
-      have s4_4_8 : ¬ c > 0 := by parley_set_side
+      have s4_4_8 : ¬ c > 0 := by linarith only [s4_4_7]
       exact s4_4_8 s4_1
     -- 4.5. mun:less-scaled x := 0, y := √c, c := ε, from A1, 4.3, 4.4
     have s4_5 : ε * 0 < ε * Real.sqrt c := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (0 : ℝ)) (y := Real.sqrt c) (c := ε) hA1)).mp s4_4
     -- 4.6. membership, from 4.3
     -- 4.7. inequalities, from 4.3, 4.5
-    have s4_7 : ε * Real.sqrt c > 0 := by parley_order
+    have s4_7 : ε * Real.sqrt c > 0 := by linarith only [s4_5]
     -- 4.8. proof
     have s4_8 : ∀ x ∈ D, abs (x - c) < ε * Real.sqrt c → abs (g x - g c) < ε := by
       intro x hK4
@@ -133,7 +133,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
         have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
         exact hI
       -- 4.8.2. inequalities
-      have s4_8_2 : x ≥ 0 := by parley_order
+      have s4_8_2 : x ≥ 0 := by linarith only [s4_8_1]
       -- 4.8.3. def:sqrt, from 4.8.1, 4.8.2
       have s4_8_3a : Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) s4_8_2)
       have s4_8_3b : Real.sqrt x ^ 2 = x := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x) s4_8_2)
@@ -148,7 +148,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.10. algebra, from 4.3, 4.8.3
       have s4_8_10 : (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = x - c := by linear_combination (norm := parley_norm) (-1) * s4_3b + s4_8_3b
       -- 4.8.11. inequalities, from 4.3, 4.8.3
-      have s4_8_11 : Real.sqrt x + Real.sqrt c ≥ 0 := by parley_order
+      have s4_8_11 : Real.sqrt x + Real.sqrt c ≥ 0 := by linarith only [s4_3a, s4_8_3a]
       -- 4.8.12. mun:abs-nonneg x := √x − √c, from 4.8.6
       have s4_8_12 : abs (Real.sqrt x - Real.sqrt c) ≥ 0 := by
         have hI : 0 ≤ abs (Real.sqrt x - Real.sqrt c) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ))))
@@ -173,7 +173,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.20. transitivity, from 4.8.17, 4.8.19
       have s4_8_20 : abs (x - c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by parley_set_side
       -- 4.8.21. inequalities
-      have s4_8_21 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by parley_order
+      have s4_8_21 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linarith only [s4_8_18]
       -- 4.8.22. transitivity, from 4.8.21, 4.8.20
       have s4_8_22 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (x - c) := by exact LE.le.trans_eq s4_8_21 s4_8_20.symm
       -- 4.8.23. algebra, from 4.3

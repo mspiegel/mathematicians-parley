@@ -10,6 +10,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -39,18 +40,18 @@ theorem one_over_n_tends_to_zero :
       intro n hK2
       intro hA2
       -- 1.2.1. mun:reciprocal-order x := N, y := n, from A2
-      have r238_1 : N > 0 := by parley_order
-      have r238_2 : n > 0 := by parley_order
+      have r238_1 : N > 0 := by linarith only [s1_1a]
+      have r238_2 : n > 0 := by linarith only [hK2]
       have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_2))).mp (by parley_side)
       -- 1.2.2. mun:reciprocal-positive x := n
-      have r243_1 : n > 0 := by parley_order
+      have r243_1 : n > 0 := by linarith only [hK2]
       have s1_2_2 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r243_1))
       -- 1.2.3. inequalities
-      have s1_2_3 : 0 - ε < 0 := by parley_order
+      have s1_2_3 : 0 - ε < 0 := by linarith only [hA1]
       -- 1.2.4. transitivity, from 1.2.3, 1.2.2
       have s1_2_4 : 0 - ε < 1 / (n : ℝ) := by parley_order
       -- 1.2.5. inequalities, from 1.1
-      have s1_2_5 : 1 / (N : ℝ) < ε := by parley_order
+      have s1_2_5 : 1 / (N : ℝ) < ε := by linarith only [s1_1b]
       -- 1.2.6. transitivity, from 1.2.1, 1.2.5
       have s1_2_6 : 1 / (n : ℝ) < 0 + ε := by parley_order
       -- 1.2.7. mun:abs-difference-lt x := 1/n, c := 0, δ := ε, from 1.2.4, 1.2.6

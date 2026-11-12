@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -16,6 +15,8 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -70,17 +71,17 @@ theorem powers_of_nine_in_powers_of_three :
       have s3_3_w : 1 = 2 * (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_3; push_cast at h; linear_combination (norm := parley_norm) h
       linear_combination (norm := parley_norm) ((-1) / ((2))) * s3_3_w
     -- 3.5. inequalities
-    have s3_5 : 1 / 2 ≤ (m : ℚ) := by parley_order
+    have s3_5 : 1 / 2 ≤ (m : ℚ) := by linarith only [s3_4]
     -- 3.6. inequalities, from 3.5
-    have s3_6 : 0 < m := by parley_order
+    have s3_6 : 0 < m := by exact_mod_cast (show 0 < (m : ℚ) by linarith only [s3_5])
     -- 3.7. mun:integer-step m := 0, n := m, from 3.6
     have s3_7 : 1 ≤ m := by simpa only [zero_add] using (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := m) s3_6)
     -- 3.8. inequalities
-    have s3_8 : 2 ≤ 2 * m := by parley_order
+    have s3_8 : 2 ≤ 2 * m := by linarith only [s3_7]
     -- 3.9. inequalities, from 3.8
-    have s3_9 : 1 < 2 * m := by parley_order
+    have s3_9 : 1 < 2 * m := by linarith only [s3_8]
     -- 3.10. inequalities
-    have s3_10 : 1 ≠ 2 * m := by parley_set_side
+    have s3_10 : 1 ≠ 2 * m := ne_of_lt (by linarith only [s3_9])
     exact s3_10 s3_3
   -- 4. contradiction
   have s4 : ¬ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) = (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by

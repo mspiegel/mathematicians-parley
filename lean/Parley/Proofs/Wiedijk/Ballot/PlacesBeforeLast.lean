@@ -1,12 +1,12 @@
 module
 
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -23,7 +23,7 @@ namespace Parley.Proofs.Wiedijk.Ballot.PlacesBeforeLast
 theorem places_before_last (p : ℤ) (N : ℤ) (hH3 : 1 ≤ p) (hH4 : p + 1 = N) :
     (Set.Icc (1 : ℤ) p : Set ℤ) = (Set.Icc (1 : ℤ) N : Set ℤ) \ ({N} : Set ℤ) := by
   -- 1. inequalities, from H3
-  have s1 : 0 < p := by parley_order
+  have s1 : 0 < p := by linarith only [hH3]
   -- 2. mun:pos-int-nat m := p, from 1
   have s2 : 0 < p := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s1)
   -- 3. mun:range-without-last n := p, from 2

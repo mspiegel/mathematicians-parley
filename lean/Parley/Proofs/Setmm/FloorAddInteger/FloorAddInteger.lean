@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
@@ -8,6 +7,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -28,9 +28,9 @@ theorem floor_add_integer (A : ℝ) (N : ℤ) :
   -- 3. mun:floor-above x := A
   have s3 : A < (⌊A⌋ : ℝ) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A))
   -- 4. inequalities
-  have s4 : (⌊A⌋ : ℝ) + (N : ℝ) ≤ A + (N : ℝ) := by parley_order
+  have s4 : (⌊A⌋ : ℝ) + (N : ℝ) ≤ A + (N : ℝ) := by linarith only [s2]
   -- 5. inequalities
-  have s5 : A + (N : ℝ) < (⌊A⌋ : ℝ) + (N : ℝ) + 1 := by parley_order
+  have s5 : A + (N : ℝ) < (⌊A⌋ : ℝ) + (N : ℝ) + 1 := by linarith only [s3]
   -- 6. mun:floor-between x := A + N, k := ⌊A⌋ + N, from 4, 5
   exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := A + (N : ℝ)) (k := ⌊A⌋ + N))).mpr ⟨by exact_mod_cast s4, by exact_mod_cast s5⟩
 

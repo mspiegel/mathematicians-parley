@@ -153,11 +153,35 @@ pub fn written_out(
         .values_mut()
         .flatten()
         .filter_map(|link| link.at.as_mut());
+    let order_facts = written
+        .orders
+        .values_mut()
+        .flat_map(|o| o.sentences.iter_mut().flatten())
+        .flat_map(|p| {
+            p.uses
+                .iter_mut()
+                .chain(p.split.iter_mut())
+                .chain(p.restates.as_mut().map(|r| &mut r.by))
+        });
+    let mut ordered = Vec::new();
+    for fact in order_facts {
+        match fact {
+            super::record::OrderFact::Line(at) => ordered.push(at),
+            super::record::OrderFact::Kind { written, .. } => *written = out(written),
+            _ => {}
+        }
+    }
+    let antisymmetric = written
+        .antisymmetric
+        .values_mut()
+        .flat_map(|a| [&mut a.below, &mut a.above]);
     for at in written
         .link_places
         .values_mut()
         .chain(written.restated.values_mut())
         .chain(chained)
+        .chain(ordered)
+        .chain(antisymmetric)
     {
         at.written = out(&at.written);
     }

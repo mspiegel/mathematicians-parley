@@ -1,8 +1,8 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 
@@ -15,6 +15,6 @@ namespace Parley.Tests.Elaborator.InequalityRows.ANegativeTurned
 theorem a_negative_turned (x : ℝ) (hH2 : x < 0) :
     0 < -x := by
   -- 1. inequalities
-  parley_order
+  linarith only [hH2]
 
 end Parley.Tests.Elaborator.InequalityRows.ANegativeTurned

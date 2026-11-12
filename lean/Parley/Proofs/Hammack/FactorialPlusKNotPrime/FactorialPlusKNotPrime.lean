@@ -3,7 +3,6 @@ module
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -13,6 +12,7 @@ public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -38,7 +38,7 @@ theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k �
   have s1a : 2 ≤ k := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := n) (k := k) hH2)
   have s1b : k ≤ n := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := n) (k := k) hH2)
   -- 2. inequalities, from 1
-  have s2 : 0 < k := by parley_order
+  have s2 : 0 < k := by linarith only [s1a]
   -- 3. mun:pos-int-nat m := k, from 2
   have s3 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s2)
   -- 4. mun:factorial-nat
@@ -66,16 +66,16 @@ theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k �
     rcases s9_3 with hC1 | hC2
     · skip
       -- 9.4.1. inequalities, from 1
-      have s9_4_1 : 1 < k := by parley_order
+      have s9_4_1 : 1 < k := by linarith only [s1a]
       -- 9.4.2. inequalities
-      have s9_4_2 : 1 ≠ k := by parley_side
+      have s9_4_2 : 1 ≠ k := ne_of_lt (by linarith only [s9_4_1])
       exact absurd hC1.symm s9_4_2
     · skip
       exact hC2
   -- 9.5. algebra, from 9.4
   have s9_5 : (LeanBridges.Counting.factorial n : ℤ) = 0 := by linear_combination (norm := parley_norm) (-1) * s9_4
   -- 9.6. inequalities, from 4
-  have s9_6 : (LeanBridges.Counting.factorial n : ℤ) ≠ 0 := by parley_side
+  have s9_6 : (LeanBridges.Counting.factorial n : ℤ) ≠ 0 := s4.ne'
   exact s9_6 s9_5
 
 end Parley.Proofs.Hammack.FactorialPlusKNotPrime.FactorialPlusKNotPrime

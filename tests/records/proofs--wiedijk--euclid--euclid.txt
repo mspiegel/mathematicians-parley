@@ -55,6 +55,9 @@ a row of step 9 instantiates 4 sentence 0, conditions taken off [], guards [k by
 a row of step 4.3.3 links from IH2 sentence 0
 a row of step 4.3.9 links from 4.3.8 sentence 0
 a row of step 4.3.9 links from IH2 sentence 0
+step 5.1 sentence 0 part 0 adds [2 sentence 0]
+step 5.4.12 sentence 0 part 0 adds [5.4.10 sentence 0]
+step 8.3 sentence 0 part 0 adds [8.2 sentence 0 implied by SystemFact { lemma: "nnge1" }]
 a row of step 4.3.3 links facing straight
 a row of step 4.3.9 links facing straight
 a row of step 4.3.9 links facing straight

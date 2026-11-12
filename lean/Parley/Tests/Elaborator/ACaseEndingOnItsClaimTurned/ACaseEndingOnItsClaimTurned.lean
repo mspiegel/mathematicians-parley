@@ -2,6 +2,8 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Numbers
@@ -20,10 +22,10 @@ theorem a_case_ending_on_its_claim_turned (x : ℝ) (y : ℝ) (hH3 : x < y) :
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. inequalities
-    have s2_1 : x ≠ y := by parley_side
+    have s2_1 : x ≠ y := ne_of_lt (by linarith only [hH3])
     exact Ne.symm s2_1
   · skip
     -- 2.2. inequalities
-    parley_side
+    linarith only [hH3]
 
 end Parley.Tests.Elaborator.ACaseEndingOnItsClaimTurned.ACaseEndingOnItsClaimTurned

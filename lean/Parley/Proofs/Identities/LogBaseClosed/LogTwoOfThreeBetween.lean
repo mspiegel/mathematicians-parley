@@ -1,13 +1,13 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import RealTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -34,7 +34,7 @@ theorem log_two_of_three_between :
     exact row1
   -- 3. inequalities, from 2
   have r48_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
-  have s3 : 1 < Real.log (3 : ℝ) / Real.log (2 : ℝ) := by parley_order
+  have s3 : 1 < Real.log (3 : ℝ) / Real.log (2 : ℝ) := by linarith only [s2]
   -- 4. mun:quotient-positive x := 2·ln(2) − ln(3), y := ln(2)
   have r52_1 : 2 * Real.log (2 : ℝ) - Real.log (3 : ℝ) > 0 := by parley_real
   have r52_2 : Real.log (2 : ℝ) > 0 := by parley_real
@@ -47,7 +47,7 @@ theorem log_two_of_three_between :
     exact row1
   -- 6. inequalities
   have r63_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
-  have s6 : Real.log (3 : ℝ) / Real.log (2 : ℝ) < 2 := by parley_order
+  have s6 : Real.log (3 : ℝ) / Real.log (2 : ℝ) < 2 := by linarith only [s5]
   -- 7. join 3, 6
   have s7 : 1 < Real.log (3 : ℝ) / Real.log (2 : ℝ) ∧ Real.log (3 : ℝ) / Real.log (2 : ℝ) < 2 := by parley_side
   exact ⟨(s7).1, (s7).2⟩

@@ -187,6 +187,22 @@ line's own. A list holds one entry for each step, in the proof's order.
   whether the chain reads it from its right side, `b = a` as `a = b`,
   `b > a` as `a < b`. Metamath reads the relations; Lean composes the chain
   from the links.
+- `orders`: for each `inequalities` step, each requires line whose reason
+  is `inequalities`, and each requires line naming one manipulation, by the
+  line of its justification, what each part of each sentence of its claim
+  rests on (`OrderPart`). For a plain step it is the facts of the
+  combination the checker decided it by (`inequalities::combined`), then
+  the equation of each define the step cites, which it reads written out.
+  Each fact is placed as `FirstAt` (a sentence, a part, or what one
+  implies, `k ≥ 1` of `k ∈ ℕ`), as a define's kind, or as a requires line
+  above. The record also holds the disequalities the combination takes
+  both ways, and for a `≠` claim the fact that says it. A step with rows
+  adds the line its first row writes out, and records which way a final
+  `weakening` to `≠` runs. Lean proves each part by `linarith only` over
+  those facts.
+- `antisymmetric`: for each `antisymmetry` step, the line that says the
+  claim's left side is at most its right, and the line that says the
+  converse. Lean writes `le_antisymm` of the two.
 
 ## Blocks
 

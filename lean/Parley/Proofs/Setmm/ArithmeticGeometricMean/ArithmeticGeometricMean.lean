@@ -10,6 +10,7 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -33,15 +34,15 @@ theorem arithmetic_geometric_mean (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B �
   -- 3. def:sqrt x := A·B, from 1
   have s3 : Real.sqrt (A * B) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := A * B) s1)
   -- 4. inequalities, from H3, H4
-  have s4 : A + B ≥ 0 := by parley_order
+  have s4 : A + B ≥ 0 := by linarith only [hH3, hH4]
   -- 5. inequalities
-  have s5 : (A + B) / 2 ≥ 0 := by parley_order
+  have s5 : (A + B) / 2 ≥ 0 := by linarith only [s4]
   -- 6. algebra
   have s6 : ((A + B) / 2) ^ 2 = A * B + ((A - B) / 2) ^ 2 := by parley_ring
   -- 7. mun:square-nonneg x := (A − B)/2
   have s7 : ((A - B) / 2) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (A - B) / 2))
   -- 8. inequalities
-  have s8 : A * B ≤ A * B + ((A - B) / 2) ^ 2 := by parley_order
+  have s8 : A * B ≤ A * B + ((A - B) / 2) ^ 2 := by linarith only [s7]
   -- 9. transitivity, from 2, 8, 6
   have s9 : Real.sqrt (A * B) ^ 2 ≤ ((A + B) / 2) ^ 2 := by parley_order
   -- 10. mun:square-le x := √(A·B), y := (A + B)/2, from 3, 5, 9

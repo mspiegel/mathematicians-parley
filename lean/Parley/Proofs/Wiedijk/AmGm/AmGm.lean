@@ -1,7 +1,6 @@
 module
 
 public import ComplexTactics
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -20,6 +19,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Eq
@@ -72,13 +72,13 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
   have s6 : r ≤ M := by
     by_contra hS
     -- 6.1. inequalities, from S
-    have s6_1 : M < r := by parley_order
+    have s6_1 : M < r := by linarith only [hS]
     -- 6.2. mun:power-less, from 4, 6.1
     have s6_2 : M ^ n.toNat < r ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_less (x := M) (y := r) (n := n) hH1 s4 s6_1)
     -- 6.3. substitute r^n = P (line 5) into line 6.2
     have s6_3 : M ^ n.toNat < P := by (have h := Eq.subst (motive := (fun t : ℝ => M ^ n.toNat < t)) s5 s6_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 6.4. inequalities, from 6.3
-    have s6_4 : ¬ P ≤ M ^ n.toNat := by parley_side
+    have s6_4 : ¬ P ≤ M ^ n.toNat := by linarith only [s6_3]
     exact s6_4 s1
   -- 7. calculation
   calc (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ^ (1 / (n : ℝ)) = P ^ (1 / (n : ℝ)) := by simp (disch := omega) only [hD1]

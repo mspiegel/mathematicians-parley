@@ -14,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -42,9 +43,9 @@ theorem two_power_bound (d : ℤ) (hH1 : 0 < d) :
       -- 1.2. mun:exponent-step a := 2
       have s1_2 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.3. inequalities
-      have s1_3 : 2 ^ m.toNat * 2 ≥ (m + 1) * 2 := by parley_order
+      have s1_3 : 2 ^ m.toNat * 2 ≥ (m + 1) * 2 := by linarith only [hIH]
       -- 1.4. inequalities, from K
-      have s1_4 : (m + 1) * 2 ≥ m + 1 + 1 := by parley_order
+      have s1_4 : (m + 1) * 2 ≥ m + 1 + 1 := by linarith only [lt_of_lt_of_le zero_lt_one hK]
       -- 1.5. transitivity, from 1.2, 1.3, 1.4
       parley_order
   -- 2. instantiate m := d in line 1

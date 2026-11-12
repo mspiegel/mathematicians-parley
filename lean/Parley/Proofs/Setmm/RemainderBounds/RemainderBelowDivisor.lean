@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import Divisibility
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -12,6 +11,8 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -29,7 +30,7 @@ namespace Parley.Proofs.Setmm.RemainderBounds.RemainderBelowDivisor
 theorem remainder_below_divisor (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     LeanBridges.Divisibility.mod A B < B := by
   -- 1. inequalities
-  have s1 : B ≠ 0 := by parley_side
+  have s1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   set q : ℤ := ⌊A / B⌋ with hD1
   have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3
@@ -48,7 +49,7 @@ theorem remainder_below_divisor (A : ℝ) (B : ℝ) (hH3 : B > 0) :
       _ < B * ((q : ℝ) + 1) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (q : ℝ) + 1) (c := B) hH3)).mp s3
       _ = B * (q : ℝ) + B := by parley_ring
   -- 5. inequalities
-  have s5 : A - B * (q : ℝ) < B := by parley_order
+  have s5 : A - B * (q : ℝ) < B := by linarith only [s4]
   -- 6. substitute A mod B = A − B·q (line 2) into line 5
   (have h := Eq.subst (motive := (fun t : ℝ => t < B)) s2.symm s5; push_cast at h ⊢; all_goals exact_mod_cast h)
 

@@ -10,6 +10,7 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -28,9 +29,9 @@ namespace Parley.Proofs.Hammack.ArithmeticGeometricMean.ArithmeticGeometricMean
 theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0) :
     a + b ≥ 2 * Real.sqrt (a * b) := by
   -- 1. inequalities
-  have s1 : a ≥ 0 := by parley_order
+  have s1 : a ≥ 0 := by linarith only [hH3]
   -- 2. inequalities
-  have s2 : b ≥ 0 := by parley_order
+  have s2 : b ≥ 0 := by linarith only [hH4]
   -- 3. mun:product-nonneg x := a, y := b, from 1, 2
   have s3 : a * b ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) s1 s2)
   -- 4. def:sqrt x := a·b, from 3
@@ -39,13 +40,13 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5. contradiction
   by_contra hS
   -- 5.1. inequalities, from S, 4
-  have s5_1 : a + b < 2 * Real.sqrt (a * b) := by parley_order
+  have s5_1 : a + b < 2 * Real.sqrt (a * b) := by linarith only [hS]
   -- 5.2. inequalities
-  have s5_2 : 2 * Real.sqrt (a * b) ≥ 0 := by parley_order
+  have s5_2 : 2 * Real.sqrt (a * b) ≥ 0 := by linarith only [s4a]
   -- 5.3. inequalities, from H3, H4
-  have s5_3 : a + b > 0 := by parley_order
+  have s5_3 : a + b > 0 := by linarith only [hH3, hH4]
   -- 5.4. inequalities
-  have s5_4 : a + b ≥ 0 := by parley_order
+  have s5_4 : a + b ≥ 0 := by linarith only [s5_3]
   -- 5.5. mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.2, 5.4
   have s5_5 : (a + b) ^ 2 < (2 * Real.sqrt (a * b)) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) s5_4 s5_2)).mp s5_1
   -- 5.6. substitute
@@ -58,11 +59,11 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5.8. mun:square-nonneg x := a − b
   have s5_8 : (a - b) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b))
   -- 5.9. inequalities
-  have s5_9 : (a + b) ^ 2 - 4 * (a * b) < 0 := by parley_order
+  have s5_9 : (a + b) ^ 2 - 4 * (a * b) < 0 := by linarith only [s5_6]
   -- 5.10. transitivity, from 5.7, 5.9
   have s5_10 : (a - b) ^ 2 < 0 := by parley_order
   -- 5.11. inequalities, from 5.10
-  have s5_11 : ¬ (a - b) ^ 2 ≥ 0 := by parley_side
+  have s5_11 : ¬ (a - b) ^ 2 ≥ 0 := by linarith only [s5_10]
   exact s5_11 s5_8
 
 end Parley.Proofs.Hammack.ArithmeticGeometricMean.ArithmeticGeometricMean

@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -14,6 +13,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -45,15 +45,15 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
       -- 1.2.1. def:range n := 1, k := m, from K1
       have s1_2_1 : 0 < m ∧ m ≤ 1 := by exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp hK1
       -- 1.2.2. inequalities, from 1.2.1
-      have s1_2_2 : m ≤ 1 := by parley_order
+      have s1_2_2 : m ≤ 1 := by linarith only [s1_2_1.2]
       -- 1.2.3. inequalities, from K1
-      have s1_2_3 : 1 ≤ m := by parley_order
+      have s1_2_3 : 1 ≤ m := by linarith only [(Finset.mem_Icc.mp hK1).1]
       -- 1.2.4. antisymmetry, from 1.2.2, 1.2.3
-      have s1_2_4 : m = 1 := by parley_side
+      have s1_2_4 : m = 1 := le_antisymm s1_2_2 s1_2_3
       -- 1.2.5. substitute m = 1 (line 1.2.4)
       have s1_2_5 : abs (x m) = abs (x 1) := by (have h := congrArg (fun t : ℤ => abs (x t)) s1_2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.2.6. inequalities
-      parley_order
+      linarith only [s1_2_5]
     -- 1.3. exhibit, from 1.1, 1.2
     exact ⟨abs (x 1), s1_2⟩
   | succ K hK hIH =>
@@ -88,7 +88,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         -- 1.8.4.1. mun:integer-step n := K + 1, from C1
         have s1_8_4_1 : m + 1 ≤ K + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := K + 1) hC1)
         -- 1.8.4.2. inequalities
-        have s1_8_4_2 : m ≤ K := by parley_order
+        have s1_8_4_2 : m ≤ K := by linarith only [s1_8_4_1]
         -- 1.8.4.3. def:range n := K, k := m, from 1.8.4.2
         have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr ⟨by parley_side, s1_8_4_2⟩
         -- 1.8.4.4. instantiate i := m in line 1.4, from 1.8.4.3

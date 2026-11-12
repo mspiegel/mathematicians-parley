@@ -3,13 +3,13 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -30,7 +30,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- the theorem. contradiction
   intro hS
   -- 1. inequalities, from H2
-  have s1 : 0 < N := by parley_order
+  have s1 : 0 < N := by linarith only [hH2]
   -- 2. transitivity, from 1, H4
   have s2 : 0 < M := by exact lt_of_lt_of_le s1 hH4
   -- 3. mun:pos-int-nat m := M, from 2
@@ -53,7 +53,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- 10. mun:divides-one d := N, from 9
   have s10 : N = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) hH2 s9)
   -- 11. inequalities
-  have s11 : N ≠ 1 := by parley_side
+  have s11 : N ≠ 1 := by linarith only [hH3]
   exact s11 s10
 
 end Parley.Proofs.Setmm.FactorialPlusOne.FactorialPlusOne

@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -29,7 +30,7 @@ theorem digit_range (t : ℤ) :
   -- 5. mun:integer-step m := s(t), n := 10, from 3, 4
   have s5 : (t + 1) % (10 : ℤ) + 1 ≤ 10 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (t + 1) % (10 : ℤ)) (n := (10 : ℤ)) s3)
   -- 6. inequalities, from 4, 5
-  have s6 : 0 ≤ (t + 1) % (10 : ℤ) ∧ (t + 1) % (10 : ℤ) ≤ 9 := by parley_side
+  have s6 : 0 ≤ (t + 1) % (10 : ℤ) ∧ (t + 1) % (10 : ℤ) ≤ 9 := ⟨by linarith only [s4], by linarith only [s5]⟩
   exact ⟨(s6).1, (s6).2⟩
 
 end Parley.Proofs.Wiedijk.RealsUncountable.DigitRange

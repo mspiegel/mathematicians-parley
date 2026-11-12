@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -18,6 +17,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,7 +47,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     intro m
     intro hA1
     -- 2.1. inequalities
-    have s2_1 : 2 * m > 0 := by parley_order
+    have s2_1 : 2 * m > 0 := by linarith only [hA1]
     -- 2.2. mun:pos-int-nat m := 2·m, from 2.1
     have s2_2 : 0 < 2 * m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) s2_1)
     -- 2.3. def:even n := 2·m
@@ -67,9 +67,9 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     intro m
     intro hA2
     -- 3.1. inequalities
-    have s3_1 : 1 - 2 * m ≥ 1 := by parley_order
+    have s3_1 : 1 - 2 * m ≥ 1 := by linarith only [hA2]
     -- 3.2. inequalities, from 3.1
-    have s3_2 : 1 - 2 * m > 0 := by parley_order
+    have s3_2 : 1 - 2 * m > 0 := by linarith only [s3_1]
     -- 3.3. mun:pos-int-nat m := 1 − 2·m, from 3.2
     have s3_3 : 0 < 1 - 2 * m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) s3_2)
     -- 3.4. algebra

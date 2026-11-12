@@ -4,13 +4,13 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -48,7 +48,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
       -- 2.1.3. mun:divides-one d := P, from 2.1.2
       have s2_1_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) hH1 s2_1_2)
       -- 2.1.4. inequalities
-      have s2_1_4 : P ≠ 1 := by parley_side
+      have s2_1_4 : P ≠ 1 := ne_of_gt (by linarith only [s1])
       exact s2_1_4 s2_1_3
     | succ k hK hIH =>
       intro hA
@@ -63,7 +63,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
       -- 2.2.4. mun:iff-from-left, from 2.2.2, 2.2.3
       have s2_2_4 : P ∣ (LeanBridges.Counting.factorial k : ℤ) ∨ P ∣ k + 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := P ∣ (LeanBridges.Counting.factorial k : ℤ) * (k + 1)) (Q := P ∣ (LeanBridges.Counting.factorial k : ℤ) ∨ P ∣ k + 1) s2_2_3 s2_2_2)
       -- 2.2.5. inequalities, from A
-      have s2_2_5 : k < P := by parley_order
+      have s2_2_5 : k < P := by linarith only [hA]
       -- 2.2.6. mun:modus-ponens, from IH, 2.2.5
       have s2_2_6 : ¬ P ∣ (LeanBridges.Counting.factorial k : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := k < P) (Q := ¬ P ∣ (LeanBridges.Counting.factorial k : ℤ)) hIH s2_2_5)
       -- 2.2.7. cases, from 2.2.4
@@ -77,7 +77,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
           -- 2.2.7.2. mun:divides-le e := P, m := k + 1, from C2
           exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := P) hH1 (m := k + 1) (by parley_side) hC2)
       -- 2.2.8. inequalities, from 2.2.7
-      have s2_2_8 : ¬ k + 1 < P := by parley_side
+      have s2_2_8 : ¬ k + 1 < P := by linarith only [s2_2_7]
       exact s2_2_8 hA
   -- 3. axi:excluded-middle P := N = 0
   have s3 : N = 0 ∨ N ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := N = 0))
@@ -95,7 +95,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
     -- 4.3.2. mun:divides-one d := P, from 4.3.1
     have s4_3_2 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) hH1 s4_3_1)
     -- 4.3.3. inequalities
-    have s4_3_3 : P ≠ 1 := by parley_side
+    have s4_3_3 : P ≠ 1 := ne_of_gt (by linarith only [s1])
     exact s4_3_3 s4_3_2
   · skip
     -- 4.4. mun:nat0-nonzero m := N, from C4

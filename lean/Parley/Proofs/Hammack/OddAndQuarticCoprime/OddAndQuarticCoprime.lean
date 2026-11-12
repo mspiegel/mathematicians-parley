@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -9,6 +8,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -31,9 +31,9 @@ theorem odd_and_quartic_coprime (n : ℤ) :
   -- 1. mun:square-nonneg x := n
   have s1 : n ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
   -- 2. inequalities
-  have s2 : 4 * n ^ 2 + 1 ≥ 1 := by parley_order
+  have s2 : 4 * n ^ 2 + 1 ≥ 1 := by linarith only [s1]
   -- 3. mun:pos-int-nat m := 4n² + 1
-  have r26_1 : 0 < 4 * n ^ 2 + 1 := by parley_order
+  have r26_1 : 0 < 4 * n ^ 2 + 1 := by linarith only [s2]
   have s3 : 0 < 4 * n ^ 2 + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 4 * n ^ 2 + 1) r26_1)
   -- 4. thm:gcd-integer-natural a := 2n + 1, b := 4n² + 1, from 3
   have s4a : 0 < (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := 2 * n + 1) (b := 4 * n ^ 2 + 1) s3).1

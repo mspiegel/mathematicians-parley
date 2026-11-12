@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -18,6 +17,7 @@ public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -43,19 +43,19 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 1. mun:finite-part, from H4, H8
   have s1 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hH8)
   -- 2. inequalities, from H2
-  have s2 : k ≤ k + j := by parley_order
+  have s2 : k ≤ k + j := by linarith only [hH2]
   -- 3. def:range0 n := k + j, from 2
   have s3 : k ∈ Finset.Icc (0 : ℤ) (k + j) := ((Parley.Items.Stdlib.Sums.def_range0 (k := k) (n := k + j) (by parley_set_side))).mpr ⟨le_of_lt hH1, s2⟩
   -- 4. mun:binomial-nat, from 3
   have s4 : 0 < (LeanBridges.Counting.choose (k + j) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat (n := k + j) (by parley_set_side) (k := k) s3)
   -- 5. inequalities, from 4
-  have s5 : 1 ≤ (LeanBridges.Counting.choose (k + j) k : ℤ) := by parley_order
+  have s5 : 1 ≤ (LeanBridges.Counting.choose (k + j) k : ℤ) := by linarith only [s4]
   -- 6. transitivity, from 5, H9
   have r319_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
   have s6 : 1 ≤ (X.ncard : ℤ) := by parley_count_int; (exact le_trans s5 hH9)
   -- 7. inequalities, from 6
   have r323_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
-  have s7 : 0 < (X.ncard : ℤ) := by parley_count_int; (parley_order)
+  have s7 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [s6])
   -- 8. mun:card-positive, from 7
   have s8 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side))
   -- 9. obtain v: mun:nonempty-member, from 8
@@ -134,14 +134,14 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) (by parley_set_side))
     · skip
       -- 30.2. inequalities, from C2, 18, 25
-      have s30_2 : (R.ncard : ℤ) < (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by parley_order
+      have s30_2 : (R.ncard : ℤ) < (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by linarith only [hC2]
       -- 30.3. mun:integer-step, from 18, 25, 30.2
       have s30_3 : (R.ncard : ℤ) + 1 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (R.ncard : ℤ)) (n := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ)) (by parley_set_side))
       -- 30.4. inequalities
       have r426_1 : 0 ≤ (R.ncard : ℤ) := by exact s18
       have r426_2 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact s25
       have r426_3 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) := by exact s26
-      have s30_4 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + ((R.ncard : ℤ) + 1) ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by parley_order
+      have s30_4 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + ((R.ncard : ℤ) + 1) ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by linarith only [s30_3]
       -- 30.5. transitivity, from 30.4, 28
       have r434_1 : 0 ≤ (R.ncard : ℤ) := by exact s18
       have r434_2 : 0 ≤ (B.ncard : ℤ) := by exact s19
@@ -152,7 +152,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have r441_1 : 0 ≤ (R.ncard : ℤ) := by exact s18
       have r441_2 : 0 ≤ (B.ncard : ℤ) := by exact s19
       have r441_3 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) := by exact s26
-      have s30_6 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ) := by parley_order
+      have s30_6 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ) := by linarith only [s30_5]
       -- 30.7. mun:or-right, from 30.6
       exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) (by parley_set_side))
   -- 31. mun:subset-transitive, from H8, 12

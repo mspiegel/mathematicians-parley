@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -12,6 +11,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -38,9 +38,9 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
   -- 2. mun:nat-minus-one n := p
   have s2 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)
   -- 3. inequalities, from 1
-  have s3 : 1 ≤ k := by parley_order
+  have s3 : 1 ≤ k := by linarith only [s1]
   -- 4. inequalities
-  have s4 : k ≤ p - 1 + 1 := by parley_order
+  have s4 : k ≤ p - 1 + 1 := by linarith only [hH5]
   -- 5. def:range-between a := 1, b := (p − 1) + 1, from 3, 4
   have s5 : k ∈ Finset.Icc (1 : ℤ) (p - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (1 : ℤ)) (b := p - 1 + 1))).mpr ⟨s3, s4⟩
   -- 6. thm:weighted-term m := p − 1, from 2, 5
@@ -69,7 +69,7 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
     -- 13.1. mun:divides-le e := p, m := k, from S, 1
     have s13_1 : p ≤ k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) hH1 (m := k) s1 hS)
     -- 13.2. inequalities, from H5
-    have s13_2 : ¬ p ≤ k := by parley_side
+    have s13_2 : ¬ p ≤ k := by linarith only [hH5]
     exact s13_2 s13_1
   -- 14. mun:prime-coprime a := k, from H3, 13
   have s14 : (Int.gcd p k : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := p) hH1 hH3 (a := k) s13)

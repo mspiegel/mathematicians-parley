@@ -8,6 +8,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -48,17 +49,17 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
     obtain ⟨R, s1_8a, s1_8b_obtained⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := (M : ℝ)))
     have s1_8b : R > M := by exact_mod_cast s1_8b_obtained
     -- 1.9. inequalities, from 1.6, 1.8
-    have s1_9 : Q + R > 0 := by parley_order
+    have s1_9 : Q + R > 0 := by linarith only [s1_6a, s1_8a]
     -- 1.10. inequalities
-    have s1_10 : P + Q + R ≥ P := by parley_order
+    have s1_10 : P + Q + R ≥ P := by linarith only [s1_9]
     -- 1.11. inequalities, from 1.5, 1.8
-    have s1_11 : P + R > 0 := by parley_order
+    have s1_11 : P + R > 0 := by linarith only [s1_5a, s1_8a]
     -- 1.12. inequalities
-    have s1_12 : P + Q + R ≥ Q := by parley_order
+    have s1_12 : P + Q + R ≥ Q := by linarith only [s1_11]
     -- 1.13. inequalities, from 1.5, 1.6
-    have s1_13 : P + Q > 0 := by parley_order
+    have s1_13 : P + Q > 0 := by linarith only [s1_5a, s1_6a]
     -- 1.14. inequalities
-    have s1_14 : P + Q + R > R := by parley_order
+    have s1_14 : P + Q + R > R := by linarith only [s1_13]
     -- 1.15. proof
     have s1_15 : ∀ n : ℤ, 0 < n → n ≥ P + Q + R → abs (b n - L) < ε := by
       intro n hK2

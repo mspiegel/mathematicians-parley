@@ -15,6 +15,7 @@ public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -40,7 +41,7 @@ theorem power_at_most_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) (h
       -- 1.1. algebra
       have s1_1 : a ^ 0 = 1 := by parley_ring
       -- 1.2. inequalities
-      have s1_2 : a ^ 0 ≤ 1 := by parley_order
+      have s1_2 : a ^ 0 ≤ 1 := by linarith only [s1_1]
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
     | succ m hK hIH =>
       -- 1.3. mun:exponent-step
@@ -53,7 +54,7 @@ theorem power_at_most_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) (h
       rcases s1_5 with (hC1 | hC2) | hC3
       · skip
         -- 1.6.1. inequalities, from C1
-        have s1_6_1 : ¬ 0 ≤ a := by parley_side
+        have s1_6_1 : ¬ 0 ≤ a := by linarith only [hC1]
         exact absurd hH3 s1_6_1
       · skip
         -- 1.6.2. algebra, from C2
@@ -66,7 +67,7 @@ theorem power_at_most_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) (h
         -- 1.6.5. mun:multiply-le x := a^m, y := 1, c := a, from C3, IH
         have s1_6_5 : a * a ^ m.toNat ≤ a * 1 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m.toNat) (y := (1 : ℝ)) (c := a) hIH hC3)
         -- 1.6.6. inequalities
-        have s1_6_6 : a * a ^ m.toNat ≤ a := by parley_order
+        have s1_6_6 : a * a ^ m.toNat ≤ a := by linarith only [s1_6_5]
         -- 1.6.7. transitivity, from 1.3, 1.4, 1.6.6, H4
         exact le_trans (Eq.trans_le (Eq.trans s1_3 s1_4) s1_6_6) hH4
   -- 2. instantiate m := n in line 1

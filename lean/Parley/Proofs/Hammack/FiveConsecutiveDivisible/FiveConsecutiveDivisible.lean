@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -14,6 +13,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -41,7 +41,7 @@ theorem five_consecutive_divisible (n : ℤ) :
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. inequalities, from C1
-    have s2_1 : 0 < n := by parley_order
+    have s2_1 : 0 < n := by linarith only [hC1]
     -- 2.2. mun:pos-int-nat m := n, from 2.1
     have s2_2 : 0 < n := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1)
     -- 2.3. mun:nat-minus-one, from 2.2
@@ -59,11 +59,11 @@ theorem five_consecutive_divisible (n : ℤ) :
     rcases s2_6 with hC3 | hC9
     · skip
       -- 2.7.1. inequalities, from C2
-      have s2_7_1 : n < 1 := by parley_order
+      have s2_7_1 : n < 1 := by linarith only [hC2]
       -- 2.7.2. mun:integer-step m := n, n := 1, from 2.7.1
       have s2_7_2 : n + 1 ≤ 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) s2_7_1)
       -- 2.7.3. inequalities, from 2.7.2
-      have s2_7_3 : n + 4 ≤ 4 := by parley_order
+      have s2_7_3 : n + 4 ≤ 4 := by linarith only [s2_7_2]
       -- 2.7.4. def:range-between k := n + 4, a := 0, b := 4, from C3, 2.7.3
       have s2_7_4 : n + 4 ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n + 4) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr ⟨hC3, s2_7_3⟩
       -- 2.7.5. inspection, from 2.7.4
@@ -99,9 +99,9 @@ theorem five_consecutive_divisible (n : ℤ) :
       -- 2.7.7. mun:integer-step m := n + 4, n := 0, from C9
       have s2_7_7 : n + 4 + 1 ≤ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) hC9)
       -- 2.7.8. inequalities
-      have s2_7_8 : 1 ≤ -n - 4 := by parley_order
+      have s2_7_8 : 1 ≤ -n - 4 := by linarith only [s2_7_7]
       -- 2.7.9. inequalities, from 2.7.8
-      have s2_7_9 : 0 < -n - 4 := by parley_order
+      have s2_7_9 : 0 < -n - 4 := by linarith only [s2_7_8]
       have hD1_kind : 0 < -n - 4 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -n - 4) s2_7_9)
       set k : ℤ := -n - 4 with hD1
       have hD1_pos := hD1_kind

@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -31,13 +32,13 @@ theorem floor_is_monotone (A : ℝ) (B : ℝ) (hH3 : A ≤ B) :
   -- 5. contradiction
   by_contra hS
   -- 5.1. inequalities, from S
-  have s5_1 : ⌊B⌋ < ⌊A⌋ := by parley_order
+  have s5_1 : ⌊B⌋ < ⌊A⌋ := by linarith only [hS]
   -- 5.2. mun:integer-step m := ⌊B⌋, n := ⌊A⌋, from 1, 2, 5.1
   have s5_2 : ⌊B⌋ + 1 ≤ ⌊A⌋ := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊B⌋) (n := ⌊A⌋) s5_1)
   -- 5.3. transitivity, from 5.2, 3, H3
   have s5_3 : (⌊B⌋ : ℝ) + 1 ≤ B := by parley_order
   -- 5.4. inequalities, from 5.3
-  have s5_4 : ¬ B < (⌊B⌋ : ℝ) + 1 := by parley_side
+  have s5_4 : ¬ B < (⌊B⌋ : ℝ) + 1 := by linarith only [s5_3]
   exact s5_4 s4
 
 end Parley.Proofs.Setmm.FloorIsMonotone.FloorIsMonotone

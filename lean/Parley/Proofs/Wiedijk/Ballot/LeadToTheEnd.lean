@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Basic.SetLike.Basic
@@ -11,9 +10,11 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -60,11 +61,11 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       have s2_2_4a : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + n) (k := i) hK1)
       have s2_2_4b : i ≤ m + n := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m + n) (k := i) hK1)
       -- 2.2.5. inequalities, from C2, 2.2.4
-      have s2_2_5 : i < m + n := by parley_order
+      have s2_2_5 : i < m + n := Or.elim (Ne.lt_or_gt hC2) (fun h1 => by linarith only [s2_2_4b, h1]) (fun h1 => by linarith only [s2_2_4b, h1])
       -- 2.2.6. mun:integer-step m := i, n := m + n, from 2.2.5
       have s2_2_6 : i + 1 ≤ m + n := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := m + n) s2_2_5)
       -- 2.2.7. inequalities, from 2.2.6
-      have s2_2_7 : i ≤ m + n - 1 := by parley_order
+      have s2_2_7 : i ≤ m + n - 1 := by linarith only [s2_2_6]
       -- 2.2.8. def:range-between k := i, a := 1, b := (m + n) − 1, from 2.2.4, 2.2.7
       have s2_2_8 : i ∈ Finset.Icc (1 : ℤ) (m + n - 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := m + n - 1))).mpr ⟨s2_2_4a, s2_2_7⟩
       -- 2.2.9. instantiate i := i in line 1, from 2.2.8

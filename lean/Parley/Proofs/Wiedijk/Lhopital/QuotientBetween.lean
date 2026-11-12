@@ -128,7 +128,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 25. substitute G(c) = 0 (line 7) into line 24
   have s25 : 0 ≠ G x := by (have h := Eq.subst (motive := (fun t : ℝ => t ≠ G x)) s7 s24; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 26. inequalities
-  have s26 : G x ≠ 0 := by parley_set_side
+  have s26 : G x ≠ 0 := Ne.symm s25
   -- 27. obtain ξ from line 23
   obtain ⟨ξ, s27a, s27b⟩ := s23b
   -- 28. restate 27

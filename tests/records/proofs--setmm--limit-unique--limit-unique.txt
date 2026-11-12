@@ -1,0 +1,17 @@
+theorem proofs/setmm/limit-unique/limit-unique
+step 1 cites proofs/setmm/limit-unique/limit-at-most group 0; A := A, B := B, x := x, bound n := n; concludes 0 AsWritten; from no line; supplied by once H2 sentence 0, once H3 sentence 0, H4 sentence 0, H5 sentence 0; letters A cr from cr, B cr from cr, x none from none; facing none; met as written
+step 2 cites proofs/setmm/limit-unique/limit-at-most group 0; A := B, B := A, x := x, bound n := n; concludes 0 AsWritten; from no line; supplied by once H3 sentence 0, once H2 sentence 0, H5 sentence 0, H4 sentence 0; letters A cr from cr, B cr from cr, x none from none; facing none; met as written
+step 3 antisymmetric from 1 sentence 0 and 2 sentence 0
+read 105: A = B  as  equality:=(name:A, name:B)  a statement
+read 108: x : ℕ → ℝ  as  function-type::→(name:x, number-systems:ℕ, number-systems:ℝ)  a statement
+read 109: A ∈ ℝ  as  membership:∈(name:A, number-systems:ℝ)  a statement
+read 110: B ∈ ℝ  as  membership:∈(name:B, number-systems:ℝ)  a statement
+read 111: x(n) → A as n → ∞  as  tends-to:→as→∞(application:()(name:x, name:n), name:A, name:n)  a statement
+read 112: x(n) → B as n → ∞  as  tends-to:→as→∞(application:()(name:x, name:n), name:B, name:n)  a statement
+read 113: A = B  as  equality:=(name:A, name:B)  a statement
+read 115: A ≤ B  as  order:≤(name:A, name:B)  a statement
+read 118: B ≤ A  as  order:≤(name:B, name:A)  a statement
+read 119: A  as  name:A  a number
+read 119: B  as  name:B  a number
+read 121: A = B  as  equality:=(name:A, name:B)  a statement
+step 3 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

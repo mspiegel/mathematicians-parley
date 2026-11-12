@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -9,6 +8,8 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
@@ -33,10 +34,10 @@ theorem prime_power_unique (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (a 
   -- 3. mun:prime-power-not-less a := a′, a′ := a, m := m′, m′ := m, from H2, H8, 2
   have s3 : ¬ a' < a := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_not_less (p := p) hH1 hH2 (a := a') hH4 (a' := a) hH3 (m := m') (m' := m) hH8 s2)
   -- 4. inequalities, from 1
-  have s4 : a' ≤ a := by parley_order
+  have s4 : a' ≤ a := by linarith only [s1]
   -- 5. inequalities, from 3
-  have s5 : a ≤ a' := by parley_order
+  have s5 : a ≤ a' := by linarith only [s3]
   -- 6. antisymmetry, from 4, 5
-  parley_side
+  exact le_antisymm s5 s4
 
 end Parley.Stdlib.Divisibility.PrimePowerUnique

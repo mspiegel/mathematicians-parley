@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
@@ -12,6 +11,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -34,13 +34,13 @@ theorem sign_of_even (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) :
   -- 1. obtain k: def:even, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp hH2
   -- 2. inequalities, from H1
-  have s2 : n ≥ 1 := by parley_order
+  have s2 : n ≥ 1 := by linarith only [hH1]
   -- 3. substitute n = 2·k (line 1) into line 2
   have s3 : 2 * k ≥ 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. inequalities, from 3
-  have s4 : 2 * k > 0 := by parley_order
+  have s4 : 2 * k > 0 := by linarith only [s3]
   -- 5. inequalities
-  have s5 : k > 0 := by parley_order
+  have s5 : k > 0 := by linarith only [s4]
   -- 6. mun:pos-int-nat m := k, from 5
   have s6 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s5)
   -- 7. thm:even-power-of-minus-one, from 6

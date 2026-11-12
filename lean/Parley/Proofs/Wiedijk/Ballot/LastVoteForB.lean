@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -19,6 +18,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -44,7 +44,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
   -- 1. mun:nat-minus-one
   have s1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) hH2)
   -- 2. thm:places-before-last p := m + (n − 1), N := m + n
-  have r669_1 : 1 ≤ m + (n - 1) := by parley_order
+  have r669_1 : 1 ≤ m + (n - 1) := by linarith only [hH1, hH2]
   have r669_2 : m + (n - 1) + 1 = m + n := by parley_ring
   have s2 : (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) = (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.PlacesBeforeLast.places_before_last (p := m + (n - 1)) (N := m + n) r669_1 r669_2)
   -- 3. mun:difference-subset X := {1, …, m + n}, Y := {m + n}

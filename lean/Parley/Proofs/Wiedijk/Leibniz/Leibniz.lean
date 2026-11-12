@@ -38,6 +38,7 @@ public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Lattice
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -112,10 +113,10 @@ theorem leibniz :
           _ = 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by (have h := congrArg (fun u : ℝ => 1 * u) s3_2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact s3_2_7
       -- 3.2.9. inequalities, from A2, K2
-      have s3_2_9 : N ≤ 2 * (n + 1) + 1 := by parley_order
+      have s3_2_9 : N ≤ 2 * (n + 1) + 1 := by linarith only [hA2, hK2]
       -- 3.2.10. mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.9
-      have r800_1 : N > 0 := by parley_order
-      have r800_2 : 2 * (n + 1) + 1 > 0 := by parley_order
+      have r800_1 : N > 0 := by linarith only [s3_1a]
+      have r800_2 : 2 * (n + 1) + 1 > 0 := by linarith only [hK2, hK2]
       have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r800_1) (y := 2 * ((n : ℚ) + 1) + 1) (by exact_mod_cast gt_iff_lt.mp r800_2))).mp (by parley_side)
       -- 3.2.11. transitivity, from 3.2.8, 3.2.5, 3.2.10, 3.1
       parley_order

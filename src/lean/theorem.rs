@@ -1360,6 +1360,162 @@ fn mark_places(start: &Node, places: &[Vec<usize>], letter: &Node) -> Node {
     start.with_children(kids)
 }
 
+/// A fact an order step adds, as the writer reads it (`order_fact`).
+struct OrderFactTerm {
+    /// The term that proves it.
+    proof: Printed,
+    /// What Lean states it as.
+    says: Printed,
+    /// The fact as the page writes it, which is stated again in a wider
+    /// type where the step works in one.
+    node: Node,
+    /// Whether `node` states, in a wider type, what `proof` proves. Not of
+    /// a define's kind, whose fact the page writes of the define's value
+    /// and Lean proves of its letter.
+    widens: bool,
+}
+
+/// The number type a relation Lean states is in; None for one in no
+/// number type, or in an item's general type.
+fn number_type(says: &Printed) -> Option<super::templates::Num> {
+    match super::doc::forms::relation_type(says)? {
+        super::doc::LeanType::Num(n) => Some(n),
+        _ => None,
+    }
+}
+
+/// Whether `norm_cast` carries the relation `narrow` states into `wide`,
+/// the same relation in a wider type: not an order from ℚ to ℝ, whose
+/// facts of numerals it does not take across, as `supplied_proof` says.
+fn cast_crosses(narrow: &Printed, wide: &Printed) -> bool {
+    use super::templates::Num;
+    let crossing = (number_type(narrow), number_type(wide));
+    crossing != (Some(Num::Rat), Some(Num::Real))
+        || matches!(relation_symbol(wide), Some("=" | "≠"))
+}
+
+/// How Lean writes a disequality with its sides swapped, `b ≠ a` of
+/// `a ≠ b`; None of anything else.
+fn turned_relation_text(says: &Printed) -> Option<String> {
+    use super::doc::TermKind;
+    match &says.kind {
+        TermKind::Infix { op, lhs, rhs } if op.symbol == "≠" => Some(
+            Printed::infix(
+                *op,
+                (**rhs).clone(),
+                (**lhs).clone(),
+                super::doc::LeanType::Prop,
+            )
+            .text(),
+        ),
+        TermKind::Not(inner) => match &inner.kind {
+            TermKind::Infix { op, lhs, rhs } if op.symbol == "=" => {
+                let swapped = Printed::infix(
+                    *op,
+                    (**rhs).clone(),
+                    (**lhs).clone(),
+                    super::doc::LeanType::Prop,
+                );
+                Some(
+                    Printed::of(
+                        TermKind::Not(Box::new(swapped)),
+                        super::doc::LeanType::Prop,
+                    )
+                    .text(),
+                )
+            }
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// The equations that tie a numeral over a term to the term's reciprocal,
+/// `div_eq_mul_one_div 2 (n + 1)`, for each term `stated` divides by more
+/// than one numeral: the checker reads 2/(n + 1) as 2·(1/(n + 1)), one atom
+/// with 1/(n + 1) (`METHODS.md`, inequalities, Atoms), where Lean's
+/// `linarith` takes each quotient as an atom of its own.
+fn reciprocals(stated: &[&Printed]) -> Vec<Printed> {
+    use super::doc::{LeanType, Source, TermKind};
+    let numeral = |t: &Printed| matches!(&t.kind, TermKind::Numeral(_));
+    // Each quotient with the number type of the relation it stands in.
+    let mut quotients: Vec<(&Printed, &Printed, Option<super::templates::Num>)> =
+        Vec::new();
+    for s in stated {
+        let ty = number_type(s);
+        for term in s.walk() {
+            if let TermKind::Infix { op, lhs, rhs } = &term.kind {
+                if op.symbol == "/" && numeral(lhs) && !numeral(rhs) {
+                    let seen = quotients.iter().any(|(l, r, _)| {
+                        l.text() == lhs.text() && r.text() == rhs.text()
+                    });
+                    if !seen {
+                        quotients.push((lhs, rhs, ty));
+                    }
+                }
+            }
+        }
+    }
+    quotients
+        .iter()
+        .filter(|(lhs, rhs, _)| {
+            lhs.text() != "1"
+                && quotients
+                    .iter()
+                    .any(|(l, r, _)| r.text() == rhs.text() && l.text() != lhs.text())
+        })
+        .map(|(lhs, rhs, ty)| {
+            // The numeral at the relation's type, which Lean does not find
+            // from the lemma's own.
+            let numeral = match ty {
+                Some(n) => Printed::cast((*lhs).clone(), LeanType::Num(*n)),
+                None => (*lhs).clone(),
+            };
+            Printed::applied(
+                "div_eq_mul_one_div",
+                Source::Mathlib,
+                vec![numeral, super::tactics::bracket((*rhs).clone())],
+                LeanType::Prop,
+            )
+        })
+        .collect()
+}
+
+/// `by linarith only [facts]`, as a term. Where `split` holds disequalities
+/// an order step takes both ways, each is split first:
+/// `(Ne.lt_or_gt d).elim (fun h1 => …) (fun h1 => …)`, with h1, the order
+/// each case gives, among the facts below it.
+fn split_linarith(split: &[Printed], facts: Vec<Printed>) -> Printed {
+    use super::doc::{LeanType, Proof, Source, TacticArg, TermKind};
+    use super::tactics as t;
+    let Some((apart, rest)) = split.split_first() else {
+        let call = t::call("linarith", vec![TacticArg::Only, t::rules(facts)]);
+        return t::by_term(Proof::By(call));
+    };
+    let name = format!("h{}", split.len());
+    let mut with = facts;
+    with.push(t::hyp(&name));
+    let case = Printed::of(
+        TermKind::Lambda {
+            letters: vec![name],
+            body: Box::new(split_linarith(rest, with)),
+        },
+        LeanType::Prop,
+    );
+    let either = Printed::applied(
+        "Ne.lt_or_gt",
+        Source::Mathlib,
+        vec![apart.clone()],
+        LeanType::Prop,
+    );
+    Printed::applied(
+        "Or.elim",
+        Source::Mathlib,
+        vec![either, case.clone(), case],
+        LeanType::Prop,
+    )
+}
+
 /// `(fun x : T => body)`: a function by its values, bracketed as an
 /// argument.
 fn lambda(letter: &str, ty: super::doc::LeanType, body: Printed) -> Printed {
@@ -5010,9 +5166,16 @@ impl<'a> Proof<'a> {
                     }
                 },
             },
-            // A requires line's lines, or one manipulation of one of them:
-            // the fact is what they say, or follows from it by arithmetic.
-            Head::Lines | Head::Manipulation(_) => {
+            // One manipulation of a line: linear arithmetic on the line the
+            // checker found it made from (`orders`).
+            Head::Manipulation(_) => {
+                self.order_proof(reason.just.line, k, node).or_try(|| {
+                    Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![])))
+                })
+            }
+            // A requires line's lines: the fact is what they say, or
+            // follows from it by arithmetic.
+            Head::Lines => {
                 Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![])))
             }
         }
@@ -5269,6 +5432,16 @@ impl<'a> Proof<'a> {
                     if let Some(composed) = self.chain_composed(just, node) {
                         return Route::Built(composed);
                     }
+                }
+                // What the checker recorded the step rests on (`orders`,
+                // `antisymmetric`).
+                let recorded = match m {
+                    Method::Inequalities => self.order_proof(just.line, k, node),
+                    Method::Antisymmetry => self.antisymmetry_proof(just.line, node),
+                    _ => Route::no("a transitivity chain is composed from its links"),
+                };
+                if let Route::Built(proof) = recorded {
+                    return Route::Built(proof);
                 }
                 // A cited "for all", a(n) = 1 − 1/2ⁿ for every n, is read
                 // at the claim's letter, which linear arithmetic can use.
@@ -8570,6 +8743,402 @@ impl<'a> Proof<'a> {
             false => super::tactics::exact_mod_cast(proof),
         };
         Some(super::doc::Proof::By(tactic))
+    }
+
+    /// A sentence of an order step's claim from what the checker recorded
+    /// it rests on (`CheckedTheorem::orders`): each part joined by "and" by
+    /// `order_part`, the parts in `⟨…⟩` as the sentence joins them. `line`
+    /// is the justification's, `k` the sentence's place, `node` the
+    /// sentence as Lean states it.
+    fn order_proof(
+        &self,
+        line: usize,
+        k: usize,
+        node: &Node,
+    ) -> Route<super::doc::Proof> {
+        let Some(parts) = self.rec.orders.get(&line).and_then(|o| o.sentences.get(k))
+        else {
+            return Route::no("an order step the checker recorded no facts for");
+        };
+        let mut left = parts.iter();
+        let proof = match self.order_joined(node, &mut left) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        match left.next() {
+            None => Route::Built(proof),
+            Some(_) => {
+                Route::no("an order step recorded with more parts than its claim")
+            }
+        }
+    }
+
+    /// The proof of `node`, a sentence or a part of one, taking its parts
+    /// joined by "and" from `parts` left to right, as the checker counts
+    /// them.
+    fn order_joined<'p>(
+        &self,
+        node: &Node,
+        parts: &mut impl Iterator<Item = &'p crate::checker::record::OrderPart>,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        if node.notation() != crate::notations::CONJUNCTION {
+            let Some(part) = parts.next() else {
+                return Route::no(
+                    "an order step recorded with fewer parts than its claim",
+                );
+            };
+            return self.order_part(part, node);
+        }
+        let mut items = Vec::new();
+        for child in &node.children {
+            match self.order_joined(child, parts) {
+                Route::Built(Proof::Term(t)) => items.push(t),
+                Route::Built(p) => items.push(super::tactics::by_term(p)),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        Route::Built(Proof::Term(super::expr::anonymous(items)))
+    }
+
+    /// One part of an order step's claim, `node`, from what it rests on:
+    /// the fact that says a disequality, `Ne.symm` of it where it says it
+    /// turned; `ne_of_lt` or `ne_of_gt` of the order a `weakening` makes
+    /// one of; otherwise `linarith only` over the facts it adds, each
+    /// disequality it takes both ways split first by `Ne.lt_or_gt`.
+    ///
+    /// Linear arithmetic adds facts of one type. Where Lean states the
+    /// claim and the facts in different number types, it works in the
+    /// widest of them: a fact in a narrower one is taken up to it by
+    /// `exact_mod_cast`, and a claim in a narrower one is proved there and
+    /// taken down by `exact_mod_cast`.
+    fn order_part(
+        &self,
+        part: &crate::checker::record::OrderPart,
+        node: &Node,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::{LeanType, Proof, Source, TermKind};
+        use crate::checker::record::Weakened;
+        let wanted = match self.writer.formula(node) {
+            Route::Built(w) => w,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        if let Some(r) = &part.restates {
+            let fact = match self.order_fact(&r.by) {
+                Route::Built(f) => f,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            if super::doc::forms::relation_types_apart(&fact.says, &wanted) {
+                return Route::no(
+                    "a disequality an order step restates, in another type",
+                );
+            }
+            // The checker found the two the same up to moving terms across,
+            // `a − b ≠ 0` of `a ≠ b`: where Lean writes them alike the fact
+            // is the claim; otherwise an equation denying the claim gives
+            // one denying the fact by linear arithmetic.
+            if fact.says.text() == wanted.text() {
+                return Route::Built(Proof::Term(fact.proof));
+            }
+            if r.turned {
+                let turned = Printed::applied(
+                    "Ne.symm",
+                    Source::Mathlib,
+                    vec![fact.proof.clone()],
+                    LeanType::Prop,
+                );
+                if turned_relation_text(&fact.says).as_deref() == Some(&wanted.text()) {
+                    return Route::Built(Proof::Term(turned));
+                }
+            }
+            let mut with = vec![super::tactics::hyp("h")];
+            for f in &part.uses {
+                match self.order_fact(f) {
+                    Route::Built(t)
+                        if !super::doc::forms::relation_types_apart(
+                            &t.says, &wanted,
+                        ) =>
+                    {
+                        with.push(t.proof)
+                    }
+                    Route::Built(_) => {
+                        return Route::no(
+                            "a define an order step adds, in another type",
+                        );
+                    }
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            let equal = split_linarith(&[], with);
+            let body = Printed::of(
+                TermKind::App {
+                    head: Box::new(fact.proof),
+                    args: vec![super::doc::Arg::Explicit(equal)],
+                    explicit: false,
+                },
+                LeanType::Prop,
+            );
+            return Route::Built(Proof::Term(Printed::of(
+                TermKind::Lambda {
+                    letters: vec!["h".to_string()],
+                    body: Box::new(body),
+                },
+                LeanType::Prop,
+            )));
+        }
+        let mut facts = Vec::new();
+        let mut split = Vec::new();
+        let read = part
+            .uses
+            .iter()
+            .map(|f| (f, false))
+            .chain(part.split.iter().map(|f| (f, true)));
+        for (f, apart) in read {
+            match self.order_fact(f) {
+                Route::Built(t) if apart => split.push(t),
+                Route::Built(t) => facts.push(t),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        // The widest type among the claim and the facts.
+        let claim_in = number_type(&wanted);
+        let mut widest = claim_in;
+        for f in facts.iter().chain(&split) {
+            match (number_type(&f.says), widest) {
+                (Some(t), Some(w)) => widest = Some(t.max(w)),
+                (None, None) => {}
+                _ => {
+                    return Route::no(
+                        "an order step's facts in types other than numbers",
+                    )
+                }
+            }
+        }
+        // `(show T by exact_mod_cast f)`: `linarith` reads a fact `show`
+        // states before it runs, where an ascription's proof is left to
+        // after.
+        let widened = |f: OrderFactTerm| -> Route<Printed> {
+            let Some(to) = widest.filter(|w| number_type(&f.says) != Some(*w)) else {
+                return Route::Built(f.proof);
+            };
+            if !f.widens {
+                return Route::no("a define's kind an order step adds in a wider type");
+            }
+            let says = match self.writer.closed_formula(&f.node, to) {
+                Route::Built(s) => s,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            if !(cast_crosses(&f.says, &says)
+                && super::casts::norm_cast_moves_all(&says)
+                && super::casts::norm_cast_moves_all(&f.says))
+            {
+                return Route::no(
+                    "an order step's fact in a narrower type than norm_cast takes up",
+                );
+            }
+            Route::Built(super::tactics::bracket(shown(
+                says,
+                Proof::By(super::tactics::exact_mod_cast(f.proof)),
+            )))
+        };
+        let stated: Vec<&Printed> = std::iter::once(&wanted)
+            .chain(facts.iter().chain(&split).map(|f| &f.says))
+            .collect();
+        let ties = reciprocals(&stated);
+        let mut added = Vec::new();
+        for f in facts {
+            match widened(f) {
+                Route::Built(t) => added.push(t),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        added.extend(ties);
+        let mut apart = Vec::new();
+        for f in split {
+            match widened(f) {
+                Route::Built(t) => apart.push(t),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        let linear = split_linarith(&apart, added);
+        let narrower = match (claim_in, widest) {
+            (Some(c), Some(w)) if c != w => Some(w),
+            _ => None,
+        };
+        if let Some(to) = narrower {
+            if part.weakened.is_some() {
+                return Route::no(
+                    "a disequality weakened from an order in a wider type",
+                );
+            }
+            let says = match self.writer.closed_formula(node, to) {
+                Route::Built(s) => s,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            // `exact_mod_cast` takes the claim back where `norm_cast` moves
+            // every cast of both statements (the cast table).
+            if !(cast_crosses(&wanted, &says)
+                && super::casts::norm_cast_moves_all(&says)
+                && super::casts::norm_cast_moves_all(&wanted))
+            {
+                return Route::no("an order step's claim in a narrower type than norm_cast takes it to");
+            }
+            let proof = match linear.kind {
+                TermKind::By(proof) => *proof,
+                _ => Proof::By(Tactic::Exact(linear)),
+            };
+            return Route::Built(Proof::By(super::tactics::exact_mod_cast(
+                super::tactics::bracket(shown(says, proof)),
+            )));
+        }
+        let weak = |lemma: &str| {
+            Printed::applied(
+                lemma,
+                Source::Mathlib,
+                vec![linear.clone()],
+                LeanType::Prop,
+            )
+        };
+        Route::Built(match part.weakened {
+            Some(Weakened::Below) => Proof::Term(weak("ne_of_lt")),
+            Some(Weakened::Above) => Proof::Term(weak("ne_of_gt")),
+            None => match linear.kind {
+                TermKind::By(proof) => *proof,
+                _ => Proof::Term(linear),
+            },
+        })
+    }
+
+    /// A fact an order step adds, from where the checker found it
+    /// (`OrderFact`): the term that proves it, and what Lean states it as.
+    fn order_fact(
+        &self,
+        fact: &crate::checker::record::OrderFact,
+    ) -> Route<OrderFactTerm> {
+        use crate::checker::record::OrderFact;
+        let (proof, says, node) = match fact {
+            OrderFact::Line(at) => match self.line_says(at) {
+                Route::Built((proof, says)) => (proof, says, at.written.clone()),
+                Route::Declined(d) => return Route::Declined(d),
+            },
+            OrderFact::Define(label) => {
+                let lines =
+                    self.trees.get(label).map(Vec::as_slice).unwrap_or_default();
+                let [line] = lines else {
+                    return Route::no("a define an order step adds, not one equation");
+                };
+                let Some(name) = &line.name else {
+                    return Route::no(
+                        "a define an order step adds, with no name in Lean",
+                    );
+                };
+                let says = match self.line_statement(&line.cited()) {
+                    Route::Built(s) => s,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                (super::tactics::hyp(name), says, line.node.clone())
+            }
+            // A define's kind is a line of its letter, `n ∈ ℕ`, proved by
+            // the order Lean names beside it (`kinded_witness`).
+            OrderFact::Kind {
+                define,
+                implied,
+                written,
+            } => {
+                let Some([kind]) =
+                    self.trees.get(&format!("{define} kind")).map(Vec::as_slice)
+                else {
+                    return Route::no("a define's kind Lean names no line of");
+                };
+                let implies = match self.writer.formula(written) {
+                    Route::Built(s) => s,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let proof = match self.implied_proof(&kind.cited(), *implied, &implies)
+                {
+                    Route::Built(proof) => proof,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                // Lean states the kind of the letter, as its line does, `0 <
+                // n`, where the page's fact is of the define's value.
+                match self.line_statement(&kind.cited()) {
+                    Route::Built(says) => (proof, says, kind.node.clone()),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            OrderFact::Requires {
+                line,
+                implied: None,
+            } => {
+                let Some(step) = self.step_now.get().map(|i| &self.thm.steps[i]) else {
+                    return Route::no("a requires line outside a step");
+                };
+                let name = format!("r{}_{}", step.line, line + 1);
+                let Some([said]) = self.trees.get(&name).map(Vec::as_slice) else {
+                    return Route::no(
+                        "a requires line above, not one sentence in Lean",
+                    );
+                };
+                let says = match self.line_statement(&said.cited()) {
+                    Route::Built(s) => s,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                (super::tactics::hyp(&name), says, said.node.clone())
+            }
+            OrderFact::Requires {
+                implied: Some(_), ..
+            } => {
+                return Route::no(
+                    "what a requires line above implies, in an order step",
+                );
+            }
+            OrderFact::Member(_) => {
+                return Route::no("what the member an order step is read at implies");
+            }
+        };
+        // Linear arithmetic adds relations, not a "for all" of them.
+        if matches!(says.kind, super::doc::TermKind::Quantified { .. }) {
+            return Route::no("a \"for all\" an order step adds as a whole");
+        }
+        Route::Built(OrderFactTerm {
+            proof,
+            says,
+            node,
+            widens: !matches!(fact, OrderFact::Kind { .. }),
+        })
+    }
+
+    /// `antisymmetry`: `le_antisymm` of the line that says the claim's left
+    /// side is at most its right and the line that says the converse, as
+    /// the checker paired them (`CheckedTheorem::antisymmetric`).
+    fn antisymmetry_proof(&self, line: usize, node: &Node) -> Route<super::doc::Proof> {
+        use super::doc::{LeanType, Proof, Source};
+        let Some(rec) = self.rec.antisymmetric.get(&line) else {
+            return Route::no("an antisymmetry step the checker paired no lines for");
+        };
+        let wanted = match self.writer.formula(node) {
+            Route::Built(w) => w,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let mut proofs = Vec::new();
+        for at in [&rec.below, &rec.above] {
+            let (proof, says) = match self.line_says(at) {
+                Route::Built(found) => found,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            if super::doc::forms::relation_types_apart(&says, &wanted) {
+                return Route::no(
+                    "an antisymmetry step's line in another type than its claim",
+                );
+            }
+            proofs.push(proof);
+        }
+        Route::Built(Proof::Term(Printed::applied(
+            "le_antisymm",
+            Source::Mathlib,
+            proofs,
+            LeanType::Prop,
+        )))
     }
 
     /// `instantiate`: the "for all" line at the values given, each guard

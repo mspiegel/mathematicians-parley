@@ -14,6 +14,8 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -33,15 +35,15 @@ theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH
   -- 1. mun:quotient-nonneg x := A, y := B, from H3, H4
   have s1 : 0 ≤ A / B := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := A) (y := B) hH4 hH3)
   -- 2. algebra
-  have r51_1 : B ≠ 0 := by parley_side
+  have r51_1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s2 : B * (A / B) = A := by parley_ring
   -- 3. transitivity, from 2, H5
-  have r55_1 : B ≠ 0 := by parley_side
+  have r55_1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s3 : B * (A / B) < B := by exact Eq.trans_lt s2 hH5
   -- 4. mun:less-scaled x := A/B, y := 1, c := B, from H3, 3
   have s4 : A / B < 1 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (1 : ℝ)) (c := B) hH3)).mpr (by simpa only [mul_one] using s3)
   -- 5. mun:floor-between x := A/B, k := 0, from 1, 4
-  have r62_1 : B ≠ 0 := by parley_side
+  have r62_1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s5 : ⌊A / B⌋ = 0 := ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := A / B) (k := (0 : ℤ)))).mpr ⟨by exact_mod_cast s1, by parley_side⟩
   -- 6. calculation
   calc LeanBridges.Divisibility.mod A B = A - B * (⌊A / B⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)

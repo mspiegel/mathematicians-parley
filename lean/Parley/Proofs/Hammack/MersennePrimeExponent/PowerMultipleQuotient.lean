@@ -13,6 +13,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -58,22 +59,22 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.7. thm:two-power-bound
       have s1_7 : 2 ^ d.toNat ≥ d + 1 := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) hH1)
       -- 1.8. inequalities, from H1
-      have s1_8 : d + 1 ≥ 1 := by parley_order
+      have s1_8 : d + 1 ≥ 1 := by linarith only [hH1]
       -- 1.9. transitivity, from 1.7, 1.8
       have s1_9 : (2 ^ d.toNat : ℤ) ≥ 1 := by parley_order
       -- 1.10. mun:multiply-le x := 1, y := 2^d, c := q, from 1.9
-      have r134_1 : q > 0 := by parley_order
+      have r134_1 : q > 0 := by linarith only [s1_3a]
       have s1_10 : q * 1 ≤ q * 2 ^ d.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) s1_9 r134_1)
       -- 1.11. algebra
       have s1_11 : q * 2 ^ d.toNat = 2 ^ d.toNat * q := by parley_ring
       -- 1.12. inequalities
-      have s1_12 : q ≤ q * 2 ^ d.toNat := by parley_order
+      have s1_12 : q ≤ q * 2 ^ d.toNat := by linarith only [s1_10]
       -- 1.13. inequalities, from 1.3
-      have s1_13 : j ≤ q := by parley_order
+      have s1_13 : j ≤ q := by linarith only [s1_3c]
       -- 1.14. transitivity, from 1.13, 1.12, 1.11
       have s1_14 : j ≤ 2 ^ d.toNat * q := by exact LE.le.trans_eq (le_trans s1_13 s1_12) s1_11
       -- 1.15. inequalities
-      have s1_15 : 2 ^ d.toNat * q + 1 ≥ j + 1 := by parley_order
+      have s1_15 : 2 ^ d.toNat * q + 1 ≥ j + 1 := by linarith only [s1_14]
       -- 1.16. exhibit, from 1.6, 1.15
       exact ⟨2 ^ d.toNat * q + 1, by parley_side, ⟨s1_6, s1_15⟩⟩
   -- 2. instantiate j := m in line 1

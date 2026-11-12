@@ -4,11 +4,11 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -30,7 +30,7 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
   induction j, h_j using LeanBridges.Functions.le_induction with
   | base =>
     -- 1. inequalities
-    have s1 : (LeanBridges.Counting.factorial (n + 1) : ℤ) ≤ (LeanBridges.Counting.factorial (n + 1) : ℤ) := by parley_order
+    have s1 : (LeanBridges.Counting.factorial (n + 1) : ℤ) ≤ (LeanBridges.Counting.factorial (n + 1) : ℤ) := by linarith only []
     simpa only [add_zero] using s1
   | succ j hK hIH =>
     -- 2. algebra
@@ -40,10 +40,10 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
     -- 4. algebra
     have s4 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) = (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by parley_ring
     -- 5. inequalities, from IH, 3
-    have s5 : (LeanBridges.Counting.factorial (n + 1) : ℤ) + (j + 1) ≤ 2 * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by parley_order
+    have s5 : (LeanBridges.Counting.factorial (n + 1) : ℤ) + (j + 1) ≤ 2 * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by linarith only [hIH, s3]
     -- 6. calculation
-    have r66_1 : 2 ≤ n + 1 + j + 1 := by parley_order
-    have r66_2 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) ≥ 0 := by parley_order
+    have r66_1 : 2 ≤ n + 1 + j + 1 := by linarith only [hH1, hK]
+    have r66_2 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) ≥ 0 := by linarith only [s3]
     calc (LeanBridges.Counting.factorial (n + 1) : ℤ) + (j + 1) ≤ 2 * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact s5
       _ ≤ (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := (2 : ℤ)) (y := n + 1 + j + 1) (c := (LeanBridges.Counting.factorial (n + 1 + j) : ℤ)) r66_1 r66_2)
       _ = (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) := by exact s4.symm

@@ -31,6 +31,7 @@ public import Mathlib.NumberTheory.ArithmeticFunction.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -92,7 +93,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
     have r95_1 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ p.toNat - 1 : ℤ)) hH2)
     have s4_7 : (2 ^ p.toNat - 1 : ℤ) > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (2 ^ p.toNat - 1 : ℤ)) r95_1)).mp hH2).1
     -- 4.8. inequalities
-    have s4_8 : (2 ^ p.toNat - 1 : ℤ) ≠ 1 := by parley_side
+    have s4_8 : (2 ^ p.toNat - 1 : ℤ) ≠ 1 := ne_of_gt (by linarith only [s4_7])
     exact s4_8 s4_6
   -- 5. calculation
   have r104_1 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_nat (p := (2 ^ p.toNat - 1 : ℤ)) hH2)

@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import RealTactics
 public import Tactics
 public import Batteries.Classes.RatCast
@@ -11,6 +10,8 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.RealSqrt
@@ -29,11 +30,11 @@ namespace Parley.Proofs.Hammack.IrrationalBetweenRationalsByHalfRootTwo.Irration
 theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. inequalities
-  have s1 : (s - r) / 2 > 0 := by parley_order
+  have s1 : (s - r) / 2 > 0 := by linarith only [hH3]
   -- 2. thm:sqrt2-irrational
   have s2 : Irrational (Real.sqrt (2 : ℝ)) := by exact Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational
   -- 3. thm:irrational-product A := √2, B := (s − r)/2, from 2
-  have r26_1 : (s - r) / 2 ≠ 0 := by parley_side
+  have r26_1 : (s - r) / 2 ≠ 0 := ne_of_gt (by linarith only [s1])
   have s3 : Irrational (Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2)) := by
     have hI : Irrational (Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2)) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (2 : ℝ)) (B := (s - r) / 2) r26_1 s2))
     exact hI
@@ -48,9 +49,9 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 8. mun:less-scaled x := √2, y := 2, c := (s − r)/2, from 1, 6
   have s8 : ((s : ℝ) - (r : ℝ)) / 2 * Real.sqrt (2 : ℝ) < ((s : ℝ) - (r : ℝ)) / 2 * 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := ((s : ℝ) - (r : ℝ)) / 2) (by parley_side))).mp s6
   -- 9. inequalities
-  have s9 : (r : ℝ) < Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ) := by parley_order
+  have s9 : (r : ℝ) < Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ) := by linarith only [s7]
   -- 10. inequalities
-  have s10 : Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ) < (s : ℝ) := by parley_order
+  have s10 : Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ) < (s : ℝ) := by linarith only [s8]
   -- 11. exhibit, from 4, 9, 10
   exact ⟨Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ), ⟨⟨s4, s9⟩, s10⟩⟩
 

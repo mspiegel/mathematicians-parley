@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -11,6 +10,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -34,7 +34,7 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     intro r
     intro hA1
     -- 1.1. inequalities
-    have s1_1 : r / 2 > 0 := by parley_order
+    have s1_1 : r / 2 > 0 := by linarith only [hA1]
     -- 1.2. def:tends-to, from H4
     have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - A) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := A))).mp hH4
     -- 1.3. def:tends-to L := B, from H5
@@ -48,9 +48,9 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.7. obtain Q from line 1.5
     obtain ⟨Q, s1_7a, s1_7b⟩ := s1_5
     -- 1.8. inequalities, from 1.7
-    have s1_8 : P + Q ≥ P := by parley_order
+    have s1_8 : P + Q ≥ P := by linarith only [s1_7a]
     -- 1.9. inequalities, from 1.6
-    have s1_9 : P + Q ≥ Q := by parley_order
+    have s1_9 : P + Q ≥ Q := by linarith only [s1_6a]
     -- 1.10. instantiate n := P + Q in line 1.6, from 1.8
     have s1_10 : abs (x (P + Q) - A) < r / 2 := by exact (s1_6b (P + Q) (by parley_side) s1_8)
     -- 1.11. instantiate n := P + Q in line 1.7, from 1.9
@@ -61,23 +61,23 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.14. mun:abs-difference-lt x := x(P + Q), c := B, δ := r/2, from 1.11, 1.12
     have s1_14 : B - r / 2 < x (P + Q) ∧ x (P + Q) < B + r / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := B) (δ := r / 2))).mp s1_11
     -- 1.15. inequalities, from 1.12, 1.13
-    have s1_15 : A - r / 2 < x (P + Q) := by parley_order
+    have s1_15 : A - r / 2 < x (P + Q) := by linarith only [s1_13.1]
     -- 1.16. inequalities, from 1.12, 1.14
-    have s1_16 : x (P + Q) < B + r / 2 := by parley_order
+    have s1_16 : x (P + Q) < B + r / 2 := by linarith only [s1_14.2]
     -- 1.17. transitivity, from 1.15, 1.16
     have s1_17 : A - r / 2 < B + r / 2 := by exact lt_trans s1_15 s1_16
     -- 1.18. inequalities
-    parley_order
+    linarith only [s1_17]
   -- 2. contradiction
   by_contra hS
   -- 2.1. inequalities, from S
-  have s2_1 : B < A := by parley_order
+  have s2_1 : B < A := by linarith only [hS]
   -- 2.2. inequalities
-  have s2_2 : (A - B) / 2 > 0 := by parley_order
+  have s2_2 : (A - B) / 2 > 0 := by linarith only [s2_1]
   -- 2.3. instantiate r := (A − B)/2 in line 1, from 2.2
   have s2_3 : A < B + (A - B) / 2 := by exact (s1 ((A - B) / 2) s2_2)
   -- 2.4. inequalities
-  have s2_4 : A ≤ B := by parley_order
+  have s2_4 : A ≤ B := by linarith only [s2_3]
   exact hS s2_4
 
 end Parley.Proofs.Setmm.LimitUnique.LimitAtMost

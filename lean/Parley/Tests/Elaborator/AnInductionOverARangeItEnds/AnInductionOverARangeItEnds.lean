@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
@@ -11,6 +10,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -37,7 +37,7 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
       have s1_1_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.1.2. inequalities, from 1.1.1
-      parley_order
+      linarith only [s1_1_1]
     | succ N hK2 hIH =>
       -- 1.2. proof
       intro j hK3
@@ -46,7 +46,7 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.2.1. mun:range-bounds a := 1, b := N + 1, k := j, from K3
       have s1_2_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.2.2. inequalities, from 1.2.1
-      parley_order
+      linarith only [s1_2_1]
   -- 2. instantiate N := n in line 1
   intro j h_j; exact (s1 n hH1 j (by parley_side))
 

@@ -14,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -67,7 +68,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
         · skip
           exact hC3
       -- 6.6. inequalities
-      have s6_6 : 2 ≠ q := by parley_side
+      have s6_6 : 2 ≠ q := ne_of_lt (by linarith only [s3])
       exact absurd s6_5 s6_6
     · skip
       exact hC4

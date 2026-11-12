@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -46,8 +46,8 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     -- 2.1. mun:nat-minus-one
     have s2_1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) hH1)
     -- 2.2. inequalities, from C1, H2
-    have s2_2a : 1 ≤ k := by parley_order
-    have s2_2b : k ≤ n - 1 + 1 := by parley_order
+    have s2_2a : 1 ≤ k := by linarith only [hH2]
+    have s2_2b : k ≤ n - 1 + 1 := by linarith only [hC1]
     -- 2.3. def:range n := (n − 1) + 1, from 2.2
     have s2_3 : k ∈ Finset.Icc (1 : ℤ) (n - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range (k := k) (n := n - 1 + 1))).mpr ⟨hH2, s2_2b⟩
     -- 2.4. thm:weighted-term m := n − 1, from 2.3
@@ -69,7 +69,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     exact (Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor.odd_factor (A := k) (B := (LeanBridges.Counting.choose n k : ℤ)) hH4 s2_8)
   · skip
     -- 2.10. inequalities, from C2
-    have s2_10 : n < k := by parley_order
+    have s2_10 : n < k := by linarith only [hC2]
     -- 2.11. def:C, from 2.10
     have s2_11 : (LeanBridges.Counting.choose n k : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := n) (le_of_lt hH1) (k := k)) s2_10
     -- 2.12. calculation

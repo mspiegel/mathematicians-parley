@@ -8,9 +8,12 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Numbers
@@ -26,7 +29,7 @@ theorem the_power_said_not_zero_whole (t : ℝ) (F : ℝ) (hH3 : t ≠ 0) (hH4 :
   -- 1. mun:square-positive x := t, from H3
   have s1 : t ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := t) hH3)
   -- 2. algebra, from H4
-  have r42_1 : t ^ 2 ≠ 0 := by parley_side
+  have r42_1 : t ^ 2 ≠ 0 := ne_of_gt (by linarith only [s1])
   linear_combination (norm := parley_field) (t ^ 2) * hH4
 
 end Parley.Tests.Elaborator.CitedEquationDivisorAPower.ThePowerSaidNotZeroWhole

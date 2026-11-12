@@ -9,6 +9,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -32,7 +33,7 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
     intro ε
     intro hA1
     -- 1.1. inequalities
-    have s1_1 : ε / 2 > 0 := by parley_order
+    have s1_1 : ε / 2 > 0 := by linarith only [hA1]
     -- 1.2. def:tends-to, from H5
     have s1_2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH5
     -- 1.3. def:tends-to x := b, L := M, from H6
@@ -46,13 +47,13 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
     -- 1.7. obtain Q from line 1.5
     obtain ⟨Q, s1_7a, s1_7b⟩ := s1_5
     -- 1.8. inequalities, from 1.7
-    have s1_8 : Q > 0 := by parley_order
+    have s1_8 : Q > 0 := by linarith only [s1_7a]
     -- 1.9. inequalities
-    have s1_9 : P + Q ≥ P := by parley_order
+    have s1_9 : P + Q ≥ P := by linarith only [s1_8]
     -- 1.10. inequalities, from 1.6
-    have s1_10 : P > 0 := by parley_order
+    have s1_10 : P > 0 := by linarith only [s1_6a]
     -- 1.11. inequalities
-    have s1_11 : P + Q ≥ Q := by parley_order
+    have s1_11 : P + Q ≥ Q := by linarith only [s1_10]
     -- 1.12. proof
     have s1_12 : ∀ n : ℤ, 0 < n → n ≥ P + Q → abs (a n + b n - (L + M)) < ε := by
       intro n hK2
@@ -70,9 +71,9 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
       -- 1.12.6. mun:abs-difference-lt x := b(n), c := M, δ := ε/2, from 1.12.4
       have s1_12_6 : M - ε / 2 < b n ∧ b n < M + ε / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := M) (δ := ε / 2))).mp s1_12_4
       -- 1.12.7. inequalities, from 1.12.5, 1.12.6
-      have s1_12_7 : L + M - ε < a n + b n := by parley_order
+      have s1_12_7 : L + M - ε < a n + b n := by linarith only [s1_12_5.1, s1_12_6.1]
       -- 1.12.8. inequalities, from 1.12.5, 1.12.6
-      have s1_12_8 : a n + b n < L + M + ε := by parley_order
+      have s1_12_8 : a n + b n < L + M + ε := by linarith only [s1_12_5.2, s1_12_6.2]
       -- 1.12.9. join 1.12.7, 1.12.8
       have s1_12_9 : L + M - ε < a n + b n ∧ a n + b n < L + M + ε := by parley_side
       -- 1.12.10. mun:abs-difference-lt x := a(n) + b(n), c := L + M, δ := ε, from 1.12.9

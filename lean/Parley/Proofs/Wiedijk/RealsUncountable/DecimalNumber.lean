@@ -68,18 +68,18 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 3.1. D3
     have s3_1 : N (k + 1) = 10 * N k + d (k + 1) := by have h := (hD3.2 ((k + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
     -- 3.2. mun:pos-int-nat
-    have r194_1 : 0 < k + 1 := by parley_order
+    have r194_1 : 0 < k + 1 := by linarith only [hK1]
     have s3_2 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k + 1) r194_1)
     -- 3.3. instantiate n := k + 1 in H2, from 3.2
     have s3_3 : 0 ≤ d (k + 1) ∧ d (k + 1) ≤ 9 := by exact (hH2 (k + 1) s3_2)
     -- 3.4. inequalities
-    have s3_4 : 10 * N k ≤ 10 * N k + d (k + 1) := by parley_order
+    have s3_4 : 10 * N k ≤ 10 * N k + d (k + 1) := by linarith only [s3_3.1]
     -- 3.5. transitivity, from 3.4, 3.1
     have s3_5 : 10 * N k ≤ N (k + 1) := by exact LE.le.trans_eq s3_4 s3_1.symm
     -- 3.6. inequalities
-    have s3_6 : 10 * N k + d (k + 1) + 1 ≤ 10 * (N k + 1) := by parley_order
+    have s3_6 : 10 * N k + d (k + 1) + 1 ≤ 10 * (N k + 1) := by linarith only [s3_3.2]
     -- 3.7. inequalities
-    have s3_7 : N (k + 1) + 1 = 10 * N k + d (k + 1) + 1 := by parley_set_side
+    have s3_7 : N (k + 1) + 1 = 10 * N k + d (k + 1) + 1 := by linarith only [s3_1]
     -- 3.8. transitivity, from 3.7, 3.6
     have s3_8 : N (k + 1) + 1 ≤ 10 * (N k + 1) := by exact Eq.trans_le s3_7 s3_6
     -- 3.9. join 3.5, 3.8
@@ -101,10 +101,10 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_11.symm; push_cast at h; linear_combination (norm := parley_norm) h
       (have h := Eq.subst (motive := (fun t : ℚ => ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / t)) e_w s3_14; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.16. mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.9
-    have r256_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
+    have r256_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by linarith only [s3_10]
     have s3_16 : 10 * (N k : ℚ) / 10 ^ (k + 1).toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := 10 * (N k : ℚ)) (y := (N (k + 1) : ℚ)) (c := (10 ^ (k + 1).toNat : ℚ)) (by exact_mod_cast s3_9.1) (by exact_mod_cast gt_iff_lt.mp r256_3))
     -- 3.17. mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.9
-    have r262_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by parley_order
+    have r262_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by linarith only [s3_10]
     have s3_17 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N (k + 1) : ℚ) + 1) (y := 10 * ((N k : ℚ) + 1)) (c := (10 ^ (k + 1).toNat : ℚ)) (by exact_mod_cast s3_9.2) (by exact_mod_cast gt_iff_lt.mp r262_3))
     -- 3.18. substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.13) into line 3.16
     have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by (have h := Eq.subst (motive := (fun t : ℚ => t ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat)) s3_13.symm s3_16; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -131,9 +131,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 4.2. membership, from D5, 2
     -- 4.3. membership, from D6, 2
     -- 4.4. inequalities
-    have s4_4 : N k ≤ N k + 1 := by parley_order
+    have s4_4 : N k ≤ N k + 1 := by linarith only []
     -- 4.5. calculation
-    have r307_2 : (10 ^ k.toNat : ℤ) > 0 := by parley_order
+    have r307_2 : (10 ^ k.toNat : ℤ) > 0 := by linarith only [s4_1]
     have s4_5 : L k ≤ U k := by
       calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
         _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N k : ℚ)) (y := (N k : ℚ) + 1) (c := (10 ^ k.toNat : ℚ)) (by exact_mod_cast s4_4) (by exact_mod_cast gt_iff_lt.mp r307_2))
@@ -149,7 +149,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     | base =>
       intro p hP1
       -- 5.1. inequalities, from 4
-      have s5_1 : L p ≤ L p ∧ U p ≤ U p := by have := (s4 p hP1); parley_set_side
+      have s5_1 : L p ≤ L p ∧ U p ≤ U p := ⟨by linarith only [], by linarith only []⟩
       exact ⟨by simpa only [add_zero] using (s5_1).1, by simpa only [add_zero] using (s5_1).2⟩
     | succ g hG hIH2 =>
       intro p hP2
@@ -164,15 +164,15 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 5.6. instantiate k := (p + g) + 1 in line 4
       have s5_6 : L (p + g + 1) ≤ U (p + g + 1) := by linarith [(s4 (p + g + 1) (by parley_set_side))]
       -- 5.7. inequalities, from 5.2, 5.4, 5.5
-      have s5_7 : L p ≤ L (p + g) := by parley_order
+      have s5_7 : L p ≤ L (p + g) := by linarith only [s5_2.1]
       -- 5.8. inequalities, from 5.3, 5.5, 5.6
-      have s5_8 : L (p + g) ≤ L (p + g + 1) := by parley_order
+      have s5_8 : L (p + g) ≤ L (p + g + 1) := by linarith only [s5_3.1]
       -- 5.9. transitivity, from 5.7, 5.8
       have s5_9 : L p ≤ L (p + g + 1) := by exact le_trans s5_7 s5_8
       -- 5.10. inequalities, from 5.3, 5.5, 5.6
-      have s5_10 : U (p + g + 1) ≤ U (p + g) := by parley_order
+      have s5_10 : U (p + g + 1) ≤ U (p + g) := by linarith only [s5_3.2]
       -- 5.11. inequalities, from 5.2, 5.4, 5.5
-      have s5_11 : U (p + g) ≤ U p := by parley_order
+      have s5_11 : U (p + g) ≤ U p := by linarith only [s5_2.2]
       -- 5.12. transitivity, from 5.10, 5.11
       have s5_12 : U (p + g + 1) ≤ U p := by exact le_trans s5_10 s5_11
       -- 5.13. join 5.9, 5.12
@@ -196,7 +196,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     rcases s6_3 with hC5 | hC6
     · skip
       -- 6.4.1. mun:nat0-as-int
-      have r405_1 : 0 ≤ k - j := by parley_set_side
+      have r405_1 : 0 ≤ k - j := by linarith only [hC5]
       have s6_4_1 : 0 ≤ k - j := by
         have hI : 0 ≤ k - j := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k - j))).mpr ⟨by parley_set_side, r405_1⟩)
         exact hI
@@ -208,14 +208,14 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
         have row1 : L j ≤ L k ∧ U k ≤ U j := by (have h := Eq.subst (motive := (fun t : ℤ => L j ≤ L t ∧ U t ≤ U j)) c1 s6_4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 6.4.4. inequalities, from 6.1, 6.2, 6.4.3
-      have s6_4_4 : L j ≤ L k := by parley_order
+      have s6_4_4 : L j ≤ L k := by linarith only [s6_4_3.1]
       -- 6.4.5. transitivity, from 6.4.4, 6.2
       exact le_trans s6_4_4 s6_2
     · skip
       -- 6.4.6. inequalities, from C6
-      have s6_4_6 : k < j := by parley_order
+      have s6_4_6 : k < j := by linarith only [hC6]
       -- 6.4.7. inequalities
-      have s6_4_7 : 0 ≤ j - k := by parley_order
+      have s6_4_7 : 0 ≤ j - k := by linarith only [s6_4_6]
       -- 6.4.8. mun:nat0-as-int
       have r436_1 : 0 ≤ j - k := by exact s6_4_7
       have s6_4_8 : 0 ≤ j - k := by
@@ -229,7 +229,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
         have row1 : L k ≤ L j ∧ U j ≤ U k := by (have h := Eq.subst (motive := (fun t : ℤ => L k ≤ L t ∧ U t ≤ U k)) c1 s6_4_9; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 6.4.11. inequalities, from 6.1, 6.2, 6.4.10
-      have s6_4_11 : U j ≤ U k := by parley_order
+      have s6_4_11 : U j ≤ U k := by linarith only [s6_4_10.2]
       -- 6.4.12. transitivity, from 6.1, 6.4.11
       exact le_trans s6_1 s6_4_11
   -- 7. mun:set-builder-subset, from D4
@@ -305,13 +305,13 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.7. instantiate k := n in line 15
     have s16_7 : (L n : ℝ) ≤ c ∧ c ≤ (U n : ℝ) := by exact (s15 n (le_of_lt hK6))
     -- 16.8. mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from D5, 16.7
-    have r555_2 : (10 ^ n.toNat : ℤ) > 0 := by parley_order
+    have r555_2 : (10 ^ n.toNat : ℤ) > 0 := by linarith only [s16_6]
     have s16_8 : 10 ^ n.toNat * ((N n : ℝ) / 10 ^ n.toNat) ≤ 10 ^ n.toNat * c := by
       try simp only [hD5] at ⊢
       try push_cast at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (N n : ℝ) / 10 ^ n.toNat) (y := c) (c := (10 ^ n.toNat : ℝ)) (by (have h := s16_7.1; rw [hD5] at h; push_cast at h ⊢; all_goals exact h)) (by exact_mod_cast gt_iff_lt.mp r555_2))
     -- 16.9. mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from D6, 16.7
-    have r560_2 : (10 ^ n.toNat : ℤ) > 0 := by parley_order
+    have r560_2 : (10 ^ n.toNat : ℤ) > 0 := by linarith only [s16_6]
     have s16_9 : 10 ^ n.toNat * c ≤ 10 ^ n.toNat * (((N n : ℝ) + 1) / 10 ^ n.toNat) := by
       try simp only [hD6] at ⊢
       try push_cast at ⊢
@@ -349,16 +349,16 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     rcases s16_23 with hC7 | hC8
     · skip
       -- 16.24.1. inequalities, from 16.19
-      have s16_24_1 : N n ≤ ⌊10 ^ n.toNat * c⌋ := by parley_order
+      have s16_24_1 : N n ≤ ⌊10 ^ n.toNat * c⌋ := by linarith only [s16_19]
       -- 16.24.2. antisymmetry, from C7, 16.24.1
-      have s16_24_2 : ⌊10 ^ n.toNat * c⌋ = N n := by parley_set_side
+      have s16_24_2 : ⌊10 ^ n.toNat * c⌋ = N n := le_antisymm hC7 s16_24_1
       -- 16.24.3. algebra, from 16.3, 16.24.2
       have s16_24_3 : N (n - 1) * 10 + d n = ⌊10 ^ n.toNat * c⌋ := by linear_combination (norm := parley_norm) (-1) * s16_3 + (-1) * s16_24_2
       -- 16.24.4. exhibit, from 16.4, 16.24.3
       have s16_24_4 : ∃ q : ℤ, q * 10 + d n = ⌊10 ^ n.toNat * c⌋ := ⟨N (n - 1), s16_24_3⟩
       -- 16.24.5. calculation
       have r642_1 : 0 ≤ d n := by exact s16_21
-      have r642_2 : d n < 10 := by have := (hH2 n hK6); parley_order
+      have r642_2 : d n < 10 := by linarith only [(hH2 n hK6).2]
       have s16_24_5 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n := by
         calc ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) := by exact s16_20
           _ = d n := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := ⌊10 ^ n.toNat * c⌋) (m := (10 : ℤ)) (by parley_set_side) (r := d n) r642_1 r642_2)).mpr s16_24_4
@@ -366,11 +366,11 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n) (Q := ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ)) s16_24_5)
     · skip
       -- 16.24.7. inequalities, from C8, 16.5, 16.14
-      have s16_24_7 : N n < ⌊10 ^ n.toNat * c⌋ := by parley_order
+      have s16_24_7 : N n < ⌊10 ^ n.toNat * c⌋ := by linarith only [hC8]
       -- 16.24.8. mun:integer-step m := N(n), n := ⌊10^n·c⌋, from 16.5, 16.14, 16.24.7
       have s16_24_8 : N n + 1 ≤ ⌊10 ^ n.toNat * c⌋ := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := N n) (n := ⌊10 ^ n.toNat * c⌋) s16_24_7)
       -- 16.24.9. antisymmetry, from 16.18, 16.24.8
-      have s16_24_9 : ⌊10 ^ n.toNat * c⌋ = N n + 1 := by parley_set_side
+      have s16_24_9 : ⌊10 ^ n.toNat * c⌋ = N n + 1 := le_antisymm s16_18 s16_24_8
       -- 16.24.10. substitute
       have s16_24_10 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by
         have c1 : ⌊10 ^ n.toNat * c⌋ = N (n - 1) * 10 + (d n + 1) := by linear_combination (norm := parley_norm) s16_3 + s16_24_9

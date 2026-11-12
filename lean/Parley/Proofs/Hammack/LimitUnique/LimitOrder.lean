@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -13,6 +12,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -38,9 +38,9 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- the theorem. contradiction
   by_contra hS
   -- 1. inequalities, from S
-  have s1 : L < M := by parley_order
+  have s1 : L < M := by linarith only [hS]
   -- 2. inequalities
-  have s2 : (M - L) / 3 > 0 := by parley_order
+  have s2 : (M - L) / 3 > 0 := by linarith only [s1]
   -- 3. thm:limit-unfolded D := ℝ, from H5
   have r51_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
   have s3 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by
@@ -69,39 +69,39 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   set x₁ : ℝ := c + m / 2 with hD2
   have hD2_kind : True := by parley_set_side
   -- 11. inequalities, from D1, 9
-  have s11 : 0 < m := by parley_order
+  have s11 : 0 < m := by linarith only [s9, hD1]
   -- 12. inequalities
-  have s12 : c < c + m / 2 := by parley_order
+  have s12 : c < c + m / 2 := by linarith only [s11]
   -- 13. inequalities
-  have s13 : c ≠ c + m / 2 := by parley_set_side
+  have s13 : c ≠ c + m / 2 := ne_of_lt (by linarith only [s12])
   -- 14. inequalities, from D2, 13
-  have s14 : x₁ ≠ c := by parley_set_side
+  have s14 : x₁ ≠ c := fun h => s13 (by linarith only [h, hD2])
   -- 15. inequalities
-  have s15 : c + m / 2 < c + m := by parley_order
+  have s15 : c + m / 2 < c + m := by linarith only [s11]
   -- 16. inequalities, from D1, 10
-  have s16 : m ≤ p := by parley_order
+  have s16 : m ≤ p := by linarith only [s10a, hD1]
   -- 17. inequalities, from D1, 10
-  have s17 : m ≤ q := by parley_order
+  have s17 : m ≤ q := by linarith only [s10b, hD1]
   -- 18. inequalities
-  have s18 : c + m ≤ c + p := by parley_order
+  have s18 : c + m ≤ c + p := by linarith only [s16]
   -- 19. inequalities
-  have s19 : c + m ≤ c + q := by parley_order
+  have s19 : c + m ≤ c + q := by linarith only [s17]
   -- 20. transitivity, from 15, 18
   have s20 : c + m / 2 < c + p := by exact lt_of_lt_of_le s15 s18
   -- 21. transitivity, from 15, 19
   have s21 : c + m / 2 < c + q := by exact lt_of_lt_of_le s15 s19
   -- 22. inequalities
-  have s22 : c - p < c := by parley_order
+  have s22 : c - p < c := by linarith only [s7a]
   -- 23. inequalities
-  have s23 : c - q < c := by parley_order
+  have s23 : c - q < c := by linarith only [s8a]
   -- 24. transitivity, from 22, 12
   have s24 : c - p < c + m / 2 := by exact lt_trans s22 s12
   -- 25. transitivity, from 23, 12
   have s25 : c - q < c + m / 2 := by exact lt_trans s23 s12
   -- 26. inequalities, from D2, 20, 24
-  have s26 : c - p < x₁ ∧ x₁ < c + p := by parley_set_side
+  have s26 : c - p < x₁ ∧ x₁ < c + p := ⟨by linarith only [s24, hD2], by linarith only [s20, hD2]⟩
   -- 27. inequalities, from D2, 21, 25
-  have s27 : c - q < x₁ ∧ x₁ < c + q := by parley_set_side
+  have s27 : c - q < x₁ ∧ x₁ < c + q := ⟨by linarith only [s25, hD2], by linarith only [s21, hD2]⟩
   -- 28. mun:abs-difference-lt x := x₁, δ := p, from 26
   have s28 : abs (x₁ - c) < p := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := p))).mpr ⟨s26.1, s26.2⟩
   -- 29. mun:abs-difference-lt x := x₁, δ := q, from 27
@@ -117,7 +117,7 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 34. transitivity, from 33, 32
   have s34 : M - (M - L) / 3 < L + (M - L) / 3 := by exact lt_trans s33 s32
   -- 35. inequalities
-  have s35 : M ≤ L := by parley_order
+  have s35 : M ≤ L := by linarith only [s34]
   exact hS s35
 
 end Parley.Proofs.Hammack.LimitUnique.LimitOrder

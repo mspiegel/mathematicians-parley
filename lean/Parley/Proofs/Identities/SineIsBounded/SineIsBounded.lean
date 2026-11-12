@@ -14,6 +14,7 @@ public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -37,44 +38,44 @@ theorem sine_is_bounded (x : ℝ) :
   -- 2. mun:square-nonneg x := cos(x)
   have s2 : Real.cos x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := Real.cos x))
   -- 3. inequalities
-  have s3 : -(Real.cos x ^ 2) ≤ 0 := by parley_order
+  have s3 : -(Real.cos x ^ 2) ≤ 0 := by linarith only [s2]
   -- 4. inequalities
-  have s4 : Real.sin x ^ 2 + Real.cos x ^ 2 ≤ 1 := by parley_order
+  have s4 : Real.sin x ^ 2 + Real.cos x ^ 2 ≤ 1 := by linarith only [s1]
   -- 5. inequalities, from 3, 4
-  have s5 : Real.sin x ^ 2 ≤ 1 := by parley_order
+  have s5 : Real.sin x ^ 2 ≤ 1 := by linarith only [s3, s4]
   -- 6. contradiction
   have s6 : Real.sin x ≤ 1 := by
     by_contra hS1
     -- 6.1. inequalities, from S1
-    have s6_1 : Real.sin x > 1 := by parley_order
+    have s6_1 : Real.sin x > 1 := by linarith only [hS1]
     -- 6.2. inequalities, from 6.1
-    have s6_2 : Real.sin x > 0 := by parley_order
+    have s6_2 : Real.sin x > 0 := by linarith only [s6_1]
     -- 6.3. mun:square-less x := 1, y := sin(x), from 6.1
     have r40_1 : (1 : ℤ) ≥ 0 := by parley_arith
-    have r40_2 : Real.sin x ≥ 0 := by parley_side
+    have r40_2 : Real.sin x ≥ 0 := by linarith only [s6_2]
     have s6_3 : 1 ^ 2 < Real.sin x ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := Real.sin x) (by parley_side) r40_2)).mp s6_1
     -- 6.4. inequalities, from 6.3
-    have s6_4 : ¬ Real.sin x ^ 2 ≤ 1 := by parley_side
+    have s6_4 : ¬ Real.sin x ^ 2 ≤ 1 := by linarith only [s6_3]
     exact s6_4 s5
   -- 7. contradiction
   have s7 : -1 ≤ Real.sin x := by
     by_contra hS2
     -- 7.1. inequalities, from S2
-    have s7_1 : Real.sin x < -1 := by parley_order
+    have s7_1 : Real.sin x < -1 := by linarith only [hS2]
     -- 7.2. inequalities
-    have s7_2 : -Real.sin x > 1 := by parley_order
+    have s7_2 : -Real.sin x > 1 := by linarith only [s7_1]
     -- 7.3. inequalities, from 7.2
-    have s7_3 : -Real.sin x > 0 := by parley_order
+    have s7_3 : -Real.sin x > 0 := by linarith only [s7_2]
     -- 7.4. mun:square-less x := 1, y := −sin(x), from 7.2
     have r63_1 : (1 : ℤ) ≥ 0 := by parley_arith
-    have r63_2 : -Real.sin x ≥ 0 := by parley_side
+    have r63_2 : -Real.sin x ≥ 0 := by linarith only [s7_3]
     have s7_4 : 1 ^ 2 < (-Real.sin x) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := -Real.sin x) (by parley_side) r63_2)).mp s7_2
     -- 7.5. algebra
     have s7_5 : (-Real.sin x) ^ 2 = Real.sin x ^ 2 := by parley_ring
     -- 7.6. transitivity, from 7.4, 7.5
     have s7_6 : 1 ^ 2 < Real.sin x ^ 2 := by parley_order
     -- 7.7. inequalities, from 7.6
-    have s7_7 : ¬ Real.sin x ^ 2 ≤ 1 := by parley_side
+    have s7_7 : ¬ Real.sin x ^ 2 ≤ 1 := by linarith only [s7_6]
     exact s7_7 s5
   -- 8. join 6, 7
   have s8 : -1 ≤ Real.sin x ∧ Real.sin x ≤ 1 := by parley_side

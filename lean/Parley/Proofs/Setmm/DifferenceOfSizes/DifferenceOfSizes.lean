@@ -1,10 +1,10 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -28,6 +28,6 @@ theorem difference_of_sizes (A : ℝ) (B : ℝ) :
     have row1 : abs A ≤ abs (A - B) + abs B := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (A - B) + abs B)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 3. inequalities
-  parley_order
+  linarith only [s2]
 
 end Parley.Proofs.Setmm.DifferenceOfSizes.DifferenceOfSizes

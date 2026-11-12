@@ -6,6 +6,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -31,7 +32,7 @@ theorem equal_or_sum_five (x : ℝ) (y : ℝ) (hH3 : x ^ 2 + 5 * y = y ^ 2 + 5 *
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) hC1)
   · skip
     -- 2.2. inequalities, from C2
-    have s2_2 : x + y - 5 ≠ 0 := by parley_side
+    have s2_2 : x + y - 5 ≠ 0 := fun h => hC2 (by linarith only [h])
     -- 2.3. algebra, from H3
     have s2_3 : (x - y) * (x + y - 5) = 0 * (x + y - 5) := by linear_combination (norm := parley_norm) hH3
     -- 2.4. mun:multiply-cancel a := x − y, b := 0, c := x + y − 5, from 2.2, 2.3

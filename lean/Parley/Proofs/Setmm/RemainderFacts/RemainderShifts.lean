@@ -12,9 +12,12 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -29,12 +32,12 @@ namespace Parley.Proofs.Setmm.RemainderFacts.RemainderShifts
 theorem remainder_shifts (X : ℝ) (M : ℝ) (hH3 : M > 0) (K : ℤ) :
     LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = LeanBridges.Divisibility.mod X M := by
   -- 1. mun:floor-integer x := X/M
-  have r16_1 : M ≠ 0 := by parley_side
+  have r16_1 : M ≠ 0 := ne_of_gt (by linarith only [hH3])
   -- 2. thm:floor-add-integer A := X/M, N := K
-  have r20_1 : M ≠ 0 := by parley_side
+  have r20_1 : M ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s2 : ⌊X / M + (K : ℝ)⌋ = ⌊X / M⌋ + K := by exact (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K))
   -- 3. substitute
-  have r24_1 : M ≠ 0 := by parley_side
+  have r24_1 : M ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s3 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by
     have c1 : X / M + (K : ℝ) = (X + M * (K : ℝ)) / M := by parley_ring
     have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by (have h := Eq.subst (motive := (fun t : ℝ => ⌊t⌋ = ⌊X / M⌋ + K)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)

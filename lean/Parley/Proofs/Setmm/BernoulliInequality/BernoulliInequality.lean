@@ -12,6 +12,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -38,13 +39,13 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       -- 1.1. algebra
       have s1_1 : A ^ 0 = 1 := by parley_ring
       -- 1.2. inequalities
-      have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_order
+      have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by linarith only [s1_1]
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
     | succ k hK hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
       have s1_3 : A ^ (k + 1).toNat = A ^ k.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) hK)
       -- 1.4. inequalities
-      have s1_4 : 0 ≤ A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) := by parley_order
+      have s1_4 : 0 ≤ A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) := by linarith only [hIH]
       set X : ℝ := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) with hD1
       have hD1_kind : True := by parley_side
       -- 1.5. thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
@@ -62,11 +63,11 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
         try push_cast at ⊢
         parley_ring
       -- 1.9. inequalities, from 1.5, 1.7
-      have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by parley_order
+      have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by linarith only [s1_5, s1_7]
       -- 1.10. transitivity, from 1.9, 1.8
       have s1_10 : 0 ≤ A ^ k.toNat * A - ((A - 1) * ((k : ℝ) + 1) + 1) := by parley_order
       -- 1.11. inequalities
-      have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k.toNat * A := by parley_order
+      have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k.toNat * A := by linarith only [s1_10]
       -- 1.12. transitivity, from 1.11, 1.3
       have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1).toNat := by exact LE.le.trans_eq s1_11 s1_3.symm
       exact_mod_cast s1_12

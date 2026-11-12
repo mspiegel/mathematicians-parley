@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -22,6 +21,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -117,10 +117,10 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   have r128_1 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact s6
   have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) s3 (by parley_set_side) (by parley_set_side))
   -- 8. inequalities
-  have s8 : ¬ j + 1 ≤ j := by parley_set_side
+  have s8 : ¬ j + 1 ≤ j := by linarith only []
   -- 9. def:range-between k := j + 1, a := 1, b := j + 1
-  have r135_1 : 1 ≤ j + 1 := by parley_order
-  have r135_2 : j + 1 ≤ j + 1 := by parley_order
+  have r135_1 : 1 ≤ j + 1 := by linarith only [s2a]
+  have r135_2 : j + 1 ≤ j + 1 := by linarith only []
   have s9 : j + 1 ∈ Finset.Icc (1 : ℤ) (j + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := j + 1) (a := (1 : ℤ)) (b := j + 1))).mpr ⟨r135_1, r135_2⟩
   -- 10. D2, from 8, 9
   have s10 : h (j + 1) = p := by simp (disch := omega) only [hD2, if_neg s8]

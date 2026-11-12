@@ -2,6 +2,8 @@ module
 
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -24,9 +26,9 @@ theorem a_define_read_in_a_case_split (a : ℝ) (hH2 : a + 1 < 0 ∨ a + 1 > 0) 
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. inequalities
-    parley_side
+    exact ne_of_lt (by linarith only [hC1])
   · skip
     -- 2.2. inequalities
-    parley_side
+    exact ne_of_gt (by linarith only [hC2])
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInACaseSplit

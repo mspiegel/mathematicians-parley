@@ -1,9 +1,9 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 
 /-! Written from tests/elaborator/textbook-exercise-shapes-two.proof by parley build lean. -/
@@ -21,10 +21,10 @@ theorem a_contradiction_ending_in_cases (x : ℝ) (hH2 : x > 2 ∨ x > 1) :
     rcases hH2 with hC1 | hC2
     · skip
       -- 1.1.1. inequalities, from C1
-      parley_order
+      linarith only [hC1]
     · skip
       -- 1.1.2. inequalities, from C2
-      parley_order
+      linarith only [hC2]
   exact hS s1_1
 
 end Parley.Tests.Elaborator.TextbookExerciseShapesTwo.AContradictionEndingInCases

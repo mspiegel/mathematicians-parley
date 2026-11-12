@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -9,6 +8,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -46,7 +46,7 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
     have s4_3 : W.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := W) hH2 s3)
     -- 4.4. inequalities
     have r215_1 : 0 ≤ (W.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := W) s4_3)
-    have s4_4 : k + 1 ≤ (W.ncard : ℤ) + 1 := by parley_count_int; (parley_order)
+    have s4_4 : k + 1 ≤ (W.ncard : ℤ) + 1 := by parley_count_int; (linarith only [s4_1.1])
     -- 4.5. calculation
     have s4_5 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) := by parley_count_after (by
       calc k + 1 ≤ (W.ncard : ℤ) + 1 := by parley_set_side

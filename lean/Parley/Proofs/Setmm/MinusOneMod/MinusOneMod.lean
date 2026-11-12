@@ -1,9 +1,9 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -27,7 +27,7 @@ theorem minus_one_mod (M : ℤ) (hH1 : 0 < M) :
   -- 3. mun:nat-minus-one n := M
   have s3 : 0 ≤ M - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := M) hH1)
   -- 4. mun:mod-remainder a := −1, m := M, r := M − 1, from 2, 3
-  have r19_1 : M - 1 < M := by parley_order
+  have r19_1 : M - 1 < M := by linarith only []
   exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := M) hH1 (r := M - 1) s3 r19_1)).mpr s2
 
 end Parley.Proofs.Setmm.MinusOneMod.MinusOneMod

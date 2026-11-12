@@ -1,11 +1,12 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -37,19 +38,19 @@ theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
     -- 3. mun:square-nonneg x := B
     have s3 : B ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := B))
     -- 4. inequalities
-    have s4 : A ^ 2 + B ^ 2 ≤ 0 := by parley_order
+    have s4 : A ^ 2 + B ^ 2 ≤ 0 := by linarith only [hD2]
     -- 5. inequalities
-    have s5 : -(B ^ 2) ≤ 0 := by parley_order
+    have s5 : -(B ^ 2) ≤ 0 := by linarith only [s3]
     -- 6. inequalities, from 4, 5
-    have s6 : A ^ 2 ≤ 0 := by parley_order
+    have s6 : A ^ 2 ≤ 0 := by linarith only [s4, s5]
     -- 7. antisymmetry, from 2, 6
-    have s7 : A ^ 2 = 0 := by parley_side
+    have s7 : A ^ 2 = 0 := le_antisymm s6 s2
     -- 8. inequalities
-    have s8 : -(A ^ 2) ≤ 0 := by parley_order
+    have s8 : -(A ^ 2) ≤ 0 := by linarith only [s2]
     -- 9. inequalities, from 4, 8
-    have s9 : B ^ 2 ≤ 0 := by parley_order
+    have s9 : B ^ 2 ≤ 0 := by linarith only [s4, s8]
     -- 10. antisymmetry, from 3, 9
-    have s10 : B ^ 2 = 0 := by parley_side
+    have s10 : B ^ 2 = 0 := le_antisymm s9 s3
     -- 11. mun:square-zero x := A, from 7
     have s11 : A = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side))
     -- 12. mun:square-zero x := B, from 10

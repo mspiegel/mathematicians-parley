@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -10,6 +9,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -43,7 +43,7 @@ theorem size_zero_one_or_more {α : Type*} (M : Set α) (hH2 : M.Finite) :
   -- 2.3. mun:nat0-nonzero m := |M|, from 1, 2.2
   have s2_3 : 0 < (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (M.ncard : ℤ)) (by parley_set_side) (by parley_set_side))
   -- 2.4. inequalities, from 2.3
-  have s2_4 : 1 ≤ (M.ncard : ℤ) := by parley_count_int; (parley_order)
+  have s2_4 : 1 ≤ (M.ncard : ℤ) := by parley_count_int; (linarith only [s2_3])
   -- 2.5. mun:le-cases x := 1, y := |M|
   have s2_5 : 1 ≤ (M.ncard : ℤ) ↔ 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ)))
   -- 2.6. mun:iff-from-left P := 1 ≤ |M|, Q := 1 < |M| or 1 = |M|, from 2.4, 2.5

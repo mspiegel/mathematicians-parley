@@ -1,13 +1,13 @@
 module
 
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -27,14 +27,14 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
   -- the theorem. contradiction
   by_contra (hS : a ≠ b)
   -- 1. mun:square-positive x := a − b
-  have r19_1 : a - b ≠ 0 := by parley_side
+  have r19_1 : a - b ≠ 0 := fun h => hS (by linarith only [h])
   have s1 : (a - b) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a - b) r19_1)
   -- 2. mun:square-nonneg x := a + b
   have s2 : (a + b) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b))
   -- 3. inequalities
-  have s3 : 3 * (a + b) ^ 2 ≥ 0 := by parley_order
+  have s3 : 3 * (a + b) ^ 2 ≥ 0 := by linarith only [s2]
   -- 4. inequalities, from 1, 3
-  have s4 : (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by parley_order
+  have s4 : (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by linarith only [s1, s3]
   -- 5. algebra, from H3
   have s5 : (a - b) * (a ^ 2 + a * b + b ^ 2) = 0 := by linear_combination (norm := parley_norm) hH3
   -- 6. mun:zero-product x := a − b, y := a² + a·b + b², from 5
@@ -51,9 +51,9 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
   -- 8. algebra, from 7
   have s8 : (a - b) ^ 2 + 3 * (a + b) ^ 2 = 0 := by linear_combination (norm := parley_norm) (4) * s7
   -- 9. inequalities
-  have s9 : (a - b) ^ 2 + 3 * (a + b) ^ 2 ≤ 0 := by parley_order
+  have s9 : (a - b) ^ 2 + 3 * (a + b) ^ 2 ≤ 0 := by linarith only [s8]
   -- 10. inequalities, from 9
-  have s10 : ¬ (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by parley_side
+  have s10 : ¬ (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by linarith only [s9]
   exact s10 s4
 
 end Parley.Proofs.Hammack.CubeRootInjective.CubeInjective

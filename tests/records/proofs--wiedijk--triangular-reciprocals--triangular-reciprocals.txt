@@ -28,6 +28,15 @@ step 6.2.6 chains 2 − ε < 2 − 2 / (n + 1) (6.2.5 sentence 0) | Σ(k = 1 to 
 step 6.2.9 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) (5 sentence 1) | 2 − 2 / (n + 1) < 2 + ε (6.2.8 sentence 0)
 step 6.3 exhibits in sentence 0 N := N; facts by once 6.1 sentence 0, 6.2 sentence 0
 requires line 1 of step 8 restates 2 sentence 0
+requires line 1 of step 5.1 sentence 0 part 0 adds [K5 sentence 0 implied by SystemFact { lemma: "nnge1" }]
+requires line 1 of step 6.1 sentence 0 part 0 adds [A1 sentence 0]
+step 6.2.1 sentence 0 part 0 adds [A2 sentence 0]
+requires line 1 of step 6.2.2 sentence 0 part 0 adds [6.1 sentence 0 implied by SystemFact { lemma: "nnge1" }]
+requires line 2 of step 6.2.2 sentence 0 part 0 adds [K7 sentence 0 implied by SystemFact { lemma: "nnge1" }]
+requires line 1 of step 6.2.3 sentence 0 part 0 adds [K7 sentence 0 implied by SystemFact { lemma: "nnge1" }]
+step 6.2.5 sentence 0 part 0 adds [6.2.4 sentence 0]
+step 6.2.7 sentence 0 part 0 adds [6.2.3 sentence 0]
+step 6.2.8 sentence 0 part 0 adds [A1 sentence 0, 6.2.7 sentence 0]
 step 6.1 obtains sentence 1 part 0 is part 0
 read 11: ℕ  as  number-systems:ℕ  a set
 read 14: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement

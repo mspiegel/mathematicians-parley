@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -17,6 +16,8 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -72,9 +73,9 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
         -- 1.3.2.4. algebra, from 1.3.2.3
         have s1_3_2_4 : s + t = 1 := by qify at *; linear_combination (norm := parley_norm) ((8) / ((4))) * s1_3_2_3
         -- 1.3.2.5. inequalities, from K1, K2
-        have s1_3_2_5 : s + t > 1 := by parley_order
+        have s1_3_2_5 : s + t > 1 := by linarith only [hK1, hK2]
         -- 1.3.2.6. inequalities
-        have s1_3_2_6 : s + t ≠ 1 := by parley_set_side
+        have s1_3_2_6 : s + t ≠ 1 := ne_of_gt (by linarith only [s1_3_2_5])
         exact absurd s1_3_2_4 s1_3_2_6
     · skip
       -- 1.3.3. thm:alternating-value-odd m := s, from C2, H2
@@ -90,9 +91,9 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
         -- 1.3.4.2. algebra, from 1.3.4.1
         have s1_3_4_2 : s + t = 1 := by qify at *; linear_combination (norm := parley_norm) ((-8) / ((4))) * s1_3_4_1
         -- 1.3.4.3. inequalities, from K1, K2
-        have s1_3_4_3 : s + t > 1 := by parley_order
+        have s1_3_4_3 : s + t > 1 := by linarith only [hK1, hK2]
         -- 1.3.4.4. inequalities
-        have s1_3_4_4 : s + t ≠ 1 := by parley_set_side
+        have s1_3_4_4 : s + t ≠ 1 := ne_of_gt (by linarith only [s1_3_4_3])
         exact absurd s1_3_4_2 s1_3_4_4
       · skip
         -- 1.3.4.5. calculation
@@ -113,9 +114,9 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
     rcases s3_1 with hC7 | hC8
     · skip
       -- 3.2.1. inequalities
-      have s3_2_1 : 1 - 2 * y ≥ 1 := by parley_order
+      have s3_2_1 : 1 - 2 * y ≥ 1 := by linarith only [hC7]
       -- 3.2.2. inequalities, from 3.2.1
-      have s3_2_2 : 1 - 2 * y > 0 := by parley_order
+      have s3_2_2 : 1 - 2 * y > 0 := by linarith only [s3_2_1]
       -- 3.2.3. mun:pos-int-nat m := 1 − 2·y, from 3.2.2
       have s3_2_3 : 0 < 1 - 2 * y := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * y) s3_2_2)
       -- 3.2.4. algebra
@@ -132,7 +133,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       exact ⟨1 - 2 * y, s3_2_3, s3_2_7⟩
     · skip
       -- 3.2.9. inequalities
-      have s3_2_9 : 2 * y > 0 := by parley_order
+      have s3_2_9 : 2 * y > 0 := by linarith only [hC8]
       -- 3.2.10. mun:pos-int-nat m := 2·y, from 3.2.9
       have s3_2_10 : 0 < 2 * y := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * y) s3_2_9)
       -- 3.2.11. def:even n := 2·y

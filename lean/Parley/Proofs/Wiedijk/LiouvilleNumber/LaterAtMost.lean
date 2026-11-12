@@ -27,6 +27,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Eq
@@ -76,9 +77,9 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
     try push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ)) (by parley_side) (by parley_side))
   -- 2.7. inequalities
-  have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - g + (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by parley_order
+  have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - g + (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by linarith only [s2_5]
   -- 2.8. inequalities
-  have s2_8 : 0 ≤ g := by parley_order
+  have s2_8 : 0 ≤ g := by linarith only [s2_6]
   -- 2.9. inequalities, from 2.7, 2.8
   parley_order
 

@@ -1,13 +1,13 @@
 module
 
 public import ArithTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -42,13 +42,13 @@ theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℤ
   -- 6. obtain Q from line 5
   obtain ⟨Q, s6a, s6b⟩ := s5
   -- 7. inequalities, from 6
-  have s7 : Q > 0 := by parley_order
+  have s7 : Q > 0 := by linarith only [s6a]
   -- 8. inequalities
-  have s8 : P + Q ≥ P := by parley_order
+  have s8 : P + Q ≥ P := by linarith only [s7]
   -- 9. inequalities, from 4
-  have s9 : P > 0 := by parley_order
+  have s9 : P > 0 := by linarith only [s4a]
   -- 10. inequalities
-  have s10 : P + Q > Q := by parley_order
+  have s10 : P + Q > Q := by linarith only [s9]
   -- 11. instantiate n := P + Q in line 4, from 8
   have s11 : abs (a (P + Q) - L) < 1 := by exact (s4b (P + Q) (by parley_side) s8)
   -- 12. instantiate n := P + Q in line 6, from 10
@@ -56,9 +56,9 @@ theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℤ
   -- 13. mun:abs-difference-lt x := a(P + Q), c := L, δ := 1, from 11
   have s13 : L - 1 < a (P + Q) ∧ a (P + Q) < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a (P + Q)) (c := L) (δ := (1 : ℝ)))).mp s11
   -- 14. inequalities
-  have s14 : a (P + Q) ≤ L + 1 := by parley_order
+  have s14 : a (P + Q) ≤ L + 1 := by linarith only [s13.2]
   -- 15. inequalities, from 14
-  have s15 : ¬ a (P + Q) > L + 1 := by parley_side
+  have s15 : ¬ a (P + Q) > L + 1 := by linarith only [s14]
   exact s15 s12
 
 end Parley.Proofs.Hammack.DivergentHasNoLimit.DivergentHasNoLimit

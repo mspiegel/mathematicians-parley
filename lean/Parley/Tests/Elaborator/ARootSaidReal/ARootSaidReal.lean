@@ -7,6 +7,7 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -26,7 +27,7 @@ theorem a_root_said_real (A : ℝ) (hH2 : A ≥ 0) :
   -- 1. def:sqrt x := A, from H2
   have s1 : Real.sqrt A ^ 2 = A := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH2)
   -- 2. inequalities
-  have s2 : A ≤ A + 1 := by parley_order
+  have s2 : A ≤ A + 1 := by linarith only []
   -- 3. transitivity, from 1, 2
   parley_order
 

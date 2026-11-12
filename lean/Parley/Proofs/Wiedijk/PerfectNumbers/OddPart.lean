@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -23,6 +22,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -57,7 +57,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       -- 1.2. mun:range-bounds a := 1, b := 0, k := j, from K1
       have s1_2 : j ≤ 0 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.3. inequalities, from 1.1
-      have s1_3 : ¬ j ≤ 0 := by parley_side
+      have s1_3 : ¬ j ≤ 0 := by linarith only [s1_1]
       exact absurd s1_2 s1_3
     | succ N hK2 hIH =>
       intro j hK3
@@ -79,20 +79,20 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           have s1_7_2 : 1 ≤ 2 * i := by (have h := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1_7_1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 1.7.3. mun:factor-positive a := 2, b := i
           have r197_1 : (2 : ℤ) ≥ 0 := by parley_arith
-          have r197_2 : 2 * i > 0 := by parley_order
+          have r197_2 : 2 * i > 0 := by linarith only [s1_7_2]
           have s1_7_3 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) r197_1 (by parley_side))
           -- 1.7.4. mun:pos-int-nat m := i, from 1.7.3
           have s1_7_4 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3)
           -- 1.7.5. inequalities
-          have s1_7_5 : i < 2 * i := by parley_order
+          have s1_7_5 : i < 2 * i := by linarith only [s1_7_3]
           -- 1.7.6. transitivity, from 1.7.5, 1.7.1, 1.5
           have s1_7_6 : i < N + 1 := by exact lt_of_lt_of_le (LT.lt.trans_eq s1_7_5 s1_7_1.symm) s1_5
           -- 1.7.7. mun:integer-step m := i, n := N + 1, from 1.7.6
           have s1_7_7 : i + 1 ≤ N + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := i) (n := N + 1) s1_7_6)
           -- 1.7.8. inequalities
-          have s1_7_8 : i ≤ N := by parley_order
+          have s1_7_8 : i ≤ N := by linarith only [s1_7_7]
           -- 1.7.9. def:range-between k := i, a := 1, b := N, from 1.7.8
-          have r222_1 : 1 ≤ i := by parley_order
+          have r222_1 : 1 ≤ i := by linarith only [s1_7_4]
           have s1_7_9 : i ∈ Finset.Icc (1 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := N))).mpr ⟨r222_1, s1_7_8⟩
           -- 1.7.10. instantiate j := i in IH, from 1.7.9
           have s1_7_10 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ i = 2 ^ k.toNat * m)) := by exact (hIH i s1_7_9)
@@ -116,8 +116,8 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
   -- 2. instantiate N := n in line 1
   have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; exact (s1 n (le_of_lt hH1) j (by parley_side))
   -- 3. def:range-between k := n, a := 1, b := n
-  have r260_1 : 1 ≤ n := by parley_order
-  have r260_2 : n ≤ n := by parley_order
+  have r260_1 : 1 ≤ n := by linarith only [hH1]
+  have r260_2 : n ≤ n := by linarith only []
   have s3 : n ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := n))).mpr ⟨r260_1, r260_2⟩
   -- 4. instantiate j := n in line 2, from 3
   have s4 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ n = 2 ^ k.toNat * m)) := by exact (s2 n s3)

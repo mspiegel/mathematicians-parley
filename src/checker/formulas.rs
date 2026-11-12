@@ -8,7 +8,8 @@ use indexmap::IndexMap;
 
 use super::library::{Known, SaidFrom, Stated};
 use super::record::{
-    ChainLink, CheckedTheorem, Contradicted, Negating, Supposed, Supposition,
+    Antisymmetric, ChainLink, CheckedTheorem, Contradicted, FirstAt, Negating,
+    OrderFact, OrderPart, OrderRestated, OrderStep, Supposed, Supposition, Weakened,
 };
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
@@ -3430,7 +3431,7 @@ fn inequalities_unsaid(
     let used = inequalities::combined(&claimed, &terms, &line_of, &implied, &labels)?;
     let relations: Vec<Node> = conjuncts(&read.claimed)
         .into_iter()
-        .chain(used.iter().filter_map(|&i| facts.get(i).cloned()))
+        .chain(used.cited.iter().filter_map(|&i| facts.get(i).cloned()))
         .collect();
     real_unsaid(at, read, &relations, known, targets)
 }
@@ -4057,6 +4058,416 @@ pub fn transitivity_links(
                 })
                 .collect();
             Some((s.just.line, linked))
+        })
+        .collect()
+}
+
+/// What each order step rests on (`CheckedTheorem::orders`), by the line of
+/// its justification: each plain `inequalities` step and each requires line
+/// whose reason is `inequalities`, the combination the checker decided it by
+/// (`inequalities::combined`); each step with rows, the line its first row
+/// writes out; each requires line naming one manipulation, the line it
+/// manipulates. One with a fact that stands nowhere a backend can name it
+/// is left out.
+pub fn order_steps(
+    thm: &Theorem,
+    known: &Known,
+    library: &Library,
+) -> IndexMap<usize, OrderStep> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Inequalities) {
+            let recorded = match step.just.rows.is_empty() {
+                true => combined_order(thm, &ClosureClaim::step(step), known, library),
+                false => rows_order(thm, step, known, library),
+            };
+            if let Some(order) = recorded {
+                out.insert(step.just.line, order);
+            }
+        }
+        for req in &step.requires {
+            let recorded = match req.is(Method::Inequalities) {
+                true => combined_order(
+                    thm,
+                    &ClosureClaim::requires(step, req),
+                    known,
+                    library,
+                ),
+                false => manipulation_order(thm, step, req, known, library),
+            };
+            if let Some(order) = recorded {
+                out.insert(req.line, order);
+            }
+        }
+    }
+    out
+}
+
+/// A fact a membership among an order step's facts implies
+/// (`combined_order`), with the rule, and the fact it is implied by, by its
+/// place; None for the member a claim said of every member is read at.
+struct ImpliedFact {
+    node: Node,
+    rule: crate::citing::Implication,
+    from: Option<usize>,
+}
+
+/// What a plain order claim rests on, read as `inequalities_hold` reads it
+/// to decide it: each fact of the lines it cites, part by part, and what a
+/// membership among them, or the member it is read at, implies.
+fn combined_order(
+    thm: &Theorem,
+    at: &ClosureClaim,
+    known: &Known,
+    library: &Library,
+) -> Option<OrderStep> {
+    let targets = &library.targets;
+    let mut read = at.read(known, targets, false)?;
+    read.read_at_member(known);
+    let mut facts: Vec<Node> = Vec::new();
+    let mut line_of: Vec<usize> = Vec::new();
+    for (said, &line) in read.lines.iter().zip(&read.line_of) {
+        for part in conjuncts(said) {
+            facts.push(part);
+            line_of.push(line);
+        }
+    }
+    let mut implied: Vec<ImpliedFact> = Vec::new();
+    for (i, part) in facts.iter().enumerate() {
+        for (node, rule) in crate::citing::implied_by(part, known.env, &known.sorts) {
+            implied.push(ImpliedFact {
+                node,
+                rule,
+                from: Some(i),
+            });
+        }
+    }
+    if let Some(member) = &read.member {
+        for (node, rule) in crate::citing::implied_by(member, known.env, &known.sorts) {
+            implied.push(ImpliedFact {
+                node,
+                rule,
+                from: None,
+            });
+        }
+    }
+    let labels = FloatLabels::new(IndexMap::new());
+    let terms: Vec<Term> = facts.iter().map(|n| term_of_node(n, targets)).collect();
+    let implied_terms: Vec<Term> = implied
+        .iter()
+        .map(|i| term_of_node(&i.node, targets))
+        .collect();
+    let fact_of = |source: inequalities::Source| -> Option<OrderFact> {
+        match source {
+            inequalities::Source::Cited(i) => {
+                order_fact(thm, at, line_of[i], &facts[i], known, library)
+            }
+            // What a fact implies stands where the fact does, with the rule.
+            inequalities::Source::Implied(j) => {
+                let one = &implied[j];
+                let Some(i) = one.from else {
+                    return Some(OrderFact::Member(one.rule));
+                };
+                match order_fact(thm, at, line_of[i], &facts[i], known, library)? {
+                    OrderFact::Line(source) => Some(OrderFact::Line(FirstAt {
+                        written: one.node.clone(),
+                        implied: Some(one.rule),
+                        ..source
+                    })),
+                    OrderFact::Requires {
+                        line,
+                        implied: None,
+                    } => Some(OrderFact::Requires {
+                        line,
+                        implied: Some(one.rule),
+                    }),
+                    OrderFact::Define(define) => Some(OrderFact::Kind {
+                        define,
+                        implied: one.rule,
+                        written: one.node.clone(),
+                    }),
+                    _ => None,
+                }
+            }
+        }
+    };
+    let mut sentences = Vec::new();
+    for sentence in &read.sentences {
+        let claimed = term_of_node(sentence, targets);
+        let combined = inequalities::combined(
+            &claimed,
+            &terms,
+            &line_of,
+            &implied_terms,
+            &labels,
+        )?;
+        // A define the step cites is read written out, its name its value,
+        // so its equation stands among what every part adds.
+        let defines: Vec<OrderFact> = at
+            .refs
+            .iter()
+            .filter(|r| thm.defines.iter().any(|d| d.label == **r))
+            .map(|r| OrderFact::Define(r.clone()))
+            .collect();
+        let mut parts = Vec::new();
+        for part in combined.parts {
+            let restates = match part.restates {
+                Some(r) => Some(OrderRestated {
+                    by: fact_of(r.by)?,
+                    turned: r.turned,
+                }),
+                None => None,
+            };
+            let mut uses: Vec<OrderFact> =
+                part.uses.into_iter().map(fact_of).collect::<Option<_>>()?;
+            for d in &defines {
+                let named = |f: &OrderFact| matches!((f, d), (OrderFact::Define(a), OrderFact::Define(b)) if a == b);
+                if !uses.iter().any(named) {
+                    uses.push(d.clone());
+                }
+            }
+            parts.push(OrderPart {
+                uses,
+                split: part.split.into_iter().map(fact_of).collect::<Option<_>>()?,
+                restates,
+                weakened: None,
+            });
+        }
+        sentences.push(parts);
+    }
+    Some(OrderStep { sentences })
+}
+
+/// Where `fact`, of the line `line` among what `at` reads (`ClosureRead::
+/// line_of`), stands: a sentence or part of a cited line, a cited define's
+/// equation, or a requires line above. None where it stands in none of
+/// those as one sentence.
+fn order_fact(
+    thm: &Theorem,
+    at: &ClosureClaim,
+    line: usize,
+    fact: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<OrderFact> {
+    let Some(r) = at.refs.get(line) else {
+        let k = line - at.refs.len();
+        let above = at.above.get(k)?;
+        return (above.fact.sentences().len() == 1).then_some(OrderFact::Requires {
+            line: k,
+            implied: None,
+        });
+    };
+    if thm.defines.iter().any(|d| d.label == *r) {
+        return Some(OrderFact::Define(r.clone()));
+    }
+    // The line is read with every define the step cites written out, as
+    // the step reads it; it is looked in first.
+    let mut refs = vec![r.clone()];
+    refs.extend(at.refs.iter().filter(|o| *o != r).cloned());
+    super::citations::fact_at(at.step, &refs, None, fact, known, library)
+        .filter(|found| found.line == *r)
+        .map(OrderFact::Line)
+}
+
+/// What an `inequalities` step with rows rests on: the line its first row
+/// writes out, and, where its last row weakens an order to a disequality,
+/// which way the order runs.
+fn rows_order(
+    thm: &Theorem,
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) -> Option<OrderStep> {
+    let written = rows(&step.just, &thm.path)?.ok()?;
+    let RowReason::Cited(r) = &written.first()?.reason else {
+        return None;
+    };
+    let read: Vec<Related> = written
+        .iter()
+        .map(|row| {
+            let node = known.parse(&row.formula.formula().ok()?).ok()?;
+            Related::of(&node)
+        })
+        .collect::<Option<_>>()?;
+    // The relation of the line the first row writes out, as
+    // `check_inequality_rows` finds it.
+    let said = line_relations(step, r, known).into_iter().find(|line| {
+        line.says_as_written(&read[0], known)
+            || (!line.written && line.says(&read[0], known))
+    })?;
+    let first = order_line(thm, step, r, &said.said, known, library)?;
+    let weakened = match (written.last().map(|w| &w.reason), read.as_slice()) {
+        (Some(RowReason::Weakening), [.., above, last]) if last.rel == Rel::Ne => {
+            Some(weakened_of(above.rel)?)
+        }
+        _ => None,
+    };
+    // Rows from a disequality turn it round and nothing more: the claim is
+    // the line, turned where an odd number of rows turns it.
+    if read[0].rel == Rel::Ne {
+        let turns = written
+            .iter()
+            .filter(|w| matches!(w.reason, RowReason::Restate))
+            .count();
+        return Some(OrderStep {
+            sentences: vec![vec![OrderPart {
+                uses: Vec::new(),
+                split: Vec::new(),
+                restates: Some(OrderRestated {
+                    by: first,
+                    turned: turns % 2 == 1,
+                }),
+                weakened: None,
+            }]],
+        });
+    }
+    Some(OrderStep {
+        sentences: vec![vec![OrderPart {
+            uses: vec![first],
+            split: Vec::new(),
+            restates: None,
+            weakened,
+        }]],
+    })
+}
+
+/// What a requires line naming one manipulation, `requires q ≠ 0:
+/// weakening, from 2.1`, rests on: the relation of the line it cites that
+/// the manipulation makes its fact of, as `check_requires_manipulations`
+/// finds it. None of any other requires line.
+fn manipulation_order(
+    thm: &Theorem,
+    step: &Step,
+    req: &Requires,
+    known: &Known,
+    library: &Library,
+) -> Option<OrderStep> {
+    let Ok(by) = &req.by else {
+        return None;
+    };
+    let Head::Manipulation(made) = &by.head else {
+        return None;
+    };
+    let [cited] = req.lines() else {
+        return None;
+    };
+    let reason = made.as_row(&thm.path, req.line);
+    let fact = Related::of(&known.whole_as_written(&req.fact)?)?;
+    let term = match &reason {
+        RowReason::Adding(t) | RowReason::Multiplying(t) => {
+            Some(reason_term(&t.clone(), known).ok()?)
+        }
+        _ => None,
+    };
+    let targets = &library.targets;
+    let line = line_relations(step, cited, known)
+        .into_iter()
+        .find(|line| {
+            row_follows(line, &fact, &reason, term.as_ref(), known, targets)
+        })?;
+    let weakened = match (&reason, fact.rel) {
+        (RowReason::Weakening, Rel::Ne) => Some(weakened_of(line.rel)?),
+        _ => None,
+    };
+    Some(OrderStep {
+        sentences: vec![vec![OrderPart {
+            uses: vec![order_line(thm, step, cited, &line.said, known, library)?],
+            split: Vec::new(),
+            restates: None,
+            weakened,
+        }]],
+    })
+}
+
+/// Where the relation `said` of the line `r` a step cites stands: the
+/// line's sentence or part, or a define's equation.
+fn order_line(
+    thm: &Theorem,
+    step: &Step,
+    r: &str,
+    said: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<OrderFact> {
+    if thm.defines.iter().any(|d| d.label == r) {
+        return Some(OrderFact::Define(r.to_string()));
+    }
+    // A line's facts are found as the checker reads them, in the standard
+    // order.
+    let r = r.to_string();
+    let said = standard(said, &library.ctx);
+    super::citations::fact_at(
+        step,
+        std::slice::from_ref(&r),
+        None,
+        &said,
+        known,
+        library,
+    )
+    .map(OrderFact::Line)
+}
+
+/// Which way the strict order a disequality is weakened from runs, read
+/// from its left side; None of an order that is not strict.
+fn weakened_of(rel: Rel) -> Option<Weakened> {
+    match rel {
+        Rel::Lt => Some(Weakened::Below),
+        Rel::Gt => Some(Weakened::Above),
+        _ => None,
+    }
+}
+
+/// How each `antisymmetry` step's two lines make its equation
+/// (`CheckedTheorem::antisymmetric`), by the line of its justification: the
+/// line that says the claim's left side is at most its right, and the line
+/// that says the converse, as `check_antisymmetry` pairs them. One citing a
+/// define is left out.
+pub fn antisymmetries(
+    thm: &Theorem,
+    known: &Known,
+    library: &Library,
+) -> IndexMap<usize, Antisymmetric> {
+    thm.steps
+        .iter()
+        .filter(|s| s.just.head.is(Method::Antisymmetry))
+        .filter_map(|step| {
+            let links = cited_links(thm, step, known, "antisymmetry").ok()?;
+            let ([one, other], [r1, r2]) =
+                (links.as_slice(), step.just.refs.as_slice())
+            else {
+                return None;
+            };
+            let claim = Related::of(&known.whole_as_written(&step.claim)?)?;
+            // Each read from below: `b ≥ a` is `a ≤ b`.
+            let low = |l: &Related| match l.rel {
+                Rel::Ge => l.right.clone(),
+                _ => l.left.clone(),
+            };
+            let (below, above) = match known.alike(&low(one), &claim.left) {
+                true => ((one, r1), (other, r2)),
+                false => ((other, r2), (one, r1)),
+            };
+            let at = |(link, r): (&Related, &String)| -> Option<FirstAt> {
+                if thm.defines.iter().any(|d| d.label == *r) {
+                    return None;
+                }
+                super::citations::fact_at(
+                    step,
+                    std::slice::from_ref(r),
+                    None,
+                    &standard(&link.said, &library.ctx),
+                    known,
+                    library,
+                )
+            };
+            Some((
+                step.just.line,
+                Antisymmetric {
+                    below: at(below)?,
+                    above: at(above)?,
+                },
+            ))
         })
         .collect()
 }
@@ -5785,6 +6196,9 @@ struct ClosureClaim<'s> {
 /// A closure claim and what it cites, read.
 struct ClosureRead {
     claimed: Node,
+    /// The claim's sentences, read, whose conjunction is `claimed`; the
+    /// body of a claim read at a member.
+    sentences: Vec<Node>,
     lines: Vec<Node>,
     /// The page's line each of `lines` is of: the cited line by its place
     /// among the references, and a requires line above after them, by its
@@ -5799,6 +6213,7 @@ impl ClosureRead {
     /// A claim and the lines it is read from, as it stands, not at a member.
     fn new(claimed: Node, lines: Vec<Node>, line_of: Vec<usize>) -> ClosureRead {
         ClosureRead {
+            sentences: vec![claimed.clone()],
             claimed,
             lines,
             line_of,
@@ -5814,6 +6229,7 @@ impl ClosureRead {
     fn read_at_member(&mut self, known: &Known) {
         if let Some((member, body)) = claimed_member(&self.claimed, known.env.g) {
             self.member = Some(member);
+            self.sentences = vec![body.clone()];
             self.claimed = body;
         }
     }
@@ -5882,7 +6298,7 @@ impl<'s> ClosureClaim<'s> {
             .iter()
             .map(|s| known.read_citing(s, &defined))
             .collect::<Option<_>>()?;
-        let claimed = conjoined(known.env.g, sentences)?;
+        let claimed = conjoined(known.env.g, sentences.clone())?;
         let scope = known.scope(self.step);
         let mut lines: Vec<Node> = Vec::new();
         let mut line_of: Vec<usize> = Vec::new();
@@ -5909,7 +6325,10 @@ impl<'s> ClosureClaim<'s> {
                 }
             }
         }
-        Some(ClosureRead::new(claimed, lines, line_of))
+        Some(ClosureRead {
+            sentences,
+            ..ClosureRead::new(claimed, lines, line_of)
+        })
     }
 
     /// A refusal as it is said here: of the requires line, where the claim

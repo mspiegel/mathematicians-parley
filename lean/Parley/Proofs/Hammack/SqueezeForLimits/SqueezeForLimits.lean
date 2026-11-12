@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -9,6 +8,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -62,11 +62,11 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
     -- 1.8. mun:lt-min z := 0, x := p, y := q, from 1.5, 1.6
     have s1_8 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr ⟨s1_5a, s1_6a⟩
     -- 1.9. inequalities, from D1, 1.8
-    have s1_9 : 0 < m := by parley_order
+    have s1_9 : 0 < m := by linarith only [s1_8, hD1]
     -- 1.10. mun:lt-min z := 0, x := m, y := r, from 1.7, 1.9
     have s1_10 : 0 < min m r := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := m) (y := r))).mpr ⟨s1_9, s1_7a⟩
     -- 1.11. inequalities, from D2, 1.10
-    have s1_11 : n > 0 := by parley_order
+    have s1_11 : n > 0 := by linarith only [s1_10, hD2]
     -- 1.12. proof
     have s1_12 : ∀ x : ℝ, x ≠ c ∧ abs (x - c) < n → abs (f x - L) < ε := by
       intro x

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -12,6 +11,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Lattice
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -47,9 +47,9 @@ theorem square_not_prime (A : ℤ) :
     -- 4.1. substitute |A| = 0 (S2) into line 3
     have s4_1 : 0 ^ 2 = A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) hS2 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.2. inequalities
-    have s4_2 : 0 ^ 2 ≥ A ^ 2 := by parley_order
+    have s4_2 : 0 ^ 2 ≥ A ^ 2 := by linarith only [s4_1]
     -- 4.3. inequalities, from 4.2
-    have s4_3 : ¬ A ^ 2 > 1 := by parley_side
+    have s4_3 : ¬ A ^ 2 > 1 := by linarith only [s4_2]
     exact s4_3 s2
   -- 5. mun:nat0-nonzero m := |A|, from 4
   have s5 : 0 < abs A := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := abs A) (by parley_side) s4)
@@ -76,9 +76,9 @@ theorem square_not_prime (A : ℤ) :
   -- 12. substitute |A| = 1 (line 11) into line 3
   have s12 : 1 ^ 2 = A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) s11 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 13. inequalities
-  have s13 : 1 ^ 2 ≥ A ^ 2 := by parley_order
+  have s13 : 1 ^ 2 ≥ A ^ 2 := by linarith only [s12]
   -- 14. inequalities, from 13
-  have s14 : ¬ A ^ 2 > 1 := by parley_side
+  have s14 : ¬ A ^ 2 > 1 := by linarith only [s13]
   exact s14 s2
 
 end Parley.Proofs.Setmm.SquareNotPrime.SquareNotPrime

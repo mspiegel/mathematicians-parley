@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Field.Defs
@@ -17,6 +16,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -58,12 +58,12 @@ theorem cauchy_quotient (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (U : Se
   -- 6. instantiate t := ξ in H14, from 5
   have s6 : (deriv G) ξ ≠ 0 := by exact (hH14 ξ s5)
   -- 7. def:interval a := p, b := q, x := p
-  have r76_1 : p ≤ p := by parley_order
-  have r76_2 : p ≤ q := by parley_set_side
+  have r76_1 : p ≤ p := by linarith only []
+  have r76_2 : p ≤ q := by linarith only [hH5]
   have s7 : p ∈ (Set.Icc p q : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := p) (a := p) (b := q))).mpr ⟨⟨by parley_set_side, r76_1⟩, r76_2⟩
   -- 8. def:interval a := p, b := q, x := q
-  have r81_1 : p ≤ q := by parley_set_side
-  have r81_2 : q ≤ q := by parley_order
+  have r81_1 : p ≤ q := by linarith only [hH5]
+  have r81_2 : q ≤ q := by linarith only []
   have s8 : q ∈ (Set.Icc p q : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := q) (a := p) (b := q))).mpr ⟨⟨by parley_set_side, r81_1⟩, r81_2⟩
   -- 9. mun:in-subset, from H6, 7
   have s9 : p ∈ E := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc p q : Set ℝ)) (Y := E) (u := p) hH6 s7)

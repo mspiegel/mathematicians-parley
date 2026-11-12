@@ -5,7 +5,6 @@ public import ArithTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -27,6 +26,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -67,7 +67,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
       -- 2.3. mun:power-nat a := 2, m := m + 1
       have s2_3 : (0 : ℤ) < 2 ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := m + 1) (by parley_side))
       -- 2.4. inequalities, from 2.3
-      have s2_4 : (2 ^ (m + 1).toNat : ℤ) > 0 := by parley_order
+      have s2_4 : (2 ^ (m + 1).toNat : ℤ) > 0 := by linarith only [s2_3]
       -- 2.5. mun:reciprocal-positive x := 2^(m + 1), from 2.4
       have s2_5 : (1 / 2 ^ (m + 1).toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ (m + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_4))
       -- 2.6. mun:reciprocal-order x := 4, y := 2^(m + 1), from 2.2, 2.4
@@ -79,7 +79,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
       -- 2.9. algebra
       have s2_9 : (1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 : ℚ) = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := by parley_ring
       -- 2.10. calculation
-      have r97_1 : m ≥ 1 := by parley_order
+      have r97_1 : m ≥ 1 := by linarith only [lt_of_lt_of_le zero_lt_one hK2]
       calc (∏ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 - 1 / 2 ^ k.toNat : ℚ)) = (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := (fun k : ℤ => (1 - 1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ)) (n := m) r97_1)
         _ ≥ 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 := by
             have hI : 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 ≤ (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by parley_instance_real ((Parley.Proofs.Hammack.ProductStepBound.ProductStepBound.product_step_bound (t := (1 / 2 ^ (m + 1).toNat : ℝ)) (p := ∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) (by parley_side) (by parley_side) (by parley_side)))

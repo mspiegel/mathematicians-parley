@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -15,6 +14,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -34,7 +34,7 @@ namespace Parley.Proofs.Wiedijk.Ballot.AddLastPlace
 theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     (∃ g : Set ℤ → Set ℤ, Set.BijOn g {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} ((fun T : Set ℤ => T ∪ ({m + n} : Set ℤ)) '' {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)})) := by
   -- 1. thm:places-before-last p := (m − 1) + n, N := m + n
-  have r391_1 : 1 ≤ m - 1 + n := by parley_order
+  have r391_1 : 1 ≤ m - 1 + n := by linarith only [hH1, hH2]
   have r391_2 : m - 1 + n + 1 = m + n := by parley_ring
   have s1 : (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) = (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.PlacesBeforeLast.places_before_last (p := m - 1 + n) (N := m + n) r391_1 r391_2)
   -- 2. proof

@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -14,6 +13,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -32,8 +32,8 @@ namespace Parley.Proofs.Setmm.BinomialBasics.ChooseNextRow
 theorem choose_next_row (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose (N + 1) N : ℤ) = N + 1 := by
   -- 1. inequalities, from H1
-  have s1a : 0 ≤ N := by parley_order
-  have s1b : N ≤ N + 1 := by parley_order
+  have s1a : 0 ≤ N := by linarith only [hH1]
+  have s1b : N ≤ N + 1 := by linarith only []
   -- 2. def:range-between k := N, a := 0, b := N + 1, from 1
   have s2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr ⟨s1a, s1b⟩
   -- 3. algebra

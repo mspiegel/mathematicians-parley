@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Field.Defs
@@ -18,6 +17,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -62,7 +62,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
         -- 4.3.1. def:open-interval a := v, b := u, x := u, from S1
         have s4_3_1 : u < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := v) (b := u))).mp hS1).2
         -- 4.3.2. inequalities
-        have s4_3_2 : ¬ u < u := by parley_set_side
+        have s4_3_2 : ¬ u < u := by linarith only []
         exact s4_3_2 s4_3_1
       -- 4.4. mun:subset-into-difference a := u, X := (a, b), Y := (v, u), from 4.2, 4.3
       have s4_4 : (Set.Ioo v u : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo v u : Set ℝ)) (a := u) s4_2 s4_3)
@@ -74,7 +74,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.6. restate 4.5
       have s4_6 : G v ≠ G u := by exact s4_5a
       -- 4.7. inequalities
-      have s4_7 : G u ≠ G v := by parley_set_side
+      have s4_7 : G u ≠ G v := Ne.symm s4_6
       -- 4.8. obtain ξ from line 4.5
       obtain ⟨ξ, s4_8a, s4_8b⟩ := s4_5b
       -- 4.9. mun:in-subset, from 4.4, 4.8
@@ -88,10 +88,10 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have s4_11a : v < ξ := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).1.2
       have s4_11b : ξ < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).2
       -- 4.12. inequalities
-      have s4_12 : -(ξ - u) < -(v - u) := by parley_order
+      have s4_12 : -(ξ - u) < -(v - u) := by linarith only [s4_11a]
       -- 4.13. calculation
-      have r208_1 : ξ - u < 0 := by parley_set_side
-      have r208_2 : v - u < 0 := by parley_set_side
+      have r208_1 : ξ - u < 0 := by linarith only [s4_11b]
+      have r208_2 : v - u < 0 := by linarith only [hC1]
       have s4_13 : abs (ξ - u) < abs (v - u) := by
         calc abs (ξ - u) = -(ξ - u) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := ξ - u)) (by parley_set_side)
           _ < -(v - u) := by exact s4_12
@@ -114,7 +114,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
         -- 4.18.1. def:open-interval a := u, b := v, x := u, from S2
         have s4_18_1 : u < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := u) (b := v))).mp hS2).1.2
         -- 4.18.2. inequalities
-        have s4_18_2 : ¬ u < u := by parley_set_side
+        have s4_18_2 : ¬ u < u := by linarith only []
         exact s4_18_2 s4_18_1
       -- 4.19. mun:subset-into-difference a := u, X := (a, b), Y := (u, v), from 4.17, 4.18
       have s4_19 : (Set.Ioo u v : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo u v : Set ℝ)) (a := u) s4_17 s4_18)
@@ -133,14 +133,14 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have s4_24a : u < ξ := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := u) (b := v))).mp s4_22a).1.2
       have s4_24b : ξ < v := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := u) (b := v))).mp s4_22a).2
       -- 4.25. inequalities
-      have s4_25 : ξ - u > 0 := by parley_order
+      have s4_25 : ξ - u > 0 := by linarith only [s4_24a]
       -- 4.26. inequalities
-      have s4_26 : v - u > 0 := by parley_order
+      have s4_26 : v - u > 0 := by linarith only [hC2]
       -- 4.27. inequalities
-      have s4_27 : ξ - u < v - u := by parley_order
+      have s4_27 : ξ - u < v - u := by linarith only [s4_24b]
       -- 4.28. calculation
-      have r281_1 : ξ - u ≥ 0 := by parley_set_side
-      have r281_2 : v - u ≥ 0 := by parley_set_side
+      have r281_1 : ξ - u ≥ 0 := by linarith only [s4_25]
+      have r281_2 : v - u ≥ 0 := by linarith only [s4_26]
       have s4_28 : abs (ξ - u) < abs (v - u) := by
         calc abs (ξ - u) = ξ - u := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ξ - u)) (by parley_set_side)
           _ < v - u := by exact s4_27

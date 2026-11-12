@@ -114,6 +114,6 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   have r339_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := by parley_side
   have s24 : (Int.gcd s w : ℤ) ^ 2 ≤ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd s w : ℤ) ^ 2) r339_1 (m := s) hH1 s22)
   -- 25. antisymmetry, from 23, 24
-  parley_side
+  exact le_antisymm s23 s24
 
 end Parley.Stdlib.Divisibility.CoprimeSquarePart

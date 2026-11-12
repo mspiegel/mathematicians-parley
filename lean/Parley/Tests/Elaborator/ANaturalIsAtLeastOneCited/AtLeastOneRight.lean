@@ -1,8 +1,8 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 
@@ -15,6 +15,6 @@ namespace Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.AtLeastOneRight
 theorem at_least_one_right (x : ℤ) (hH2 : x ≥ 1) :
     0 < x := by
   -- 1. inequalities, from H2
-  parley_order
+  linarith only [hH2]
 
 end Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.AtLeastOneRight

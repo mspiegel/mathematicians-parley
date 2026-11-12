@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -15,6 +14,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -33,23 +33,23 @@ namespace Parley.Proofs.Hammack.ChooseOfChoose.ChooseOfChoose
 theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 : 0 < c) (hH4 : c ≤ b) (hH5 : b ≤ a) :
     (LeanBridges.Counting.choose a b : ℤ) * (LeanBridges.Counting.choose b c : ℤ) = (LeanBridges.Counting.choose a (b - c) : ℤ) * (LeanBridges.Counting.choose (a - b + c) c : ℤ) := by
   -- 1. inequalities, from H2
-  have s1 : 0 ≤ b := by parley_order
+  have s1 : 0 ≤ b := by linarith only [hH2]
   -- 2. def:range-between k := b, a := 0, b := a, from H5, 1
   have s2 : b ∈ Finset.Icc (0 : ℤ) a := ((Parley.Items.Stdlib.Sums.def_range_between (k := b) (a := (0 : ℤ)) (b := a))).mpr ⟨s1, hH5⟩
   -- 3. def:C n := a, k := b, from 2
   have s3 : (LeanBridges.Counting.choose a b : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial b : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := a) (le_of_lt hH1) (k := b)) s2
   -- 4. inequalities, from H3
-  have s4 : 0 ≤ c := by parley_order
+  have s4 : 0 ≤ c := by linarith only [hH3]
   -- 5. def:range-between k := c, a := 0, from H4, 4
   have s5 : c ∈ Finset.Icc (0 : ℤ) b := ((Parley.Items.Stdlib.Sums.def_range_between (k := c) (a := (0 : ℤ)) (b := b))).mpr ⟨s4, hH4⟩
   -- 6. def:C n := b, k := c, from 5
   have s6 : (LeanBridges.Counting.choose b c : ℚ) = (LeanBridges.Counting.factorial b : ℚ) / ((LeanBridges.Counting.factorial (b - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := b) (le_of_lt hH2) (k := c)) s5
   -- 7. inequalities
-  have s7 : 0 ≤ b - c := by parley_order
+  have s7 : 0 ≤ b - c := by linarith only [hH4]
   -- 8. inequalities
-  have s8 : -c ≤ 0 := by parley_order
+  have s8 : -c ≤ 0 := by linarith only [s4]
   -- 9. inequalities, from H5, 8
-  have s9 : b - c ≤ a := by parley_order
+  have s9 : b - c ≤ a := by linarith only [hH5, s8]
   -- 10. def:range-between k := b − c, a := 0, b := a, from 7, 9
   have s10 : b - c ∈ Finset.Icc (0 : ℤ) a := ((Parley.Items.Stdlib.Sums.def_range_between (k := b - c) (a := (0 : ℤ)) (b := a))).mpr ⟨s7, s9⟩
   -- 11. def:C n := a, k := b − c, from 10
@@ -60,11 +60,11 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     have row1 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)))) c1 s11; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 13. inequalities
-  have s13 : 0 ≤ a - b := by parley_order
+  have s13 : 0 ≤ a - b := by linarith only [hH5]
   -- 14. inequalities, from 4, 13
-  have s14 : 0 ≤ a - b + c := by parley_order
+  have s14 : 0 ≤ a - b + c := by linarith only [s4, s13]
   -- 15. inequalities
-  have s15 : c ≤ a - b + c := by parley_order
+  have s15 : c ≤ a - b + c := by linarith only [s13]
   -- 16. def:range-between k := c, a := 0, b := a − b + c, from 4, 15
   have s16 : c ∈ Finset.Icc (0 : ℤ) (a - b + c) := ((Parley.Items.Stdlib.Sums.def_range_between (k := c) (a := (0 : ℤ)) (b := a - b + c))).mpr ⟨s4, s15⟩
   -- 17. mun:nat0-as-int

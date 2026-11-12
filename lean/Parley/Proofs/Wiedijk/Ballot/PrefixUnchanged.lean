@@ -9,6 +9,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -30,7 +31,7 @@ theorem prefix_unchanged (T : Set ℤ) (i : ℤ) (p : ℤ) (hH4 : i < p) :
     -- 1.1. mun:range-bounds a := 1, b := i, k := p, from S1
     have s1_1 : p ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := i) (k := p) hS1)
     -- 1.2. inequalities, from H4
-    have s1_2 : ¬ p ≤ i := by parley_set_side
+    have s1_2 : ¬ p ≤ i := by linarith only [hH4]
     exact s1_2 s1_1
   -- 2. mun:singleton-outside a := p, Y := {1, …, i}, from 1
   have s2 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_singleton_outside (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (a := p) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s1))

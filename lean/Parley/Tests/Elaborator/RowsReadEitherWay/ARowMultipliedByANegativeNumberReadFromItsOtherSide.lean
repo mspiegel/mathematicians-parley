@@ -1,8 +1,8 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.RowsReadEitherWay.ARowMultipliedByANegativeNum
 theorem a_row_multiplied_by_a_negative_number_read_from_its_other_side (x : ℝ) (hH2 : 4 * x - 5 ≤ 0) :
     0 ≤ -(8 * x) + 10 := by
   -- 1. inequalities
-  parley_order
+  linarith only [hH2]
 
 end Parley.Tests.Elaborator.RowsReadEitherWay.ARowMultipliedByANegativeNumberReadFromItsOtherSide

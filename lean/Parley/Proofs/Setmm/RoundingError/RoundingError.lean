@@ -12,6 +12,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -36,15 +37,15 @@ theorem rounding_error (A : ℝ) :
   set e : ℝ := (⌊A + 1 / 2⌋ : ℝ) - A with hD1
   have hD1_kind : True := by parley_side
   -- 4. inequalities
-  have s4 : (⌊A + 1 / 2⌋ : ℝ) - A ≤ 1 / 2 := by parley_order
+  have s4 : (⌊A + 1 / 2⌋ : ℝ) - A ≤ 1 / 2 := by linarith only [s2]
   -- 5. transitivity, from D1, 4
   have s5 : e ≤ 1 / 2 := by parley_order
   -- 6. inequalities
-  have s6 : -(1 / 2) < (⌊A + 1 / 2⌋ : ℝ) - A := by parley_order
+  have s6 : -(1 / 2) < (⌊A + 1 / 2⌋ : ℝ) - A := by linarith only [s3]
   -- 7. transitivity, from 6, D1
   have s7 : -(1 / 2) < e := by parley_order
   -- 8. inequalities
-  have s8 : -e ≤ 1 / 2 := by parley_order
+  have s8 : -e ≤ 1 / 2 := by linarith only [s7]
   -- 9. mun:nonneg-or-neg x := e, from D1
   have s9 : e ≥ 0 ∨ e < 0 := by
     try simp only [hD1] at ⊢

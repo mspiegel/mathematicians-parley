@@ -1,12 +1,12 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -24,20 +24,20 @@ theorem quintic_six (x : ℝ) (hH2 : x ^ 5 + 7 * x ^ 3 + 5 * x ≥ x ^ 4 + x ^ 2
   -- the theorem. contradiction
   by_contra hS
   -- 1. inequalities, from S
-  have s1 : x < 0 := by parley_order
+  have s1 : x < 0 := by linarith only [hS]
   -- 2. thm:negative-powers, from 1
   have s2a : x ^ 2 ≥ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).1
   have s2b : x ^ 3 ≤ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.1
   have s2c : x ^ 4 ≥ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.1
   have s2d : x ^ 5 ≤ 0 := by exact (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) s1).2.2.2
   -- 3. inequalities
-  have s3 : 7 * x ^ 3 ≤ 0 := by parley_order
+  have s3 : 7 * x ^ 3 ≤ 0 := by linarith only [s2b]
   -- 4. inequalities
-  have s4 : 5 * x < 0 := by parley_order
+  have s4 : 5 * x < 0 := by linarith only [s1]
   -- 5. inequalities, from 2, 3, 4
-  have s5 : x ^ 5 + 7 * x ^ 3 + 5 * x < x ^ 4 + x ^ 2 + 8 := by parley_order
+  have s5 : x ^ 5 + 7 * x ^ 3 + 5 * x < x ^ 4 + x ^ 2 + 8 := by linarith only [s2a, s2c, s2d, s3, s4]
   -- 6. inequalities, from 5
-  have s6 : ¬ x ^ 5 + 7 * x ^ 3 + 5 * x ≥ x ^ 4 + x ^ 2 + 8 := by parley_side
+  have s6 : ¬ x ^ 5 + 7 * x ^ 3 + 5 * x ≥ x ^ 4 + x ^ 2 + 8 := by linarith only [s5]
   exact s6 hH2
 
 end Parley.Proofs.Hammack.PolynomialSign.QuinticSix

@@ -30,6 +30,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -73,7 +74,7 @@ theorem halves_series :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_1
     | succ m hK2 hIH =>
       -- 2.2. mun:sum-extended a := 1, n := m, from 1
-      have r73_1 : m ≥ 1 := by parley_order
+      have r73_1 : m ≥ 1 := by linarith only [lt_of_lt_of_le zero_lt_one hK2]
       have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) m, (1 / 2 ^ k.toNat : ℚ)) + 1 / 2 ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => (1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ)) (n := m) r73_1)
       -- 2.3. substitute Σ(k = 1 to m) 1/2^k = 1 − 1/2^m (IH) into line 2.2
       have s2_3 : (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ m.toNat + 1 / 2 ^ (m + 1).toNat := by (have h := Eq.subst (motive := (fun t : ℚ => (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = t + 1 / 2 ^ (m + 1).toNat)) hIH s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -105,22 +106,22 @@ theorem halves_series :
       -- 3.2.3. transitivity, from A2, 3.2.2
       have s3_2_3 : N ≤ 2 ^ n.toNat := by parley_order
       -- 3.2.4. mun:reciprocal-order x := N, y := 2^n, from 3.2.3
-      have r115_1 : N > 0 := by parley_order
-      have r115_2 : (2 ^ n.toNat : ℤ) > 0 := by parley_order
+      have r115_1 : N > 0 := by linarith only [s3_1a]
+      have r115_2 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s3_2_1]
       have s3_2_4 : 1 / 2 ^ n.toNat ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_1) (y := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_2))).mp (by parley_side)
       -- 3.2.5. transitivity, from 3.2.4, 3.1
       have s3_2_5 : 1 / 2 ^ n.toNat < ε := by parley_order
       -- 3.2.6. mun:reciprocal-positive x := 2^n
-      have r123_1 : (2 ^ n.toNat : ℤ) > 0 := by parley_order
+      have r123_1 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s3_2_1]
       have s3_2_6 : (1 / 2 ^ n.toNat : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r123_1))
       -- 3.2.7. inequalities
-      have s3_2_7 : 1 - ε < 1 - 1 / 2 ^ n.toNat := by parley_order
+      have s3_2_7 : 1 - ε < 1 - 1 / 2 ^ n.toNat := by linarith only [s3_2_5]
       -- 3.2.8. inequalities
-      have s3_2_8 : (-(1 / 2 ^ n.toNat) : ℚ) < 0 := by parley_order
+      have s3_2_8 : (-(1 / 2 ^ n.toNat) : ℚ) < 0 := by linarith only [s3_2_6]
       -- 3.2.9. transitivity, from 3.2.8, A1
       have s3_2_9 : -(1 / 2 ^ n.toNat) < ε := by parley_order
       -- 3.2.10. inequalities
-      have s3_2_10 : 1 - 1 / 2 ^ n.toNat < 1 + ε := by parley_order
+      have s3_2_10 : 1 - 1 / 2 ^ n.toNat < 1 + ε := by linarith only [s3_2_9]
       -- 3.2.11. join 3.2.7, 3.2.10
       have s3_2_11 : 1 - ε < 1 - 1 / 2 ^ n.toNat ∧ 1 - 1 / 2 ^ n.toNat < 1 + ε := by parley_side
       -- 3.2.12. mun:abs-difference-lt x := 1 − 1/2^n, c := 1, δ := ε, from 3.2.11

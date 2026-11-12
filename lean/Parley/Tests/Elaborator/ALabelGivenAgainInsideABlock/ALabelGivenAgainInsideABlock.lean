@@ -5,6 +5,7 @@ public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.Positivity.Basic
 
@@ -24,7 +25,7 @@ theorem a_label_given_again_inside_a_block :
     intro y
     intro hJ
     -- 1.1.1. inequalities
-    have s1_1_1 : y + 1 > 1 := by parley_order
+    have s1_1_1 : y + 1 > 1 := by linarith only [hJ]
     -- 1.1.2. arithmetic
     have s1_1_2 : (1 : ℤ) > 0 := by parley_arith
     -- 1.1.3. transitivity, from 1.1.1, 1.1.2

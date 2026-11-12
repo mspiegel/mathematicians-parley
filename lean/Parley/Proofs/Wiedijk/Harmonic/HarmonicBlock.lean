@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -22,6 +21,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -48,16 +48,16 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 3. mun:power-nat a := 2, m := j + 1
   have s3 : (0 : ℤ) < 2 ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := j + 1) (by parley_side))
   -- 4. inequalities, from 2
-  have s4 : (2 ^ j.toNat : ℤ) ≤ 2 ^ j.toNat * 2 := by parley_order
+  have s4 : (2 ^ j.toNat : ℤ) ≤ 2 ^ j.toNat * 2 := by linarith only [s2]
   -- 5. transitivity, from 4, 1
   have s5 : (2 ^ j.toNat : ℤ) ≤ 2 ^ (j + 1).toNat := by exact LE.le.trans_eq s4 s1.symm
   -- 6. proof
   -- what this block shows, Lean's types give
   -- 7. mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 5, 6
-  have r42_1 : (1 : ℤ) ≤ 2 ^ j.toNat + 1 := by parley_order
+  have r42_1 : (1 : ℤ) ≤ 2 ^ j.toNat + 1 := by linarith only [s2]
   have s7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_split (t := (fun k : ℤ => 1 / (k : ℚ))) (a := (1 : ℤ)) (b := (2 ^ j.toNat : ℤ)) (c := (2 ^ (j + 1).toNat : ℤ)) r42_1 s5)
   -- 8. inequalities, from 2
-  have s8 : (0 : ℤ) < 2 ^ j.toNat + 1 := by parley_order
+  have s8 : (0 : ℤ) < 2 ^ j.toNat + 1 := by linarith only [s2]
   -- 9. proof
   have s9 : ∀ k : ℤ, k ∈ Finset.Icc (2 ^ j.toNat + 1) (2 ^ (j + 1).toNat) → 1 / 2 ^ (j + 1).toNat ≤ 1 / (k : ℚ) := by
     intro k hK2
@@ -70,14 +70,14 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
     have s9_2 : k > 0 := by exact lt_of_lt_of_le s8 s9_1a
     -- 9.3. mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
     have r59_1 : k > 0 := by parley_side
-    have r59_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by parley_order
+    have r59_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by linarith only [s3]
     exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (2 ^ (j + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by parley_side)
   -- 10. proof
   -- what this block shows, Lean's types give
   -- 11. mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 9
   have s11 : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) ≤ (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_le (t := (fun k : ℤ => (1 / 2 ^ (j + 1).toNat : ℚ))) (u := (fun k : ℤ => 1 / (k : ℚ))) (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) s9)
   -- 12. inequalities, from 2
-  have s12 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ j.toNat * 2 := by parley_order
+  have s12 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ j.toNat * 2 := by linarith only [s2]
   -- 13. transitivity, from 12, 1
   have s13 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact LE.le.trans_eq s12 s1.symm
   -- 14. mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
@@ -94,7 +94,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 16. transitivity, from 15, 14, 11
   have s16 : 1 / 2 ≤ (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact Eq.trans_le (Eq.trans s15.symm s14.symm) s11
   -- 17. inequalities
-  have s17 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by parley_order
+  have s17 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by linarith only [s16]
   -- 18. transitivity, from 17, 7
   exact LE.le.trans_eq s17 s7.symm
 

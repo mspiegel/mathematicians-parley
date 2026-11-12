@@ -153,15 +153,15 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.5. algebra, from 5.4
     have s5_5 : q * 3 = n - n % (3 : ℤ) := by linear_combination (norm := parley_norm) s5_4
     -- 5.6. inequalities, from H1
-    have s5_6 : n ≥ 1 := by parley_order
+    have s5_6 : n ≥ 1 := by linarith only [hH1]
     -- 5.7. inequalities
-    have s5_7 : n - n % (3 : ℤ) > n - 3 := by parley_order
+    have s5_7 : n - n % (3 : ℤ) > n - 3 := by linarith only [s5_2]
     -- 5.8. inequalities
-    have s5_8 : n - 3 ≥ -2 := by parley_order
+    have s5_8 : n - 3 ≥ -2 := by linarith only [s5_6]
     -- 5.9. transitivity, from 5.5, 5.7, 5.8
     have s5_9 : q * 3 > -2 := by parley_order
     -- 5.10. inequalities
-    have s5_10 : (q : ℚ) > -(2 / 3) := by parley_order
+    have s5_10 : (q : ℚ) > -(2 / 3) := by linarith only [(show (q : ℚ) * 3 > -2 by exact_mod_cast s5_9)]
     -- 5.11. calculation
     have s5_11 : q > -1 := by
       try qify
@@ -217,11 +217,11 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.15. obtain k: def:divides d := 3, from P2
     obtain ⟨k, s5_15⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mp hP2
     -- 5.16. inequalities, from H1
-    have s5_16 : n ≥ 1 := by parley_order
+    have s5_16 : n ≥ 1 := by linarith only [hH1]
     -- 5.17. transitivity, from 5.15, 5.16
     have s5_17 : 3 * k ≥ 1 := by parley_order
     -- 5.18. inequalities
-    have s5_18 : (k : ℚ) ≥ 1 / 3 := by parley_order
+    have s5_18 : (k : ℚ) ≥ 1 / 3 := by linarith only [(show 3 * (k : ℚ) ≥ 1 by exact_mod_cast s5_17)]
     -- 5.19. calculation
     have s5_19 : k > 0 := by
       try qify

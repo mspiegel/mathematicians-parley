@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Data.Int.Interval
@@ -13,6 +12,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -36,9 +36,9 @@ theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
   -- 1. mun:nat-minus-one n := 2n
   have s1 : 0 ≤ 2 * n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := 2 * n) (by parley_side))
   -- 2. inequalities, from H1
-  have s2 : 1 ≤ n := by parley_order
+  have s2 : 1 ≤ n := by linarith only [hH1]
   -- 3. inequalities, from H1
-  have s3 : n ≤ 2 * n - 1 + 1 := by parley_order
+  have s3 : n ≤ 2 * n - 1 + 1 := by linarith only [hH1]
   -- 4. def:range-between k := n, a := 1, b := (2n − 1) + 1, from 2, 3
   have s4 : n ∈ Finset.Icc (1 : ℤ) (2 * n - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := 2 * n - 1 + 1))).mpr ⟨s2, s3⟩
   -- 5. thm:weighted-term m := 2n − 1, k := n, from 1, 4

@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import OrderTactics
 public import PowerTactics
 public import RealTactics
 public import Tactics
@@ -13,6 +12,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
@@ -32,7 +32,7 @@ theorem ln_of_power_of_two_below_exponent (n : ℤ) (hH1 : 0 < n) :
   -- 1. real arithmetic
   have s1 : Real.log (2 : ℝ) < 1 := by parley_real
   -- 2. inequalities, from H1
-  have s2 : n > 0 := by parley_order
+  have s2 : n > 0 := by linarith only [hH1]
   -- 3. calculation
   have r16_1 : (2 : ℤ) > 0 := by parley_arith
   calc Real.log (2 ^ n.toNat : ℝ) = (n : ℝ) * Real.log (2 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := n) (by parley_side)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s2))] at h ⊢; exact_mod_cast h)

@@ -1,13 +1,14 @@
 module
 
 public import ArithTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -36,7 +37,7 @@ theorem three_prime :
     -- 2.1. mun:divides-le e := d, m := 3, from H
     have s2_1 : d ≤ 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) hK (m := (3 : ℤ)) (by parley_side) hH)
     -- 2.2. inequalities, from K
-    have s2_2 : 1 ≤ d := by parley_order
+    have s2_2 : 1 ≤ d := by linarith only [hK]
     -- 2.3. mun:le-cases x := 1, y := d, from 2.2
     have s2_3 : 1 < d ∨ 1 = d := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp s2_2
     -- 2.4. cases, from 2.3
@@ -45,7 +46,7 @@ theorem three_prime :
       -- 2.4.1. mun:integer-step m := 1, n := d, from C1
       have s2_4_1 : 1 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) hC1)
       -- 2.4.2. inequalities, from 2.4.1
-      have s2_4_2 : 2 ≤ d := by parley_order
+      have s2_4_2 : 2 ≤ d := by linarith only [s2_4_1]
       -- 2.4.3. mun:le-cases x := 2, y := d, from 2.4.2
       have s2_4_3 : 2 < d ∨ 2 = d := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp s2_4_2
       -- 2.4.4. cases, from 2.4.3
@@ -54,9 +55,9 @@ theorem three_prime :
         -- 2.4.4.1. mun:integer-step m := 2, n := d, from C3
         have s2_4_4_1 : 2 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := d) hC3)
         -- 2.4.4.2. inequalities, from 2.4.4.1
-        have s2_4_4_2 : 3 ≤ d := by parley_order
+        have s2_4_4_2 : 3 ≤ d := by linarith only [s2_4_4_1]
         -- 2.4.4.3. antisymmetry, from 2.1, 2.4.4.2
-        have s2_4_4_3 : d = 3 := by parley_side
+        have s2_4_4_3 : d = 3 := le_antisymm s2_1 s2_4_4_2
         -- 2.4.4.4. mun:or-right, from 2.4.4.3
         exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3)
       · skip

@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Algebra.Defs
@@ -27,6 +26,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.BernoulliPolynomials
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -62,7 +62,7 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
     have row1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat := by (have h := Eq.subst (motive := (fun t : ℤ => Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ t)) c1 s1_1; simp only [parley_zpow_toNat (n := k) (h := hH1)] at h ⊢; exact_mod_cast h)
     exact row1
   -- 2. calculation
-  have r29_1 : m + 1 ≥ 0 := by parley_order
+  have r29_1 : m + 1 ≥ 0 := by linarith only [hH2]
   have s2 : ((k : ℂ) + 1) * (∑ n ∈ Finset.Icc (0 : ℤ) m, ((n : ℂ) ^ k.toNat : ℂ)) = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli (k + 1).toNat) := by
     calc ((k : ℂ) + 1) * (∑ n ∈ Finset.Icc (0 : ℤ) m, ((n : ℂ) ^ k.toNat : ℂ)) = (∑ n ∈ Finset.Icc (0 : ℤ) m, (((k : ℂ) + 1) * (n : ℂ) ^ k.toNat : ℂ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_scaled (t := (fun n : ℤ => (n : ℂ) ^ k.toNat)) (a := (0 : ℤ)) (b := m) (c := (k : ℂ) + 1))
       _ = (∑ n ∈ Finset.Icc (0 : ℤ) m, (Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) : ℂ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise_complex (t := (fun n : ℤ => ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat)) (u := (fun n : ℤ => Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) (by parley_side))

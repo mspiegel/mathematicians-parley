@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Basic
@@ -14,7 +13,9 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -51,16 +52,16 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
-  have s5 : p / 2 > 0 := by parley_order
+  have s5 : p / 2 > 0 := by linarith only [s4a]
   -- 6. inequalities
-  have s6 : p / 2 ≠ 0 := by parley_set_side
+  have s6 : p / 2 ≠ 0 := ne_of_gt (by linarith only [s5])
   -- 7. mun:remove-member u := p/2, from 6
   have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr ⟨by parley_set_side, s6⟩
   -- 8. def:abs x := p/2
-  have r48_1 : p / 2 ≥ 0 := by parley_set_side
+  have r48_1 : p / 2 ≥ 0 := by linarith only [s5]
   have s8 : abs (p / 2) = p / 2 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := p / 2)) (by parley_set_side)
   -- 9. inequalities
-  have s9 : p / 2 < p := by parley_order
+  have s9 : p / 2 < p := by linarith only [s5]
   -- 10. transitivity, from 8, 9
   have s10 : abs (p / 2) < p := by exact Eq.trans_lt s8 s9
   -- 11. instantiate x := p/2 in line 4, from 6, 7, 10
@@ -75,9 +76,9 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 14. transitivity, from 12, 13
   have s14 : 1 < L + 1 := by exact Eq.trans_lt s12.symm s13
   -- 15. inequalities
-  have s15 : 0 < L := by parley_order
+  have s15 : 0 < L := by linarith only [s14]
   -- 16. inequalities
-  have s16 : -p / 2 ≠ 0 := by parley_set_side
+  have s16 : -p / 2 ≠ 0 := ne_of_lt (by linarith only [s5])
   -- 17. mun:remove-member u := (−p)/2, from 16
   have s17 : -p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr ⟨by parley_set_side, s16⟩
   -- 18. mun:abs-negative x := p/2
@@ -101,11 +102,11 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 24. transitivity, from 23, 22
   have s24 : L - 1 < -1 := by exact LT.lt.trans_eq s23 s22
   -- 25. inequalities
-  have s25 : L < 0 := by parley_order
+  have s25 : L < 0 := by linarith only [s24]
   -- 26. inequalities
-  have s26 : L ≤ 0 := by parley_order
+  have s26 : L ≤ 0 := by linarith only [s25]
   -- 27. inequalities, from 26
-  have s27 : ¬ 0 < L := by parley_set_side
+  have s27 : ¬ 0 < L := by linarith only [s26]
   exact s27 s15
 
 end Parley.Proofs.Hammack.SignHasNoLimit.SignHasNoLimit

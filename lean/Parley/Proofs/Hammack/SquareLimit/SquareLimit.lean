@@ -17,6 +17,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -48,13 +49,13 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     set m : ℝ := min 1 (ε / 7) with hD1
     have hD1_kind : True := by trivial
     -- 1.1. inequalities
-    have s1_1 : 0 < ε / 7 := by parley_order
+    have s1_1 : 0 < ε / 7 := by linarith only [hA1]
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/7
     have r36_1 : (0 : ℤ) < 1 := by parley_arith
     have r36_2 : 0 < ε / 7 := by exact s1_1
     have s1_2 : 0 < min 1 (ε / 7) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 7))).mpr ⟨by parley_set_side, r36_2⟩
     -- 1.3. inequalities, from D1, 1.2
-    have s1_3 : m > 0 := by parley_order
+    have s1_3 : m > 0 := by linarith only [s1_2, hD1]
     -- 1.4. proof
     have s1_4 : ∀ x : ℝ, x ≠ 3 ∧ abs (x - 3) < m → abs (f x - 7) < ε := by
       intro x
@@ -67,13 +68,13 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.2. mun:abs-difference-lt c := 3, δ := 1, from 1.4.1
       have s1_4_2 : 3 - 1 < x ∧ x < 3 + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (3 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
       -- 1.4.3. inequalities, from 1.4.2
-      have s1_4_3 : x + 3 > 0 := by parley_order
+      have s1_4_3 : x + 3 > 0 := by linarith only [s1_4_2.1]
       -- 1.4.4. inequalities
-      have s1_4_4 : x + 3 ≥ 0 := by parley_order
+      have s1_4_4 : x + 3 ≥ 0 := by linarith only [s1_4_3]
       -- 1.4.5. def:abs x := x + 3, from 1.4.4
       have s1_4_5 : abs (x + 3) = x + 3 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x + 3)) s1_4_4
       -- 1.4.6. inequalities, from 1.4.2
-      have s1_4_6 : x + 3 < 7 := by parley_order
+      have s1_4_6 : x + 3 < 7 := by linarith only [s1_4_2.2]
       -- 1.4.7. transitivity, from 1.4.3, 1.4.5
       have s1_4_7 : 0 < abs (x + 3) := by parley_order
       -- 1.4.8. transitivity, from 1.4.5, 1.4.6
@@ -81,7 +82,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.9. join 1.4.7, 1.4.8
       have s1_4_9 : 0 < abs (x + 3) ∧ abs (x + 3) < 7 := by parley_set_side
       -- 1.4.10. inequalities
-      have s1_4_10 : abs (x + 3) ≤ 7 := by parley_order
+      have s1_4_10 : abs (x + 3) ≤ 7 := by linarith only [s1_4_8]
       -- 1.4.11. instantiate x := x in H2
       have s1_4_11 : f x = x ^ 2 - 2 := by exact (hH2 x)
       -- 1.4.12. mun:abs-product x := x + 3, y := x − 3
@@ -92,7 +93,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
         have row1 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (x + 3) * abs (x - 3))) c1 s1_4_12; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.4.14. calculation
-      have r94_1 : ε / 7 > 0 := by parley_set_side
+      have r94_1 : ε / 7 > 0 := by linarith only [hA1]
       calc abs (f x - 7) = abs (x + 3) * abs (x - 3) := by exact s1_4_13
         _ < abs (x + 3) * (ε / 7) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 3)) (y := ε / 7) (c := abs (x + 3)) s1_4_9.1)).mp s1_4_1.2
         _ = ε / 7 * abs (x + 3) := by parley_ring

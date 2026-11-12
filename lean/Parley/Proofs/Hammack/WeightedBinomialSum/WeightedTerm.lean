@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -14,6 +13,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -36,16 +36,16 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
   have s1a : 1 ≤ k := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + 1) (k := k) hH2)
   have s1b : k ≤ m + 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m + 1) (k := k) hH2)
   -- 2. inequalities, from 1
-  have s2a : k > 0 := by parley_order
-  have s2b : 0 ≤ k := by parley_order
-  have s2c : k ≤ m + 1 := by parley_order
+  have s2a : k > 0 := by linarith only [s1a]
+  have s2b : 0 ≤ k := by linarith only [s1a]
+  have s2c : k ≤ m + 1 := by linarith only [s1b]
   -- 3. def:range-between a := 0, b := m + 1, from 2
   have s3 : k ∈ Finset.Icc (0 : ℤ) (m + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := m + 1))).mpr ⟨s2b, s2c⟩
   -- 4. def:C n := m + 1, from 3
   have s4 : (LeanBridges.Counting.choose (m + 1) k : ℚ) = (LeanBridges.Counting.factorial (m + 1) : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := m + 1) (by parley_side) (k := k)) s3
   -- 5. inequalities, from 1
-  have s5a : 0 ≤ k - 1 := by parley_order
-  have s5b : k - 1 ≤ m := by parley_order
+  have s5a : 0 ≤ k - 1 := by linarith only [s1a]
+  have s5b : k - 1 ≤ m := by linarith only [s1b]
   -- 6. def:range-between k := k − 1, a := 0, b := m, from 5
   have s6 : k - 1 ∈ Finset.Icc (0 : ℤ) m := ((Parley.Items.Stdlib.Sums.def_range_between (k := k - 1) (a := (0 : ℤ)) (b := m))).mpr ⟨s5a, s5b⟩
   -- 7. algebra

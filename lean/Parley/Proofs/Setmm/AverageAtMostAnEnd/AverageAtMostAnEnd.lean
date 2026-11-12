@@ -1,10 +1,10 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -25,12 +25,12 @@ theorem average_at_most_an_end (A : ℝ) (B : ℝ) :
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. inequalities
-    have s2_1 : (A + B) / 2 ≤ B := by parley_order
+    have s2_1 : (A + B) / 2 ≤ B := by linarith only [hC1]
     -- 2.2. mun:or-right, from 2.1
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_1)
   · skip
     -- 2.3. inequalities
-    have s2_3 : (A + B) / 2 ≤ A := by parley_order
+    have s2_3 : (A + B) / 2 ≤ A := by linarith only [hC2]
     -- 2.4. mun:or-left, from 2.3
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (A + B) / 2 ≤ A) (Q := (A + B) / 2 ≤ B) s2_3)
 

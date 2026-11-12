@@ -15,6 +15,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -45,7 +46,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
   set s : ℝ := abs L + 1 with hD1
   have hD1_kind : True := by trivial
   -- 3. inequalities, from D1, 2
-  have s3 : s > 0 := by parley_order
+  have s3 : s > 0 := by linarith only [s2, hD1]
   -- 4. mun:abs-real x := M
   -- 5. mun:abs-nonneg x := M
   have s5 : abs M ≥ 0 := by
@@ -54,9 +55,9 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
   set t : ℝ := abs M + 1 with hD2
   have hD2_kind : True := by trivial
   -- 6. inequalities, from D2, 5
-  have s6 : t > 0 := by parley_order
+  have s6 : t > 0 := by linarith only [s5, hD2]
   -- 7. inequalities
-  have s7 : abs M < abs M + 1 := by parley_order
+  have s7 : abs M < abs M + 1 := by linarith only []
   -- 8. substitute t = |M| + 1 (D2) into line 7
   have s8 : abs M < t := by (have h := Eq.subst (motive := (fun u : ℝ => abs M < u)) hD2.symm s7; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 9. proof
@@ -64,15 +65,15 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     intro ε
     intro hA1
     -- 9.1. inequalities
-    have s9_1 : 2 * s > 0 := by parley_order
+    have s9_1 : 2 * s > 0 := by linarith only [s3]
     -- 9.2. inequalities
-    have s9_2 : 2 * s ≠ 0 := by parley_side
+    have s9_2 : 2 * s ≠ 0 := ne_of_gt (by linarith only [s9_1])
     -- 9.3. mun:quotient-positive x := ε, y := 2·s, from A1, 9.1
     have s9_3 : ε / (2 * s) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * s) hA1 s9_1)
     -- 9.4. inequalities
-    have s9_4 : 2 * t > 0 := by parley_order
+    have s9_4 : 2 * t > 0 := by linarith only [s6]
     -- 9.5. inequalities
-    have s9_5 : 2 * t ≠ 0 := by parley_side
+    have s9_5 : 2 * t ≠ 0 := ne_of_gt (by linarith only [s9_4])
     -- 9.6. mun:quotient-positive x := ε, y := 2·t, from A1, 9.4
     have s9_6 : ε / (2 * t) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) hA1 s9_4)
     -- 9.7. mun:quotient-real x := ε, y := 2·t, from 9.5
@@ -82,7 +83,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have r148_1 : (0 : ℤ) < 1 := by parley_arith
     have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr ⟨by parley_side, s9_6⟩
     -- 9.9. inequalities, from D3, 9.8
-    have s9_9 : m > 0 := by parley_order
+    have s9_9 : m > 0 := by linarith only [s9_8, hD3]
     -- 9.10. def:tends-to x := a, from H5
     have s9_10 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp hH5
     -- 9.11. def:tends-to x := b, L := M, from H6
@@ -96,13 +97,13 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     -- 9.15. obtain Q from line 9.13
     obtain ⟨Q, s9_15a, s9_15b⟩ := s9_13
     -- 9.16. inequalities, from 9.15
-    have s9_16 : Q > 0 := by parley_order
+    have s9_16 : Q > 0 := by linarith only [s9_15a]
     -- 9.17. inequalities
-    have s9_17 : P + Q ≥ P := by parley_order
+    have s9_17 : P + Q ≥ P := by linarith only [s9_16]
     -- 9.18. inequalities, from 9.14
-    have s9_18 : P > 0 := by parley_order
+    have s9_18 : P > 0 := by linarith only [s9_14a]
     -- 9.19. inequalities
-    have s9_19 : P + Q ≥ Q := by parley_order
+    have s9_19 : P + Q ≥ Q := by linarith only [s9_18]
     -- 9.20. proof
     have s9_20 : ∀ n : ℤ, 0 < n → n ≥ P + Q → abs (a n * b n - L * M) < ε := by
       intro n hK2
@@ -127,7 +128,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
         calc abs (a n) = abs (a n - L + L) := by (have h := congrArg (fun u : ℝ => abs u) s9_20_6.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ ≤ abs (a n - L) + abs L := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n - L) (b := L))
       -- 9.20.8. inequalities
-      have s9_20_8 : abs (a n - L) + abs L < abs L + 1 := by parley_order
+      have s9_20_8 : abs (a n - L) + abs L < abs L + 1 := by linarith only [s9_20_5.1]
       -- 9.20.9. transitivity, from 9.20.7, 9.20.8
       have s9_20_9 : abs (a n) < abs L + 1 := by exact lt_of_le_of_lt s9_20_7 s9_20_8
       -- 9.20.10. substitute s = |L| + 1 (D1) into line 9.20.9
@@ -145,7 +146,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.13. algebra
       have s9_20_13 : a n * b n - L * M = a n * (b n - M) + M * (a n - L) := by parley_ring
       -- 9.20.14. inequalities, from 9.20.11, 9.20.12
-      have s9_20_14 : abs (a n * (b n - M)) + abs (M * (a n - L)) < ε / 2 + ε / 2 := by parley_order
+      have s9_20_14 : abs (a n * (b n - M)) + abs (M * (a n - L)) < ε / 2 + ε / 2 := by linarith only [s9_20_11, s9_20_12]
       -- 9.20.15. calculation
       calc abs (a n * b n - L * M) = abs (a n * (b n - M) + M * (a n - L)) := by (have h := congrArg (fun u : ℝ => abs u) s9_20_13; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ ≤ abs (a n * (b n - M)) + abs (M * (a n - L)) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L)))

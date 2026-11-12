@@ -12,10 +12,13 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
@@ -41,7 +44,7 @@ theorem rational_cube_root_of_two :
   -- 3. substitute x = p/q (line 2) into line 1
   have s3 : ((p : ℚ) / (q : ℚ)) ^ 3 = 2 := by (have h := Eq.subst (motive := (fun t : ℚ => t ^ 3 = 2)) s2b s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. algebra, from 3
-  have r75_1 : q ≠ 0 := by parley_side
+  have r75_1 : q ≠ 0 := ne_of_gt (by linarith only [s2a])
   have s4 : p ^ 3 = 2 * q ^ 3 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s3
   -- 5. def:even n := p³, from 4
   have s5 : Even (p ^ 3) := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 3))).mpr ⟨q ^ 3, s4⟩

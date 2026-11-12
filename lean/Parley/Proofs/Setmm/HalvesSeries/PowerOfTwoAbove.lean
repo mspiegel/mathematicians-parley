@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -15,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -42,7 +42,7 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
       -- 1.2. mun:power-nat a := 2, m := k
       have s1_2 : (0 : ℤ) < 2 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.3. inequalities, from IH, 1.2
-      have s1_3 : k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by parley_order
+      have s1_3 : k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by linarith only [hIH, s1_2]
       -- 1.4. calculation
       calc k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by exact s1_3
         _ = 2 ^ k.toNat * 2 := by parley_ring

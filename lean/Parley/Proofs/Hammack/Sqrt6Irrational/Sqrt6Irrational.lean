@@ -18,10 +18,13 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
@@ -52,7 +55,7 @@ theorem sqrt6_irrational :
     -- 2.2. substitute √6 = p/q (line 2.1) into line 1
     have s2_2 : ((p : ℚ) / (q : ℚ)) ^ 2 = 6 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 = 6)) s2_1b s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.3. algebra, from 2.2
-    have r29_1 : q ≠ 0 := by parley_side
+    have r29_1 : q ≠ 0 := ne_of_gt (by linarith only [s2_1a])
     have s2_3 : p ^ 2 = 6 * q ^ 2 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 2) * s2_2
     -- 2.4. algebra, from 2.3
     have s2_4 : p ^ 2 = 2 * (3 * q ^ 2) := by linear_combination (norm := parley_norm) s2_3

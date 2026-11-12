@@ -1,12 +1,13 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -28,7 +29,7 @@ namespace Parley.Proofs.Hammack.GcdWithSuccessorTwoFromMinusOne.GcdWithSuccessor
 theorem gcd_with_successor_two_from_minus_one (n : ℤ) (hH2 : n ≥ -1) :
     (Int.gcd n (n + 2) : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by
   -- 1. mun:pos-int-nat m := n + 2
-  have r19_1 : 0 < n + 2 := by parley_order
+  have r19_1 : 0 < n + 2 := by linarith only [hH2]
   have s1 : 0 < n + 2 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n + 2) r19_1)
   -- 2. thm:gcd-integer-natural a := n, b := n + 2, from 1
   have s2a : 0 < (Int.gcd n (n + 2) : ℤ) := by exact (Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural.gcd_integer_natural (a := n) (b := n + 2) s1).1
@@ -52,11 +53,11 @@ theorem gcd_with_successor_two_from_minus_one (n : ℤ) (hH2 : n ≥ -1) :
       -- 7.1. mun:integer-step m := gcd(n, n + 2), n := 2, from C1
       have s7_1 : (Int.gcd n (n + 2) : ℤ) + 1 ≤ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (Int.gcd n (n + 2) : ℤ)) (n := (2 : ℤ)) hC1)
       -- 7.2. inequalities, from 7.1
-      have s7_2 : (Int.gcd n (n + 2) : ℤ) ≤ 1 := by parley_order
+      have s7_2 : (Int.gcd n (n + 2) : ℤ) ≤ 1 := by linarith only [s7_1]
       -- 7.3. inequalities, from 2
-      have s7_3 : 1 ≤ (Int.gcd n (n + 2) : ℤ) := by parley_order
+      have s7_3 : 1 ≤ (Int.gcd n (n + 2) : ℤ) := by linarith only [s2a]
       -- 7.4. antisymmetry, from 7.2, 7.3
-      have s7_4 : (Int.gcd n (n + 2) : ℤ) = 1 := by parley_set_side
+      have s7_4 : (Int.gcd n (n + 2) : ℤ) = 1 := le_antisymm s7_2 s7_3
       -- 7.5. mun:or-left, from 7.4
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (Int.gcd n (n + 2) : ℤ) = 1) (Q := (Int.gcd n (n + 2) : ℤ) = 2) s7_4)
     · skip

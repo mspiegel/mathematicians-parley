@@ -26,7 +26,9 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -83,13 +85,13 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     -- 10.3. mun:square-nonneg
     have s10_3 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 10.4. inequalities, from 10.3
-    have s10_4 : 1 + x ^ 2 > 0 := by parley_order
+    have s10_4 : 1 + x ^ 2 > 0 := by linarith only [s10_3]
     -- 10.5. mun:quotient-nonneg x := x^(2n), y := 1 + x², from 10.2, 10.4
     have s10_5 : x ^ (2 * n).toNat / (1 + x ^ 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x ^ (2 * n).toNat) (y := 1 + x ^ 2) s10_2 s10_4)
     -- 10.6. D2, from K1
     have s10_6 : g x = x ^ (2 * n).toNat / (1 + x ^ 2) := by simp (disch := omega) only [hD2]
     -- 10.7. transitivity, from 10.6, 10.5
-    have r597_1 : 1 + x ^ 2 ≠ 0 := by parley_set_side
+    have r597_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s10_4])
     parley_order
   -- 11. proof
   have s11 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x ≤ f x := by
@@ -101,11 +103,11 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     -- 11.3. mun:square-nonneg
     have s11_3 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 11.4. inequalities, from 11.3
-    have s11_4 : 1 ≤ 1 + x ^ 2 := by parley_order
+    have s11_4 : 1 ≤ 1 + x ^ 2 := by linarith only [s11_3]
     -- 11.5. inequalities, from 11.3
-    have s11_5 : 1 + x ^ 2 > 0 := by parley_order
+    have s11_5 : 1 + x ^ 2 > 0 := by linarith only [s11_3]
     -- 11.6. mun:quotients-compared x := x^(2n), y := 1 + x², z := x^(2n), w := 1, from 11.2, 11.4
-    have r620_1 : x ^ (2 * n).toNat ≤ x ^ (2 * n).toNat := by parley_order
+    have r620_1 : x ^ (2 * n).toNat ≤ x ^ (2 * n).toNat := by linarith only []
     have r620_2 : (0 : ℤ) < 1 := by parley_arith
     have s11_6 : x ^ (2 * n).toNat / (1 + x ^ 2) ≤ x ^ (2 * n).toNat / 1 := by exact (Parley.Items.Stdlib.Numbers.mun_quotients_compared (x := x ^ (2 * n).toNat) (y := 1 + x ^ 2) (z := x ^ (2 * n).toNat) (w := (1 : ℝ)) s11_2 r620_1 (by parley_set_side) s11_4)
     -- 11.7. D2, from K2
@@ -113,7 +115,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     -- 11.8. algebra, from D1, K2
     have s11_8 : x ^ (2 * n).toNat / 1 = f x := by parley_ring
     -- 11.9. transitivity, from 11.7, 11.6, 11.8
-    have r631_1 : 1 + x ^ 2 ≠ 0 := by parley_set_side
+    have r631_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s11_5])
     parley_order
   -- 12. arithmetic
   have s12 : (0 : ℤ) < 1 := by parley_arith

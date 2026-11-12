@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -12,8 +11,10 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -39,8 +40,8 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
     (∃ c ∈ (Set.Icc a b : Set ℝ), f c = 0) := by
   set S : Set ℝ := {x ∈ (Set.Icc a b : Set ℝ) | f x < 0} with hD1
   -- 1. def:interval x := a
-  have r37_1 : a ≤ a := by parley_order
-  have r37_2 : a ≤ b := by parley_set_side
+  have r37_1 : a ≤ a := by linarith only []
+  have r37_2 : a ≤ b := by linarith only [hH3]
   have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r37_1⟩, r37_2⟩
   -- 2. def:set-builder u := a, from D1, H6, 1
   have s2 : a ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := a))).mpr ⟨s1, hH6⟩
@@ -93,18 +94,18 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         -- 16.1.1. substitute c = b (S1) into C1
         have s16_1_1 : f b < 0 := by (have h := Eq.subst (motive := (fun t : ℝ => f t < 0)) hS1 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 16.1.2. def:interval x := b
-        have r108_1 : a ≤ b := by parley_set_side
-        have r108_2 : b ≤ b := by parley_order
+        have r108_1 : a ≤ b := by linarith only [hH3]
+        have r108_2 : b ≤ b := by linarith only []
         have s16_1_2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r108_1⟩, r108_2⟩
         -- 16.1.3. inequalities
-        have s16_1_3 : 0 ≤ f b := by parley_order
+        have s16_1_3 : 0 ≤ f b := by linarith only [hH7]
         -- 16.1.4. inequalities, from 16.1.3
-        have s16_1_4 : ¬ f b < 0 := by parley_set_side
+        have s16_1_4 : ¬ f b < 0 := by linarith only [s16_1_3]
         exact s16_1_4 s16_1_1
       -- 16.2. inequalities, from 12, 16.1
-      have s16_2 : c < b := by parley_order
+      have s16_2 : c < b := Or.elim (Ne.lt_or_gt s16_1) (fun h1 => by linarith only [s12, h1]) (fun h1 => by linarith only [s12, h1])
       -- 16.3. inequalities
-      have s16_3 : -f c > 0 := by parley_order
+      have s16_3 : -f c > 0 := by linarith only [hC1]
       -- 16.4. instantiate c′ := c, ε := −f(c) in line 15, from H4, 13, 16.3
       have s16_4 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c) < δ → abs (f x - f c) < -f c) := by exact (s15 c s13 (-f c) s16_3)
       -- 16.5. obtain δ from line 16.4
@@ -112,9 +113,9 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       set x₁ : ℝ := min b (c + δ / 2) with hD2
       have hD2_kind : True := by trivial
       -- 16.6. inequalities
-      have s16_6 : δ / 2 > 0 := by parley_order
+      have s16_6 : δ / 2 > 0 := by linarith only [s16_5a]
       -- 16.7. inequalities
-      have s16_7 : c < c + δ / 2 := by parley_order
+      have s16_7 : c < c + δ / 2 := by linarith only [s16_6]
       -- 16.8. mun:lt-min z := c, x := b, y := c + δ/2, from D2, 16.2, 16.7
       have s16_8 : c < x₁ := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := c) (x := b) (y := c + δ / 2))).mpr ⟨s16_2, s16_7⟩
       -- 16.9. mun:min-le x := b, y := c + δ/2, from D2
@@ -127,23 +128,23 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         try push_cast at ⊢
         exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := b) (y := c + δ / 2))
       -- 16.10. inequalities
-      have s16_10 : x₁ - c ≤ δ / 2 := by parley_order
+      have s16_10 : x₁ - c ≤ δ / 2 := by linarith only [s16_9b]
       -- 16.11. inequalities
-      have s16_11 : δ / 2 < δ := by parley_order
+      have s16_11 : δ / 2 < δ := by linarith only [s16_6]
       -- 16.12. transitivity, from 16.10, 16.11
       have s16_12 : x₁ - c < δ := by exact lt_of_le_of_lt s16_10 s16_11
       -- 16.13. transitivity, from 11, 16.8
       have s16_13 : a < x₁ := by exact lt_of_le_of_lt s11 s16_8
       -- 16.14. inequalities
-      have s16_14 : a ≤ x₁ := by parley_order
+      have s16_14 : a ≤ x₁ := by linarith only [s16_13]
       -- 16.15. def:interval x := x₁, from 16.9, 16.14
       have s16_15 : x₁ ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x₁) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, s16_14⟩, s16_9a⟩
       -- 16.16. inequalities
-      have s16_16 : c - δ < c := by parley_order
+      have s16_16 : c - δ < c := by linarith only [s16_5a]
       -- 16.17. transitivity, from 16.16, 16.8
       have s16_17 : c - δ < x₁ := by exact lt_trans s16_16 s16_8
       -- 16.18. inequalities
-      have s16_18 : x₁ < c + δ := by parley_order
+      have s16_18 : x₁ < c + δ := by linarith only [s16_12]
       -- 16.19. mun:abs-difference-lt x := x₁, from 16.17, 16.18
       have s16_19 : abs (x₁ - c) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x₁) (c := c) (δ := δ))).mpr ⟨s16_17, s16_18⟩
       -- 16.20. instantiate x := x₁ in line 16.5, from 16.15, 16.19
@@ -153,13 +154,13 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.22. transitivity, from 16.21, 16.20
       have s16_22 : f x₁ - f c < -f c := by exact lt_of_le_of_lt s16_21 s16_20
       -- 16.23. inequalities
-      have s16_23 : f x₁ < 0 := by parley_order
+      have s16_23 : f x₁ < 0 := by linarith only [s16_22]
       -- 16.24. def:set-builder u := x₁, from D1, 16.15, 16.23
       have s16_24 : x₁ ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := x₁))).mpr ⟨s16_15, s16_23⟩
       -- 16.25. instantiate s := x₁ in line 10, from 16.24
       have s16_25 : x₁ ≤ c := by exact (s10 x₁ s16_24)
       -- 16.26. inequalities, from 16.8
-      have s16_26 : ¬ x₁ ≤ c := by parley_set_side
+      have s16_26 : ¬ x₁ ≤ c := by linarith only [s16_8]
       exact absurd s16_25 s16_26
     · skip
       exact hC2
@@ -184,9 +185,9 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
           have hI : f s < 0 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).2)
           exact hI
         -- 16.29.3. inequalities, from S2
-        have s16_29_3 : c - δ < s := by parley_order
+        have s16_29_3 : c - δ < s := by linarith only [hS2]
         -- 16.29.4. inequalities, from 10, 16.28
-        have s16_29_4 : s < c + δ := by have := (s10 s hK2); parley_order
+        have s16_29_4 : s < c + δ := by linarith only [(s10 s hK2), s16_28a]
         -- 16.29.5. mun:abs-difference-lt x := s, from 16.29.3, 16.29.4
         have s16_29_5 : abs (s - c) < δ := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := s) (c := c) (δ := δ))).mpr ⟨s16_29_3, s16_29_4⟩
         -- 16.29.6. instantiate x := s in line 16.28, from 16.29.1, 16.29.5
@@ -196,18 +197,18 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         -- 16.29.8. transitivity, from 16.29.7, 16.29.6
         have s16_29_8 : -(f s - f c) < f c := by exact lt_of_le_of_lt s16_29_7 s16_29_6
         -- 16.29.9. inequalities
-        have s16_29_9 : 0 ≤ f s := by parley_order
+        have s16_29_9 : 0 ≤ f s := by linarith only [s16_29_8]
         -- 16.29.10. inequalities, from 16.29.9
-        have s16_29_10 : ¬ f s < 0 := by parley_set_side
+        have s16_29_10 : ¬ f s < 0 := by linarith only [s16_29_9]
         exact s16_29_10 s16_29_2
       -- 16.30. def:upper-bound, from 16.29
       have s16_30 : ∀ s ∈ S, s ≤ c - δ := by parley_set_side
       -- 16.31. instantiate u := c − δ in line 9, from 16.30
       have s16_31 : c ≤ c - δ := by exact (s9b (c - δ) s16_30)
       -- 16.32. inequalities
-      have s16_32 : c - δ < c := by parley_order
+      have s16_32 : c - δ < c := by linarith only [s16_28a]
       -- 16.33. inequalities, from 16.32
-      have s16_33 : ¬ c ≤ c - δ := by parley_set_side
+      have s16_33 : ¬ c ≤ c - δ := by linarith only [s16_32]
       exact absurd s16_31 s16_33
   -- 17. exhibit, from 13, 16
   exact ⟨c, s13, s16⟩

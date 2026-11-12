@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -16,6 +15,7 @@ public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -72,7 +72,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
     intro ε
     intro hA1
     -- 10.1. inequalities
-    have s10_1 : c - ε < c := by parley_order
+    have s10_1 : c - ε < c := by linarith only [hA1]
     -- 10.2. contradiction
     have s10_2 : ∃ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), c - ε < s := by
       by_contra hS
@@ -82,7 +82,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
         by_contra hS2
         -- 10.2.1.1. mun:in-subset, from K2, 2
         -- 10.2.1.2. inequalities, from S2, 10.2.1.1
-        have s10_2_1_2 : c - ε < s := by parley_order
+        have s10_2_1_2 : c - ε < s := by linarith only [hS2]
         -- 10.2.1.3. exhibit, from K2, 10.2.1.2
         have s10_2_1_3 : ∃ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), c - ε < s := ⟨s, hK2, s10_2_1_2⟩
         exact hS s10_2_1_3
@@ -91,7 +91,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.2.3. instantiate u := c − ε in line 7, from 10.2.2
       have s10_2_3 : c ≤ c - ε := by exact (s7b (c - ε) s10_2_2)
       -- 10.2.4. inequalities, from 10.1
-      have s10_2_4 : ¬ c ≤ c - ε := by parley_set_side
+      have s10_2_4 : ¬ c ≤ c - ε := by linarith only [s10_1]
       exact s10_2_4 s10_2_3
     -- 10.3. obtain s from line 10.2
     obtain ⟨s, s10_3a, s10_3b⟩ := s10_2
@@ -100,13 +100,13 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
     -- 10.5. transitivity, from 10.3, 10.4
     have s10_5 : c - ε < x N := by exact LT.lt.trans_eq s10_3b s10_4b
     -- 10.6. inequalities
-    have s10_6 : c < c + ε := by parley_order
+    have s10_6 : c < c + ε := by linarith only [hA1]
     -- 10.7. proof
     have s10_7 : ∀ n : ℤ, 0 < n → n ≥ N → abs (x n - c) < ε := by
       intro n hK2
       intro hA2
       -- 10.7.1. inequalities
-      have s10_7_1 : N ≤ n := by parley_order
+      have s10_7_1 : N ≤ n := by linarith only [hA2]
       -- 10.7.2. instantiate m := N in line 9, from 10.7.1
       have s10_7_2 : x N ≤ x n := by exact ((s9 n hK2) N s10_4a s10_7_1)
       -- 10.7.3. mun:value-in-image s := n, from H1, 1

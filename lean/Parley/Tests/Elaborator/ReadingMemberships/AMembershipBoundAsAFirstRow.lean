@@ -1,8 +1,8 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundAsAFirstRow
 theorem a_membership_bound_as_a_first_row (k : ℤ) (hH1 : 0 < k) :
     k + 1 ≥ 2 := by
   -- 1. inequalities
-  parley_order
+  linarith only [hH1]
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundAsAFirstRow

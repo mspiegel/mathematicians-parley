@@ -1,11 +1,12 @@
 module
 
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -31,7 +32,7 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
   have s3 : r = 0 := by
     by_contra (hS : r ≠ 0)
     -- 3.1. mun:pos-int-nat m := r
-    have r39_1 : 0 < r := by parley_order
+    have r39_1 : 0 < r := Or.elim (Ne.lt_or_gt hS) (fun h1 => by linarith only [s1b, h1]) (fun h1 => by linarith only [s1b, h1])
     have s3_1 : 0 < r := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := r) r39_1)
     -- 3.2. substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.1
     have s3_2 : 0 < a * (u - q * x₀) + b * (v - q * y₀) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s2 s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -40,7 +41,7 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
     -- 3.4. substitute r = a·(u − q·x₀) + b·(v − q·y₀) (line 2) into line 3.3
     have s3_4 : d ≤ r := by (have h := Eq.subst (motive := (fun t : ℤ => d ≤ t)) s2.symm s3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.5. inequalities, from 1
-    have s3_5 : ¬ d ≤ r := by parley_side
+    have s3_5 : ¬ d ≤ r := by linarith only [s1c]
     exact s3_5 s3_4
   -- 4. substitute r = 0 (line 3) into line 1
   have s4 : c = q * d := by (have h := Eq.subst (motive := (fun t : ℤ => c = q * d + t)) s3 s1a; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)

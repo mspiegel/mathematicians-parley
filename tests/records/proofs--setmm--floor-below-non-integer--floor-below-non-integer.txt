@@ -1,0 +1,22 @@
+theorem proofs/setmm/floor-below-non-integer/floor-below-non-integer
+block of 3: 3.1
+step 1 cites stdlib/numbers/floor-below group 0; x := A; concludes 0 AsWritten; from no line; supplied by once H1 sentence 0; letters x cr from cr; facing none; met as written
+step 2 cites stdlib/numbers/floor-integer group 0; x := A; concludes 0 AsWritten; from no line; supplied by once H1 sentence 0; letters x cr from cr; facing none; met as written
+step 4 sentence 0 part 0 adds [1 sentence 0] split on [3 sentence 0]
+read 4: ⌊A⌋ < A  as  order:<(floor:⌊⌋(name:A), name:A)  a statement
+read 7: A ∈ ℝ  as  membership:∈(name:A, number-systems:ℝ)  a statement
+read 8: A ∉ ℤ  as  logical-not:not(membership:∈(name:A, number-systems:ℤ))  a statement
+read 9: ⌊A⌋ < A  as  order:<(floor:⌊⌋(name:A), name:A)  a statement
+read 11: ⌊A⌋ ≤ A  as  order:≤(floor:⌊⌋(name:A), name:A)  a statement
+read 12: A  as  name:A  a number
+read 14: ⌊A⌋ ∈ ℤ  as  membership:∈(floor:⌊⌋(name:A), number-systems:ℤ)  a statement
+read 15: A  as  name:A  a number
+read 17: ⌊A⌋ ≠ A  as  logical-not:not(equality:=(floor:⌊⌋(name:A), name:A))  a statement
+read 19: ⌊A⌋ = A  as  equality:=(floor:⌊⌋(name:A), name:A)  a statement
+read 21: A ∈ ℤ  as  membership:∈(name:A, number-systems:ℤ)  a statement
+read 22: ⌊A⌋ = A  as  equality:=(floor:⌊⌋(name:A), name:A)  a statement
+read 24: ⌊A⌋ < A  as  order:<(floor:⌊⌋(name:A), name:A)  a statement
+read 26: ⌊A⌋ ∈ ℝ  as  membership:∈(floor:⌊⌋(name:A), number-systems:ℝ)  a statement
+step 4 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]
+suppose on line 19: Denial, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }
+step 3.1 contradicts H2: Line, meeting Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }

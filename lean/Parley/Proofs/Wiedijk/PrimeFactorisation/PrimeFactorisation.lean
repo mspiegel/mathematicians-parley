@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -25,6 +24,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -63,7 +63,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.2. mun:range-bounds a := 2, b := 1, k := m, from K1
       have s1_2 : m ≤ 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := (1 : ℤ)) (k := m) hK1)
       -- 1.3. inequalities, from 1.1
-      have s1_3 : ¬ m ≤ 1 := by parley_set_side
+      have s1_3 : ¬ m ≤ 1 := by linarith only [s1_1]
       exact absurd s1_2 s1_3
     | succ N hK2 hIH =>
       intro m hK3
@@ -74,10 +74,10 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.5. mun:range-bounds a := 2, b := N + 1, k := m, from K3
       have s1_5 : 2 ≤ m := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := N + 1) (k := m) hK3)
       -- 1.6. mun:pos-int-nat
-      have r199_1 : 0 < m := by parley_order
+      have r199_1 : 0 < m := by linarith only [s1_5]
       have s1_6 : 0 < m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := m) r199_1)
       -- 1.7. obtain p: thm:prime-factor, from 1.6
-      have r203_1 : m > 1 := by parley_order
+      have r203_1 : m > 1 := by linarith only [s1_5]
       obtain ⟨p, s1_7a, ⟨s1_7b, s1_7c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := m) s1_6 r203_1)
       have hD2_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (p : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) s1_6 (d := p) s1_7a)).mp s1_7c
       obtain ⟨r, hD2_pos, hD2⟩ := hD2_kind
@@ -86,7 +86,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.9. algebra, from D2
       have s1_9 : m = p * r := by qify at *; linear_combination (norm := parley_field) (-(p : ℚ)) * hD2
       -- 1.10. inequalities, from 1.8
-      have s1_10 : p - 1 > 0 := by parley_order
+      have s1_10 : p - 1 > 0 := by linarith only [s1_8]
       -- 1.11. mun:product-positive x := p − 1, y := r, from D2, 1.10
       have s1_11 : (p - 1) * r > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (p : ℚ) - 1) (y := (r : ℚ)) (by exact_mod_cast gt_iff_lt.mp s1_10) (by parley_set_side))
       -- 1.12. substitute
@@ -95,13 +95,13 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         have row1 : m - r > 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s1_11; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.13. inequalities
-      have s1_13 : r < m := by parley_order
+      have s1_13 : r < m := by linarith only [s1_12]
       -- 1.14. transitivity, from 1.13, 1.4
       have s1_14 : r < N + 1 := by exact lt_of_lt_of_le s1_13 s1_4
       -- 1.15. mun:integer-step m := r, n := N + 1, from 1.14
       have s1_15 : r + 1 ≤ N + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := r) (n := N + 1) s1_14)
       -- 1.16. inequalities
-      have s1_16 : r ≤ N := by parley_order
+      have s1_16 : r ≤ N := by linarith only [s1_15]
       -- 1.17. mun:le-cases x := 1, y := r, from D2
       have s1_17 : 1 < r ∨ 1 = r := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side)
       -- 1.18. cases, from 1.17
@@ -110,7 +110,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.1. mun:integer-step m := 1, n := r, from C1
         have s1_18_1 : 1 + 1 ≤ r := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := r) hC1)
         -- 1.18.2. def:range-between k := r, a := 2, b := N, from 1.16
-        have r258_1 : 2 ≤ r := by parley_order
+        have r258_1 : 2 ≤ r := by linarith only [s1_18_1]
         have s1_18_2 : r ∈ Finset.Icc (2 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := r) (a := (2 : ℤ)) (b := N))).mpr ⟨r258_1, s1_16⟩
         -- 1.18.3. instantiate m := r in IH, from 1.18.2
         have s1_18_3 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (hIH r s1_18_2)
@@ -150,7 +150,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
   -- 2. instantiate N := n in line 1
   have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n hH1 m (by parley_set_side))
   -- 3. def:range-between k := n, a := 2, b := n, from H2
-  have r317_1 : n ≤ n := by parley_order
+  have r317_1 : n ≤ n := by linarith only []
   have s3 : n ∈ Finset.Icc (2 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr ⟨hH2, r317_1⟩
   -- 4. instantiate m := n in line 2, from 3
   exact (s2 n s3)

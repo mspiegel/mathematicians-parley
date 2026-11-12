@@ -1,9 +1,9 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -29,7 +29,7 @@ theorem sum_neg_bounded (a : ℝ) (b : ℝ) (hH3 : a + b < 0) :
   -- 3. def:abs x := a + b, from H3
   have s3 : abs (a + b) = -(a + b) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := a + b)) hH3
   -- 4. inequalities, from 1, 2
-  have s4 : -(a + b) ≤ abs a + abs b := by parley_order
+  have s4 : -(a + b) ≤ abs a + abs b := by linarith only [s1b, s2b]
   -- 5. calculation
   calc abs (a + b) = -(a + b) := by exact s3
     _ ≤ abs a + abs b := by exact s4

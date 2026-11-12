@@ -32,8 +32,10 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -86,14 +88,14 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   set p : ℤ := k + 1 with hD2
   have hD2_pos := hD2_kind
   -- 4. inequalities, from D2, 3
-  have s4 : 1 < p := by parley_order
+  have s4 : 1 < p := by linarith only [s3, hD2]
   -- 5. mun:power-order a := 2, m := 1, n := p, from 4
   have r352_1 : (2 : ℤ) > 1 := by parley_arith
   have s5 : (2 ^ 1 : ℤ) < 2 ^ p.toNat := by (have h := ((Parley.Items.Stdlib.Numbers.mun_power_order (a := (2 : ℚ)) (m := (1 : ℤ)) (n := p) (by parley_side))).mp s4; simp only [parley_zpow_toNat (n := (1 : ℤ)) (h := by norm_num), parley_zpow_toNat (n := p) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s4))] at h ⊢; exact_mod_cast h)
   -- 6. inequalities, from 5
-  have s6 : (2 ^ p.toNat - 1 : ℤ) > 1 := by parley_order
+  have s6 : (2 ^ p.toNat - 1 : ℤ) > 1 := by linarith only [s5]
   -- 7. mun:pos-int-nat
-  have r359_1 : (0 : ℤ) < 2 ^ p.toNat - 1 := by parley_order
+  have r359_1 : (0 : ℤ) < 2 ^ p.toNat - 1 := by linarith only [s6]
   have s7 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ p.toNat - 1 : ℤ)) r359_1)
   -- 8. mun:exponent-step a := 2, m := k, from D2
   have s8 : (2 ^ p.toNat : ℤ) = 2 ^ k.toNat * 2 := by
@@ -183,7 +185,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s23 : c = 1 := by
     by_contra (hS3 : c ≠ 1)
     -- 23.1. inequalities, from 6
-    have s23_1 : (2 ^ p.toNat - 1 - 1 : ℤ) > 0 := by parley_order
+    have s23_1 : (2 ^ p.toNat - 1 - 1 : ℤ) > 0 := by linarith only [s6]
     -- 23.2. mun:product-positive x := 2^p − 1 − 1, y := c, from D3, 23.1
     have s23_2 : (2 ^ p.toNat - 1 - 1) * c > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by exact_mod_cast gt_iff_lt.mp s23_1) (by parley_side))
     -- 23.3. substitute
@@ -192,7 +194,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
       have row1 : m - c > 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s23_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 23.4. inequalities
-    have s23_4 : c < m := by parley_order
+    have s23_4 : c < m := by linarith only [s23_3]
     -- 23.5. inequalities, from D3, S3
     have r477_1 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by exact s7.ne'
     have s23_5 : 1 < c := by parley_order
@@ -205,7 +207,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 23.9. transitivity, from 23.8, 22
     have s23_9 : 1 + c + m ≤ m + c := by parley_order
     -- 23.10. inequalities
-    have s23_10 : (1 : ℤ) ≤ 0 := by parley_order
+    have s23_10 : (1 : ℤ) ≤ 0 := by linarith only [s23_9]
     exact absurd s23_10 (by norm_num)
   -- 24. substitute c = 1 (line 23) into line 20
   have s24 : m = 2 ^ p.toNat - 1 := by (have h := Eq.subst (motive := (fun t : ℤ => m = (2 ^ p.toNat - 1) * t)) s23 s20; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
@@ -226,17 +228,17 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 26.2. mun:divides-le e := d, from A1
     have s26_2 : d ≤ m := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) hK1 (m := m) s1b hA1)
     -- 26.3. inequalities, from K1, 26.1
-    have s26_3 : 1 < d := by parley_order
+    have s26_3 : 1 < d := Or.elim (Ne.lt_or_gt s26_1a) (fun h1 => by linarith only [hK1, h1]) (fun h1 => by linarith only [hK1, h1])
     -- 26.4. inequalities, from 26.1, 26.2
-    have s26_4 : d < m := by parley_order
+    have s26_4 : d < m := Or.elim (Ne.lt_or_gt s26_1b) (fun h1 => by linarith only [s26_2, h1]) (fun h1 => by linarith only [s26_2, h1])
     -- 26.5. thm:three-divisors e := d, from A1, 26.3, 26.4
     have s26_5 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + d + m := by exact (Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors.three_divisors (m := m) s1b (e := d) hK1 hA1 s26_3 s26_4)
     -- 26.6. transitivity, from 26.5, 25
     have s26_6 : 1 + d + m ≤ m + 1 := by parley_order
     -- 26.7. inequalities
-    have s26_7 : d ≤ 0 := by parley_order
+    have s26_7 : d ≤ 0 := by linarith only [s26_6]
     -- 26.8. inequalities, from 26.7
-    have s26_8 : ¬ 1 < d := by parley_side
+    have s26_8 : ¬ 1 < d := by linarith only [s26_7]
     exact s26_8 s26_3
   -- 27. substitute m = 2^p − 1 (line 24) into line 6
   have s27 : m > 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 1)) s24.symm s6; push_cast at h ⊢; all_goals exact_mod_cast h)

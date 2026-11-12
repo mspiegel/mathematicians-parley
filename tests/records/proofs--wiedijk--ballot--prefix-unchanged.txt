@@ -9,6 +9,7 @@ requires line on line 220 cites stdlib/sets/union-empty group 0; Y := {1, …, i
 requires line on line 230 cites stdlib/sets/difference-by-union group 0; X := {1, …, i}, Y := T, Z := {p}; concludes 0 AsWritten; from no line; supplied by ; letters X none from none, Y none from none, Z none from none; facing straight; met as written
 requires line on line 231 cites stdlib/sets/difference-absent group 0; Y := {1, …, i} ∖ T, a := p; concludes 0 AsWritten; from no line; supplied by 5 sentence 0; letters Y none from none, a none from cz; facing straight; met as written
 set T holds numbers of cn
+step 1.2 sentence 0 part 0 adds [H4 sentence 0]
 read 194: {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
 read 194: {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
 read 197: T  as  name:T  a set of numbers

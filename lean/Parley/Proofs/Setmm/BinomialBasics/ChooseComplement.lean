@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -14,6 +13,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -42,8 +42,8 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     -- 2.2. mun:range-difference a := 0, n := N, from C1
     have s2_2 : 0 ≤ N - K := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := N) (k := K) hC1)
     -- 2.3. inequalities, from 2.1, 2.2
-    have s2_3a : 0 ≤ N - K := by parley_order
-    have s2_3b : N - K ≤ N := by parley_order
+    have s2_3a : 0 ≤ N - K := by linarith only [s2_2]
+    have s2_3b : N - K ≤ N := by linarith only [s2_1]
     -- 2.4. def:range-between k := N − K, a := 0, b := N, from 2.3
     have s2_4 : N - K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_3a, s2_3b⟩
     -- 2.5. algebra
@@ -70,9 +70,9 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
       have s2_10_1a : 0 ≤ N - K := by exact (((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mp hS).1
       have s2_10_1b : N - K ≤ N := by exact (((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mp hS).2
       -- 2.10.2. inequalities
-      have s2_10_2 : K ≥ 0 := by parley_order
+      have s2_10_2 : K ≥ 0 := by linarith only [s2_10_1b]
       -- 2.10.3. inequalities
-      have s2_10_3 : K ≤ N := by parley_order
+      have s2_10_3 : K ≤ N := by linarith only [s2_10_1a]
       -- 2.10.4. def:range-between k := K, a := 0, b := N, from 2.10.2, 2.10.3
       have s2_10_4 : K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := K) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_10_2, s2_10_3⟩
       -- 2.10.5. restate C2

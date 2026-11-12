@@ -302,6 +302,15 @@ pub struct CheckedTheorem {
     /// own, or of a line saying several, the one that meets the chain
     /// (`ChainLink`).
     pub links: IndexMap<usize, Vec<ChainLink>>,
+    /// What each `inequalities` step, each requires line whose reason is
+    /// `inequalities`, and each requires line naming one manipulation rests
+    /// on, by the line of its justification (`formulas::order_steps`). A
+    /// step whose facts do not all stand where a backend can name them is
+    /// left out.
+    pub orders: IndexMap<usize, OrderStep>,
+    /// How each `antisymmetry` step's lines make its equation, by the line
+    /// of its justification (`formulas::antisymmetries`).
+    pub antisymmetric: IndexMap<usize, Antisymmetric>,
     /// What each `exhibit` step shows, by the line of its justification: for each
     /// sentence of its claim, the values of its "there is" and where each
     /// fact it says of them stands (`citations::exhibit_values`).
@@ -748,6 +757,87 @@ pub struct ChainLink {
     /// Whether the chain reads it from its right side: `b = a` as `a = b`,
     /// `b > a` as `a < b`.
     pub turned: bool,
+}
+
+/// What an order step rests on, by sentence of its claim
+/// (`CheckedTheorem::orders`): for each sentence, each of its parts joined
+/// by "and", in order.
+#[derive(Clone, Debug)]
+pub struct OrderStep {
+    pub sentences: Vec<Vec<OrderPart>>,
+}
+
+/// What one part of an order step's claim rests on (`OrderStep`).
+#[derive(Clone, Debug)]
+pub struct OrderPart {
+    /// The facts the method adds to reach it, in order: for a plain step,
+    /// the combination the checker found
+    /// (`methods::inequalities::combined`), then the equation of each
+    /// define the step cites, which it reads written out; for rows, or a
+    /// requires line naming one manipulation, the line the first row or the
+    /// manipulation starts from.
+    pub uses: Vec<OrderFact>,
+    /// The disequalities the combination takes both ways, below and above.
+    pub split: Vec<OrderFact>,
+    /// Where the part is a disequality a fact says, that fact.
+    pub restates: Option<OrderRestated>,
+    /// Where the part is a disequality a `weakening` row or manipulation
+    /// makes of an order, which way the order runs.
+    pub weakened: Option<Weakened>,
+}
+
+/// A disequality a fact says (`OrderPart::restates`).
+#[derive(Clone, Debug)]
+pub struct OrderRestated {
+    pub by: OrderFact,
+    /// Whether the fact says it the other way round, `b ≠ a` of `a ≠ b`.
+    pub turned: bool,
+}
+
+/// The order a `weakening` makes a disequality of, read from the
+/// disequality's left side (`OrderPart::weakened`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Weakened {
+    /// `a < b`, for `a ≠ b`.
+    Below,
+    /// `a > b`, for `a ≠ b`.
+    Above,
+}
+
+/// Where a fact an order step adds stands (`OrderPart`).
+#[derive(Clone, Debug)]
+pub enum OrderFact {
+    /// A line the step cites: a sentence, a part of one, or what one
+    /// implies, `k ≥ 1` of `k ∈ ℕ`.
+    Line(FirstAt),
+    /// A define the step cites, its equation.
+    Define(String),
+    /// What the kind a define the step cites says its name is implies,
+    /// `n ≥ 1` of `let n = gcd(t, w), a positive integer`: the define's
+    /// label, the rule, and the fact as the page writes it.
+    Kind {
+        define: String,
+        implied: crate::citing::Implication,
+        written: Node,
+    },
+    /// One of the step's own requires lines above the one the fact is
+    /// for, by its place among them, counted from 0, or what it implies.
+    Requires {
+        line: usize,
+        implied: Option<crate::citing::Implication>,
+    },
+    /// What the member a claim said of every member is read at implies,
+    /// `i ≥ 1` of `i ∈ ℕ`.
+    Member(crate::citing::Implication),
+}
+
+/// How an `antisymmetry` step's two lines make its equation
+/// (`CheckedTheorem::antisymmetric`): `below` says the claim's left side is
+/// at most its right, `above` the converse, each as its line writes it.
+#[derive(Clone, Debug)]
+pub struct Antisymmetric {
+    pub below: FirstAt,
+    pub above: FirstAt,
 }
 
 /// How an `instantiate` step's instance of the line it names reaches its

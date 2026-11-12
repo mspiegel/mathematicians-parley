@@ -10,6 +10,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -60,7 +61,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
   have s5 : ∀ n : ℤ, 0 < n → 0 ≤ e n ∧ e n ≤ 9 := by
     intro n hK4
     -- 5.1. inequalities, from 2
-    have s5_1 : 0 ≤ e n ∧ e n ≤ 9 := by have := (s2 n hK4); parley_side
+    have s5_1 : 0 ≤ e n ∧ e n ≤ 9 := ⟨by linarith only [(s2 n hK4).1.1.1.2], by linarith only [(s2 n hK4).1.1.2]⟩
     exact ⟨(s5_1).1, (s5_1).2⟩
   -- 6. obtain x: thm:decimal-number d := e, from 5
   obtain ⟨x, s6⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.DecimalNumber.decimal_number (d := e) s5)

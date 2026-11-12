@@ -1,11 +1,12 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -35,11 +36,11 @@ theorem lowest_terms (x : ℚ) :
     -- 2.3. substitute gcd(p, q) = 1 (line 1) into line 2.2
     have s2_3 : d ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => d ∣ t)) s1c s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.4. mun:divides-one, from 2.3
-    have r83_1 : 0 < d := by parley_order
+    have r83_1 : 0 < d := by linarith only [s2_1a]
     have r83_2 : 0 < d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := d) r83_1)
     have s2_4 : d = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := d) r83_2 s2_3)
     -- 2.5. inequalities
-    have s2_5 : d ≠ 1 := by parley_side
+    have s2_5 : d ≠ 1 := ne_of_gt (by linarith only [s2_1a])
     exact s2_5 s2_4
   -- 3. exhibit, from 1, 2
   exact ⟨p, q, ⟨⟨s1a, s1b⟩, s2⟩⟩

@@ -6,7 +6,6 @@ public import FactorialTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -19,6 +18,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -48,7 +48,7 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
         have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (b * (LeanBridges.Counting.choose (m + b) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 0) m : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))))
         simpa only [add_zero] using hI
       -- 1.2. inequalities
-      have s1_2 : m + 1 < m + 2 := by parley_order
+      have s1_2 : m + 1 < m + 2 := by linarith only []
       -- 1.3. def:C n := m + 1, k := m + 2, from 1.2
       have s1_3 : (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m + 1) (by parley_side) (k := m + 2)) s1_2
       -- 1.4. algebra, from 1.1, 1.3

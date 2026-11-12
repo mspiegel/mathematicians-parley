@@ -1,12 +1,12 @@
 module
 
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -29,13 +29,13 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
     intro m hK1
     intro hA1
     -- 1.1. inequalities, from K1
-    have s1_1 : 1 ≤ m := by parley_order
+    have s1_1 : 1 ≤ m := by linarith only [hK1]
     -- 1.2. antisymmetry, from A1, 1.1
-    have s1_2 : m = 1 := by parley_side
+    have s1_2 : m = 1 := le_antisymm hA1 s1_1
     -- 1.3. substitute m = 1 (line 1.2)
     have s1_3 : x m = x 1 := by (have h := congrArg (fun t : ℤ => x t) s1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 1.4. inequalities
-    parley_order
+    linarith only [s1_3]
   | succ n hK hIH =>
     intro m hK1
     intro hA1
@@ -47,7 +47,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
       -- 1.6.1. mun:integer-step n := n + 1, from C1
       have s1_6_1 : m + 1 ≤ n + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := m) (n := n + 1) hC1)
       -- 1.6.2. inequalities
-      have s1_6_2 : m ≤ n := by parley_order
+      have s1_6_2 : m ≤ n := by linarith only [s1_6_1]
       -- 1.6.3. instantiate m := m in IH, from 1.6.2
       have s1_6_3 : x m ≤ x n := by exact (hIH m hK1 s1_6_2)
       -- 1.6.4. instantiate n := n in H2
@@ -58,6 +58,6 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤
       -- 1.6.6. substitute m = n + 1 (C2)
       have s1_6_6 : x m = x (n + 1) := by (have h := congrArg (fun t : ℤ => x t) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.6.7. inequalities
-      parley_order
+      linarith only [s1_6_6]
 
 end Parley.Stdlib.Calculus.IncreasingTerms

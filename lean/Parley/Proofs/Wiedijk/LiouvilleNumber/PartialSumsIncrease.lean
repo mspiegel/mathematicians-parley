@@ -6,7 +6,6 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -25,6 +24,7 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -52,7 +52,7 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
   induction j, h_j using LeanBridges.Functions.le_induction with
   | base =>
     -- 2.1. inequalities
-    have s2_1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by parley_order
+    have s2_1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by linarith only []
     simpa only [add_zero] using s2_1
   | succ j hK hIH =>
     -- 2.2. mun:nat-plus-nat0 a := n, b := j
@@ -64,7 +64,7 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
     have s2_4 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_3))
     -- 2.5. thm:partial-sum-real m := n + j, from 2.2
     -- 2.6. inequalities
-    have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by parley_order
+    have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by linarith only [s2_4]
     -- 2.7. algebra
     have s2_7 : n + j + 1 = n + (j + 1) := by parley_ring
     -- 2.8. calculation

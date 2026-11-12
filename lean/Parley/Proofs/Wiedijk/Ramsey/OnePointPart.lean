@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Basic.Finite.Defs
@@ -8,6 +7,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -28,7 +28,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     (∃ W ∈ 𝒫 X, 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ G)) := by
   -- 1. inequalities, from H3
   have r61_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
-  have s1 : 0 < (X.ncard : ℤ) := by parley_count_int; (parley_order)
+  have s1 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [hH3])
   -- 2. mun:card-positive, from 1
   have s2 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side))
   -- 3. obtain v: mun:nonempty-member, from 2
@@ -49,7 +49,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     have s6_3 : (2 : ℤ) ≤ 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≤ 1)) hK2 s6_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact absurd s6_3 (by norm_num)
   -- 7. inequalities
-  have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (parley_order)
+  have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (linarith only [s5])
   -- 8. D1, from 6, 7
   have s8 : 1 ≤ (({v} : Set α).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G) := by parley_set_side
   -- 9. exhibit, from 4, 8

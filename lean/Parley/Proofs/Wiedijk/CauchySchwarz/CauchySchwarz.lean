@@ -20,6 +20,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -61,7 +62,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
   rcases s4 with (hC1 | hC2) | hC3
   · skip
     -- 5.1. inequalities, from 3
-    have s5_1 : ¬ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) < 0 := by parley_side
+    have s5_1 : ¬ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) < 0 := by linarith only [s3]
     exact absurd hC1 s5_1
   · skip
     -- 5.2. mun:sum-zero-terms a := 1, b := n, from C2, 2
@@ -76,7 +77,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
       -- 5.3.2. algebra, from 5.3.1
       linear_combination (norm := parley_norm) (b k) * s5_3_1
     -- 5.4. calculation
-    have r72_1 : 1 ≤ n := by parley_order
+    have r72_1 : 1 ≤ n := by linarith only [hH1]
     have s5_4 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = 0 := by
       calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => a k * b k)) (u := (fun k : ℤ => (0 : ℝ))) (a := (1 : ℤ)) (b := n) s5_3)
         _ = ((n : ℝ) - 1 + 1) * 0 := by
@@ -90,7 +91,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     -- 5.7. transitivity, from 5.5, 5.6
     have s5_7 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by parley_side
     -- 5.8. inequalities
-    parley_order
+    linarith only [s5_7]
   · skip
     set A : ℝ := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ) with hD1
     have hD1_kind : True := by parley_side
@@ -99,24 +100,24 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     set C : ℝ := ∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ) with hD3
     have hD3_kind : True := by parley_side
     -- 5.9. inequalities, from C3, D1
-    have s5_9 : A > 0 := by parley_order
+    have s5_9 : A > 0 := by linarith only [hC3, hD1]
     -- 5.10. instantiate t := −B/A in line 1, from D1, D2, D3
-    have r112_1 : A > 0 := by parley_order
+    have r112_1 : A > 0 := by linarith only [hC3, hD1]
     have s5_10 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C ≥ 0 := by exact (s1 (-(B / A)))
     -- 5.11. algebra
-    have r116_1 : A ≠ 0 := by parley_side
+    have r116_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
     have s5_11 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C = C - B ^ 2 / A := by parley_ring
     -- 5.12. transitivity, from 5.10, 5.11
-    have r120_1 : A ≠ 0 := by parley_side
+    have r120_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
     have s5_12 : C - B ^ 2 / A ≥ 0 := by parley_order
     -- 5.13. inequalities
-    have r124_1 : A ≠ 0 := by parley_side
-    have s5_13 : B ^ 2 / A ≤ C := by parley_order
+    have r124_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
+    have s5_13 : B ^ 2 / A ≤ C := by linarith only [s5_12]
     -- 5.14. mun:multiply-le, from 5.13
-    have r131_1 : A > 0 := by parley_order
+    have r131_1 : A > 0 := by linarith only [hC3, hD1]
     have s5_14 : A * (B ^ 2 / A) ≤ A * C := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := B ^ 2 / A) (y := C) (c := A) s5_13 r131_1)
     -- 5.15. substitute
-    have r135_1 : A ≠ 0 := by parley_side
+    have r135_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
     have s5_15 : B ^ 2 ≤ A * C := by
       have c1 : A * (B ^ 2 / A) = B ^ 2 := by parley_ring
       have row1 : B ^ 2 ≤ A * C := by (have h := Eq.subst (motive := (fun t : ℝ => t ≤ A * C)) c1 s5_14; push_cast at h ⊢; all_goals exact_mod_cast h)

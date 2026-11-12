@@ -1,10 +1,10 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -19,6 +19,6 @@ namespace Parley.Tests.Elaborator.Orders.ABoundByHalfAnEquation
 theorem a_bound_by_half_an_equation (x : ℝ) (hH2 : 2 * x = 3) :
     x ≤ 3 / 2 := by
   -- 1. inequalities
-  parley_order
+  linarith only [hH2]
 
 end Parley.Tests.Elaborator.Orders.ABoundByHalfAnEquation

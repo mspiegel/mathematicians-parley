@@ -22,6 +22,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -48,11 +49,11 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 1. obtain m: def:odd n := k, from H2
   obtain ⟨m, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := k))).mp hH2
   -- 2. inequalities, from H1
-  have s2 : 1 ≤ k := by parley_order
+  have s2 : 1 ≤ k := by linarith only [hH1]
   -- 3. substitute k = 2m + 1 (line 1) into line 2
   have s3 : 1 ≤ 2 * m + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. inequalities
-  have s4 : 0 ≤ m := by parley_order
+  have s4 : 0 ≤ m := by linarith only [s3]
   -- 5. mun:nat0-as-int n := m, from 4
   have s5 : 0 ≤ m := by
     have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨by parley_side, s4⟩)
@@ -79,7 +80,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s11a : Real.sqrt (3 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by parley_side))
   have s11b : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by parley_side))
   -- 12. def:sqrt x := 3^k
-  have r61_1 : (0 : ℤ) ≤ 3 ^ k.toNat := by parley_order
+  have r61_1 : (0 : ℤ) ≤ 3 ^ k.toNat := by linarith only [s7]
   have s12a : Real.sqrt (3 ^ k.toNat : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 ^ k.toNat : ℝ)) (by exact_mod_cast r61_1))
   have s12b : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 ^ k.toNat : ℝ)) (by exact_mod_cast r61_1))
   -- 13. mun:product-nonneg x := √3, y := 3^m, from 6, 11

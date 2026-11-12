@@ -4165,7 +4165,7 @@ impl<'a> Elaborator<'a> {
         Ok(parts
             .into_iter()
             .enumerate()
-            .filter(|(i, _)| !used.contains(i))
+            .filter(|(i, _)| !used.cited.contains(i))
             .map(|(_, p)| p)
             .collect())
     }

@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -16,6 +15,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -45,7 +45,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3. contradiction
   intro hS
   -- 3.1. inequalities
-  have s3_1 : 0 < a' - a := by parley_order
+  have s3_1 : 0 < a' - a := by linarith only [hS]
   -- 3.2. mun:pos-int-nat m := a′ − a, from 3.1
   have s3_2 : 0 < a' - a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a' - a) s3_1)
   -- 3.3. mun:power-nat a := p, m := a′ − a, from 3.2
@@ -68,7 +68,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   have r423_1 : 0 < p := by exact hH1
   have s3_7 : p ^ a.toNat > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (p : ℚ)) (m := a) (by exact_mod_cast r423_1)); simp only [parley_zpow_toNat (n := a) (h := hH3)] at h ⊢; exact_mod_cast h)
   -- 3.8. inequalities
-  have s3_8 : p ^ a.toNat ≠ 0 := by parley_side
+  have s3_8 : p ^ a.toNat ≠ 0 := ne_of_gt (by linarith only [s3_7])
   -- 3.9. mun:multiply-cancel a := m, b := p^(a′ − a)·m′, c := p^a, from 3.6, 3.8
   have s3_9 : (m : ℚ) = (p : ℚ) ^ (a' - a) * (m' : ℚ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (m : ℚ)) (b := (p : ℚ) ^ (a' - a) * (m' : ℚ)) (c := (p : ℚ) ^ a.toNat) (by parley_side) (by exact_mod_cast s3_8))
   -- 3.10. mun:divides-self n := p

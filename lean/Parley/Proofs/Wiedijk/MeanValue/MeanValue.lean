@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -16,7 +15,9 @@ public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -40,14 +41,14 @@ namespace Parley.Proofs.Wiedijk.MeanValue.MeanValue
 theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Set.MapsTo f (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ContinuousOn f (Set.Icc a b : Set ℝ)) (hH6 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ f x) :
     (∃ c ∈ (Set.Ioo a b : Set ℝ), (deriv f) c = (f b - f a) / (b - a)) := by
   -- 1. inequalities
-  have s1 : b - a > 0 := by parley_order
+  have s1 : b - a > 0 := by linarith only [hH3]
   -- 2. def:interval x := a
-  have r32_1 : a ≤ a := by parley_order
-  have r32_2 : a ≤ b := by parley_set_side
+  have r32_1 : a ≤ a := by linarith only []
+  have r32_2 : a ≤ b := by linarith only [hH3]
   have s2 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r32_1⟩, r32_2⟩
   -- 3. def:interval x := b
-  have r37_1 : a ≤ b := by parley_set_side
-  have r37_2 : b ≤ b := by parley_order
+  have r37_1 : a ≤ b := by linarith only [hH3]
+  have r37_2 : b ≤ b := by linarith only []
   have s3 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r37_1⟩, r37_2⟩
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
@@ -104,7 +105,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 20. D2, from 3
   have s20 : g b = m * b := by simp (disch := omega) only [hD2]
   -- 21. calculation
-  have r121_1 : b - a ≠ 0 := by parley_set_side
+  have r121_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s1])
   have s21 : F a = F b := by
     calc F a = f a + g a := by exact s17
       _ = f a + m * a := by (have h := congrArg (fun t : ℝ => f a + t) s18; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -125,7 +126,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
       _ = (deriv F) c := by exact (s16 c s22a).symm
       _ = 0 := by exact s22b
   -- 25. algebra, from D1, 24
-  have r145_1 : b - a ≠ 0 := by parley_set_side
+  have r145_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s1])
   have s25 : (deriv f) c = (f b - f a) / (b - a) := by
     try simp only [hD1] at s24 r145_1 ⊢
     try push_cast at s24 r145_1 ⊢

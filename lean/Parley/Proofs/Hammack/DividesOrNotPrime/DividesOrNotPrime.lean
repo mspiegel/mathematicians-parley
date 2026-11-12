@@ -5,6 +5,8 @@ public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,7 +49,7 @@ theorem divides_or_not_prime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (hH
     rcases s6 with hC1 | hC2
     · skip
       -- 8.1. inequalities
-      have s8_1 : (Int.gcd a b : ℤ) ≠ 1 := by parley_side
+      have s8_1 : (Int.gcd a b : ℤ) ≠ 1 := ne_of_gt (by linarith only [hH3])
       exact absurd hC1 s8_1
     · skip
       -- 8.2. substitute gcd(a, b) = b (C2) into line 7

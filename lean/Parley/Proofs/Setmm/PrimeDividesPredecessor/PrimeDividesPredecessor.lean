@@ -4,6 +4,8 @@ public import AlgebraTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -34,7 +36,7 @@ theorem prime_divides_predecessor (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toN
   -- 2.3. mun:divides-one d := P, from 2.2
   have s2_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) hH1 s2_2)
   -- 2.4. inequalities
-  have s2_4 : P ≠ 1 := by parley_side
+  have s2_4 : P ≠ 1 := ne_of_gt (by linarith only [s1])
   exact s2_4 s2_3
 
 end Parley.Proofs.Setmm.PrimeDividesPredecessor.PrimeDividesPredecessor

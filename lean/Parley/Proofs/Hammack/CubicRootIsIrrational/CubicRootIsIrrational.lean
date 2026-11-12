@@ -19,10 +19,13 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
@@ -48,7 +51,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     -- 1.2. substitute x = p/q (line 1.1) into H2
     have s1_2 : ((p : ℚ) / (q : ℚ)) ^ 3 + (p : ℚ) / (q : ℚ) + 3 = 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 3 + t + 3 = 0)) s1_1b hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 1.3. algebra, from 1.2
-    have r29_1 : q ≠ 0 := by parley_side
+    have r29_1 : q ≠ 0 := ne_of_gt (by linarith only [s1_1a])
     have s1_3 : p ^ 3 + p * q ^ 2 + 3 * q ^ 3 = 0 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s1_2
     -- 1.4. mun:even-or-odd n := p
     have s1_4 : Even p ∨ Odd p := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p))

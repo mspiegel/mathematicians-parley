@@ -1,10 +1,10 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -32,13 +32,13 @@ theorem triangle_inequality (a : ℝ) (b : ℝ) :
   rcases s1 with hC1 | hC2
   · skip
     -- 4.1. inequalities, from 2, 3
-    have s4_1 : a + b ≤ abs a + abs b := by parley_order
+    have s4_1 : a + b ≤ abs a + abs b := by linarith only [s2a, s3a]
     -- 4.2. calculation
     calc abs (a + b) = a + b := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) hC1
       _ ≤ abs a + abs b := by exact s4_1
   · skip
     -- 4.3. inequalities, from 2, 3
-    have s4_3 : -a + -b ≤ abs a + abs b := by parley_order
+    have s4_3 : -a + -b ≤ abs a + abs b := by linarith only [s2b, s3b]
     -- 4.4. calculation
     calc abs (a + b) = -(a + b) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := a + b)) hC2
       _ = -a + -b := by parley_ring

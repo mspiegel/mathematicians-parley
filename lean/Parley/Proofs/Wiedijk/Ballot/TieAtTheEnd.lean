@@ -14,6 +14,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -62,7 +63,7 @@ theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
         _ < (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) ∩ c).ncard : ℤ) := by exact (s2_3 (m + m) s1)
         _ = m := by parley_set_side)
     -- 2.5. inequalities
-    have s2_5 : ¬ m < m := by parley_set_side
+    have s2_5 : ¬ m < m := by linarith only []
     exact s2_5 s2_4
   -- 3. mun:set-builder-empty X := O, from D2, D3, 2
   exact ((Parley.Items.Stdlib.Sets.mun_set_builder_empty (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m}))).mpr (by parley_set_side)

@@ -1,10 +1,11 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -49,7 +50,7 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
   rcases s10 with hC1 | hC2
   · skip
     -- 11.1. inequalities, from C1, H5
-    have s11_1 : 0 < c := by parley_order
+    have s11_1 : 0 < c := Or.elim (Ne.lt_or_gt hH5) (fun h1 => by linarith only [hC1, h1]) (fun h1 => by linarith only [hC1, h1])
     -- 11.2. mun:pos-int-nat m := c, from 11.1
     have s11_2 : 0 < c := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c) s11_1)
     -- 11.3. mun:nat-closure a := c, b := gcd(a, b), from 1, 11.2
@@ -58,9 +59,9 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
     exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := c * (Int.gcd a b : ℤ)) s11_3 (m := (Int.gcd (c * a) (c * b) : ℤ)) s5 s9)
   · skip
     -- 11.5. inequalities
-    have s11_5 : 0 < -c := by parley_order
+    have s11_5 : 0 < -c := by linarith only [hC2]
     -- 11.6. inequalities, from 1
-    have s11_6 : 0 < (Int.gcd a b : ℤ) := by parley_order
+    have s11_6 : 0 < (Int.gcd a b : ℤ) := by linarith only [s1]
     -- 11.7. mun:product-positive x := −c, y := gcd(a, b), from 11.5, 11.6
     have s11_7 : 0 < -c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := -c) (y := (Int.gcd a b : ℤ)) s11_5 s11_6)
     -- 11.8. substitute
@@ -69,10 +70,10 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
       have row1 : 0 < -(c * (Int.gcd a b : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) c1 s11_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 11.9. inequalities
-    have s11_9 : c * (Int.gcd a b : ℤ) < 0 := by parley_order
+    have s11_9 : c * (Int.gcd a b : ℤ) < 0 := by linarith only [s11_8]
     -- 11.10. inequalities, from 5, 11.9
-    have s11_10 : c * (Int.gcd a b : ℤ) < (Int.gcd (c * a) (c * b) : ℤ) := by parley_order
+    have s11_10 : c * (Int.gcd a b : ℤ) < (Int.gcd (c * a) (c * b) : ℤ) := by linarith only [s11_9, s5]
     -- 11.11. inequalities
-    parley_order
+    linarith only [s11_10]
 
 end Parley.Proofs.Hammack.ScaledGcdBound.ScaledGcdBound

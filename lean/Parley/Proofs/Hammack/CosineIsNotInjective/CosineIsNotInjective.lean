@@ -5,6 +5,8 @@ public import Tactics
 public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -23,7 +25,7 @@ theorem cosine_is_not_injective :
   -- 2. real arithmetic
   have s2 : 0 < 2 * Real.pi := by parley_real
   -- 3. inequalities
-  have s3 : 0 ≠ 2 * Real.pi := by parley_side
+  have s3 : 0 ≠ 2 * Real.pi := ne_of_lt (by linarith only [s2])
   -- 4. join 1, 3
   have s4a : 0 ≠ 2 * Real.pi := by parley_side
   have s4b : Real.cos (0 : ℝ) = Real.cos (2 * Real.pi) := by parley_side

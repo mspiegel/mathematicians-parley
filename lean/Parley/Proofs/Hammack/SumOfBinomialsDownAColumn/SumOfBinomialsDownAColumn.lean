@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -17,6 +16,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Eq
@@ -41,9 +41,9 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. inequalities, from H2
-      have s1_1 : 0 < r := by parley_order
+      have s1_1 : 0 < r := by linarith only [hH2]
       -- 1.2. inequalities, from H2
-      have s1_2 : 1 < r + 1 := by parley_order
+      have s1_2 : 1 < r + 1 := by linarith only [hH2]
       -- 1.3. calculation
       have s1_3 : S 0 = (LeanBridges.Counting.choose (1 : ℤ) (r + 1) : ℤ) := by
         calc S 0 = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose j r : ℤ) : ℤ)) := by simp (disch := omega) only [hD1]

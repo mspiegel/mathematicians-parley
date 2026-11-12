@@ -14,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -53,11 +54,11 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
       have hI : d ≠ p := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).2)
       exact hI
     -- 1.3. inequalities, from K, 1.2
-    have s1_3 : 1 < d := by parley_order
+    have s1_3 : 1 < d := Or.elim (Ne.lt_or_gt s1_2a) (fun h1 => by linarith only [hK, h1]) (fun h1 => by linarith only [hK, h1])
     -- 1.4. mun:integer-step m := 1, n := d, from 1.3
     have s1_4 : 1 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) s1_3)
     -- 1.5. inequalities, from 1.4
-    have s1_5 : 2 ≤ d := by parley_order
+    have s1_5 : 2 ≤ d := by linarith only [s1_4]
     -- 1.6. contradiction
     have s1_6 : e ≠ 1 := by
       intro hS2
@@ -69,7 +70,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     -- 1.8. mun:integer-step m := 1, n := e, from 1.7
     have s1_8 : 1 + 1 ≤ e := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := e) s1_7)
     -- 1.9. inequalities, from 1.8
-    have s1_9 : 2 ≤ e := by parley_order
+    have s1_9 : 2 ≤ e := by linarith only [s1_8]
     -- 1.10. mun:nonneg-or-neg x := e − d
     have s1_10 : e - d ≥ 0 ∨ e - d < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := e - d))
     -- 1.11. cases, from 1.10
@@ -77,7 +78,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
       rcases s1_10 with hC1 | hC2
       · skip
         -- 1.11.1. inequalities
-        have s1_11_1 : e ≥ d := by parley_order
+        have s1_11_1 : e ≥ d := by linarith only [hC1]
         -- 1.11.2. mun:multiply-le x := d, y := e, c := d, from K, 1.11.1
         have s1_11_2 : d * d ≤ d * e := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := d) (y := e) (c := d) s1_11_1 hK)
         -- 1.11.3. thm:divisor-exceeds-root, from C, H3, 1.5
@@ -85,11 +86,11 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.4. transitivity, from 1.11.2, 1.1
         have s1_11_4 : d * d ≤ p := by exact LE.le.trans_eq s1_11_2 s1_1.symm
         -- 1.11.5. inequalities, from 1.11.4
-        have s1_11_5 : ¬ p < d * d := by parley_side
+        have s1_11_5 : ¬ p < d * d := by linarith only [s1_11_4]
         exact absurd s1_11_3 s1_11_5
       · skip
         -- 1.11.6. inequalities
-        have s1_11_6 : e ≤ d := by parley_order
+        have s1_11_6 : e ≤ d := by linarith only [hC2]
         -- 1.11.7. mun:multiply-le x := e, y := d, c := e, from D1, 1.11.6
         have s1_11_7 : e * e ≤ e * d := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by exact_mod_cast s1_11_6) (by parley_side))
         -- 1.11.8. algebra, from 1.1
@@ -101,7 +102,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.11. transitivity, from 1.11.7, 1.11.8
         have s1_11_11 : e * e ≤ p := by exact LE.le.trans_eq s1_11_7 s1_11_8.symm
         -- 1.11.12. inequalities, from 1.11.11
-        have s1_11_12 : ¬ p < e * e := by parley_side
+        have s1_11_12 : ¬ p < e * e := by linarith only [s1_11_11]
         exact absurd s1_11_10 s1_11_12
     exact s1_2b s1_11
   -- 2. join H2, 1

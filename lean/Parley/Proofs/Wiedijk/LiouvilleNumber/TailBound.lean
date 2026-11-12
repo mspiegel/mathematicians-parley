@@ -6,11 +6,13 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Algebra.Field.Rat
+public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -28,6 +30,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -67,7 +70,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.1. algebra, from 2
       have s3_1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 2 / 2 ^ A.toNat - 2 / 2 ^ A.toNat := by parley_ring
       -- 3.2. inequalities
-      have s3_2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ A.toNat := by parley_order
+      have s3_2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ A.toNat := by linarith only [s3_1]
       simpa only [add_zero] using s3_2
     | succ j hK hIH =>
       -- 3.3. mun:nat-plus-nat0 a := n, b := j
@@ -83,7 +86,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       have s3_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + (j + 1)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by (have h := congrArg (fun t : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) s3_6.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.8. thm:terms-real m := n + j + 1, from 3.4
       -- 3.9. mun:sum-extended a := 1, n := n + j, from 3.8
-      have r155_1 : n + j ≥ 1 := by parley_order
+      have r155_1 : n + j ≥ 1 := by linarith only [s3_3]
       have s3_9 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) (a := (1 : ℤ)) (n := n + j) r155_1)
       -- 3.10. algebra, from D0, 3.9
       have s3_10 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by linear_combination (norm := parley_field) s3_9
@@ -115,7 +118,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         have e_w : (2 ^ (A + j).toNat * 2 : ℚ) = 2 ^ (A + (j + 1)).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_17; push_cast at h; linear_combination (norm := parley_norm) h
         (have h := Eq.subst (motive := (fun t : ℚ => 2 / t = 1 / 2 ^ (A + j).toNat)) e_w s3_18; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.20. inequalities, from IH, 3.15
-      have s3_20 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := by parley_order
+      have s3_20 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := by linarith only [hIH, s3_15, div_eq_mul_one_div (2 : ℚ) (2 ^ (A + j).toNat)]
       -- 3.21. calculation
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (n + (j + 1)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by linear_combination (norm := parley_field) s3_7 + s3_10
         _ ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := by exact s3_20

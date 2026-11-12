@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -21,6 +20,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -51,7 +51,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
   -- 1. mun:nat-minus-one n := m
   have s1 : 0 ≤ m - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := m) hH1)
   -- 2. thm:places-before-last p := (m − 1) + n, N := m + n
-  have r465_1 : 1 ≤ m - 1 + n := by parley_order
+  have r465_1 : 1 ≤ m - 1 + n := by linarith only [hH1, hH2]
   have r465_2 : m - 1 + n + 1 = m + n := by parley_ring
   have s2 : (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) = (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.PlacesBeforeLast.places_before_last (p := m - 1 + n) (N := m + n) r465_1 r465_2)
   -- 3. mun:difference-subset X := {1, …, m + n}, Y := {m + n}
@@ -103,7 +103,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 6.10.1. mun:range-bounds a := 1, b := (m − 1) + n, k := i, from K2
       have s6_10_1 : i ≤ m - 1 + n := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m - 1 + n) (k := i) hK2)
       -- 6.10.2. inequalities, from 6.10.1
-      have s6_10_2 : i < m + n := by parley_order
+      have s6_10_2 : i < m + n := by linarith only [s6_10_1]
       -- 6.10.3. mun:in-subset X := {1, …, (m − 1) + n}, Y := {1, …, m + n}, u := i, from K2, 4
       have s6_10_3 : i ∈ Finset.Icc (1 : ℤ) (m + n) := by
         have hI : i ∈ Finset.Icc (1 : ℤ) (m + n) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) s4 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK2)))
@@ -176,7 +176,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 8.13.2. mun:range-bounds a := 1, b := (m + n) − 1, k := i, from K4
       have s8_13_2 : i ≤ m + n - 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m + n - 1) (k := i) hK4)
       -- 8.13.3. inequalities, from 8.13.2
-      have s8_13_3 : i < m + n := by parley_order
+      have s8_13_3 : i < m + n := by linarith only [s8_13_2]
       -- 8.13.4. substitute (m + n) − 1 = (m − 1) + n (line 5) into K4
       have s8_13_4 : i ∈ Finset.Icc (1 : ℤ) (m - 1 + n) := by (have h := Eq.subst (motive := (fun t : ℤ => i ∈ Finset.Icc (1 : ℤ) t)) s5 hK4; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 8.13.5. instantiate j := i in line 8.13.1, from 8.13.4

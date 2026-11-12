@@ -13,6 +13,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Ineq
@@ -42,7 +43,7 @@ theorem harmonic :
   -- 1.4. instantiate m := N in line 1.2
   have s1_4 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (1 / (k : ℝ) : ℝ)) ≤ B := by exact (s1_2 N s1_3a)
   -- 1.5. inequalities, from 1.4
-  have s1_5 : ¬ (∑ k ∈ Finset.Icc (1 : ℤ) N, (1 / (k : ℝ) : ℝ)) > B := by parley_side
+  have s1_5 : ¬ (∑ k ∈ Finset.Icc (1 : ℤ) N, (1 / (k : ℝ) : ℝ)) > B := by linarith only [s1_4]
   exact s1_5 s1_3b
 
 end Parley.Proofs.Wiedijk.Harmonic.Harmonic

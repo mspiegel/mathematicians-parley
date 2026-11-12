@@ -14,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -52,7 +53,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
       rcases s1_5 with (hC1 | hC2) | hC3
       · skip
         -- 1.6.1. inequalities, from C1
-        have s1_6_1 : ¬ 0 ≤ a := by parley_side
+        have s1_6_1 : ¬ 0 ≤ a := by linarith only [hC1]
         exact absurd hH3 s1_6_1
       · skip
         -- 1.6.2. algebra, from C2
@@ -60,12 +61,12 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
         -- 1.6.3. transitivity, from 1.6.2, 1.4
         have s1_6_3 : 0 = a ^ (m + 1).toNat := by parley_side
         -- 1.6.4. inequalities
-        parley_order
+        linarith only [s1_6_3]
       · skip
         -- 1.6.5. mun:multiply-le x := 0, y := a^m, c := a, from C3, IH
         have s1_6_5 : a * 0 ≤ a * a ^ m.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m.toNat) (c := a) hIH hC3)
         -- 1.6.6. inequalities
-        have s1_6_6 : 0 ≤ a ^ m.toNat * a := by parley_order
+        have s1_6_6 : 0 ≤ a ^ m.toNat * a := by linarith only [s1_6_5]
         -- 1.6.7. transitivity, from 1.6.6, 1.4
         exact LE.le.trans_eq s1_6_6 s1_4.symm
   -- 2. instantiate m := n in line 1

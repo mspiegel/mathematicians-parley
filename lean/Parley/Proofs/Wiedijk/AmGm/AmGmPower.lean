@@ -27,6 +27,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -65,12 +66,12 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.4. transitivity, from 1.2, 1.3
       have s1_4 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) := by parley_side
       -- 1.5. inequalities
-      have s1_5 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) / 1) ^ 1 := by parley_order
+      have s1_5 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) / 1) ^ 1 := by linarith only [s1_4]
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_5
     | succ j hK1 hIH =>
       intro hC2
       -- 1.6. inequalities, from C2
-      have s1_6 : j ≤ n := by parley_order
+      have s1_6 : j ≤ n := by linarith only [hC2]
       -- 1.7. mun:modus-ponens, from IH, 1.6
       have s1_7 : (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := j ≤ n) (Q := (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat) hIH s1_6)
       -- 1.8. thm:first-terms m := j, from H3, 1.6
@@ -105,7 +106,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.16. mun:sum-nonneg a := 1, b := j + 1, from 1.9
       have s1_16 : (∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := j + 1) s1_9)
       -- 1.17. mun:quotient-nonneg, from D3, 1.16
-      have r146_2 : 0 < j + 1 := by parley_order
+      have r146_2 : 0 < j + 1 := by linarith only [lt_of_lt_of_le zero_lt_one hK1]
       have s1_17 : B ≥ 0 := by
         try simp only [hD3] at ⊢
         try push_cast at ⊢
@@ -124,7 +125,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
             try push_cast at ⊢
             exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := B) (y := A) s1_17 hC3)
           -- 1.19.2. inequalities, from 1.19.1
-          have s1_19_2 : r - 1 ≥ -1 := by parley_order
+          have s1_19_2 : r - 1 ≥ -1 := by linarith only [s1_19_1]
           -- 1.19.3. thm:bernoulli-inequality x := r − 1, n := j + 1, from 1.19.2
           have s1_19_3 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by
             have hI : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := r - 1) (n := j + 1) (by parley_side) s1_19_2))
@@ -139,7 +140,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.6. mun:product-positive, from C3, 1.19.5
           have s1_19_6 : A ^ j.toNat * A > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := A ^ j.toNat) (y := A) s1_19_5 hC3)
           -- 1.19.7. algebra, from D4
-          have r185_1 : 0 ≠ A := by parley_side
+          have r185_1 : 0 ≠ A := ne_of_lt (by linarith only [hC3])
           have s1_19_7 : A * r = B := by
             try simp only [hD4] at r185_1 ⊢
             try push_cast at r185_1 ⊢
@@ -182,7 +183,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
   -- 2. instantiate j := n in line 1
   have s2 : n ≤ n → (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ)) ^ n.toNat := by exact (s1 n hH1)
   -- 3. inequalities
-  have s3 : n ≤ n := by parley_order
+  have s3 : n ≤ n := by linarith only []
   -- 4. mun:modus-ponens, from 2, 3
   exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := n ≤ n) (Q := (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ)) ^ n.toNat) s2 s3)
 

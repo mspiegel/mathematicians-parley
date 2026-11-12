@@ -1,10 +1,10 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -22,10 +22,10 @@ theorem average_below_an_end (A : ℝ) (B : ℝ) :
   · skip
     intro hD1
     -- 1. inequalities
-    parley_order
+    linarith only [hD1]
   · skip
     intro hD2
     -- 2. inequalities
-    parley_order
+    linarith only [hD2]
 
 end Parley.Proofs.Setmm.AverageBelowAnEnd.AverageBelowAnEnd

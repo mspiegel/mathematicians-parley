@@ -2,7 +2,6 @@ module
 
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -13,6 +12,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -67,7 +67,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.3. substitute |R| = j (line 1.1) into line 1.3.2
       have s1_3_3 : j ≥ 1 := by parley_count_int; ((have h := Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1_1b s1_3_2; push_cast at h ⊢; all_goals exact_mod_cast h))
       -- 1.3.4. inequalities, from 1.3.3
-      have s1_3_4 : 0 ≤ j - 1 := by parley_order
+      have s1_3_4 : 0 ≤ j - 1 := by linarith only [s1_3_3]
       -- 1.3.5. mun:nat0-as-int n := j − 1, from 1.3.4
       have s1_3_5 : 0 ≤ j - 1 := by
         have hI : 0 ≤ j - 1 := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - 1))).mpr ⟨by parley_set_side, s1_3_4⟩)

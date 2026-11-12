@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -9,6 +8,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -56,7 +56,7 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   -- 11. substitute A ∪ (B ∖ A) = A ∪ B (line 10) into line 9
   have s11 : ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_subst_at s10 s9
   -- 12. inequalities
-  have s12 : (A.ncard : ℤ) + ((B \ A).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_count_int; (parley_order)
+  have s12 : (A.ncard : ℤ) + ((B \ A).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_count_int; (linarith only [s6])
   -- 13. calculation
   parley_count_after (by
     calc ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_set_side

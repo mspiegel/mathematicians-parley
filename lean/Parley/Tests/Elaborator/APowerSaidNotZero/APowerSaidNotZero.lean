@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -9,6 +8,8 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -23,7 +24,7 @@ namespace Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero
 theorem a_power_said_not_zero (n : ℤ) (hH1 : 0 < n) (ε : ℝ) (x : ℝ) (hH4 : x ^ n.toNat > 0) (hH5 : 1 / x ^ n.toNat < ε) :
     1 - ε < 1 - 1 / x ^ n.toNat := by
   -- 1. inequalities
-  have r10_1 : x ^ n.toNat ≠ 0 := by parley_side
-  parley_order
+  have r10_1 : x ^ n.toNat ≠ 0 := ne_of_gt (by linarith only [hH4])
+  linarith only [hH5]
 
 end Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero

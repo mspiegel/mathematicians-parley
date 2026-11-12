@@ -1,9 +1,9 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -22,8 +22,8 @@ theorem abs_nonneg (x : ℝ) :
   have s1a : x ≤ abs x := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := x)).1
   have s1b : -x ≤ abs x := by exact (Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds.abs_bounds (x := x)).2
   -- 2. inequalities, from 1
-  have s2 : 0 ≤ 2 * abs x := by parley_order
+  have s2 : 0 ≤ 2 * abs x := by linarith only [s1a, s1b]
   -- 3. inequalities
-  parley_order
+  linarith only [s2]
 
 end Parley.Proofs.Setmm.LimitLemmas.AbsNonneg

@@ -1,8 +1,8 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 
@@ -15,9 +15,9 @@ namespace Parley.Tests.Elaborator.BoundsFromCited.PositiveFromANaturalWithABound
 theorem positive_from_a_natural_with_a_bound_uncited (n : ℤ) (hH1 : 0 < n) :
     (1 ≤ n ∧ n > 0) := by
   -- 1. inequalities, from H1
-  have s1 : 1 ≤ n := by parley_order
+  have s1 : 1 ≤ n := by linarith only [hH1]
   -- 2. inequalities, from H1
-  have s2 : n > 0 := by parley_order
+  have s2 : n > 0 := by linarith only [hH1]
   -- 3. join 1, 2
   have s3 : 1 ≤ n ∧ n > 0 := by parley_side
   exact ⟨(s3).1, (s3).2⟩

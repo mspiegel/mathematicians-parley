@@ -19,7 +19,9 @@
 //! requires line read from the lines it names, an instantiation's value put
 //! in its domain by a "for all" line read at the block's letter and its
 //! conditions met by the lines it names, and a definition read backwards,
-//! where each part of its right side stands.
+//! where each part of its right side stands; and what each order step
+//! adds: a disequality taken both ways, an antisymmetry's two lines, a
+//! requires line weakened to a disequality, and rows from a line.
 
 use std::path::Path;
 
@@ -29,7 +31,11 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 18] = [
+const KEPT: [&str; 22] = [
+    "proofs/setmm/floor-below-non-integer/floor-below-non-integer",
+    "proofs/setmm/limit-unique/limit-unique",
+    "proofs/setmm/remainder-bounds/remainder-nonnegative",
+    "proofs/wiedijk/harmonic/harmonic-unbounded",
     "tests/stdlib/sums/range",
     "tests/elaborator/sets-a-define-names/a-conjunct-of-a-property",
     "tests/elaborator/a-for-all-line-read-in-a-block/a-for-all-line-in-a-calculation-link",

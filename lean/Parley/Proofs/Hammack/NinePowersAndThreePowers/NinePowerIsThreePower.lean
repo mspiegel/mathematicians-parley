@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -12,6 +11,8 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -53,9 +54,9 @@ theorem nine_power_is_three_power (m : ℤ) :
       (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := m) s4_1); simp only [parley_zpow_toNat (n := m) (h := s4_1)] at h ⊢; exact_mod_cast h)
     · skip
       -- 4.3. inequalities
-      have s4_3 : -m > 0 := by parley_order
+      have s4_3 : -m > 0 := by linarith only [hC2]
       -- 4.4. mun:nat0-as-int
-      have r139_1 : -m ≥ 0 := by parley_side
+      have r139_1 : -m ≥ 0 := by linarith only [s4_3]
       have s4_4 : 0 ≤ -m := by
         have hI : 0 ≤ -m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr ⟨by parley_side, r139_1⟩)
         exact hI
@@ -84,9 +85,9 @@ theorem nine_power_is_three_power (m : ℤ) :
         have row1 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by (have h := Eq.subst (motive := (fun t : ℚ => 1 / 9 ^ m = t * t)) c1 s4_10; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.12. inequalities
-      have s4_12 : (9 ^ m : ℚ) ≠ 0 := by parley_side
+      have s4_12 : (9 ^ m : ℚ) ≠ 0 := ne_of_gt (by linarith only [s4_8])
       -- 4.13. inequalities
-      have s4_13 : (3 ^ m : ℚ) ≠ 0 := by parley_side
+      have s4_13 : (3 ^ m : ℚ) ≠ 0 := ne_of_gt (by linarith only [s4_9])
       -- 4.14. algebra, from 4.6, 4.7, 4.11
       have r186_1 : (9 ^ m : ℚ) ≠ 0 := by exact s4_12
       have r186_2 : (3 ^ m : ℚ) ≠ 0 := by exact s4_13

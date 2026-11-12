@@ -12,9 +12,12 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
@@ -30,7 +33,7 @@ namespace Parley.Proofs.Setmm.RemainderRules.RemainderOfProduct
 theorem remainder_of_product (A : ℝ) (B : ℤ) (M : ℝ) (hH4 : M > 0) :
     LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M * (B : ℝ)) M = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by
   -- 1. inequalities
-  have s1 : M ≠ 0 := by parley_side
+  have s1 : M ≠ 0 := ne_of_gt (by linarith only [hH4])
   set q : ℤ := ⌊A / M⌋ with hD1
   have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := M, from D1, H4

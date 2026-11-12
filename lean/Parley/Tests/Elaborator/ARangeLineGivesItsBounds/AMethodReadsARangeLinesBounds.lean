@@ -1,12 +1,15 @@
 module
 
-public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.SetLike.Basic
+public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 
@@ -19,6 +22,6 @@ namespace Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AMethodReadsARangeLin
 theorem a_method_reads_a_range_lines_bounds (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (2 : ℤ) n) :
     0 < k := by
   -- 1. inequalities, from H2
-  parley_order
+  linarith only [(Finset.mem_Icc.mp hH2).1]
 
 end Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AMethodReadsARangeLinesBounds

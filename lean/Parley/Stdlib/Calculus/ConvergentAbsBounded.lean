@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -14,6 +13,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -79,9 +79,9 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
       exact le_trans s10_3_2 s8
     · skip
       -- 10.3.4. inequalities, from C2
-      have s10_3_4 : N < m := by parley_order
+      have s10_3_4 : N < m := by linarith only [hC2]
       -- 10.3.5. inequalities
-      have s10_3_5 : m ≥ N := by parley_order
+      have s10_3_5 : m ≥ N := by linarith only [s10_3_4]
       -- 10.3.6. instantiate n := m in line 3, from 10.3.5
       have s10_3_6 : abs (x m - L) < 1 := by exact (s3b m hK1 s10_3_5)
       -- 10.3.7. thm:triangle-inequality a := x(m) − L, b := L
@@ -92,13 +92,13 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
         have row1 : abs (x m) ≤ abs (x m - L) + abs L := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (x m - L) + abs L)) c1 s10_3_7; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 10.3.9. inequalities
-      have s10_3_9 : abs (x m - L) + abs L < abs L + 1 := by parley_order
+      have s10_3_9 : abs (x m - L) + abs L < abs L + 1 := by linarith only [s10_3_6]
       -- 10.3.10. transitivity, from 10.3.8, 10.3.9
       have s10_3_10 : abs (x m) < abs L + 1 := by exact lt_of_le_of_lt s10_3_8 s10_3_9
       -- 10.3.11. transitivity, from 10.3.10, 9
       have s10_3_11 : abs (x m) < B := by exact lt_of_lt_of_le s10_3_10 s9
       -- 10.3.12. inequalities
-      parley_order
+      linarith only [s10_3_11]
   -- 11. exhibit, from 10
   exact ⟨B, s10⟩
 

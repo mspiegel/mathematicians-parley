@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
@@ -8,6 +7,8 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -31,6 +32,6 @@ theorem floor_below_non_integer (A : ℝ) (hH2 : ¬ (∃ m : ℤ, (m : ℝ) = A)
     have s3_1 : ∃ m : ℤ, (m : ℝ) = A := ⟨⌊A⌋, by exact_mod_cast hS⟩
     exact hH2 s3_1
   -- 4. inequalities, from 1, 3
-  parley_order
+  exact Or.elim (Ne.lt_or_gt s3) (fun h1 => by linarith only [s1, h1]) (fun h1 => by linarith only [s1, h1])
 
 end Parley.Proofs.Setmm.FloorBelowNonInteger.FloorBelowNonInteger

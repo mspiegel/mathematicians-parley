@@ -10,8 +10,11 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
@@ -26,7 +29,7 @@ namespace Parley.Proofs.Setmm.RemainderReal.RemainderIsReal
 theorem remainder_is_real (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     True := by
   -- 1. inequalities
-  have s1 : B ≠ 0 := by parley_side
+  have s1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   set q : ℤ := ⌊A / B⌋ with hD1
   have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3

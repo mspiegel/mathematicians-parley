@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.ZeroLEOne
@@ -13,6 +12,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -38,13 +38,13 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℤ) (hH3 : 0 < n) :
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_1
     | succ k hK hIH =>
       -- 1.2. inequalities
-      have s1_2 : 1 ≤ A ^ k.toNat := by parley_order
+      have s1_2 : 1 ≤ A ^ k.toNat := by linarith only [hIH]
       -- 1.3. inequalities, from H2
-      have s1_3 : 0 < A := by parley_order
+      have s1_3 : 0 < A := by linarith only [hH2]
       -- 1.4. mun:multiply-le x := 1, y := A^k, c := A, from 1.2, 1.3
       have s1_4 : A * 1 ≤ A * A ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k.toNat) (c := A) s1_2 s1_3)
       -- 1.5. inequalities
-      have s1_5 : A ≤ A * A ^ k.toNat := by parley_order
+      have s1_5 : A ≤ A * A ^ k.toNat := by linarith only [s1_4]
       -- 1.6. transitivity, from H2, 1.5
       have s1_6 : 1 < A * A ^ k.toNat := by exact lt_of_lt_of_le hH2 s1_5
       -- 1.7. calculation

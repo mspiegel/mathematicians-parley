@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Defs
@@ -129,7 +128,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 5.1. inequalities
-      have s5_1 : b 0 ≤ N := by parley_order
+      have s5_1 : b 0 ≤ N := by linarith only [s2]
       -- 5.2. mun:or-left, from 5.1
       have s5_2 : b 0 ≤ N ∨ b 0 = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := b 0 ≤ N) (Q := b 0 = 0) s5_1)
       simpa only [add_zero] using s5_2
@@ -162,7 +161,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 5.4.11. mun:disjunctive-syllogism, from C6, IH3
         have s5_4_11 : b k + k ≤ N := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := b k + k ≤ N) (Q := b k = 0) hIH3 hC6)
         -- 5.4.12. inequalities
-        have s5_4_12 : b (k + 1) + (k + 1) ≤ b k + k := by parley_order
+        have s5_4_12 : b (k + 1) + (k + 1) ≤ b k + k := by linarith only [s5_4_10]
         -- 5.4.13. transitivity, from 5.4.12, 5.4.11
         have s5_4_13 : b (k + 1) + (k + 1) ≤ N := by exact le_trans s5_4_12 s5_4_11
         -- 5.4.14. mun:or-left, from 5.4.13
@@ -179,7 +178,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
     -- 8.2. mun:nat0-nonzero, from S, 6
     have s8_2 : 0 < b N := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b N) s6.2 hS)
     -- 8.3. inequalities, from 8.2
-    have s8_3 : ¬ b N + N ≤ N := by parley_side
+    have s8_3 : ¬ b N + N ≤ N := by linarith only [s8_2]
     exact s8_3 s8_1
   -- 9. calculation
   calc a N = (Int.gcd (a N) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := a N) s6.1).symm

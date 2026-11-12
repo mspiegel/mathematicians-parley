@@ -14,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -39,23 +40,23 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 <
     intro n hK2
     intro hA2
     -- 1.2.1. inequalities, from K2
-    have s1_2_1 : n ≥ 1 := by parley_order
+    have s1_2_1 : n ≥ 1 := by linarith only [hK2]
     -- 1.2.2. inequalities, from K2
-    have s1_2_2 : n > 0 := by parley_order
+    have s1_2_2 : n > 0 := by linarith only [hK2]
     -- 1.2.3. inequalities
-    have s1_2_3 : 3 * n - 1 ≥ 2 := by parley_order
+    have s1_2_3 : 3 * n - 1 ≥ 2 := by linarith only [s1_2_1]
     -- 1.2.4. inequalities, from 1.2.3
-    have s1_2_4 : 3 * n - 1 > 0 := by parley_order
+    have s1_2_4 : 3 * n - 1 > 0 := by linarith only [s1_2_3]
     -- 1.2.5. inequalities
-    have s1_2_5 : 3 * n - 1 ≠ 0 := by parley_side
+    have s1_2_5 : 3 * n - 1 ≠ 0 := ne_of_gt (by linarith only [s1_2_4])
     -- 1.2.6. inequalities
-    have s1_2_6 : (n : ℚ) ^ 2 - (n : ℚ) / 3 < (n : ℚ) ^ 2 := by parley_order
+    have s1_2_6 : (n : ℚ) ^ 2 - (n : ℚ) / 3 < (n : ℚ) ^ 2 := by linarith only [(show (n : ℚ) > 0 by exact_mod_cast s1_2_2)]
     -- 1.2.7. mun:square-nonneg x := n
     have s1_2_7 : n ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
     -- 1.2.8. inequalities, from 1.2.7
-    have s1_2_8 : 0 < n ^ 2 + 1 := by parley_order
+    have s1_2_8 : 0 < n ^ 2 + 1 := by linarith only [s1_2_7]
     -- 1.2.9. inequalities
-    have s1_2_9 : n ^ 2 < 2 * n ^ 2 + 1 := by parley_order
+    have s1_2_9 : n ^ 2 < 2 * n ^ 2 + 1 := by linarith only [s1_2_8]
     -- 1.2.10. calculation
     have r64_1 : 3 * n - 1 ≠ 0 := by exact s1_2_5
     have s1_2_10 : (3 * (n : ℝ) - 1) * ((n : ℝ) / 3) < (3 * (n : ℝ) - 1) * a n := by
@@ -68,7 +69,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 <
     -- 1.2.12. transitivity, from 1.1, A2
     have s1_2_12 : 3 * M < (n : ℝ) := by parley_order
     -- 1.2.13. inequalities
-    have s1_2_13 : M < (n : ℝ) / 3 := by parley_order
+    have s1_2_13 : M < (n : ℝ) / 3 := by linarith only [s1_2_12]
     -- 1.2.14. transitivity, from 1.2.13, 1.2.11
     exact lt_trans s1_2_13 s1_2_11
   -- 1.3. exhibit, from 1.2

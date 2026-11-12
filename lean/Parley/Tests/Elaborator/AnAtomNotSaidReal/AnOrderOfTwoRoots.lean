@@ -1,12 +1,12 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -30,6 +30,6 @@ theorem an_order_of_two_roots (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B
   have s2a : Real.sqrt B ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := B) hH4)
   have s2b : Real.sqrt B ^ 2 = B := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := B) hH4)
   -- 3. inequalities, from H5
-  parley_order
+  linarith only [hH5]
 
 end Parley.Tests.Elaborator.AnAtomNotSaidReal.AnOrderOfTwoRoots

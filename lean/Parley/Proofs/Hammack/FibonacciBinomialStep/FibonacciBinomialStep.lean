@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
@@ -20,6 +19,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -48,7 +48,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- 4. algebra
   have s4 : m + 1 + 1 - (m + 1 + 1) = 0 := by parley_ring
   -- 5. inequalities, from H1
-  have s5 : 0 < m + 1 + 1 := by parley_order
+  have s5 : 0 < m + 1 + 1 := by linarith only [hH1]
   -- 6. calculation
   have s6 : (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = 0 := by
     calc (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (m + 1 + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (m + 1 + 1) : ℤ)) s4; push_cast at h ⊢; all_goals exact_mod_cast h)

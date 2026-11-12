@@ -25,7 +25,9 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -66,11 +68,11 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
     -- 1.3. mun:square-nonneg
     have s1_3 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 1.4. inequalities, from 1.3
-    have s1_4 : 1 + x ^ 2 > 0 := by parley_order
+    have s1_4 : 1 + x ^ 2 > 0 := by linarith only [s1_3]
     -- 1.5. D3, from K1
     have s1_5 : h x = x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) := by simp (disch := omega) only [hD3]
     -- 1.6. calculation
-    have r461_1 : 1 + x ^ 2 ≠ 0 := by parley_set_side
+    have r461_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s1_4])
     calc h x = x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) := by exact s1_5
       _ = x ^ (2 * n).toNat - x ^ (2 * n).toNat / (1 + x ^ 2) := by linear_combination (norm := parley_field) ((1) / ((x ^ 2 + 1))) * s1_2
       _ = f x - g x := by parley_ring

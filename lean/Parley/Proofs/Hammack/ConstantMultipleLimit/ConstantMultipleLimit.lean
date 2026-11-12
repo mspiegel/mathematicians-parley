@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -15,6 +14,7 @@ public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -39,9 +39,9 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
     have hI : 0 ≤ abs c := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ))))
     exact hI
   -- 2. inequalities, from 1
-  have s2 : abs c + 1 > 0 := by parley_order
+  have s2 : abs c + 1 > 0 := by linarith only [s1]
   -- 3. inequalities
-  have s3 : abs c + 1 ≠ 0 := by parley_side
+  have s3 : abs c + 1 ≠ 0 := ne_of_gt (by linarith only [s2])
   -- 4. proof
   have s4 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (c * a n - c * L) < ε)) := by
     intro ε
@@ -83,7 +83,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
         have row1 : abs (c * a n - c * L) = abs c * abs (a n - L) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs c * abs (a n - L))) c1 s4_6_8; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.6.10. inequalities
-      have s4_6_10 : abs c * abs (a n - L) ≤ abs c * abs (a n - L) + abs (a n - L) := by parley_order
+      have s4_6_10 : abs c * abs (a n - L) ≤ abs c * abs (a n - L) + abs (a n - L) := by linarith only [s4_6_4]
       -- 4.6.11. transitivity, from 4.6.9, 4.6.10, 4.6.7, 4.6.5, 4.6.6
       have r95_2 : abs c + 1 ≠ 0 := by exact s3
       exact LT.lt.trans_eq (lt_of_le_of_lt (LE.le.trans_eq (Eq.trans_le s4_6_9 s4_6_10) s4_6_7.symm) s4_6_5) s4_6_6

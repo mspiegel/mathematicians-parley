@@ -1,11 +1,11 @@
 module
 
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -28,7 +28,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
   · skip
     intro hC1
     -- 1. obtain q: mun:mod-remainder a := A − B, m := N, r := 0, from C1
-    have r20_1 : 0 < N := by parley_order
+    have r20_1 : 0 < N := by linarith only [hH3]
     obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by parley_side) r20_1)).mp hC1
     -- 2. mun:mod-multiple r := B, m := N
     have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) hH3 (q := q))
@@ -49,7 +49,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     -- 8. exhibit, from 7
     have s8 : ∃ q : ℤ, q * N = A - B := ⟨k, s7⟩
     -- 9. mun:mod-remainder a := A − B, m := N, r := 0, from 8
-    have r50_1 : 0 < N := by parley_order
+    have r50_1 : 0 < N := by linarith only [hH3]
     exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by parley_side) r50_1)).mpr (by simpa only [add_zero] using s8)
 
 end Parley.Proofs.Setmm.DifferenceRemainderZero.DifferenceRemainderZero

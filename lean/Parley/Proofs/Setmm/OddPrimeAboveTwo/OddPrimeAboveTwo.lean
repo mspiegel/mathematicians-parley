@@ -1,9 +1,10 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Prime
@@ -24,6 +25,6 @@ theorem odd_prime_above_two (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (h
   -- 2. mun:integer-step m := 1, n := P, from 1
   have s2 : 1 + 1 ≤ P := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := P) s1)
   -- 3. inequalities, from H3, 2
-  parley_order
+  exact Or.elim (Ne.lt_or_gt hH3) (fun h1 => by linarith only [s2, h1]) (fun h1 => by linarith only [s2, h1])
 
 end Parley.Proofs.Setmm.OddPrimeAboveTwo.OddPrimeAboveTwo

@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -34,6 +33,7 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -80,7 +80,7 @@ theorem integral_of_arctan_derivative :
     -- 6.1. mun:square-nonneg
     have s6_1 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 6.2. membership, from D1, K1
-    have r339_1 : 1 + x ^ 2 > 0 := by parley_order
+    have r339_1 : 1 + x ^ 2 > 0 := by linarith only [s6_1]
     exact trivial
   -- 7. mun:function-into, from 6
   have s7 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))

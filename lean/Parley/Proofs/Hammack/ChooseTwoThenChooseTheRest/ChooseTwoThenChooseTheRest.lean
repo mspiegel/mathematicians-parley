@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -14,6 +13,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -33,18 +33,18 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 1. transitivity, from H3, H4
   have s1 : 2 ≤ n := by exact le_trans hH3 hH4
   -- 2. inequalities, from 1
-  have s2a : (0 : ℤ) ≤ 2 := by parley_order
-  have s2b : 2 ≤ n := by parley_order
+  have s2a : (0 : ℤ) ≤ 2 := by linarith only []
+  have s2b : 2 ≤ n := by linarith only [s1]
   -- 3. inequalities, from H3
-  have s3a : (0 : ℤ) ≤ 2 := by parley_order
-  have s3b : 2 ≤ k := by parley_order
+  have s3a : (0 : ℤ) ≤ 2 := by linarith only []
+  have s3b : 2 ≤ k := by linarith only [hH3]
   -- 4. inequalities, from H2, H4
-  have s4a : 0 ≤ k := by parley_order
-  have s4b : k ≤ n := by parley_order
+  have s4a : 0 ≤ k := by linarith only [hH2]
+  have s4b : k ≤ n := by linarith only [hH4]
   -- 5. inequalities
-  have s5 : 0 ≤ k - 2 := by parley_order
+  have s5 : 0 ≤ k - 2 := by linarith only [hH3]
   -- 6. inequalities
-  have s6 : k - 2 ≤ n - 2 := by parley_order
+  have s6 : k - 2 ≤ n - 2 := by linarith only [hH4]
   -- 7. def:range-between k := 2, a := 0, b := n, from 2
   have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr ⟨s2a, s2b⟩
   -- 8. def:range-between k := 2, a := 0, b := k, from 3

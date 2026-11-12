@@ -1,10 +1,10 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,7 +47,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
   rcases s7 with hC1 | hC2
   · skip
     -- 8.1. inequalities
-    have s8_1 : abs A - abs B ≤ abs (A - B) := by parley_order
+    have s8_1 : abs A - abs B ≤ abs (A - B) := by linarith only [s2]
     -- 8.2. calculation
     calc abs (abs A - abs B) = abs A - abs B := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) hC1
       _ ≤ abs (A - B) := by exact s8_1
@@ -55,7 +55,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     -- 8.3. substitute |B − A| = |A − B| (line 6) into line 4
     have s8_3 : abs B ≤ abs (A - B) + abs A := by (have h := Eq.subst (motive := (fun t : ℝ => abs B ≤ t + abs A)) s6 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 8.4. inequalities
-    have s8_4 : -(abs A - abs B) ≤ abs (A - B) := by parley_order
+    have s8_4 : -(abs A - abs B) ≤ abs (A - B) := by linarith only [s8_3]
     -- 8.5. calculation
     calc abs (abs A - abs B) = -(abs A - abs B) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) hC2
       _ ≤ abs (A - B) := by exact s8_4

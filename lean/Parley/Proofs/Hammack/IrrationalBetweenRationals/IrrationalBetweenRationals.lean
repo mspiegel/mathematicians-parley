@@ -16,6 +16,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -66,19 +67,19 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     calc 1 / 2 * Real.sqrt (2 : ℝ) < 1 / 2 * 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := (1 / 2 : ℝ)) (by parley_side))).mp s6
       _ = 1 := by norm_num
   -- 9. inequalities
-  have s9 : 0 < s - r := by parley_order
+  have s9 : 0 < s - r := by linarith only [hH3]
   set u : ℝ := (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) with hD1
   have hD1_kind : True := by parley_side
   -- 10. mun:product-positive x := s − r, y := (1/2)·√2, from 7, 9
   have s10 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) s7)
   -- 11. inequalities
-  have s11 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > (r : ℝ) := by parley_order
+  have s11 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > (r : ℝ) := by linarith only [s10]
   -- 12. transitivity, from 11, D1
   have s12 : (r : ℝ) < u := by parley_order
   -- 13. mun:less-scaled x := (1/2)·√2, y := 1, c := s − r, from 8, 9
   have s13 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) < ((s : ℝ) - (r : ℝ)) * 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := 1 / 2 * Real.sqrt (2 : ℝ)) (y := (1 : ℝ)) (c := (s : ℝ) - (r : ℝ)) (by parley_side))).mp s8
   -- 14. inequalities
-  have s14 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) < (r : ℝ) + ((s : ℝ) - (r : ℝ)) := by parley_order
+  have s14 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) < (r : ℝ) + ((s : ℝ) - (r : ℝ)) := by linarith only [s13]
   -- 15. algebra
   have s15 : r + (s - r) = s := by parley_ring
   -- 16. transitivity, from D1, 14, 15

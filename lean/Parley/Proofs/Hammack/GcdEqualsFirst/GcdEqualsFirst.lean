@@ -3,6 +3,7 @@ module
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -44,6 +45,6 @@ theorem gcd_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 2.6. mun:divides-le e := gcd(a, b), m := a, from 1
     have s2_6 : (Int.gcd a b : ℤ) ≤ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd a b : ℤ)) s1a (m := a) hH1 s1b)
     -- 2.7. antisymmetry, from 2.5, 2.6
-    parley_side
+    exact le_antisymm s2_5 s2_6
 
 end Parley.Proofs.Hammack.GcdEqualsFirst.GcdEqualsFirst

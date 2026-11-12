@@ -16,7 +16,9 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
@@ -49,11 +51,11 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
   have s3 : n > 1 := by
     by_contra hS1
     -- 3.1. inequalities, from S1
-    have s3_1 : n ≤ 1 := by parley_order
+    have s3_1 : n ≤ 1 := by linarith only [hS1]
     -- 3.2. inequalities, from H1
-    have s3_2 : 1 ≤ n := by parley_order
+    have s3_2 : 1 ≤ n := by linarith only [hH1]
     -- 3.3. antisymmetry, from 3.1, 3.2
-    have s3_3 : n = 1 := by parley_side
+    have s3_3 : n = 1 := le_antisymm s3_1 s3_2
     -- 3.4. substitute n = 1 (line 3.3) into line 2
     have s3_4 : (2 ^ 1 - 1 : ℤ) > 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (2 ^ t.toNat - 1 : ℤ) > 1)) s3_3 s2a; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.5. arithmetic
@@ -77,9 +79,9 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     have s4_3 : 0 < e := by
       by_contra hS3
       -- 4.3.1. inequalities, from S3
-      have s4_3_1 : e ≤ 0 := by parley_order
+      have s4_3_1 : e ≤ 0 := by linarith only [hS3]
       -- 4.3.2. mun:multiply-le x := e, y := 0, c := d, from 4.3.1
-      have r219_1 : d > 0 := by parley_order
+      have r219_1 : d > 0 := by linarith only [hK1]
       have s4_3_2 : d * e ≤ d * 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := e) (y := (0 : ℤ)) (c := d) s4_3_1 r219_1)
       -- 4.3.3. substitute n = d·e (line 4.2) into line 4.3.2
       have s4_3_3 : n ≤ d * 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≤ d * 0)) s4_2.symm s4_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -89,7 +91,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         have row1 : n ≤ 0 := by (have h := Eq.subst (motive := (fun t : ℤ => n ≤ t)) c1 s4_3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.3.5. inequalities, from H1
-      have s4_3_5 : ¬ n ≤ 0 := by parley_side
+      have s4_3_5 : ¬ n ≤ 0 := by linarith only [hH1]
       exact s4_3_5 s4_3_4
     -- 4.4. mun:pos-int-nat m := e, from 4.3
     have s4_4 : 0 < e := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := e) s4_3)
@@ -102,10 +104,10 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       have s4_5_2 : d = n := by parley_side
       exact s4_1b s4_5_2
     -- 4.6. mun:integer-step m := 1, n := e
-    have r247_1 : 1 < e := by parley_order
+    have r247_1 : 1 < e := Or.elim (Ne.lt_or_gt s4_5) (fun h1 => by linarith only [s4_4, h1]) (fun h1 => by linarith only [s4_4, h1])
     have s4_6 : 1 + 1 ≤ e := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := e) r247_1)
     -- 4.7. mun:integer-step m := 1, n := d
-    have r251_1 : 1 < d := by parley_order
+    have r251_1 : 1 < d := Or.elim (Ne.lt_or_gt s4_1a) (fun h1 => by linarith only [hK1, h1]) (fun h1 => by linarith only [hK1, h1])
     have s4_7 : 1 + 1 ≤ d := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) r251_1)
     -- 4.8. obtain q: thm:power-multiple-quotient m := e, from 4.4
     obtain ⟨q, s4_8a, ⟨s4_8b, s4_8c⟩⟩ := (Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient.power_multiple_quotient (d := d) hK1 (m := e) s4_4)
@@ -119,13 +121,13 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     -- 4.11. thm:two-power-bound
     have s4_11 : 2 ^ d.toNat ≥ d + 1 := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) hK1)
     -- 4.12. inequalities
-    have s4_12 : 2 ^ d.toNat - 1 ≥ d := by parley_order
+    have s4_12 : 2 ^ d.toNat - 1 ≥ d := by linarith only [s4_11]
     -- 4.13. transitivity, from 4.7, 4.12
     have s4_13 : (1 + 1 : ℤ) ≤ 2 ^ d.toNat - 1 := by parley_order
     -- 4.14. inequalities
-    have s4_14 : (2 ^ d.toNat - 1 : ℤ) ≥ 2 := by parley_order
+    have s4_14 : (2 ^ d.toNat - 1 : ℤ) ≥ 2 := by linarith only [s4_13]
     -- 4.15. mun:pos-int-nat m := 2^d − 1
-    have r283_1 : (0 : ℤ) < 2 ^ d.toNat - 1 := by parley_order
+    have r283_1 : (0 : ℤ) < 2 ^ d.toNat - 1 := by linarith only [s4_14]
     have s4_15 : (0 : ℤ) < 2 ^ d.toNat - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ d.toNat - 1 : ℤ)) r283_1)
     -- 4.16. instantiate c := 2^d − 1 in line 2, from 4.15
     have s4_16 : (2 ^ d.toNat - 1 : ℤ) ∣ (2 ^ n.toNat - 1 : ℤ) → (2 ^ d.toNat - 1 : ℤ) = 1 ∨ (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by exact (s2b (2 ^ d.toNat - 1 : ℤ) s4_15)
@@ -136,32 +138,32 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       rcases s4_17 with hC1 | hC2
       · skip
         -- 4.18.1. inequalities, from 4.14
-        have s4_18_1 : (2 ^ d.toNat - 1 : ℤ) > 1 := by parley_order
+        have s4_18_1 : (2 ^ d.toNat - 1 : ℤ) > 1 := by linarith only [s4_14]
         -- 4.18.2. inequalities
-        have s4_18_2 : (2 ^ d.toNat - 1 : ℤ) ≠ 1 := by parley_side
+        have s4_18_2 : (2 ^ d.toNat - 1 : ℤ) ≠ 1 := ne_of_gt (by linarith only [s4_18_1])
         exact absurd hC1 s4_18_2
       · skip
         -- 4.18.3. inequalities
-        have s4_18_3 : 2 ≤ e := by parley_order
+        have s4_18_3 : 2 ≤ e := by linarith only [s4_6]
         -- 4.18.4. inequalities, from 4.8
-        have s4_18_4 : e ≤ q := by parley_order
+        have s4_18_4 : e ≤ q := by linarith only [s4_8c]
         -- 4.18.5. transitivity, from 4.18.3, 4.18.4
         have s4_18_5 : 2 ≤ q := by exact le_trans s4_18_3 s4_18_4
         -- 4.18.6. mun:multiply-le x := 2, y := q, c := 2^d − 1, from 4.18.5
-        have r321_1 : (2 ^ d.toNat - 1 : ℤ) > 0 := by parley_order
+        have r321_1 : (2 ^ d.toNat - 1 : ℤ) > 0 := by linarith only [s4_14]
         have s4_18_6 : (2 ^ d.toNat - 1) * 2 ≤ (2 ^ d.toNat - 1) * q := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := q) (c := (2 ^ d.toNat - 1 : ℤ)) s4_18_5 r321_1)
         -- 4.18.7. calculation
         have s4_18_7 : 2 ^ d.toNat - 1 = (2 ^ d.toNat - 1) * q := by
           calc (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by parley_side
             _ = (2 ^ d.toNat - 1) * q := by exact s4_9
         -- 4.18.8. inequalities, from 4.14
-        have s4_18_8 : (0 : ℤ) < 2 ^ d.toNat - 1 := by parley_order
+        have s4_18_8 : (0 : ℤ) < 2 ^ d.toNat - 1 := by linarith only [s4_14]
         -- 4.18.9. inequalities
-        have s4_18_9 : (2 ^ d.toNat - 1 : ℤ) < (2 ^ d.toNat - 1) * 2 := by parley_order
+        have s4_18_9 : (2 ^ d.toNat - 1 : ℤ) < (2 ^ d.toNat - 1) * 2 := by linarith only [s4_18_8]
         -- 4.18.10. transitivity, from 4.18.9, 4.18.6
         have s4_18_10 : 2 ^ d.toNat - 1 < (2 ^ d.toNat - 1) * q := by exact lt_of_lt_of_le s4_18_9 s4_18_6
         -- 4.18.11. inequalities
-        have s4_18_11 : 2 ^ d.toNat - 1 ≠ (2 ^ d.toNat - 1) * q := by parley_side
+        have s4_18_11 : 2 ^ d.toNat - 1 ≠ (2 ^ d.toNat - 1) * q := ne_of_lt (by linarith only [s4_18_10])
         exact absurd s4_18_7 s4_18_11
     exact s4_1b s4_18
   -- 5. def:prime p := n, from 3, 4

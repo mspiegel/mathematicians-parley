@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -9,6 +8,7 @@ public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Ineq
@@ -30,11 +30,11 @@ theorem prime_divisor_in_range (N : ℤ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   -- 2. mun:range-bounds a := 2, b := N, k := I, from H2
   have s2 : I ≤ N := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N) (k := I) hH2)
   -- 3. inequalities, from 1
-  have s3 : 0 < I := by parley_order
+  have s3 : 0 < I := by linarith only [s1]
   -- 4. mun:pos-int-nat m := I, from 3
   have s4 : 0 < I := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) s3)
   -- 5. inequalities, from 1
-  have s5 : I > 1 := by parley_order
+  have s5 : I > 1 := by linarith only [s1]
   -- 6. obtain p: thm:prime-factor m := I, from 4, 5
   obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) s4 s5)
   -- 7. mun:divides-le e := p, m := I, from 4, 6

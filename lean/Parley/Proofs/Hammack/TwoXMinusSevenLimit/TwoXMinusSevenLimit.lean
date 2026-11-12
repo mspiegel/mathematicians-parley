@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -10,6 +9,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -37,7 +37,7 @@ theorem two_x_minus_seven_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * 
     intro ε
     intro hA1
     -- 1.1. inequalities
-    have s1_1 : ε / 2 > 0 := by parley_order
+    have s1_1 : ε / 2 > 0 := by linarith only [hA1]
     -- 1.2. proof
     have s1_2 : ∀ x : ℝ, x ≠ 8 ∧ abs (x - 8) < ε / 2 → abs (f x - 9) < ε := by
       intro x
@@ -47,11 +47,11 @@ theorem two_x_minus_seven_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * 
       -- 1.2.2. mun:abs-difference-lt c := 8, δ := ε/2, from A2
       have s1_2_2 : 8 - ε / 2 < x ∧ x < 8 + ε / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (8 : ℝ)) (δ := ε / 2))).mp hA2.2
       -- 1.2.3. inequalities
-      have s1_2_3 : 9 - ε < 2 * x - 7 := by parley_order
+      have s1_2_3 : 9 - ε < 2 * x - 7 := by linarith only [s1_2_2.1]
       -- 1.2.4. transitivity, from 1.2.3, 1.2.1
       have s1_2_4 : 9 - ε < f x := by exact LT.lt.trans_eq s1_2_3 s1_2_1.symm
       -- 1.2.5. inequalities
-      have s1_2_5 : 2 * x - 7 < 9 + ε := by parley_order
+      have s1_2_5 : 2 * x - 7 < 9 + ε := by linarith only [s1_2_2.2]
       -- 1.2.6. transitivity, from 1.2.1, 1.2.5
       have s1_2_6 : f x < 9 + ε := by exact Eq.trans_lt s1_2_1 s1_2_5
       -- 1.2.7. join 1.2.4, 1.2.6

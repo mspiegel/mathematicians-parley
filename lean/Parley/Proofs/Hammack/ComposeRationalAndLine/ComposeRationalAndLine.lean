@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -12,8 +11,11 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
 public import Parley.Items.Stdlib.Functions
@@ -33,9 +35,9 @@ theorem compose_rational_and_line (f : ℝ → ℝ) (g : ℝ → ℝ) (hH3 : ∀
   -- 1.2. mun:square-nonneg
   have s1_2 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 1.3. inequalities, from 1.2
-  have s1_3 : x ^ 2 + 1 > 0 := by parley_order
+  have s1_3 : x ^ 2 + 1 > 0 := by linarith only [s1_2]
   -- 1.4. calculation
-  have r27_1 : x ^ 2 + 1 ≠ 0 := by parley_set_side
+  have r27_1 : x ^ 2 + 1 ≠ 0 := ne_of_gt (by linarith only [s1_3])
   have s1_4 : (g ∘ f) x = 3 / (x ^ 2 + 1) + 2 := by
     calc (g ∘ f) x = g (f x) := by exact (Parley.Items.Stdlib.Functions.mun_composition_value (Y := (Set.univ : Set ℝ)) (X := (Set.univ : Set ℝ)) (f := f) (g := g) (x := x) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_set_side))
       _ = 3 * f x + 2 := by exact (hH4 (f x))

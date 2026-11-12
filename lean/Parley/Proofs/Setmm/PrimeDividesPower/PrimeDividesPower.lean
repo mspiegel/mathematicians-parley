@@ -10,6 +10,8 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,7 +49,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       -- 3.3. mun:divides-one d := P, from 3.2
       have s3_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) hH1 s3_2)
       -- 3.4. inequalities
-      have s3_4 : P ≠ 1 := by parley_side
+      have s3_4 : P ≠ 1 := ne_of_gt (by linarith only [s1])
       exact absurd s3_3 s3_4
     | succ m hK hIH =>
       intro hC2
@@ -71,7 +73,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
         rcases s3_8_3 with hC5 | hC6
         · skip
           -- 3.8.4.1. inequalities
-          have s3_8_4_1 : P ≠ 1 := by parley_side
+          have s3_8_4_1 : P ≠ 1 := ne_of_gt (by linarith only [s1])
           exact absurd hC5 s3_8_4_1
         · skip
           exact hC6

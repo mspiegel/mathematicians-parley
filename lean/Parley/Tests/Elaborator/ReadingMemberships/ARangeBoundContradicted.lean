@@ -9,6 +9,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 
@@ -23,7 +24,7 @@ theorem a_range_bound_contradicted (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (
   -- 1. contradiction
   intro hS
   -- 1.1. inequalities, from S
-  have s1_1 : ¬ k ≤ n := by parley_side
+  have s1_1 : ¬ k ≤ n := by linarith only [hS]
   exact s1_1 (Finset.mem_Icc.mp hH2).2
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundContradicted

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -15,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -113,11 +113,11 @@ theorem rational_squares_sum_not_three :
   -- 26. algebra, from 25
   have s26 : s ^ 2 + t ^ 2 = 3 * u ^ 2 := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s25
   -- 27. inequalities, from 11
-  have s27 : m > 0 := by parley_order
+  have s27 : m > 0 := by linarith only [s11a]
   -- 28. substitute m = 3u (line 24) into line 27
   have s28 : 3 * u > 0 := by (have h := Eq.subst (motive := (fun w : ℤ => w > 0)) s24 s27; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 29. inequalities
-  have s29 : u > 0 := by parley_order
+  have s29 : u > 0 := by linarith only [s28]
   -- 30. mun:pos-int-nat m := u, from 29
   have s30 : 0 < u := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := u) s29)
   -- 31. exhibit, from 26
@@ -129,11 +129,11 @@ theorem rational_squares_sum_not_three :
   -- 33. instantiate t := u in line 10, from 32
   have s33 : m ≤ u := by exact (s10b u s32)
   -- 34. inequalities
-  have s34 : 3 * u > u := by parley_order
+  have s34 : 3 * u > u := by linarith only [s29]
   -- 35. substitute m = 3u (line 24) into line 34
   have s35 : m > u := by (have h := Eq.subst (motive := (fun w : ℤ => w > u)) s24.symm s34; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 36. inequalities, from 11, 35
-  have s36 : ¬ m ≤ u := by parley_set_side
+  have s36 : ¬ m ≤ u := by linarith only [s35]
   exact s36 s33
 
 end Parley.Proofs.Hammack.RationalSquaresSumNotThree.RationalSquaresSumNotThree

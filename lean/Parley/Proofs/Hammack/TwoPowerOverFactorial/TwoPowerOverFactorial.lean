@@ -5,6 +5,8 @@ public import Counting
 public import FactorialTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Algebra.Field.Rat
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -20,6 +22,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,7 +50,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
     intro ε
     intro hA1
     -- 1.1. inequalities
-    have s1_1 : ε / 4 > 0 := by parley_order
+    have s1_1 : ε / 4 > 0 := by linarith only [hA1]
     -- 1.2. obtain N: thm:archimedean x := ε/4, from 1.1
     obtain ⟨N, s1_2a, s1_2b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε / 4) s1_1)
     -- 1.3. proof
@@ -59,7 +62,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.2. thm:factorial-beats-power
       have s1_3_2 : n * 2 ^ n.toNat ≤ 4 * (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Proofs.Hammack.TwoPowerOverFactorial.FactorialBeatsPower.factorial_beats_power (n := n) hK2)
       -- 1.3.3. mun:product-positive x := n, y := n!, from 1.3.1
-      have r128_1 : n > 0 := by parley_order
+      have r128_1 : n > 0 := by linarith only [hK2]
       have s1_3_3 : n * (LeanBridges.Counting.factorial n : ℤ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := n) (y := (LeanBridges.Counting.factorial n : ℤ)) r128_1 s1_3_1)
       -- 1.3.4. calculation
       have s1_3_4 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) ≤ 4 / (n : ℚ) := by
@@ -67,22 +70,22 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
           _ ≤ 4 * (LeanBridges.Counting.factorial n : ℚ) / ((n : ℚ) * (LeanBridges.Counting.factorial n : ℚ)) := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (n : ℚ) * 2 ^ n.toNat) (y := 4 * (LeanBridges.Counting.factorial n : ℚ)) (c := (n : ℚ) * (LeanBridges.Counting.factorial n : ℚ)) (by exact_mod_cast s1_3_2) (by exact_mod_cast gt_iff_lt.mp s1_3_3))
           _ = 4 / (n : ℚ) := by parley_ring
       -- 1.3.5. mun:reciprocal-order x := N, y := n, from A2
-      have r138_1 : N > 0 := by parley_order
-      have r138_2 : n > 0 := by parley_order
+      have r138_1 : N > 0 := by linarith only [s1_2a]
+      have r138_2 : n > 0 := by linarith only [hK2]
       have s1_3_5 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r138_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r138_2))).mp (by parley_side)
       -- 1.3.6. inequalities
-      have s1_3_6 : 4 / (n : ℚ) ≤ 4 / (N : ℚ) := by parley_order
+      have s1_3_6 : 4 / (n : ℚ) ≤ 4 / (N : ℚ) := by linarith only [s1_3_5, div_eq_mul_one_div (4 : ℚ) ((n : ℚ)), div_eq_mul_one_div (4 : ℚ) ((N : ℚ))]
       -- 1.3.7. inequalities
-      have s1_3_7 : 4 / (N : ℝ) < ε := by parley_order
+      have s1_3_7 : 4 / (N : ℝ) < ε := by linarith only [s1_2b, div_eq_mul_one_div (4 : ℝ) ((N : ℝ))]
       -- 1.3.8. mun:power-nat a := 2, m := n
       have s1_3_8 : (0 : ℤ) < 2 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := n) (le_of_lt hK2))
       -- 1.3.9. mun:quotient-positive x := 2^n, y := n!, from 1.3.1
-      have r156_1 : (2 ^ n.toNat : ℤ) > 0 := by parley_order
+      have r156_1 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s1_3_8]
       have s1_3_9 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 ^ n.toNat : ℚ)) (y := (LeanBridges.Counting.factorial n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r156_1) (by exact_mod_cast gt_iff_lt.mp s1_3_1))
       -- 1.3.10. transitivity, from 1.3.9, H2
       have s1_3_10 : 0 < a n := by have := (hH2 n hK2); parley_order
       -- 1.3.11. inequalities
-      have s1_3_11 : 0 - ε < 0 := by parley_order
+      have s1_3_11 : 0 - ε < 0 := by linarith only [hA1]
       -- 1.3.12. transitivity, from 1.3.11, 1.3.10
       have s1_3_12 : 0 - ε < a n := by exact lt_trans s1_3_11 s1_3_10
       -- 1.3.13. transitivity, from H2, 1.3.4, 1.3.6, 1.3.7

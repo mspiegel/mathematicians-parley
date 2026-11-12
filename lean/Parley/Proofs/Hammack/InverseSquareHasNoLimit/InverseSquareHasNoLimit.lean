@@ -21,7 +21,9 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -59,31 +61,31 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
-  have s5 : p ≠ 0 := by parley_set_side
+  have s5 : p ≠ 0 := ne_of_gt (by linarith only [s4a])
   -- 6. mun:quotient-positive x := 2, y := p, from 4
   have r44_1 : (2 : ℤ) > 0 := by parley_arith
   have s6 : 2 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) s4a)
   -- 7. obtain m: thm:archimedean-natural x := 2/p, from 5
   obtain ⟨m, s7a, s7b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / p))
   -- 8. inequalities
-  have s8 : p > p / 2 := by parley_order
+  have s8 : p > p / 2 := by linarith only [s4a]
   -- 9. inequalities, from 7
-  have s9 : m ≥ 1 := by parley_order
+  have s9 : m ≥ 1 := by linarith only [s7a]
   -- 10. proof
   have s10 : ∀ j : ℤ, 0 < j → j ≥ m → abs ((j : ℝ) ^ 2 - L) < 1 := by
     intro j hK1
     intro hA1
     -- 10.1. inequalities, from K1
-    have s10_1 : j > 0 := by parley_order
+    have s10_1 : j > 0 := by linarith only [hK1]
     -- 10.2. inequalities, from 7
-    have s10_2 : m > 0 := by parley_order
+    have s10_2 : m > 0 := by linarith only [s7a]
     -- 10.3. mun:reciprocal-order x := m, y := j, from A1
     have r72_1 : m > 0 := by parley_set_side
     have r72_2 : j > 0 := by parley_set_side
     have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (j : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by parley_set_side)
     -- 10.4. inequalities
     have r77_1 : p ≠ 0 := by exact s5
-    have s10_4 : (m : ℝ) ≥ 2 / p := by parley_order
+    have s10_4 : (m : ℝ) ≥ 2 / p := by linarith only [s7b]
     -- 10.5. mun:reciprocal-order x := 2/p, y := m, from 10.4
     have r83_1 : 2 / p > 0 := by parley_set_side
     have r83_2 : m > 0 := by parley_set_side
@@ -103,11 +105,11 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
       try push_cast at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (j : ℝ)) (by exact_mod_cast gt_iff_lt.mp s10_1))
     -- 10.9. inequalities
-    have s10_9 : t ≠ 0 := by parley_set_side
+    have s10_9 : t ≠ 0 := ne_of_gt (by linarith only [s10_8])
     -- 10.10. mun:remove-member u := t, from 10.9
     have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr ⟨by parley_set_side, s10_9⟩
     -- 10.11. def:abs x := t
-    have r112_1 : t ≥ 0 := by parley_set_side
+    have r112_1 : t ≥ 0 := by linarith only [s10_8]
     have s10_11 : abs t = t := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) (by parley_set_side)
     -- 10.12. transitivity, from D1, 10.7
     have s10_12 : t < p := by parley_order
@@ -135,7 +137,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
       try push_cast at s10_16 ⊢
       linear_combination (norm := parley_norm) ((j : ℝ) * t + 1) * s10_16
     -- 10.19. algebra, from 10.18
-    have r141_1 : T ≠ 0 := by parley_set_side
+    have r141_1 : T ≠ 0 := ne_of_gt (by linarith only [s10_17])
     have s10_19 : 1 / T = (j : ℝ) ^ 2 := by linear_combination (norm := parley_field) ((-1) / ((T))) * s10_18
     -- 10.20. substitute t² = T (D2) into line 10.15
     have s10_20 : f t = 1 / T := by (have h := Eq.subst (motive := (fun u : ℝ => f t = 1 / u)) hD2.symm s10_15; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -144,27 +146,27 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.22. substitute f(t) = j² (line 10.21) into line 10.14
     (have h := Eq.subst (motive := (fun u : ℝ => abs (u - L) < 1)) s10_21 s10_14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. instantiate j := m in line 10
-  have r154_1 : m ≥ m := by parley_order
+  have r154_1 : m ≥ m := by linarith only []
   have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by exact (s10 m s7a r154_1)
   -- 12. instantiate j := m + 1 in line 10
-  have r158_1 : m + 1 ≥ m := by parley_order
+  have r158_1 : m + 1 ≥ m := by linarith only []
   have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by exact_mod_cast (s10 (m + 1) (by parley_set_side) r158_1)
   -- 13. mun:abs-difference-lt x := m², c := L, δ := 1, from 11
   have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s11
   -- 14. mun:abs-difference-lt x := (m + 1)², c := L, δ := 1, from 12
   have s14 : L - 1 < ((m : ℝ) + 1) ^ 2 ∧ ((m : ℝ) + 1) ^ 2 < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s12
   -- 15. inequalities, from 13, 14
-  have s15 : L - 1 + ((m : ℝ) + 1) ^ 2 < (m : ℝ) ^ 2 + (L + 1) := by parley_order
+  have s15 : L - 1 + ((m : ℝ) + 1) ^ 2 < (m : ℝ) ^ 2 + (L + 1) := by linarith only [s13.1, s14.2]
   -- 16. inequalities
-  have s16 : (m + 1) ^ 2 - m ^ 2 < 2 := by parley_order
+  have s16 : (m + 1) ^ 2 - m ^ 2 < 2 := by exact_mod_cast (show ((m : ℝ) + 1) ^ 2 - (m : ℝ) ^ 2 < 2 by linarith only [s15])
   -- 17. algebra
   have s17 : (m + 1) ^ 2 - m ^ 2 = 2 * m + 1 := by parley_ring
   -- 18. inequalities
-  have s18 : 2 * m + 1 ≥ 3 := by parley_order
+  have s18 : 2 * m + 1 ≥ 3 := by linarith only [s9]
   -- 19. transitivity, from 17, 18
   have s19 : (m + 1) ^ 2 - m ^ 2 ≥ 3 := by parley_order
   -- 20. inequalities, from 19
-  have s20 : ¬ (m + 1) ^ 2 - m ^ 2 < 2 := by parley_set_side
+  have s20 : ¬ (m + 1) ^ 2 - m ^ 2 < 2 := by linarith only [s19]
   exact s20 s16
 
 end Parley.Proofs.Hammack.InverseSquareHasNoLimit.InverseSquareHasNoLimit

@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Basic
@@ -10,6 +9,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -45,11 +45,11 @@ theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 
       -- 1.1.2. mun:abs-difference-lt c := 0, δ := ε, from A2
       have s1_1_2 : 0 - ε < x ∧ x < ε := by simpa only [zero_add] using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (0 : ℝ)) (δ := ε))).mp (by simpa only [sub_zero] using hA2.2)
       -- 1.1.3. inequalities
-      have s1_1_3 : 2 - ε < x + 2 := by parley_order
+      have s1_1_3 : 2 - ε < x + 2 := by linarith only [s1_1_2.1]
       -- 1.1.4. transitivity, from 1.1.3, 1.1.1
       have s1_1_4 : 2 - ε < f x := by exact LT.lt.trans_eq s1_1_3 s1_1_1.symm
       -- 1.1.5. inequalities
-      have s1_1_5 : x + 2 < 2 + ε := by parley_order
+      have s1_1_5 : x + 2 < 2 + ε := by linarith only [s1_1_2.2]
       -- 1.1.6. transitivity, from 1.1.1, 1.1.5
       have s1_1_6 : f x < 2 + ε := by exact Eq.trans_lt s1_1_1 s1_1_5
       -- 1.1.7. join 1.1.4, 1.1.6

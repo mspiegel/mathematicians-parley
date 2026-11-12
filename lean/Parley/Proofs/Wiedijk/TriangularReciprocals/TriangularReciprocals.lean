@@ -4,6 +4,8 @@ public import AlgebraTactics
 public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Algebra.Field.Rat
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -20,6 +22,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -58,7 +61,7 @@ theorem triangular_reciprocals :
   have s5 : ∀ n : ℤ, 0 < n → (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) : ℚ)) = 2 - 2 / ((n : ℚ) + 1) := by
     intro n hK5
     -- 5.1. calculation
-    have r55_1 : n + 1 ≥ 1 := by parley_order
+    have r55_1 : n + 1 ≥ 1 := by linarith only [hK5]
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 / (k : ℚ) - 2 / ((k : ℚ) + 1) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2))) (u := (fun k : ℤ => 2 / (k : ℚ) - 2 / ((k : ℚ) + 1))) (a := (1 : ℤ)) (b := n) (by parley_side))
       _ = 2 - 2 / ((n : ℚ) + 1) := by (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); simp only [Int.cast_one, div_one] at h ⊢; exact_mod_cast h)
   -- 6. proof
@@ -66,29 +69,29 @@ theorem triangular_reciprocals :
     intro ε
     intro hA1
     -- 6.1. obtain N: thm:archimedean x := ε/2
-    have r67_1 : ε / 2 > 0 := by parley_side
+    have r67_1 : ε / 2 > 0 := by linarith only [hA1]
     obtain ⟨N, s6_1a, s6_1b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε / 2) r67_1)
     -- 6.2. proof
     have s6_2 : ∀ n : ℤ, 0 < n → n ≥ N → abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) - 2) < ε := by
       intro n hK7
       intro hA2
       -- 6.2.1. inequalities, from A2
-      have s6_2_1 : N ≤ n + 1 := by parley_order
+      have s6_2_1 : N ≤ n + 1 := by linarith only [hA2]
       -- 6.2.2. mun:reciprocal-order x := N, y := n + 1, from 6.2.1
-      have r79_1 : N > 0 := by parley_order
-      have r79_2 : n + 1 > 0 := by parley_order
+      have r79_1 : N > 0 := by linarith only [s6_1a]
+      have r79_2 : n + 1 > 0 := by linarith only [hK7]
       have s6_2_2 : 1 / ((n : ℚ) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r79_1) (y := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r79_2))).mp (by parley_side)
       -- 6.2.3. mun:reciprocal-positive x := n + 1
-      have r84_1 : n + 1 > 0 := by parley_order
+      have r84_1 : n + 1 > 0 := by linarith only [hK7]
       have s6_2_3 : 1 / ((n : ℚ) + 1) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r84_1))
       -- 6.2.4. transitivity, from 6.2.2, 6.1
       have s6_2_4 : 1 / ((n : ℝ) + 1) < ε / 2 := by parley_order
       -- 6.2.5. inequalities
-      have s6_2_5 : 2 - ε < 2 - 2 / ((n : ℝ) + 1) := by parley_order
+      have s6_2_5 : 2 - ε < 2 - 2 / ((n : ℝ) + 1) := by linarith only [s6_2_4, div_eq_mul_one_div (2 : ℝ) ((n : ℝ) + 1)]
       -- 6.2.6. transitivity, from 6.2.5, 5
       have s6_2_6 : 2 - ε < (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) := by have := (s5 n hK7); parley_order
       -- 6.2.7. inequalities
-      have s6_2_7 : 2 - 2 / ((n : ℚ) + 1) < 2 := by parley_order
+      have s6_2_7 : 2 - 2 / ((n : ℚ) + 1) < 2 := by linarith only [s6_2_3, div_eq_mul_one_div (2 : ℚ) ((n : ℚ) + 1)]
       -- 6.2.8. inequalities, from A1, 6.2.7
       have s6_2_8 : 2 - 2 / ((n : ℝ) + 1) < 2 + ε := by parley_order
       -- 6.2.9. transitivity, from 5, 6.2.8

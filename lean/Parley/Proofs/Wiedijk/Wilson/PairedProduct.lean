@@ -2,7 +2,6 @@ module
 
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -13,6 +12,8 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -89,9 +90,9 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
       calc f (f x) = x := by exact s8_2
         _ < f x := by exact s8_1b
     -- 8.7. inequalities
-    have s8_7 : f (f x) ≤ f x := by parley_order
+    have s8_7 : f (f x) ≤ f x := by linarith only [s8_6]
     -- 8.8. inequalities, from 8.4, 8.5, 8.7
-    have s8_8 : ¬ f x < f (f x) := by parley_set_side
+    have s8_8 : ¬ f x < f (f x) := by linarith only [s8_7]
     -- 8.9. def:set-builder u := f(x), from D2, H4, 8.1, 8.8
     exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => ¬ x < f x)) (X := X) (u := f x))).mpr ⟨by parley_set_side, s8_8⟩
   set g : ℤ → ℤ := fun x : ℤ => f x with hD3
@@ -139,7 +140,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 12.3. instantiate x := u in H6, from 12.1
     have s12_3 : f u ≠ u := by exact (hH6 u s12_1a)
     -- 12.4. inequalities, from 12.1, 12.3
-    have s12_4 : f u < u := by parley_order
+    have s12_4 : f u < u := Or.elim (Ne.lt_or_gt s12_3) (fun h1 => by linarith only [s12_1b, h1]) (fun h1 => by linarith only [s12_1b, h1])
     -- 12.5. calculation
     have s12_5 : f u < f (f u) := by
       calc f u < u := by exact s12_4

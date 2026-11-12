@@ -16,8 +16,10 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
@@ -44,9 +46,9 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
     have hI : 0 ≤ abs A := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ))))
     exact hI
   -- 2. inequalities, from 1
-  have s2 : abs A + 1 > 0 := by parley_order
+  have s2 : abs A + 1 > 0 := by linarith only [s1]
   -- 3. inequalities
-  have s3 : 2 * (abs A + 1) > 0 := by parley_order
+  have s3 : 2 * (abs A + 1) > 0 := by linarith only [s2]
   -- 4. proof
   -- what this block shows, Lean's types give
   -- 5. proof
@@ -54,7 +56,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
     intro ε
     intro hA1
     -- 5.1. membership
-    have r42_1 : 2 * (abs A + 1) ≠ 0 := by parley_side
+    have r42_1 : 2 * (abs A + 1) ≠ 0 := ne_of_gt (by linarith only [s3])
     -- 5.2. mun:quotient-positive x := ε, y := 2·(|A| + 1), from A1, 3
     have s5_2 : ε / (2 * (abs A + 1)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs A + 1)) hA1 s3)
     -- 5.3. obtain N: thm:archimedean x := ε/(2·(|A| + 1)), from 5.1, 5.2
@@ -64,17 +66,17 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       intro n hK3
       intro hA2
       -- 5.4.1. mun:reciprocal-order x := N, y := n, from A2
-      have r57_1 : N > 0 := by parley_order
-      have r57_2 : n > 0 := by parley_order
+      have r57_1 : N > 0 := by linarith only [s5_3a]
+      have r57_2 : n > 0 := by linarith only [hK3]
       have s5_4_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_2))).mp (by parley_side)
       -- 5.4.2. transitivity, from 5.4.1, 5.3
-      have r62_1 : 2 * (abs A + 1) ≠ 0 := by parley_side
+      have r62_1 : 2 * (abs A + 1) ≠ 0 := ne_of_gt (by linarith only [s3])
       have s5_4_2 : 1 / (n : ℝ) < ε / (2 * (abs A + 1)) := by parley_order
       -- 5.4.3. mun:reciprocal-positive x := n
-      have r66_1 : n > 0 := by parley_order
+      have r66_1 : n > 0 := by linarith only [hK3]
       have s5_4_3 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r66_1))
       -- 5.4.4. inequalities
-      have s5_4_4 : 1 / (n : ℚ) ≥ 0 := by parley_order
+      have s5_4_4 : 1 / (n : ℚ) ≥ 0 := by linarith only [s5_4_3]
       -- 5.4.5. substitute
       have s5_4_5 : abs (1 / (n : ℝ)) < ε / (2 * (abs A + 1)) := by
         have c1 : 1 / (n : ℚ) = abs (1 / (n : ℚ)) := by exact ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (n : ℚ))) s5_4_4).symm

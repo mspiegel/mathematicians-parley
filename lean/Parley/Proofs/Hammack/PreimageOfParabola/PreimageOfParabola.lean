@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -12,6 +11,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -65,7 +65,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ)) (Z := (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ)) (u := u) s1_7_2)
     · skip
       -- 1.7.4. inequalities
-      have s1_7_4 : -u ≥ 0 := by parley_order
+      have s1_7_4 : -u ≥ 0 := by linarith only [hC2]
       -- 1.7.5. algebra, from 1.1
       have s1_7_5 : (-u) ^ 2 + 3 = u ^ 2 + 3 := by parley_ring
       -- 1.7.6. calculation
@@ -80,9 +80,9 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s1_7_8a : 3 ≤ -u := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) (by parley_set_side) (by parley_set_side) (by parley_set_side)).1
       have s1_7_8b : -u ≤ 4 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) (by parley_set_side) (by parley_set_side) (by parley_set_side)).2
       -- 1.7.9. inequalities
-      have s1_7_9 : -4 ≤ u := by parley_order
+      have s1_7_9 : -4 ≤ u := by linarith only [s1_7_8b]
       -- 1.7.10. inequalities
-      have s1_7_10 : u ≤ -3 := by parley_order
+      have s1_7_10 : u ≤ -3 := by linarith only [s1_7_8a]
       -- 1.7.11. def:interval a := −4, b := −3, x := u, from 1.1, 1.7.9, 1.7.10
       have s1_7_11 : u ∈ (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (-4 : ℝ)) (b := (-3 : ℝ)))).mpr ⟨⟨by parley_set_side, s1_7_9⟩, s1_7_10⟩
       -- 1.7.12. mun:in-union-left Y := [−4, −3], Z := [3, 4], from 1.7.11
@@ -101,9 +101,9 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s3_2_1a : -4 ≤ u := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (-4 : ℝ)) (b := (-3 : ℝ)))).mp hC3).1.2
       have s3_2_1b : u ≤ -3 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (-4 : ℝ)) (b := (-3 : ℝ)))).mp hC3).2
       -- 3.2.2. inequalities
-      have s3_2_2 : 3 ≤ -u := by parley_order
+      have s3_2_2 : 3 ≤ -u := by linarith only [s3_2_1b]
       -- 3.2.3. inequalities
-      have s3_2_3 : -u ≤ 4 := by parley_order
+      have s3_2_3 : -u ≤ 4 := by linarith only [s3_2_1a]
       -- 3.2.4. thm:square-window-in t := −u, from 3.2.1, 3.2.2, 3.2.3
       have s3_2_4a : 12 ≤ (-u) ^ 2 + 3 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn.square_window_in (t := -u) s3_2_2 s3_2_3).1
       have s3_2_4b : (-u) ^ 2 + 3 ≤ 19 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn.square_window_in (t := -u) s3_2_2 s3_2_3).2

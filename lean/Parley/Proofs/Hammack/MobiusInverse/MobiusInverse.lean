@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -52,8 +53,8 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
   -- 4.6. substitute y = f(x) (line 4.2) into line 4.5
   have s4_6 : (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = x := by (have h := Eq.subst (motive := (fun t : ℝ => (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) t = x)) s4_2b.symm s4_5; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4.7. calculation
-  have r46_1 : x - 2 ≠ 0 := by parley_set_side
-  have r46_2 : y - 5 ≠ 0 := by parley_set_side
+  have r46_1 : x - 2 ≠ 0 := fun h => s4_3 (by linarith only [h])
+  have r46_2 : y - 5 ≠ 0 := fun h => s4_1 (by linarith only [h])
   calc (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = x := by exact s4_6
     _ = (2 * y + 1) / (y - 5) := by linear_combination (norm := parley_field) ((x - 2) / ((y - 5))) * s4_4
 

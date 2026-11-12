@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -12,6 +11,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Eq
@@ -31,7 +31,7 @@ theorem a_sum_of_a_defined_function (k : ℤ) (hH1 : 0 < k) (x : ℝ) (hH3 : x >
   -- 1. proof
   -- what this block shows, Lean's types give
   -- 2. mun:sum-extended a := 1, n := k
-  have r52_1 : k ≥ 1 := by parley_order
+  have r52_1 : k ≥ 1 := by linarith only [hH1]
   exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := t) (a := (1 : ℤ)) (n := k) r52_1)
 
 end Parley.Tests.Elaborator.AForAllOverARange.ASumOfADefinedFunction

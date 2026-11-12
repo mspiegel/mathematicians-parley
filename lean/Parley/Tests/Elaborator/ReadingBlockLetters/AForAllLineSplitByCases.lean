@@ -1,9 +1,9 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -33,7 +33,7 @@ theorem a_for_all_line_split_by_cases (hH1 : ∀ x : ℝ, x ≥ 0 ∨ x < 0) :
     -- 1.1.3. def:abs x := y, from C2
     have s1_1_3 : abs y = -y := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) hC2
     -- 1.1.4. inequalities
-    have s1_1_4 : -y ≥ 0 := by parley_order
+    have s1_1_4 : -y ≥ 0 := by linarith only [hC2]
     -- 1.1.5. calculation
     calc abs y = -y := by exact s1_1_3
       _ ≥ 0 := by exact s1_1_4

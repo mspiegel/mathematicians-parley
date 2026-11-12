@@ -6,6 +6,7 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -30,9 +31,9 @@ theorem abs_bounds (x : ℝ) :
       -- 2.1. def:abs, from C1
       have s2_1 : abs x = x := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) hC1
       -- 2.2. inequalities
-      have s2_2 : x ≤ abs x := by parley_order
+      have s2_2 : x ≤ abs x := by linarith only [s2_1]
       -- 2.3. inequalities
-      have s2_3 : -x ≤ 0 := by parley_order
+      have s2_3 : -x ≤ 0 := by linarith only [hC1]
       -- 2.4. transitivity, from 2.3, C1, 2.1
       have s2_4 : -x ≤ abs x := by parley_order
       -- 2.5. join 2.2, 2.4
@@ -43,13 +44,13 @@ theorem abs_bounds (x : ℝ) :
       -- 2.6. def:abs, from C2
       have s2_6 : abs x = -x := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) hC2
       -- 2.7. inequalities
-      have s2_7 : -x ≤ abs x := by parley_order
+      have s2_7 : -x ≤ abs x := by linarith only [s2_6]
       -- 2.8. inequalities
-      have s2_8 : 0 < -x := by parley_order
+      have s2_8 : 0 < -x := by linarith only [hC2]
       -- 2.9. transitivity, from C2, 2.8, 2.6
       have s2_9 : x < abs x := by exact LT.lt.trans_eq (lt_trans hC2 s2_8) s2_6.symm
       -- 2.10. inequalities
-      have s2_10 : x ≤ abs x := by parley_order
+      have s2_10 : x ≤ abs x := by linarith only [s2_9]
       -- 2.11. join 2.7, 2.10
       have s2_11a : x ≤ abs x := by parley_side
       have s2_11b : -x ≤ abs x := by parley_side

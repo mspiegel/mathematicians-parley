@@ -15,6 +15,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Defs
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Ineq
@@ -53,9 +54,9 @@ theorem three_divisors (m : ℤ) (hH1 : 0 < m) (e : ℤ) (hH2 : 0 < e) (hH3 : e 
   -- 7. transitivity, from H4, H5
   have s7 : 1 < m := by exact lt_trans hH4 hH5
   -- 8. calculation
-  have r302_1 : 1 ≠ e := by parley_set_side
-  have r302_2 : 1 ≠ m := by parley_set_side
-  have r302_3 : e ≠ m := by parley_set_side
+  have r302_1 : 1 ≠ e := ne_of_lt (by linarith only [hH4])
+  have r302_2 : 1 ≠ m := ne_of_lt (by linarith only [s7])
+  have r302_3 : e ≠ m := ne_of_lt (by linarith only [hH5])
   calc (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ (∑ᶠ d ∈ ({(1 : ℤ), e, m} : Set ℤ), (d : ℤ)) := by exact (Parley.Items.Stdlib.Divisibility.mun_sigma_part (Y := ({(1 : ℤ), e, m} : Set ℤ)) (n := m) hH1 s6)
     _ = 1 + e + m := by exact (Parley.Items.Stdlib.Sums.mun_sum_of_three (a := (1 : ℤ)) (b := e) (c := m) r302_1 r302_2 r302_3)
 

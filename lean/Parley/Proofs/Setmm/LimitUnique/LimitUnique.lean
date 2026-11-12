@@ -3,6 +3,7 @@ module
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.NormNum.Basic
@@ -26,6 +27,6 @@ theorem limit_unique (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendsto
   -- 2. thm:limit-at-most A := B, B := A, from H4, H5
   have s2 : B ≤ A := by exact (Parley.Proofs.Setmm.LimitUnique.LimitAtMost.limit_at_most (x := x) (A := B) (B := A) hH5 hH4)
   -- 3. antisymmetry, from 1, 2
-  parley_side
+  exact le_antisymm s1 s2
 
 end Parley.Proofs.Setmm.LimitUnique.LimitUnique

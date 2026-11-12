@@ -174,6 +174,29 @@ pub fn printed_but(
     for (line, at) in &record.restated {
         writeln!(out, "{} restates {}", reason_at(*line), place(at)).unwrap();
     }
+    for (line, order) in &record.orders {
+        for (k, parts) in order.sentences.iter().enumerate() {
+            for (j, part) in parts.iter().enumerate() {
+                writeln!(
+                    out,
+                    "{} sentence {k} part {j} {}",
+                    reason_at(*line),
+                    order_part(part)
+                )
+                .unwrap();
+            }
+        }
+    }
+    for (line, a) in &record.antisymmetric {
+        writeln!(
+            out,
+            "{} antisymmetric from {} and {}",
+            reason_at(*line),
+            place(&a.below),
+            place(&a.above)
+        )
+        .unwrap();
+    }
     for (line, facing) in &record.link_facings {
         writeln!(
             out,
@@ -398,6 +421,45 @@ pub fn place(f: &parley::checker::record::FirstAt) -> String {
         write!(at, " implied by {rule:?}").unwrap();
     }
     at
+}
+
+/// What one part of an order step rests on (`record::OrderPart`).
+fn order_part(part: &parley::checker::record::OrderPart) -> String {
+    let facts = |of: &[parley::checker::record::OrderFact]| -> String {
+        of.iter().map(order_fact).collect::<Vec<_>>().join(", ")
+    };
+    let mut said = match &part.restates {
+        Some(r) => format!(
+            "restates {}{}",
+            order_fact(&r.by),
+            if r.turned { ", turned" } else { "" }
+        ),
+        None => format!("adds [{}]", facts(&part.uses)),
+    };
+    if !part.split.is_empty() {
+        write!(said, " split on [{}]", facts(&part.split)).unwrap();
+    }
+    if let Some(w) = part.weakened {
+        write!(said, " weakened from {w:?}").unwrap();
+    }
+    said
+}
+
+/// Where a fact an order step adds stands (`record::OrderFact`).
+fn order_fact(fact: &parley::checker::record::OrderFact) -> String {
+    use parley::checker::record::OrderFact;
+    match fact {
+        OrderFact::Line(at) => place(at),
+        OrderFact::Define(label) => format!("define {label}"),
+        OrderFact::Kind {
+            define, implied, ..
+        } => format!("kind of {define} implied by {implied:?}"),
+        OrderFact::Requires { line, implied } => match implied {
+            Some(rule) => format!("requires {} implied by {rule:?}", line + 1),
+            None => format!("requires {}", line + 1),
+        },
+        OrderFact::Member(rule) => format!("member implied by {rule:?}"),
+    }
 }
 
 /// What supplies a hypothesis (`record::SuppliedBy`).

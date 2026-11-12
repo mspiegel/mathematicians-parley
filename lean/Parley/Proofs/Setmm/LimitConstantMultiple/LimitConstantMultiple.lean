@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -11,8 +10,10 @@ public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -38,9 +39,9 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
     have hI : 0 ≤ abs C := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ))))
     exact hI
   -- 2. inequalities, from 1
-  have s2 : abs C + 1 > 0 := by parley_order
+  have s2 : abs C + 1 > 0 := by linarith only [s1]
   -- 3. inequalities
-  have s3 : 2 * (abs C + 1) > 0 := by parley_order
+  have s3 : 2 * (abs C + 1) > 0 := by linarith only [s2]
   -- 4. proof
   have s4 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (C * x n - C * L) < ε)) := by
     intro ε
@@ -48,7 +49,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
     -- 4.1. mun:quotient-positive x := ε, y := 2·(|C| + 1), from A1, 3
     have s4_1 : ε / (2 * (abs C + 1)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs C + 1)) hA1 s3)
     -- 4.2. membership
-    have r37_1 : 2 * (abs C + 1) ≠ 0 := by parley_side
+    have r37_1 : 2 * (abs C + 1) ≠ 0 := ne_of_gt (by linarith only [s3])
     -- 4.3. def:tends-to, from H4
     have s4_3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := L))).mp hH4
     -- 4.4. instantiate ε := ε/(2·(|C| + 1)) in line 4.3, from 4.1, 4.2

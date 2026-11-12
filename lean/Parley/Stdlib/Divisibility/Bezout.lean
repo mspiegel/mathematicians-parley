@@ -8,6 +8,7 @@ public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -74,7 +75,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   have s12b : (Int.gcd a b : ℤ) ∣ a := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_2 (a := a) (b := b))
   have s12c : (Int.gcd a b : ℤ) ∣ b := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_integer_3 (a := a) (b := b))
   -- 13. inequalities, from H2
-  have s13 : b ≠ 0 := by parley_set_side
+  have s13 : b ≠ 0 := hH2.ne'
   -- 14. contradiction
   have s14 : ¬ (a = 0 ∧ b = 0) := by
     intro hS
@@ -94,7 +95,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 20. mun:divides-le e := gcd(a, b), m := d, from 6, 15, 19
   have s20 : (Int.gcd a b : ℤ) ≤ d := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd a b : ℤ)) s15 (m := d) s6 s19)
   -- 21. antisymmetry, from 17, 20
-  have s21 : d = (Int.gcd a b : ℤ) := by parley_set_side
+  have s21 : d = (Int.gcd a b : ℤ) := le_antisymm s17 s20
   -- 22. transitivity, from 7, 21
   have s22 : a * x₀ + b * y₀ = (Int.gcd a b : ℤ) := by parley_set_side
   -- 23. exhibit, from 22

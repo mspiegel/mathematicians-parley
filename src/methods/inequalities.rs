@@ -61,8 +61,13 @@ struct Given {
     /// The cited line each fact is of, by its place among them; None for
     /// one a membership implies.
     term_of: Vec<Option<usize>>,
+    /// Where each fact a membership implies stands in `implied`, by the
+    /// fact's place; None for a cited one.
+    implied_of: Vec<Option<usize>>,
     cited: usize,
     apart: Vec<linear::Fact>,
+    /// Where each of `apart` stands in `implied`.
+    apart_of: Vec<usize>,
 }
 
 impl Given {
@@ -74,24 +79,31 @@ impl Given {
         let mut facts = Vec::new();
         let mut said_as = Vec::new();
         let mut term_of = Vec::new();
+        let mut implied_of = Vec::new();
         for (i, held) in cited.iter().enumerate() {
             for said in parts(held) {
                 if let Some(fact) = linear::fact(&said, labels) {
                     facts.push(fact);
                     said_as.push(said);
                     term_of.push(Some(i));
+                    implied_of.push(None);
                 }
             }
         }
         let cited = facts.len();
         let mut apart = Vec::new();
-        for said in implied {
+        let mut apart_of = Vec::new();
+        for (j, said) in implied.iter().enumerate() {
             match linear::fact(said, labels) {
-                Some(fact) if fact.how == How::Ne => apart.push(fact),
+                Some(fact) if fact.how == How::Ne => {
+                    apart.push(fact);
+                    apart_of.push(j);
+                }
                 Some(fact) => {
                     facts.push(fact);
                     said_as.push(said.clone());
                     term_of.push(None);
+                    implied_of.push(Some(j));
                 }
                 None => {}
             }
@@ -100,8 +112,10 @@ impl Given {
             facts,
             said_as,
             term_of,
+            implied_of,
             cited,
             apart,
+            apart_of,
         }
     }
 }
@@ -223,21 +237,60 @@ fn sums_to(
     linear::sums_sides(&claim_sides, &added)
 }
 
-/// The cited facts a claim that follows combines (`METHODS.md`,
-/// inequalities: an atom is one of the claim or of the facts the step
-/// combines). Each of `cited` is a fact of a line the step cites, and
-/// `line_of` the line it is of; for each part of the claim the combination
-/// is `linear::certificate`'s, which rests on the most lines, as the build
-/// takes it. Each cited fact it uses (`linear::used_facts`) is given by its
-/// index in `cited`. None where the claim does not follow, or is no relation
-/// `linear` reads.
+/// Where a fact a step adds comes from (`PartUses`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Source {
+    /// A fact of a line the step cites, by its place in `cited`.
+    Cited(usize),
+    /// What a membership among them implies, by its place in `implied`.
+    Implied(usize),
+}
+
+/// The fact that says a disequality a claim restates (`PartUses::restates`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Restating {
+    pub by: Source,
+    /// Whether the fact says it the other way round, `b ≠ a` of `a ≠ b`.
+    pub turned: bool,
+}
+
+/// What one part of a claim that follows rests on (`combined`).
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct PartUses {
+    /// The facts its combination adds, as they stand, each once, in order;
+    /// none for a disequality, which restates a fact.
+    pub uses: Vec<Source>,
+    /// The cited disequalities the combination takes both ways, below and
+    /// above (`METHODS.md`, inequalities, A disequality splits).
+    pub split: Vec<Source>,
+    /// For a disequality, the fact that says it.
+    pub restates: Option<Restating>,
+}
+
+/// What a claim that follows combines (`combined`).
+pub struct Combined {
+    /// Each part of the claim, in the order `algebra::parts` gives them.
+    pub parts: Vec<PartUses>,
+    /// The cited facts the combinations use, by their place in `cited`:
+    /// those whose atoms are asked to be real (`METHODS.md`, inequalities,
+    /// Hypotheses).
+    pub cited: BTreeSet<usize>,
+}
+
+/// The facts a claim that follows combines (`METHODS.md`, inequalities: an
+/// atom is one of the claim or of the facts the step combines). Each of
+/// `cited` is a fact of a line the step cites, and `line_of` the line it is
+/// of; `implied` is what a membership among them implies. For each part of
+/// the claim the combination is `linear::certificate`'s, which rests on the
+/// most lines, as the build takes it. None where the claim does not follow,
+/// or is no relation `linear` reads.
 pub fn combined(
     claimed: &Term,
     cited: &[Term],
     line_of: &[usize],
     implied: &[Term],
     labels: &FloatLabels,
-) -> Option<BTreeSet<usize>> {
+) -> Option<Combined> {
     let claims = claim_parts(claimed, labels)?;
     let read = Given::of(cited, implied, labels);
     // The page's line each fact is of, which a combination rests on.
@@ -246,19 +299,76 @@ pub fn combined(
         .iter()
         .map(|t| t.and_then(|i| line_of.get(i).copied()))
         .collect();
-    let mut out = BTreeSet::new();
+    let mut out = Combined {
+        parts: Vec::new(),
+        cited: BTreeSet::new(),
+    };
     for part in &claims {
         if part.fact.how == How::Ne {
-            out.extend(restated_apart(&part.fact, cited, line_of, implied, labels)?);
+            out.cited
+                .extend(restated_apart(&part.fact, cited, line_of, implied, labels)?);
+            out.parts.push(PartUses {
+                restates: Some(restating(&part.fact, &read)?),
+                ..PartUses::default()
+            });
             continue;
         }
         let used = accepted(&part.term, &part.fact, &read, &lines, labels)?;
-        out.extend(
+        let mut uses = PartUses::default();
+        for &j in &used {
+            let source = match (read.term_of.get(j), read.implied_of.get(j)) {
+                (Some(Some(i)), _) => Source::Cited(*i),
+                (_, Some(Some(i))) => Source::Implied(*i),
+                // The claim denied, which the combination is against.
+                _ => continue,
+            };
+            match read.facts[j].how == How::Ne {
+                true => uses.split.push(source),
+                false => uses.uses.push(source),
+            }
+        }
+        out.cited.extend(
             used.iter()
                 .filter_map(|&j| read.term_of.get(j).copied().flatten()),
         );
+        out.parts.push(uses);
     }
     Some(out)
+}
+
+/// The fact that says a disequality claim, as `added` finds it: a cited
+/// one, then one a membership implies. None where none says it.
+fn restating(claim: &linear::Fact, read: &Given) -> Option<Restating> {
+    let says = |f: &linear::Fact| -> Option<bool> {
+        if f.how != How::Ne {
+            return None;
+        }
+        match (
+            f.side.minus(&claim.side).is_zero(),
+            f.side.plus(&claim.side).is_zero(),
+        ) {
+            (true, _) => Some(false),
+            (false, true) => Some(true),
+            (false, false) => None,
+        }
+    };
+    let cited = read.facts.iter().enumerate().find_map(|(j, f)| {
+        let turned = says(f)?;
+        let by = match (read.term_of[j], read.implied_of[j]) {
+            (Some(i), _) => Source::Cited(i),
+            (None, Some(i)) => Source::Implied(i),
+            (None, None) => return None,
+        };
+        Some(Restating { by, turned })
+    });
+    cited.or_else(|| {
+        read.apart.iter().zip(&read.apart_of).find_map(|(f, &i)| {
+            Some(Restating {
+                by: Source::Implied(i),
+                turned: says(f)?,
+            })
+        })
+    })
 }
 
 /// The cited facts a disequality claim combines, as `combined` gives them:

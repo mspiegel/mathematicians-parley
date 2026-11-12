@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
@@ -47,7 +46,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
   have s3 : ∀ k : ℤ, 0 < k → 0 < 2 * k - 1 := by
     intro k hK2
     -- 3.1. inequalities, from K2
-    have s3_1 : 0 < 2 * k - 1 := by parley_order
+    have s3_1 : 0 < 2 * k - 1 := by linarith only [hK2, hK2]
     -- 3.2. mun:pos-int-nat m := 2k − 1, from 3.1
     exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1)
   set q : ℤ → ℤ := fun k : ℤ => F (2 * k - 1) with hD2

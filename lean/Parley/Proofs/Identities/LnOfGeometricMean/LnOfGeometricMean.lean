@@ -12,6 +12,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -32,7 +33,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
   -- 1. mun:product-positive, from H3, H4
   have s1 : x * y > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := x) (y := y) hH3 hH4)
   -- 2. def:sqrt x := x·y
-  have r21_1 : x * y ≥ 0 := by parley_side
+  have r21_1 : x * y ≥ 0 := by linarith only [s1]
   have s2a : Real.sqrt (x * y) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x * y) r21_1)
   have s2b : Real.sqrt (x * y) ^ 2 = x * y := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x * y) r21_1)
   -- 3. substitute

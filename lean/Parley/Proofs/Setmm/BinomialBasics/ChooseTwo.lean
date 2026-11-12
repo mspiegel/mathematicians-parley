@@ -6,7 +6,6 @@ public import Counting
 public import FactorialTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
@@ -16,6 +15,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -54,8 +54,8 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
       -- 2.3.1. mun:nat-minus-one n := N − 1, from C3
       have s2_3_1 : 0 ≤ N - 1 - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N - 1) hC3)
       -- 2.3.2. inequalities, from C3
-      have s2_3_2a : (0 : ℤ) ≤ 2 := by parley_order
-      have s2_3_2b : 2 ≤ N := by parley_order
+      have s2_3_2a : (0 : ℤ) ≤ 2 := by linarith only []
+      have s2_3_2b : 2 ≤ N := by linarith only [hC3]
       -- 2.3.3. def:range-between k := 2, a := 0, b := N, from 2.3.2
       have s2_3_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_3_2a, s2_3_2b⟩
       -- 2.3.4. algebra

@@ -1,0 +1,40 @@
+theorem proofs/setmm/remainder-bounds/remainder-nonnegative
+step 2 cites stdlib/divisibility/mod-value group 0; a := A, b := B; concludes 0 AsWritten; from no line; supplied by once H1 sentence 0, once H2 sentence 0, H3 sentence 0; letters a cr from cr, b cr from cr; facing straight; met as written
+step 3 cites stdlib/numbers/floor-below group 0; x := A / B; concludes 0 AsWritten; from no line; supplied by unstated; letters x cr from cr; facing none; met as written
+requires line on line 32 cites stdlib/numbers/multiply-le group 0; c := B, x := q, y := A / B; concludes 0 AsWritten; from no line; supplied by unstated, unstated, once H2 sentence 0, 3 sentence 0, H3 sentence 0; letters c cr from cr, x cr from cz, y cr from cr; facing none; met as written
+requires line on line 21 cites stdlib/numbers/floor-integer group 0; x := A / B; concludes 0 AsWritten; from no line; supplied by unstated; letters x cr from cr; facing none; met as written
+step 1 sentence 0 part 0 adds [H3 sentence 0] weakened from Above
+step 5 sentence 0 part 0 adds [4 sentence 0]
+read 8: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement
+read 10: A ∈ ℝ  as  membership:∈(name:A, number-systems:ℝ)  a statement
+read 11: B ∈ ℝ  as  membership:∈(name:B, number-systems:ℝ)  a statement
+read 12: B > 0  as  order:>(name:B, numeral:0)  a statement
+read 13: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement
+read 15: B ≠ 0  as  logical-not:not(equality:=(name:B, numeral:0))  a statement
+read 17: B > 0  as  order:>(name:B, numeral:0)  a statement
+read 18: B ≠ 0  as  logical-not:not(equality:=(name:B, numeral:0))  a statement
+read 20: ⌊A/B⌋  as  floor:⌊⌋(multiplicative:/(name:A, name:B))  a number
+read 21: q  as  name:q  a number
+read 21: ℤ  as  number-systems:ℤ  a set
+read 21: ⌊A/B⌋ ∈ ℤ  as  membership:∈(floor:⌊⌋(multiplicative:/(name:A, name:B)), number-systems:ℤ)  a statement
+read 24: A mod B = A − B·q  as  equality:=(mod:mod(name:A, name:B), additive:−(name:A, multiplicative:·(name:B, name:q)))  a statement
+read 25: A  as  name:A  a number
+read 25: B  as  name:B  a number
+read 27: q ≤ A/B  as  order:≤(name:q, multiplicative:/(name:A, name:B))  a statement
+read 28: A/B  as  multiplicative:/(name:A, name:B)  a number
+read 30: B·q ≤ A  as  order:≤(multiplicative:·(name:B, name:q), name:A)  a statement
+read 32: A/B  as  multiplicative:/(name:A, name:B)  a number
+read 32: B  as  name:B  a number
+read 32: B·(A/B)  as  multiplicative:·(name:B, multiplicative:/(name:A, name:B))  a number
+read 32: B·q  as  multiplicative:·(name:B, name:q)  a number
+read 32: B·q ≤ B·(A/B)  as  order:≤(multiplicative:·(name:B, name:q), multiplicative:·(name:B, multiplicative:/(name:A, name:B)))  a statement
+read 32: q  as  name:q  a number
+read 33: A  as  name:A  a number
+read 33: B·(A/B) = A  as  equality:=(multiplicative:·(name:B, multiplicative:/(name:A, name:B)), name:A)  a statement
+read 35: 0 ≤ A − B·q  as  order:≤(numeral:0, additive:−(name:A, multiplicative:·(name:B, name:q)))  a statement
+read 37: B·q ≤ A  as  order:≤(multiplicative:·(name:B, name:q), name:A)  a statement
+read 38: 0 ≤ A − B·q  as  order:≤(numeral:0, additive:−(name:A, multiplicative:·(name:B, name:q)))  a statement
+read 38: −B·q  as  unary-minus:−(multiplicative:·(name:B, name:q))  a number
+read 40: 0 ≤ A mod B  as  order:≤(numeral:0, mod:mod(name:A, name:B))  a statement
+read 41: A mod B = A − B·q  as  equality:=(mod:mod(name:A, name:B), additive:−(name:A, multiplicative:·(name:B, name:q)))  a statement
+step 6 ends meeting [Meeting { turned: false, permuted: false, renamed: false, respelled: false, identities: [] }]

@@ -4,10 +4,10 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -33,7 +33,7 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
       exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
     | succ j hK hIH =>
       -- 1.2. inequalities
-      have s1_2 : j < j + 1 := by parley_order
+      have s1_2 : j < j + 1 := by linarith only []
       -- 1.3. def:C n := j, k := j + 1, from 1.2
       have s1_3 : (LeanBridges.Counting.choose j (j + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := j) hK (k := j + 1)) s1_2
       -- 1.4. thm:pascal n := j, k := j + 1

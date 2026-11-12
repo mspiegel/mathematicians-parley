@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -23,6 +22,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -105,7 +105,7 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   have r846_1 : 0 ≤ m - 1 := by exact s1
   have s19 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) = (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * t = (m - 1 - n) * (LeanBridges.Counting.choose t (m - 1) : ℤ))) s18 hH4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 20. inequalities, from H2
-  have s20 : m - 1 ≤ m + (n - 1) := by parley_order
+  have s20 : m - 1 ≤ m + (n - 1) := by linarith only [hH2]
   -- 21. def:range0 k := m − 1, n := m + (n − 1), from 1, 2, 20
   have s21 : m - 1 ∈ Finset.Icc (0 : ℤ) (m + (n - 1)) := ((Parley.Items.Stdlib.Sums.def_range0 (k := m - 1) (n := m + (n - 1)) (by parley_set_side))).mpr ⟨s1, s20⟩
   -- 22. thm:absorption n := m + (n − 1), k := m − 1, from 2, 21
@@ -147,9 +147,9 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   -- 35. algebra, from 17, 28, 29, 32, 33, 34
   have s35 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) * (m + n) = (m - 1 - n) * m * (LeanBridges.Counting.choose (m + n) m : ℤ) + (m - (n - 1)) * n * (LeanBridges.Counting.choose (m + n) m : ℤ) := by parley_count_int; (linear_combination (norm := parley_norm) (m + n) * s32 + s33 + s34)
   -- 36. inequalities, from H1, H2
-  have s36 : 0 < m + (n - 1) := by parley_order
+  have s36 : 0 < m + (n - 1) := by linarith only [hH1, hH2]
   -- 37. calculation
-  have r904_1 : 0 ≠ m + (n - 1) := by parley_set_side
+  have r904_1 : 0 ≠ m + (n - 1) := ne_of_lt (by linarith only [s36])
   parley_count_after (by
     try qify
     calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℚ) * ((m : ℚ) + (n : ℚ)) = (((m : ℚ) - 1 - (n : ℚ)) * (m : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ) + ((m : ℚ) - ((n : ℚ) - 1)) * (n : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ)) / ((m : ℚ) + ((n : ℚ) - 1)) := by parley_count_int; exact (by

@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
@@ -11,6 +10,8 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -52,7 +53,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
     rcases s3_5 with hC3 | hC4
     · skip
       -- 3.6.1. inequalities, from C2, C3
-      have s3_6_1 : a > 0 := by parley_order
+      have s3_6_1 : a > 0 := Or.elim (Ne.lt_or_gt hC2) (fun h1 => by linarith only [hC3, h1]) (fun h1 => by linarith only [hC3, h1])
       -- 3.6.2. mun:pos-int-nat m := a, from 3.6.1
       have s3_6_2 : 0 < a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := a) s3_6_1)
       -- 3.6.3. restate 3.4
@@ -67,7 +68,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       exact row1
     · skip
       -- 3.6.7. inequalities
-      have s3_6_7 : -a > 0 := by parley_order
+      have s3_6_7 : -a > 0 := by linarith only [hC4]
       -- 3.6.8. mun:pos-int-nat m := −a, from 3.6.7
       have s3_6_8 : 0 < -a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) s3_6_7)
       -- 3.6.9. algebra, from 3.4

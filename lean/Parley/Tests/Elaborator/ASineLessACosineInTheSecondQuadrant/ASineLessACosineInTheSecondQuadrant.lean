@@ -23,6 +23,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -46,17 +47,17 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 2. transitivity, from H2, 1
   have s2 : 0 < x := by exact lt_of_lt_of_le s1 hH2
   -- 3. inequalities
-  have s3 : 0 ≤ x := by parley_order
+  have s3 : 0 ≤ x := by linarith only [s2]
   -- 4. def:interval, from H3, 3
   have s4 : x ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by parley_set_side, s3⟩, hH3⟩
   -- 5. mun:sin-nonneg a := x, from 4
   have s5 : 0 ≤ Real.sin x := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_nonneg (a := x) s4)
   -- 6. inequalities
-  have s6 : 0 ≤ x - Real.pi / 2 := by parley_order
+  have s6 : 0 ≤ x - Real.pi / 2 := by linarith only [hH2]
   -- 7. real arithmetic
   have s7 : -(Real.pi / 2) ≤ 0 := by parley_real
   -- 8. inequalities, from H3, 7
-  have s8 : x - Real.pi / 2 ≤ Real.pi := by parley_order
+  have s8 : x - Real.pi / 2 ≤ Real.pi := by linarith only [hH3, s7]
   -- 9. def:interval, from 6, 8
   have s9 : x - Real.pi / 2 ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x - Real.pi / 2) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by parley_set_side, s6⟩, s8⟩
   -- 10. mun:sin-nonneg a := x − π/2, from 9
@@ -83,7 +84,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 19. transitivity, from 10, 18
   have s19 : 0 ≤ -Real.cos x := by exact LE.le.trans_eq s10 s18
   -- 20. inequalities, from 5, 19
-  have s20 : 0 ≤ Real.sin x - Real.cos x := by parley_order
+  have s20 : 0 ≤ Real.sin x - Real.cos x := by linarith only [s5, s19]
   -- 21. mun:product-nonneg x := sin(x), y := sin(x − π/2), from 5, 10
   have s21 : Real.sin x * Real.sin (x - Real.pi / 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) s5 s10)
   -- 22. mun:sin-cos-squares a := x
@@ -93,7 +94,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 23. algebra, from 17, 22
   have s23 : 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) = (Real.sin x - Real.cos x) ^ 2 := by linear_combination (norm := parley_norm) (2 * Real.sin x) * s17 + (-1) * s22
   -- 24. inequalities
-  have s24 : 1 ^ 2 ≤ 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) := by parley_order
+  have s24 : 1 ^ 2 ≤ 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) := by linarith only [s21]
   -- 25. transitivity, from 23, 24
   have s25 : 1 ^ 2 ≤ (Real.sin x - Real.cos x) ^ 2 := by parley_order
   -- 26. mun:square-le x := 1, y := sin(x) − cos(x), from 20, 25

@@ -20,7 +20,9 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -57,7 +59,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
-  have s5 : p ≠ 0 := by parley_set_side
+  have s5 : p ≠ 0 := ne_of_gt (by linarith only [s4a])
   -- 6. mun:reciprocal-positive x := p, from 4
   have s6 : 1 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := p) s4a)
   -- 7. mun:quotient-real x := 1, y := p, from 5
@@ -74,11 +76,11 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 13. transitivity, from 11, 9
   have s13 : L + 1 < (N : ℝ) := by parley_order
   -- 14. inequalities, from 9
-  have s14 : N > 0 := by parley_order
+  have s14 : N > 0 := by linarith only [s9a]
   -- 15. mun:reciprocal-positive x := N, from 14
   have s15 : 1 / (N : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp s14))
   -- 16. inequalities
-  have s16 : 1 + 1 / (N : ℚ) ≠ 1 := by parley_set_side
+  have s16 : 1 + 1 / (N : ℚ) ≠ 1 := ne_of_gt (by linarith only [s15])
   -- 17. mun:remove-member u := 1 + 1/N, from 16
   have s17 : 1 + 1 / (N : ℝ) ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := 1 + 1 / (N : ℝ)))).mpr ⟨by parley_set_side, by parley_set_side⟩
   -- 18. mun:reciprocal-order-strict x := 1/p, y := N, from 6, 7, 12, 14
@@ -92,7 +94,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 20. algebra
   have s20 : 1 + 1 / (N : ℚ) - 1 = 1 / (N : ℚ) := by parley_ring
   -- 21. calculation
-  have r103_1 : 1 / (N : ℚ) ≥ 0 := by parley_set_side
+  have r103_1 : 1 / (N : ℚ) ≥ 0 := by linarith only [s15]
   have s21 : abs (1 + 1 / (N : ℝ) - 1) < p := by
     calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by (have h := congrArg (fun t : ℚ => abs t) s20; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (by parley_set_side)
@@ -102,7 +104,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 23. instantiate x := 1 + 1/N in line 4, from 17, 22
   have s23 : abs (f (1 + 1 / (N : ℝ)) - L) < 1 := by exact (s4b (1 + 1 / (N : ℝ)) s17 (by parley_set_side))
   -- 24. inequalities
-  have s24 : 1 / (N : ℚ) ≠ 0 := by parley_set_side
+  have s24 : 1 / (N : ℚ) ≠ 0 := ne_of_gt (by linarith only [s15])
   -- 25. mun:square-positive x := 1/N, from 24
   have s25 : (1 / (N : ℚ)) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := 1 / (N : ℚ)) s24)
   -- 26. substitute
@@ -111,7 +113,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
     have row1 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by (have h := Eq.subst (motive := (fun t : ℚ => t > 0)) c1 s25; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 27. inequalities
-  have s27 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 ≠ 0 := by parley_set_side
+  have s27 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 ≠ 0 := ne_of_gt (by linarith only [s26])
   -- 28. calculation
   have s28 : f (1 + 1 / (N : ℝ)) = (N : ℝ) ^ 2 := by
     calc f (1 + 1 / (N : ℝ)) = 1 / ((1 + 1 / (N : ℝ)) ^ 2 - 2 * (1 + 1 / (N : ℝ)) + 1) := by exact (hH2 (1 + 1 / (N : ℝ)) s17)
@@ -123,13 +125,13 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 31. mun:multiply-le x := 1, y := N, c := N, from 9
   have s31 : N * 1 ≤ N * N := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := N) (c := N) s9a s9a)
   -- 32. inequalities
-  have s32 : N ≤ N ^ 2 := by parley_order
+  have s32 : N ≤ N ^ 2 := by linarith only [s31]
   -- 33. transitivity, from 13, 32
   have s33 : L + 1 < (N : ℝ) ^ 2 := by parley_order
   -- 34. inequalities
-  have s34 : L + 1 ≤ (N : ℝ) ^ 2 := by parley_order
+  have s34 : L + 1 ≤ (N : ℝ) ^ 2 := by linarith only [s33]
   -- 35. inequalities, from 34
-  have s35 : ¬ (N : ℝ) ^ 2 < L + 1 := by parley_set_side
+  have s35 : ¬ (N : ℝ) ^ 2 < L + 1 := by linarith only [s34]
   exact s35 s30
 
 end Parley.Proofs.Hammack.ReciprocalSquareNoLimit.ReciprocalSquareNoLimit

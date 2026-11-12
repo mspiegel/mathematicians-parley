@@ -16,6 +16,7 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -44,11 +45,11 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 1. obtain w: def:even n := a, from H6
   obtain ⟨w, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp hH6
   -- 2. inequalities, from H1
-  have s2 : 0 < a := by parley_order
+  have s2 : 0 < a := by linarith only [hH1]
   -- 3. substitute a = 2w (line 1) into line 2
   have s3 : 0 < 2 * w := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. mun:pos-int-nat m := w
-  have r185_1 : 0 < w := by parley_side
+  have r185_1 : 0 < w := by linarith only [s3]
   have s4 : 0 < w := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := w) r185_1)
   -- 5. def:divides d := 2, n := a, from 1
   have s5 : (2 : ℤ) ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a))).mpr ⟨w, s1⟩
@@ -131,26 +132,26 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 23. mun:square-positive x := a, from H1
   have s23 : a ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := a) hH1.ne')
   -- 24. inequalities
-  have s24 : b ^ 2 < a ^ 2 + b ^ 2 := by parley_order
+  have s24 : b ^ 2 < a ^ 2 + b ^ 2 := by linarith only [s23]
   -- 25. transitivity, from 24, H4
   have s25 : b ^ 2 < c ^ 2 := by parley_order
   -- 26. mun:square-less x := b, y := c, from 25
-  have r303_1 : b ≥ 0 := by parley_order
-  have r303_2 : c ≥ 0 := by parley_order
+  have r303_1 : b ≥ 0 := by linarith only [hH2]
+  have r303_2 : c ≥ 0 := by linarith only [hH3]
   have s26 : b < c := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := b) (y := c) r303_1 r303_2)).mpr s25
   -- 27. inequalities
-  have s27 : 0 < c - b := by parley_order
+  have s27 : 0 < c - b := by linarith only [s26]
   -- 28. substitute c − b = 2t (line 16) into line 27
   have s28 : 0 < 2 * t := by (have h := Eq.subst (motive := (fun u : ℤ => 0 < u)) s16 s27; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 29. mun:pos-int-nat m := t
-  have r316_1 : 0 < t := by parley_side
+  have r316_1 : 0 < t := by linarith only [s28]
   have s29 : 0 < t := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := t) r316_1)
   -- 30. inequalities, from H2, H3
-  have s30 : 0 < c + b := by parley_order
+  have s30 : 0 < c + b := by linarith only [hH2, hH3]
   -- 31. substitute c + b = 2s (line 13) into line 30
   have s31 : 0 < 2 * s := by (have h := Eq.subst (motive := (fun u : ℤ => 0 < u)) s13 s30; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 32. mun:pos-int-nat m := s
-  have r326_1 : 0 < s := by parley_side
+  have r326_1 : 0 < s := by linarith only [s31]
   have s32 : 0 < s := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := s) r326_1)
   -- 33. algebra
   have s33 : (c + b) * (c - b) = c ^ 2 - b ^ 2 := by parley_ring
@@ -221,8 +222,8 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 50. algebra, from 48
   have s50 : w ^ 2 = (m * n) ^ 2 := by linear_combination (norm := parley_norm) s48
   -- 51. mun:square-equal x := w, y := m·n, from 50
-  have r410_1 : w ≥ 0 := by parley_order
-  have r410_2 : m * n ≥ 0 := by parley_order
+  have r410_1 : w ≥ 0 := by linarith only [s4]
+  have r410_2 : m * n ≥ 0 := by linarith only [s49]
   have s51 : w = m * n := by exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := w) (y := m * n) r410_1 r410_2)).mp s50
   -- 52. substitute w = m·n (line 51) into line 1
   have s52 : a = 2 * (m * n) := by (have h := Eq.subst (motive := (fun u : ℤ => a = 2 * u)) s51 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -241,14 +242,14 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     have row2 : c = m ^ 2 + n ^ 2 := by (have h := Eq.subst (motive := (fun u : ℤ => c = m ^ 2 + u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 55. inequalities, from H2
-  have s55 : 0 < b := by parley_order
+  have s55 : 0 < b := by linarith only [hH2]
   -- 56. transitivity, from 55, 53
   have s56 : 0 < m ^ 2 - n ^ 2 := by parley_order
   -- 57. inequalities
-  have s57 : n ^ 2 < m ^ 2 := by parley_order
+  have s57 : n ^ 2 < m ^ 2 := by linarith only [s56]
   -- 58. mun:square-less x := n, y := m, from 57
-  have r441_1 : n ≥ 0 := by parley_order
-  have r441_2 : m ≥ 0 := by parley_order
+  have r441_1 : n ≥ 0 := by linarith only [hD2_pos, hD2]
+  have r441_2 : m ≥ 0 := by linarith only [hD1_pos, hD1]
   have s58 : n < m := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := n) (y := m) r441_1 r441_2)).mpr s57
   -- 59. def:gcd a := m, b := n
   have s59a : 0 < (Int.gcd m n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := m) (by parley_side) (b := n) (by parley_side))

@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
@@ -8,6 +7,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -23,9 +23,9 @@ namespace Parley.Proofs.Setmm.FloorBasics.FloorOfInteger
 theorem floor_of_integer (A : ℤ) :
     ⌊(A : ℝ)⌋ = A := by
   -- 1. inequalities
-  have s1 : A ≤ A := by parley_order
+  have s1 : A ≤ A := by linarith only []
   -- 2. inequalities
-  have s2 : A < A + 1 := by parley_order
+  have s2 : A < A + 1 := by linarith only []
   -- 3. mun:floor-between x := A, k := A, from 1, 2
   exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ)) (k := A))).mpr ⟨by exact_mod_cast s1, by exact_mod_cast s2⟩
 

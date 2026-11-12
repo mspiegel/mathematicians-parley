@@ -8,6 +8,7 @@ public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -85,7 +86,7 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   -- 17. mun:divides-le e := gcd(a, b), m := d, from 6, 13, 16
   have s17 : (Int.gcd a b : ℤ) ≤ d := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd a b : ℤ)) s13a (m := d) s6 s16)
   -- 18. antisymmetry, from 14, 17
-  have s18 : d = (Int.gcd a b : ℤ) := by parley_set_side
+  have s18 : d = (Int.gcd a b : ℤ) := le_antisymm s14 s17
   -- 19. calculation
   have s19 : a * x₀ + b * y₀ = (Int.gcd a b : ℤ) := by
     calc a * x₀ + b * y₀ = d := by parley_set_side

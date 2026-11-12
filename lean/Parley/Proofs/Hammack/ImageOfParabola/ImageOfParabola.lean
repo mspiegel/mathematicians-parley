@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -15,6 +14,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -54,21 +54,21 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     -- 2.4. mun:square-nonneg x := s
     have s2_4 : s ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := s))
     -- 2.5. inequalities
-    have s2_5 : s ^ 2 + 3 ≥ 3 := by parley_order
+    have s2_5 : s ^ 2 + 3 ≥ 3 := by linarith only [s2_4]
     -- 2.6. calculation
     have s2_6 : y ≥ 3 := by
       calc y = s ^ 2 + 3 := by exact s2_3
         _ ≥ 3 := by exact s2_5
     -- 2.7. inequalities
-    have s2_7 : s + 3 ≥ 0 := by parley_order
+    have s2_7 : s + 3 ≥ 0 := by linarith only [s2_2a]
     -- 2.8. inequalities
-    have s2_8 : 5 - s ≥ 0 := by parley_order
+    have s2_8 : 5 - s ≥ 0 := by linarith only [s2_2b]
     -- 2.9. mun:product-nonneg x := s + 3, y := 5 − s, from 2.7, 2.8
     have s2_9 : (s + 3) * (5 - s) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := s + 3) (y := 5 - s) s2_7 s2_8)
     -- 2.10. inequalities
-    have s2_10 : s ^ 2 + 3 ≤ 2 * s + 18 := by parley_order
+    have s2_10 : s ^ 2 + 3 ≤ 2 * s + 18 := by linarith only [s2_9]
     -- 2.11. inequalities
-    have s2_11 : 2 * s + 18 ≤ 28 := by parley_order
+    have s2_11 : 2 * s + 18 ≤ 28 := by linarith only [s2_2b]
     -- 2.12. calculation
     have s2_12 : y ≤ 28 := by
       calc y = s ^ 2 + 3 := by exact s2_3
@@ -86,12 +86,12 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s4_1a : 3 ≤ y := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mp hK2).1.2
     have s4_1b : y ≤ 28 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mp hK2).2
     -- 4.2. inequalities
-    have s4_2 : y - 3 ≥ 0 := by parley_order
+    have s4_2 : y - 3 ≥ 0 := by linarith only [s4_1a]
     -- 4.3. def:sqrt x := y − 3, from 4.2
     have s4_3a : Real.sqrt (y - 3) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := y - 3) s4_2)
     have s4_3b : Real.sqrt (y - 3) ^ 2 = y - 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := y - 3) s4_2)
     -- 4.4. inequalities
-    have s4_4 : y - 3 ≤ 25 := by parley_order
+    have s4_4 : y - 3 ≤ 25 := by linarith only [s4_1b]
     -- 4.5. calculation
     have s4_5 : Real.sqrt (y - 3) ^ 2 ≤ 5 ^ 2 := by
       calc Real.sqrt (y - 3) ^ 2 = y - 3 := by exact s4_3b
@@ -101,7 +101,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have r121_1 : (0 : ℤ) ≤ 5 := by parley_arith
     have s4_6 : Real.sqrt (y - 3) ≤ 5 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (y - 3)) (y := (5 : ℝ)) s4_3a (by parley_set_side))).mpr s4_5
     -- 4.7. inequalities, from 4.3
-    have s4_7 : -3 ≤ Real.sqrt (y - 3) := by parley_order
+    have s4_7 : -3 ≤ Real.sqrt (y - 3) := by linarith only [s4_3a]
     -- 4.8. def:interval a := −3, b := 5, x := √(y − 3), from 4.3, 4.6, 4.7
     have s4_8 : Real.sqrt (y - 3) ∈ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr ⟨⟨by parley_set_side, s4_7⟩, s4_6⟩
     -- 4.9. instantiate x := √(y − 3) in H2, from 4.3

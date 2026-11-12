@@ -14,6 +14,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -104,7 +105,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         -- 3.11.2. mun:range-bounds a := 0, b := 0, k := j, from S2
         have s3_11_2 : 0 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (0 : ℤ)) (b := (0 : ℤ)) (k := j) hS2)
         -- 3.11.3. antisymmetry, from 3.11.1, 3.11.2
-        have s3_11_3 : j = 0 := by parley_set_side
+        have s3_11_3 : j = 0 := le_antisymm s3_11_1 s3_11_2
         -- 3.11.4. restate C2
         have s3_11_4 : j ≠ 0 := by exact hC2
         exact s3_11_4 s3_11_3

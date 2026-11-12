@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -14,6 +13,7 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -46,20 +46,20 @@ theorem one_over_n_does_not_tend_to_one :
   -- 2.3. obtain N from line 2.2
   obtain ⟨N, s2_3a, s2_3b⟩ := s2_2
   -- 2.4. instantiate n := N + 1 in line 2.3
-  have r303_1 : N + 1 ≥ N := by parley_order
+  have r303_1 : N + 1 ≥ N := by linarith only []
   have s2_4 : abs (1 / ((N : ℚ) + 1) - 1) < 1 / 2 := by (have h := (s2_3b (N + 1) (by parley_side) r303_1); push_cast at h ⊢; all_goals exact h)
   -- 2.5. inequalities, from 2.3
-  have s2_5 : N + 1 > 0 := by parley_order
+  have s2_5 : N + 1 > 0 := by linarith only [s2_3a]
   -- 2.6. mun:abs-difference-lt x := 1/(N + 1), c := 1, δ := 1/2, from 2.4
   have s2_6 : 1 - 1 / 2 < 1 / ((N : ℚ) + 1) ∧ 1 / ((N : ℚ) + 1) < 1 + 1 / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := 1 / ((N : ℚ) + 1)) (c := (1 : ℚ)) (δ := (1 / 2 : ℚ)))).mp s2_4
   -- 2.7. inequalities, from 2.3
-  have s2_7 : 2 ≤ N + 1 := by parley_order
+  have s2_7 : 2 ≤ N + 1 := by linarith only [s2_3a]
   -- 2.8. mun:reciprocal-order x := 2, y := N + 1, from 2.7
   have r316_1 : (2 : ℤ) > 0 := by parley_arith
   have r316_2 : N + 1 > 0 := by parley_side
   have s2_8 : 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 : ℚ)) (by parley_side) (y := (N : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r316_2))).mp (by parley_side)
   -- 2.9. inequalities, from 2.6
-  have s2_9 : ¬ 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by parley_side
+  have s2_9 : ¬ 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by linarith only [s2_6.1]
   exact s2_9 s2_8
 
 end Parley.Tests.Notations.Calculus.OneOverNDoesNotTendToOne

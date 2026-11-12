@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -10,6 +9,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -32,10 +32,10 @@ theorem integer_under_twice_half_floor (N : ℤ) :
     try push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := ((N : ℝ) + 1) / 2))
   -- 2. inequalities
-  have s2 : N < 2 * k + 1 := by parley_order
+  have s2 : N < 2 * k + 1 := by exact_mod_cast (show (N : ℝ) < 2 * (k : ℝ) + 1 by linarith only [s1])
   -- 3. mun:integer-step m := N, n := 2k + 1, from 2
   have s3 : N + 1 ≤ 2 * k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := N) (n := 2 * k + 1) s2)
   -- 4. inequalities, from D1, 3
-  parley_order
+  linarith only [s3, hD1]
 
 end Parley.Proofs.Setmm.IntegerUnderTwiceHalfFloor.IntegerUnderTwiceHalfFloor

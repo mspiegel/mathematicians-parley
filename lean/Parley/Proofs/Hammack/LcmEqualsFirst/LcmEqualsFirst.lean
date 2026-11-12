@@ -1,9 +1,11 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -55,10 +57,10 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
       -- 5.6.2. mun:zero-divides n := a, from 5.6.1
       have s5_6_2 : a = 0 := by exact ((Parley.Items.Stdlib.Divisibility.mun_zero_divides (n := a))).mp s5_6_1
       -- 5.6.3. inequalities, from H1
-      have s5_6_3 : a ≠ 0 := by parley_side
+      have s5_6_3 : a ≠ 0 := hH1.ne'
       exact s5_6_3 s5_6_2
     -- 5.7. inequalities, from 3, 5.6
-    have s5_7 : 0 < (Int.lcm a b : ℤ) := by parley_order
+    have s5_7 : 0 < (Int.lcm a b : ℤ) := Or.elim (Ne.lt_or_gt s5_6) (fun h1 => by linarith only [s3, h1]) (fun h1 => by linarith only [s3, h1])
     -- 5.8. mun:pos-int-nat m := lcm(a, b), from 5.7
     have s5_8 : 0 < (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (Int.lcm a b : ℤ)) s5_7)
     -- 5.9. mun:divides-le e := lcm(a, b), m := a, from 5.5, 5.8
@@ -66,6 +68,6 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 5.10. mun:divides-le e := a, m := lcm(a, b), from 2, 5.8
     have s5_10 : a ≤ (Int.lcm a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := a) hH1 (m := (Int.lcm a b : ℤ)) s5_8 s2)
     -- 5.11. antisymmetry, from 5.9, 5.10
-    parley_side
+    exact le_antisymm s5_10 s5_9
 
 end Parley.Proofs.Hammack.LcmEqualsFirst.LcmEqualsFirst
