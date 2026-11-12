@@ -151,8 +151,11 @@ pub fn written_out(
     let chained = written
         .links
         .values_mut()
-        .flatten()
-        .filter_map(|link| link.at.as_mut());
+        .flat_map(|chain| chain.links.iter_mut())
+        .filter_map(|link| match link.at.as_mut() {
+            Some(super::record::OrderFact::Line(at)) => Some(at),
+            _ => None,
+        });
     let order_facts = written
         .orders
         .values_mut()

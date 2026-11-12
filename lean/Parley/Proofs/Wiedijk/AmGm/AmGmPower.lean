@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -25,6 +24,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -64,7 +64,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.3. mun:sum-single a := 1, from 1.1
       have s1_3 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = a 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := a) (a := (1 : ℤ)))
       -- 1.4. transitivity, from 1.2, 1.3
-      have s1_4 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) := by parley_side
+      have s1_4 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) := by exact Eq.trans s1_2 s1_3.symm
       -- 1.5. inequalities
       have s1_5 : (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (a k : ℝ)) / 1) ^ 1 := by linarith only [s1_4]
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_5
@@ -167,7 +167,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.14. mun:power-nonneg, from 1.17
           have s1_19_14 : B ^ (j + 1).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := B) (m := j + 1) (by parley_side) s1_17)
           -- 1.19.15. transitivity, from 1.19.13, 1.19.14
-          parley_order
+          exact Eq.trans_le s1_19_13 s1_19_14
       -- 1.20. calculation
       have r222_1 : j ≥ 1 := by parley_side
       have s1_20 : (∏ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by

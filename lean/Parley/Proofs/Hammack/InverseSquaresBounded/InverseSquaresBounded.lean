@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -85,19 +84,19 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.10. inequalities
       have s2_10 : k * (k + 1) < k * (k + 1) + (k + 1) := by linarith only [s2_3]
       -- 2.11. transitivity, from 2.10, 2.9
-      have s2_11 : k * (k + 1) < (k + 1) ^ 2 := by parley_order
+      have s2_11 : k * (k + 1) < (k + 1) ^ 2 := by exact LT.lt.trans_eq s2_10 s2_9.symm
       -- 2.12. inequalities
       have s2_12 : k * (k + 1) ≤ (k + 1) ^ 2 := by linarith only [s2_11]
       -- 2.13. mun:reciprocal-order x := k·(k + 1), y := (k + 1)², from 2.5, 2.8, 2.12
       have s2_13 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by exact_mod_cast gt_iff_lt.mp s2_8) (y := ((k : ℚ) + 1) ^ 2) (by exact_mod_cast gt_iff_lt.mp s2_5))).mp (by parley_side)
       -- 2.14. transitivity, from 2.13, 2.4
-      have s2_14 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) := by parley_order
+      have s2_14 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) := by exact LE.le.trans_eq s2_13 s2_4.symm
       -- 2.15. inequalities
       have s2_15 : (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 ≤ 2 - 1 / (k : ℚ) + 1 / ((k : ℚ) + 1) ^ 2 := by linarith only [hIH]
       -- 2.16. inequalities
       have s2_16 : 2 - 1 / (k : ℚ) + 1 / ((k : ℚ) + 1) ^ 2 ≤ 2 - 1 / ((k : ℚ) + 1) := by linarith only [s2_14]
       -- 2.17. transitivity, from 2.2, 2.15, 2.16
-      have s2_17 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_order
+      have s2_17 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / ((k : ℚ) + 1) := by exact le_trans (Eq.trans_le s2_2 s2_15) s2_16
       (have h := s2_17; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate k := n in line 2
   exact (s2 n hH1)

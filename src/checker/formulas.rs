@@ -8,7 +8,7 @@ use indexmap::IndexMap;
 
 use super::library::{Known, SaidFrom, Stated};
 use super::record::{
-    Antisymmetric, ChainLink, CheckedTheorem, Contradicted, FirstAt, Negating,
+    Antisymmetric, Chain, ChainLink, CheckedTheorem, Contradicted, FirstAt, Negating,
     OrderFact, OrderPart, OrderRestated, OrderStep, Supposed, Supposition, Weakened,
 };
 use super::structure::{defined_below, introduced, letters_in_scope};
@@ -4027,7 +4027,7 @@ pub fn transitivity_links(
     thm: &Theorem,
     known: &Known,
     library: &Library,
-) -> IndexMap<usize, Vec<ChainLink>> {
+) -> IndexMap<usize, Chain> {
     thm.steps
         .iter()
         .filter(|s| s.just.head.is(Method::Transitivity))
@@ -4036,28 +4036,33 @@ pub fn transitivity_links(
             let chain = faced(thm, s, &links, known).ok()?;
             let each = links.iter().zip(&chain).zip(&s.just.refs);
             let linked = each
-                .map(|((link, read), r)| {
-                    // A define's equation stands in no line.
-                    let define = thm.defines.iter().any(|d| d.label == *r);
-                    let at = match define {
-                        true => None,
-                        false => super::citations::fact_at(
-                            s,
-                            std::slice::from_ref(r),
-                            None,
-                            &link.said,
-                            known,
-                            library,
-                        ),
-                    };
-                    ChainLink {
-                        said: link.said.clone(),
-                        at,
-                        turned: read.turned,
-                    }
+                .map(|((link, read), r)| ChainLink {
+                    said: link.said.clone(),
+                    at: order_line(thm, s, r, &link.said, known, library),
+                    turned: read.turned,
                 })
                 .collect();
-            Some((s.just.line, linked))
+            // The claim runs from the chain's first left side, or from its
+            // last right side, written the other way round.
+            let ends = chain_of(thm, s, &links, known).ok()?;
+            let claim = Related::of(&known.whole_as_written(&s.claim)?)?;
+            let claim_turned = !known.alike(&claim.left, &ends.left);
+            let same = |a: &Node, b: &Node| known.print(a) == known.print(b);
+            let (left, right) = match claim_turned {
+                false => (&claim.left, &claim.right),
+                true => (&claim.right, &claim.left),
+            };
+            let as_written = chain.windows(2).all(|w| same(&w[0].right, &w[1].left))
+                && same(left, &ends.left)
+                && same(right, &ends.right);
+            Some((
+                s.just.line,
+                Chain {
+                    links: linked,
+                    claim_turned,
+                    as_written,
+                },
+            ))
         })
         .collect()
 }

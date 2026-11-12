@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -13,6 +12,7 @@ public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
@@ -47,7 +47,7 @@ theorem two_power_bound (d : ℤ) (hH1 : 0 < d) :
       -- 1.4. inequalities, from K
       have s1_4 : (m + 1) * 2 ≥ m + 1 + 1 := by linarith only [lt_of_lt_of_le zero_lt_one hK]
       -- 1.5. transitivity, from 1.2, 1.3, 1.4
-      parley_order
+      exact LE.le.trans_eq (le_trans s1_4 s1_3) s1_2.symm
   -- 2. instantiate m := d in line 1
   exact (s1 d hH1)
 

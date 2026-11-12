@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
@@ -14,6 +13,7 @@ public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -73,7 +73,7 @@ theorem sine_is_bounded (x : ℝ) :
     -- 7.5. algebra
     have s7_5 : (-Real.sin x) ^ 2 = Real.sin x ^ 2 := by parley_ring
     -- 7.6. transitivity, from 7.4, 7.5
-    have s7_6 : 1 ^ 2 < Real.sin x ^ 2 := by parley_order
+    have s7_6 : 1 ^ 2 < Real.sin x ^ 2 := by exact LT.lt.trans_eq s7_4 s7_5
     -- 7.7. inequalities, from 7.6
     have s7_7 : ¬ Real.sin x ^ 2 ≤ 1 := by linarith only [s7_6]
     exact s7_7 s5

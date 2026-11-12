@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Field.Defs
@@ -19,6 +18,8 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -85,17 +86,17 @@ theorem triangular_reciprocals :
       have r84_1 : n + 1 > 0 := by linarith only [hK7]
       have s6_2_3 : 1 / ((n : ℚ) + 1) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r84_1))
       -- 6.2.4. transitivity, from 6.2.2, 6.1
-      have s6_2_4 : 1 / ((n : ℝ) + 1) < ε / 2 := by parley_order
+      have s6_2_4 : 1 / ((n : ℝ) + 1) < ε / 2 := by exact lt_of_le_of_lt (show 1 / ((n : ℝ) + 1) ≤ 1 / (N : ℝ) by exact_mod_cast s6_2_2) s6_1b
       -- 6.2.5. inequalities
       have s6_2_5 : 2 - ε < 2 - 2 / ((n : ℝ) + 1) := by linarith only [s6_2_4, div_eq_mul_one_div (2 : ℝ) ((n : ℝ) + 1)]
       -- 6.2.6. transitivity, from 6.2.5, 5
-      have s6_2_6 : 2 - ε < (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) := by have := (s5 n hK7); parley_order
+      have s6_2_6 : 2 - ε < (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) := by exact LT.lt.trans_eq s6_2_5 (show (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) = 2 - 2 / ((n : ℝ) + 1) by exact_mod_cast (s5 n hK7)).symm
       -- 6.2.7. inequalities
       have s6_2_7 : 2 - 2 / ((n : ℚ) + 1) < 2 := by linarith only [s6_2_3, div_eq_mul_one_div (2 : ℚ) ((n : ℚ) + 1)]
       -- 6.2.8. inequalities, from A1, 6.2.7
-      have s6_2_8 : 2 - 2 / ((n : ℝ) + 1) < 2 + ε := by parley_order
+      have s6_2_8 : 2 - 2 / ((n : ℝ) + 1) < 2 + ε := by linarith only [hA1, (show 2 - 2 / ((n : ℝ) + 1) < 2 by exact_mod_cast s6_2_7)]
       -- 6.2.9. transitivity, from 5, 6.2.8
-      have s6_2_9 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) < 2 + ε := by have := (s5 n hK7); parley_order
+      have s6_2_9 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) < 2 + ε := by exact Eq.trans_lt (show (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) = 2 - 2 / ((n : ℝ) + 1) by exact_mod_cast (s5 n hK7)) s6_2_8
       -- 6.2.10. mun:abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 6.2.6, 6.2.9
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) (c := (2 : ℝ)) (δ := ε))).mpr ⟨s6_2_6, s6_2_9⟩
     -- 6.3. exhibit, from 6.2

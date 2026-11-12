@@ -42,7 +42,7 @@ theorem square_root_positive (a : ℝ) (hH2 : 0 < a) :
   -- 2.4. algebra, from 2.3
   have s2_4 : Real.sqrt a ^ 2 = 0 := by linear_combination (norm := parley_norm) (Real.sqrt a) * s2_3
   -- 2.5. transitivity, from 1, 2.4
-  have s2_5 : a = 0 := by parley_side
+  have s2_5 : a = 0 := by exact Eq.trans s1b.symm s2_4
   -- 2.6. inequalities
   have s2_6 : a ≤ 0 := by linarith only [s2_5]
   -- 2.7. inequalities, from 2.6

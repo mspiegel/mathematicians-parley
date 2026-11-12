@@ -1,12 +1,12 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -34,7 +34,7 @@ theorem root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
   · skip
     intro hD1
     -- 3.1. transitivity, from 1, D1, 2
-    have s3_1 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by parley_order
+    have s3_1 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by exact LT.lt.trans_eq (Eq.trans_lt s1b hD1) s2b.symm
     -- 3.2. mun:square-less x := √A, y := √B, from 3.1
     have r28_3 : Real.sqrt A ≥ 0 := by parley_side
     have r28_4 : Real.sqrt B ≥ 0 := by parley_side
@@ -46,6 +46,6 @@ theorem root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     have r38_4 : Real.sqrt B ≥ 0 := by parley_side
     have s3_3 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) r38_3 r38_4)).mp hD2
     -- 3.4. transitivity, from 1, 3.3, 2
-    parley_order
+    exact LT.lt.trans_eq (Eq.trans_lt s1b.symm s3_3) s2b
 
 end Parley.Proofs.Setmm.RootOrder.RootOrder

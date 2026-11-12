@@ -24,6 +24,34 @@ struct Site {
 
 const SITES: &[Site] = &[
     Site {
+        file: "lean/Parley/Proofs/Hammack/InverseSquareHasNoLimit/InverseSquareHasNoLimit.lean",
+        step: "10.12",
+        holds: "exact Eq.trans_lt hD1 s10_7",
+        list: false,
+        why: "a chain whose first link is a define's equation: the define's hypothesis, as the checker placed the link (`links`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/InverseSquareHasNoLimit/InverseSquareHasNoLimit.lean",
+        step: "10.7",
+        holds: "(show 1 / (j : ℝ) ≤ 1 / (m : ℝ) by exact_mod_cast s10_3)",
+        list: false,
+        why: "a chain's link in ℚ beside links in ℝ: taken up to ℝ by exact_mod_cast, its letters' casts read as ℤ to ℚ to ℝ",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/QuadraticOverLinearDiverges/QuadraticOverLinearDiverges.lean",
+        step: "1.2.12",
+        holds: "exact lt_trans s1_1b (show (n : ℝ) > (N : ℝ) by exact_mod_cast hA2)",
+        list: false,
+        why: "links the page writes with `>` and Lean states with `<`, read from the side Lean states them",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/NaturalAtMostSquare/NaturalAtMostSquare.lean",
+        step: "4",
+        holds: "linarith only [s2, s3]",
+        list: false,
+        why: "a chain the checker met only with an identity element dropped, n·1 beside n: linear arithmetic over its links",
+    },
+    Site {
         file: "lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicUnbounded.lean",
         step: "5",
         holds: "by linarith only [s3b]",

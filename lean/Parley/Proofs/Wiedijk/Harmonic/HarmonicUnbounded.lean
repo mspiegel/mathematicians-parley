@@ -22,6 +22,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -61,7 +62,7 @@ theorem harmonic_unbounded (M : ℝ) :
       -- 2.3. arithmetic
       have s2_3 : (1 : ℚ) ≥ 0 / 2 := by parley_arith
       -- 2.4. transitivity, from 2.2, 2.3
-      have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 0 / 2 := by parley_order
+      have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 0 / 2 := by exact LE.le.trans_eq s2_3 s2_2.symm
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_4
     | succ m hK hIH =>
       -- 2.5. thm:harmonic-block j := m
@@ -69,7 +70,7 @@ theorem harmonic_unbounded (M : ℝ) :
       -- 2.6. inequalities
       have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by linarith only [hIH]
       -- 2.7. transitivity, from 2.5, 2.6
-      have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ ((m : ℚ) + 1) / 2 := by parley_order
+      have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ ((m : ℚ) + 1) / 2 := by exact le_trans s2_6 s2_5
       (have h := s2_7; push_cast at h ⊢; all_goals exact h)
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))

@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -65,11 +64,11 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       intro n hK2
       intro hA2
       -- 1.15.1. transitivity, from A2, 1.10
-      have s1_15_1 : n ≥ P := by parley_order
+      have s1_15_1 : n ≥ P := by exact le_trans s1_10 hA2
       -- 1.15.2. transitivity, from A2, 1.12
-      have s1_15_2 : n ≥ Q := by parley_order
+      have s1_15_2 : n ≥ Q := by exact le_trans s1_12 hA2
       -- 1.15.3. transitivity, from A2, 1.14, 1.8
-      have s1_15_3 : n > M := by parley_order
+      have s1_15_3 : n > M := by exact lt_of_lt_of_le (lt_trans s1_8b s1_14) hA2
       -- 1.15.4. instantiate n := n in line 1.5, from 1.15.1
       have s1_15_4 : abs (a n - L) < ε := by exact (s1_5b n hK2 s1_15_1)
       -- 1.15.5. instantiate n := n in line 1.6, from 1.15.2

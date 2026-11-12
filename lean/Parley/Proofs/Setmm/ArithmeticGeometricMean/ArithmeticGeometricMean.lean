@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -10,6 +9,7 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -44,7 +44,7 @@ theorem arithmetic_geometric_mean (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B �
   -- 8. inequalities
   have s8 : A * B ≤ A * B + ((A - B) / 2) ^ 2 := by linarith only [s7]
   -- 9. transitivity, from 2, 8, 6
-  have s9 : Real.sqrt (A * B) ^ 2 ≤ ((A + B) / 2) ^ 2 := by parley_order
+  have s9 : Real.sqrt (A * B) ^ 2 ≤ ((A + B) / 2) ^ 2 := by exact LE.le.trans_eq (Eq.trans_le s2 s8) s6.symm
   -- 10. mun:square-le x := √(A·B), y := (A + B)/2, from 3, 5, 9
   exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) s3 s5)).mpr s9
 

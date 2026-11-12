@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -62,7 +61,7 @@ theorem power_at_most_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) (h
         -- 1.6.3. arithmetic
         have s1_6_3 : (0 : ℤ) ≤ 1 := by parley_arith
         -- 1.6.4. transitivity, from 1.3, 1.4, 1.6.2, 1.6.3
-        parley_order
+        exact Eq.trans_le (Eq.trans (Eq.trans s1_3 s1_4) s1_6_2) (show (0 : ℝ) ≤ 1 by exact_mod_cast s1_6_3)
       · skip
         -- 1.6.5. mun:multiply-le x := a^m, y := 1, c := a, from C3, IH
         have s1_6_5 : a * a ^ m.toNat ≤ a * 1 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m.toNat) (y := (1 : ℝ)) (c := a) hIH hC3)

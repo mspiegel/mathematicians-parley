@@ -1,8 +1,9 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -20,7 +21,7 @@ theorem a_chain_through_a_define (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a + 1 ≤ 
   set e : ℝ := a + 1 with hD1
   have hD1_kind : True := by parley_side
   -- 1. transitivity, from D1, H4, H5
-  have s1 : e < c := by parley_order
+  have s1 : e < c := by exact lt_of_le_of_lt (Eq.trans_le hD1 hH4) hH5
   -- 2. substitute e = a + 1 (D1) into line 1
   (have h := Eq.subst (motive := (fun t : ℝ => t < c)) hD1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
 

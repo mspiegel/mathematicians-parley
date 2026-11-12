@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -9,6 +8,7 @@ public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Ineq
@@ -36,7 +36,7 @@ theorem floor_is_monotone (A : ℝ) (B : ℝ) (hH3 : A ≤ B) :
   -- 5.2. mun:integer-step m := ⌊B⌋, n := ⌊A⌋, from 1, 2, 5.1
   have s5_2 : ⌊B⌋ + 1 ≤ ⌊A⌋ := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊B⌋) (n := ⌊A⌋) s5_1)
   -- 5.3. transitivity, from 5.2, 3, H3
-  have s5_3 : (⌊B⌋ : ℝ) + 1 ≤ B := by parley_order
+  have s5_3 : (⌊B⌋ : ℝ) + 1 ≤ B := by exact le_trans (le_trans (show (⌊B⌋ : ℝ) + 1 ≤ (⌊A⌋ : ℝ) by exact_mod_cast s5_2) s3) hH3
   -- 5.4. inequalities, from 5.3
   have s5_4 : ¬ B < (⌊B⌋ : ℝ) + 1 := by linarith only [s5_3]
   exact s5_4 s4

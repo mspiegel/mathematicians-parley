@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
@@ -10,6 +9,7 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -61,7 +61,7 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5.9. inequalities
   have s5_9 : (a + b) ^ 2 - 4 * (a * b) < 0 := by linarith only [s5_6]
   -- 5.10. transitivity, from 5.7, 5.9
-  have s5_10 : (a - b) ^ 2 < 0 := by parley_order
+  have s5_10 : (a - b) ^ 2 < 0 := by exact Eq.trans_lt s5_7 s5_9
   -- 5.11. inequalities, from 5.10
   have s5_11 : ¬ (a - b) ^ 2 ≥ 0 := by linarith only [s5_10]
   exact s5_11 s5_8

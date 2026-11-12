@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import OrderTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -16,6 +15,7 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -134,7 +134,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 24. inequalities
   have s24 : b ^ 2 < a ^ 2 + b ^ 2 := by linarith only [s23]
   -- 25. transitivity, from 24, H4
-  have s25 : b ^ 2 < c ^ 2 := by parley_order
+  have s25 : b ^ 2 < c ^ 2 := by exact LT.lt.trans_eq s24 hH4
   -- 26. mun:square-less x := b, y := c, from 25
   have r303_1 : b ≥ 0 := by linarith only [hH2]
   have r303_2 : c ≥ 0 := by linarith only [hH3]
@@ -244,7 +244,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 55. inequalities, from H2
   have s55 : 0 < b := by linarith only [hH2]
   -- 56. transitivity, from 55, 53
-  have s56 : 0 < m ^ 2 - n ^ 2 := by parley_order
+  have s56 : 0 < m ^ 2 - n ^ 2 := by exact LT.lt.trans_eq s55 s53
   -- 57. inequalities
   have s57 : n ^ 2 < m ^ 2 := by linarith only [s56]
   -- 58. mun:square-less x := n, y := m, from 57

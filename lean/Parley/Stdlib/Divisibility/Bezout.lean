@@ -97,7 +97,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 21. antisymmetry, from 17, 20
   have s21 : d = (Int.gcd a b : ℤ) := le_antisymm s17 s20
   -- 22. transitivity, from 7, 21
-  have s22 : a * x₀ + b * y₀ = (Int.gcd a b : ℤ) := by parley_set_side
+  have s22 : a * x₀ + b * y₀ = (Int.gcd a b : ℤ) := by exact Eq.trans s7.symm s21
   -- 23. exhibit, from 22
   exact ⟨x₀, y₀, s22⟩
 

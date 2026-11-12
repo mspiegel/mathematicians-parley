@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import ArithTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -72,9 +71,9 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have s11 : L + 1 ≤ max (1 / p) (L + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := 1 / p) (y := L + 1))
   -- 12. transitivity, from 10, 9
   have r67_1 : p ≠ 0 := by exact s5
-  have s12 : 1 / p < (N : ℝ) := by parley_order
+  have s12 : 1 / p < (N : ℝ) := by exact lt_of_le_of_lt s10 s9b
   -- 13. transitivity, from 11, 9
-  have s13 : L + 1 < (N : ℝ) := by parley_order
+  have s13 : L + 1 < (N : ℝ) := by exact lt_of_le_of_lt s11 s9b
   -- 14. inequalities, from 9
   have s14 : N > 0 := by linarith only [s9a]
   -- 15. mun:reciprocal-positive x := N, from 14
@@ -127,7 +126,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 32. inequalities
   have s32 : N ≤ N ^ 2 := by linarith only [s31]
   -- 33. transitivity, from 13, 32
-  have s33 : L + 1 < (N : ℝ) ^ 2 := by parley_order
+  have s33 : L + 1 < (N : ℝ) ^ 2 := by exact lt_of_lt_of_le s13 (show (N : ℝ) ≤ (N : ℝ) ^ 2 by exact_mod_cast s32)
   -- 34. inequalities
   have s34 : L + 1 ≤ (N : ℝ) ^ 2 := by linarith only [s33]
   -- 35. inequalities, from 34

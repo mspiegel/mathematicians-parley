@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -39,11 +38,11 @@ theorem rounding_error (A : ℝ) :
   -- 4. inequalities
   have s4 : (⌊A + 1 / 2⌋ : ℝ) - A ≤ 1 / 2 := by linarith only [s2]
   -- 5. transitivity, from D1, 4
-  have s5 : e ≤ 1 / 2 := by parley_order
+  have s5 : e ≤ 1 / 2 := by exact Eq.trans_le hD1 s4
   -- 6. inequalities
   have s6 : -(1 / 2) < (⌊A + 1 / 2⌋ : ℝ) - A := by linarith only [s3]
   -- 7. transitivity, from 6, D1
-  have s7 : -(1 / 2) < e := by parley_order
+  have s7 : -(1 / 2) < e := by exact LT.lt.trans_eq s6 hD1.symm
   -- 8. inequalities
   have s8 : -e ≤ 1 / 2 := by linarith only [s7]
   -- 9. mun:nonneg-or-neg x := e, from D1

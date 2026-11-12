@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -76,7 +75,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.6. inequalities, from 1.4.2
       have s1_4_6 : x + 3 < 7 := by linarith only [s1_4_2.2]
       -- 1.4.7. transitivity, from 1.4.3, 1.4.5
-      have s1_4_7 : 0 < abs (x + 3) := by parley_order
+      have s1_4_7 : 0 < abs (x + 3) := by exact LT.lt.trans_eq s1_4_3 s1_4_5.symm
       -- 1.4.8. transitivity, from 1.4.5, 1.4.6
       have s1_4_8 : abs (x + 3) < 7 := by exact Eq.trans_lt s1_4_5 s1_4_6
       -- 1.4.9. join 1.4.7, 1.4.8

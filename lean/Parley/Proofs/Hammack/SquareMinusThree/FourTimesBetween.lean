@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
@@ -26,7 +25,7 @@ theorem four_times_between (j : ℤ) (r : ℤ) (hH3 : r > 0) (hH4 : r < 4) :
     -- 2.1. inequalities
     have s2_1 : 4 * j ≥ 4 := by linarith only [hC1]
     -- 2.2. transitivity, from H4, 2.1
-    have s2_2 : r < 4 * j := by parley_order
+    have s2_2 : r < 4 * j := by exact lt_of_lt_of_le hH4 s2_1
     -- 2.3. inequalities
     linarith only [s2_2]
   · skip
@@ -37,7 +36,7 @@ theorem four_times_between (j : ℤ) (r : ℤ) (hH3 : r > 0) (hH4 : r < 4) :
     -- 2.6. inequalities
     have s2_6 : 4 * j ≤ 0 := by linarith only [s2_5]
     -- 2.7. transitivity, from 2.6, H3
-    have s2_7 : 4 * j < r := by parley_order
+    have s2_7 : 4 * j < r := by exact lt_of_le_of_lt s2_6 hH3
     -- 2.8. inequalities
     exact ne_of_lt (by linarith only [s2_7])
 

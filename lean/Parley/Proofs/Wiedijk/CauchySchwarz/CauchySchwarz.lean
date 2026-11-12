@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -18,6 +17,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -89,7 +89,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     -- 5.6. algebra, from C2
     have s5_6 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) = 0 := by linear_combination (norm := parley_norm) ((∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ))) * hC2
     -- 5.7. transitivity, from 5.5, 5.6
-    have s5_7 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by parley_side
+    have s5_7 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by exact Eq.trans s5_5 s5_6.symm
     -- 5.8. inequalities
     linarith only [s5_7]
   · skip
@@ -109,7 +109,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have s5_11 : (-(B / A)) ^ 2 * A + 2 * -(B / A) * B + C = C - B ^ 2 / A := by parley_ring
     -- 5.12. transitivity, from 5.10, 5.11
     have r120_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
-    have s5_12 : C - B ^ 2 / A ≥ 0 := by parley_order
+    have s5_12 : C - B ^ 2 / A ≥ 0 := by exact LE.le.trans_eq s5_10 s5_11
     -- 5.13. inequalities
     have r124_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
     have s5_13 : B ^ 2 / A ≤ C := by linarith only [s5_12]

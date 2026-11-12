@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
@@ -42,7 +43,7 @@ theorem a_product_of_ones_by_induction {α : Type*} (X : Set α) (hH2 : X.Finite
       -- 1.4. mun:product-add-one, from K, 1.2, 1.3
       have s1_4 : (∏ᶠ y ∈ (Y ∪ ({a} : Set α)), (1 : ℤ)) = (∏ᶠ y ∈ Y, (1 : ℤ)) * 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_add_one (t := (fun y : α => (1 : ℤ))) (X := X) (Y := Y) (a := a) (by parley_set_side) s1_2 s1_3.1 s1_3.2)
       -- 1.5. transitivity, from 1.4, IH
-      parley_set_side
+      linarith only [s1_4, hIH]
   -- 2. instantiate Y := X in line 1
   have r39_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))
   exact (s1 X r39_1)

@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -33,6 +32,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
@@ -119,7 +119,7 @@ theorem leibniz :
       have r800_2 : 2 * (n + 1) + 1 > 0 := by linarith only [hK2, hK2]
       have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r800_1) (y := 2 * ((n : ℚ) + 1) + 1) (by exact_mod_cast gt_iff_lt.mp r800_2))).mp (by parley_side)
       -- 3.2.11. transitivity, from 3.2.8, 3.2.5, 3.2.10, 3.1
-      parley_order
+      exact lt_of_le_of_lt (le_trans (Eq.trans_le s3_2_8 s3_2_5b) (show 1 / (2 * ((n : ℝ) + 1) + 1) ≤ 1 / (N : ℝ) by exact_mod_cast s3_2_10)) s3_1b
     -- 3.3. exhibit, from 3.2
     exact ⟨N, s3_1a, s3_2⟩
   -- 4. def:tends-to L := π/4, from 3

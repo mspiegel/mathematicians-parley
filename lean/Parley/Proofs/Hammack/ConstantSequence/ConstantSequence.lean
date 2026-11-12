@@ -1,11 +1,11 @@
 module
 
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.LinearCombination
@@ -43,7 +43,7 @@ theorem constant_sequence (c : ℝ) (a : ℤ → ℝ) (hH3 : ∀ n : ℤ, 0 < n 
         calc abs (a n - c) = abs 0 := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 0 := by exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero
       -- 1.1.3. transitivity, from 1.1.2, A1
-      parley_order
+      exact Eq.trans_lt s1_1_2 hA1
     -- 1.2. exhibit, from 1.1
     exact ⟨(1 : ℤ), by parley_side, s1_1⟩
   -- 2. def:tends-to L := c, from 1

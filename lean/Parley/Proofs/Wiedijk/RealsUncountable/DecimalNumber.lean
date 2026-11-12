@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -321,9 +320,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.11. algebra
     have s16_11 : 10 ^ n.toNat * (((N n : ℚ) + 1) / 10 ^ n.toNat) = (N n : ℚ) + 1 := by parley_ring
     -- 16.12. transitivity, from 16.10, 16.8
-    have s16_12 : (N n : ℝ) ≤ 10 ^ n.toNat * c := by parley_order
+    have s16_12 : (N n : ℝ) ≤ 10 ^ n.toNat * c := by exact Eq.trans_le (show 10 ^ n.toNat * ((N n : ℝ) / 10 ^ n.toNat) = (N n : ℝ) by exact_mod_cast s16_10).symm s16_8
     -- 16.13. transitivity, from 16.9, 16.11
-    have s16_13 : 10 ^ n.toNat * c ≤ (N n : ℝ) + 1 := by parley_order
+    have s16_13 : 10 ^ n.toNat * c ≤ (N n : ℝ) + 1 := by exact LE.le.trans_eq s16_9 (show 10 ^ n.toNat * (((N n : ℝ) + 1) / 10 ^ n.toNat) = (N n : ℝ) + 1 by exact_mod_cast s16_11)
     -- 16.14. mun:floor-integer x := 10^n·c
     -- 16.15. mun:floor-below x := 10^n·c
     have s16_15 : (⌊10 ^ n.toNat * c⌋ : ℝ) ≤ 10 ^ n.toNat * c := by exact (Parley.Items.Stdlib.Numbers.mun_floor_below (x := 10 ^ n.toNat * c))

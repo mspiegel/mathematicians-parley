@@ -2,11 +2,11 @@ module
 
 public import Counting
 public import FactorialTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -26,6 +26,6 @@ theorem a_membership_from_lines_together (k : ℤ) (hH2 : 0 ≤ k) (y : ℝ) (hH
   -- 2. def:factorial n := k, from H2
   have s2 : (LeanBridges.Counting.factorial (k + 1) : ℤ) = (LeanBridges.Counting.factorial k : ℤ) * (k + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k) hH2)
   -- 3. transitivity, from H4, H5
-  parley_order
+  exact le_trans hH4 (show (LeanBridges.Counting.factorial (k + 1) : ℝ) ≤ 3 by exact_mod_cast hH5)
 
 end Parley.Tests.Elaborator.AMembershipABareFromBuilds.AMembershipFromLinesTogether

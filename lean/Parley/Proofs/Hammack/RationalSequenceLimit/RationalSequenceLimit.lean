@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -9,6 +8,7 @@ public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
@@ -58,7 +58,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.7. inequalities
       have s1_2_7 : 5 * n > 0 := by linarith only [s1_2_2]
       -- 1.2.8. transitivity, from 1.2.7, 1.2.6
-      have s1_2_8 : 9 * n - 3 > 0 := by parley_order
+      have s1_2_8 : 9 * n - 3 > 0 := by exact lt_of_lt_of_le s1_2_7 s1_2_6
       -- 1.2.9. inequalities
       have s1_2_9 : 9 * n - 3 ≠ 0 := ne_of_gt (by linarith only [s1_2_8])
       -- 1.2.10. algebra, from H2
@@ -72,13 +72,13 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_12 : 5 * (1 / (9 * (n : ℚ) - 3)) > 0 := by linarith only [s1_2_11]
       -- 1.2.13. transitivity, from 1.2.12, 1.2.10
       have r82_1 : 9 * n - 3 ≠ 0 := by exact s1_2_9
-      have s1_2_13 : a n - 2 / 3 > 0 := by parley_order
+      have s1_2_13 : a n - 2 / 3 > 0 := by exact LT.lt.trans_eq (show 5 * (1 / (9 * (n : ℝ) - 3)) > 0 by exact_mod_cast s1_2_12) s1_2_10.symm
       -- 1.2.14. inequalities
       have s1_2_14 : a n > 2 / 3 := by linarith only [s1_2_13]
       -- 1.2.15. inequalities
       have s1_2_15 : 2 / 3 - ε < 2 / 3 := by linarith only [hA1]
       -- 1.2.16. transitivity, from 1.2.15, 1.2.14
-      have s1_2_16 : 2 / 3 - ε < a n := by parley_order
+      have s1_2_16 : 2 / 3 - ε < a n := by exact lt_trans s1_2_15 s1_2_14
       -- 1.2.17. mun:reciprocal-order x := 5n, y := 9n − 3, from 1.2.6
       have r103_1 : 5 * n > 0 := by parley_side
       have r103_2 : 9 * n - 3 > 0 := by parley_side
@@ -94,7 +94,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_20 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r117_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r117_2))).mp (by parley_side)
       -- 1.2.21. transitivity, from 1.2.10, 1.2.18, 1.2.19, 1.2.20, 1.1
       have r122_1 : 9 * n - 3 ≠ 0 := by exact s1_2_9
-      have s1_2_21 : a n - 2 / 3 < ε := by parley_order
+      have s1_2_21 : a n - 2 / 3 < ε := by exact lt_of_le_of_lt (le_trans (LE.le.trans_eq (Eq.trans_le s1_2_10 (show 5 * (1 / (9 * (n : ℝ) - 3)) ≤ 5 * (1 / (5 * (n : ℝ))) by exact_mod_cast s1_2_18)) (show 5 * (1 / (5 * (n : ℝ))) = 1 / (n : ℝ) by exact_mod_cast s1_2_19)) (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by exact_mod_cast s1_2_20)) s1_1b
       -- 1.2.22. inequalities
       have s1_2_22 : a n < 2 / 3 + ε := by linarith only [s1_2_21]
       -- 1.2.23. join 1.2.16, 1.2.22

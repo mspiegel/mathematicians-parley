@@ -1,12 +1,13 @@
 module
 
 public import ArithTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/textbook-exercise-shapes-two.proof by parley build lean. -/
@@ -27,13 +28,13 @@ theorem a_define_inside_a_case (x : ℝ) (hH2 : x = 1 ∨ x = 2) :
     -- 1.2. arithmetic
     have s1_2 : (1 : ℤ) > 0 := by parley_arith
     -- 1.3. transitivity, from 1.1, C1, 1.2
-    have s1_3 : y > 0 := by parley_order
+    have s1_3 : y > 0 := by exact LT.lt.trans_eq (LT.lt.trans_eq (show (1 : ℝ) > 0 by exact_mod_cast s1_2) hC1.symm) s1_1.symm
     -- 1.4. transitivity, from 1.1, 1.3
-    parley_order
+    exact LT.lt.trans_eq s1_3 s1_1.symm.symm
   · skip
     -- 1.5. arithmetic
     have s1_5 : (2 : ℤ) > 0 := by parley_arith
     -- 1.6. transitivity, from C2, 1.5
-    parley_order
+    exact LT.lt.trans_eq (show (2 : ℝ) > 0 by exact_mod_cast s1_5) hC2.symm
 
 end Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ADefineInsideACase

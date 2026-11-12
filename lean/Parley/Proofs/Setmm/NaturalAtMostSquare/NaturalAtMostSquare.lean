@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -33,6 +32,6 @@ theorem natural_at_most_square (n : ℤ) (hH1 : 0 < n) :
   -- 3. algebra
   have s3 : n ^ 2 = n * n := by parley_ring
   -- 4. transitivity, from 2, 3
-  parley_order
+  linarith only [s2, s3]
 
 end Parley.Proofs.Setmm.NaturalAtMostSquare.NaturalAtMostSquare

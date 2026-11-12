@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
@@ -38,6 +37,6 @@ theorem less_than_an_integer (A : ℝ) (B : ℤ) :
     -- 4.2. mun:integer-step m := ⌊A⌋, n := B, from C2, 1
     have s4_2 : ⌊A⌋ + 1 ≤ B := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) hC2)
     -- 4.3. transitivity, from 3, 4.2
-    parley_order
+    exact lt_of_lt_of_le s3 (show (⌊A⌋ : ℝ) + 1 ≤ (B : ℝ) by exact_mod_cast s4_2)
 
 end Parley.Proofs.Setmm.LessThanAnInteger.LessThanAnInteger

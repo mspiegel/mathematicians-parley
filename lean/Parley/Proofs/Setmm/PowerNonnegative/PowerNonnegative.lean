@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -42,7 +41,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
       -- 1.2. arithmetic
       have s1_2 : (0 : ℤ) ≤ 1 := by parley_arith
       -- 1.3. transitivity, from 1.2, 1.1
-      have s1_3 : 0 ≤ a ^ 0 := by parley_order
+      have s1_3 : 0 ≤ a ^ 0 := by exact LE.le.trans_eq (show (0 : ℝ) ≤ 1 by exact_mod_cast s1_2) s1_1.symm
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_3
     | succ m hK hIH =>
       -- 1.4. mun:exponent-step
@@ -59,7 +58,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
         -- 1.6.2. algebra, from C2
         have s1_6_2 : a ^ m.toNat * a = 0 := by linear_combination (norm := parley_norm) (a ^ m.toNat) * hC2
         -- 1.6.3. transitivity, from 1.6.2, 1.4
-        have s1_6_3 : 0 = a ^ (m + 1).toNat := by parley_side
+        have s1_6_3 : 0 = a ^ (m + 1).toNat := by exact Eq.trans s1_6_2.symm s1_4.symm
         -- 1.6.4. inequalities
         linarith only [s1_6_3]
       · skip

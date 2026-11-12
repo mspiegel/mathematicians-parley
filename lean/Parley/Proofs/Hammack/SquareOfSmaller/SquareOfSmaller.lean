@@ -1,12 +1,13 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -33,6 +34,6 @@ theorem square_of_smaller (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) (hH5 :
   -- 5. algebra
   have s5 : y * y = y ^ 2 := by parley_ring
   -- 6. transitivity, from 3, 1, 4, 2, 5
-  parley_order
+  exact LT.lt.trans_eq (lt_trans (LT.lt.trans_eq (Eq.trans_lt s3 s1) s4) s2) s5
 
 end Parley.Proofs.Hammack.SquareOfSmaller.SquareOfSmaller

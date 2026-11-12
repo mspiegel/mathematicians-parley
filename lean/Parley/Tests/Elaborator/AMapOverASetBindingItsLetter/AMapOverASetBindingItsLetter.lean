@@ -171,7 +171,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.8.19. algebra, from 4.3, 4.8.3
       have s4_8_19 : abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linear_combination (norm := parley_norm) 0
       -- 4.8.20. transitivity, from 4.8.17, 4.8.19
-      have s4_8_20 : abs (x - c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by parley_set_side
+      have s4_8_20 : abs (x - c) = abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by exact Eq.trans s4_8_17 s4_8_19
       -- 4.8.21. inequalities
       have s4_8_21 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linarith only [s4_8_18]
       -- 4.8.22. transitivity, from 4.8.21, 4.8.20

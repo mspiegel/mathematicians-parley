@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -35,7 +34,7 @@ theorem abs_bounds (x : ℝ) :
       -- 2.3. inequalities
       have s2_3 : -x ≤ 0 := by linarith only [hC1]
       -- 2.4. transitivity, from 2.3, C1, 2.1
-      have s2_4 : -x ≤ abs x := by parley_order
+      have s2_4 : -x ≤ abs x := by exact LE.le.trans_eq (le_trans s2_3 hC1) s2_1.symm
       -- 2.5. join 2.2, 2.4
       have s2_5a : x ≤ abs x := by parley_side
       have s2_5b : -x ≤ abs x := by parley_side

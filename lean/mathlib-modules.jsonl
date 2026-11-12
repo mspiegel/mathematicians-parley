@@ -289,10 +289,14 @@
 {"key":"Eq.subst (motive := (sorry : ℚ → Prop)) a a","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℝ → Prop)) a a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℤ → Prop)) a a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"Eq.trans (sorry : Prop) a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.trans a a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"Eq.trans_le (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic"]}
 {"key":"Eq.trans_le (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"Eq.trans_le a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic"]}
 {"key":"Eq.trans_le a a","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"Eq.trans_lt (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"Eq.trans_lt a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic"]}
 {"key":"Eq.trans_lt a a","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"Even (sorry : ℤ)","kind":"term","modules":["Mathlib.Algebra.Group.Even","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Parity"]}
 {"key":"Filter.Tendsto (sorry : ℝ → ℝ) (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Order.Filter.Defs","Mathlib.Tactic.NormNum.Basic"]}
@@ -307,9 +311,13 @@
 {"key":"Irrational (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.NumberTheory.Real.Irrational","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"IsAlgebraic a (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.RingTheory.Algebraic.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"IsOpen (sorry : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Basic","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
+{"key":"LE.le.trans_eq (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic"]}
 {"key":"LE.le.trans_eq (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Basic"]}
+{"key":"LE.le.trans_eq a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"LE.le.trans_eq a a","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"LT.lt.trans_eq (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic"]}
 {"key":"LT.lt.trans_eq (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Basic"]}
+{"key":"LT.lt.trans_eq a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"LT.lt.trans_eq a a","kind":"term","modules":["Mathlib.Order.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"Nat.Prime a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Prime","Mathlib.Data.Nat.Prime.Defs"]}
 {"key":"Nat.cast_nonneg (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Data.Nat.Cast.Order.Ring"]}
@@ -491,6 +499,7 @@
 {"key":"le_of_lt (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"le_of_lt a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"le_trans (by skip) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
+{"key":"le_trans (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"le_trans (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"le_trans a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"le_trans a a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
@@ -498,8 +507,10 @@
 {"key":"lt_of_le_of_lt (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"lt_of_le_of_lt a a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"lt_of_lt_of_le (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
+{"key":"lt_of_lt_of_le a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"lt_of_lt_of_le a a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"lt_trans (sorry : Prop) a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
+{"key":"lt_trans a (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
 {"key":"lt_trans a a","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq"]}
 {"key":"max (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"min (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.Positivity.Basic"]}

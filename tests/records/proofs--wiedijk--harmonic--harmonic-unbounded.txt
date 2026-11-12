@@ -24,9 +24,9 @@ step 4 says once Σ(k = 1 to 2^N) 1 / k is a number
 step 6 says once Σ(k = 1 to 2^N) 1 / k is a number
 step 6 says once Σ(k = 1 to 2^N) 1 / k is a number
 step 7 says once Σ(k = 1 to 2^N) 1 / k is a number
-step 2.4 chains Σ(k = 1 to 2^0) 1 / k = 1 (2.2 sentence 0) | 1 ≥ 0 / 2 (no line)
-step 2.7 chains Σ(k = 1 to 2^(m + 1)) 1 / k ≥ Σ(k = 1 to 2^m) 1 / k + 1 / 2 (no line) | Σ(k = 1 to 2^m) 1 / k + 1 / 2 ≥ (m + 1) / 2 (no line)
-step 6 chains Σ(k = 1 to 2^N) 1 / k ≥ N / 2 (no line) | N / 2 > M (no line)
+step 2.4 chains Σ(k = 1 to 2^0) 1 / k = 1 (2.2 sentence 0) | 1 ≥ 0 / 2 (2.3 sentence 0)
+step 2.7 chains Σ(k = 1 to 2^(m + 1)) 1 / k ≥ Σ(k = 1 to 2^m) 1 / k + 1 / 2 (2.5 sentence 0) | Σ(k = 1 to 2^m) 1 / k + 1 / 2 ≥ (m + 1) / 2 (2.6 sentence 0)
+step 6 chains Σ(k = 1 to 2^N) 1 / k ≥ N / 2 (4 sentence 0) | N / 2 > M (5 sentence 0)
 step 7 exhibits in sentence 0 n := 2^N; facts by unstated, 6 sentence 0
 step 4 instantiates 2 sentence 0, conditions taken off [], guards [m by once 3 sentence 0 implied by WiderSystem]
 step 2.6 sentence 0 part 0 adds [IH sentence 0]

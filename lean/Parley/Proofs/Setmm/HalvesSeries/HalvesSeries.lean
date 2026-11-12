@@ -104,7 +104,7 @@ theorem halves_series :
       -- 3.2.2. thm:power-of-two-above
       have s3_2_2 : n ≤ 2 ^ n.toNat := by exact (Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove.power_of_two_above (n := n) hK4)
       -- 3.2.3. transitivity, from A2, 3.2.2
-      have s3_2_3 : N ≤ 2 ^ n.toNat := by parley_order
+      have s3_2_3 : N ≤ 2 ^ n.toNat := by exact le_trans hA2 s3_2_2
       -- 3.2.4. mun:reciprocal-order x := N, y := 2^n, from 3.2.3
       have r115_1 : N > 0 := by linarith only [s3_1a]
       have r115_2 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s3_2_1]

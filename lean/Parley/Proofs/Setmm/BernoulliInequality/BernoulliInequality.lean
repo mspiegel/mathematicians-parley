@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -65,7 +64,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       -- 1.9. inequalities, from 1.5, 1.7
       have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by linarith only [s1_5, s1_7]
       -- 1.10. transitivity, from 1.9, 1.8
-      have s1_10 : 0 ≤ A ^ k.toNat * A - ((A - 1) * ((k : ℝ) + 1) + 1) := by parley_order
+      have s1_10 : 0 ≤ A ^ k.toNat * A - ((A - 1) * ((k : ℝ) + 1) + 1) := by exact LE.le.trans_eq s1_9 s1_8.symm
       -- 1.11. inequalities
       have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k.toNat * A := by linarith only [s1_10]
       -- 1.12. transitivity, from 1.11, 1.3

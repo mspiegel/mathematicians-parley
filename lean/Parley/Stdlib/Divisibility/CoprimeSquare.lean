@@ -31,7 +31,7 @@ theorem coprime_square (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w : ℤ)
   -- 2. mun:gcd-commutes a := t, b := s
   have s2 : (Int.gcd t s : ℤ) = (Int.gcd s t : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := t) (b := s))
   -- 3. transitivity, from 2, H4
-  have s3 : (Int.gcd t s : ℤ) = 1 := by parley_side
+  have s3 : (Int.gcd t s : ℤ) = 1 := by exact Eq.trans s2 hH4
   -- 4. algebra, from H5
   have s4 : w ^ 2 = t * s := by linear_combination (norm := parley_norm) hH5
   -- 5. mun:coprime-square-part s := t, t := s, from 3, 4

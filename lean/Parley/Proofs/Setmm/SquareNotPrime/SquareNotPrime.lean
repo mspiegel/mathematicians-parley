@@ -70,7 +70,7 @@ theorem square_not_prime (A : ℤ) :
       exact hC1
     · skip
       -- 11.1. transitivity, from 6, C2
-      have s11_1 : abs A * abs A = 1 * abs A := by parley_side
+      have s11_1 : abs A * abs A = 1 * abs A := by linarith only [s6, hC2]
       -- 11.2. mun:multiply-cancel a := |A|, b := 1, c := |A|, from 4, 11.1
       exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := abs A) (b := (1 : ℤ)) (c := abs A) (by parley_side) s4)
   -- 12. substitute |A| = 1 (line 11) into line 3

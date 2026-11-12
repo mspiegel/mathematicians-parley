@@ -301,7 +301,7 @@ pub struct CheckedTheorem {
     /// in the order cited, by the line of its justification: the line's
     /// own, or of a line saying several, the one that meets the chain
     /// (`ChainLink`).
-    pub links: IndexMap<usize, Vec<ChainLink>>,
+    pub links: IndexMap<usize, Chain>,
     /// What each `inequalities` step, each requires line whose reason is
     /// `inequalities`, and each requires line naming one manipulation rests
     /// on, by the line of its justification (`formulas::order_steps`). A
@@ -746,14 +746,29 @@ pub struct ObtainedPart {
     pub meeting: crate::matching::Meeting,
 }
 
+/// A `transitivity` step's chain (`CheckedTheorem::links`): its links in
+/// the order cited, and whether the claim writes the chain the other way
+/// round, `c = a` of `a = b = c`.
+#[derive(Clone, Debug)]
+pub struct Chain {
+    pub links: Vec<ChainLink>,
+    pub claim_turned: bool,
+    /// Whether each link's right side is the next one's left side, and the
+    /// chain's ends the claim's sides, as the page writes them; not where
+    /// the checker met them only with identity elements dropped, `n·1`
+    /// beside `n`.
+    pub as_written: bool,
+}
+
 /// One link of a `transitivity` step's chain (`CheckedTheorem::links`).
 #[derive(Clone, Debug)]
 pub struct ChainLink {
     /// The relation the cited line gives the chain, as the line writes it.
     pub said: Node,
-    /// Where it stands in the line; None for a define's equation, which no
-    /// line states.
-    pub at: Option<FirstAt>,
+    /// Where it stands: a sentence of the line or a part of one, or the
+    /// equation of a define the step cites. None where the checker finds
+    /// it in neither.
+    pub at: Option<OrderFact>,
     /// Whether the chain reads it from its right side: `b = a` as `a = b`,
     /// `b > a` as `a < b`.
     pub turned: bool,

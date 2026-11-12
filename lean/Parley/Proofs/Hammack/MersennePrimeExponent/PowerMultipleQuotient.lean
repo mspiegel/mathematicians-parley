@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -61,7 +60,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.8. inequalities, from H1
       have s1_8 : d + 1 ≥ 1 := by linarith only [hH1]
       -- 1.9. transitivity, from 1.7, 1.8
-      have s1_9 : (2 ^ d.toNat : ℤ) ≥ 1 := by parley_order
+      have s1_9 : (2 ^ d.toNat : ℤ) ≥ 1 := by exact le_trans s1_8 s1_7
       -- 1.10. mun:multiply-le x := 1, y := 2^d, c := q, from 1.9
       have r134_1 : q > 0 := by linarith only [s1_3a]
       have s1_10 : q * 1 ≤ q * 2 ^ d.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) s1_9 r134_1)

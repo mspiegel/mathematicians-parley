@@ -181,12 +181,16 @@ line's own. A list holds one entry for each step, in the proof's order.
   every member of a set inside the domain, the member itself (`Member`).
   Lean puts the function's equation at that argument, `hD1 _ h`, h that
   line or, after `intro j h_j`, the member's fact or a range's lower bound.
-- `links`: for each `transitivity` step, by the line of its justification, each
-  link of its chain (`ChainLink`): the relation the cited line gives, where
-  it stands in the line (`FirstAt`; none for a define's equation), and
-  whether the chain reads it from its right side, `b = a` as `a = b`,
-  `b > a` as `a < b`. Metamath reads the relations; Lean composes the chain
-  from the links.
+- `links`: for each `transitivity` step, by the line of its justification,
+  its chain (`Chain`): each link (`ChainLink`), with the relation the cited
+  line gives, where it stands (`OrderFact`: a sentence or part of the line,
+  or the equation of a define the step cites), and whether the chain reads
+  it from its right side, `b = a` as `a = b`, `b > a` as `a < b`; whether
+  the claim writes the chain the other way round, `c = a` of `a = b = c`;
+  and whether the links meet each other and the claim as the page writes
+  them, not only with identity elements dropped (`as_written`). Metamath
+  reads the relations; Lean composes the chain from the links, or adds
+  them by `linarith only` where they meet only with identities dropped.
 - `orders`: for each `inequalities` step, each requires line whose reason
   is `inequalities`, and each requires line naming one manipulation, by the
   line of its justification, what each part of each sentence of its claim

@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -47,7 +46,7 @@ theorem sqrt_difference_reciprocal (x : ℝ) (hH2 : x ≥ 0) :
   -- 6. mun:square-less x := √x, y := √(x + 1), from 2, 3, 5
   have s6 : Real.sqrt x < Real.sqrt (x + 1) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt x) (y := Real.sqrt (x + 1)) s3a s2a)).mpr s5
   -- 7. transitivity, from 3, 6
-  have s7 : Real.sqrt (x + 1) > 0 := by parley_order
+  have s7 : Real.sqrt (x + 1) > 0 := by exact lt_of_le_of_lt s3a s6
   -- 8. inequalities, from 2, 3, 7
   have s8 : Real.sqrt (x + 1) + Real.sqrt x > 0 := by linarith only [s3a, s7]
   -- 9. inequalities

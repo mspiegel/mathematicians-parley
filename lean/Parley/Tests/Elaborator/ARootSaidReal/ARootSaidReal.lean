@@ -1,12 +1,12 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -29,6 +29,6 @@ theorem a_root_said_real (A : ℝ) (hH2 : A ≥ 0) :
   -- 2. inequalities
   have s2 : A ≤ A + 1 := by linarith only []
   -- 3. transitivity, from 1, 2
-  parley_order
+  exact Eq.trans_le s1 s2
 
 end Parley.Tests.Elaborator.ARootSaidReal.ARootSaidReal

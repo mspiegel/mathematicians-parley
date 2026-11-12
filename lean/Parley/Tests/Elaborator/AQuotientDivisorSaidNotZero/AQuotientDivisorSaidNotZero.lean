@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -28,6 +27,6 @@ theorem a_quotient_divisor_said_not_zero (ε : ℝ) (d : ℝ) (n : ℤ) (hH3 : 0
   have s2 : 0 - ε / (2 * d) < 0 := by linarith only [hH4]
   -- 3. transitivity, from 2, H5
   have r23_1 : 2 * d ≠ 0 := by exact s1
-  parley_order
+  exact lt_trans s2 (show 1 / (n : ℝ) > 0 by exact_mod_cast hH5)
 
 end Parley.Tests.Elaborator.AQuotientDivisorSaidNotZero.AQuotientDivisorSaidNotZero

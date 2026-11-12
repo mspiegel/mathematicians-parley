@@ -3629,7 +3629,7 @@ impl<'a> Elaborator<'a> {
             .checked
             .links
             .get(&step.just.line)
-            .cloned()
+            .map(|chain| chain.links.clone())
             .unwrap_or_default();
         for (i, r) in step.just.refs.iter().enumerate() {
             let held = self

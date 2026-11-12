@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import RealTactics
 public import SetTactics
 public import Tactics
@@ -96,7 +95,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 24. inequalities
   have s24 : 1 ^ 2 ≤ 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) := by linarith only [s21]
   -- 25. transitivity, from 23, 24
-  have s25 : 1 ^ 2 ≤ (Real.sin x - Real.cos x) ^ 2 := by parley_order
+  have s25 : 1 ^ 2 ≤ (Real.sin x - Real.cos x) ^ 2 := by exact LE.le.trans_eq s24 s23.symm.symm
   -- 26. mun:square-le x := 1, y := sin(x) − cos(x), from 20, 25
   have r104_1 : (0 : ℤ) ≤ 1 := by parley_arith
   have s26 : 1 ≤ Real.sin x - Real.cos x := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) s20)).mpr s25

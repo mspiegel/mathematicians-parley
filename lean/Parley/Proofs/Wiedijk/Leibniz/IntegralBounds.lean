@@ -92,7 +92,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     have s10_6 : g x = x ^ (2 * n).toNat / (1 + x ^ 2) := by simp (disch := omega) only [hD2]
     -- 10.7. transitivity, from 10.6, 10.5
     have r597_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s10_4])
-    parley_order
+    exact LE.le.trans_eq s10_5 s10_6.symm
   -- 11. proof
   have s11 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x ≤ f x := by
     intro x hK2
@@ -116,7 +116,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     have s11_8 : x ^ (2 * n).toNat / 1 = f x := by parley_ring
     -- 11.9. transitivity, from 11.7, 11.6, 11.8
     have r631_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s11_5])
-    parley_order
+    exact LE.le.trans_eq (Eq.trans_le s11_7 s11_6) s11_8
   -- 12. arithmetic
   have s12 : (0 : ℤ) < 1 := by parley_arith
   -- 13. thm:integral-nonneg a := 0, b := 1, f := g, from 7, 9, 10, 12
@@ -138,7 +138,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 19. mun:integral-real a := 0, b := 1, f := g, x := 1, from 7, 9, 12, 18
   -- 20. substitute J(n) = ∫(0 to 1) g(t) dt (line 17) into line 19
   -- 21. transitivity, from 17, 13
-  have s21 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by parley_order
+  have s21 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by exact LE.le.trans_eq s13 s17.symm
   -- 22. transitivity, from 17, 14, 16, 15
   have r668_2 : 0 < 2 * n + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * n) (by parley_set_side))
   have s22 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * (n : ℝ) + 1) := by exact LE.le.trans_eq (LE.le.trans_eq (Eq.trans_le s17 s14) s16) s15

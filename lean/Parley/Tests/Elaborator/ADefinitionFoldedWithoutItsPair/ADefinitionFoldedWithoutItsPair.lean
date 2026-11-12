@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -174,7 +173,7 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       -- 4.8.20. inequalities
       have s4_8_20 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x + Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≥ Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) := by linarith only [s4_8_18]
       -- 4.8.21. transitivity, from 4.8.20, 4.8.19, 4.8.17
-      have s4_8_21 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (x - c) := by parley_order
+      have s4_8_21 : Real.sqrt c * abs (Real.sqrt x - Real.sqrt c) ≤ abs (x - c) := by exact LE.le.trans_eq (LE.le.trans_eq s4_8_20 s4_8_19.symm) s4_8_17.symm
       -- 4.8.22. algebra, from 4.3
       have s4_8_22 : ε * Real.sqrt c = Real.sqrt c * ε := by linear_combination (norm := parley_norm) 0
       -- 4.8.23. transitivity, from 4.8.21, A2, 4.8.22

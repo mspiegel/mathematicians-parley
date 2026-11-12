@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import Functions
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -71,7 +70,7 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
       -- 2.4. inequalities
       have s2_4 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / 2 ≥ 1 + ((m : ℚ) + 1) / 2 := by linarith only [hIH]
       -- 2.5. transitivity, from 2.3, 2.4
-      have s2_5 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + ((m : ℚ) + 1) / 2 := by parley_order
+      have s2_5 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + ((m : ℚ) + 1) / 2 := by exact le_trans s2_4 s2_3
       (have h := s2_5; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate m := n in line 2
   exact (s2 n hH1)

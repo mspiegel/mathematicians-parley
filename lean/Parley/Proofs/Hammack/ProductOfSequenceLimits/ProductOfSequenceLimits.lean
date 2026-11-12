@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -109,9 +108,9 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       intro n hK2
       intro hA2
       -- 9.20.1. transitivity, from A2, 9.17
-      have s9_20_1 : n ≥ P := by parley_order
+      have s9_20_1 : n ≥ P := by exact le_trans s9_17 hA2
       -- 9.20.2. transitivity, from A2, 9.19
-      have s9_20_2 : n ≥ Q := by parley_order
+      have s9_20_2 : n ≥ Q := by exact le_trans s9_19 hA2
       -- 9.20.3. instantiate n := n in line 9.14, from 9.20.1
       have s9_20_3 : abs (a n - L) < m := by exact (s9_14b n hK2 s9_20_1)
       -- 9.20.4. instantiate n := n in line 9.15, from 9.20.2

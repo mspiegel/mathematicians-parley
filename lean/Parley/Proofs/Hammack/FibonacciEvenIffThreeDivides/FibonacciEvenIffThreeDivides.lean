@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Even
@@ -14,6 +13,7 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -159,7 +159,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.8. inequalities
     have s5_8 : n - 3 ≥ -2 := by linarith only [s5_6]
     -- 5.9. transitivity, from 5.5, 5.7, 5.8
-    have s5_9 : q * 3 > -2 := by parley_order
+    have s5_9 : q * 3 > -2 := by exact LT.lt.trans_eq (lt_of_le_of_lt s5_8 s5_7) s5_5.symm
     -- 5.10. inequalities
     have s5_10 : (q : ℚ) > -(2 / 3) := by linarith only [(show (q : ℚ) * 3 > -2 by exact_mod_cast s5_9)]
     -- 5.11. calculation
@@ -219,7 +219,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.16. inequalities, from H1
     have s5_16 : n ≥ 1 := by linarith only [hH1]
     -- 5.17. transitivity, from 5.15, 5.16
-    have s5_17 : 3 * k ≥ 1 := by parley_order
+    have s5_17 : 3 * k ≥ 1 := by exact LE.le.trans_eq s5_16 s5_15.symm.symm
     -- 5.18. inequalities
     have s5_18 : (k : ℚ) ≥ 1 / 3 := by linarith only [(show 3 * (k : ℚ) ≥ 1 by exact_mod_cast s5_17)]
     -- 5.19. calculation

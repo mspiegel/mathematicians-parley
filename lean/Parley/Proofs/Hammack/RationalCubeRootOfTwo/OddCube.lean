@@ -32,7 +32,7 @@ theorem odd_cube (n : ℤ) (hH2 : Odd n) :
   -- 3. algebra
   have s3 : (2 * k + 1) ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by parley_ring
   -- 4. transitivity, from 2, 3
-  have s4 : n ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by parley_side
+  have s4 : n ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by exact Eq.trans s2 s3
   -- 5. def:odd n := n³, from 4
   exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 3))).mpr ⟨4 * k ^ 3 + 6 * k ^ 2 + 3 * k, s4⟩
 

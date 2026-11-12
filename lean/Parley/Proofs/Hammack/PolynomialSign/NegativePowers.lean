@@ -1,12 +1,12 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -36,7 +36,7 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   -- 6. algebra
   have s6 : x ^ 4 = (x ^ 2) ^ 2 := by parley_ring
   -- 7. transitivity, from 6, 5
-  have s7 : x ^ 4 ≥ 0 := by parley_order
+  have s7 : x ^ 4 ≥ 0 := by exact LE.le.trans_eq s5 s6.symm
   -- 8. mun:product-nonneg x := x⁴, y := −x, from 1, 7
   have s8 : x ^ 4 * -x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x ^ 4) (y := -x) s7 s1)
   -- 9. inequalities

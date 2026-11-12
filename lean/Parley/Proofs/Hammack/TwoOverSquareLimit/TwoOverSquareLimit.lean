@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -61,9 +61,9 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.4. algebra
       have s1_3_4 : n * n = n ^ 2 := by parley_ring
       -- 1.3.5. transitivity, from 1.3.3, 1.3.4
-      have s1_3_5 : n ≤ n ^ 2 := by parley_order
+      have s1_3_5 : n ≤ n ^ 2 := by linarith only [s1_3_3, s1_3_4]
       -- 1.3.6. transitivity, from 1.3.1, 1.3.5
-      have s1_3_6 : n ^ 2 > 0 := by parley_order
+      have s1_3_6 : n ^ 2 > 0 := by exact lt_of_lt_of_le s1_3_1 s1_3_5
       -- 1.3.7. mun:reciprocal-order x := n, y := n², from 1.3.5
       have r54_1 : n > 0 := by parley_side
       have r54_2 : n ^ 2 > 0 := by parley_side
@@ -81,13 +81,13 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.12. algebra, from H2
       have s1_3_12 : a n - 5 = 2 * (1 / (n : ℝ) ^ 2) := by linear_combination (norm := parley_field) (hH2 n hK2)
       -- 1.3.13. transitivity, from 1.3.12, 1.3.9, 1.3.10, 1.3.11
-      have s1_3_13 : a n - 5 < ε := by parley_order
+      have s1_3_13 : a n - 5 < ε := by exact lt_of_le_of_lt (le_trans (Eq.trans_le s1_3_12 (show 2 * (1 / (n : ℝ) ^ 2) ≤ 2 * (1 / (n : ℝ)) by exact_mod_cast s1_3_9)) (show 2 * (1 / (n : ℝ)) ≤ 2 * (1 / (N : ℝ)) by exact_mod_cast s1_3_10)) s1_3_11
       -- 1.3.14. mun:reciprocal-positive x := n², from 1.3.6
       have s1_3_14 : 1 / (n : ℚ) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) ^ 2) (by exact_mod_cast gt_iff_lt.mp s1_3_6))
       -- 1.3.15. inequalities
       have s1_3_15 : 2 * (1 / (n : ℚ) ^ 2) > 0 := by linarith only [s1_3_14]
       -- 1.3.16. transitivity, from 1.3.15, 1.3.12
-      have s1_3_16 : 0 < a n - 5 := by parley_order
+      have s1_3_16 : 0 < a n - 5 := by exact LT.lt.trans_eq (show 2 * (1 / (n : ℝ) ^ 2) > 0 by exact_mod_cast s1_3_15) s1_3_12.symm
       -- 1.3.17. def:abs x := a(n) − 5
       have r99_2 : 0 ≤ a n - 5 := by linarith only [s1_3_16]
       have s1_3_17 : abs (a n - 5) = a n - 5 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a n - 5)) (by parley_side)

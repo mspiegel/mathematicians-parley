@@ -84,22 +84,30 @@ pub fn printed_but(
     for (set, system) in &record.set_systems {
         writeln!(out, "set {set} holds numbers of {}", system.label()).unwrap();
     }
-    for (line, links) in &record.links {
+    for (line, chain) in &record.links {
         let at = thm
             .steps
             .iter()
             .find(|s| s.just.line == *line)
             .map_or_else(|| format!("line {line}"), |s| format!("step {}", s.number));
         // Each link, where it stands, and whether the chain reads it turned.
-        let links: Vec<String> = links
+        let links: Vec<String> = chain
+            .links
             .iter()
             .map(|l| {
-                let at = l.at.as_ref().map_or_else(|| "no line".to_string(), place);
+                let at =
+                    l.at.as_ref()
+                        .map_or_else(|| "no line".to_string(), order_fact);
                 let turned = if l.turned { ", turned" } else { "" };
                 format!("{} ({at}{turned})", g.print(&l.said))
             })
             .collect();
-        writeln!(out, "{at} chains {}", links.join(" | ")).unwrap();
+        let claim = if chain.claim_turned {
+            ", the claim turned"
+        } else {
+            ""
+        };
+        writeln!(out, "{at} chains {}{claim}", links.join(" | ")).unwrap();
     }
     for (line, values) in &record.exhibited {
         let at = thm

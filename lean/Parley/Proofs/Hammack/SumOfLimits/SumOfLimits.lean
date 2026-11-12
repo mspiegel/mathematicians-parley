@@ -1,12 +1,12 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -59,9 +59,9 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
       intro n hK2
       intro hA2
       -- 1.12.1. transitivity, from A2, 1.9
-      have s1_12_1 : n ≥ P := by parley_order
+      have s1_12_1 : n ≥ P := by exact le_trans s1_9 hA2
       -- 1.12.2. transitivity, from A2, 1.11
-      have s1_12_2 : n ≥ Q := by parley_order
+      have s1_12_2 : n ≥ Q := by exact le_trans s1_11 hA2
       -- 1.12.3. instantiate n := n in line 1.6, from 1.12.1
       have s1_12_3 : abs (a n - L) < ε / 2 := by exact (s1_6b n hK2 s1_12_1)
       -- 1.12.4. instantiate n := n in line 1.7, from 1.12.2

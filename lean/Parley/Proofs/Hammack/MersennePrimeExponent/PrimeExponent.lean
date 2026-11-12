@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -123,7 +122,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     -- 4.12. inequalities
     have s4_12 : 2 ^ d.toNat - 1 ≥ d := by linarith only [s4_11]
     -- 4.13. transitivity, from 4.7, 4.12
-    have s4_13 : (1 + 1 : ℤ) ≤ 2 ^ d.toNat - 1 := by parley_order
+    have s4_13 : (1 + 1 : ℤ) ≤ 2 ^ d.toNat - 1 := by exact le_trans s4_7 s4_12
     -- 4.14. inequalities
     have s4_14 : (2 ^ d.toNat - 1 : ℤ) ≥ 2 := by linarith only [s4_13]
     -- 4.15. mun:pos-int-nat m := 2^d − 1

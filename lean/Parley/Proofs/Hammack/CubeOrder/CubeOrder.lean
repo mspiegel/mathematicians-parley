@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -10,6 +9,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -43,13 +43,13 @@ theorem cube_order (x : ℝ) (y : ℝ) (hH3 : x ^ 3 < y ^ 3) :
   -- 7. algebra
   have s7 : x ^ 2 + x * y + y ^ 2 = (x + y / 2) ^ 2 + 3 * y ^ 2 / 4 := by parley_ring
   -- 8. transitivity, from 7, 6
-  have s8 : x ^ 2 + x * y + y ^ 2 ≥ 0 := by parley_order
+  have s8 : x ^ 2 + x * y + y ^ 2 ≥ 0 := by exact LE.le.trans_eq s6 s7.symm
   -- 9. mun:product-nonneg x := x − y, y := x² + x·y + y², from 2, 8
   have s9 : (x - y) * (x ^ 2 + x * y + y ^ 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x - y) (y := x ^ 2 + x * y + y ^ 2) s2 s8)
   -- 10. algebra
   have s10 : x ^ 3 - y ^ 3 = (x - y) * (x ^ 2 + x * y + y ^ 2) := by parley_ring
   -- 11. transitivity, from 10, 9
-  have s11 : x ^ 3 - y ^ 3 ≥ 0 := by parley_order
+  have s11 : x ^ 3 - y ^ 3 ≥ 0 := by exact LE.le.trans_eq s9 s10.symm
   -- 12. inequalities
   have s12 : x ^ 3 ≥ y ^ 3 := by linarith only [s11]
   -- 13. inequalities, from 12

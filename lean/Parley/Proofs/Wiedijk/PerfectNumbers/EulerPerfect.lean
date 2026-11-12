@@ -205,7 +205,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 23.8. thm:three-divisors e := c, from 23.4, 23.5, 23.7
     have s23_8 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + c + m := by exact (Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors.three_divisors (m := m) s1b (e := c) (by parley_side) s23_7 s23_5 s23_4)
     -- 23.9. transitivity, from 23.8, 22
-    have s23_9 : 1 + c + m ≤ m + c := by parley_order
+    have s23_9 : 1 + c + m ≤ m + c := by exact LE.le.trans_eq s23_8 s22
     -- 23.10. inequalities
     have s23_10 : (1 : ℤ) ≤ 0 := by linarith only [s23_9]
     exact absurd s23_10 (by norm_num)
@@ -234,7 +234,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 26.5. thm:three-divisors e := d, from A1, 26.3, 26.4
     have s26_5 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + d + m := by exact (Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors.three_divisors (m := m) s1b (e := d) hK1 hA1 s26_3 s26_4)
     -- 26.6. transitivity, from 26.5, 25
-    have s26_6 : 1 + d + m ≤ m + 1 := by parley_order
+    have s26_6 : 1 + d + m ≤ m + 1 := by exact LE.le.trans_eq s26_5 s25
     -- 26.7. inequalities
     have s26_7 : d ≤ 0 := by linarith only [s26_6]
     -- 26.8. inequalities, from 26.7

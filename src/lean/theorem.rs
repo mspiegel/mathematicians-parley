@@ -1385,13 +1385,73 @@ fn number_type(says: &Printed) -> Option<super::templates::Num> {
 }
 
 /// Whether `norm_cast` carries the relation `narrow` states into `wide`,
-/// the same relation in a wider type: not an order from ℚ to ℝ, whose
-/// facts of numerals it does not take across, as `supplied_proof` says.
+/// the same relation in a wider type. Not an order from ℚ to ℝ:
+/// - over a sum, a product or an integral, whose casts under the binder it
+///   does not bring out (`∑ k, (1 / 2 ^ k : ℚ) ≤ 2` stays apart from the
+///   same sum in ℝ);
+/// - with a power of a numeral among its terms, `1 / 2 ^ n.toNat`, which it
+///   rewrites in ℚ to a form it then does not cast (`(1 : ℚ) / ↑(2 ^ n)
+///   ≤ Rat.divInt 1 N` against the goal's `↑(Rat.divInt 1 N)`, measured on
+///   HalvesSeries).
+///
+/// `1 / (j : ℚ) ≤ 1 / (m : ℚ)` and `(j : ℚ) < 2` cross.
 fn cast_crosses(narrow: &Printed, wide: &Printed) -> bool {
+    use super::doc::TermKind;
     use super::templates::Num;
     let crossing = (number_type(narrow), number_type(wide));
+    let apart = |p: &Printed| {
+        p.walk().iter().any(|t| match &t.kind {
+            TermKind::Bound { .. } => true,
+            TermKind::Infix { op, lhs, .. } => {
+                op.symbol == "^" && matches!(lhs.kind, TermKind::Numeral(_))
+            }
+            _ => false,
+        })
+    };
     crossing != (Some(Num::Rat), Some(Num::Real))
         || matches!(relation_symbol(wide), Some("=" | "≠"))
+        || !(apart(narrow) || apart(wide))
+}
+
+/// Whether `exact_mod_cast` takes the relation `narrow` states to the same
+/// relation in the type `to`: `norm_cast` moves a cast of that pair of
+/// types through the relation and, with each side cast up as a whole,
+/// through every operation inside it (the cast table). A cast the narrow
+/// statement already holds, a letter's ℤ to ℚ, stays where it stands in
+/// both and is read as an atom: `norm_cast` reads the wide statement's ℤ
+/// to ℝ as ℤ to ℚ to ℝ, so only the cast to `to` moves.
+fn lifts_whole(narrow: &Printed, to: super::templates::Num) -> bool {
+    use super::doc::{LeanType, TermKind};
+    let narrow = match &narrow.kind {
+        TermKind::Paren(inner) => inner,
+        _ => narrow,
+    };
+    let TermKind::Infix { op, lhs, rhs } = &narrow.kind else {
+        return false;
+    };
+    let wide = LeanType::Num(to);
+    let lifted = Printed::infix(
+        *op,
+        Printed::cast(casts_as_atoms(lhs), wide.clone()),
+        Printed::cast(casts_as_atoms(rhs), wide.clone()),
+        LeanType::Prop,
+    );
+    super::casts::norm_cast_lifts_relation(narrow, &wide)
+        && super::casts::norm_cast_moves_all(&lifted)
+}
+
+/// `term` with each cast in it a letter of the type it is cast to, which
+/// the cast table reads as an atom.
+fn casts_as_atoms(term: &Printed) -> Printed {
+    use super::doc::TermKind;
+    if let TermKind::Cast { to, .. } = &term.kind {
+        return Printed::letter("x", to.clone());
+    }
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = casts_as_atoms(c);
+    }
+    out
 }
 
 /// How Lean writes a disequality with its sides swapped, `b ≠ a` of
@@ -5426,10 +5486,10 @@ impl<'a> Proof<'a> {
             // An order is left to the ways of orders alone; a chain of
             // equations, A = B = C, to `parley_side`.
             Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
-                // A chain whose links the checker placed, all in one type:
-                // composed link by link (`chain_composed`).
+                // A chain whose links the checker placed: composed link by
+                // link (`chain_composed`).
                 if just.head.is(Method::Transitivity) {
-                    if let Some(composed) = self.chain_composed(just, node) {
+                    if let Route::Built(composed) = self.chain_composed(just, node) {
                         return Route::Built(composed);
                     }
                 }
@@ -8672,8 +8732,7 @@ impl<'a> Proof<'a> {
         &self,
         just: &Justification,
         node: &Node,
-    ) -> Option<super::doc::Proof> {
-        use super::doc::forms;
+    ) -> Route<super::doc::Proof> {
         let converse = |s: &str| -> Option<&'static str> {
             match s {
                 "=" => Some("="),
@@ -8684,35 +8743,108 @@ impl<'a> Proof<'a> {
                 _ => None,
             }
         };
-        let mut read: Vec<(Printed, &'static str)> = Vec::new();
-        let mut ty = None;
-        for link in self.rec.links.get(&just.line)? {
-            let (proof, says) = self.line_says(link.at.as_ref()?).built()?;
-            let symbol = relation_symbol(&says)?;
-            let t = forms::relation_type(&says)?;
-            if *ty.get_or_insert(t.clone()) != t {
-                return None;
+        let Some(chain) = self.rec.links.get(&just.line) else {
+            return Route::no("a chain the checker placed no links of");
+        };
+        let links = &chain.links;
+        let mut facts = Vec::new();
+        for link in links {
+            let Some(at) = &link.at else {
+                return Route::no("a chain's link the checker found in no line");
+            };
+            match self.order_fact(at) {
+                Route::Built(f) => facts.push(f),
+                Route::Declined(d) => return Route::Declined(d),
             }
+        }
+        // The links are joined in the widest type any of them is in, each
+        // in a narrower one taken up to it (`fact_in_type`).
+        let mut widest = None;
+        for f in &facts {
+            match (number_type(&f.says), widest) {
+                (Some(t), Some(w)) => widest = Some(std::cmp::max(t, w)),
+                (Some(t), None) => widest = Some(t),
+                (None, _) => {
+                    return Route::no("a chain's link in a type other than numbers")
+                }
+            }
+        }
+        // A chain the checker met only with identity elements dropped, `n·1`
+        // beside `n`, is no composition Lean takes as written: linear
+        // arithmetic over its links, which reads `n * 1` as `n`.
+        if !chain.as_written {
+            let mut added = Vec::new();
+            for f in facts {
+                match self.fact_in_type(f, widest) {
+                    Route::Built(p) => added.push(p),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            let claim_in = self
+                .claim_as_stated(just.line, node)
+                .and_then(|c| number_type(&c));
+            if claim_in != widest {
+                return Route::no(
+                    "a chain met with identities dropped, its claim in another type",
+                );
+            }
+            return Route::Built(match split_linarith(&[], added).kind {
+                super::doc::TermKind::By(proof) => *proof,
+                other => super::doc::Proof::Term(Printed {
+                    kind: other,
+                    ty: None,
+                }),
+            });
+        }
+        let mut read: Vec<(Printed, &'static str)> = Vec::new();
+        for (link, f) in links.iter().zip(facts) {
+            let Some(symbol) = relation_symbol(&f.says) else {
+                return Route::no("a chain's link that is no relation");
+            };
             // Only a relation of the five makes a link.
-            let turned = converse(symbol)?;
-            read.push(match (link.turned, symbol) {
+            let Some(turned) = converse(symbol) else {
+                return Route::no(
+                    "a chain's link that is not one of the five relations",
+                );
+            };
+            // The record reads the link from the side the page writes it;
+            // Lean may state the line the other way round, `3 * M < N` of
+            // the page's `N > 3M`, and the link is then read from the other.
+            let page = self
+                .writer
+                .formula(&link.said)
+                .built()
+                .and_then(|p| relation_symbol(&p).map(str::to_string));
+            let restated =
+                page.is_some_and(|p| converse(&p) == Some(symbol) && p != symbol);
+            let turned_here = link.turned != restated;
+            let proof = match self.fact_in_type(f, widest) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            read.push(match (turned_here, symbol) {
                 (true, "=") => (super::tactics::symm(proof), "="),
                 (true, _) => (proof, turned),
                 (false, s) => (proof, s),
             });
         }
         if read.iter().any(|(_, s)| matches!(*s, ">" | "≥")) {
-            read = read
-                .into_iter()
-                .rev()
-                .map(|(p, s)| match s {
-                    "=" => Some((super::tactics::symm(p), "=")),
-                    s => Some((p, converse(s)?)),
-                })
-                .collect::<Option<_>>()?;
+            let mut up = Vec::new();
+            for (p, s) in read.into_iter().rev() {
+                match s {
+                    "=" => up.push((super::tactics::symm(p), "=")),
+                    s => match converse(s) {
+                        Some(c) => up.push((p, c)),
+                        None => return Route::no("a chain's link with no converse"),
+                    },
+                }
+            }
+            read = up;
         }
         let mut links = read.into_iter();
-        let (mut proof, mut rel) = links.next()?;
+        let Some((mut proof, mut rel)) = links.next() else {
+            return Route::no("a chain of no links");
+        };
         for (next, s) in links {
             let (lemma, joined) = match (rel, s) {
                 ("=", "=") => ("Eq.trans", "="),
@@ -8724,7 +8856,7 @@ impl<'a> Proof<'a> {
                 ("<", "=") => ("LT.lt.trans_eq", "<"),
                 ("<", "≤") => ("lt_of_lt_of_le", "<"),
                 ("<", "<") => ("lt_trans", "<"),
-                _ => return None,
+                _ => return Route::no("a chain whose links run both ways"),
             };
             proof = Printed::applied(
                 lemma,
@@ -8734,15 +8866,57 @@ impl<'a> Proof<'a> {
             );
             rel = joined;
         }
-        if rel == "=" {
-            return None;
+        // A chain of equations the claim writes the other way round, `c =
+        // a` of `a = b = c`, is the chain turned; an order Lean reads either
+        // way round, `c > a` being `a < c`.
+        if rel == "=" && chain.claim_turned {
+            proof = super::tactics::symm(super::tactics::bracket(proof));
         }
-        let claim = self.claim_as_stated(just.line, node)?;
-        let tactic = match forms::relation_type(&claim) == ty {
+        let Some(claim) = self.claim_as_stated(just.line, node) else {
+            return Route::no("a chain's claim Lean does not state");
+        };
+        let tactic = match number_type(&claim) == widest {
             true => Tactic::Exact(proof),
             false => super::tactics::exact_mod_cast(proof),
         };
-        Some(super::doc::Proof::By(tactic))
+        Route::Built(super::doc::Proof::By(tactic))
+    }
+
+    /// A fact an order step or a chain adds, in the number type `to`: as
+    /// it stands where Lean states it there, or where `to` is none; else
+    /// stated in `to` and taken up by `(show T by exact_mod_cast f)`, which
+    /// `linarith` reads before it runs, where an ascription's proof is
+    /// left to after. Only where `norm_cast` moves every cast of both
+    /// statements (the cast table) and does not carry an order from ℚ to
+    /// ℝ (`cast_crosses`), and never a define's kind, which the page writes
+    /// of the define's value and Lean proves of its letter.
+    fn fact_in_type(
+        &self,
+        f: OrderFactTerm,
+        to: Option<super::templates::Num>,
+    ) -> Route<Printed> {
+        use super::doc::Proof;
+        let Some(to) = to.filter(|w| number_type(&f.says) != Some(*w)) else {
+            return Route::Built(f.proof);
+        };
+        if !f.widens {
+            return Route::no("a define's kind taken up to a wider type");
+        }
+        let says = match self.writer.closed_formula(&f.node, to) {
+            Route::Built(s) => s,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        if !(cast_crosses(&f.says, &says) && lifts_whole(&f.says, to)) {
+            return Route::no(format!(
+                "a fact {} in a narrower type than norm_cast takes up to {}",
+                f.says.text(),
+                says.text()
+            ));
+        }
+        Route::Built(super::tactics::bracket(shown(
+            says,
+            Proof::By(super::tactics::exact_mod_cast(f.proof)),
+        )))
     }
 
     /// A sentence of an order step's claim from what the checker recorded
@@ -8914,33 +9088,7 @@ impl<'a> Proof<'a> {
                 }
             }
         }
-        // `(show T by exact_mod_cast f)`: `linarith` reads a fact `show`
-        // states before it runs, where an ascription's proof is left to
-        // after.
-        let widened = |f: OrderFactTerm| -> Route<Printed> {
-            let Some(to) = widest.filter(|w| number_type(&f.says) != Some(*w)) else {
-                return Route::Built(f.proof);
-            };
-            if !f.widens {
-                return Route::no("a define's kind an order step adds in a wider type");
-            }
-            let says = match self.writer.closed_formula(&f.node, to) {
-                Route::Built(s) => s,
-                Route::Declined(d) => return Route::Declined(d),
-            };
-            if !(cast_crosses(&f.says, &says)
-                && super::casts::norm_cast_moves_all(&says)
-                && super::casts::norm_cast_moves_all(&f.says))
-            {
-                return Route::no(
-                    "an order step's fact in a narrower type than norm_cast takes up",
-                );
-            }
-            Route::Built(super::tactics::bracket(shown(
-                says,
-                Proof::By(super::tactics::exact_mod_cast(f.proof)),
-            )))
-        };
+        let widened = |f: OrderFactTerm| self.fact_in_type(f, widest);
         let stated: Vec<&Printed> = std::iter::once(&wanted)
             .chain(facts.iter().chain(&split).map(|f| &f.says))
             .collect();

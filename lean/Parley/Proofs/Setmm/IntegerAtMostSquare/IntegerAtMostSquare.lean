@@ -43,7 +43,7 @@ theorem integer_at_most_square (n : ℤ) :
     -- 4.3. algebra, from C2
     have s4_3 : n * n = 0 := by linear_combination (norm := parley_norm) (n) * hC2
     -- 4.4. transitivity, from C2, 4.3, 3
-    have s4_4 : n = n ^ 2 := by parley_side
+    have s4_4 : n = n ^ 2 := by exact Eq.trans (Eq.trans hC2 s4_3.symm) s3.symm
     -- 4.5. inequalities
     linarith only [s4_4]
   · skip

@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -67,7 +66,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 <
     -- 1.2.11. mun:less-scaled x := n/3, y := a(n), c := 3n − 1, from 1.2.4, 1.2.10
     have s1_2_11 : (n : ℝ) / 3 < a n := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a n) (c := 3 * (n : ℝ) - 1) (by exact_mod_cast gt_iff_lt.mp s1_2_4))).mpr s1_2_10
     -- 1.2.12. transitivity, from 1.1, A2
-    have s1_2_12 : 3 * M < (n : ℝ) := by parley_order
+    have s1_2_12 : 3 * M < (n : ℝ) := by exact lt_trans s1_1b (show (n : ℝ) > (N : ℝ) by exact_mod_cast hA2)
     -- 1.2.13. inequalities
     have s1_2_13 : M < (n : ℝ) / 3 := by linarith only [s1_2_12]
     -- 1.2.14. transitivity, from 1.2.13, 1.2.11

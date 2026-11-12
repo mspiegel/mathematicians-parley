@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -38,7 +37,7 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   -- 5. algebra
   have s5 : (x - 2) ^ 2 = 4 - x * (4 - x) := by parley_ring
   -- 6. transitivity, from 4, 5
-  have s6 : 0 ≤ 4 - x * (4 - x) := by parley_order
+  have s6 : 0 ≤ 4 - x * (4 - x) := by exact LE.le.trans_eq s4 s5
   -- 7. inequalities
   have s7 : x * (4 - x) ≤ 4 := by linarith only [s6]
   -- 8. mun:divide-le x := x·(4 − x), y := 4, c := x·(4 − x), from 3, 7

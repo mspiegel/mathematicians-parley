@@ -1,6 +1,5 @@
 module
 
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -8,6 +7,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
@@ -31,6 +31,6 @@ theorem a_square_in_a_divisor_said_nonzero (x : ℝ) (y : ℝ) (hH3 : y = 1 / (1
   have s2 : 1 + x ^ 2 > 0 := by linarith only [s1]
   -- 3. transitivity, from H3, H4
   have r17_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s2])
-  parley_order
+  exact LE.le.trans_eq hH4 hH3.symm
 
 end Parley.Tests.Elaborator.ASquareInADivisorSaidNonzero.ASquareInADivisorSaidNonzero

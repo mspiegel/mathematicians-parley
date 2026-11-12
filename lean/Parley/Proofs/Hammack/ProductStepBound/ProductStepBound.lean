@@ -1,11 +1,12 @@
 module
 
 public import AlgebraTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -40,6 +41,6 @@ theorem product_step_bound (t : ℝ) (p : ℝ) (hH3 : 0 < t) (hH4 : t ≤ 1 / 4)
   -- 9. algebra
   have s9 : p * (1 - t) = (1 - t) * p := by parley_ring
   -- 10. transitivity, from 9, 3, 4, 8
-  parley_order
+  exact LE.le.trans_eq (le_trans (LE.le.trans_eq s8 s4.symm) s3) s9.symm
 
 end Parley.Proofs.Hammack.ProductStepBound.ProductStepBound

@@ -48,7 +48,7 @@ theorem product_coprime (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
       -- 2.2. mun:gcd-commutes a := 1, b := n
       have s2_2 : (Int.gcd (1 : ℤ) n : ℤ) = (Int.gcd n (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := (1 : ℤ)) (b := n))
       -- 2.3. transitivity, from 2.2, 2.1
-      have s2_3 : (Int.gcd (1 : ℤ) n : ℤ) = 1 := by parley_set_side
+      have s2_3 : (Int.gcd (1 : ℤ) n : ℤ) = 1 := by exact Eq.trans s2_2 s2_1
       -- 2.4. substitute
       have c1 : 1 = (∏ᶠ x ∈ (∅ : Set ℤ), (x : ℤ)) := by
         have hI : (∏ᶠ a ∈ (∅ : Set ℤ), (a : ℤ)) = 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : ℤ => x))))

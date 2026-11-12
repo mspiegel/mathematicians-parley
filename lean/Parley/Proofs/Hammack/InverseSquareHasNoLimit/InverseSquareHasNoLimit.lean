@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Basic
@@ -96,7 +95,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s10_6 : 1 / (2 / p) = p / 2 := by parley_ring
     -- 10.7. transitivity, from 10.3, 10.5, 10.6, 8
     have r93_1 : p ≠ 0 := by exact s5
-    have s10_7 : 1 / (j : ℝ) < p := by parley_order
+    have s10_7 : 1 / (j : ℝ) < p := by exact lt_of_le_of_lt (LE.le.trans_eq (le_trans (show 1 / (j : ℝ) ≤ 1 / (m : ℝ) by exact_mod_cast s10_3) s10_5) s10_6) s8
     set t : ℝ := 1 / (j : ℝ) with hD1
     have hD1_kind : True := by parley_set_side
     -- 10.8. mun:reciprocal-positive x := j, from D1, 10.1
@@ -112,7 +111,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have r112_1 : t ≥ 0 := by linarith only [s10_8]
     have s10_11 : abs t = t := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) (by parley_set_side)
     -- 10.12. transitivity, from D1, 10.7
-    have s10_12 : t < p := by parley_order
+    have s10_12 : t < p := by exact Eq.trans_lt hD1 s10_7
     -- 10.13. transitivity, from 10.11, 10.12
     have s10_13 : abs t < p := by exact Eq.trans_lt s10_11 s10_12
     -- 10.14. instantiate x := t in line 4, from 10.9, 10.10, 10.13
@@ -142,7 +141,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.20. substitute t² = T (D2) into line 10.15
     have s10_20 : f t = 1 / T := by (have h := Eq.subst (motive := (fun u : ℝ => f t = 1 / u)) hD2.symm s10_15; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 10.21. transitivity, from 10.20, 10.19
-    have s10_21 : f t = (j : ℝ) ^ 2 := by parley_set_side
+    have s10_21 : f t = (j : ℝ) ^ 2 := by exact Eq.trans s10_20 s10_19
     -- 10.22. substitute f(t) = j² (line 10.21) into line 10.14
     (have h := Eq.subst (motive := (fun u : ℝ => abs (u - L) < 1)) s10_21 s10_14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. instantiate j := m in line 10
@@ -164,7 +163,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   -- 18. inequalities
   have s18 : 2 * m + 1 ≥ 3 := by linarith only [s9]
   -- 19. transitivity, from 17, 18
-  have s19 : (m + 1) ^ 2 - m ^ 2 ≥ 3 := by parley_order
+  have s19 : (m + 1) ^ 2 - m ^ 2 ≥ 3 := by exact LE.le.trans_eq s18 s17.symm
   -- 20. inequalities, from 19
   have s20 : ¬ (m + 1) ^ 2 - m ^ 2 < 2 := by linarith only [s19]
   exact s20 s16
