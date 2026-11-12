@@ -14,6 +14,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
@@ -30,7 +31,7 @@ theorem empty_sum (B : ℤ → ℝ) :
   -- 1. mun:sum-single a := 0
   have s1 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (B k : ℝ)) = B 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := B) (a := (0 : ℤ)))
   -- 2. mun:sum-first n := 0
-  have s2 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (B k : ℝ)) = B 0 + (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (B k : ℝ)) := by simpa only [zero_add] using (Parley.Items.Stdlib.Sums.mun_sum_first (t := B) (n := (0 : ℤ)) (by parley_side))
+  have s2 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (B k : ℝ)) = B 0 + (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (B k : ℝ)) := by simpa only [zero_add] using (Parley.Items.Stdlib.Sums.mun_sum_first (t := B) (n := (0 : ℤ)) (by norm_num))
   -- 3. algebra, from 1, 2
   linear_combination (norm := parley_norm) s1 + (-1) * s2
 

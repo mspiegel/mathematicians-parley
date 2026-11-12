@@ -9,7 +9,9 @@ public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
@@ -25,6 +27,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Prime
@@ -135,7 +138,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) s7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1).symm
   -- 13. exhibit, from 4, 6, 12
-  have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, by parley_set_side, h, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+  have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, add_pos (s2a) (by norm_num), h, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
   -- 14. D1, from 13
   parley_set_side
 

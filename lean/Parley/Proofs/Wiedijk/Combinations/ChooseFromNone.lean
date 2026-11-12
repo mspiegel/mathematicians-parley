@@ -17,6 +17,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Set
@@ -76,7 +77,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       -- 3.8. calculation
       calc (F.ncard : ℤ) = (({∅} : Set (Set α)).ncard : ℤ) := by parley_subst s3_7
         _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)))
-        _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_set_side)).symm
+        _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by norm_num)).symm
         _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (0 : ℤ) t : ℤ)) hC1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 3.9. proof
@@ -112,7 +113,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       -- 3.12. calculation
       calc (F.ncard : ℤ) = ((∅ : Set (Set α)).ncard : ℤ) := by parley_subst s3_10
         _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
-        _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (0 : ℤ)) (by parley_set_side) (k := j) s3_11).symm
+        _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (0 : ℤ)) (by norm_num) (k := j) s3_11).symm
   -- 4. substitute F = {S ⊆ X : |S| = j} (D1) into line 3
   parley_subst_at hD1 s3
 

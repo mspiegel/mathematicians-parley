@@ -6,6 +6,7 @@ public import FactorialTactics
 public import Functions
 public import SetTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
@@ -89,7 +90,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         exact ⟨W, s1_8_4a, by parley_set_side⟩
       | succ j hK5 hIH2 =>
         -- 1.8.7. instantiate j := j + 1 in IH1
-        have s1_8_7 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + (j + 1) - 2) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; exact (hIH1 (j + 1) (by parley_set_side) X (by parley_set_side))
+        have s1_8_7 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + (j + 1) - 2) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; exact (hIH1 (j + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK5) (by norm_num)) X (by parley_set_side))
         -- 1.8.8. substitute
         have s1_8_8 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by parley_count_after (by
           have c1 : k + (j + 1) - 2 = k + j - 1 := by parley_ring

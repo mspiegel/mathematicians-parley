@@ -7109,6 +7109,7 @@ pub fn check_chain_links(
                 facts: known.parts(step, library).facts.clone(),
                 claims: vec![said.clone()],
                 seed: Binding::new(),
+                said_once: Vec::new(),
             };
             let introduced = super::library::introduced(known, step);
             let typed = super::library::typed_in_scope(known, step);

@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -31,7 +32,7 @@ theorem remainder_by_two (N : ℤ) :
     intro hD1
     -- 1. obtain q: mun:mod-remainder a := N, m := 2, r := 1, from D1
     have r18_1 : (1 : ℤ) < 2 := by parley_arith
-    obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) r18_1)).mp hD1
+    obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by norm_num) (r := (1 : ℤ)) (by norm_num) r18_1)).mp hD1
     -- 2. algebra, from 1
     have s2 : N = 2 * q + 1 := by linear_combination (norm := parley_norm) (-1) * s1
     -- 3. def:odd n := N, from 2
@@ -67,6 +68,6 @@ theorem remainder_by_two (N : ℤ) :
     have s10 : ∃ q : ℤ, q * 2 + 1 = N := ⟨k, s9⟩
     -- 11. mun:mod-remainder a := N, m := 2, r := 1, from 10
     have r69_1 : (1 : ℤ) < 2 := by parley_arith
-    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) r69_1)).mpr s10
+    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by norm_num) (r := (1 : ℤ)) (by norm_num) r69_1)).mpr s10
 
 end Parley.Proofs.Setmm.RemainderByTwo.RemainderByTwo

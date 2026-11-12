@@ -35,7 +35,7 @@ use crate::rules::{self, lookup, System};
 use crate::sorts::types_a_function;
 
 use super::library::Library;
-use super::parts::{bound_in, function_values, Bound, Parts};
+use super::parts::{bound_in, function_values, Bound, Parts, SaidOnceFact};
 
 /// The number system each letter is introduced in, by the letter as the
 /// page writes it.
@@ -242,6 +242,7 @@ pub fn said_once(
     let seeded: Vec<Node> = parts.seed.values().cloned().collect();
     let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
     let mut out = Vec::new();
+    let mut walked = Vec::new();
     for node in parts
         .facts
         .iter()
@@ -267,22 +268,27 @@ pub fn said_once(
                 ctx,
             };
             let said = |t: &Node, s: System| given.says(t, s);
-            if reason_within(&node, system, &letters, &nonzero, &said).is_some() {
-                if let Some(SystemForm { set, member }) = form {
-                    out.push(fill(
-                        member,
-                        Binding::from([
-                            (Symbol::of("x"), node.clone()),
-                            (Symbol::of("S"), set.clone()),
-                        ]),
-                    ));
-                }
-            }
+            let (Some(reason), Some(SystemForm { set, member })) = (
+                reason_within(&node, system, &letters, &nonzero, &said),
+                form,
+            ) else {
+                continue;
+            };
+            let fact = fill(
+                member,
+                Binding::from([
+                    (Symbol::of("x"), node.clone()),
+                    (Symbol::of("S"), set.clone()),
+                ]),
+            );
+            out.push(fact.clone());
+            walked.push(SaidOnceFact { fact, reason });
         }
     }
     out.extend(points_in_plane(parts, &seeded, in_plane, library));
     out.extend(maps_on_domains(parts, &seeded, library));
     parts.facts.extend(out);
+    parts.said_once.extend(walked);
 }
 
 /// Each map the step's facts, claims or values write is a function on its

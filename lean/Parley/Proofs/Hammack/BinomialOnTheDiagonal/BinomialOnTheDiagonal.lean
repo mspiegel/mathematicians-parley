@@ -30,7 +30,7 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
     induction j, h_j using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. mun:binomial-zero-index n := 0
-      exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
+      exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by norm_num))
     | succ j hK hIH =>
       -- 1.2. inequalities
       have s1_2 : j < j + 1 := by linarith

@@ -9,15 +9,18 @@ public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -46,7 +49,7 @@ theorem sum_of_binomials_along_a_diagonal (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (h
               have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (n + k) k : ℤ) : ℤ)) = (LeanBridges.Counting.choose (n + 0) (0 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (LeanBridges.Counting.choose (n + j) j : ℤ))) (a := (0 : ℤ))))
               simpa only [add_zero] using hI
           _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := n) hH1)
-          _ = (LeanBridges.Counting.choose (n + 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := n + 1) (by parley_side)).symm
+          _ = (LeanBridges.Counting.choose (n + 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := n + 1) (add_nonneg (hH1) (by norm_num))).symm
       simpa only [add_zero] using s1_1
     | succ m hK hIH =>
       -- 1.2. calculation
@@ -58,7 +61,7 @@ theorem sum_of_binomials_along_a_diagonal (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (h
       -- 1.3. algebra
       have s1_3 : n + (m + 1) = n + m + 1 := by parley_ring
       -- 1.4. thm:pascal n := n + m + 1, k := m + 1
-      have s1_4 : (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) (m + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := n + m + 1) (by parley_side) (k := m + 1))
+      have s1_4 : (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) (m + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := n + m + 1) (add_nonneg (add_nonneg (hH1) (hK)) (by norm_num)) (k := m + 1))
       -- 1.5. substitute
       have s1_5 : (LeanBridges.Counting.choose (n + m + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (n + m + 1) m : ℤ) = (LeanBridges.Counting.choose (n + m + 1 + 1) (m + 1) : ℤ) := by
         have c1 : m + 1 - 1 = m := by parley_ring

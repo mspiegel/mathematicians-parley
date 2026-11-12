@@ -33,7 +33,7 @@ theorem no_integer_combination :
   -- 5. substitute 21a + 30b = 1 (line 1) into line 4
   have s5 : (3 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) s1 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. mun:divides-one d := 3, from 5
-  have s6 : (3 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by parley_side) s5)
+  have s6 : (3 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (3 : ℤ)) (by norm_num) s5)
   exact absurd s6 (by norm_num)
 
 end Parley.Proofs.Hammack.NoIntegerCombination.NoIntegerCombination

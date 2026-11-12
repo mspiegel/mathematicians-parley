@@ -241,9 +241,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have r445_1 : a + 1 < p := by linarith only [(Finset.mem_Icc.mp hK6).2]
       exact (Parley.Items.Stdlib.Divisibility.mun_below_not_divisible (n := p) hH1 (x := a + 1) s5_9_1 r445_1)
     -- 5.10. mun:range-from-bounds m := p, x := 0, from H1
-    have s5_10 : (0 : ℤ) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (0 : ℤ)) (by parley_set_side) hH1)
+    have s5_10 : (0 : ℤ) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (0 : ℤ)) (by norm_num) hH1)
     -- 5.11. mun:range-from-bounds m := p, x := 1, from 1
-    have s5_11 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (1 : ℤ)) (by parley_set_side) s1)
+    have s5_11 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (1 : ℤ)) (by norm_num) s1)
     -- 5.12. mun:range-inside
     have r455_1 : (0 : ℤ) ≤ 2 := by parley_arith
     have r455_2 : p - 2 ≤ p - 1 := by linarith

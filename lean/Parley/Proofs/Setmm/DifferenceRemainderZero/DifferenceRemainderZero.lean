@@ -8,6 +8,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -29,7 +30,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     intro hC1
     -- 1. obtain q: mun:mod-remainder a := A − B, m := N, r := 0, from C1
     have r20_1 : 0 < N := by linarith only [hH3]
-    obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by parley_side) r20_1)).mp hC1
+    obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by norm_num) r20_1)).mp hC1
     -- 2. mun:mod-multiple r := B, m := N
     have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) hH3 (q := q))
     -- 3. substitute
@@ -50,6 +51,6 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     have s8 : ∃ q : ℤ, q * N = A - B := ⟨k, s7⟩
     -- 9. mun:mod-remainder a := A − B, m := N, r := 0, from 8
     have r50_1 : 0 < N := by linarith only [hH3]
-    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by parley_side) r50_1)).mpr (by simpa only [add_zero] using s8)
+    exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A - B) (m := N) hH3 (r := (0 : ℤ)) (by norm_num) r50_1)).mpr (by simpa only [add_zero] using s8)
 
 end Parley.Proofs.Setmm.DifferenceRemainderZero.DifferenceRemainderZero

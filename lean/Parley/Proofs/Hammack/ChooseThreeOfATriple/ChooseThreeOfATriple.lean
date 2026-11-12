@@ -6,13 +6,17 @@ public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -31,7 +35,7 @@ namespace Parley.Proofs.Hammack.ChooseThreeOfATriple.ChooseThreeOfATriple
 theorem choose_three_of_a_triple (n : ℤ) (hH1 : 0 ≤ n) :
     (LeanBridges.Counting.choose (3 * n) (3 : ℤ) : ℤ) = 3 * (LeanBridges.Counting.choose n (3 : ℤ) : ℤ) + 6 * n * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n ^ 3 := by
   -- 1. thm:binomial-of-three m := 3n
-  have s1 : 6 * (LeanBridges.Counting.choose (3 * n) (3 : ℤ) : ℤ) = 3 * n * (3 * n - 1) * (3 * n - 2) := by exact (Parley.Proofs.Hammack.BinomialOfThree.BinomialOfThree.binomial_of_three (m := 3 * n) (by parley_side))
+  have s1 : 6 * (LeanBridges.Counting.choose (3 * n) (3 : ℤ) : ℤ) = 3 * n * (3 * n - 1) * (3 * n - 2) := by exact (Parley.Proofs.Hammack.BinomialOfThree.BinomialOfThree.binomial_of_three (m := 3 * n) (mul_nonneg (by norm_num) (hH1)))
   -- 2. thm:binomial-of-three m := n
   have s2 : 6 * (LeanBridges.Counting.choose n (3 : ℤ) : ℤ) = n * (n - 1) * (n - 2) := by exact (Parley.Proofs.Hammack.BinomialOfThree.BinomialOfThree.binomial_of_three (m := n) hH1)
   -- 3. thm:binomial-of-two m := n

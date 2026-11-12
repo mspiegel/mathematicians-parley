@@ -5,8 +5,10 @@ public import ArithTactics
 public import InstanceTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
@@ -152,7 +154,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
         _ < ε / 2 + ε / 2 := by exact s9_20_14
         _ = ε := by parley_ring
     -- 9.21. exhibit, from 9.20
-    exact ⟨P + Q, by parley_side, s9_20⟩
+    exact ⟨P + Q, add_pos (s9_14a) (s9_15a), s9_20⟩
   -- 10. def:tends-to L := L·M, from 9
   exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n * b n)) (L := L * M))).mpr s9
 

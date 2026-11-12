@@ -7,12 +7,16 @@ public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -45,7 +49,7 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.4. calculation
       have s1_4 : (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m).toNat * 5 ^ 2 := by
         calc (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m + 2).toNat := by (have h := congrArg (fun t : ℤ => 5 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 5 ^ (2 * m).toNat * 5 ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (by parley_side) (n := (2 : ℤ)) (by parley_side))
+          _ = 5 ^ (2 * m).toNat * 5 ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (mul_nonneg (by norm_num) (hK)) (n := (2 : ℤ)) (by norm_num))
       -- 1.5. mun:divides-multiple e := 24, a := 5^(2m) − 1, x := 25, from IH
       have s1_5 : (24 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m).toNat - 1 : ℤ)) (x := (25 : ℤ)) hIH)
       -- 1.6. mun:divides-self n := 24

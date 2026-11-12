@@ -13,6 +13,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -65,7 +66,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
       -- 2.2. thm:power-of-two-at-least-four
       have s2_2 : (2 ^ (m + 1).toNat : ℤ) ≥ 4 := by exact (Parley.Proofs.Hammack.ProductOfOneMinusHalves.PowerOfTwoAtLeastFour.power_of_two_at_least_four (m := m) (lt_of_lt_of_le zero_lt_one hK2))
       -- 2.3. mun:power-nat a := 2, m := m + 1
-      have s2_3 : (0 : ℤ) < 2 ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := m + 1) (by parley_side))
+      have s2_3 : (0 : ℤ) < 2 ^ (m + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := m + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK2)) (by norm_num)))
       -- 2.4. inequalities, from 2.3
       have s2_4 : (2 ^ (m + 1).toNat : ℤ) > 0 := by linarith only [s2_3]
       -- 2.5. mun:reciprocal-positive x := 2^(m + 1), from 2.4
@@ -75,7 +76,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
       have s2_6 : (1 / 2 ^ (m + 1).toNat : ℚ) ≤ 1 / 4 := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (4 : ℚ)) (by parley_side) (y := (2 ^ (m + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_4))).mp (by parley_side)
       -- 2.7. mun:product-real a := 1, b := m, from 1
       -- 2.8. mun:exponent-step a := 2, m := m + 1
-      have s2_8 : (2 ^ (m + 1 + 1).toNat : ℤ) = 2 ^ (m + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m + 1) (by parley_side))
+      have s2_8 : (2 ^ (m + 1 + 1).toNat : ℤ) = 2 ^ (m + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK2)) (by norm_num)))
       -- 2.9. algebra
       have s2_9 : (1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 : ℚ) = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := by parley_ring
       -- 2.10. calculation

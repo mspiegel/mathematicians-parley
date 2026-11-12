@@ -9,6 +9,8 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -16,6 +18,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -60,7 +63,7 @@ theorem powers_of_two_sum (n : ℤ) (hH1 : 0 < n) :
               exact hI
           _ = S k + 2 ^ (k + 1).toNat := by simp (disch := omega) only [hD1]
       -- 1.3. mun:exponent-step m := k + 1
-      have s1_3 : (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (by parley_side))
+      have s1_3 : (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
       -- 1.4. calculation
       calc S (k + 1) = S k + 2 ^ (k + 1).toNat := by exact s1_2
         _ = 2 ^ (k + 1).toNat - 2 + 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => t + 2 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)

@@ -3,8 +3,10 @@ module
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
@@ -52,9 +54,9 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     -- 1.9. inequalities, from 1.6
     have s1_9 : P + Q ≥ Q := by linarith only [s1_6a]
     -- 1.10. instantiate n := P + Q in line 1.6, from 1.8
-    have s1_10 : abs (x (P + Q) - A) < r / 2 := by exact (s1_6b (P + Q) (by parley_side) s1_8)
+    have s1_10 : abs (x (P + Q) - A) < r / 2 := by exact (s1_6b (P + Q) (add_pos (s1_6a) (s1_7a)) s1_8)
     -- 1.11. instantiate n := P + Q in line 1.7, from 1.9
-    have s1_11 : abs (x (P + Q) - B) < r / 2 := by exact (s1_7b (P + Q) (by parley_side) s1_9)
+    have s1_11 : abs (x (P + Q) - B) < r / 2 := by exact (s1_7b (P + Q) (add_pos (s1_6a) (s1_7a)) s1_9)
     -- 1.12. membership, from H1
     -- 1.13. mun:abs-difference-lt x := x(P + Q), c := A, δ := r/2, from 1.10, 1.12
     have s1_13 : A - r / 2 < x (P + Q) ∧ x (P + Q) < A + r / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (P + Q)) (c := A) (δ := r / 2))).mp s1_10

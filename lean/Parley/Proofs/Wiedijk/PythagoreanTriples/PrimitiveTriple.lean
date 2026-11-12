@@ -252,9 +252,9 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have r441_2 : m ≥ 0 := by linarith only [hD1_pos, hD1]
   have s58 : n < m := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := n) (y := m) r441_1 r441_2)).mpr s57
   -- 59. def:gcd a := m, b := n
-  have s59a : 0 < (Int.gcd m n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := m) (by parley_side) (b := n) (by parley_side))
-  have s59b : (Int.gcd m n : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := m) (by parley_side) (b := n) (by parley_side))
-  have s59c : (Int.gcd m n : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := m) (by parley_side) (b := n) (by parley_side))
+  have s59a : 0 < (Int.gcd m n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := m) hD1_pos (b := n) hD2_pos)
+  have s59b : (Int.gcd m n : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := m) hD1_pos (b := n) hD2_pos)
+  have s59c : (Int.gcd m n : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := m) hD1_pos (b := n) hD2_pos)
   -- 60. mun:divides-multiple e := gcd(m, n), a := m, x := m, from 59
   have s60 : (Int.gcd m n : ℤ) ∣ m * m := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (Int.gcd m n : ℤ)) (a := m) (x := m) s59b)
   -- 61. substitute
@@ -300,6 +300,6 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     exact s67_8 s6
   -- 68. exhibit, from 53, 54, 58, 66, 67
   have r505_1 : a = 2 * m * n := by linear_combination (norm := parley_norm) s52
-  exact ⟨m, by parley_side, n, by parley_side, ⟨⟨⟨⟨⟨s58, s66⟩, s67⟩, r505_1⟩, s53⟩, s54⟩⟩
+  exact ⟨m, hD1_pos, n, hD2_pos, ⟨⟨⟨⟨⟨s58, s66⟩, s67⟩, r505_1⟩, s53⟩, s54⟩⟩
 
 end Parley.Proofs.Wiedijk.PythagoreanTriples.PrimitiveTriple

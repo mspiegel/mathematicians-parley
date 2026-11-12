@@ -9,7 +9,9 @@ public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Analysis.InnerProductSpace.Basic
 public import Mathlib.Analysis.InnerProductSpace.Defs
 public import Mathlib.Analysis.Normed.Group.Defs
@@ -29,6 +31,7 @@ public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -63,7 +66,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
     -- 1.2. calculation
     have s1_2 : x ^ (2 * (n + 1)).toNat = x ^ (2 * n).toNat * x ^ 2 := by
       calc x ^ (2 * (n + 1)).toNat = x ^ (2 * n + 2).toNat := by (have h := congrArg (fun t : ℤ => x ^ t.toNat) s1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = x ^ (2 * n).toNat * x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (by parley_set_side) (n := (2 : ℤ)) (by parley_set_side))
+        _ = x ^ (2 * n).toNat * x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := x) (m := 2 * n) (mul_nonneg (by norm_num) (hH1)) (n := (2 : ℤ)) (by norm_num))
     -- 1.3. mun:square-nonneg
     have s1_3 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 1.4. inequalities, from 1.3
@@ -98,7 +101,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   -- 10. mun:function-into, from 7
   have s10 : Set.MapsTo h (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 11. thm:continuous-power D := [0, 1], n := 2n, from 2, 4, 8
-  have s11 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s4 (n := 2 * n) (by parley_set_side) s2)
+  have s11 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s4 (n := 2 * n) (mul_nonneg (by norm_num) (hH1)) s2)
   -- 12. thm:integrand-continuous, from 3, 9
   have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (by parley_set_side) s3)
   -- 13. arithmetic
@@ -109,7 +112,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   have s15 : (∫ t in 0..1, (f t : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by
     calc (∫ t in 0..1, (f t : ℝ)) = (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) := by exact s14
       _ = 1 / (2 * (n : ℝ) + 1) := by
-          have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)))
+          have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (mul_nonneg (by norm_num) (hH1))))
           exact hI
   -- 16. D0, from D3
   have s16 : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (h t : ℝ)) := by simp (disch := omega) only [hD3]

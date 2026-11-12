@@ -8,12 +8,15 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -39,7 +42,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) ≥ 1 := by parley_arith
       -- 1.2. exhibit, from 1.1
-      exact ⟨(1 : ℤ), by parley_side, ⟨by parley_side, s1_1⟩⟩
+      exact ⟨(1 : ℤ), by norm_num, ⟨by parley_side, s1_1⟩⟩
     | succ j hK hIH =>
       -- 1.3. obtain q from IH
       obtain ⟨q, s1_3a, ⟨s1_3b, s1_3c⟩⟩ := hIH
@@ -48,7 +51,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.5. calculation
       have s1_5 : (2 ^ (d * (j + 1)).toNat : ℤ) = 2 ^ (d * j).toNat * 2 ^ d.toNat := by
         calc (2 ^ (d * (j + 1)).toNat : ℤ) = 2 ^ (d * j + d).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 2 ^ (d * j).toNat * 2 ^ d.toNat := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd.two_power_add (a := d * j) (by parley_side) (b := d) (le_of_lt hH1))
+          _ = 2 ^ (d * j).toNat * 2 ^ d.toNat := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd.two_power_add (a := d * j) (mul_nonneg (le_of_lt hH1) (le_of_lt (lt_of_lt_of_le zero_lt_one hK))) (b := d) (le_of_lt hH1))
       -- 1.6. calculation
       have s1_6 : 2 ^ (d * (j + 1)).toNat - 1 = (2 ^ d.toNat - 1) * (2 ^ d.toNat * q + 1) := by
         calc (2 ^ (d * (j + 1)).toNat - 1 : ℤ) = 2 ^ (d * j).toNat * 2 ^ d.toNat - 1 := by (have h := congrArg (fun t : ℤ => t - 1) s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)

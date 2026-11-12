@@ -49,7 +49,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   line the citation names, a sentence or part of one, or what one implies
   (`Line`); one of the step's requires lines above the citing line, or what
   it implies (`Requires`); the `let` or `obtain` line that introduces a
-  letter, for a membership said once (`SaidOnce`); or no line (`Unstated`).
+  letter, for a membership said once (`SaidOnce`); a membership said once
+  of a term no `let` line writes, `k + 1 ∈ ℕ₀` of a k in ℕ₀, with the
+  reason the said-once walk gives (`Walked`); or no line, for a fact the
+  citation's values make true (`Unstated`).
   A hypothesis the citation's values make true is still placed where a line
   states it. Lean names that line as the item's argument. Each entry also
   says where the item writes the hypothesis (`Supplied::at`): its

@@ -1,7 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
@@ -88,7 +90,7 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.12. mun:abs-difference-lt x := b(n), c := L, δ := ε, from 1.15.11
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr ⟨s1_15_11.1, s1_15_11.2⟩
     -- 1.16. exhibit, from 1.15
-    exact ⟨P + Q + R, by parley_side, s1_15⟩
+    exact ⟨P + Q + R, add_pos (add_pos (s1_5a) (s1_6a)) (s1_8a), s1_15⟩
   -- 2. def:tends-to x := b, from 1
   exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := b) (L := L))).mpr s1
 

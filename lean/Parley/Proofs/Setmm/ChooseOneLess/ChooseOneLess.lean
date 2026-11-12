@@ -6,17 +6,21 @@ public import FactorialTactics
 public import InstanceTactics
 public import NormTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -55,7 +59,7 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_5 : (LeanBridges.Counting.factorial (N + 1) : ℤ) = (LeanBridges.Counting.factorial N : ℤ) * (N + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N) hH1)
     -- 2.6. calculation
     try qify
-    calc (LeanBridges.Counting.choose (N + 1) N : ℚ) = (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((LeanBridges.Counting.factorial (N + 1 - N) : ℚ) * (LeanBridges.Counting.factorial N : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N + 1) (by parley_side) (k := N)) s2_2
+    calc (LeanBridges.Counting.choose (N + 1) N : ℚ) = (LeanBridges.Counting.factorial (N + 1) : ℚ) / ((LeanBridges.Counting.factorial (N + 1 - N) : ℚ) * (LeanBridges.Counting.factorial N : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N + 1) (add_nonneg (hH1) (by norm_num)) (k := N)) s2_2
       _ = (LeanBridges.Counting.factorial (N + 1) : ℚ) / (1 * (LeanBridges.Counting.factorial N : ℚ)) := by
           have e_w : (LeanBridges.Counting.factorial (N + 1 - N) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
           (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial (N + 1) : ℚ) / (t * (LeanBridges.Counting.factorial N : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -69,7 +73,7 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.8. calculation
     calc (LeanBridges.Counting.choose (N + 1) N : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) N : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t N : ℤ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (1 : ℤ) t : ℤ)) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (1 : ℤ)) (by parley_side))
+      _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (1 : ℤ)) (by norm_num))
       _ = N + 1 := by exact s2_7.symm
 
 end Parley.Proofs.Setmm.ChooseOneLess.ChooseOneLess

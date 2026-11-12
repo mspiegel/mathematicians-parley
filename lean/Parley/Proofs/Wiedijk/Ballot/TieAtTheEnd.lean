@@ -4,6 +4,8 @@ public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -37,7 +39,7 @@ theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
   set O : Set (Set ℤ) := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} with hD3
   have hD3_finite : O.Finite := by rw [hD3]; exact ((Set.finite_Icc _ _).powerset).subset (fun _ h => h.1)
   -- 1. mun:range-end n := m + m
-  have s1 : m + m ∈ Finset.Icc (1 : ℤ) (m + m) := by exact (Parley.Items.Stdlib.Sums.mun_range_end (n := m + m) (by parley_set_side))
+  have s1 : m + m ∈ Finset.Icc (1 : ℤ) (m + m) := by exact (Parley.Items.Stdlib.Sums.mun_range_end (n := m + m) (add_pos (hH1) (hH1)))
   -- 2. proof
   have s2 : ∀ c ∈ O, ¬ (∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)) := by
     intro c hK1

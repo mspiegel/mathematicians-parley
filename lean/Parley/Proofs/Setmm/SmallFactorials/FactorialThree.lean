@@ -22,7 +22,7 @@ namespace Parley.Proofs.Setmm.SmallFactorials.FactorialThree
 theorem factorial_three :
     (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 6 := by
   -- 1. def:factorial n := 2
-  have s1 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) * (2 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by parley_side))
+  have s1 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) * (2 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (2 : ℤ)) (by norm_num))
   -- 2. substitute
   have s2 : (LeanBridges.Counting.factorial (2 + 1 : ℤ) : ℤ) = 2 * (2 + 1) := by
     have c1 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 2 := by exact Parley.Proofs.Setmm.SmallFactorials.FactorialTwo.factorial_two

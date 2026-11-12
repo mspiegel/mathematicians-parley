@@ -12,6 +12,8 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.InnerProductSpace.Basic
 public import Mathlib.Analysis.InnerProductSpace.Defs
 public import Mathlib.Analysis.Normed.Group.Defs
@@ -31,6 +33,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -70,7 +73,7 @@ theorem series_remainder :
         _ = 1 := by norm_num
     -- 2.2. thm:integral-recurrence n := 0
     have s2_2 : (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) := by
-      have hI : (∫ t in 0..1, (t ^ (2 * (0 + 1)) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := (0 : ℤ)) (by parley_side)))
+      have hI : (∫ t in 0..1, (t ^ (2 * (0 + 1)) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := (0 : ℤ)) (by norm_num)))
       simpa only [mul_one, zero_add] using hI
     -- 2.3. substitute
     have s2_3 : (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - Real.pi / 4 := by
@@ -91,12 +94,12 @@ theorem series_remainder :
       exact hI
     -- 2.6. thm:integral-recurrence n := n + 1
     have s2_6 : (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * ((n : ℝ) + 1) + 1) - (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
-      have hI : (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * ((n : ℝ) + 1) + 1) - (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := n + 1) (by parley_side)))
+      have hI : (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * ((n : ℝ) + 1) + 1) - (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := n + 1) (add_nonneg (hK) (by norm_num))))
       exact hI
     -- 2.7. mun:exponent-step a := −1, m := n + 1
-    have s2_7 : ((-1) ^ (n + 1 + 1).toNat : ℤ) = (-1) ^ (n + 1).toNat * -1 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := n + 1) (by parley_side))
+    have s2_7 : ((-1) ^ (n + 1 + 1).toNat : ℤ) = (-1) ^ (n + 1).toNat * -1 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := n + 1) (add_nonneg (hK) (by norm_num)))
     -- 2.8. calculation
-    have r721_2 : 0 < 2 * (n + 1) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * (n + 1)) (by parley_side))
+    have r721_2 : 0 < 2 * (n + 1) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * (n + 1)) (mul_nonneg (by norm_num) (add_nonneg (hK) (by norm_num))))
     calc Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = Real.pi / 4 - ((∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1)) := by
           have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
           (have h := congrArg (fun t : ℝ => Real.pi / 4 - t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)

@@ -34,6 +34,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -55,7 +56,7 @@ namespace Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound
 
 theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
     (∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + j).toNat) := by
-  have hD1_kind : 0 < (LeanBridges.Counting.factorial (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (by parley_side))
+  have hD1_kind : 0 < (LeanBridges.Counting.factorial (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1) (add_nonneg (le_of_lt hH1) (by norm_num)))
   set A : ℤ := (LeanBridges.Counting.factorial (n + 1) : ℤ) with hD1
   have hD1_pos := hD1_kind
   -- 1. thm:factorial-gap
@@ -76,7 +77,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.3. mun:nat-plus-nat0 a := n, b := j
       have s3_3 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) hH1 (b := j) hK)
       -- 3.4. mun:nat-plus-nat0 a := n + j, b := 1, from 3.3
-      have s3_4 : 0 < n + j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) s3_3 (b := (1 : ℤ)) (by parley_side))
+      have s3_4 : 0 < n + j + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n + j) s3_3 (b := (1 : ℤ)) (by norm_num))
       -- 3.5. mun:power-positive a := 2, m := (n + j + 1)!
       have r142_1 : (2 : ℤ) > 0 := by parley_arith
       have s3_5 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (h := Nat.cast_nonneg _), zpow_natCast] at h ⊢; exact_mod_cast h)
@@ -99,7 +100,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         exact row1
       -- 3.13. mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.12
       have r170_1 : (1 : ℤ) ≤ 2 := by parley_arith
-      have s3_13 : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (by parley_side) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side) r170_1 s3_12)
+      have s3_13 : (2 ^ (A + j).toNat : ℤ) ≤ 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_power_exponent_le (a := (2 : ℤ)) (m := A + j) (add_nonneg (le_of_lt hD1_pos) (hK)) (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (Nat.cast_nonneg _) r170_1 s3_12)
       -- 3.14. mun:power-positive a := 2, m := A + j
       have r174_1 : (2 : ℤ) > 0 := by parley_arith
       have s3_14 : (2 ^ (A + j).toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := A + j) (by parley_side)); simp only [parley_zpow_toNat (n := A + j) (h := add_nonneg (le_of_lt hD1_pos) (hK))] at h ⊢; exact_mod_cast h)
@@ -109,7 +110,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       have s3_16 : A + j + 1 = A + (j + 1) := by parley_ring
       -- 3.17. calculation
       have s3_17 : (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + (j + 1)).toNat := by
-        calc (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := A + j) (by parley_side)).symm
+        calc (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := A + j) (add_nonneg (le_of_lt hD1_pos) (hK))).symm
           _ = 2 ^ (A + (j + 1)).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s3_16; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.18. algebra
       have s3_18 : (2 / (2 ^ (A + j).toNat * 2) : ℚ) = 1 / 2 ^ (A + j).toNat := by parley_ring

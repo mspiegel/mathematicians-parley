@@ -3,9 +3,12 @@ module
 public import AlgebraTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
@@ -35,9 +38,9 @@ theorem consecutive_coprime (n : ℤ) (hH1 : 0 ≤ n) :
     -- 2.2. mun:nat0-nonzero m := n, from C2
     have s2_2 : 0 < n := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := n) hH1 hC2)
     -- 2.3. def:gcd a := n, b := n + 1, from 2.2
-    have s2_3a : 0 < (Int.gcd n (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := n) s2_2 (b := n + 1) (by parley_side))
-    have s2_3b : (Int.gcd n (n + 1) : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := n) s2_2 (b := n + 1) (by parley_side))
-    have s2_3c : (Int.gcd n (n + 1) : ℤ) ∣ n + 1 := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := n) s2_2 (b := n + 1) (by parley_side))
+    have s2_3a : 0 < (Int.gcd n (n + 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := n) s2_2 (b := n + 1) (add_pos (s2_2) (by norm_num)))
+    have s2_3b : (Int.gcd n (n + 1) : ℤ) ∣ n := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := n) s2_2 (b := n + 1) (add_pos (s2_2) (by norm_num)))
+    have s2_3c : (Int.gcd n (n + 1) : ℤ) ∣ n + 1 := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := n) s2_2 (b := n + 1) (add_pos (s2_2) (by norm_num)))
     -- 2.4. mun:divides-difference d := gcd(n, n + 1), a := n + 1, b := n, from 2.3
     have s2_4 : (Int.gcd n (n + 1) : ℤ) ∣ n + 1 - n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (Int.gcd n (n + 1) : ℤ)) (a := n + 1) (b := n) s2_3c s2_3b)
     -- 2.5. substitute

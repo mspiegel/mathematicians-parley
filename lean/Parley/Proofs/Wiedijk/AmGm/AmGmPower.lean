@@ -13,6 +13,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -31,6 +32,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -79,7 +81,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.9. thm:first-terms m := j + 1, from C2, H3
       have s1_9 : ∀ k : ℤ, k ∈ Finset.Icc 1 (j + 1) → a k ≥ 0 := by exact (Parley.Proofs.Wiedijk.AmGm.FirstTerms.first_terms (n := n) hH1 (a := a) hH3 (m := j + 1) hC2).2
       -- 1.10. def:range k := j + 1, from C2
-      have s1_10 : j + 1 ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr ⟨by parley_side, hC2⟩
+      have s1_10 : j + 1 ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range (k := j + 1) (n := n))).mpr ⟨add_pos (lt_of_lt_of_le zero_lt_one hK1) (by norm_num), hC2⟩
       -- 1.11. instantiate k := j + 1 in H3, from 1.10
       have s1_11 : a (j + 1) ≥ 0 := by exact (hH3 (j + 1) s1_10)
       set x : ℝ := a (j + 1) with hD1
@@ -128,7 +130,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           have s1_19_2 : r - 1 ≥ -1 := by linarith only [s1_19_1]
           -- 1.19.3. thm:bernoulli-inequality x := r − 1, n := j + 1, from 1.19.2
           have s1_19_3 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by
-            have hI : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := r - 1) (n := j + 1) (by parley_side) s1_19_2))
+            have hI : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := r - 1) (n := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num)) s1_19_2))
             exact hI
           -- 1.19.4. substitute
           have s1_19_4 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by
@@ -153,7 +155,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           calc A ^ j.toNat * x = A ^ j.toNat * A * (1 + (r - 1) * ((j : ℝ) + 1)) := by linear_combination (norm := parley_norm) (-(A ^ j.toNat)) * s1_19_8
             _ ≤ A ^ j.toNat * A * r ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 + (r - 1) * ((j : ℝ) + 1)) (y := r ^ (j + 1).toNat) (c := A ^ j.toNat * A) s1_19_4 s1_19_6)
             _ = A ^ (j + 1).toNat * r ^ (j + 1).toNat := by (have h := congrArg (fun t : ℝ => t * r ^ (j + 1).toNat) s1_19_9.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-            _ = (A * r) ^ (j + 1).toNat := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (by parley_side)).symm
+            _ = (A * r) ^ (j + 1).toNat := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num))).symm
             _ = B ^ (j + 1).toNat := by (have h := congrArg (fun t : ℝ => t ^ (j + 1).toNat) s1_19_7; push_cast at h ⊢; all_goals exact_mod_cast h)
         · skip
           -- 1.19.11. substitute 0 = A (C4)
@@ -165,7 +167,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
             have s1_19_12_w : (0 ^ j.toNat : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_19_12; push_cast at h; linear_combination (norm := parley_norm) h
             linear_combination (norm := parley_norm) s1_19_11 + (x) * s1_19_12_w
           -- 1.19.14. mun:power-nonneg, from 1.17
-          have s1_19_14 : B ^ (j + 1).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := B) (m := j + 1) (by parley_side) s1_17)
+          have s1_19_14 : B ^ (j + 1).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := B) (m := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num)) s1_17)
           -- 1.19.15. transitivity, from 1.19.13, 1.19.14
           exact Eq.trans_le s1_19_13 s1_19_14
       -- 1.20. calculation

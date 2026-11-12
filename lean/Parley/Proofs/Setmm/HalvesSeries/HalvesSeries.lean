@@ -103,7 +103,7 @@ theorem halves_series :
       intro n hK4
       intro hA2
       -- 3.2.1. mun:power-nat a := 2, m := n
-      have s3_2_1 : (0 : ℤ) < 2 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := n) (le_of_lt hK4))
+      have s3_2_1 : (0 : ℤ) < 2 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := n) (le_of_lt hK4))
       -- 3.2.2. thm:power-of-two-above
       have s3_2_2 : n ≤ 2 ^ n.toNat := by exact (Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove.power_of_two_above (n := n) hK4)
       -- 3.2.3. transitivity, from A2, 3.2.2

@@ -6,7 +6,9 @@ public import Tactics
 public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
@@ -17,6 +19,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -69,7 +72,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
   -- 13. mun:function-into, from 10
   have s13 : Set.MapsTo v (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := v) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 14. thm:continuous-power D := [0, 1], n := 2n, from 1, 2, 7
-  have s14 : ContinuousOn u (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := u) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (n := 2 * n) (by parley_set_side) s2)
+  have s14 : ContinuousOn u (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := u) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (n := 2 * n) (mul_nonneg (by norm_num) (hH1)) s2)
   -- 15. thm:continuous-constant D := [0, 1], c := 1, from 1, 3, 11
   have s15 : ContinuousOn o (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_constant (g := o) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (c := (1 : ℝ)) s3)
   -- 16. thm:continuous-square D := [0, 1], from 1, 4, 12

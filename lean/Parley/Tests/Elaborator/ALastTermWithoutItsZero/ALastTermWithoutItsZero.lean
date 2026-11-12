@@ -16,6 +16,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
@@ -32,7 +33,7 @@ theorem a_last_term_without_its_zero :
   -- 1. proof
   -- what this block shows, Lean's types give
   -- 2. mun:sum-last n := 0, from 1
-  have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 + 1 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) = (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) + (LeanBridges.Counting.choose (1 - (0 + 1) : ℤ) (0 + 1 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by parley_side)))
+  have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 + 1 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) = (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) + (LeanBridges.Counting.choose (1 - (0 + 1) : ℤ) (0 + 1 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by norm_num)))
   simpa only [zero_add] using hI
 
 end Parley.Tests.Elaborator.ALastTermWithoutItsZero.ALastTermWithoutItsZero

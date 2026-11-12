@@ -8,6 +8,8 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -19,6 +21,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -45,9 +48,9 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 2. inequalities, from H2
   have s2 : k ≤ k + j := by linarith only [hH2]
   -- 3. def:range0 n := k + j, from 2
-  have s3 : k ∈ Finset.Icc (0 : ℤ) (k + j) := ((Parley.Items.Stdlib.Sums.def_range0 (k := k) (n := k + j) (by parley_set_side))).mpr ⟨le_of_lt hH1, s2⟩
+  have s3 : k ∈ Finset.Icc (0 : ℤ) (k + j) := ((Parley.Items.Stdlib.Sums.def_range0 (k := k) (n := k + j) (add_nonneg (le_of_lt hH1) (le_of_lt hH2)))).mpr ⟨le_of_lt hH1, s2⟩
   -- 4. mun:binomial-nat, from 3
-  have s4 : 0 < (LeanBridges.Counting.choose (k + j) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat (n := k + j) (by parley_set_side) (k := k) s3)
+  have s4 : 0 < (LeanBridges.Counting.choose (k + j) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat (n := k + j) (add_nonneg (le_of_lt hH1) (le_of_lt hH2)) (k := k) s3)
   -- 5. inequalities, from 4
   have s5 : 1 ≤ (LeanBridges.Counting.choose (k + j) k : ℤ) := by linarith only [s4]
   -- 6. transitivity, from 5, H9
@@ -111,7 +114,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2)
   -- 24. mun:nat-minus-one n := k + j
-  have s24 : 0 ≤ k + j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k + j) (by parley_set_side))
+  have s24 : 0 ≤ k + j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k + j) (add_pos (hH1) (hH2)))
   -- 25. mun:binomial-nat0, from 24
   have s25 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := k + j - 1) s24 (k := k - 1))
   -- 26. mun:binomial-nat0, from 24
@@ -174,7 +177,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have hI : ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2)
       exact hI
     -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
-    exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) hH1 (j := j + 1) (by parley_set_side) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side))
+    exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) hH1 (j := j + 1) (add_pos (hH2) (by norm_num)) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side))
   · skip
     -- 32.6. mun:subset-transitive, from 15, 31
     have s32_6 : B ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := B) (Y := X \ ({v} : Set α)) (Z := V) s15 s31)
@@ -211,7 +214,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       -- 32.10.7. mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6
       exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := ({v, w} : Set α) ∈ E) (Q := ({v, w} : Set α) ∈ F) s32_10_6 s32_10_1b)
     -- 32.11. obtain U: thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
-    obtain ⟨U, s32_11a, s32_11b⟩ := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := F) (F := E) s1 (k := j) hH2 (j := k + 1) (by parley_set_side) (v := v) s9 (N := B) (by parley_set_side) s32_10 (W := W) (by parley_set_side) (by parley_set_side))
+    obtain ⟨U, s32_11a, s32_11b⟩ := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := F) (F := E) s1 (k := j) hH2 (j := k + 1) (add_pos (hH1) (by norm_num)) (v := v) s9 (N := B) (by parley_set_side) s32_10 (W := W) (by parley_set_side) (by parley_set_side))
     -- 32.12. mun:or-swap, from 32.11
     have s32_12 : k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F)) (Q := k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E)) (by parley_set_side))
     -- 32.13. exhibit, from 32.11, 32.12

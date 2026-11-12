@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -59,7 +60,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
         exact row1
       -- 4.4. thm:three-divides-no-small r := 1
       have r149_1 : (1 : ℤ) < 3 := by parley_arith
-      have s4_4 : ¬ (3 : ℤ) ∣ (1 : ℤ) := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall.three_divides_no_small (r := (1 : ℤ)) (by parley_side) r149_1)
+      have s4_4 : ¬ (3 : ℤ) ∣ (1 : ℤ) := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall.three_divides_no_small (r := (1 : ℤ)) (by norm_num) r149_1)
       exact absurd s4_3 s4_4
     · skip
       -- 4.5. mun:divides-sum d := 3, a := p² − 1, b := q² − 1, from C4, 2
@@ -73,7 +74,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
         exact row1
       -- 4.8. thm:three-divides-no-small r := 2
       have r167_1 : (2 : ℤ) < 3 := by parley_arith
-      have s4_8 : ¬ (3 : ℤ) ∣ (2 : ℤ) := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall.three_divides_no_small (r := (2 : ℤ)) (by parley_side) r167_1)
+      have s4_8 : ¬ (3 : ℤ) ∣ (2 : ℤ) := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall.three_divides_no_small (r := (2 : ℤ)) (by norm_num) r167_1)
       exact absurd s4_7 s4_8
   exact hS s4
 

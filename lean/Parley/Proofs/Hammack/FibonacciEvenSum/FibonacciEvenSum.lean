@@ -8,11 +8,15 @@ public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -63,13 +67,13 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
         calc F 1 = G 0 := by exact s4_2
           _ = 1 := by exact s4_3
       -- 4.6. instantiate k := 0 in line 3
-      have s4_6 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s3 (0 : ℤ) (by parley_side))
+      have s4_6 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s3 (0 : ℤ) (by norm_num))
       -- 4.7. calculation
       have s4_7 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num
           _ = 1 := by linear_combination (norm := parley_norm) s4_4 + s4_5 + s4_6
       -- 4.8. instantiate k := 1 in line 3
-      have s4_8 : F (1 + 2) = F 1 + F (1 + 1) := by exact (s3 (1 : ℤ) (by parley_side))
+      have s4_8 : F (1 + 2) = F 1 + F (1 + 1) := by exact (s3 (1 : ℤ) (by norm_num))
       -- 4.9. calculation
       have s4_9 : F (2 * 1 + 1) = 2 := by
         calc F (2 * 1 + 1) = F (1 + 2) := by norm_num
@@ -87,7 +91,7 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       -- 4.12. D2
       have s4_12 : q (m + 1) = F (2 * (m + 1)) := by simp (disch := omega) only [hD2]
       -- 4.13. instantiate k := 2m + 1 in line 3
-      have s4_13 : F (2 * m + 1 + 2) = F (2 * m + 1) + F (2 * m + 1 + 1) := by exact (s3 (2 * m + 1) (by parley_side))
+      have s4_13 : F (2 * m + 1 + 2) = F (2 * m + 1) + F (2 * m + 1 + 1) := by exact (s3 (2 * m + 1) (add_nonneg (mul_nonneg (by norm_num) (le_of_lt (lt_of_lt_of_le zero_lt_one hK3))) (by norm_num)))
       -- 4.14. substitute
       have s4_14 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := by
         have c1 : 2 * m + 1 + 2 = 2 * (m + 1) + 1 := by parley_ring

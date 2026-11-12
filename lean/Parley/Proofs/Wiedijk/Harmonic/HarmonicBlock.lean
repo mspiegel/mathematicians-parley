@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
@@ -25,6 +26,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -44,9 +46,9 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 1. mun:exponent-step a := 2, m := j
   have s1 : (2 ^ (j + 1).toNat : ℤ) = 2 ^ j.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := j) hH1)
   -- 2. mun:power-nat a := 2, m := j
-  have s2 : (0 : ℤ) < 2 ^ j.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := j) hH1)
+  have s2 : (0 : ℤ) < 2 ^ j.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := j) hH1)
   -- 3. mun:power-nat a := 2, m := j + 1
-  have s3 : (0 : ℤ) < 2 ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := j + 1) (by parley_side))
+  have s3 : (0 : ℤ) < 2 ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := j + 1) (add_nonneg (hH1) (by norm_num)))
   -- 4. inequalities, from 2
   have s4 : (2 ^ j.toNat : ℤ) ≤ 2 ^ j.toNat * 2 := by linarith only [s2]
   -- 5. transitivity, from 4, 1

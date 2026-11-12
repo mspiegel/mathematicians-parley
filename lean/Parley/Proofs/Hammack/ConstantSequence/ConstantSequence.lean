@@ -11,6 +11,7 @@ public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -45,7 +46,7 @@ theorem constant_sequence (c : ℝ) (a : ℤ → ℝ) (hH3 : ∀ n : ℤ, 0 < n 
       -- 1.1.3. transitivity, from 1.1.2, A1
       exact Eq.trans_lt s1_1_2 hA1
     -- 1.2. exhibit, from 1.1
-    exact ⟨(1 : ℤ), by parley_side, s1_1⟩
+    exact ⟨(1 : ℤ), by norm_num, s1_1⟩
   -- 2. def:tends-to L := c, from 1
   exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := c))).mpr s1
 

@@ -5,6 +5,7 @@ public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -29,9 +30,9 @@ theorem ninety_one_is_not_prime :
   -- 4. contradiction
   intro hS
   -- 4.1. def:prime p := 91, from S
-  have s4_1 : ∀ d : ℤ, 0 < d → d ∣ (91 : ℤ) → d = 1 ∨ d = 91 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (91 : ℤ)) (by parley_side))).mp hS).2
+  have s4_1 : ∀ d : ℤ, 0 < d → d ∣ (91 : ℤ) → d = 1 ∨ d = 91 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := (91 : ℤ)) (by norm_num))).mp hS).2
   -- 4.2. instantiate d := 7 in line 4.1
-  have s4_2 : (7 : ℤ) ∣ (91 : ℤ) → (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by exact (s4_1 (7 : ℤ) (by parley_side))
+  have s4_2 : (7 : ℤ) ∣ (91 : ℤ) → (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by exact (s4_1 (7 : ℤ) (by norm_num))
   -- 4.3. mun:modus-ponens, from 1, 4.2
   have s4_3 : (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (7 : ℤ) ∣ (91 : ℤ)) (Q := (7 : ℤ) = 1 ∨ (7 : ℤ) = 91) s4_2 s1)
   -- 4.4. mun:disjunctive-syllogism, from 3, 4.3

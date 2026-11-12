@@ -3,9 +3,13 @@ module
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -20,6 +24,6 @@ namespace Parley.Tests.Stdlib.Counting.BinomialOne
 theorem binomial_one (m : ℤ) (hH1 : 0 ≤ m) :
     (LeanBridges.Counting.choose (m + 1) (1 : ℤ) : ℤ) = m + 1 := by
   -- 1. mun:counting-binomial-one n := m + 1
-  exact (Parley.Items.Stdlib.Counting.mun_binomial_one (n := m + 1) (by parley_side))
+  exact (Parley.Items.Stdlib.Counting.mun_binomial_one (n := m + 1) (add_nonneg (hH1) (by norm_num)))
 
 end Parley.Tests.Stdlib.Counting.BinomialOne

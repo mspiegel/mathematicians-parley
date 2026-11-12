@@ -15,6 +15,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Module.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Calculus.Deriv.Basic
 public import Mathlib.Analysis.Calculus.FDeriv.Defs
@@ -38,6 +39,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -91,7 +93,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 12. thm:continuous-power D := [0, 1], n := m, from 2, 3, 9
   have s12 : ContinuousOn p (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := p) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (n := m) hH1 s3)
   -- 13. thm:continuous-power D := [0, 1], n := m + 1, from 2, 4, 10
-  have s13 : ContinuousOn q (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (n := m + 1) (by parley_set_side) s4)
+  have s13 : ContinuousOn q (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (n := m + 1) (add_nonneg (hH1) (by norm_num)) s4)
   -- 14. thm:continuous-scaled D := [0, 1], c := 1/(m + 1), f := q, from 2, 5, 10, 11, 13
   have r107_1 : m + 1 ≠ 0 := s1.ne'
   have s14 : ContinuousOn F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_scaled (F := F) (f := q) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (c := 1 / ((m : ℝ) + 1)) s5 s13)

@@ -6,6 +6,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -22,7 +23,7 @@ theorem ten_is_triangular :
   -- 1. arithmetic
   have s1 : (10 : ℚ) = 4 * (4 + 1) / 2 := by parley_arith
   -- 2. exhibit, from 1
-  have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by parley_side, by (have h := s1; push_cast at h ⊢; all_goals exact h)⟩
+  have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by norm_num, by (have h := s1; push_cast at h ⊢; all_goals exact h)⟩
   -- 3. def:triangular-number n := 10, from 2
   parley_side
 

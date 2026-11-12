@@ -8,6 +8,8 @@ public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
@@ -17,6 +19,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -50,7 +53,7 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
       have s2_1 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
       -- 2.2. calculation
       have s2_2 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = 2 := by
-        calc (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by parley_side))
+        calc (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) * (1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (1 : ℤ)) (by norm_num))
           _ = 1 * (1 + 1) := by (have h := congrArg (fun t : ℤ => t * (1 + 1)) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 2 := by norm_num
       -- 2.3. calculation
@@ -66,9 +69,9 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
             (have h := congrArg (fun t : ℚ => 1 - 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
     | succ k hK hIH =>
       -- 2.4. def:factorial n := k + 1
-      have s2_4 : (LeanBridges.Counting.factorial (k + 1 + 1) : ℤ) = (LeanBridges.Counting.factorial (k + 1) : ℤ) * (k + 1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1) (by parley_side))
+      have s2_4 : (LeanBridges.Counting.factorial (k + 1 + 1) : ℤ) = (LeanBridges.Counting.factorial (k + 1) : ℤ) * (k + 1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
       -- 2.5. mun:factorial-nat n := k + 1
-      have s2_5 : 0 < (LeanBridges.Counting.factorial (k + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k + 1) (by parley_side))
+      have s2_5 : 0 < (LeanBridges.Counting.factorial (k + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
       -- 2.6. calculation
       have r133_1 : k ≥ 1 := by parley_side
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), ((j : ℚ) / (LeanBridges.Counting.factorial (j + 1) : ℚ) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, ((j : ℚ) / (LeanBridges.Counting.factorial (j + 1) : ℚ) : ℚ)) + ((k : ℚ) + 1) / (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by
@@ -79,7 +82,7 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
             have e_w : (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) = (LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => 1 - 1 / (LeanBridges.Counting.factorial (k + 1) : ℚ) + ((k : ℚ) + 1) / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 - 1 / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by
-            have hI : 1 - 1 / (LeanBridges.Counting.factorial (k + 1) : ℚ) + ((k : ℚ) + 1) / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by parley_instance_real ((Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (LeanBridges.Counting.factorial (k + 1) : ℝ)) (by exact_mod_cast s2_5.ne')))
+            have hI : 1 - 1 / (LeanBridges.Counting.factorial (k + 1) : ℚ) + ((k : ℚ) + 1) / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by parley_instance_real ((Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK) (by norm_num)) (F := (LeanBridges.Counting.factorial (k + 1) : ℝ)) (by exact_mod_cast s2_5.ne')))
             exact hI
         _ = 1 - 1 / (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by
             have e_w : (LeanBridges.Counting.factorial (k + 1) : ℚ) * ((k : ℚ) + 1 + 1) = (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4.symm; push_cast at h; linear_combination (norm := parley_norm) h

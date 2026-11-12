@@ -7,11 +7,14 @@ public import Tactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -48,7 +51,7 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
       calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by exact s3_3
         _ = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by parley_ring
     -- 3.5. exhibit, from 3.4
-    have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, by parley_set_side, by (have h := s3_4; push_cast at h ⊢; all_goals exact h)⟩
+    have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, mul_pos (s3_1a) (s2a), by (have h := s3_4; push_cast at h ⊢; all_goals exact h)⟩
     -- 3.6. def:rational x := A, from 3.5
     have s3_6 : ∃ m : ℚ, (m : ℝ) = A := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr s3_5
     exact s1 s3_6

@@ -121,17 +121,17 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
       have row1 : (2 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 : ℤ) ∣ t)) c1 s9_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 9.6. mun:divides-one d := 2, from 9.5
-    have s9_6 : (2 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (2 : ℤ)) (by parley_side) s9_5)
+    have s9_6 : (2 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (2 : ℤ)) (by norm_num) s9_5)
     exact absurd s9_6 (by norm_num)
   -- 10. mun:prime-coprime p := 2, a := 2^p − 1, from 9
   have r392_1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
-  have s10 : (Int.gcd (2 : ℤ) (2 ^ p.toNat - 1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by parley_side) r392_1 (a := (2 ^ p.toNat - 1 : ℤ)) s9)
+  have s10 : (Int.gcd (2 : ℤ) (2 ^ p.toNat - 1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by norm_num) r392_1 (a := (2 ^ p.toNat - 1 : ℤ)) s9)
   -- 11. mun:coprime-power a := 2, b := 2^p − 1, k := p, from 10
-  have s11 : (Int.gcd (2 ^ p.toNat : ℤ) (2 ^ p.toNat - 1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) (k := p) (by parley_side) s10)
+  have s11 : (Int.gcd (2 ^ p.toNat : ℤ) (2 ^ p.toNat - 1 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) (k := p) (le_of_lt hD2_pos) s10)
   -- 12. mun:prime-coprime p := 2, a := m
   have r399_1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
   have r399_2 : ¬ (2 : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.mun_odd_not_divisible (n := m) s1c)
-  have s12 : (Int.gcd (2 : ℤ) m : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by parley_side) r399_1 (a := m) r399_2)
+  have s12 : (Int.gcd (2 : ℤ) m : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (2 : ℤ)) (by norm_num) r399_1 (a := m) r399_2)
   -- 13. mun:coprime-power a := 2, b := m, from 12
   have s13 : (Int.gcd (2 ^ k.toNat : ℤ) m : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_power (a := (2 : ℤ)) (b := m) (k := k) s1a s12)
   -- 14. calculation
@@ -140,7 +140,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s14 : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) = 2 ^ p.toNat - 1 := by
     try qify
     calc (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by
-          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by parley_instance_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r407_1 (k := k) s1a))
+          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by parley_instance_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by norm_num) r407_1 (k := k) s1a))
           exact hI
       _ = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by
           have hI : (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by parley_instance_real ((Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := k) s1a))
@@ -202,7 +202,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 23.7. def:divides d := c, n := m, from 23.6
     have s23_7 : c ∣ m := ((Parley.Items.Stdlib.Divisibility.def_divides (d := c) (n := m))).mpr ⟨(2 ^ p.toNat - 1 : ℤ), s23_6⟩
     -- 23.8. thm:three-divisors e := c, from 23.4, 23.5, 23.7
-    have s23_8 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + c + m := by exact (Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors.three_divisors (m := m) s1b (e := c) (by parley_side) s23_7 s23_5 s23_4)
+    have s23_8 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) ≥ 1 + c + m := by exact (Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors.three_divisors (m := m) s1b (e := c) hD3_pos s23_7 s23_5 s23_4)
     -- 23.9. transitivity, from 23.8, 22
     have s23_9 : 1 + c + m ≤ m + c := by exact LE.le.trans_eq s23_8 s22
     -- 23.10. inequalities
@@ -258,6 +258,6 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
           have e_w : (m : ℚ) = 2 ^ p.toNat - 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
           (have h := congrArg (fun t : ℚ => 2 ^ (p - 1) * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 32. exhibit, from 29, 31
-  exact ⟨p, by parley_side, ⟨s29, s31⟩⟩
+  exact ⟨p, hD2_pos, ⟨s29, s31⟩⟩
 
 end Parley.Proofs.Wiedijk.PerfectNumbers.EulerPerfect

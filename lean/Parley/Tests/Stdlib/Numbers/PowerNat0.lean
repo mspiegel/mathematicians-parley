@@ -5,9 +5,12 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
@@ -22,6 +25,6 @@ namespace Parley.Tests.Stdlib.Numbers.PowerNat0
 theorem power_nat0 (a : ℤ) (hH1 : 0 ≤ a) (m : ℤ) (hH2 : 0 ≤ m) :
     0 ≤ a ^ (m + 1).toNat := by
   -- 1. mun:numbers-power-nat0 m := m + 1
-  exact (Parley.Items.Stdlib.Numbers.mun_power_nat0 (a := a) hH1 (m := m + 1) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_power_nat0 (a := a) hH1 (m := m + 1) (add_nonneg (hH2) (by norm_num)))
 
 end Parley.Tests.Stdlib.Numbers.PowerNat0

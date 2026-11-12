@@ -26,6 +26,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -51,7 +52,7 @@ theorem binomial (x : ℝ) (y : ℝ) (n : ℤ) (hH3 : 0 ≤ n) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. mun:binomial-zero-index n := 0
-      have s1_1 : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
+      have s1_1 : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by norm_num))
       -- 1.2. calculation
       have s1_2 : (x + y) ^ 0 = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k.toNat : ℝ)) := by
         calc (x + y) ^ 0 = 1 := by parley_ring

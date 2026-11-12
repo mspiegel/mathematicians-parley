@@ -10,6 +10,7 @@ public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -35,7 +36,7 @@ theorem three_prime :
     intro d hK
     intro hH
     -- 2.1. mun:divides-le e := d, m := 3, from H
-    have s2_1 : d ≤ 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) hK (m := (3 : ℤ)) (by parley_side) hH)
+    have s2_1 : d ≤ 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) hK (m := (3 : ℤ)) (by norm_num) hH)
     -- 2.2. inequalities, from K
     have s2_2 : 1 ≤ d := by linarith only [hK]
     -- 2.3. mun:le-cases x := 1, y := d, from 2.2
@@ -78,6 +79,6 @@ theorem three_prime :
       -- 2.4.5. mun:or-left, from C2
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) hC2.symm)
   -- 3. def:prime p := 3, from 1, 2
-  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by parley_side))).mpr ⟨s1, s2⟩
+  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by norm_num))).mpr ⟨s1, s2⟩
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime

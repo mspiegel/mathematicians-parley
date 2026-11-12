@@ -77,7 +77,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
     have s3_3 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 2 * 0 - 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 2 * k - 1)) (a := (0 : ℤ)))
     -- 3.4. mun:sum-first n := 0
     have s3_4 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 2 * 0 - 1 + (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) := by
-      have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 * a - 1 : ℤ)) = 2 * 0 - 1 + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (2 * a - 1 : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 2 * k - 1)) (n := (0 : ℤ)) (by parley_side)))
+      have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 * a - 1 : ℤ)) = 2 * 0 - 1 + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (2 * a - 1 : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 2 * k - 1)) (n := (0 : ℤ)) (by norm_num)))
       simpa only [zero_add] using hI
     -- 3.5. algebra, from 3.3, 3.4
     have s3_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by linear_combination (norm := parley_norm) s3_3 + (-1) * s3_4

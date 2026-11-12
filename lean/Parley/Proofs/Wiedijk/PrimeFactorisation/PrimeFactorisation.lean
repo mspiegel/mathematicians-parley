@@ -28,6 +28,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Prime
@@ -144,7 +145,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
             _ = e 1 := by exact s1_18_9
             _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ))).symm
         -- 1.18.12. exhibit, from 1.18.6, 1.18.8, 1.18.11
-        have s1_18_12 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨(1 : ℤ), by parley_set_side, e, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+        have s1_18_12 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨(1 : ℤ), by norm_num, e, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
         -- 1.18.13. D1, from 1.18.12
         parley_set_side
   -- 2. instantiate N := n in line 1

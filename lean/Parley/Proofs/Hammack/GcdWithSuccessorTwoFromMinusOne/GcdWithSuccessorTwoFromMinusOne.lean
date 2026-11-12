@@ -9,6 +9,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
@@ -43,7 +44,7 @@ theorem gcd_with_successor_two_from_minus_one (n : ℤ) (hH2 : n ≥ -1) :
     have row1 : (Int.gcd n (n + 2) : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd n (n + 2) : ℤ) ∣ t)) c1 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 5. mun:divides-le e := gcd(n, n + 2), m := 2, from 2, 4
-  have s5 : (Int.gcd n (n + 2) : ℤ) ≤ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd n (n + 2) : ℤ)) s2a (m := (2 : ℤ)) (by parley_set_side) s4)
+  have s5 : (Int.gcd n (n + 2) : ℤ) ≤ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd n (n + 2) : ℤ)) s2a (m := (2 : ℤ)) (by norm_num) s4)
   -- 6. mun:le-cases x := gcd(n, n + 2), y := 2, from 5
   have s6 : (Int.gcd n (n + 2) : ℤ) < 2 ∨ (Int.gcd n (n + 2) : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (Int.gcd n (n + 2) : ℤ)) (y := (2 : ℤ)))).mp s5
   -- 7. cases, from 6

@@ -7,7 +7,9 @@ public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -17,6 +19,7 @@ public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Basic
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -140,7 +143,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.16. algebra, from 17.15
     have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by linear_combination (norm := parley_field) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15
     -- 17.17. def:rational x := √2, from 17.16
-    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by (have h := s17_16; push_cast at h ⊢; all_goals exact h)⟩
+    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, mul_pos (s17_1a) (hD2_pos), by (have h := s17_16; push_cast at h ⊢; all_goals exact h)⟩
     -- 17.18. def:irrational x := √2, from 2
     have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := by exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp s2).2
     exact s17_18 s17_17

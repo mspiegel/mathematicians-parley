@@ -147,6 +147,18 @@ pub struct Parts {
     pub facts: Vec<Node>,
     pub claims: Vec<Node>,
     pub seed: Binding,
+    /// The memberships the said-once walk adds to `facts`, each with why
+    /// the walk gives it (`once::said_once`).
+    pub said_once: Vec<SaidOnceFact>,
+}
+
+/// A membership no line states that the page says once, `k + 1 ∈ ℕ₀` of a
+/// k in ℕ₀, and why.
+#[derive(Clone, Debug)]
+pub struct SaidOnceFact {
+    /// The membership, in the standard order.
+    pub fact: Node,
+    pub reason: super::once::OnceReason,
 }
 
 /// The parts of a citation from the facts as read: each with its parts, what
@@ -187,6 +199,7 @@ pub fn finished(
         facts,
         claims,
         seed,
+        said_once: Vec::new(),
     }
 }
 

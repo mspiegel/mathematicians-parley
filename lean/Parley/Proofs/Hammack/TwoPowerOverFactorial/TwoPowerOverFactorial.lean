@@ -29,6 +29,7 @@ public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -82,7 +83,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.7. inequalities
       have s1_3_7 : 4 / (N : ℝ) < ε := by linarith only [s1_2b, div_eq_mul_one_div (4 : ℝ) ((N : ℝ))]
       -- 1.3.8. mun:power-nat a := 2, m := n
-      have s1_3_8 : (0 : ℤ) < 2 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by parley_side) (m := n) (le_of_lt hK2))
+      have s1_3_8 : (0 : ℤ) < 2 ^ n.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (2 : ℤ)) (by norm_num) (m := n) (le_of_lt hK2))
       -- 1.3.9. mun:quotient-positive x := 2^n, y := n!, from 1.3.1
       have r156_1 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s1_3_8]
       have s1_3_9 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 ^ n.toNat : ℚ)) (y := (LeanBridges.Counting.factorial n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r156_1) (by exact_mod_cast gt_iff_lt.mp s1_3_1))

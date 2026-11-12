@@ -5,17 +5,21 @@ public import Counting
 public import FactorialTactics
 public import NormTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -42,7 +46,7 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
   -- 3. def:range-between a := 0, b := m + 1, from 2
   have s3 : k ∈ Finset.Icc (0 : ℤ) (m + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := m + 1))).mpr ⟨s2b, s2c⟩
   -- 4. def:C n := m + 1, from 3
-  have s4 : (LeanBridges.Counting.choose (m + 1) k : ℚ) = (LeanBridges.Counting.factorial (m + 1) : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := m + 1) (by parley_side) (k := k)) s3
+  have s4 : (LeanBridges.Counting.choose (m + 1) k : ℚ) = (LeanBridges.Counting.factorial (m + 1) : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := m + 1) (add_nonneg (hH1) (by norm_num)) (k := k)) s3
   -- 5. inequalities, from 1
   have s5a : 0 ≤ k - 1 := by linarith only [s1a]
   have s5b : k - 1 ≤ m := by linarith only [s1b]

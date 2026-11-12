@@ -71,7 +71,7 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
         calc F 1 = G 0 := by exact s4_3
           _ = 1 := by exact s4_4
       -- 4.7. instantiate k := 0 in line 3
-      have s4_7 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s3 (0 : ℤ) (by parley_side))
+      have s4_7 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s3 (0 : ℤ) (by norm_num))
       -- 4.8. calculation
       have s4_8 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num

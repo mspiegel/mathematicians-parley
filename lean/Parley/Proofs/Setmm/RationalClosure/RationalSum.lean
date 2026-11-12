@@ -2,9 +2,12 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -27,7 +30,7 @@ theorem rational_sum (A : ℚ) (B : ℚ) :
   -- 3. algebra, from 1, 2
   have s3 : A + B = ((p : ℚ) * (s : ℚ) + (r : ℚ) * (q : ℚ)) / ((q : ℚ) * (s : ℚ)) := by linear_combination (norm := parley_field) s1b + s2b
   -- 4. exhibit, from 3
-  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A + B = (a : ℚ) / (b : ℚ) := ⟨p * s + r * q, q * s, by parley_side, by (have h := s3; push_cast at h ⊢; all_goals exact h)⟩
+  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A + B = (a : ℚ) / (b : ℚ) := ⟨p * s + r * q, q * s, mul_pos (s1a) (s2a), by (have h := s3; push_cast at h ⊢; all_goals exact h)⟩
   -- 5. def:rational x := A + B, from 4
   exact trivial
 

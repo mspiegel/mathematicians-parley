@@ -2,8 +2,10 @@ module
 
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Defs.PartialOrder
@@ -79,7 +81,7 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
       -- 1.12.10. mun:abs-difference-lt x := a(n) + b(n), c := L + M, δ := ε, from 1.12.9
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n + b n) (c := L + M) (δ := ε))).mpr ⟨s1_12_9.1, s1_12_9.2⟩
     -- 1.13. exhibit, from 1.12
-    exact ⟨P + Q, by parley_side, s1_12⟩
+    exact ⟨P + Q, add_pos (s1_6a) (s1_7a), s1_12⟩
   -- 2. def:tends-to L := L + M, from 1
   exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := (fun n : ℤ => a n + b n)) (L := L + M))).mpr s1
 

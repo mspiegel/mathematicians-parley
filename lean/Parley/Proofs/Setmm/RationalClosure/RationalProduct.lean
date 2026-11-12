@@ -2,9 +2,12 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -29,7 +32,7 @@ theorem rational_product (A : ℚ) (B : ℚ) :
       _ = (p : ℚ) / (q : ℚ) * ((r : ℚ) / (s : ℚ)) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) * t) s2b; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (p : ℚ) * (r : ℚ) / ((q : ℚ) * (s : ℚ)) := by parley_ring
   -- 4. exhibit, from 3
-  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A * B = (a : ℚ) / (b : ℚ) := ⟨p * r, q * s, by parley_side, by (have h := s3; push_cast at h ⊢; all_goals exact h)⟩
+  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A * B = (a : ℚ) / (b : ℚ) := ⟨p * r, q * s, mul_pos (s1a) (s2a), by (have h := s3; push_cast at h ⊢; all_goals exact h)⟩
   -- 5. def:rational x := A·B, from 4
   exact trivial
 

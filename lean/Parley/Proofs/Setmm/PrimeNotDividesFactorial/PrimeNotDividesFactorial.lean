@@ -5,6 +5,7 @@ public import Counting
 public import FactorialTactics
 public import Functions
 public import Tactics
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -12,6 +13,7 @@ public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -75,7 +77,7 @@ theorem prime_not_divides_factorial (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.t
           exact absurd hC1 s2_2_7_1
         · skip
           -- 2.2.7.2. mun:divides-le e := P, m := k + 1, from C2
-          exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := P) hH1 (m := k + 1) (by parley_side) hC2)
+          exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := P) hH1 (m := k + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK) (by norm_num)) hC2)
       -- 2.2.8. inequalities, from 2.2.7
       have s2_2_8 : ¬ k + 1 < P := by linarith only [s2_2_7]
       exact s2_2_8 hA

@@ -119,7 +119,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
     refine ⟨(2 ^ (p - 1).toNat), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
     exact (by
       try qify
-      calc (ArithmeticFunction.sigma 1 (2 ^ (p - 1).toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) (p - 1), (2 ^ j.toNat : ℚ)) := by exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by parley_side) r117_2 (k := p - 1) r117_1)
+      calc (ArithmeticFunction.sigma 1 (2 ^ (p - 1).toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) (p - 1), (2 ^ j.toNat : ℚ)) := by exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by norm_num) r117_2 (k := p - 1) r117_1)
         _ = (1 - 2 ^ (p - 1 + 1)) / (1 - 2) := by (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) r117_1); simp only [parley_zpow_toNat (n := p - 1 + 1) (h := add_nonneg (r117_1) (by norm_num))] at h ⊢; exact_mod_cast h)
         _ = (1 - 2 ^ p.toNat) / (1 - 2) := by (have h := congrArg (fun t : ℤ => (((1 - 2 ^ t) / (1 - 2)) : ℚ)) s1; simp only [parley_zpow_toNat (n := p - 1 + 1) (h := add_nonneg (r117_1) (by norm_num)), parley_zpow_toNat (n := p) (h := le_of_lt hH1)] at h ⊢; exact_mod_cast h)
         _ = 2 ^ p.toNat - 1 := by parley_ring)

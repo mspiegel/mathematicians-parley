@@ -6,15 +6,19 @@ public import FactorialTactics
 public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Even
+public import Mathlib.Algebra.GroupWithZero.Defs
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
@@ -34,7 +38,7 @@ namespace Parley.Proofs.Hammack.CentralBinomialEven.CentralBinomialEven
 theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
     Even (LeanBridges.Counting.choose (2 * n) n : ℤ) := by
   -- 1. mun:nat-minus-one n := 2n
-  have s1 : 0 ≤ 2 * n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := 2 * n) (by parley_side))
+  have s1 : 0 ≤ 2 * n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := 2 * n) (mul_pos (by norm_num) (hH1)))
   -- 2. inequalities, from H1
   have s2 : 1 ≤ n := by linarith only [hH1]
   -- 3. inequalities, from H1

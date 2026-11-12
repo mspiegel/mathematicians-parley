@@ -12,11 +12,13 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
+public import Mathlib.Data.Nat.Cast.Order.Ring
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
@@ -26,6 +28,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -67,7 +70,7 @@ theorem scaled_sum_integer :
     -- 7. calculation
     have s7 : (2 ^ LeanBridges.Counting.factorial (n + 1) : ℤ) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by
       calc (2 ^ LeanBridges.Counting.factorial (n + 1) : ℤ) = 2 ^ ((LeanBridges.Counting.factorial n : ℤ) * (n + 1)).toNat := by parley_subst s6
-        _ = (2 ^ LeanBridges.Counting.factorial n) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_of_power (a := (2 : ℤ)) (m := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (n := n + 1) (by parley_side))
+        _ = (2 ^ LeanBridges.Counting.factorial n) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_of_power (a := (2 : ℤ)) (m := (LeanBridges.Counting.factorial n : ℤ)) (Nat.cast_nonneg _) (n := n + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
         _ = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 ^ LeanBridges.Counting.factorial n : ℤ)) (m := n) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
     -- 8. algebra, from 5
     have s8 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 := by linear_combination (norm := parley_field) (2 ^ LeanBridges.Counting.factorial (n + 1)) * s5

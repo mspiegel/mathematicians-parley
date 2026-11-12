@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -36,7 +37,7 @@ theorem prime_two_or_odd (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) :
     -- 2.3. def:prime p := P, from H2
     have s2_3 : ∀ d : ℤ, 0 < d → d ∣ P → d = 1 ∨ d = P := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := P) hH1)).mp hH2).2
     -- 2.4. instantiate d := 2 in line 2.3
-    have s2_4 : (2 : ℤ) ∣ P → (2 : ℤ) = 1 ∨ 2 = P := by exact (s2_3 (2 : ℤ) (by parley_side))
+    have s2_4 : (2 : ℤ) ∣ P → (2 : ℤ) = 1 ∨ 2 = P := by exact (s2_3 (2 : ℤ) (by norm_num))
     -- 2.5. mun:modus-ponens, from 2.2, 2.4
     have s2_5 : (2 : ℤ) = 1 ∨ 2 = P := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ P) (Q := (2 : ℤ) = 1 ∨ 2 = P) s2_4 s2_2)
     -- 2.6. cases, from 2.5

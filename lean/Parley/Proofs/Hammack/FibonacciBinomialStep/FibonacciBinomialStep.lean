@@ -9,6 +9,7 @@ public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Cast.Basic
@@ -44,7 +45,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. mun:sum-last n := m + 1, from 1
-  have s3 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) + (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ))) (n := m + 1) (by parley_side))
+  have s3 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) + (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ))) (n := m + 1) (add_nonneg (hH1) (by norm_num)))
   -- 4. algebra
   have s4 : m + 1 + 1 - (m + 1 + 1) = 0 := by parley_ring
   -- 5. inequalities, from H1
@@ -52,7 +53,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- 6. calculation
   have s6 : (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = 0 := by
     calc (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (m + 1 + 1) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (m + 1 + 1) : ℤ)) s4; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := m + 1 + 1)) s5
+      _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := m + 1 + 1)) s5
   -- 7. substitute C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = 0 (line 6) into line 3
   have s7 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) + t)) s6 s3; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
   -- 8. proof
@@ -75,12 +76,12 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- what this block shows, Lean's types give
   -- 12. mun:sum-first n := m + 1, from 10
   have s12 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) = (LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) : ℤ) + (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by
-    have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) = (LeanBridges.Counting.choose (m + 1 - 0) (0 - 1 : ℤ) : ℤ) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (n := m + 1) (by parley_side)))
+    have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) = (LeanBridges.Counting.choose (m + 1 - 0) (0 - 1 : ℤ) : ℤ) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (n := m + 1) (add_nonneg (hH1) (by norm_num))))
     simpa only [sub_zero, zero_add] using hI
   -- 13. calculation
   have s13 : (LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) : ℤ) = 0 := by
     calc (LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (-1 : ℤ) : ℤ) := by norm_num
-      _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (by parley_side))
+      _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_1 (n := m + 1) (add_nonneg (hH1) (by norm_num)))
   -- 14. proof
   -- what this block shows, Lean's types give
   -- 15. substitute C(m + 1, 0 − 1) = 0 (line 13) into line 12

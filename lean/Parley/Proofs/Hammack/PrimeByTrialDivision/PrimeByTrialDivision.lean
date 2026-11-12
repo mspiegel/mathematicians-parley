@@ -97,7 +97,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.9. def:divides d := e, n := p, from 1.11.8
         have s1_11_9 : e ∣ p := ((Parley.Items.Stdlib.Divisibility.def_divides (d := e) (n := p))).mpr ⟨d, s1_11_8⟩
         -- 1.11.10. thm:divisor-exceeds-root d := e, from H3, 1.9, 1.11.9
-        have s1_11_10 : p < e * e := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) hH1 (d := e) (by parley_side) s1_9 s1_11_9 hH3)
+        have s1_11_10 : p < e * e := by exact (Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot.divisor_exceeds_root (p := p) hH1 (d := e) hD1_pos s1_9 s1_11_9 hH3)
         -- 1.11.11. transitivity, from 1.11.7, 1.11.8
         have s1_11_11 : e * e ≤ p := by exact LE.le.trans_eq s1_11_7 s1_11_8.symm
         -- 1.11.12. inequalities, from 1.11.11

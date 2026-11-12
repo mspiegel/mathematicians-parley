@@ -8,6 +8,7 @@ public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Finset.Defs
@@ -16,10 +17,12 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -60,7 +63,7 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
           _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => a ^ j.toNat)) (n := k) hK)
           _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by parley_side
       -- 1.4. mun:exponent-step m := k + 1
-      have s1_4 : a ^ (k + 1 + 1).toNat = a ^ (k + 1).toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := k + 1) (by parley_side))
+      have s1_4 : a ^ (k + 1 + 1).toNat = a ^ (k + 1).toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := k + 1) (add_nonneg (hK) (by norm_num)))
       -- 1.5. calculation
       have r45_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) (-1) * h)
       calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by exact s1_3

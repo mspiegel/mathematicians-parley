@@ -66,7 +66,7 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_5 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (a := (0 : ℤ)))
     -- 2.6. mun:sum-first n := 0
     have s2_6 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) + (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) := by
-      have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (n := (0 : ℤ)) (by parley_side)))
+      have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (n := (0 : ℤ)) (by norm_num)))
       simpa only [sub_zero, zero_add] using hI
     -- 2.7. algebra, from 2.5, 2.6
     have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by linear_combination (norm := parley_norm) s2_5 + (-1) * s2_6

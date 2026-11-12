@@ -3,8 +3,11 @@ module
 public import AlgebraTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
@@ -36,9 +39,9 @@ theorem coprime_to_a_product (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c 
       _ = 1 * (b * u + c * v) := by (have h := congrArg (fun t : ℤ => t * (b * u + c * v)) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 := by simpa only [one_mul] using s4
   -- 6. def:gcd a := a·b, b := c
-  have s6a : 0 < (Int.gcd (a * b) c : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (by parley_side) (b := c) hH3)
-  have s6b : (Int.gcd (a * b) c : ℤ) ∣ a * b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (by parley_side) (b := c) hH3)
-  have s6c : (Int.gcd (a * b) c : ℤ) ∣ c := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (by parley_side) (b := c) hH3)
+  have s6a : 0 < (Int.gcd (a * b) c : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := a * b) (mul_pos (hH1) (hH2)) (b := c) hH3)
+  have s6b : (Int.gcd (a * b) c : ℤ) ∣ a * b := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_2 (a := a * b) (mul_pos (hH1) (hH2)) (b := c) hH3)
+  have s6c : (Int.gcd (a * b) c : ℤ) ∣ c := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_3 (a := a * b) (mul_pos (hH1) (hH2)) (b := c) hH3)
   -- 7. mun:divides-combination e := gcd(a·b, c), a := a·b, b := c, x := x·u, y := a·x·v + y·b·u + c·y·v, from 6
   have s7 : (Int.gcd (a * b) c : ℤ) ∣ a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (a * b) c : ℤ)) (a := a * b) (b := c) (x := x * u) (y := a * x * v + y * b * u + c * y * v) s6b s6c)
   -- 8. substitute a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1 (line 5) into line 7

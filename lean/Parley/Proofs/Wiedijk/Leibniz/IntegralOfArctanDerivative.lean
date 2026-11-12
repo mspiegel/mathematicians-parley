@@ -85,7 +85,7 @@ theorem integral_of_arctan_derivative :
   -- 7. mun:function-into, from 6
   have s7 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 8. thm:integrand-continuous n := 0, from 2, 7
-  have s8 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := (0 : ℤ)) (by parley_set_side) (g := g) (by parley_set_side) (by simpa only [Int.reduceMul, Int.reduceToNat, Nat.reduceMul] using s2))
+  have s8 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := (0 : ℤ)) (by norm_num) (g := g) (by parley_set_side) (by simpa only [Int.reduceMul, Int.reduceToNat, Nat.reduceMul] using s2))
   -- 9. thm:continuous-arctan D := [0, 1], from 1, 3, 5
   have s9 : ContinuousOn F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Trigonometry.thm_continuous_arctan (g := F) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 s3)
   -- 10. thm:derivative-arctan D := [0, 1], U := (0, 1), from 1, 3, 5

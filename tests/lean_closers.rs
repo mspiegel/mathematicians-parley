@@ -352,6 +352,13 @@ const SITES: &[Site] = &[
         list: false,
         why: "a theorem proved on another page, cited: each hypothesis by the line the checker found it in, found by where the theorem writes it (Supplied::at)",
     },
+    Site {
+        file: "lean/Parley/Stdlib/Calculus/LimitAtMost.lean",
+        step: "8",
+        holds: "(add_pos (s5a) (hH5))",
+        list: false,
+        why: "M + N in ℕ, which no line states and the page says once of M and N in ℕ: proved from the reason the said-once walk gives (SuppliedBy::Walked), add_pos of each letter's line",
+    },
 ];
 
 /// The lines of the step `step` in `text`: from its comment to the next

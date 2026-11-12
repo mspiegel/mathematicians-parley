@@ -5,6 +5,8 @@ public import InstanceTactics
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -12,6 +14,7 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -55,7 +58,7 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
               exact hI
           _ = 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by (have h := congrArg (fun t : ℚ => t + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1))) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 - 1 / ((k : ℚ) + 1 + 1) := by
-              have hI : 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by parley_instance ((Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep.reciprocal_step (m := k + 1) (by parley_side)))
+              have hI : 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by parley_instance ((Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep.reciprocal_step (m := k + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK) (by norm_num))))
               exact hI
       (have h := s2_2; push_cast at h ⊢; all_goals exact h)
   -- 3. instantiate k := n in line 2

@@ -10,6 +10,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -28,13 +29,13 @@ namespace Parley.Proofs.Hammack.RationalSquaresSumNotThree.SquareModThree
 theorem square_mod_three (n : ℤ) :
     ((3 : ℤ) ∣ n ^ 2 ∨ (3 : ℤ) ∣ n ^ 2 - 1) := by
   -- 1. mun:mod-natural a := n, b := 3
-  have s1 : 0 ≤ n % (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := n) (b := (3 : ℤ)) (by parley_side))
+  have s1 : 0 ≤ n % (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := n) (b := (3 : ℤ)) (by norm_num))
   -- 2. mun:mod-less a := n, b := 3
-  have s2 : n % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := n) (b := (3 : ℤ)) (by parley_side))
+  have s2 : n % (3 : ℤ) < 3 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := n) (b := (3 : ℤ)) (by norm_num))
   -- 3. thm:residue-mod-three r := n mod 3, from 1, 2
   have s3 : (n % (3 : ℤ) = 0 ∨ n % (3 : ℤ) = 1) ∨ n % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := n % (3 : ℤ)) s1 s2)
   -- 4. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 1, 2
-  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by parley_side) (r := n % (3 : ℤ)) s1 s2)).mp (by parley_side)
+  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by norm_num) (r := n % (3 : ℤ)) s1 s2)).mp (by parley_side)
   -- 5. cases, from 3
   rcases s3 with (hC1 | hC2) | hC3
   · skip

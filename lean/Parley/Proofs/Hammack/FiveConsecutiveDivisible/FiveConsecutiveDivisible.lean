@@ -106,7 +106,7 @@ theorem five_consecutive_divisible (n : ℤ) :
       set k : ℤ := -n - 4 with hD1
       have hD1_pos := hD1_kind
       -- 2.7.10. mun:nat-minus-one n := k
-      have s2_7_10 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side))
+      have s2_7_10 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) hD1_pos)
       set P : ℤ := (k - 1 + 1) * (k - 1 + 2) * (k - 1 + 3) * (k - 1 + 4) * (k - 1 + 5) with hD2
       have hD2_kind : True := by parley_side
       -- 2.7.11. thm:five-consecutive-natural m := k − 1, from D2, 2.7.10

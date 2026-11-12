@@ -13,6 +13,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -33,7 +34,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. thm:pascal n := 0, k := 1
-      have s1_1 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by simpa only [zero_add] using (Parley.Items.Stdlib.Counting.thm_pascal (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ)))
+      have s1_1 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by simpa only [zero_add] using (Parley.Items.Stdlib.Counting.thm_pascal (n := (0 : ℤ)) (by norm_num) (k := (1 : ℤ)))
       -- 1.2. substitute
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by
         have c1 : (1 - 1 : ℤ) = 0 := by parley_arith
@@ -42,9 +43,9 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. arithmetic
       have s1_3 : (0 : ℤ) < 1 := by parley_arith
       -- 1.4. def:C n := 0, k := 1, from 1.3
-      have s1_4 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) s1_3
+      have s1_4 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (1 : ℤ))) s1_3
       -- 1.5. mun:binomial-zero-index n := 0
-      have s1_5 : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
+      have s1_5 : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by norm_num))
       -- 1.6. algebra, from 1.2, 1.4, 1.5
       linear_combination (norm := parley_norm) (-1) * s1_2 + s1_4 + s1_5
     | succ k hK hIH =>

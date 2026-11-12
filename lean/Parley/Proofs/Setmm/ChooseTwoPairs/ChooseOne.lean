@@ -8,6 +8,7 @@ public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -30,7 +31,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.1. arithmetic
       have s1_1 : (0 : ℤ) < 1 := by parley_arith
       -- 1.2. def:C n := 0, k := 1, from 1.1
-      exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) s1_1
+      exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (1 : ℤ))) s1_1
     | succ k hK hIH =>
       -- 1.3. thm:pascal n := k, k := 1
       have s1_3 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) hK (k := (1 : ℤ)))

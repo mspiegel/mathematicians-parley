@@ -9,6 +9,7 @@ public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -29,6 +30,6 @@ theorem eleven_divides_power_of_two_less_one :
   -- 2. def:divides d := 11, n := 2^10 − 1, from 1
   have s2 : (11 : ℤ) ∣ (2 ^ 10 - 1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (11 : ℤ)) (n := (2 ^ 10 - 1 : ℤ)))).mpr ⟨(93 : ℤ), s1⟩
   -- 3. exhibit, from 2
-  exact ⟨(10 : ℤ), by parley_side, by simpa only [Int.reduceToNat] using s2⟩
+  exact ⟨(10 : ℤ), by norm_num, by simpa only [Int.reduceToNat] using s2⟩
 
 end Parley.Proofs.Hammack.ElevenDividesPowerOfTwoLessOne.ElevenDividesPowerOfTwoLessOne

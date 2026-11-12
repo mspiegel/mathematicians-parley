@@ -8,6 +8,8 @@ public import Functions
 public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
@@ -49,7 +51,7 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       calc T 1 = (∑ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (i * (1 - i + 1) : ℤ)) := by simp (disch := omega) only [hD1]
         _ = 1 * (1 - 1 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun i : ℤ => i * (1 - i + 1))) (a := (1 : ℤ)))
         _ = 1 := by norm_num
-        _ = (LeanBridges.Counting.choose (3 : ℤ) (3 : ℤ) : ℤ) := by exact (Parley.Proofs.Hammack.BinomialOnTheDiagonal.BinomialOnTheDiagonal.binomial_on_the_diagonal (m := (3 : ℤ)) (by parley_side)).symm
+        _ = (LeanBridges.Counting.choose (3 : ℤ) (3 : ℤ) : ℤ) := by exact (Parley.Proofs.Hammack.BinomialOnTheDiagonal.BinomialOnTheDiagonal.binomial_on_the_diagonal (m := (3 : ℤ)) (by norm_num)).symm
         _ = (LeanBridges.Counting.choose (1 + 2 : ℤ) (3 : ℤ) : ℤ) := by norm_num
     | succ j hK hIH =>
       -- 1.2. proof
@@ -67,9 +69,9 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       have r56_1 : j ≥ 1 := by parley_side
       have s1_7 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) + (j + 1) * (j - (j + 1) + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun i : ℤ => i * (j - i + 1))) (a := (1 : ℤ)) (n := j) r56_1)
       -- 1.8. thm:sum-of-first-naturals-is-a-binomial n := j + 1
-      have s1_8 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 1 + 1) (2 : ℤ) : ℤ) := by exact (Parley.Proofs.Hammack.SumOfFirstNaturalsIsABinomial.SumOfFirstNaturalsIsABinomial.sum_of_first_naturals_is_a_binomial (n := j + 1) (by parley_side))
+      have s1_8 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 1 + 1) (2 : ℤ) : ℤ) := by exact (Parley.Proofs.Hammack.SumOfFirstNaturalsIsABinomial.SumOfFirstNaturalsIsABinomial.sum_of_first_naturals_is_a_binomial (n := j + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK) (by norm_num)))
       -- 1.9. thm:pascal n := j + 2, k := 3
-      have s1_9 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (3 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j + 2) (by parley_side) (k := (3 : ℤ)))
+      have s1_9 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (3 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j + 2) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)) (k := (3 : ℤ)))
       -- 1.10. substitute 3 − 1 = 2 (arithmetic) into line 1.9
       have s1_10 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by
         have e_arith : (3 - 1 : ℤ) = 2 := by parley_arith

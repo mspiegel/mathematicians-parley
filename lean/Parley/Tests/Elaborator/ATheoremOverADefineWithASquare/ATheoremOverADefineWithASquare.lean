@@ -18,6 +18,7 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
@@ -32,6 +33,6 @@ namespace Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ATheoremOverADe
 theorem a_theorem_over_a_define_with_a_square :
     (∫ t in 0..1, (t ^ 0 / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ 0 / (1 + t ^ 2) : ℝ)) := by
   -- 1. thm:a-define-with-a-square-written-out n := 0
-  exact (Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ADefineWithASquareWrittenOut.a_define_with_a_square_written_out (n := (0 : ℤ)) (by parley_side))
+  exact (Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ADefineWithASquareWrittenOut.a_define_with_a_square_written_out (n := (0 : ℤ)) (by norm_num))
 
 end Parley.Tests.Elaborator.ATheoremOverADefineWithASquare.ATheoremOverADefineWithASquare

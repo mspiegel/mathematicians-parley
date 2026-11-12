@@ -8,11 +8,14 @@ public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -71,7 +74,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         calc F 1 = G 0 := by exact s5_2
           _ = 1 := by exact s5_3
       -- 5.6. instantiate k := 0 in line 4
-      have s5_6 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s4 (0 : ℤ) (by parley_side))
+      have s5_6 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s4 (0 : ℤ) (by norm_num))
       -- 5.7. calculation
       have s5_7 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num
@@ -94,7 +97,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         have row1 : q (m + 1) = F (2 * m + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => q (m + 1) = F t)) c1 s5_10; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 5.12. instantiate k := 2m in line 4
-      have s5_12 : F (2 * m + 2) = F (2 * m) + F (2 * m + 1) := by exact (s4 (2 * m) (by parley_side))
+      have s5_12 : F (2 * m + 2) = F (2 * m) + F (2 * m + 1) := by exact (s4 (2 * m) (mul_nonneg (by norm_num) (le_of_lt (lt_of_lt_of_le zero_lt_one hK4))))
       -- 5.13. substitute
       have s5_13 : F (2 * (m + 1)) = F (2 * m) + F (2 * m + 1) := by
         have c1 : 2 * m + 2 = 2 * (m + 1) := by parley_ring

@@ -41,7 +41,7 @@ theorem choose_four_two :
   have r89_1 : (0 : ℤ) ≤ 2 := by parley_arith
   have r89_2 : (2 : ℤ) ≤ 4 := by parley_arith
   have r89_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr ⟨r89_1, r89_2⟩
-  have s3 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (4 - 2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by parley_side) (k := (2 : ℤ))) (by parley_side)
+  have s3 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial (4 : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (4 - 2 : ℤ) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := (4 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by parley_side)
   -- 4. arithmetic
   have s4 : (4 - 2 : ℤ) = 2 := by parley_arith
   -- 5. substitute 4 − 2 = 2 (line 4) into line 3

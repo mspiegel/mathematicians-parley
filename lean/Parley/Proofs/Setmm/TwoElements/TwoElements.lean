@@ -35,16 +35,16 @@ theorem two_elements {α : Type*} (V : Set α) :
       calc (V.ncard : ℤ) = 2 := by parley_set_side
         _ = 1 + 1 := by norm_num)
     -- 2. obtain b: mun:card-nonempty X := V, k := 1, from 1
-    obtain ⟨b, s2, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V) (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side))
+    obtain ⟨b, s2, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V) (k := (1 : ℤ)) (by norm_num) (by parley_set_side))
     -- 3. mun:card-remove X := V, a := b, k := 1, from 1, 2
-    have s3 : ((V \ ({b} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V) (a := b) s2 (k := (1 : ℤ)) (by parley_set_side) (by parley_set_side))
+    have s3 : ((V \ ({b} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V) (a := b) s2 (k := (1 : ℤ)) (by norm_num) (by parley_set_side))
     -- 4. obtain a: mun:card-nonempty X := V ∖ {b}, k := 0, from 3
-    obtain ⟨a, s4, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V \ ({b} : Set α)) (k := (0 : ℤ)) (by parley_set_side) (by parley_set_side))
+    obtain ⟨a, s4, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V \ ({b} : Set α)) (k := (0 : ℤ)) (by norm_num) (by parley_set_side))
     -- 5. mun:remove-member u := a, Y := V, a := b, from 4
     have s5a : a ∈ V := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).1
     have s5b : ¬ a = b := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).2
     -- 6. mun:card-remove X := V ∖ {b}, k := 0, from 3, 4
-    have s6 : (((V \ ({b} : Set α)) \ ({a} : Set α)).ncard : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V \ ({b} : Set α)) (a := a) s4 (k := (0 : ℤ)) (by parley_set_side) (by parley_set_side))
+    have s6 : (((V \ ({b} : Set α)) \ ({a} : Set α)).ncard : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V \ ({b} : Set α)) (a := a) s4 (k := (0 : ℤ)) (by norm_num) (by parley_set_side))
     -- 7. proof
     have s7 : ∀ t ∈ V, t ∈ ({a, b} : Set α) := by
       intro t hK1

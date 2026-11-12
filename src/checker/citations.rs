@@ -1026,6 +1026,15 @@ fn supplied_at(
         None => step.requires.iter().map(read).collect(),
         Some(line) => step.requires_above(line).map(read).collect(),
     };
+    let parts = known.parts(step, library);
+    // A membership the said-once walk gives, for its reason.
+    let walked = |fact: &Node| {
+        parts
+            .said_once
+            .iter()
+            .find(|s| alike(&s.fact, fact, ctx, &none, &none))
+            .map(|s| SuppliedBy::Walked(s.clone()))
+    };
     supplying
         .into_iter()
         .map(|Supplying { want, fact, at }| {
@@ -1057,8 +1066,10 @@ fn supplied_at(
                 Some(at) => SuppliedBy::Line(at),
                 None => match written.or_else(implied) {
                     Some(by) => by,
-                    None => said_once_at(step, item, &fact, known, library)
-                        .map_or(SuppliedBy::Unstated, SuppliedBy::SaidOnce),
+                    None => match said_once_at(step, item, &fact, known, library) {
+                        Some(line) => SuppliedBy::SaidOnce(line),
+                        None => walked(&fact).unwrap_or(SuppliedBy::Unstated),
+                    },
                 },
             };
             Supplied { want, by, at }

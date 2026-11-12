@@ -7437,6 +7437,7 @@ impl<'a> Proof<'a> {
                     }
                 }
             }
+            SuppliedBy::Walked(walked) => return self.walked_proof(walked, wanted),
             SuppliedBy::Unstated => return Route::no("no line states it"),
         };
         use super::doc::forms;
@@ -8663,8 +8664,27 @@ impl<'a> Proof<'a> {
         use crate::rules::System;
         let ctx = self.sources.ctx;
         let mut known = known.to_vec();
-        // What the lines in scope bound below at 0 or above, each from the
-        // line that says it (`Bound::said_by`): 4.3's `0 < e`.
+        known.extend(self.wholes_in_scope());
+        let known = known.as_slice();
+        let letters = self.writer.page_systems();
+        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
+        let said = |t: &Node, s: System| {
+            (System::N0.within(s)
+                && known
+                    .iter()
+                    .any(|k| crate::matching::alike_top(&k.term, t, ctx)))
+            .then_some(OnceReason::Stated)
+        };
+        let reason =
+            crate::citing::reason_within(e, System::N0, &letters, &nonzero, &said)?;
+        self.nonneg_by(e, &reason, known)
+    }
+
+    /// The terms the lines in scope put at 0 or above, each with its proof
+    /// of `0 ≤ t`: a line's bound (`Bound::said_by`), 4.3's `0 < e`, and a
+    /// membership of ℕ or ℕ₀ the step names.
+    fn wholes_in_scope(&self) -> Vec<ShownWhole> {
+        let mut known = Vec::new();
         for b in self.writer.bounds.terms.iter().filter(|b| b.least >= 0) {
             if let Some(proof) = self.bound_nonneg(b) {
                 known.push(ShownWhole {
@@ -8686,19 +8706,91 @@ impl<'a> Proof<'a> {
                 }
             }
         }
-        let known = known.as_slice();
-        let letters = self.writer.page_systems();
-        let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, &letters);
-        let said = |t: &Node, s: System| {
-            (System::N0.within(s)
-                && known
-                    .iter()
-                    .any(|k| crate::matching::alike_top(&k.term, t, ctx)))
-            .then_some(OnceReason::Stated)
+        known
+    }
+
+    /// The proof of `wanted`, a membership the said-once walk gives
+    /// (`SuppliedBy::Walked`) as Lean states it, from the walk's reason:
+    /// `0 ≤ t` of a t in ℕ₀ (`nonneg_by`), `0 < t` of one in ℕ
+    /// (`positive_by`). Declined for a membership Lean states otherwise,
+    /// or a reason those write no proof for.
+    fn walked_proof(
+        &self,
+        walked: &crate::citing::SaidOnceFact,
+        wanted: &Printed,
+    ) -> Route<Printed> {
+        use super::{doc::LeanType, templates::Num};
+        use crate::rules::System;
+        let [term, set] = walked.fact.children.as_slice() else {
+            return Route::no("a said-once fact that is no membership");
         };
-        let reason =
-            crate::citing::reason_within(e, System::N0, &letters, &nonzero, &said)?;
-        self.nonneg_by(e, &reason, known)
+        if super::doc::forms::relation_type(wanted) != Some(LeanType::Num(Num::Int)) {
+            return Route::no("a said-once membership Lean states outside ℤ");
+        }
+        let proof = match (System::of_sign(&set.text), relation_symbol(wanted)) {
+            (Some(System::N0), Some("≤")) => {
+                self.nonneg_by(term, &walked.reason, &self.wholes_in_scope())
+            }
+            (Some(System::N), Some("<")) => self.positive_by(term, &walked.reason),
+            _ => {
+                return Route::no("a said-once membership Lean states as no bound at 0")
+            }
+        };
+        match proof {
+            Some(p) => Route::Built(p),
+            None => Route::no("a said-once reason no proof is written for"),
+        }
+    }
+
+    /// `0 < e` for the reason the said-once walk puts e in ℕ: a numeral, by
+    /// `norm_num`; a letter, from the line that introduces it in ℕ; a sum or
+    /// a product of parts in ℕ, `add_pos` or `mul_pos` of theirs. None for
+    /// any other reason.
+    fn positive_by(
+        &self,
+        e: &Node,
+        reason: &crate::citing::OnceReason,
+    ) -> Option<Printed> {
+        use crate::citing::OnceReason;
+        use crate::notations::{ADDITIVE, MULTIPLICATIVE, PLUS, TIMES};
+        let both = |lemma: &str, reasons: &[OnceReason]| {
+            let ([a, b], [ra, rb]) = (e.children.as_slice(), reasons) else {
+                return None;
+            };
+            Some(Printed::applied(
+                lemma,
+                super::doc::Source::Mathlib,
+                vec![
+                    super::tactics::bracket(self.positive_by(a, ra)?),
+                    super::tactics::bracket(self.positive_by(b, rb)?),
+                ],
+                super::doc::LeanType::Prop,
+            ))
+        };
+        match (reason, e.notation()) {
+            (OnceReason::Numeral, _) => Some(norm_num_term()),
+            (OnceReason::Letter, _) => self.letter_positive(e),
+            (OnceReason::Built(reasons), ADDITIVE) if e.spelling() == PLUS => {
+                both("add_pos", reasons)
+            }
+            (OnceReason::Built(reasons), MULTIPLICATIVE) if e.spelling() == TIMES => {
+                both("mul_pos", reasons)
+            }
+            _ => None,
+        }
+    }
+
+    /// `0 < n` of a letter the line in scope that introduces it puts in ℕ,
+    /// which Lean states so. None where no line in scope introduces it in ℕ.
+    fn letter_positive(&self, e: &Node) -> Option<Printed> {
+        if !e.is_name() {
+            return None;
+        }
+        self.trees.values().flatten().find_map(|s| {
+            let (letter, system) = super::statement::introduces(&s.node)?;
+            (letter.as_str() == &*e.text && system == super::expr::System::Positive)
+                .then(|| s.proof.clone())
+        })
     }
 
     /// `0 ≤ t` of a term a line in scope bounds below at 0 or above

@@ -8,8 +8,10 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -43,7 +45,7 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
       have s1_4 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) hK)
       -- 1.5. calculation
       calc (2 ^ (a + (k + 1)).toNat : ℤ) = 2 ^ (a + k + 1).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = 2 ^ (a + k).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := a + k) (by parley_side))
+        _ = 2 ^ (a + k).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := a + k) (add_nonneg (hH1) (hK)))
         _ = 2 ^ a.toNat * 2 ^ k.toNat * 2 := by (have h := congrArg (fun t : ℤ => t * 2) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 ^ a.toNat * (2 ^ k.toNat * 2) := by parley_ring
         _ = 2 ^ a.toNat * 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)

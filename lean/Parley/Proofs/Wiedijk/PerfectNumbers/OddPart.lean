@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Basic.SetLike.Basic
@@ -25,6 +26,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
@@ -105,12 +107,12 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.14. algebra, from 1.7.1, 1.7.12, 1.7.13
           have s1_7_14 : j = 2 ^ (k + 1).toNat * m := by linear_combination (norm := parley_norm) s1_7_1 + (2) * s1_7_12d + (-m) * s1_7_13
           -- 1.7.15. exhibit, from 1.7.12, 1.7.14
-          exact ⟨k + 1, by parley_side, m, s1_7_12b, ⟨s1_7_12c, s1_7_14⟩⟩
+          exact ⟨k + 1, add_nonneg (s1_7_12a) (by norm_num), m, s1_7_12b, ⟨s1_7_12c, s1_7_14⟩⟩
         · skip
           -- 1.7.16. algebra
           have s1_7_16 : j = 2 ^ 0 * j := by parley_ring
           -- 1.7.17. exhibit, from C2, 1.7.16
-          exact ⟨(0 : ℤ), by parley_side, j, by parley_side, ⟨hC2, by simpa only [Int.reduceToNat] using s1_7_16⟩⟩
+          exact ⟨(0 : ℤ), by norm_num, j, by parley_side, ⟨hC2, by simpa only [Int.reduceToNat] using s1_7_16⟩⟩
       -- 1.8. D1, from 1.7
       parley_side
   -- 2. instantiate N := n in line 1

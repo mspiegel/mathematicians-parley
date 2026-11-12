@@ -9,6 +9,7 @@ public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Parley.Items.Stdlib.Counting
 
@@ -21,6 +22,6 @@ namespace Parley.Tests.Stdlib.Counting.SizeOfARange
 theorem size_of_a_range :
     ((Set.Icc (1 : ℤ) (12 : ℤ) : Set ℤ).ncard : ℤ) = 12 := by
   -- 1. mun:range-size n := 12
-  exact (Parley.Items.Stdlib.Counting.mun_range_size (n := (12 : ℤ)) (by parley_set_side))
+  exact (Parley.Items.Stdlib.Counting.mun_range_size (n := (12 : ℤ)) (by norm_num))
 
 end Parley.Tests.Stdlib.Counting.SizeOfARange

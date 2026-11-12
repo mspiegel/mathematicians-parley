@@ -6,13 +6,17 @@ public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -30,7 +34,7 @@ namespace Parley.Proofs.Hammack.ChooseTwoOfADouble.ChooseTwoOfADouble
 theorem choose_two_of_a_double (n : ℤ) (hH1 : 0 ≤ n) :
     (LeanBridges.Counting.choose (2 * n) (2 : ℤ) : ℤ) = 2 * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n ^ 2 := by
   -- 1. thm:binomial-of-two m := 2n
-  have s1 : 2 * (LeanBridges.Counting.choose (2 * n) (2 : ℤ) : ℤ) = 2 * n * (2 * n - 1) := by exact (Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo.binomial_of_two (m := 2 * n) (by parley_side))
+  have s1 : 2 * (LeanBridges.Counting.choose (2 * n) (2 : ℤ) : ℤ) = 2 * n * (2 * n - 1) := by exact (Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo.binomial_of_two (m := 2 * n) (mul_nonneg (by norm_num) (hH1)))
   -- 2. thm:binomial-of-two m := n
   have s2 : 2 * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = n * (n - 1) := by exact (Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo.binomial_of_two (m := n) hH1)
   -- 3. algebra, from 1, 2

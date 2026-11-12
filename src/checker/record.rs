@@ -1010,8 +1010,11 @@ pub enum SuppliedBy {
     /// A `let` line in scope the step does not name: a membership said once
     /// where the letter is let, or what that membership implies.
     SaidOnce(FirstAt),
-    /// No line: a fact the citation's values make true, or a membership
-    /// said once of a term no `let` line writes.
+    /// No line: a membership the page says once of a term no `let` line
+    /// writes, `k + 1 ∈ ℕ₀` of a k in ℕ₀, for the reason the said-once walk
+    /// gives.
+    Walked(crate::citing::SaidOnceFact),
+    /// No line: a fact the citation's values make true.
     Unstated,
 }
 

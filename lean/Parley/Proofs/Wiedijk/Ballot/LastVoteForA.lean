@@ -7,6 +7,8 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
@@ -153,7 +155,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.5. mun:subset-transitive, from 4, 8.2
     have s8_5 : T ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := T) (Y := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) s8_2a s4)
     -- 8.6. mun:range-end n := m + n
-    have s8_6 : m + n ∈ Finset.Icc (1 : ℤ) (m + n) := by exact (Parley.Items.Stdlib.Sums.mun_range_end (n := m + n) (by parley_set_side))
+    have s8_6 : m + n ∈ Finset.Icc (1 : ℤ) (m + n) := by exact (Parley.Items.Stdlib.Sums.mun_range_end (n := m + n) (add_pos (hH1) (hH2)))
     -- 8.7. mun:singleton-subset, from 8.6
     have s8_7 : ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (a := m + n) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s8_6))
     -- 8.8. mun:union-subset, from 8.5, 8.7

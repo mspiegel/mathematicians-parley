@@ -9,7 +9,9 @@ public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Analysis.InnerProductSpace.Basic
 public import Mathlib.Analysis.InnerProductSpace.Defs
 public import Mathlib.Analysis.Normed.Group.Defs
@@ -29,6 +31,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -71,7 +74,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 7. mun:function-into, from 5
   have s7 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
   -- 8. thm:continuous-power D := [0, 1], n := 2n, from 1, 2, 6
-  have s8 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (n := 2 * n) (by parley_set_side) s2)
+  have s8 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s1 (n := 2 * n) (mul_nonneg (by norm_num) (hH1)) s2)
   -- 9. thm:integrand-continuous, from 3, 7
   have s9 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (by parley_set_side) s3)
   -- 10. proof
@@ -80,7 +83,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     -- 10.1. def:interval a := 0, b := 1, from K1
     have s10_1 : x ≥ 0 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := (1 : ℝ)))).mp hK1).1.2
     -- 10.2. mun:power-nonneg a := x, m := 2n, from 10.1
-    have s10_2 : x ^ (2 * n).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := x) (m := 2 * n) (by parley_set_side) s10_1)
+    have s10_2 : x ^ (2 * n).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := x) (m := 2 * n) (mul_nonneg (by norm_num) (hH1)) s10_1)
     -- 10.3. mun:square-nonneg
     have s10_3 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 10.4. inequalities, from 10.3
@@ -98,7 +101,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     -- 11.1. def:interval a := 0, b := 1, from K2
     have s11_1 : x ≥ 0 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := (1 : ℝ)))).mp hK2).1.2
     -- 11.2. mun:power-nonneg a := x, m := 2n, from 11.1
-    have s11_2 : x ^ (2 * n).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := x) (m := 2 * n) (by parley_set_side) s11_1)
+    have s11_2 : x ^ (2 * n).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := x) (m := 2 * n) (mul_nonneg (by norm_num) (hH1)) s11_1)
     -- 11.3. mun:square-nonneg
     have s11_3 : x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
     -- 11.4. inequalities, from 11.3
@@ -124,7 +127,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   have s14 : (∫ t in 0..1, (g t : ℝ)) ≤ (∫ t in 0..1, (f t : ℝ)) := by exact (Parley.Items.Stdlib.Calculus.thm_integral_order (f := g) (g := f) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) s11 s9 s8)
   -- 15. thm:power-integral m := 2n
   have s15 : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by
-    have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (by parley_set_side)))
+    have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (mul_nonneg (by norm_num) (hH1))))
     exact hI
   -- 16. D1
   have s16 : (∫ t in 0..1, (f t : ℝ)) = (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) := by simp (disch := omega) only [hD1]
@@ -139,7 +142,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   -- 21. transitivity, from 17, 13
   have s21 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by exact LE.le.trans_eq s13 s17.symm
   -- 22. transitivity, from 17, 14, 16, 15
-  have r668_2 : 0 < 2 * n + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * n) (by parley_set_side))
+  have r668_2 : 0 < 2 * n + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * n) (mul_nonneg (by norm_num) (hH1)))
   have s22 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * (n : ℝ) + 1) := by exact LE.le.trans_eq (LE.le.trans_eq (Eq.trans_le s17 s14) s16) s15
   -- 23. join 20, 21, 22
   have s23a : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := s21

@@ -4,12 +4,15 @@ public import NormTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -34,7 +37,7 @@ theorem last_place (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c : Set 
   -- 2. mun:card-difference X := {1, …, m + n}, Y := c, from H3, 1
   have s2 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = ((Set.Icc (1 : ℤ) (m + n) : Set ℤ).ncard : ℤ) - (c.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) s1 hH3)
   -- 3. mun:range-size n := m + n
-  have s3 : ((Set.Icc (1 : ℤ) (m + n) : Set ℤ).ncard : ℤ) = m + n := by exact (Parley.Items.Stdlib.Counting.mun_range_size (n := m + n) (by parley_set_side))
+  have s3 : ((Set.Icc (1 : ℤ) (m + n) : Set ℤ).ncard : ℤ) = m + n := by exact (Parley.Items.Stdlib.Counting.mun_range_size (n := m + n) (add_nonneg (hH1) (hH2)))
   -- 4. algebra, from H4, 2, 3
   have s4 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by parley_count_int; (linear_combination (norm := parley_norm) (-1) * hH4 + s2 + s3)
   -- 5. mun:intersection-of-part X := {1, …, m + n}, Y := c, from H3

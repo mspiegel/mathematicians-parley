@@ -502,6 +502,7 @@ fn supplier(by: &parley::checker::record::SuppliedBy) -> String {
             Some(rule) => format!("requires {} implied by {rule:?}", line + 1),
             None => format!("requires {}", line + 1),
         },
+        SuppliedBy::Walked(walked) => format!("walked {:?}", walked.reason),
         SuppliedBy::Unstated => "unstated".to_string(),
     }
 }
