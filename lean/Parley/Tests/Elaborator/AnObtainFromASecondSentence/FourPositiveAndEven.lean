@@ -22,8 +22,8 @@ theorem four_positive_and_even :
   -- 3. arithmetic
   have s3 : (4 : ℤ) > 0 := by parley_arith
   -- 4. join 3, 2
-  have s4a : (4 : ℤ) > 0 := by parley_side
-  have s4b : ∃ k : ℤ, 4 = 2 * k := by parley_side
+  have s4a : (4 : ℤ) > 0 := s3
+  have s4b : ∃ k : ℤ, 4 = 2 * k := s2
   exact ⟨s4a, s4b⟩
 
 end Parley.Tests.Elaborator.AnObtainFromASecondSentence.FourPositiveAndEven

@@ -33,8 +33,8 @@ theorem square_window_out (t : ℝ) (hH2 : t ≥ 0) (hH3 : 12 ≤ t ^ 2 + 3) (hH
   have r70_1 : (4 : ℤ) ≥ 0 := by parley_arith
   have s4 : t ≤ 4 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := t) (y := (4 : ℝ)) hH2 (by parley_side))).mpr s2
   -- 5. join 3, 4
-  have s5a : 3 ≤ t := by parley_side
-  have s5b : t ≤ 4 := by parley_side
+  have s5a : 3 ≤ t := s3
+  have s5b : t ≤ 4 := s4
   exact ⟨s5a, s5b⟩
 
 end Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut

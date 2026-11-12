@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
@@ -65,7 +64,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   have s4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 5. membership, from D2
   have r556_1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), x ^ 2 ≥ 0 := by intro x h_x; (exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)))
-  have r556_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), 1 + x ^ 2 > 0 := by intro x h_x; (parley_order)
+  have r556_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), 1 + x ^ 2 > 0 := by intro x h_x; (linarith only [r556_1 x h_x])
   have s5 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 6. mun:function-into, from 4
   have s6 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
@@ -143,8 +142,8 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   have r668_2 : 0 < 2 * n + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * n) (by parley_set_side))
   have s22 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * (n : ℝ) + 1) := by exact LE.le.trans_eq (LE.le.trans_eq (Eq.trans_le s17 s14) s16) s15
   -- 23. join 20, 21, 22
-  have s23a : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by parley_set_side
-  have s23b : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * (n : ℝ) + 1) := by parley_set_side
+  have s23a : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := s21
+  have s23b : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * (n : ℝ) + 1) := s22
   exact ⟨trivial, s23a, s23b⟩
 
 end Parley.Proofs.Wiedijk.Leibniz.IntegralBounds

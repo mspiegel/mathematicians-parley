@@ -103,8 +103,8 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
           _ = F 0 + G 0 := by (have h := congrArg (fun t : ℤ => t + G 0) s2_13.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = G 1 := by parley_side
       -- 2.15. join 2.3, 2.14
-      have s2_15a : S 0 = G 0 := by parley_side
-      have s2_15b : S 1 = G 1 := by parley_side
+      have s2_15a : S 0 = G 0 := s2_3
+      have s2_15b : S 1 = G 1 := s2_14
       exact ⟨s2_15a, by simpa only [zero_add] using s2_15b⟩
     | succ j hK hIH =>
       -- 2.16. calculation
@@ -134,8 +134,8 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
           _ = F (j + 1) + G (j + 1) := by (have h := congrArg (fun t : ℤ => t + G (j + 1)) s2_21.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = G (j + 1 + 1) := by exact s2_20.symm
       -- 2.23. join 2.16, 2.22
-      have s2_23a : S (j + 1) = G (j + 1) := by parley_side
-      have s2_23b : S (j + 1 + 1) = G (j + 1 + 1) := by parley_side
+      have s2_23a : S (j + 1) = G (j + 1) := s2_16
+      have s2_23b : S (j + 1 + 1) = G (j + 1 + 1) := s2_22
       exact ⟨s2_23a, s2_23b⟩
   -- 3. instantiate j := n in line 2
   have s3 : S n = G n ∧ S (n + 1) = G (n + 1) := by exact (s2 n hH1)

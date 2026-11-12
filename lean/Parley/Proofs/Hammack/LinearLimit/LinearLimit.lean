@@ -55,7 +55,7 @@ theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
       -- 1.2.6. transitivity, from 1.2.1, 1.2.5
       have s1_2_6 : f x < 37 + ε := by exact Eq.trans_lt s1_2_1 s1_2_5
       -- 1.2.7. join 1.2.4, 1.2.6
-      have s1_2_7 : 37 - ε < f x ∧ f x < 37 + ε := by parley_set_side
+      have s1_2_7 : 37 - ε < f x ∧ f x < 37 + ε := ⟨s1_2_4, s1_2_6⟩
       -- 1.2.8. mun:abs-difference-lt x := f(x), c := 37, δ := ε, from 1.2.7
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (37 : ℝ)) (δ := ε))).mpr ⟨s1_2_7.1, s1_2_7.2⟩
     -- 1.3. exhibit, from 1.1, 1.2

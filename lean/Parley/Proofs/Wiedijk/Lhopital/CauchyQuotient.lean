@@ -76,8 +76,8 @@ theorem cauchy_quotient (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (U : Se
   -- 12. exhibit, from 4, 11
   have s12 : ∃ ξ ∈ (Set.Ioo p q : Set ℝ), (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4a, s11⟩
   -- 13. join 3, 12
-  have s13a : G p ≠ G q := by parley_set_side
-  have s13b : ∃ ξ ∈ (Set.Ioo p q : Set ℝ), (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ := by parley_set_side
+  have s13a : G p ≠ G q := s3
+  have s13b : ∃ ξ ∈ (Set.Ioo p q : Set ℝ), (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ := s12
   exact ⟨s13a, s13b⟩
 
 end Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient

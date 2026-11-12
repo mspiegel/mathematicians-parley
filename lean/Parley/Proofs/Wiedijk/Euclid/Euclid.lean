@@ -43,7 +43,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
       -- 3.2. substitute b(0) = N (line 2) into H2
       have s3_2 : 0 ≤ b 0 := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s2.symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 3.3. join 3.1, 3.2
-      have s3_3 : 0 ≤ a 0 ∧ 0 ≤ b 0 := by parley_side
+      have s3_3 : 0 ≤ a 0 ∧ 0 ≤ b 0 := ⟨s3_1, s3_2⟩
       exact ⟨(s3_3).1, (s3_3).2⟩
     | succ k hK1 hIH1 =>
       -- 3.4. axi:excluded-middle P := b(k) = 0
@@ -61,7 +61,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 3.5.4. membership, from 3.5.2
           have s3_5_4 : 0 ≤ b (k + 1) := by parley_side
           -- 3.5.5. join 3.5.3, 3.5.4
-          have s3_5_5 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := by parley_side
+          have s3_5_5 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := ⟨s3_5_3, s3_5_4⟩
           exact ⟨(s3_5_5).1, (s3_5_5).2⟩
         · skip
           -- 3.5.6. D1, from C2
@@ -77,7 +77,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 3.5.11. substitute b(k + 1) = a(k) mod b(k) (line 3.5.7) into line 3.5.9
           have s3_5_11 : 0 ≤ b (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s3_5_7.symm s3_5_9; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 3.5.12. join 3.5.10, 3.5.11
-          have s3_5_12 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := by parley_side
+          have s3_5_12 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := ⟨s3_5_10, s3_5_11⟩
           exact ⟨(s3_5_12).1, (s3_5_12).2⟩
       exact ⟨(s3_5).1, (s3_5).2⟩
   -- 4. induction on k starting at 0

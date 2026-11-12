@@ -195,6 +195,18 @@ pub fn printed_but(
             }
         }
     }
+    for (line, sentences) in &record.joined {
+        for (k, parts) in sentences.iter().enumerate() {
+            let at: Vec<String> = parts.iter().map(place).collect();
+            writeln!(
+                out,
+                "{} joins in sentence {k} [{}]",
+                reason_at(*line),
+                at.join(", ")
+            )
+            .unwrap();
+        }
+    }
     for (line, a) in &record.antisymmetric {
         writeln!(
             out,
@@ -466,7 +478,7 @@ fn order_fact(fact: &parley::checker::record::OrderFact) -> String {
             Some(rule) => format!("requires {} implied by {rule:?}", line + 1),
             None => format!("requires {}", line + 1),
         },
-        OrderFact::Member(rule) => format!("member implied by {rule:?}"),
+        OrderFact::Member { implied, .. } => format!("member implied by {implied:?}"),
     }
 }
 

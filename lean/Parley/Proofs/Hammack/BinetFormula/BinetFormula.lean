@@ -75,8 +75,8 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
           _ = (φ ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD2]
           _ = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD3]
       -- 4.5. join 4.3, 4.4
-      have s4_5a : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by parley_side
-      have s4_5b : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_side
+      have s4_5a : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := s4_3
+      have s4_5b : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := s4_4
       exact ⟨by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s4_5a, by simpa only [Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s4_5b⟩
     | succ j hK hIH =>
       -- 4.6. D1
@@ -99,8 +99,8 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
           _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by (have h := congrArg (fun t : ℝ => (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + t) hIH.2; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by linear_combination (norm := parley_field) ((-1) / ((Real.sqrt (5 : ℝ)))) * s4_9 + ((1) / ((Real.sqrt (5 : ℝ)))) * s4_10
       -- 4.12. join 4.8, 4.11
-      have s4_12a : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_side
-      have s4_12b : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by parley_side
+      have s4_12a : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := s4_8
+      have s4_12b : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := s4_11
       exact ⟨s4_12a, s4_12b⟩
   -- 5. instantiate j := n in line 4
   have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by exact (s4 n (le_of_lt hH1))

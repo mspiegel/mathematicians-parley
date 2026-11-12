@@ -123,7 +123,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.32. inequalities
       have s1_2_32 : 5 / 4 - ε < a n := by linarith only [s1_2_31]
       -- 1.2.33. join 1.2.32, 1.2.29
-      have s1_2_33 : 5 / 4 - ε < a n ∧ a n < 5 / 4 + ε := by parley_side
+      have s1_2_33 : 5 / 4 - ε < a n ∧ a n < 5 / 4 + ε := ⟨s1_2_32, s1_2_29⟩
       -- 1.2.34. mun:abs-difference-lt x := a(n), c := 5/4, δ := ε, from 1.2.33
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (5 / 4 : ℝ)) (δ := ε))).mpr ⟨s1_2_33.1, s1_2_33.2⟩
     -- 1.3. exhibit, from 1.2

@@ -1373,6 +1373,8 @@ struct OrderFactTerm {
     /// a define's kind, whose fact the page writes of the define's value
     /// and Lean proves of its letter.
     widens: bool,
+    /// Whether it is the equation of a define the step cites.
+    define: bool,
 }
 
 /// The number type a relation Lean states is in; None for one in no
@@ -1682,6 +1684,55 @@ fn reciprocals(stated: &[&Printed]) -> Vec<Printed> {
             )
         })
         .collect()
+}
+
+/// A "for all" Lean states, `says`, proved by `proof`, read at the names
+/// the claim is opened under, `intros` (`Writer::intros_now`): each of its
+/// letters at the next name, and its guard, where it has one, at the guard's
+/// name after it, `r1 x h_x`. The term and the body it proves; None where
+/// `says` is no "for all" or its letters are not the names, in order.
+fn read_at_intros(
+    proof: &Printed,
+    says: &Printed,
+    intros: &[String],
+) -> Option<(Printed, Printed)> {
+    use super::doc::{Arg, LeanType, Quant, TermKind};
+    let mut body = says;
+    let mut args = Vec::new();
+    let mut names = intros.iter();
+    while let TermKind::Quantified {
+        quant: Quant::ForAll,
+        letter,
+        guard,
+        body: inner,
+        ..
+    } = &body.kind
+    {
+        if names.next()? != letter {
+            return None;
+        }
+        args.push(Arg::Explicit(super::tactics::hyp(letter)));
+        if guard.is_some() {
+            let guarded = names.next()?;
+            if *guarded != format!("h_{letter}") {
+                return None;
+            }
+            args.push(Arg::Explicit(super::tactics::hyp(guarded)));
+        }
+        body = inner;
+    }
+    if args.is_empty() || names.next().is_some() {
+        return None;
+    }
+    let applied = Printed::of(
+        TermKind::App {
+            head: Box::new(proof.clone()),
+            args,
+            explicit: false,
+        },
+        LeanType::Prop,
+    );
+    Some((applied, body.clone()))
 }
 
 /// `by linarith only [facts]`, as a term. Where `split` holds disequalities
@@ -2952,6 +3003,11 @@ struct Proof<'a> {
     /// The index of the step being written, whose lines a witness's whole
     /// number is named from (`witness`).
     step_now: std::cell::Cell<Option<usize>>,
+    /// The names a claim's leading "for all" is opened under while its
+    /// proof is written, `x h_x` of `intro x h_x` (`peel`): a line Lean
+    /// states under the same binders is read at them, and a member's fact
+    /// is the guard's name.
+    intros_now: std::cell::RefCell<Vec<String>>,
 }
 
 /// The fact a define of a kind says of its value, as `Proof::kind_shown`
@@ -3148,6 +3204,7 @@ pub fn theorem(
         named_now: std::cell::RefCell::new(None),
         held_now: std::cell::RefCell::new(Vec::new()),
         step_now: std::cell::Cell::new(None),
+        intros_now: std::cell::RefCell::new(Vec::new()),
     };
     proof.writer.reals = held_real(rec, &proof.writer);
     proof.writer.finite_from(&rec.said_finite);
@@ -3685,7 +3742,9 @@ impl<'a> Proof<'a> {
                 Some(wrapped) => {
                     let (intros, _, inner) = self.peel(wrapped);
                     let outer = std::mem::replace(&mut self.writer, inner);
+                    *self.intros_now.borrow_mut() = intros.clone();
                     let proof = self.proof_of(reason, 0, &node);
+                    self.intros_now.borrow_mut().clear();
                     self.writer = outer;
                     proof.map(|p| after_intros(&intros, p))
                 }
@@ -5172,7 +5231,15 @@ impl<'a> Proof<'a> {
                     ),
                     false => self.peel(node),
                 };
-                let proof = match self.method_proof(reason, *m, k, body, &writer) {
+                let opened = !intros.is_empty();
+                if opened {
+                    *self.intros_now.borrow_mut() = intros.clone();
+                }
+                let proof = self.method_proof(reason, *m, k, body, &writer);
+                if opened {
+                    self.intros_now.borrow_mut().clear();
+                }
+                let proof = match proof {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
@@ -5371,11 +5438,11 @@ impl<'a> Proof<'a> {
             },
             // One manipulation of a line: linear arithmetic on the line the
             // checker found it made from (`orders`).
-            Head::Manipulation(_) => {
-                self.order_proof(reason.just.line, k, node).or_try(|| {
+            Head::Manipulation(_) => self
+                .order_proof(reason.just.line, k, node, &self.writer)
+                .or_try(|| {
                     Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![])))
-                })
-            }
+                }),
             // A requires line's lines: the fact is what they say, or
             // follows from it by arithmetic.
             Head::Lines => {
@@ -5632,15 +5699,21 @@ impl<'a> Proof<'a> {
                 // A chain whose links the checker placed: composed link by
                 // link (`chain_composed`).
                 if just.head.is(Method::Transitivity) {
-                    if let Route::Built(composed) = self.chain_composed(just, node) {
+                    if let Route::Built(composed) =
+                        self.chain_composed(just, node, writer)
+                    {
                         return Route::Built(composed);
                     }
                 }
                 // What the checker recorded the step rests on (`orders`,
                 // `antisymmetric`).
                 let recorded = match m {
-                    Method::Inequalities => self.order_proof(just.line, k, node),
-                    Method::Antisymmetry => self.antisymmetry_proof(just.line, node),
+                    Method::Inequalities => {
+                        self.order_proof(just.line, k, node, writer)
+                    }
+                    Method::Antisymmetry => {
+                        self.antisymmetry_proof(just.line, node, writer)
+                    }
                     _ => Route::no("a transitivity chain is composed from its links"),
                 };
                 if let Route::Built(proof) = recorded {
@@ -5666,7 +5739,15 @@ impl<'a> Proof<'a> {
             Method::Exhibit => return self.exhibit(just, node),
             Method::Instantiate => return self.instantiate(just, node, writer),
             Method::Membership => return self.membership(just, node, writer),
-            Method::Inspection | Method::Restate | Method::Join => {
+            // The lines the checker found each part of the claim in
+            // (`joined`), put together.
+            Method::Join => match self.join_proof(just.line, k, node, writer) {
+                Route::Built(proof) => return Route::Built(proof),
+                Route::Declined(_) => {
+                    Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
+                }
+            },
+            Method::Inspection | Method::Restate => {
                 Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
             }
             other => {
@@ -6708,10 +6789,41 @@ impl<'a> Proof<'a> {
             }
             // Lean writes a letter's membership as its bound, and a term's
             // as a whole number equal to it, `∃ m₀, 0 < m₀ ∧ ↑m₀ = 3 ^ m`.
+            // A term's membership Lean writes as a whole number equal to it,
+            // `∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = 3 ^ m`: the number taken out,
+            // put in for the term, and the bound taken from the number's own,
+            // `by obtain ⟨w, hw, ew⟩ := s6; rw [← ew]; exact_mod_cast hw`
+            // (in ℤ, `0 < w` is `0 + 1 ≤ w`, so it gives `1 ≤ w` too).
             Implication::SystemFact { lemma } if !self.written_as_bound(&found.node) => {
-                Route::no(format!(
-                    "what {lemma} gives of a membership Lean writes as a whole number"
-                ))
+                let whole = match self.line_statement(found) {
+                    Route::Built(s) => matches!(
+                        s.kind,
+                        super::doc::TermKind::Quantified {
+                            quant: super::doc::Quant::Exists,
+                            ..
+                        }
+                    ),
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                if !whole || system_fact_field(lemma) != Some(None) {
+                    return Route::no(format!(
+                        "what {lemma} gives of a membership Lean writes as a whole number"
+                    ));
+                }
+                use super::tactics as t;
+                let steps = vec![
+                    Tactic::Obtain {
+                        names: vec!["w".to_string(), "hw".to_string(), "ew".to_string()],
+                        says: None,
+                        from: found.proof.clone(),
+                    },
+                    t::call("rw", vec![TacticArg::Rules(vec![t::backwards(t::hyp("ew"))])]),
+                    t::exact_mod_cast(t::hyp("hw")),
+                ];
+                Route::Built(t::bracket(shown(
+                    target.clone(),
+                    super::doc::Proof::By(Tactic::Seq(steps)),
+                )))
             }
             Implication::SystemFact { lemma } => match system_fact_field(lemma) {
                 Some(None) => Route::Built(found.proof.clone()),
@@ -8875,6 +8987,7 @@ impl<'a> Proof<'a> {
         &self,
         just: &Justification,
         node: &Node,
+        w: &Writer,
     ) -> Route<super::doc::Proof> {
         let converse = |s: &str| -> Option<&'static str> {
             match s {
@@ -8895,7 +9008,7 @@ impl<'a> Proof<'a> {
             let Some(at) = &link.at else {
                 return Route::no("a chain's link the checker found in no line");
             };
-            match self.order_fact(at) {
+            match self.order_fact(at, w) {
                 Route::Built(f) => facts.push(f),
                 Route::Declined(d) => return Route::Declined(d),
             }
@@ -8918,7 +9031,7 @@ impl<'a> Proof<'a> {
         if !chain.as_written {
             let mut added = Vec::new();
             for f in facts {
-                match self.fact_in_type(f, widest) {
+                match self.fact_in_type(f, widest, w) {
                     Route::Built(p) => added.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
@@ -8961,7 +9074,7 @@ impl<'a> Proof<'a> {
             let restated =
                 page.is_some_and(|p| converse(&p) == Some(symbol) && p != symbol);
             let turned_here = link.turned != restated;
-            let proof = match self.fact_in_type(f, widest) {
+            let proof = match self.fact_in_type(f, widest, w) {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
@@ -9020,9 +9133,9 @@ impl<'a> Proof<'a> {
         };
         // A claim of ℚ is taken back from the chain in ℝ by ℚ's cast lemmas
         // (`real_to_rat`).
-        if let Some(to) = widest.filter(|w| number_type(&claim) != Some(*w)) {
-            let wide = match self.writer.closed_formula(node, to) {
-                Route::Built(w) => w,
+        if let Some(to) = widest.filter(|t| number_type(&claim) != Some(*t)) {
+            let wide = match w.closed_formula(node, to) {
+                Route::Built(s) => s,
                 Route::Declined(d) => return Route::Declined(d),
             };
             if rat_crossing(&claim, &wide) {
@@ -9054,15 +9167,16 @@ impl<'a> Proof<'a> {
         &self,
         f: OrderFactTerm,
         to: Option<super::templates::Num>,
+        w: &Writer,
     ) -> Route<Printed> {
         use super::doc::Proof;
-        let Some(to) = to.filter(|w| number_type(&f.says) != Some(*w)) else {
+        let Some(to) = to.filter(|t| number_type(&f.says) != Some(*t)) else {
             return Route::Built(f.proof);
         };
         if !f.widens {
             return Route::no("a define's kind taken up to a wider type");
         }
-        let says = match self.writer.closed_formula(&f.node, to) {
+        let says = match w.closed_formula(&f.node, to) {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -9096,13 +9210,14 @@ impl<'a> Proof<'a> {
         line: usize,
         k: usize,
         node: &Node,
+        w: &Writer,
     ) -> Route<super::doc::Proof> {
         let Some(parts) = self.rec.orders.get(&line).and_then(|o| o.sentences.get(k))
         else {
             return Route::no("an order step the checker recorded no facts for");
         };
         let mut left = parts.iter();
-        let proof = match self.order_joined(node, &mut left) {
+        let proof = match self.order_joined(node, &mut left, w) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -9121,6 +9236,7 @@ impl<'a> Proof<'a> {
         &self,
         node: &Node,
         parts: &mut impl Iterator<Item = &'p crate::checker::record::OrderPart>,
+        w: &Writer,
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
         if node.notation() != crate::notations::CONJUNCTION {
@@ -9129,11 +9245,11 @@ impl<'a> Proof<'a> {
                     "an order step recorded with fewer parts than its claim",
                 );
             };
-            return self.order_part(part, node);
+            return self.order_part(part, node, w);
         }
         let mut items = Vec::new();
         for child in &node.children {
-            match self.order_joined(child, parts) {
+            match self.order_joined(child, parts, w) {
                 Route::Built(Proof::Term(t)) => items.push(t),
                 Route::Built(p) => items.push(super::tactics::by_term(p)),
                 Route::Declined(d) => return Route::Declined(d),
@@ -9157,15 +9273,16 @@ impl<'a> Proof<'a> {
         &self,
         part: &crate::checker::record::OrderPart,
         node: &Node,
+        w: &Writer,
     ) -> Route<super::doc::Proof> {
         use super::doc::{LeanType, Proof, Source, TermKind};
         use crate::checker::record::Weakened;
-        let wanted = match self.writer.formula(node) {
-            Route::Built(w) => w,
+        let wanted = match w.formula(node) {
+            Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
         if let Some(r) = &part.restates {
-            let fact = match self.order_fact(&r.by) {
+            let fact = match self.order_fact(&r.by, w) {
                 Route::Built(f) => f,
                 Route::Declined(d) => return Route::Declined(d),
             };
@@ -9194,7 +9311,7 @@ impl<'a> Proof<'a> {
             }
             let mut with = vec![super::tactics::hyp("h")];
             for f in &part.uses {
-                match self.order_fact(f) {
+                match self.order_fact(f, w) {
                     Route::Built(t)
                         if !super::doc::forms::relation_types_apart(
                             &t.says, &wanted,
@@ -9235,18 +9352,30 @@ impl<'a> Proof<'a> {
             .map(|f| (f, false))
             .chain(part.split.iter().map(|f| (f, true)));
         for (f, apart) in read {
-            match self.order_fact(f) {
+            match self.order_fact(f, w) {
                 Route::Built(t) if apart => split.push(t),
                 Route::Built(t) => facts.push(t),
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        // The widest type among the claim and the facts.
+        // A define's equation the step reads written out, in a wider type
+        // than the claim and every other fact, `(e : ℚ) = p / d` beside `0
+        // < e` and `e ≠ 1` in ℤ, ties its letter to a value none of them
+        // holds, and would take them to that type, where the letter is no
+        // longer whole: it is left out.
         let claim_in = number_type(&wanted);
+        let others = facts
+            .iter()
+            .chain(&split)
+            .filter(|f| !f.define)
+            .map(|f| number_type(&f.says))
+            .fold(claim_in, |a, b| a.max(b));
+        facts.retain(|f| !f.define || number_type(&f.says) <= others);
+        // The widest type among the claim and the facts.
         let mut widest = claim_in;
         for f in facts.iter().chain(&split) {
             match (number_type(&f.says), widest) {
-                (Some(t), Some(w)) => widest = Some(t.max(w)),
+                (Some(t), Some(u)) => widest = Some(t.max(u)),
                 (None, None) => {}
                 _ => {
                     return Route::no(
@@ -9255,7 +9384,7 @@ impl<'a> Proof<'a> {
                 }
             }
         }
-        let widened = |f: OrderFactTerm| self.fact_in_type(f, widest);
+        let widened = |f: OrderFactTerm| self.fact_in_type(f, widest, w);
         let stated: Vec<&Printed> = std::iter::once(&wanted)
             .chain(facts.iter().chain(&split).map(|f| &f.says))
             .collect();
@@ -9277,7 +9406,7 @@ impl<'a> Proof<'a> {
         }
         let linear = split_linarith(&apart, added);
         let narrower = match (claim_in, widest) {
-            (Some(c), Some(w)) if c != w => Some(w),
+            (Some(c), Some(u)) if c != u => Some(u),
             _ => None,
         };
         if let Some(to) = narrower {
@@ -9286,7 +9415,7 @@ impl<'a> Proof<'a> {
                     "a disequality weakened from an order in a wider type",
                 );
             }
-            let says = match self.writer.closed_formula(node, to) {
+            let says = match w.closed_formula(node, to) {
                 Route::Built(s) => s,
                 Route::Declined(d) => return Route::Declined(d),
             };
@@ -9336,6 +9465,7 @@ impl<'a> Proof<'a> {
     fn order_fact(
         &self,
         fact: &crate::checker::record::OrderFact,
+        w: &Writer,
     ) -> Route<OrderFactTerm> {
         use crate::checker::record::OrderFact;
         let (proof, says, node) = match fact {
@@ -9372,7 +9502,7 @@ impl<'a> Proof<'a> {
                 else {
                     return Route::no("a define's kind Lean names no line of");
                 };
-                let implies = match self.writer.formula(written) {
+                let implies = match w.formula(written) {
                     Route::Built(s) => s,
                     Route::Declined(d) => return Route::Declined(d),
                 };
@@ -9414,32 +9544,147 @@ impl<'a> Proof<'a> {
                     "what a requires line above implies, in an order step",
                 );
             }
-            OrderFact::Member(_) => {
-                return Route::no("what the member an order step is read at implies");
+            // The member's fact is its guard, `h_i : 0 < i` of `intro i
+            // h_i` over ℕ, which is what the membership says of i.
+            OrderFact::Member { implied, written } => {
+                let guards: Vec<String> = self
+                    .intros_now
+                    .borrow()
+                    .iter()
+                    .filter(|n| n.starts_with("h_"))
+                    .cloned()
+                    .collect();
+                let [guard] = guards.as_slice() else {
+                    return Route::no(
+                        "a member's fact where the claim opens no one member",
+                    );
+                };
+                let crate::citing::Implication::SystemFact { lemma } = implied else {
+                    return Route::no("a member's fact other than its system's bound");
+                };
+                let proof = match system_fact_field(lemma) {
+                    Some(None) => super::tactics::hyp(guard),
+                    Some(Some(field)) => fields(super::tactics::hyp(guard), &[field]),
+                    None => {
+                        return Route::no("a member's fact its guard does not give")
+                    }
+                };
+                match w.formula(written) {
+                    Route::Built(says) => (proof, says, written.clone()),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
             }
         };
-        // Linear arithmetic adds relations, not a "for all" of them.
-        if matches!(says.kind, super::doc::TermKind::Quantified { .. }) {
-            return Route::no("a \"for all\" an order step adds as a whole");
-        }
+        // A line Lean states under the binders the claim is opened under,
+        // a requires line said "for all x ∈ [0, 1]" as its claim is, is
+        // read at them, `r1 x h_x`; linear arithmetic adds relations, not a
+        // "for all" of them.
+        let read_at = read_at_intros(&proof, &says, &self.intros_now.borrow());
+        let ((proof, says), at_intros) = match read_at {
+            Some(read) => (read, true),
+            None if matches!(says.kind, super::doc::TermKind::Quantified { .. }) => {
+                return Route::no("a \"for all\" an order step adds as a whole");
+            }
+            None => ((proof, says), false),
+        };
         Route::Built(OrderFactTerm {
             proof,
             says,
             node,
-            widens: !matches!(fact, OrderFact::Kind { .. }),
+            widens: !at_intros && !matches!(fact, OrderFact::Kind { .. }),
+            define: matches!(fact, OrderFact::Define(_)),
         })
+    }
+
+    /// `join`: sentence `k` of the claim, `node`, from where the checker
+    /// found each of its parts (`CheckedTheorem::joined`), each part the
+    /// line that says it, in `⟨…⟩` as the sentence joins them.
+    fn join_proof(
+        &self,
+        line: usize,
+        k: usize,
+        node: &Node,
+        w: &Writer,
+    ) -> Route<super::doc::Proof> {
+        let Some(parts) = self.rec.joined.get(&line).and_then(|j| j.get(k)) else {
+            return Route::no("a join the checker placed no parts of");
+        };
+        let mut left = parts.iter();
+        let term = match self.joined_term(node, &mut left, w) {
+            Route::Built(t) => t,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        match left.next() {
+            None => Route::Built(super::doc::Proof::Term(term)),
+            Some(_) => Route::no("a join recorded with more parts than its claim"),
+        }
+    }
+
+    /// The proof of `node`, a sentence of a join or a part of one, taking
+    /// its parts joined by "and" from `parts` left to right: each the line
+    /// that says it, read at the names the claim is opened under where
+    /// Lean states it under them.
+    fn joined_term<'p>(
+        &self,
+        node: &Node,
+        parts: &mut impl Iterator<Item = &'p FirstAt>,
+        w: &Writer,
+    ) -> Route<Printed> {
+        if node.notation() == crate::notations::CONJUNCTION {
+            let mut items = Vec::new();
+            for child in &node.children {
+                match self.joined_term(child, parts, w) {
+                    Route::Built(t) => items.push(t),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            return Route::Built(super::expr::anonymous(items));
+        }
+        let Some(at) = parts.next() else {
+            return Route::no("a join recorded with fewer parts than its claim");
+        };
+        let wanted = match w.formula(node) {
+            Route::Built(s) => s,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // A part Lean's types make true, `A ∈ ℂ` of a letter in ℂ, is
+        // `True`, and its line is written nowhere.
+        if wanted.is_truth() {
+            return Route::Built(Printed::constant(
+                "trivial",
+                super::doc::Source::Core,
+                super::doc::LeanType::Prop,
+            ));
+        }
+        let (proof, says) = match self.line_says(at) {
+            Route::Built(found) => found,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let (proof, says) = read_at_intros(&proof, &says, &self.intros_now.borrow())
+            .unwrap_or((proof, says));
+        if super::doc::forms::relation_types_apart(&says, &wanted) {
+            return Route::no(
+                "a part of a join Lean states in another type than its line",
+            );
+        }
+        Route::Built(proof)
     }
 
     /// `antisymmetry`: `le_antisymm` of the line that says the claim's left
     /// side is at most its right and the line that says the converse, as
     /// the checker paired them (`CheckedTheorem::antisymmetric`).
-    fn antisymmetry_proof(&self, line: usize, node: &Node) -> Route<super::doc::Proof> {
+    fn antisymmetry_proof(
+        &self,
+        line: usize,
+        node: &Node,
+        w: &Writer,
+    ) -> Route<super::doc::Proof> {
         use super::doc::{LeanType, Proof, Source};
         let Some(rec) = self.rec.antisymmetric.get(&line) else {
             return Route::no("an antisymmetry step the checker paired no lines for");
         };
-        let wanted = match self.writer.formula(node) {
-            Route::Built(w) => w,
+        let wanted = match w.formula(node) {
+            Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
         let mut proofs = Vec::new();
@@ -14465,6 +14710,13 @@ impl<'a> Proof<'a> {
         }
         self.writer.letters = kept;
         self.writer.wholes = kept_wholes;
+        // A label the block gave again, its own `assume … (J)` beside the
+        // block around it's, is that block's again once it closes, as the
+        // checker reads the page (`tests/elaborator/a-label-given-again-
+        // inside-a-block.proof`).
+        for (label, said) in kept_lines {
+            self.trees.insert(label, said);
+        }
         if claim.len() > 1 {
             self.push_at(
                 depth,

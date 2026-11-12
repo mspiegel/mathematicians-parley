@@ -21,7 +21,7 @@ theorem implication_and_currying (a : ℝ) (b : ℝ) (c : ℝ) :
     intro hK1
     intro hK2
     -- 1. join K1, K2
-    have s1 : a = 0 ∧ b = 0 := by parley_side
+    have s1 : a = 0 ∧ b = 0 := ⟨hK1, hK2⟩
     -- 2. mun:modus-ponens, from D1, 1
     exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 ∧ b = 0) (Q := c = 0) hD1 s1)
   · skip

@@ -33,7 +33,7 @@ theorem fibonacci_natural (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : 
     -- 1.4. membership, from 1.2
     have s1_4 : 0 ≤ G 0 := by parley_side
     -- 1.5. join 1.3, 1.4
-    have s1_5 : 0 ≤ F 0 ∧ 0 ≤ G 0 := by parley_side
+    have s1_5 : 0 ≤ F 0 ∧ 0 ≤ G 0 := ⟨s1_3, s1_4⟩
     exact ⟨(s1_5).1, (s1_5).2⟩
   | succ k hK hIH =>
     -- 1.6. D1
@@ -45,7 +45,7 @@ theorem fibonacci_natural (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : 
     -- 1.9. membership, from IH, 1.7
     have s1_9 : 0 ≤ G (k + 1) := by parley_side
     -- 1.10. join 1.8, 1.9
-    have s1_10 : 0 ≤ F (k + 1) ∧ 0 ≤ G (k + 1) := by parley_side
+    have s1_10 : 0 ≤ F (k + 1) ∧ 0 ≤ G (k + 1) := ⟨s1_8, s1_9⟩
     exact ⟨(s1_10).1, (s1_10).2⟩
 
 end Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural

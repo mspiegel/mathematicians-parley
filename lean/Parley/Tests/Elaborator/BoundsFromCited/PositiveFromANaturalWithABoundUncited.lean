@@ -19,7 +19,7 @@ theorem positive_from_a_natural_with_a_bound_uncited (n : ℤ) (hH1 : 0 < n) :
   -- 2. inequalities, from H1
   have s2 : n > 0 := by linarith only [hH1]
   -- 3. join 1, 2
-  have s3 : 1 ≤ n ∧ n > 0 := by parley_side
+  have s3 : 1 ≤ n ∧ n > 0 := ⟨s1, s2⟩
   exact ⟨(s3).1, (s3).2⟩
 
 end Parley.Tests.Elaborator.BoundsFromCited.PositiveFromANaturalWithABoundUncited

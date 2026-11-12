@@ -101,7 +101,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.22. inequalities
       have s1_2_22 : a n < 2 / 3 + ε := by linarith only [s1_2_21]
       -- 1.2.23. join 1.2.16, 1.2.22
-      have s1_2_23 : 2 / 3 - ε < a n ∧ a n < 2 / 3 + ε := by parley_side
+      have s1_2_23 : 2 / 3 - ε < a n ∧ a n < 2 / 3 + ε := ⟨s1_2_16, s1_2_22⟩
       -- 1.2.24. mun:abs-difference-lt x := a(n), c := 2/3, δ := ε, from 1.2.23
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (2 / 3 : ℝ)) (δ := ε))).mpr ⟨s1_2_23.1, s1_2_23.2⟩
     -- 1.3. exhibit, from 1.2

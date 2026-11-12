@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -84,7 +83,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s12a : Real.sqrt (3 ^ k.toNat : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 ^ k.toNat : ℝ)) (by exact_mod_cast r61_1))
   have s12b : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 ^ k.toNat : ℝ)) (by exact_mod_cast r61_1))
   -- 13. mun:product-nonneg x := √3, y := 3^m, from 6, 11
-  have r65_1 : (0 : ℚ) ≤ 3 ^ m := by parley_order
+  have r65_1 : (0 : ℚ) ≤ 3 ^ m := by linarith only [(show (3 ^ m : ℚ) ≥ 1 by obtain ⟨w, hw, ew⟩ := s6; rw [← ew]; exact_mod_cast hw)]
   have s13 : Real.sqrt (3 : ℝ) * 3 ^ m ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt (3 : ℝ)) (y := (3 ^ m : ℝ)) s11a (by parley_side))
   -- 14. calculation
   have s14 : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by

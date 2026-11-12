@@ -95,7 +95,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.13. transitivity, from H2, 1.3.4, 1.3.6, 1.3.7
       have s1_3_13 : a n < ε := by exact lt_of_le_of_lt (le_trans (Eq.trans_le (hH2 n hK2) (show 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℝ) ≤ 4 / (n : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_4; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast, Rat.cast_natCast] at h; exact h)) (show 4 / (n : ℝ) ≤ 4 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_6; simp only [Rat.cast_div, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) s1_3_7
       -- 1.3.14. join 1.3.12, 1.3.13
-      have s1_3_14 : 0 - ε < a n ∧ a n < ε := by parley_side
+      have s1_3_14 : 0 - ε < a n ∧ a n < ε := ⟨s1_3_12, s1_3_13⟩
       -- 1.3.15. mun:abs-difference-lt x := a(n), c := 0, δ := ε, from 1.3.14
       simpa only [sub_zero] using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (0 : ℝ)) (δ := ε))).mpr ⟨s1_3_14.1, by simpa only [zero_add] using s1_3_14.2⟩
     -- 1.4. exhibit, from 1.3

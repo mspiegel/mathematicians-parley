@@ -31,7 +31,7 @@ theorem a_hypothesis_from_the_line_cited (k : ℤ) (hH1 : 0 < k) :
     have hI : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by parley_instance_cast ((Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by exact_mod_cast s2.ne') (by exact_mod_cast hH1.ne')))
     exact hI
   -- 4. join 1, 3
-  have s4 : (LeanBridges.Counting.factorial k : ℤ) ≠ 0 ∧ (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by parley_side
+  have s4 : (LeanBridges.Counting.factorial k : ℤ) ≠ 0 ∧ (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := ⟨s1, s3⟩
   exact ⟨(s4).1, (s4).2⟩
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AHypothesisFromTheLineCited

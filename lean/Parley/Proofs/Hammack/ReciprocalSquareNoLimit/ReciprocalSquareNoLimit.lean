@@ -99,7 +99,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
       _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (by parley_set_side)
       _ < p := by exact s19
   -- 22. join 16, 21
-  have s22 : 1 + 1 / (N : ℚ) ≠ 1 ∧ abs (1 + 1 / (N : ℝ) - 1) < p := by parley_set_side
+  have s22 : 1 + 1 / (N : ℚ) ≠ 1 ∧ abs (1 + 1 / (N : ℝ) - 1) < p := ⟨s16, s21⟩
   -- 23. instantiate x := 1 + 1/N in line 4, from 17, 22
   have s23 : abs (f (1 + 1 / (N : ℝ)) - L) < 1 := by exact (s4b (1 + 1 / (N : ℝ)) s17 (by parley_set_side))
   -- 24. inequalities

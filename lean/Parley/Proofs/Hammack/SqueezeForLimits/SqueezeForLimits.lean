@@ -82,11 +82,11 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
         try push_cast at ⊢
         exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - c)) (x := p) (y := q))).mp s1_12_1.1
       -- 1.12.3. join A2, 1.12.2
-      have s1_12_3 : x ≠ c ∧ abs (x - c) < p := by parley_set_side
+      have s1_12_3 : x ≠ c ∧ abs (x - c) < p := ⟨hA2.1, s1_12_2.1⟩
       -- 1.12.4. join A2, 1.12.2
-      have s1_12_4 : x ≠ c ∧ abs (x - c) < q := by parley_set_side
+      have s1_12_4 : x ≠ c ∧ abs (x - c) < q := ⟨hA2.1, s1_12_2.2⟩
       -- 1.12.5. join A2, 1.12.1
-      have s1_12_5 : x ≠ c ∧ abs (x - c) < r := by parley_set_side
+      have s1_12_5 : x ≠ c ∧ abs (x - c) < r := ⟨hA2.1, s1_12_1.2⟩
       -- 1.12.6. instantiate x := x in line 1.5, from 1.12.3
       have s1_12_6 : g x ≤ f x ∧ f x ≤ h x := by exact (s1_5b x s1_12_3)
       -- 1.12.7. instantiate x := x in line 1.6, from 1.12.4
@@ -102,7 +102,7 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
       -- 1.12.12. transitivity, from 1.12.6, 1.12.10
       have s1_12_12 : f x < L + ε := by exact lt_of_le_of_lt s1_12_6.2 s1_12_10
       -- 1.12.13. join 1.12.11, 1.12.12
-      have s1_12_13 : L - ε < f x ∧ f x < L + ε := by parley_set_side
+      have s1_12_13 : L - ε < f x ∧ f x < L + ε := ⟨s1_12_11, s1_12_12⟩
       -- 1.12.14. mun:abs-difference-lt x := f(x), c := L, δ := ε, from 1.12.13
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := L) (δ := ε))).mpr ⟨s1_12_13.1, s1_12_13.2⟩
     -- 1.13. exhibit, from 1.11, 1.12

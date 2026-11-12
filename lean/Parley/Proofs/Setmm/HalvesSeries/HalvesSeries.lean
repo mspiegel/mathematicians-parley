@@ -126,7 +126,7 @@ theorem halves_series :
       -- 3.2.10. inequalities
       have s3_2_10 : 1 - 1 / 2 ^ n.toNat < 1 + ε := by linarith only [s3_2_9]
       -- 3.2.11. join 3.2.7, 3.2.10
-      have s3_2_11 : 1 - ε < 1 - 1 / 2 ^ n.toNat ∧ 1 - 1 / 2 ^ n.toNat < 1 + ε := by parley_side
+      have s3_2_11 : 1 - ε < 1 - 1 / 2 ^ n.toNat ∧ 1 - 1 / 2 ^ n.toNat < 1 + ε := ⟨s3_2_7, s3_2_10⟩
       -- 3.2.12. mun:abs-difference-lt x := 1 − 1/2^n, c := 1, δ := ε, from 3.2.11
       have s3_2_12 : abs (1 - 1 / 2 ^ n.toNat - 1) < ε := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (1 - 1 / 2 ^ n.toNat : ℝ)) (c := (1 : ℝ)) (δ := ε))).mpr ⟨s3_2_11.1, s3_2_11.2⟩
       -- 3.2.13. substitute

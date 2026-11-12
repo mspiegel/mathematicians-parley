@@ -31,7 +31,7 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 1.2.2. mun:in-union-left, from C1
       have s1_2_2 : u ∈ A ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A) (Z := C) (u := u) hC1)
       -- 1.2.3. join 1.2.1, 1.2.2
-      have s1_2_3 : u ∈ A ∪ B ∧ u ∈ A ∪ C := by parley_set_side
+      have s1_2_3 : u ∈ A ∪ B ∧ u ∈ A ∪ C := ⟨s1_2_1, s1_2_2⟩
       -- 1.2.4. def:intersection, from 1.2.3
       exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr ⟨s1_2_3.1, s1_2_3.2⟩
     · skip
@@ -42,7 +42,7 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 1.2.7. mun:in-union-right, from 1.2.5
       have s1_2_7 : u ∈ A ∪ C := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := C) (u := u) s1_2_5.2)
       -- 1.2.8. join 1.2.6, 1.2.7
-      have s1_2_8 : u ∈ A ∪ B ∧ u ∈ A ∪ C := by parley_set_side
+      have s1_2_8 : u ∈ A ∪ B ∧ u ∈ A ∪ C := ⟨s1_2_6, s1_2_7⟩
       -- 1.2.9. def:intersection, from 1.2.8
       exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∪ B) (Z := A ∪ C) (u := u))).mpr ⟨s1_2_8.1, s1_2_8.2⟩
   -- 2. def:subset, from 1
@@ -69,7 +69,7 @@ theorem union_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set 
       -- 3.5.3. mun:disjunctive-syllogism-left, from C4, 3.3
       have s3_5_3 : u ∈ C := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := u ∈ A) (Q := u ∈ C) s3_3 hC4)
       -- 3.5.4. join 3.5.2, 3.5.3
-      have s3_5_4 : u ∈ B ∧ u ∈ C := by parley_set_side
+      have s3_5_4 : u ∈ B ∧ u ∈ C := ⟨s3_5_2, s3_5_3⟩
       -- 3.5.5. def:intersection, from 3.5.4
       have s3_5_5 : u ∈ B ∩ C := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr ⟨s3_5_4.1, s3_5_4.2⟩
       -- 3.5.6. mun:in-union-right, from 3.5.5

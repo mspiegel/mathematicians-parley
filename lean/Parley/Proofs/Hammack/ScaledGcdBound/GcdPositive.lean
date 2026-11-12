@@ -41,7 +41,7 @@ theorem gcd_positive (x : ℤ) (y : ℤ) (hH3 : ¬ (x = 0 ∧ y = 0)) :
     -- 3.6. mun:iff-from-left P := 0 divides y, Q := y = 0, from 3.4, 3.5
     have s3_6 : y = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := (0 : ℤ) ∣ y) (Q := y = 0) s3_5 s3_4)
     -- 3.7. join 3.3, 3.6
-    have s3_7 : x = 0 ∧ y = 0 := by parley_side
+    have s3_7 : x = 0 ∧ y = 0 := ⟨s3_3, s3_6⟩
     exact hH3 s3_7
   -- 4. mun:nat0-nonzero m := gcd(x, y), from 3
   exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (Int.gcd x y : ℤ)) (by parley_side) s3)

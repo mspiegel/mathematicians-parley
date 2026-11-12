@@ -120,7 +120,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
       -- 10.7.6. transitivity, from 10.7.4, 10.6
       have s10_7_6 : x n < c + ε := by exact lt_of_le_of_lt s10_7_4 s10_6
       -- 10.7.7. join 10.7.5, 10.7.6
-      have s10_7_7 : c - ε < x n ∧ x n < c + ε := by parley_set_side
+      have s10_7_7 : c - ε < x n ∧ x n < c + ε := ⟨s10_7_5, s10_7_6⟩
       -- 10.7.8. mun:abs-difference-lt x := x(n), δ := ε, from 10.7.7
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr ⟨s10_7_7.1, s10_7_7.2⟩
     -- 10.8. exhibit, from 10.7

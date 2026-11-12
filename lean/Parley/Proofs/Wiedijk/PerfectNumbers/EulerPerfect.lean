@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import PowerTactics
 public import Tactics
 public import Batteries.Tactic.Init
@@ -197,7 +196,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have s23_4 : c < m := by linarith only [s23_3]
     -- 23.5. inequalities, from D3, S3
     have r477_1 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by exact s7.ne'
-    have s23_5 : 1 < c := by parley_order
+    have s23_5 : 1 < c := Or.elim (Ne.lt_or_gt hS3) (fun h1 => by linarith only [hD3_pos, h1]) (fun h1 => by linarith only [hD3_pos, h1])
     -- 23.6. algebra, from 20
     have s23_6 : m = c * (2 ^ p.toNat - 1) := by linear_combination (norm := parley_norm) s20
     -- 23.7. def:divides d := c, n := m, from 23.6

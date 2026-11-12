@@ -36,8 +36,8 @@ theorem abs_bounds (x : ℝ) :
       -- 2.4. transitivity, from 2.3, C1, 2.1
       have s2_4 : -x ≤ abs x := by exact LE.le.trans_eq (le_trans s2_3 hC1) s2_1.symm
       -- 2.5. join 2.2, 2.4
-      have s2_5a : x ≤ abs x := by parley_side
-      have s2_5b : -x ≤ abs x := by parley_side
+      have s2_5a : x ≤ abs x := s2_2
+      have s2_5b : -x ≤ abs x := s2_4
       exact ⟨s2_5a, s2_5b⟩
     · skip
       -- 2.6. def:abs, from C2
@@ -51,8 +51,8 @@ theorem abs_bounds (x : ℝ) :
       -- 2.10. inequalities
       have s2_10 : x ≤ abs x := by linarith only [s2_9]
       -- 2.11. join 2.7, 2.10
-      have s2_11a : x ≤ abs x := by parley_side
-      have s2_11b : -x ≤ abs x := by parley_side
+      have s2_11a : x ≤ abs x := s2_10
+      have s2_11b : -x ≤ abs x := s2_7
       exact ⟨s2_11a, s2_11b⟩
   obtain ⟨s2a, s2b⟩ := s2a_all
   exact ⟨s2a, s2b⟩

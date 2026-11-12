@@ -35,8 +35,8 @@ theorem square_window_in (t : ℝ) (hH2 : 3 ≤ t) (hH3 : t ≤ 4) :
   -- 5. inequalities
   have s5 : t ^ 2 + 3 ≤ 19 := by linarith only [s3]
   -- 6. join 4, 5
-  have s6a : 12 ≤ t ^ 2 + 3 := by parley_side
-  have s6b : t ^ 2 + 3 ≤ 19 := by parley_side
+  have s6a : 12 ≤ t ^ 2 + 3 := s4
+  have s6b : t ^ 2 + 3 ≤ 19 := s5
   exact ⟨s6a, s6b⟩
 
 end Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn

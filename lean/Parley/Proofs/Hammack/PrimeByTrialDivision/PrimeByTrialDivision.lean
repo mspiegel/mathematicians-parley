@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import InstanceTactics
 public import NormTactics
-public import OrderTactics
 public import Tactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
@@ -66,7 +65,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
       have s1_6_1 : p = d := by (have h := Eq.subst (motive := (fun t : ℤ => p = d * t)) hS2 s1_1; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
       exact s1_2b s1_6_1.symm
     -- 1.7. inequalities, from D1, 1.6
-    have s1_7 : 1 < e := by parley_order
+    have s1_7 : 1 < e := Or.elim (Ne.lt_or_gt s1_6) (fun h1 => by linarith only [hD1_pos, h1]) (fun h1 => by linarith only [hD1_pos, h1])
     -- 1.8. mun:integer-step m := 1, n := e, from 1.7
     have s1_8 : 1 + 1 ≤ e := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := e) s1_7)
     -- 1.9. inequalities, from 1.8
@@ -106,8 +105,8 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         exact absurd s1_11_10 s1_11_12
     exact s1_2b s1_11
   -- 2. join H2, 1
-  have s2a : p > 1 := by parley_side
-  have s2b : ∀ d : ℤ, 0 < d → d ∣ p → d = 1 ∨ d = p := by intro d h_d; parley_side
+  have s2a : p > 1 := hH2
+  have s2b : ∀ d : ℤ, 0 < d → d ∣ p → d = 1 ∨ d = p := by intro d h_d; exact s1 d h_d
   -- 3. def:prime, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) hH1)).mpr ⟨s2a, s2b⟩
 

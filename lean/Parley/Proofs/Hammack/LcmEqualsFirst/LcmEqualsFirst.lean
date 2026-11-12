@@ -43,8 +43,8 @@ theorem lcm_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 5.2. mun:divides-self n := a
     have s5_2 : a ∣ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a))
     -- 5.3. join 5.2, D2
-    have s5_3a : a ∣ a := by parley_side
-    have s5_3b : b ∣ a := by parley_side
+    have s5_3a : a ∣ a := s5_2
+    have s5_3b : b ∣ a := hD2
     -- 5.4. instantiate k := a in line 4
     have s5_4 : a ∣ a ∧ b ∣ a → (Int.lcm a b : ℤ) ∣ a := by exact (s4 a)
     -- 5.5. mun:modus-ponens P := a divides a and b divides a, from 5.3, 5.4

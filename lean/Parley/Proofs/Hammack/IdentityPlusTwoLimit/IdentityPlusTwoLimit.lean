@@ -53,7 +53,7 @@ theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 
       -- 1.1.6. transitivity, from 1.1.1, 1.1.5
       have s1_1_6 : f x < 2 + ε := by exact Eq.trans_lt s1_1_1 s1_1_5
       -- 1.1.7. join 1.1.4, 1.1.6
-      have s1_1_7 : 2 - ε < f x ∧ f x < 2 + ε := by parley_set_side
+      have s1_1_7 : 2 - ε < f x ∧ f x < 2 + ε := ⟨s1_1_4, s1_1_6⟩
       -- 1.1.8. mun:abs-difference-lt x := f(x), c := 2, δ := ε, from 1.1.7
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f x) (c := (2 : ℝ)) (δ := ε))).mpr ⟨s1_1_7.1, s1_1_7.2⟩
     -- 1.2. exhibit, from A1, 1.1

@@ -170,7 +170,10 @@ pub fn written_out(
     for fact in order_facts {
         match fact {
             super::record::OrderFact::Line(at) => ordered.push(at),
-            super::record::OrderFact::Kind { written, .. } => *written = out(written),
+            super::record::OrderFact::Kind { written, .. }
+            | super::record::OrderFact::Member { written, .. } => {
+                *written = out(written)
+            }
             _ => {}
         }
     }
@@ -178,6 +181,7 @@ pub fn written_out(
         .antisymmetric
         .values_mut()
         .flat_map(|a| [&mut a.below, &mut a.above]);
+    let joined = written.joined.values_mut().flatten().flatten();
     for at in written
         .link_places
         .values_mut()
@@ -185,6 +189,7 @@ pub fn written_out(
         .chain(chained)
         .chain(ordered)
         .chain(antisymmetric)
+        .chain(joined)
     {
         at.written = out(&at.written);
     }

@@ -85,7 +85,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 3.8. transitivity, from 3.7, 3.6
     have s3_8 : N (k + 1) + 1 ≤ 10 * (N k + 1) := by exact Eq.trans_le s3_7 s3_6
     -- 3.9. join 3.5, 3.8
-    have s3_9 : 10 * N k ≤ N (k + 1) ∧ N (k + 1) + 1 ≤ 10 * (N k + 1) := by parley_set_side
+    have s3_9 : 10 * N k ≤ N (k + 1) ∧ N (k + 1) + 1 ≤ 10 * (N k + 1) := ⟨s3_5, s3_8⟩
     -- 3.10. mun:power-nat a := 10, m := k + 1
     have s3_10 : (0 : ℤ) < 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (10 : ℤ)) (by parley_set_side) (m := k + 1) (by parley_set_side))
     -- 3.11. mun:exponent-step a := 10, m := k
@@ -123,7 +123,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
         _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by exact s3_19
         _ = U k := by simp (disch := omega) only [hD6]
     -- 3.22. join 3.20, 3.21
-    have s3_22 : L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := by parley_set_side
+    have s3_22 : L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := ⟨s3_20, s3_21⟩
     exact ⟨(s3_22).1, (s3_22).2⟩
   -- 4. proof
   have s4 : ∀ k : ℤ, 0 ≤ k → (True ∧ True) ∧ L k ≤ U k := by
@@ -141,7 +141,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
         _ ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N k : ℚ)) (y := (N k : ℚ) + 1) (c := (10 ^ k.toNat : ℚ)) (by exact_mod_cast s4_4) (by exact_mod_cast gt_iff_lt.mp r307_2))
         _ = U k := by simp (disch := omega) only [hD6]
     -- 4.6. join 4.2, 4.3, 4.5
-    have s4_6 : L k ≤ U k := by parley_set_side
+    have s4_6 : L k ≤ U k := s4_5
     exact ⟨⟨trivial, trivial⟩, s4_6⟩
   -- 5. induction on g starting at 0
   have s5 : ∀ g : ℤ, 0 ≤ g → (∀ p : ℤ, 0 ≤ p → L p ≤ L (p + g) ∧ U (p + g) ≤ U p) := by
@@ -178,7 +178,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 5.12. transitivity, from 5.10, 5.11
       have s5_12 : U (p + g + 1) ≤ U p := by exact le_trans s5_10 s5_11
       -- 5.13. join 5.9, 5.12
-      have s5_13 : L p ≤ L (p + g + 1) ∧ U (p + g + 1) ≤ U p := by parley_set_side
+      have s5_13 : L p ≤ L (p + g + 1) ∧ U (p + g + 1) ≤ U p := ⟨s5_9, s5_12⟩
       -- 5.14. algebra
       have s5_14 : p + g + 1 = p + (g + 1) := by parley_ring
       -- 5.15. substitute (p + g) + 1 = p + (g + 1) (line 5.14) into line 5.13
@@ -285,7 +285,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 15.2. instantiate u := U(k) in line 13, from 10
     have s15_2 : c ≤ (U k : ℝ) := by exact (s13b (U k : ℝ) (s10 k hK5))
     -- 15.3. join 15.1, 15.2
-    have s15_3 : (L k : ℝ) ≤ c ∧ c ≤ (U k : ℝ) := by parley_set_side
+    have s15_3 : (L k : ℝ) ≤ c ∧ c ≤ (U k : ℝ) := ⟨s15_1, s15_2⟩
     exact ⟨(s15_3).1, (s15_3).2⟩
   -- 16. proof
   have s16 : ∀ n : ℤ, 0 < n → ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = d n ∨ ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (d n + 1) % (10 : ℤ) := by

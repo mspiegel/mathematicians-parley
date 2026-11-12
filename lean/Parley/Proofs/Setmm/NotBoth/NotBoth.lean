@@ -28,7 +28,7 @@ theorem not_both (a : ℝ) (b : ℝ) :
     -- 3. mun:double-negation, from 1
     have s3 : b = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_double_negation (P := b = 0) s1b)
     -- 4. join 2, 3
-    have s4 : a = 0 ∧ b = 0 := by parley_side
+    have s4 : a = 0 ∧ b = 0 := ⟨s2, s3⟩
     exact hD1 s4
   · skip
     intro hD2

@@ -90,9 +90,9 @@ theorem prime_powers_unique (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) 
   -- 21. mun:prime-power-unique p := 5, a := c, a′ := c′, m := 2^a·3^b, m′ := 2^a′·3^b′, from 3, 18, 19, 20
   have s21 : c = c' := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_power_unique (p := (5 : ℤ)) (by parley_side) s3 (a := c) hH3 (a' := c') hH6 (m := (2 ^ a.toNat * 3 ^ b.toNat : ℤ)) (m' := (2 ^ a'.toNat * 3 ^ b'.toNat : ℤ)) s18 s19 s20)
   -- 22. join 13, 17, 21
-  have s22a : a = a' := by parley_side
-  have s22b : b = b' := by parley_side
-  have s22c : c = c' := by parley_side
+  have s22a : a = a' := s13
+  have s22b : b = b' := s17
+  have s22c : c = c' := s21
   exact ⟨s22a, s22b, s22c⟩
 
 end Parley.Stdlib.Divisibility.PrimePowersUnique

@@ -1874,6 +1874,40 @@ pub fn check_subjects(
     }
 }
 
+/// Where each part of each `join` step's claim stands among the lines it
+/// cites (`CheckedTheorem::joined`): for each sentence of the claim, each
+/// of its parts joined by "and", by `fact_at` over the step's references,
+/// as `check_joins` matches them. A step with a part no one line states,
+/// one said only with a define's name read out, is left out.
+pub fn join_places(
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+) -> IndexMap<usize, Vec<Vec<FirstAt>>> {
+    let mut out = IndexMap::new();
+    for step in thm.steps.iter().filter(|s| s.just.head.is(Method::Join)) {
+        let placed = step
+            .claim
+            .sentences()
+            .iter()
+            .map(|s| {
+                let sentence = known.read_as_written(s)?;
+                conjuncts(&sentence, library)
+                    .iter()
+                    .map(|part| {
+                        let part = standard(part, &library.ctx);
+                        fact_at(step, &step.just.refs, None, &part, known, library)
+                    })
+                    .collect::<Option<Vec<FirstAt>>>()
+            })
+            .collect::<Option<Vec<_>>>();
+        if let Some(placed) = placed {
+            out.insert(step.just.line, placed);
+        }
+    }
+    out
+}
+
 /// A `join` claims the sentences of the lines it cites put together and
 /// infers nothing (`SYNTAX.md`): each sentence of its claim is one a cited
 /// line says, and each cited line says one of them. They are compared as

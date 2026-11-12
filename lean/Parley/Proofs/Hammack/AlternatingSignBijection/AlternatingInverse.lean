@@ -87,8 +87,8 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) t = 1 - 2 * m)) c1 s3_7; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. join 2, 3
-  have s4a : ∀ m : ℤ, m > 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := by intro m; parley_set_side
-  have s4b : ∀ m : ℤ, m ≤ 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := by intro m; parley_set_side
+  have s4a : ∀ m : ℤ, m > 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := by intro m; exact s2 m
+  have s4b : ∀ m : ℤ, m ≤ 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := by intro m; exact s3 m
   exact ⟨s4a, s4b⟩
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingInverse

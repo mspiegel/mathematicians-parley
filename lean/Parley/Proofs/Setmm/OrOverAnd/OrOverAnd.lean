@@ -27,7 +27,7 @@ theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
         -- 1.2. mun:or-left, from C1
         have s1_2 : a = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := a = 0) (Q := c = 0) hC1)
         -- 1.3. join 1.1, 1.2
-        have s1_3 : (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0) := by parley_side
+        have s1_3 : (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0) := ⟨s1_1, s1_2⟩
         exact ⟨(s1_3).1, (s1_3).2⟩
       · skip
         -- 1.4. mun:or-right, from C2
@@ -35,7 +35,7 @@ theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
         -- 1.5. mun:or-right, from C2
         have s1_5 : a = 0 ∨ c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := c = 0) hC2.2)
         -- 1.6. join 1.4, 1.5
-        have s1_6 : (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0) := by parley_side
+        have s1_6 : (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0) := ⟨s1_4, s1_5⟩
         exact ⟨(s1_6).1, (s1_6).2⟩
     exact ⟨(s1).1, (s1).2⟩
   · skip
@@ -57,7 +57,7 @@ theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
       -- 5.3. mun:disjunctive-syllogism-left, from C4, 3
       have s5_3 : c = 0 := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := a = 0) (Q := c = 0) s3 hC4)
       -- 5.4. join 5.2, 5.3
-      have s5_4 : b = 0 ∧ c = 0 := by parley_side
+      have s5_4 : b = 0 ∧ c = 0 := ⟨s5_2, s5_3⟩
       -- 5.5. mun:or-right, from 5.4
       exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := a = 0) (Q := b = 0 ∧ c = 0) s5_4)
 

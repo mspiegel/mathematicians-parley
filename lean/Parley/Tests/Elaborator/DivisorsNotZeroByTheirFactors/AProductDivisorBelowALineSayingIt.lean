@@ -32,7 +32,7 @@ theorem a_product_divisor_below_a_line_saying_it (k : ℤ) (hH2 : k > 0) :
   have r51_2 : k + 1 ≠ 0 := ne_of_gt (by linarith only [s1])
   have s3 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by parley_ring
   -- 4. join 2, 3
-  have s4 : k * (k + 1) ≠ 0 ∧ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by parley_side
+  have s4 : k * (k + 1) ≠ 0 ∧ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := ⟨s2, s3⟩
   exact ⟨(s4).1, (s4).2⟩
 
 end Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.AProductDivisorBelowALineSayingIt

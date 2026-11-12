@@ -49,8 +49,8 @@ theorem prefix_unchanged (T : Set ℤ) (i : ℤ) (p : ℤ) (hH4 : i < p) :
     calc (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = ((Set.Icc (1 : ℤ) i : Set ℤ) \ T) \ ({p} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_by_union (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T) (Z := ({p} : Set ℤ)))
       _ = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := (Set.Icc (1 : ℤ) i : Set ℤ) \ T) (a := p) s5)
   -- 7. join 3, 6
-  have s7a : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := by parley_set_side
-  have s7b : (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := by parley_set_side
+  have s7a : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := s3
+  have s7b : (Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) \ T := s6
   exact ⟨s7a, s7b⟩
 
 end Parley.Proofs.Wiedijk.Ballot.PrefixUnchanged

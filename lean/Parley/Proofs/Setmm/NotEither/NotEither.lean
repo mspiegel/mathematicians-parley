@@ -35,7 +35,7 @@ theorem not_either (a : ℝ) (b : ℝ) :
       have s2_2 : ¬ (a = 0 ∨ b = 0) := by exact hD1
       exact s2_2 s2_1
     -- 3. join 1, 2
-    have s3 : a ≠ 0 ∧ b ≠ 0 := by parley_side
+    have s3 : a ≠ 0 ∧ b ≠ 0 := ⟨s1, s2⟩
     exact ⟨(s3).1, (s3).2⟩
   · skip
     intro hD2

@@ -37,7 +37,7 @@ theorem gcd_equals_first (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
     -- 2.2. mun:divides-self n := a
     have s2_2 : a ∣ a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := a))
     -- 2.3. join 2.2, D2
-    have s2_3 : a ∣ a ∧ a ∣ b := by parley_side
+    have s2_3 : a ∣ a ∧ a ∣ b := ⟨s2_2, hD2⟩
     -- 2.4. instantiate e := a in line 1
     have s2_4 : a ∣ a ∧ a ∣ b → a ≤ (Int.gcd a b : ℤ) := by exact (s1d a hH1)
     -- 2.5. mun:modus-ponens P := a divides a and a divides b, Q := a ≤ gcd(a, b), from 2.3, 2.4

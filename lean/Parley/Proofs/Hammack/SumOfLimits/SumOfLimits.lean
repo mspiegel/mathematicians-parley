@@ -75,7 +75,7 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
       -- 1.12.8. inequalities, from 1.12.5, 1.12.6
       have s1_12_8 : a n + b n < L + M + ε := by linarith only [s1_12_5.2, s1_12_6.2]
       -- 1.12.9. join 1.12.7, 1.12.8
-      have s1_12_9 : L + M - ε < a n + b n ∧ a n + b n < L + M + ε := by parley_side
+      have s1_12_9 : L + M - ε < a n + b n ∧ a n + b n < L + M + ε := ⟨s1_12_7, s1_12_8⟩
       -- 1.12.10. mun:abs-difference-lt x := a(n) + b(n), c := L + M, δ := ε, from 1.12.9
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n + b n) (c := L + M) (δ := ε))).mpr ⟨s1_12_9.1, s1_12_9.2⟩
     -- 1.13. exhibit, from 1.12

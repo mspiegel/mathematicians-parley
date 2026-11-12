@@ -37,8 +37,8 @@ theorem coprime_square (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w : ℤ)
   -- 5. mun:coprime-square-part s := t, t := s, from 3, 4
   have s5 : t = (Int.gcd t w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) hH2 (t := s) hH1 (w := w) hH3 s3 (by parley_side))
   -- 6. join 1, 5
-  have s6a : s = (Int.gcd s w : ℤ) ^ 2 := by parley_side
-  have s6b : t = (Int.gcd t w : ℤ) ^ 2 := by parley_side
+  have s6a : s = (Int.gcd s w : ℤ) ^ 2 := s1
+  have s6b : t = (Int.gcd t w : ℤ) ^ 2 := s5
   exact ⟨s6a, s6b⟩
 
 end Parley.Stdlib.Divisibility.CoprimeSquare

@@ -50,8 +50,8 @@ theorem compose_rational_and_line (f : ℝ → ℝ) (g : ℝ → ℝ) (hH3 : ∀
       _ = 1 / (g x ^ 2 + 1) := by exact (hH3 (g x))
       _ = 1 / ((3 * x + 2) ^ 2 + 1) := by (have h := congrArg (fun t : ℝ => 1 / (t ^ 2 + 1)) (hH4 x); push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 1.7. join 1.4, 1.6
-  have s1_7a : (g ∘ f) x = 3 / (x ^ 2 + 1) + 2 := by parley_set_side
-  have s1_7b : (f ∘ g) x = 1 / ((3 * x + 2) ^ 2 + 1) := by parley_set_side
+  have s1_7a : (g ∘ f) x = 3 / (x ^ 2 + 1) + 2 := s1_4
+  have s1_7b : (f ∘ g) x = 1 / ((3 * x + 2) ^ 2 + 1) := s1_6
   exact ⟨s1_7a, s1_7b⟩
 
 end Parley.Proofs.Hammack.ComposeRationalAndLine.ComposeRationalAndLine

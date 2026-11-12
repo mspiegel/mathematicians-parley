@@ -34,7 +34,7 @@ theorem both_even_from_product_and_sum (a : ℤ) (b : ℤ) (hH3 : Even (a * b)) 
       -- 3.3. def:even n := b, from 3.2
       have s3_3 : Even b := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mpr ⟨m - j, s3_2⟩
       -- 3.4. join C1, 3.3
-      have s3_4 : Even a ∧ Even b := by parley_side
+      have s3_4 : Even a ∧ Even b := ⟨hC1, s3_3⟩
       exact ⟨(s3_4).1, (s3_4).2⟩
     · skip
       -- 3.5. obtain j: def:even, from C2
@@ -44,7 +44,7 @@ theorem both_even_from_product_and_sum (a : ℤ) (b : ℤ) (hH3 : Even (a * b)) 
       -- 3.7. def:even n := a, from 3.6
       have s3_7 : Even a := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mpr ⟨m - j, s3_6⟩
       -- 3.8. join C2, 3.7
-      have s3_8 : Even a ∧ Even b := by parley_side
+      have s3_8 : Even a ∧ Even b := ⟨s3_7, hC2⟩
       exact ⟨(s3_8).1, (s3_8).2⟩
   exact ⟨(s3).1, (s3).2⟩
 

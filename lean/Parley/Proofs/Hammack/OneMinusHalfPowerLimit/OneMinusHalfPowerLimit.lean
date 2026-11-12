@@ -107,7 +107,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 2.2.11. transitivity, from H2, 2.2.9, 2.2.10
       have s2_2_11 : a n < 1 + ε := by exact lt_trans (Eq.trans_lt (hH2 n hK2) (show (1 - 1 / 2 ^ n.toNat : ℝ) < 1 by have h := (Rat.cast_lt (K := ℝ)).mpr s2_2_9; simp only [Rat.cast_sub, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h)) s2_2_10
       -- 2.2.12. join 2.2.7, 2.2.11
-      have s2_2_12 : 1 - ε < a n ∧ a n < 1 + ε := by parley_side
+      have s2_2_12 : 1 - ε < a n ∧ a n < 1 + ε := ⟨s2_2_7, s2_2_11⟩
       -- 2.2.13. mun:abs-difference-lt x := a(n), c := 1, δ := ε, from 2.2.12
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := a n) (c := (1 : ℝ)) (δ := ε))).mpr ⟨s2_2_12.1, s2_2_12.2⟩
     -- 2.3. exhibit, from 2.2

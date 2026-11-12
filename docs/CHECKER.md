@@ -198,8 +198,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   combination the checker decided it by (`inequalities::combined`), then
   the equation of each define the step cites, which it reads written out.
   Each fact is placed as `FirstAt` (a sentence, a part, or what one
-  implies, `k ≥ 1` of `k ∈ ℕ`), as a define's kind, or as a requires line
-  above. The record also holds the disequalities the combination takes
+  implies, `k ≥ 1` of `k ∈ ℕ`), as a define's kind, as a requires line
+  above, or as what the member a claim said of every member is read at
+  implies, `i ≥ 1` of `i ∈ ℕ` (`OrderFact::Member`), with the fact as the
+  page writes it. The record also holds the disequalities the combination takes
   both ways, and for a `≠` claim the fact that says it. A step with rows
   adds the line its first row writes out, and records which way a final
   `weakening` to `≠` runs. Lean proves each part by `linarith only` over
@@ -207,6 +209,11 @@ line's own. A list holds one entry for each step, in the proof's order.
 - `antisymmetric`: for each `antisymmetry` step, the line that says the
   claim's left side is at most its right, and the line that says the
   converse. Lean writes `le_antisymm` of the two.
+- `joined`: for each `join` step, by the line of its justification, where
+  each part of each sentence of its claim stands among the lines it cites
+  (`FirstAt`), as `check_joins` matches them. A step with a part said only
+  with a define's name read out is left out. Lean puts the lines together,
+  `⟨s3_5, s3_8⟩`.
 
 ## Blocks
 

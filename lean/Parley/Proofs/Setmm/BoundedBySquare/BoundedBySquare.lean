@@ -93,7 +93,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     -- 6.7. transitivity, from 6.6, 6.3
     have s6_7 : -A ≤ B := by exact le_trans s6_6 s6_3
     -- 6.8. join 6.5, 6.7
-    have s6_8 : A ≤ B ∧ -A ≤ B := by parley_side
+    have s6_8 : A ≤ B ∧ -A ≤ B := ⟨s6_5, s6_7⟩
     exact ⟨(s6_8).1, (s6_8).2⟩
 
 end Parley.Proofs.Setmm.BoundedBySquare.BoundedBySquare

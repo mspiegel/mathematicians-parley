@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import OrderTactics
 public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
@@ -32,11 +31,11 @@ theorem a_label_given_again_inside_a_block :
     -- 1.1.3. transitivity, from 1.1.1, 1.1.2
     exact lt_trans (show (1 : ℝ) > 0 by exact_mod_cast s1_1_2) s1_1_1
   -- 1.2. instantiate y := x in line 1.1, from J
-  have s1_2 : x + 1 > 0 := by exact (s1_1 x (by parley_side))
+  have s1_2 : x + 1 > 0 := by exact (s1_1 x hJ)
   -- 1.3. inequalities
-  have s1_3 : x ≥ 0 := by parley_order
+  have s1_3 : x ≥ 0 := by linarith only [hJ]
   -- 1.4. join 1.3, 1.2
-  have s1_4 : x ≥ 0 ∧ x + 1 > 0 := by parley_side
+  have s1_4 : x ≥ 0 ∧ x + 1 > 0 := ⟨s1_3, s1_2⟩
   exact ⟨(s1_4).1, (s1_4).2⟩
 
 end Parley.Tests.Elaborator.ALabelGivenAgainInsideABlock.ALabelGivenAgainInsideABlock

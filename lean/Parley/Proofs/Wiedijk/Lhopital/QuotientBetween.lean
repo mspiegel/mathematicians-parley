@@ -163,8 +163,8 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 40. substitute G(x) = g(x) (line 31) into line 26
   have s40 : g x ≠ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) s31 s26; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 41. join 39, 40
-  have s41a : g x ≠ 0 := by parley_set_side
-  have s41b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ := by parley_set_side
+  have s41a : g x ≠ 0 := s40
+  have s41b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ := s39
   exact ⟨s41a, s41b⟩
 
 end Parley.Proofs.Wiedijk.Lhopital.QuotientBetween

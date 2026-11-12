@@ -99,8 +99,8 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.14. exhibit, from 4.9, 4.10, 4.13
       have s4_14 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_9, ⟨s4_13, s4_10⟩⟩
       -- 4.15. join 4.7, 4.14
-      have s4_15a : G u ≠ G v := by parley_set_side
-      have s4_15b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by parley_set_side
+      have s4_15a : G u ≠ G v := s4_7
+      have s4_15b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := s4_14
       exact ⟨s4_15a, s4_15b⟩
     · skip
       -- 4.16. mun:closed-within-open p := u, q := v, from H3, H4
@@ -148,8 +148,8 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.29. exhibit, from 4.22, 4.23, 4.28
       have s4_29 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_23, ⟨s4_28, s4_22b⟩⟩
       -- 4.30. join 4.21, 4.29
-      have s4_30a : G u ≠ G v := by parley_set_side
-      have s4_30b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by parley_set_side
+      have s4_30a : G u ≠ G v := s4_21
+      have s4_30b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := s4_29
       exact ⟨s4_30a, s4_30b⟩
   obtain ⟨s4a, s4b⟩ := s4a_all
   exact ⟨s4a, s4b⟩

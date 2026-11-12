@@ -665,6 +665,7 @@ fn theorem_record(
     record.links = formulas::transitivity_links(thm, &c.known[i], c.library);
     record.orders = formulas::order_steps(thm, &c.known[i], c.library);
     record.antisymmetric = formulas::antisymmetries(thm, &c.known[i], c.library);
+    record.joined = citations::join_places(thm, c.library, &c.known[i]);
     record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
     record.obtained_parts = citations::obtained_parts(thm, c.library, &c.known[i]);
     record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);

@@ -48,7 +48,7 @@ theorem sequence_misses_real (f : ℤ → ℝ) :
     -- 2.4. thm:digit-step-twice t := D(f(n), n), from 1
     have s2_4 : ((⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by exact (Parley.Proofs.Wiedijk.RealsUncountable.DigitStepTwice.digit_step_twice (t := ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)))
     -- 2.5. join 2.1, 2.2, 2.3, 2.4
-    have s2_5 : (((True ∧ 0 ≤ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ)) ∧ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) ≤ 9) ∧ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ ((⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := by parley_side
+    have s2_5 : (((True ∧ 0 ≤ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ)) ∧ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) ≤ 9) ∧ (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ)) ∧ ((⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) + 1) % (10 : ℤ) ≠ ⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) := ⟨⟨⟨⟨trivial, s2_2.1⟩, s2_2.2⟩, s2_3⟩, s2_4⟩
     -- 2.6. D7
     have s2_6 : e n = (⌊10 ^ n.toNat * f n⌋ % (10 : ℤ) + 1) % (10 : ℤ) := by simp (disch := omega) only [hD7]
     -- 2.7. substitute e(n) = s(D(f(n), n)) (line 2.6) into line 2.5

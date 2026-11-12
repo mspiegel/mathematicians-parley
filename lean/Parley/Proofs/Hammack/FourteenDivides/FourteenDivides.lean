@@ -33,7 +33,7 @@ theorem fourteen_divides (a : ℤ) :
     -- 5. def:divides d := 2, n := a, from 4
     have s5 : (2 : ℤ) ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a))).mpr ⟨7 * k, s4⟩
     -- 6. join 3, 5
-    have s6 : (7 : ℤ) ∣ a ∧ (2 : ℤ) ∣ a := by parley_side
+    have s6 : (7 : ℤ) ∣ a ∧ (2 : ℤ) ∣ a := ⟨s3, s5⟩
     exact ⟨(s6).1, (s6).2⟩
   · skip
     intro hD2

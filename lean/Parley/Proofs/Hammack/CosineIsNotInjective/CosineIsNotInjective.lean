@@ -27,8 +27,8 @@ theorem cosine_is_not_injective :
   -- 3. inequalities
   have s3 : 0 ≠ 2 * Real.pi := ne_of_lt (by linarith only [s2])
   -- 4. join 1, 3
-  have s4a : 0 ≠ 2 * Real.pi := by parley_side
-  have s4b : Real.cos (0 : ℝ) = Real.cos (2 * Real.pi) := by parley_side
+  have s4a : 0 ≠ 2 * Real.pi := s3
+  have s4b : Real.cos (0 : ℝ) = Real.cos (2 * Real.pi) := s1
   -- 5. exhibit, from 4
   exact ⟨(0 : ℝ), 2 * Real.pi, ⟨s4a, s4b⟩⟩
 

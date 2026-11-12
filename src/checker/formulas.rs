@@ -4171,7 +4171,10 @@ fn combined_order(
             inequalities::Source::Implied(j) => {
                 let one = &implied[j];
                 let Some(i) = one.from else {
-                    return Some(OrderFact::Member(one.rule));
+                    return Some(OrderFact::Member {
+                        implied: one.rule,
+                        written: one.node.clone(),
+                    });
                 };
                 match order_fact(thm, at, line_of[i], &facts[i], known, library)? {
                     OrderFact::Line(source) => Some(OrderFact::Line(FirstAt {

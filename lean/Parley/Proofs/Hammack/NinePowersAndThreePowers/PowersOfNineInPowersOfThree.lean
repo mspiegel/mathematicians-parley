@@ -96,7 +96,7 @@ theorem powers_of_nine_in_powers_of_three :
     have s4_4 : (3 : ℚ) ∈ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by parley_subst_at hS2 s4_3
     exact s3 s4_4
   -- 5. join 2, 4
-  have s5 : (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) ∧ ¬ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) = (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by parley_set_side
+  have s5 : (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) ∧ ¬ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) = (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := ⟨s2, s4⟩
   exact ⟨(s5).1, (s5).2⟩
 
 end Parley.Proofs.Hammack.NinePowersAndThreePowers.PowersOfNineInPowersOfThree

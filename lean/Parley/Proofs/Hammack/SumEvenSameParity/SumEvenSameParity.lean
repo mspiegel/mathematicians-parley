@@ -35,7 +35,7 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
     rcases s2 with hC2 | hC3
     · skip
       -- 3.2.1. join C1, C2
-      have s3_2_1 : Even x ∧ Even y := by parley_side
+      have s3_2_1 : Even x ∧ Even y := ⟨hC1, hC2⟩
       -- 3.2.2. mun:or-left P := x is even and y is even, Q := x is odd and y is odd, from 3.2.1
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) s3_2_1)
     · skip
@@ -65,7 +65,7 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
       exact absurd s3_4_3 s3_4_4
     · skip
       -- 3.4.5. join C4, C6
-      have s3_4_5 : Odd x ∧ Odd y := by parley_side
+      have s3_4_5 : Odd x ∧ Odd y := ⟨hC4, hC6⟩
       -- 3.4.6. mun:or-right P := x is even and y is even, Q := x is odd and y is odd, from 3.4.5
       exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) s3_4_5)
 

@@ -46,7 +46,7 @@ theorem factorial_beats_power (n : ℤ) (hH1 : 0 < n) :
       -- 1.2. arithmetic
       have s1_2 : 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_arith
       -- 1.3. join 1.1, 1.2
-      have s1_3 : 2 ^ 1 ≤ 2 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) ∧ 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by parley_side
+      have s1_3 : 2 ^ 1 ≤ 2 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) ∧ 1 * 2 ^ 1 ≤ 4 * (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := ⟨s1_1, s1_2⟩
       exact ⟨by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using (s1_3).1, by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using (s1_3).2⟩
     | succ k hK hIH =>
       -- 1.4. mun:factorial-nat n := k
@@ -78,7 +78,7 @@ theorem factorial_beats_power (n : ℤ) (hH1 : 0 < n) :
           _ ≤ (k + 1) * (2 * (LeanBridges.Counting.factorial k : ℤ) * 2) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 ^ k.toNat * 2 : ℤ)) (y := 2 * (LeanBridges.Counting.factorial k : ℤ) * 2) (c := k + 1) s1_8 r78_1)
           _ = 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by linear_combination (norm := parley_norm) (-4) * s1_6
       -- 1.16. join 1.14, 1.15
-      have s1_16 : 2 ^ (k + 1).toNat ≤ 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) ∧ (k + 1) * 2 ^ (k + 1).toNat ≤ 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by parley_side
+      have s1_16 : 2 ^ (k + 1).toNat ≤ 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) ∧ (k + 1) * 2 ^ (k + 1).toNat ≤ 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := ⟨s1_14, s1_15⟩
       exact ⟨(s1_16).1, (s1_16).2⟩
   -- 2. instantiate k := n in line 1
   have s2 : 2 ^ n.toNat ≤ 2 * (LeanBridges.Counting.factorial n : ℤ) ∧ n * 2 ^ n.toNat ≤ 4 * (LeanBridges.Counting.factorial n : ℤ) := by exact (s1 n hH1)

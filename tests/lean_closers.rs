@@ -24,6 +24,55 @@ struct Site {
 
 const SITES: &[Site] = &[
     Site {
+        file: "lean/Parley/Proofs/Wiedijk/RealsUncountable/DecimalNumber.lean",
+        step: "3.9",
+        holds: ":= ⟨s3_5, s3_8⟩",
+        list: false,
+        why: "a join: each part the line the checker found it in (`joined`), put together",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/ShiftByRational/ShiftByRational.lean",
+        step: "2.8",
+        holds: ":= ⟨trivial, s2_7⟩",
+        list: false,
+        why: "a join with a part Lean's types make true, A ∈ ℂ of a letter in ℂ: `trivial`, its line written nowhere",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Leibniz/IntegralBounds.lean",
+        step: "5",
+        holds: "intro x h_x; (linarith only [r556_1 x h_x])",
+        list: false,
+        why: "a requires line said for every x ∈ [0, 1], from one above it said so: that line read at the names the claim is opened under",
+    },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/AlgebraAndInequalitiesAtAMember/InequalitiesAtAMember.lean",
+        step: "1",
+        holds: "intro i h_i; linarith only [h_i]",
+        list: false,
+        why: "a bound the member a claim is read at implies, i ≥ 1 of i ∈ ℕ: the member's guard",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/PrimeByTrialDivision/PrimeByTrialDivision.lean",
+        step: "1.7",
+        holds: "Or.elim (Ne.lt_or_gt s1_6) (fun h1 => by linarith only [hD1_pos, h1])",
+        list: false,
+        why: "a define's kind used as an integer: its equation, in ℚ beside facts in ℤ, left out, so the step stays in ℤ",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/SqrtOfOddPowerOfThree/SqrtOfOddPowerOfThree.lean",
+        step: "13",
+        holds: "obtain ⟨w, hw, ew⟩ := s6; rw [← ew]; exact_mod_cast hw",
+        list: false,
+        why: "a bound of a membership Lean writes as a whole number equal to the term: the number taken out and put in for it",
+    },
+    Site {
+        file: "lean/Parley/Tests/Elaborator/ALabelGivenAgainInsideABlock/ALabelGivenAgainInsideABlock.lean",
+        step: "1.3",
+        holds: "linarith only [hJ]",
+        list: false,
+        why: "a label a block inside gave again is the outer block's once the inner closes",
+    },
+    Site {
         file: "lean/Parley/Proofs/Setmm/HalvesSeries/HalvesSeries.lean",
         step: "3.2.5",
         holds: "have h := (Rat.cast_le (K := ℝ)).mpr s3_2_4; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h",

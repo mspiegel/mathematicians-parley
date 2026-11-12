@@ -32,8 +32,8 @@ theorem linear_function_inverse (x : ℝ) :
   have r14_1 : 0 ≠ Real.pi := ne_of_lt (by linarith only [s1])
   have s3 : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := by parley_ring
   -- 4. join 2, 3
-  have s4a : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := by parley_side
-  have s4b : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := by parley_side
+  have s4a : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := s2
+  have s4b : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := s3
   exact ⟨s4a, s4b⟩
 
 end Parley.Proofs.Hammack.LinearFunctionInverse.LinearFunctionInverse

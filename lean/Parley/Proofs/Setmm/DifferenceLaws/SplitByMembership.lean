@@ -46,14 +46,14 @@ theorem split_by_membership {α : Type*} (A : Set α) (B : Set α) :
     rcases s3_1 with hC3 | hC4
     · skip
       -- 3.2.1. join K2, C3
-      have s3_2_1 : u ∈ A ∧ u ∈ B := by parley_set_side
+      have s3_2_1 : u ∈ A ∧ u ∈ B := ⟨hK2, hC3⟩
       -- 3.2.2. def:intersection, from 3.2.1
       have s3_2_2 : u ∈ A ∩ B := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mpr ⟨s3_2_1.1, s3_2_1.2⟩
       -- 3.2.3. mun:in-union-left, from 3.2.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A ∩ B) (Z := A \ B) (u := u) s3_2_2)
     · skip
       -- 3.2.4. join K2, C4
-      have s3_2_4 : u ∈ A ∧ ¬ u ∈ B := by parley_set_side
+      have s3_2_4 : u ∈ A ∧ ¬ u ∈ B := ⟨hK2, hC4⟩
       -- 3.2.5. def:difference, from 3.2.4
       have s3_2_5 : u ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mpr ⟨s3_2_4.1, s3_2_4.2⟩
       -- 3.2.6. mun:in-union-right, from 3.2.5

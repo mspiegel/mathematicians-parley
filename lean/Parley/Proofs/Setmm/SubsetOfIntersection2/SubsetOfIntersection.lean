@@ -28,7 +28,7 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
       -- 1.2. mun:in-subset X := A, Y := C, from D1, K1
       have s1_2 : u ∈ C := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := C) (u := u) hD1.2 hK1)
       -- 1.3. join 1.1, 1.2
-      have s1_3 : u ∈ B ∧ u ∈ C := by parley_set_side
+      have s1_3 : u ∈ B ∧ u ∈ C := ⟨s1_1, s1_2⟩
       -- 1.4. def:intersection, from 1.3
       exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := u))).mpr ⟨s1_3.1, s1_3.2⟩
     -- 2. def:subset, from 1
@@ -58,7 +58,7 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
     -- 7. def:subset X := A, Y := C, from 5
     have s7 : A ⊆ C := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := C))).mpr s5
     -- 8. join 6, 7
-    have s8 : A ⊆ B ∧ A ⊆ C := by parley_set_side
+    have s8 : A ⊆ B ∧ A ⊆ C := ⟨s6, s7⟩
     exact ⟨(s8).1, (s8).2⟩
 
 end Parley.Proofs.Setmm.SubsetOfIntersection2.SubsetOfIntersection

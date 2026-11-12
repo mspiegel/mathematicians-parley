@@ -311,6 +311,12 @@ pub struct CheckedTheorem {
     /// How each `antisymmetry` step's lines make its equation, by the line
     /// of its justification (`formulas::antisymmetries`).
     pub antisymmetric: IndexMap<usize, Antisymmetric>,
+    /// Where each part of each `join` step's claim stands among the lines
+    /// it cites, by the line of its justification: for each sentence of the
+    /// claim, each of its parts joined by "and", in order
+    /// (`citations::join_places`). A step with a part found in no one line,
+    /// one said only with a define's name read out, is left out.
+    pub joined: IndexMap<usize, Vec<Vec<FirstAt>>>,
     /// What each `exhibit` step shows, by the line of its justification: for each
     /// sentence of its claim, the values of its "there is" and where each
     /// fact it says of them stands (`citations::exhibit_values`).
@@ -842,8 +848,11 @@ pub enum OrderFact {
         implied: Option<crate::citing::Implication>,
     },
     /// What the member a claim said of every member is read at implies,
-    /// `i ≥ 1` of `i ∈ ℕ`.
-    Member(crate::citing::Implication),
+    /// `i ≥ 1` of `i ∈ ℕ`: the rule, and the fact as the page writes it.
+    Member {
+        implied: crate::citing::Implication,
+        written: Node,
+    },
 }
 
 /// How an `antisymmetry` step's two lines make its equation

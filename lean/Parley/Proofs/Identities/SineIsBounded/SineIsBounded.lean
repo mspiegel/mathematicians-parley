@@ -78,7 +78,7 @@ theorem sine_is_bounded (x : ℝ) :
     have s7_7 : ¬ Real.sin x ^ 2 ≤ 1 := by linarith only [s7_6]
     exact s7_7 s5
   -- 8. join 6, 7
-  have s8 : -1 ≤ Real.sin x ∧ Real.sin x ≤ 1 := by parley_side
+  have s8 : -1 ≤ Real.sin x ∧ Real.sin x ≤ 1 := ⟨s7, s6⟩
   exact ⟨(s8).1, (s8).2⟩
 
 end Parley.Proofs.Identities.SineIsBounded.SineIsBounded

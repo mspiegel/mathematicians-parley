@@ -84,7 +84,7 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
       -- 1.15.10. transitivity, from 1.15.6, 1.15.8
       have s1_15_10 : b n < L + ε := by exact lt_of_le_of_lt s1_15_6.2 s1_15_8
       -- 1.15.11. join 1.15.9, 1.15.10
-      have s1_15_11 : L - ε < b n ∧ b n < L + ε := by parley_side
+      have s1_15_11 : L - ε < b n ∧ b n < L + ε := ⟨s1_15_9, s1_15_10⟩
       -- 1.15.12. mun:abs-difference-lt x := b(n), c := L, δ := ε, from 1.15.11
       exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := b n) (c := L) (δ := ε))).mpr ⟨s1_15_11.1, s1_15_11.2⟩
     -- 1.16. exhibit, from 1.15

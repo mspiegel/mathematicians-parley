@@ -42,10 +42,10 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   -- 9. inequalities
   have s9 : x ^ 5 ≤ 0 := by linarith only [s8]
   -- 10. join 2, 4, 7, 9
-  have s10a : x ^ 2 ≥ 0 := by parley_side
-  have s10b : x ^ 3 ≤ 0 := by parley_side
-  have s10c : x ^ 4 ≥ 0 := by parley_side
-  have s10d : x ^ 5 ≤ 0 := by parley_side
+  have s10a : x ^ 2 ≥ 0 := s2
+  have s10b : x ^ 3 ≤ 0 := s4
+  have s10c : x ^ 4 ≥ 0 := s7
+  have s10d : x ^ 5 ≤ 0 := s9
   exact ⟨s10a, s10b, s10c, s10d⟩
 
 end Parley.Proofs.Hammack.PolynomialSign.NegativePowers

@@ -79,7 +79,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.8. transitivity, from 1.4.5, 1.4.6
       have s1_4_8 : abs (x + 3) < 7 := by exact Eq.trans_lt s1_4_5 s1_4_6
       -- 1.4.9. join 1.4.7, 1.4.8
-      have s1_4_9 : 0 < abs (x + 3) ∧ abs (x + 3) < 7 := by parley_set_side
+      have s1_4_9 : 0 < abs (x + 3) ∧ abs (x + 3) < 7 := ⟨s1_4_7, s1_4_8⟩
       -- 1.4.10. inequalities
       have s1_4_10 : abs (x + 3) ≤ 7 := by linarith only [s1_4_8]
       -- 1.4.11. instantiate x := x in H2

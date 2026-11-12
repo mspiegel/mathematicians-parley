@@ -51,9 +51,9 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       -- 6.4. def:divides d := b, n := a, from 6.3
       have s6_4 : b ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, s6_3⟩
       -- 6.5. join H2, 6.2, 6.4
-      have s6_5a : 0 < b := by parley_side
-      have s6_5b : b ∣ a := by parley_side
-      have s6_5c : b ∣ b := by parley_side
+      have s6_5a : 0 < b := hH2
+      have s6_5b : b ∣ a := s6_4
+      have s6_5c : b ∣ b := s6_2
       -- 6.6. substitute gcd(a, b) = b (line 6.1) into line 6.5
       have s6_6a : 0 < (Int.gcd a b : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s6_1.symm s6_5a; push_cast at h ⊢; all_goals exact_mod_cast h)
       have s6_6b : (Int.gcd a b : ℤ) ∣ a := by (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a)) s6_1.symm s6_5b; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -81,9 +81,9 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
         have row1 : (Int.gcd a b : ℤ) ∣ a := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd a b : ℤ) ∣ t)) c1 s6_11; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 6.13. join 6.9, 6.12
-      have s6_13a : 0 < (Int.gcd a b : ℤ) := by parley_side
-      have s6_13b : (Int.gcd a b : ℤ) ∣ a := by parley_side
-      have s6_13c : (Int.gcd a b : ℤ) ∣ b := by parley_side
+      have s6_13a : 0 < (Int.gcd a b : ℤ) := s6_9a
+      have s6_13b : (Int.gcd a b : ℤ) ∣ a := s6_12
+      have s6_13c : (Int.gcd a b : ℤ) ∣ b := s6_9c
       exact ⟨s6_13a, s6_13b, s6_13c⟩
   obtain ⟨s6a, s6b, s6c⟩ := s6a_all
   exact ⟨s6a, s6b, s6c⟩
