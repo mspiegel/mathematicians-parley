@@ -50,12 +50,12 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   set G : ℝ → ℝ := fun x : ℝ => ∫ t in a..x, (f t : ℝ) with hD1
   set H : ℝ → ℝ := fun x : ℝ => G x - F x with hD2
   -- 1. def:interval x := a
-  have r78_1 : a ≤ a := by linarith only []
+  have r78_1 : a ≤ a := by linarith
   have r78_2 : a ≤ b := by linarith only [hH3]
   have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r78_1⟩, r78_2⟩
   -- 2. def:interval x := b
   have r83_1 : a ≤ b := by linarith only [hH3]
-  have r83_2 : b ≤ b := by linarith only []
+  have r83_2 : b ≤ b := by linarith
   have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r83_1⟩, r83_2⟩
   -- 3. mun:interval-real
   have s3 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))

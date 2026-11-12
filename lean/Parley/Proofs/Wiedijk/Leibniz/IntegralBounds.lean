@@ -106,7 +106,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     -- 11.5. inequalities, from 11.3
     have s11_5 : 1 + x ^ 2 > 0 := by linarith only [s11_3]
     -- 11.6. mun:quotients-compared x := x^(2n), y := 1 + x², z := x^(2n), w := 1, from 11.2, 11.4
-    have r620_1 : x ^ (2 * n).toNat ≤ x ^ (2 * n).toNat := by linarith only []
+    have r620_1 : x ^ (2 * n).toNat ≤ x ^ (2 * n).toNat := by linarith
     have r620_2 : (0 : ℤ) < 1 := by parley_arith
     have s11_6 : x ^ (2 * n).toNat / (1 + x ^ 2) ≤ x ^ (2 * n).toNat / 1 := by exact (Parley.Items.Stdlib.Numbers.mun_quotients_compared (x := x ^ (2 * n).toNat) (y := 1 + x ^ 2) (z := x ^ (2 * n).toNat) (w := (1 : ℝ)) s11_2 r620_1 (by parley_set_side) s11_4)
     -- 11.7. D2, from K2

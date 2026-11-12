@@ -37,12 +37,12 @@ namespace Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds
 theorem zero_derivative_ends (a : ℝ) (b : ℝ) (hH3 : a < b) (H : ℝ → ℝ) (hH4 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ContinuousOn H (Set.Icc a b : Set ℝ)) (hH6 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ H x) (hH7 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = 0) :
     H b = H a := by
   -- 1. def:interval x := a
-  have r26_1 : a ≤ a := by linarith only []
+  have r26_1 : a ≤ a := by linarith
   have r26_2 : a ≤ b := by linarith only [hH3]
   have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r26_1⟩, r26_2⟩
   -- 2. def:interval x := b
   have r31_1 : a ≤ b := by linarith only [hH3]
-  have r31_2 : b ≤ b := by linarith only []
+  have r31_2 : b ≤ b := by linarith
   have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r31_1⟩, r31_2⟩
   -- 3. obtain c: thm:mean-value f := H, from H3, H5, H6
   obtain ⟨c, s3a, s3b⟩ := (Parley.Proofs.Wiedijk.MeanValue.MeanValue.mean_value (a := a) (b := b) hH3 (f := H) (by parley_set_side) hH5 hH6)

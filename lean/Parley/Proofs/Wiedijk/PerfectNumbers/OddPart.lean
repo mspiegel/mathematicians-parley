@@ -117,7 +117,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
   have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; exact (s1 n (le_of_lt hH1) j (by parley_side))
   -- 3. def:range-between k := n, a := 1, b := n
   have r260_1 : 1 ≤ n := by linarith only [hH1]
-  have r260_2 : n ≤ n := by linarith only []
+  have r260_2 : n ≤ n := by linarith
   have s3 : n ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (1 : ℤ)) (b := n))).mpr ⟨r260_1, r260_2⟩
   -- 4. instantiate j := n in line 2, from 3
   have s4 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ n = 2 ^ k.toNat * m)) := by exact (s2 n s3)

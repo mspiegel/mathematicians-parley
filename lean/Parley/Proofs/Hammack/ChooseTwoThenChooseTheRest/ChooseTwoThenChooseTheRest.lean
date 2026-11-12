@@ -33,10 +33,10 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 1. transitivity, from H3, H4
   have s1 : 2 ≤ n := by exact le_trans hH3 hH4
   -- 2. inequalities, from 1
-  have s2a : (0 : ℤ) ≤ 2 := by linarith only []
+  have s2a : (0 : ℤ) ≤ 2 := by linarith
   have s2b : 2 ≤ n := by linarith only [s1]
   -- 3. inequalities, from H3
-  have s3a : (0 : ℤ) ≤ 2 := by linarith only []
+  have s3a : (0 : ℤ) ≤ 2 := by linarith
   have s3b : 2 ≤ k := by linarith only [hH3]
   -- 4. inequalities, from H2, H4
   have s4a : 0 ≤ k := by linarith only [hH2]

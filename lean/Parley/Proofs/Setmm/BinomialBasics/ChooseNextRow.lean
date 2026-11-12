@@ -33,7 +33,7 @@ theorem choose_next_row (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose (N + 1) N : ℤ) = N + 1 := by
   -- 1. inequalities, from H1
   have s1a : 0 ≤ N := by linarith only [hH1]
-  have s1b : N ≤ N + 1 := by linarith only []
+  have s1b : N ≤ N + 1 := by linarith
   -- 2. def:range-between k := N, a := 0, b := N + 1, from 1
   have s2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr ⟨s1a, s1b⟩
   -- 3. algebra

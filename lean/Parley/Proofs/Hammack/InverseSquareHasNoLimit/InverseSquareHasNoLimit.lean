@@ -148,10 +148,10 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.22. substitute f(t) = j² (line 10.21) into line 10.14
     (have h := Eq.subst (motive := (fun u : ℝ => abs (u - L) < 1)) s10_21 s10_14; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. instantiate j := m in line 10
-  have r154_1 : m ≥ m := by linarith only []
+  have r154_1 : m ≥ m := by linarith
   have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by exact (s10 m s7a r154_1)
   -- 12. instantiate j := m + 1 in line 10
-  have r158_1 : m + 1 ≥ m := by linarith only []
+  have r158_1 : m + 1 ≥ m := by linarith
   have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by exact_mod_cast (s10 (m + 1) (by parley_set_side) r158_1)
   -- 13. mun:abs-difference-lt x := m², c := L, δ := 1, from 11
   have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp s11

@@ -23,9 +23,9 @@ namespace Parley.Proofs.Setmm.FloorBasics.FloorOfInteger
 theorem floor_of_integer (A : ℤ) :
     ⌊(A : ℝ)⌋ = A := by
   -- 1. inequalities
-  have s1 : A ≤ A := by linarith only []
+  have s1 : A ≤ A := by linarith
   -- 2. inequalities
-  have s2 : A < A + 1 := by linarith only []
+  have s2 : A < A + 1 := by linarith
   -- 3. mun:floor-between x := A, k := A, from 1, 2
   exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ)) (k := A))).mpr ⟨by exact_mod_cast s1, by exact_mod_cast s2⟩
 

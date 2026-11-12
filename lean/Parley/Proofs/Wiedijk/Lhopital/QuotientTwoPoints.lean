@@ -62,7 +62,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
         -- 4.3.1. def:open-interval a := v, b := u, x := u, from S1
         have s4_3_1 : u < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := v) (b := u))).mp hS1).2
         -- 4.3.2. inequalities
-        have s4_3_2 : ¬ u < u := by linarith only []
+        have s4_3_2 : ¬ u < u := by linarith
         exact s4_3_2 s4_3_1
       -- 4.4. mun:subset-into-difference a := u, X := (a, b), Y := (v, u), from 4.2, 4.3
       have s4_4 : (Set.Ioo v u : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo v u : Set ℝ)) (a := u) s4_2 s4_3)
@@ -114,7 +114,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
         -- 4.18.1. def:open-interval a := u, b := v, x := u, from S2
         have s4_18_1 : u < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := u) (a := u) (b := v))).mp hS2).1.2
         -- 4.18.2. inequalities
-        have s4_18_2 : ¬ u < u := by linarith only []
+        have s4_18_2 : ¬ u < u := by linarith
         exact s4_18_2 s4_18_1
       -- 4.19. mun:subset-into-difference a := u, X := (a, b), Y := (u, v), from 4.17, 4.18
       have s4_19 : (Set.Ioo u v : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Ioo u v : Set ℝ)) (a := u) s4_17 s4_18)

@@ -42,7 +42,7 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
   · skip
     -- 2.1. inequalities, from H1
     have s2_1a : 0 ≤ N := by linarith only [hH1]
-    have s2_1b : N ≤ N + 1 := by linarith only []
+    have s2_1b : N ≤ N + 1 := by linarith
     -- 2.2. def:range-between k := N, a := 0, b := N + 1, from 2.1
     have s2_2 : N ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N + 1))).mpr ⟨s2_1a, s2_1b⟩
     -- 2.3. algebra

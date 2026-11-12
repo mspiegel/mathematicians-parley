@@ -931,26 +931,19 @@ fn and_leaves(
     says: &Printed,
     proof: Option<Printed>,
     out: &mut Vec<(Printed, Option<Printed>)>,
+    w: &Writer,
 ) {
-    match (page_and(node), and_sides(says)) {
+    match (w.and_sides(node), and_sides(says)) {
         (Some((nl, nr)), Some((l, r))) => {
             let side = |field: &str| {
                 proof
                     .clone()
                     .map(|p| fields(super::tactics::bracket(p), &[field]))
             };
-            and_leaves(nl, &l, side("1"), out);
-            and_leaves(nr, &r, side("2"), out);
+            and_leaves(nl, &l, side("1"), out, w);
+            and_leaves(nr, &r, side("2"), out, w);
         }
         _ => out.push((says.clone(), proof)),
-    }
-}
-
-/// The two sides of an "and" the page writes; None for another sentence.
-fn page_and(node: &Node) -> Option<(&Node, &Node)> {
-    match (node.notation(), node.children.as_slice()) {
-        (crate::notations::CONJUNCTION, [l, r]) => Some((l, r)),
-        _ => None,
     }
 }
 
@@ -961,11 +954,12 @@ fn assembled_as(
     node: &Node,
     owe: &Printed,
     proofs: &mut impl Iterator<Item = Proved>,
+    w: &Writer,
 ) -> Option<Proved> {
-    match (page_and(node), and_sides(owe)) {
+    match (w.and_sides(node), and_sides(owe)) {
         (Some((nl, nr)), Some((l, r))) => {
-            let a = assembled_as(nl, &l, proofs)?.term();
-            let b = assembled_as(nr, &r, proofs)?.term();
+            let a = assembled_as(nl, &l, proofs, w)?.term();
+            let b = assembled_as(nr, &r, proofs, w)?.term();
             Some(Proved::Term(super::expr::anonymous(vec![a, b])))
         }
         _ => proofs.next(),
@@ -1167,7 +1161,11 @@ pub fn as_written(rec: &CheckedTheorem) -> &CheckedTheorem {
 /// projection.
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
     let rec = as_written(rec);
-    let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
+    let mut writer = Writer::new(
+        &sources.checked.grammar,
+        sources.templates,
+        &sources.ctx.conjunctions,
+    );
     writer.reals = held_real(rec, &writer);
     writer.finite_from(&rec.said_finite);
     writer.bounds = rec.statement_bounds.clone();
@@ -1212,32 +1210,26 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
 
 /// The parts of an "and" as its tree nests them, in order: ((A ∧ B) ∧ C)
 /// gives A, B, C; anything else is one part.
-fn and_parts(node: &Node) -> Vec<&Node> {
-    match (node.notation(), node.children.as_slice()) {
-        (
-            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-            [l, r],
-        ) => {
-            let mut out = and_parts(l);
-            out.extend(and_parts(r));
+fn and_parts<'n>(node: &'n Node, w: &Writer) -> Vec<&'n Node> {
+    match w.and_sides(node) {
+        Some((l, r)) => {
+            let mut out = and_parts(l, w);
+            out.extend(and_parts(r, w));
             out
         }
-        _ => vec![node],
+        None => vec![node],
     }
 }
 
 /// The projection that takes part `i` of an "and" as its tree nests it,
 /// `.1.2` for B of ((A ∧ B) ∧ C); None where it has no part `i`.
-fn leaf_path(node: &Node, i: usize) -> Option<Vec<&'static str>> {
-    match (node.notation(), node.children.as_slice()) {
-        (
-            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-            [l, r],
-        ) => {
-            let left = and_parts(l).len();
+fn leaf_path(node: &Node, i: usize, w: &Writer) -> Option<Vec<&'static str>> {
+    match w.and_sides(node) {
+        Some((l, r)) => {
+            let left = and_parts(l, w).len();
             let (side, rest) = match i < left {
-                true => ("1", leaf_path(l, i)),
-                false => ("2", leaf_path(r, i - left)),
+                true => ("1", leaf_path(l, i, w)),
+                false => ("2", leaf_path(r, i - left, w)),
             };
             rest.map(|mut path| {
                 path.insert(0, side);
@@ -1743,8 +1735,13 @@ fn split_linarith(split: &[Printed], facts: Vec<Printed>) -> Printed {
     use super::doc::{LeanType, Proof, Source, TacticArg, TermKind};
     use super::tactics as t;
     let Some((apart, rest)) = split.split_first() else {
-        let call = t::call("linarith", vec![TacticArg::Only, t::rules(facts)]);
-        return t::by_term(Proof::By(call));
+        // A step resting on no line, `N ≤ N + 1`, is plain `linarith`:
+        // with nothing to name, `only []` says nothing a reader needs.
+        let args = match facts.is_empty() {
+            true => Vec::new(),
+            false => vec![TacticArg::Only, t::rules(facts)],
+        };
+        return t::by_term(Proof::By(t::call("linarith", args)));
     };
     let name = format!("h{}", split.len());
     let mut with = facts;
@@ -1887,21 +1884,13 @@ fn node_consequent(sentence: &Node) -> Option<&Node> {
 
 /// The part of an "and" a projection path takes, `.1.2`, as the page's tree
 /// nests the "and" (`leaf_path`); None where the sentence has no such part.
-fn node_along<'n>(sentence: &'n Node, path: &[&str]) -> Option<&'n Node> {
+fn node_along<'n>(sentence: &'n Node, path: &[&str], w: &Writer) -> Option<&'n Node> {
     let mut at = sentence;
     for side in path {
-        at = match (at.notation(), at.children.as_slice(), *side) {
-            (
-                crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-                [l, _],
-                "1",
-            ) => l,
-            (
-                crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-                [_, r],
-                _,
-            ) => r,
-            _ => return None,
+        let (l, r) = w.and_sides(at)?;
+        at = match *side {
+            "1" => l,
+            _ => r,
         };
     }
     Some(at)
@@ -3188,7 +3177,11 @@ pub fn theorem(
         sources,
         thm,
         rec,
-        writer: Writer::new(&sources.checked.grammar, sources.templates),
+        writer: Writer::new(
+            &sources.checked.grammar,
+            sources.templates,
+            &sources.ctx.conjunctions,
+        ),
         lines: Vec::new(),
         named: IndexMap::new(),
         trees: IndexMap::new(),
@@ -4239,7 +4232,7 @@ impl<'a> Proof<'a> {
         }
         for c in &cited {
             if let Some(at) = self.at_recorded_letter(c, &names) {
-                conjuncts(&at.node, at.proof, at.says, &mut facts);
+                conjuncts(&at.node, at.proof, at.says, &mut facts, &self.writer);
             }
         }
         facts.extend(cited);
@@ -6123,7 +6116,7 @@ impl<'a> Proof<'a> {
                 true => None,
                 false => name_of.next().map(|n| super::tactics::hyp(n)),
             };
-            and_leaves(node, says, proof, &mut parts);
+            and_leaves(node, says, proof, &mut parts, &self.writer);
         }
         if owed_nodes.len() != owes.len() {
             return Route::no(format!(
@@ -6135,7 +6128,7 @@ impl<'a> Proof<'a> {
         }
         let mut owed_parts = Vec::new();
         for (node, owe) in owed_nodes.iter().zip(&owes) {
-            and_leaves(node, owe, None, &mut owed_parts);
+            and_leaves(node, owe, None, &mut owed_parts, &self.writer);
         }
         // A sentence the checker met whole that the record writes out as an
         // "and", a phrase as its meaning, is met whole here too.
@@ -6201,7 +6194,7 @@ impl<'a> Proof<'a> {
             false => {
                 let mut proofs = proofs.into_iter();
                 for (node, owe) in owed_nodes.iter().zip(&owes) {
-                    match assembled_as(node, owe, &mut proofs) {
+                    match assembled_as(node, owe, &mut proofs, &self.writer) {
                         Some(p) => assembled.push(p),
                         None => {
                             return Route::no(
@@ -6706,7 +6699,13 @@ impl<'a> Proof<'a> {
             None => Route::Built(found),
             Some(j) => {
                 let mut parts = Vec::new();
-                conjuncts(&found.node, found.proof, found.says, &mut parts);
+                conjuncts(
+                    &found.node,
+                    found.proof,
+                    found.says,
+                    &mut parts,
+                    &self.writer,
+                );
                 match parts.into_iter().nth(j) {
                     Some(part) => Route::Built(part),
                     None => Route::no(format!(
@@ -7318,7 +7317,9 @@ impl<'a> Proof<'a> {
                     }
                     // A claim joined by "and": part by part (`parts_closed`).
                     _ => {
-                        if let Some(proof) = parts_closed(node, claim, says, &term) {
+                        if let Some(proof) =
+                            parts_closed(node, claim, says, &term, &self.writer)
+                        {
                             return proof;
                         }
                     }
@@ -8368,11 +8369,8 @@ impl<'a> Proof<'a> {
         known: &[Tactic],
         shown: &mut impl Iterator<Item = &'s Supplied>,
     ) -> Printed {
-        match (said.notation(), said.children.as_slice()) {
-            (
-                crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-                [l, r],
-            ) => {
+        match self.writer.and_sides(said) {
+            Some((l, r)) => {
                 let (wl, wr) = match wanted.and_then(and_sides) {
                     Some((a, b)) => (Some(a), Some(b)),
                     None => (None, None),
@@ -9014,15 +9012,19 @@ impl<'a> Proof<'a> {
             }
         }
         // The links are joined in the widest type any of them is in, each
-        // in a narrower one taken up to it (`fact_in_type`).
+        // in a narrower one taken up to it (`fact_in_type`); links of no
+        // number type, sets `A = B = C`, as they stand.
         let mut widest = None;
+        let numbers = facts
+            .iter()
+            .filter(|f| number_type(&f.says).is_some())
+            .count();
+        if numbers != 0 && numbers != facts.len() {
+            return Route::no("a chain's links of numbers and of other things");
+        }
         for f in &facts {
-            match (number_type(&f.says), widest) {
-                (Some(t), Some(w)) => widest = Some(std::cmp::max(t, w)),
-                (Some(t), None) => widest = Some(t),
-                (None, _) => {
-                    return Route::no("a chain's link in a type other than numbers")
-                }
+            if let (Some(t), w) = (number_type(&f.says), widest) {
+                widest = Some(w.map_or(t, |w| std::cmp::max(t, w)));
             }
         }
         // A chain the checker met only with identity elements dropped, `n·1`
@@ -9239,16 +9241,16 @@ impl<'a> Proof<'a> {
         w: &Writer,
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
-        if node.notation() != crate::notations::CONJUNCTION {
+        let Some((left, right)) = w.and_sides(node) else {
             let Some(part) = parts.next() else {
                 return Route::no(
                     "an order step recorded with fewer parts than its claim",
                 );
             };
             return self.order_part(part, node, w);
-        }
+        };
         let mut items = Vec::new();
-        for child in &node.children {
+        for child in [left, right] {
             match self.order_joined(child, parts, w) {
                 Route::Built(Proof::Term(t)) => items.push(t),
                 Route::Built(p) => items.push(super::tactics::by_term(p)),
@@ -9630,9 +9632,9 @@ impl<'a> Proof<'a> {
         parts: &mut impl Iterator<Item = &'p FirstAt>,
         w: &Writer,
     ) -> Route<Printed> {
-        if node.notation() == crate::notations::CONJUNCTION {
+        if let Some((left, right)) = w.and_sides(node) {
             let mut items = Vec::new();
-            for child in &node.children {
+            for child in [left, right] {
                 match self.joined_term(child, parts, w) {
                     Route::Built(t) => items.push(t),
                     Route::Declined(d) => return Route::Declined(d),
@@ -11193,7 +11195,13 @@ impl<'a> Proof<'a> {
             let mut parts = Vec::new();
             let read = read.filter(|_| line.notation() == crate::notations::FOR_ALL);
             if let Some(at) = &read {
-                conjuncts(&at.node, at.proof.clone(), at.says.clone(), &mut parts);
+                conjuncts(
+                    &at.node,
+                    at.proof.clone(),
+                    at.says.clone(),
+                    &mut parts,
+                    &self.writer,
+                );
             }
             // Of no part the equation turns into the claim, the whole line at
             // the letter, as a "for all" line cited inside a block is read:
@@ -12239,7 +12247,13 @@ impl<'a> Proof<'a> {
         let mut out = Vec::new();
         for r in refs {
             for s in self.trees.get(r).into_iter().flatten() {
-                conjuncts(&s.node, s.proof.clone(), s.says.clone(), &mut out);
+                conjuncts(
+                    &s.node,
+                    s.proof.clone(),
+                    s.says.clone(),
+                    &mut out,
+                    &self.writer,
+                );
             }
         }
         out
@@ -13430,10 +13444,7 @@ impl<'a> Proof<'a> {
             }
         };
         // A claim that is itself the "and", read as its parts, is the whole.
-        let whole = matches!(
-            node.notation(),
-            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION
-        );
+        let whole = self.writer.is_and(node);
         // What the reading gives: a definition's right side, a theorem's
         // sentence; its "and" is taken apart as its tree nests it.
         let read = match (iff, sentence.says.children.as_slice()) {
@@ -13444,7 +13455,7 @@ impl<'a> Proof<'a> {
         // gives met, "for all d …" of "p > 1 and for all d …": that part, as
         // the checker's matcher met it (`Concluded::part`), its projection.
         let path = match (whole, concluded.part) {
-            (false, Some(at)) => match leaf_path(read, at) {
+            (false, Some(at)) => match leaf_path(read, at, &self.writer) {
                 Some(path) => Some(path),
                 None => {
                     return Route::no(
@@ -13469,12 +13480,12 @@ impl<'a> Proof<'a> {
                 // The part read at the values, its property applied as its
                 // body (`at_values`), and the path to its part j there.
                 let part = match &path {
-                    Some(path) => node_along(read, path),
+                    Some(path) => node_along(read, path, &self.writer),
                     None => Some(read),
                 };
                 let inner = part
                     .map(|p| self.at_values(p, &cited.binding))
-                    .and_then(|at| leaf_path(&at, j));
+                    .and_then(|at| leaf_path(&at, j, &self.writer));
                 let Some(inner) = inner else {
                     return Route::no(
                         "a property's body whose \"and\" has fewer parts than the part the claim met",
@@ -13503,7 +13514,7 @@ impl<'a> Proof<'a> {
             Way::Backward => None,
         };
         let as_written = match (given, &path) {
-            (Some(given), Some(path)) => node_along(given, path),
+            (Some(given), Some(path)) => node_along(given, path, &self.writer),
             (given, None) => given,
             (None, Some(_)) => None,
         }
@@ -13902,7 +13913,13 @@ impl<'a> Proof<'a> {
                 continue;
             }
             for s in lines {
-                conjuncts(&s.node, s.proof.clone(), s.says.clone(), &mut parts);
+                conjuncts(
+                    &s.node,
+                    s.proof.clone(),
+                    s.says.clone(),
+                    &mut parts,
+                    &self.writer,
+                );
             }
         }
         parts.iter().rev().find_map(|c| {
@@ -14128,11 +14145,7 @@ impl<'a> Proof<'a> {
         let mut said = &source.says;
         // A "there is" the sentence says after an "and", u ∈ X and (there
         // are m, n with …): what comes before it, unnamed, and then it.
-        while let (
-            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-            [_, right],
-        ) = (said.notation(), said.children.as_slice())
-        {
+        while let Some((_, right)) = self.writer.and_sides(said) {
             if right.notation() != crate::notations::THERE_IS {
                 break;
             }
@@ -14194,7 +14207,7 @@ impl<'a> Proof<'a> {
         // with that statement: what a step citing the line reads.
         let mut as_stated: Vec<(String, Printed)> = Vec::new();
         if !body.is_empty() {
-            if body.len() > conjunct_count(said) {
+            if body.len() > conjunct_count(said, &self.writer) {
                 return Route::no(
                     "an obtain whose sentences are not the parts of its \"there is\"",
                 );
@@ -14204,7 +14217,7 @@ impl<'a> Proof<'a> {
                 &renamed,
                 &self.sources.checked.grammar.binders(),
             );
-            let parts = shaped_parts(&said, body.len());
+            let parts = shaped_parts(&said, body.len(), &self.writer);
             // The parts as Lean states them, from the item's statement of
             // the "there is" (`Obtained::lean`), where it takes apart into
             // as many parts as the page's.
@@ -14212,7 +14225,7 @@ impl<'a> Proof<'a> {
                 .lean
                 .as_ref()
                 .map(|s| lean_body_parts(s, &step.just.obtained))
-                .filter(|p| p.len() == conjunct_count(&said))
+                .filter(|p| p.len() == conjunct_count(&said, &self.writer))
                 .unwrap_or_default();
             let values = self.set_values();
             let mut lean_names = Vec::new();
@@ -14282,7 +14295,7 @@ impl<'a> Proof<'a> {
                     }
                 }
             }
-            pattern.push(shaped_pattern(&said, &lean_names));
+            pattern.push(shaped_pattern(&said, &lean_names, &self.writer));
         }
         self.push_at(
             depth,
@@ -15906,20 +15919,17 @@ fn conjuncts(
     proof: Printed,
     says: Option<Printed>,
     out: &mut Vec<super::algebra::Cited>,
+    w: &Writer,
 ) {
-    let joined = matches!(
-        node.notation(),
-        crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION
-    );
-    if let ([left, right], true) = (node.children.as_slice(), joined) {
+    if let Some((left, right)) = w.and_sides(node) {
         // The statement as stated, taken apart as the tree is; None where it
         // is no "and".
         let (said_left, said_right) = match says.as_ref().and_then(and_sides) {
             Some((l, r)) => (Some(l), Some(r)),
             None => (None, None),
         };
-        conjuncts(left, fields(proof.clone(), &["1"]), said_left, out);
-        conjuncts(right, fields(proof, &["2"]), said_right, out);
+        conjuncts(left, fields(proof.clone(), &["1"]), said_left, out, w);
+        conjuncts(right, fields(proof, &["2"]), said_right, out, w);
         return;
     }
     out.push(super::algebra::Cited {
@@ -16000,28 +16010,21 @@ fn under_binders(claim: &Node, fact: &Node) -> Node {
 
 /// An `obtain` pattern for a sentence, one name to each part of its "and"
 /// as it nests, the names taken in order; a part left with no name is `_`.
-fn shaped_pattern(said: &Node, names: &[String]) -> String {
-    let and_sides = |n: &Node| match (n.notation(), n.children.as_slice()) {
-        (
-            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-            [l, r],
-        ) => Some((l.clone(), r.clone())),
-        _ => None,
-    };
-    match (names, and_sides(said)) {
+fn shaped_pattern(said: &Node, names: &[String], w: &Writer) -> String {
+    match (names, w.and_sides(said)) {
         ([], _) => "_".to_string(),
         ([one], _) => one.clone(),
         // Each side takes as many names as it has parts, the left as many
         // as it can while the right keeps one: an "and" that is one
         // sentence of the page stays whole.
         (_, Some((l, r))) => {
-            let take = conjunct_count(&l).min(names.len() - 1);
-            let take = take.max(names.len().saturating_sub(conjunct_count(&r)));
+            let take = conjunct_count(l, w).min(names.len() - 1);
+            let take = take.max(names.len().saturating_sub(conjunct_count(r, w)));
             let (left, right) = names.split_at(take.min(names.len()));
             format!(
                 "⟨{}, {}⟩",
-                shaped_pattern(&l, left),
-                shaped_pattern(&r, right)
+                shaped_pattern(l, left, w),
+                shaped_pattern(r, right, w)
             )
         }
         (_, None) => names[0].clone(),
@@ -16030,20 +16033,16 @@ fn shaped_pattern(said: &Node, names: &[String]) -> String {
 
 /// The parts of `said` an obtain pattern of `count` names takes, in order,
 /// split as `shaped_pattern` splits it.
-fn shaped_parts(said: &Node, count: usize) -> Vec<Node> {
-    match (count, said.notation(), said.children.as_slice()) {
-        (0, _, _) => Vec::new(),
-        (1, _, _) => vec![said.clone()],
-        (
-            _,
-            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-            [l, r],
-        ) => {
-            let take = conjunct_count(l).min(count - 1);
-            let take = take.max(count.saturating_sub(conjunct_count(r)));
+fn shaped_parts(said: &Node, count: usize, w: &Writer) -> Vec<Node> {
+    match (count, w.and_sides(said)) {
+        (0, _) => Vec::new(),
+        (1, _) => vec![said.clone()],
+        (_, Some((l, r))) => {
+            let take = conjunct_count(l, w).min(count - 1);
+            let take = take.max(count.saturating_sub(conjunct_count(r, w)));
             let take = take.min(count);
-            let mut out = shaped_parts(l, take);
-            out.extend(shaped_parts(r, count - take));
+            let mut out = shaped_parts(l, take, w);
+            out.extend(shaped_parts(r, count - take, w));
             out
         }
         _ => vec![said.clone()],
@@ -16061,13 +16060,10 @@ struct Restated {
 }
 
 /// How many parts an "and" holds, each "and" in it taken apart.
-fn conjunct_count(node: &Node) -> usize {
-    match (node.notation(), node.children.as_slice()) {
-        (
-            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-            [l, r],
-        ) => conjunct_count(l) + conjunct_count(r),
-        _ => 1,
+fn conjunct_count(node: &Node, w: &Writer) -> usize {
+    match w.and_sides(node) {
+        Some((l, r)) => conjunct_count(l, w) + conjunct_count(r, w),
+        None => 1,
     }
 }
 
@@ -16882,10 +16878,11 @@ fn parts_closed(
     claim: &Printed,
     says: &Printed,
     term: &Printed,
+    w: &Writer,
 ) -> Option<super::doc::Proof> {
     use super::doc::TermKind;
     use super::tactics as t;
-    let parts = and_parts(node);
+    let parts = and_parts(node, w);
     if parts.len() < 2 {
         return None;
     }
@@ -16901,7 +16898,7 @@ fn parts_closed(
     };
     let mut proofs = Vec::new();
     for (j, part) in parts.iter().enumerate() {
-        let path = leaf_path(node, j)?;
+        let path = leaf_path(node, j, w)?;
         let (wanted, given) = (along(claim, &path)?, along(says, &path)?);
         if and_sides(&given).is_some() || and_sides(&wanted).is_some() {
             return None;

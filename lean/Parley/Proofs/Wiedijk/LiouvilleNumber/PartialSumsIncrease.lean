@@ -52,7 +52,7 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
   induction j, h_j using LeanBridges.Functions.le_induction with
   | base =>
     -- 2.1. inequalities
-    have s2_1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by linarith only []
+    have s2_1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by linarith
     simpa only [add_zero] using s2_1
   | succ j hK hIH =>
     -- 2.2. mun:nat-plus-nat0 a := n, b := j

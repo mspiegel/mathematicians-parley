@@ -56,7 +56,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
       have s2_3_1 : 0 < (LeanBridges.Counting.factorial (N - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - 1) (le_of_lt hC3))
       -- 2.3.2. inequalities, from C1
       have s2_3_2a : 0 ≤ N - 1 := by linarith only [hC1]
-      have s2_3_2b : N - 1 ≤ N + 1 := by linarith only []
+      have s2_3_2b : N - 1 ≤ N + 1 := by linarith
       -- 2.3.3. def:range-between k := N − 1, a := 0, b := N + 1, from 2.3.2
       have s2_3_3 : N - 1 ∈ Finset.Icc (0 : ℤ) (N + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - 1) (a := (0 : ℤ)) (b := N + 1))).mpr ⟨s2_3_2a, s2_3_2b⟩
       -- 2.3.4. algebra

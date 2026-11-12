@@ -353,7 +353,7 @@ fn free_letters(
         .map(|(_, n)| n.clone())
         .chain(std::iter::once(says.clone()))
         .collect();
-    let statements = statement_letters(&stated);
+    let statements = statement_letters(&stated, w);
     let ordered: std::collections::BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
@@ -769,10 +769,12 @@ impl ThingTypes {
 /// The letters that stand where a statement stands: a whole sentence, or a
 /// part an "and", "or", "not", "if" or "↔" joins, the P and Q of a rule of
 /// reasoning.
-fn statement_letters(sentences: &[Node]) -> std::collections::BTreeSet<String> {
+fn statement_letters(
+    sentences: &[Node],
+    w: &Writer,
+) -> std::collections::BTreeSet<String> {
     use crate::notations::{
-        BICONDITIONAL, COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, DISJUNCTION,
-        IMPLICATION, LOGICAL_NOT,
+        BICONDITIONAL, CONDITIONAL, DISJUNCTION, IMPLICATION, LOGICAL_NOT,
     };
     let mut out = std::collections::BTreeSet::new();
     for s in sentences {
@@ -780,16 +782,15 @@ fn statement_letters(sentences: &[Node]) -> std::collections::BTreeSet<String> {
             out.insert(s.text.to_string());
         }
         for n in s.walk() {
-            let joins = matches!(
-                n.notation(),
-                BICONDITIONAL
-                    | COMMA_CONJUNCTION
-                    | CONDITIONAL
-                    | CONJUNCTION
-                    | DISJUNCTION
-                    | IMPLICATION
-                    | LOGICAL_NOT
-            );
+            let joins = w.is_and(&n)
+                || matches!(
+                    n.notation(),
+                    BICONDITIONAL
+                        | CONDITIONAL
+                        | DISJUNCTION
+                        | IMPLICATION
+                        | LOGICAL_NOT
+                );
             if joins {
                 out.extend(
                     n.children
@@ -890,7 +891,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             return Route::no("an item group the checker read no facts of");
         };
         for (si, says) in group.gives.iter().enumerate() {
-            let mut w = Writer::new(writer.grammar, writer.templates);
+            let mut w = Writer::new(writer.grammar, writer.templates, writer.ands);
             for g in &groups_let {
                 w.letters.insert(g.group.clone(), LetterType::Group);
                 w.letters
@@ -1099,7 +1100,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .map(|(_, n)| n.clone())
                 .chain(std::iter::once(says.clone()))
                 .collect();
-            let said = statement_letters(&stated);
+            let said = statement_letters(&stated, writer);
             for name in group.free_names(&writer.grammar.binders()) {
                 if said.contains(&name) {
                     w.letters.insert(name.clone(), LetterType::Statement);

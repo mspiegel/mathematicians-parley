@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.SidesAlikeButForSpelling.AtMostItselfSpeltOthe
 theorem at_most_itself_spelt_otherwise (A : ℝ) (B : ℝ) :
     B + (A - B) ≤ A := by
   -- 1. inequalities
-  linarith only []
+  linarith
 
 end Parley.Tests.Elaborator.SidesAlikeButForSpelling.AtMostItselfSpeltOtherwise

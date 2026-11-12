@@ -30,7 +30,7 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
   induction j, h_j using LeanBridges.Functions.le_induction with
   | base =>
     -- 1. inequalities
-    have s1 : (LeanBridges.Counting.factorial (n + 1) : ℤ) ≤ (LeanBridges.Counting.factorial (n + 1) : ℤ) := by linarith only []
+    have s1 : (LeanBridges.Counting.factorial (n + 1) : ℤ) ≤ (LeanBridges.Counting.factorial (n + 1) : ℤ) := by linarith
     simpa only [add_zero] using s1
   | succ j hK hIH =>
     -- 2. algebra

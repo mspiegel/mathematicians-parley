@@ -1100,7 +1100,6 @@
 {"key":"intro a","kind":"tactic","modules":[]}
 {"key":"linarith","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
 {"key":"linarith [a]","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
-{"key":"linarith only []","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
 {"key":"linarith only [a]","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
 {"key":"linear_combination (norm := skip) a","kind":"tactic","modules":["Mathlib.Tactic.LinearCombination"]}
 {"key":"norm_cast","kind":"tactic","modules":[]}

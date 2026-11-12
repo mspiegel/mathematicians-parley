@@ -33,7 +33,7 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
       exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by parley_side))
     | succ j hK hIH =>
       -- 1.2. inequalities
-      have s1_2 : j < j + 1 := by linarith only []
+      have s1_2 : j < j + 1 := by linarith
       -- 1.3. def:C n := j, k := j + 1, from 1.2
       have s1_3 : (LeanBridges.Counting.choose j (j + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := j) hK (k := j + 1)) s1_2
       -- 1.4. thm:pascal n := j, k := j + 1

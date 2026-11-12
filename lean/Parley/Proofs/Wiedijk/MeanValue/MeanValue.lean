@@ -43,12 +43,12 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 1. inequalities
   have s1 : b - a > 0 := by linarith only [hH3]
   -- 2. def:interval x := a
-  have r32_1 : a ≤ a := by linarith only []
+  have r32_1 : a ≤ a := by linarith
   have r32_2 : a ≤ b := by linarith only [hH3]
   have s2 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r32_1⟩, r32_2⟩
   -- 3. def:interval x := b
   have r37_1 : a ≤ b := by linarith only [hH3]
-  have r37_2 : b ≤ b := by linarith only []
+  have r37_2 : b ≤ b := by linarith
   have s3 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r37_1⟩, r37_2⟩
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))

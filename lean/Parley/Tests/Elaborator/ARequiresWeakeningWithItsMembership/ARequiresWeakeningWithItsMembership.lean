@@ -37,7 +37,7 @@ theorem a_requires_weakening_with_its_membership (x : ℝ) (hH2 : x ≥ 0) :
   have s3a : Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := x) hH2)
   have s3b : Real.sqrt x ^ 2 = x := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x) hH2)
   -- 4. inequalities
-  have s4 : x < x + 1 := by linarith only []
+  have s4 : x < x + 1 := by linarith
   -- 5. calculation
   have s5 : Real.sqrt x ^ 2 < Real.sqrt (x + 1) ^ 2 := by
     calc Real.sqrt x ^ 2 = x := by exact s3b

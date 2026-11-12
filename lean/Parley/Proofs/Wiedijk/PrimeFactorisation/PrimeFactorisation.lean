@@ -150,7 +150,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
   -- 2. instantiate N := n in line 1
   have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n hH1 m (by parley_set_side))
   -- 3. def:range-between k := n, a := 2, b := n, from H2
-  have r317_1 : n ≤ n := by linarith only []
+  have r317_1 : n ≤ n := by linarith
   have s3 : n ∈ Finset.Icc (2 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr ⟨hH2, r317_1⟩
   -- 4. instantiate m := n in line 2, from 3
   exact (s2 n s3)

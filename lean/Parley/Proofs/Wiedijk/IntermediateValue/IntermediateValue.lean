@@ -40,7 +40,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
     (∃ c ∈ (Set.Icc a b : Set ℝ), f c = 0) := by
   set S : Set ℝ := {x ∈ (Set.Icc a b : Set ℝ) | f x < 0} with hD1
   -- 1. def:interval x := a
-  have r37_1 : a ≤ a := by linarith only []
+  have r37_1 : a ≤ a := by linarith
   have r37_2 : a ≤ b := by linarith only [hH3]
   have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r37_1⟩, r37_2⟩
   -- 2. def:set-builder u := a, from D1, H6, 1
@@ -95,7 +95,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         have s16_1_1 : f b < 0 := by (have h := Eq.subst (motive := (fun t : ℝ => f t < 0)) hS1 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 16.1.2. def:interval x := b
         have r108_1 : a ≤ b := by linarith only [hH3]
-        have r108_2 : b ≤ b := by linarith only []
+        have r108_2 : b ≤ b := by linarith
         have s16_1_2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r108_1⟩, r108_2⟩
         -- 16.1.3. inequalities
         have s16_1_3 : 0 ≤ f b := by linarith only [hH7]

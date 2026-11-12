@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.Transitivity.AChainOfEquations
 theorem a_chain_of_equations {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A = B) (hH5 : B = C) :
     A = C := by
   -- 1. transitivity, from H4, H5
-  parley_set_side
+  exact Eq.trans hH4 hH5
 
 end Parley.Tests.Elaborator.Transitivity.AChainOfEquations

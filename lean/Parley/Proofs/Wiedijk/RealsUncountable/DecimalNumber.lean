@@ -133,7 +133,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 4.2. membership, from D5, 2
     -- 4.3. membership, from D6, 2
     -- 4.4. inequalities
-    have s4_4 : N k ≤ N k + 1 := by linarith only []
+    have s4_4 : N k ≤ N k + 1 := by linarith
     -- 4.5. calculation
     have r307_2 : (10 ^ k.toNat : ℤ) > 0 := by linarith only [s4_1]
     have s4_5 : L k ≤ U k := by
@@ -151,7 +151,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     | base =>
       intro p hP1
       -- 5.1. inequalities, from 4
-      have s5_1 : L p ≤ L p ∧ U p ≤ U p := ⟨by linarith only [], by linarith only []⟩
+      have s5_1 : L p ≤ L p ∧ U p ≤ U p := ⟨by linarith, by linarith⟩
       exact ⟨by simpa only [add_zero] using (s5_1).1, by simpa only [add_zero] using (s5_1).2⟩
     | succ g hG hIH2 =>
       intro p hP2

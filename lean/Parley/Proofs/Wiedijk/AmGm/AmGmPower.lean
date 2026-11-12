@@ -183,7 +183,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
   -- 2. instantiate j := n in line 1
   have s2 : n ≤ n → (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ)) ^ n.toNat := by exact (s1 n hH1)
   -- 3. inequalities
-  have s3 : n ≤ n := by linarith only []
+  have s3 : n ≤ n := by linarith
   -- 4. mun:modus-ponens, from 2, 3
   exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := n ≤ n) (Q := (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ)) ^ n.toNat) s2 s3)
 

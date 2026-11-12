@@ -45,7 +45,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.1. mun:nat-minus-one n := N, from C1
     have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) hC1)
     -- 2.2. inequalities, from C1
-    have s2_2a : (0 : ℤ) ≤ 1 := by linarith only []
+    have s2_2a : (0 : ℤ) ≤ 1 := by linarith
     have s2_2b : 1 ≤ N := by linarith only [hC1]
     -- 2.3. def:range-between k := 1, a := 0, b := N, from 2.2
     have s2_3 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_2a, s2_2b⟩

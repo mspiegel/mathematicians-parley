@@ -56,7 +56,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
   -- 6. inequalities, from D2, 5
   have s6 : t > 0 := by linarith only [s5, hD2]
   -- 7. inequalities
-  have s7 : abs M < abs M + 1 := by linarith only []
+  have s7 : abs M < abs M + 1 := by linarith
   -- 8. substitute t = |M| + 1 (D2) into line 7
   have s8 : abs M < t := by (have h := Eq.subst (motive := (fun u : ℝ => abs M < u)) hD2.symm s7; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 9. proof

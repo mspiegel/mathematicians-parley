@@ -246,7 +246,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     have s5_11 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (1 : ℤ)) (by parley_set_side) s1)
     -- 5.12. mun:range-inside
     have r455_1 : (0 : ℤ) ≤ 2 := by parley_arith
-    have r455_2 : p - 2 ≤ p - 1 := by linarith only []
+    have r455_2 : p - 2 ≤ p - 1 := by linarith
     have s5_12 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) ⊆ (Set.Icc (0 : ℤ) (p - 1) : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_inside (a := (2 : ℤ)) (b := p - 2) (c := (0 : ℤ)) (d := p - 1) r455_1 r455_2)
     -- 5.13. proof
     have s5_13 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (2 : ℤ) (p - 2) := by

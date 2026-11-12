@@ -34,7 +34,7 @@ theorem choose_all (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose N N : ℤ) = 1 := by
   -- 1. inequalities, from H1
   have s1a : 0 ≤ N := by linarith only [hH1]
-  have s1b : N ≤ N := by linarith only []
+  have s1b : N ≤ N := by linarith
   -- 2. def:range-between k := N, a := 0, b := N, from 1
   have s2 : N ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N) (a := (0 : ℤ)) (b := N))).mpr ⟨s1a, s1b⟩
   -- 3. algebra

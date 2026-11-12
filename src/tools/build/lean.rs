@@ -278,7 +278,7 @@ pub fn make(
         &checked.corpus.records,
     );
     let mut made = Made::default();
-    let writer = Writer::new(&checked.grammar, &templates);
+    let writer = Writer::new(&checked.grammar, &templates, &ctx.conjunctions);
 
     // The library's items with a lean field, by full name, and each
     // module's declarations.

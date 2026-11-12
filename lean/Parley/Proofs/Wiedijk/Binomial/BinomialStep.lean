@@ -82,7 +82,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℤ) (hH3 : 0 ≤ m) :
       _ = (LeanBridges.Counting.choose m k : ℝ) * (x ^ (m - k) * x) * y ^ k.toNat := by parley_ring
       _ = (LeanBridges.Counting.choose m k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat := by (have h := congrArg (fun u : ℝ => (LeanBridges.Counting.choose m k : ℝ) * u * y ^ k.toNat) s8_3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 9. inequalities
-  have s9 : m < m + 1 := by linarith only []
+  have s9 : m < m + 1 := by linarith
   -- 10. def:C n := m, k := m + 1, from 9
   have s10 : (LeanBridges.Counting.choose m (m + 1) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m) hH3 (k := m + 1)) s9
   -- 11. algebra

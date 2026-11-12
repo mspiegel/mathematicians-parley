@@ -211,6 +211,10 @@ pub const APP: u32 = 1023;
 pub struct Writer<'a> {
     pub grammar: &'a Grammar,
     pub templates: &'a Templates,
+    /// The notations the reading takes as "and", `A and B` and `A, and B`
+    /// (`matching::Context::conjunctions`), which every question of whether
+    /// a tree is an "and" asks (`is_and`).
+    pub ands: &'a crate::matching::FxIndexSet<crate::formula::notation_id::NotationId>,
     pub letters: Letters,
     /// The letters the page puts in ℕ or ℕ₀, each a Lean integer with its
     /// fact 0 < n or 0 ≤ n beside it, as set.mm's n ∈ ℕ is a fact about a
@@ -446,12 +450,32 @@ impl<'a> Writer<'a> {
         Printed::cast(term.clone(), self.num_type(to))
     }
 
+    /// Whether `node` is an "and" of two sides, in any notation the reading
+    /// takes as one (`ands`).
+    pub fn is_and(&self, node: &Node) -> bool {
+        self.ands.contains(&node.notation()) && node.children.len() == 2
+    }
+
+    /// The two sides of `node` where it is an "and" (`is_and`); None of
+    /// anything else.
+    pub fn and_sides<'n>(&self, node: &'n Node) -> Option<(&'n Node, &'n Node)> {
+        match (self.is_and(node), node.children.as_slice()) {
+            (true, [l, r]) => Some((l, r)),
+            _ => None,
+        }
+    }
+
     /// A writer with the same grammar and notations, and these letters.
     /// A writer with no letters yet.
-    pub fn new(grammar: &'a Grammar, templates: &'a Templates) -> Writer<'a> {
+    pub fn new(
+        grammar: &'a Grammar,
+        templates: &'a Templates,
+        ands: &'a crate::matching::FxIndexSet<crate::formula::notation_id::NotationId>,
+    ) -> Writer<'a> {
         Writer {
             grammar,
             templates,
+            ands,
             letters: IndexMap::new(),
             wholes: IndexMap::new(),
             general: None,
@@ -471,6 +495,7 @@ impl<'a> Writer<'a> {
         Writer {
             grammar: self.grammar,
             templates: self.templates,
+            ands: self.ands,
             letters,
             wholes: self.wholes.clone(),
             general: self.general,
@@ -2182,12 +2207,11 @@ impl Writer<'_> {
                 .any(|(c, s)| matches!(s, Slot::Alpha(_)) && self.pinned(c));
         // The later part of "P and Q" or "if P then Q" is read where P holds,
         // √x of "x > 0 and x² < √x" the square root of a number at least 0.
-        let guarded = matches!(
-            node.notation(),
-            crate::notations::CONJUNCTION
-                | crate::notations::IMPLICATION
-                | crate::notations::CONDITIONAL
-        );
+        let guarded = self.is_and(node)
+            || matches!(
+                node.notation(),
+                crate::notations::IMPLICATION | crate::notations::CONDITIONAL
+            );
         let mut out = Vec::new();
         for (i, (child, slot)) in args.iter().zip(&template.holes).enumerate() {
             let printed = match slot {
@@ -2542,22 +2566,18 @@ impl Writer<'_> {
     /// inside a connective or a quantifier, whose own parts are formulas
     /// said apart. None where there is none.
     pub(super) fn wide_in_slot(&self, node: &Node) -> Option<(Node, Num)> {
-        use crate::notations::{
-            BICONDITIONAL, COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, DISJUNCTION,
-            IMPLICATION,
-        };
-        let joins = matches!(
-            node.notation(),
-            CONJUNCTION
-                | COMMA_CONJUNCTION
-                | DISJUNCTION
-                | IMPLICATION
-                | CONDITIONAL
-                | BICONDITIONAL
-                | LOGICAL_NOT
-                | FOR_ALL
-                | THERE_IS
-        );
+        use crate::notations::{BICONDITIONAL, CONDITIONAL, DISJUNCTION, IMPLICATION};
+        let joins = self.is_and(node)
+            || matches!(
+                node.notation(),
+                DISJUNCTION
+                    | IMPLICATION
+                    | CONDITIONAL
+                    | BICONDITIONAL
+                    | LOGICAL_NOT
+                    | FOR_ALL
+                    | THERE_IS
+            );
         if joins {
             return None;
         }

@@ -30,7 +30,7 @@ theorem values_of_an_obtained_function (n : ℤ) (hH1 : 0 < n) (m : ℤ) (hH2 : 
   have r115_1 : (1 : ℤ) ≤ 1 := by parley_arith
   have s2 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := n))).mpr ⟨r115_1, hH1⟩
   -- 3. inequalities
-  have s3 : g 1 ≤ g 1 := by linarith only []
+  have s3 : g 1 ≤ g 1 := by linarith
   -- 4. exhibit, from 1, 3
   exact ⟨g, by parley_set_side, by parley_set_side⟩
 

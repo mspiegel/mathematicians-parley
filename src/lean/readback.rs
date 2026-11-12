@@ -147,12 +147,11 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
             return;
         }
     }
-    let guarded = matches!(
-        node.notation(),
-        crate::notations::CONJUNCTION
-            | crate::notations::IMPLICATION
-            | crate::notations::CONDITIONAL
-    );
+    let guarded = writer.is_and(node)
+        || matches!(
+            node.notation(),
+            crate::notations::IMPLICATION | crate::notations::CONDITIONAL
+        );
     for (i, c) in node.children.iter().enumerate() {
         match guarded && i > 0 {
             true => count(&writer.knowing(&node.children[..i]), c, out),

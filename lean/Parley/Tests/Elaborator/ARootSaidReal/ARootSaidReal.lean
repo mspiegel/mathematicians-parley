@@ -27,7 +27,7 @@ theorem a_root_said_real (A : ℝ) (hH2 : A ≥ 0) :
   -- 1. def:sqrt x := A, from H2
   have s1 : Real.sqrt A ^ 2 = A := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := A) hH2)
   -- 2. inequalities
-  have s2 : A ≤ A + 1 := by linarith only []
+  have s2 : A ≤ A + 1 := by linarith
   -- 3. transitivity, from 1, 2
   exact Eq.trans_le s1 s2
 

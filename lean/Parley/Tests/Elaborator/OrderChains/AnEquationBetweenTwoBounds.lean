@@ -18,7 +18,7 @@ namespace Parley.Tests.Elaborator.OrderChains.AnEquationBetweenTwoBounds
 theorem an_equation_between_two_bounds (x : ℝ) (y : ℝ) (hH3 : 0 ≤ y) :
     x < 1 + x + y := by
   -- 1. inequalities
-  have s1 : x < x + 1 := by linarith only []
+  have s1 : x < x + 1 := by linarith
   -- 2. algebra
   have s2 : x + 1 = 1 + x := by parley_ring
   -- 3. inequalities
