@@ -31,7 +31,7 @@ theorem factorial_of_two :
   -- 5. substitute 1 + 1 = 2 (line 4) into line 3
   have s5 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1 * t)) s4 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. calculation
-  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by exact s5
+  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := s5
     _ = 2 := by norm_num
 
 end Parley.Tests.Notations.Counting.FactorialOfTwo

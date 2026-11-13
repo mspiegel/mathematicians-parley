@@ -66,7 +66,7 @@ theorem square_minus_three (n : ℤ) :
       have s3_8 : 4 * (k ^ 2 + k - m) ≠ 2 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := k ^ 2 + k - m) (r := (2 : ℤ)) (by norm_num) (by norm_num))
       exact absurd s3_7 s3_8
   -- 4. restate 3
-  have s4 : n ^ 2 - 3 ≠ 4 * m := by parley_side
+  have s4 : n ^ 2 - 3 ≠ 4 * m := by exact s3
   exact s4 s1
 
 end Parley.Proofs.Hammack.SquareMinusThree.SquareMinusThree

@@ -8,6 +8,9 @@ public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
@@ -35,8 +38,8 @@ theorem positive_rational_fraction (A : ℝ) (hH2 : ∃ m : ℚ, (m : ℝ) = A) 
     have s2_2 : (p : ℚ) / (q : ℚ) ≤ 0 / (q : ℚ) := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (p : ℚ)) (y := (0 : ℚ)) (c := (q : ℚ)) (by exact_mod_cast s2_1) (by exact_mod_cast gt_iff_lt.mp r24_1))
     -- 2.3. calculation
     have s2_3 : A ≤ 0 := by
-      calc A = (p : ℝ) / (q : ℝ) := by exact s1b
-        _ ≤ 0 / (q : ℝ) := by parley_side
+      calc A = (p : ℝ) / (q : ℝ) := s1b
+        _ ≤ 0 / (q : ℝ) := (show (p : ℝ) / (q : ℝ) ≤ 0 / (q : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s2_2; simp only [Rat.cast_div, Rat.cast_zero, Rat.cast_intCast] at h; exact h)
         _ = 0 := by parley_ring
     -- 2.4. inequalities, from H3
     have s2_4 : ¬ A ≤ 0 := by linarith only [hH3]

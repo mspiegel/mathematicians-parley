@@ -57,9 +57,7 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
     -- 1.7. obtain r from line 1.4
     obtain ⟨r, ⟨s1_7a, s1_7b⟩⟩ := s1_4
     set m : ℝ := min p q with hD1
-    have hD1_kind : True := by trivial
     set n : ℝ := min m r with hD2
-    have hD2_kind : True := by trivial
     -- 1.8. mun:lt-min z := 0, x := p, y := q, from 1.5, 1.6
     have s1_8 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr ⟨s1_5a, s1_6a⟩
     -- 1.9. inequalities, from D1, 1.8

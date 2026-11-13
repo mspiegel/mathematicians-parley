@@ -24,7 +24,7 @@ theorem log_ten_of_thousand :
   have s1 : Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := by parley_subst (show Real.log (1000 : ℝ) = 3 * Real.log (10 : ℝ) by parley_real)
   -- 2. calculation
   have r25_1 : Real.log (10 : ℝ) ≠ 0 := by parley_real
-  calc Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := by exact s1
+  calc Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := s1
     _ = 3 := by parley_ring
 
 end Parley.Proofs.Identities.LogBaseClosed.LogTenOfThousand

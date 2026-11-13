@@ -71,7 +71,7 @@ theorem harmonic_doubling (j : ℤ) (hH1 : 0 ≤ j) :
     -- 9.2. transitivity, from 8, 9.1
     have s9_2 : k > 0 := by exact lt_of_lt_of_le s8 s9_1a
     -- 9.3. mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
-    have r58_1 : k > 0 := by parley_side
+    have r58_1 : k > 0 := by exact s9_2
     have r58_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by linarith only [s3]
     exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by exact_mod_cast gt_iff_lt.mp r58_1) (y := (2 ^ (j + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r58_2))).mp (by exact_mod_cast s9_1b)
   -- 10. proof

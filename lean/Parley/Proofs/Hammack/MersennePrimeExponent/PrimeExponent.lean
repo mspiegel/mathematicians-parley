@@ -153,8 +153,8 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
         have s4_18_6 : (2 ^ d.toNat - 1) * 2 ≤ (2 ^ d.toNat - 1) * q := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := q) (c := (2 ^ d.toNat - 1 : ℤ)) s4_18_5 r321_1)
         -- 4.18.7. calculation
         have s4_18_7 : 2 ^ d.toNat - 1 = (2 ^ d.toNat - 1) * q := by
-          calc (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := by parley_side
-            _ = (2 ^ d.toNat - 1) * q := by exact s4_9
+          calc (2 ^ d.toNat - 1 : ℤ) = 2 ^ n.toNat - 1 := hC2
+            _ = (2 ^ d.toNat - 1) * q := s4_9
         -- 4.18.8. inequalities, from 4.14
         have s4_18_8 : (0 : ℤ) < 2 ^ d.toNat - 1 := by linarith only [s4_14]
         -- 4.18.9. inequalities

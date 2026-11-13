@@ -3,6 +3,7 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
@@ -24,7 +25,7 @@ theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH3 : A =
     -- 1.1. substitute A = ∅ (H3) into K1
     have s1_1 : x ∈ (∅ : Set α) := by parley_subst_at hH3 hK1
     -- 1.2. inspection
-    have s1_2 : ¬ x ∈ (∅ : Set α) := by parley_set_side
+    have s1_2 : ¬ x ∈ (∅ : Set α) := Set.notMem_empty _
     exact absurd s1_1 s1_2
   -- 2. mun:function-into, from 1
   exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) s1)

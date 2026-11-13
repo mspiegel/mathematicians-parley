@@ -18,6 +18,6 @@ namespace Parley.Tests.Notations.Sets.APairCounted
 theorem a_pair_counted :
     (({(1 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by
   -- 1. inspection
-  parley_set_side
+  simp [Set.ncard_insert_of_notMem, Set.ncard_singleton]
 
 end Parley.Tests.Notations.Sets.APairCounted

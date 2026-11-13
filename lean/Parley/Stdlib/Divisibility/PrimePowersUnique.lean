@@ -33,9 +33,9 @@ theorem prime_powers_unique (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) 
   -- 1. mun:two-prime
   have s1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
   -- 2. inspection
-  have s2 : Nat.Prime (3 : ℤ).toNat := by parley_side
+  have s2 : Nat.Prime (3 : ℤ).toNat := by norm_num
   -- 3. inspection
-  have s3 : Nat.Prime (5 : ℤ).toNat := by parley_side
+  have s3 : Nat.Prime (5 : ℤ).toNat := by norm_num
   -- 4. mun:prime-coprime p := 3, a := 2, from 2
   have r518_1 : ¬ (3 : ℤ) ∣ (2 : ℤ) := by parley_arith
   have s4 : (Int.gcd (3 : ℤ) (2 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (3 : ℤ)) (by norm_num) s2 (a := (2 : ℤ)) r518_1)

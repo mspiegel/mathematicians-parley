@@ -22,8 +22,8 @@ theorem product_nonzero (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH4 : y ≠ 0) :
   have s1_1 : 0 * y = 0 := by parley_ring
   -- 1.2. calculation
   have s1_2 : x * y = 0 * y := by
-    calc x * y = 0 := by parley_side
-      _ = 0 * y := by exact s1_1.symm
+    calc x * y = 0 := hS
+      _ = 0 * y := s1_1.symm
   -- 1.3. mun:multiply-cancel a := x, b := 0, c := y, from H4, 1.2
   have s1_3 : x = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) s1_2 hH4)
   exact hH3 s1_3

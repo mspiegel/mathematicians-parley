@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
@@ -17,6 +18,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -52,13 +54,13 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
         _ = 1 ^ 2 := by norm_num
     | succ k hK hIH =>
       -- 1.2. calculation
-      have r29_1 : k ≥ 1 := by parley_side
+      have r29_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s1_2 : S (k + 1) = S k + (2 * (k + 1) - 1) := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (2 * j - 1 : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (2 * j - 1 : ℤ)) + (2 * (k + 1) - 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 2 * j - 1)) (a := (1 : ℤ)) (n := k) r29_1)
           _ = S k + (2 * (k + 1) - 1) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
-      calc S (k + 1) = S k + (2 * (k + 1) - 1) := by exact s1_2
+      calc S (k + 1) = S k + (2 * (k + 1) - 1) := s1_2
         _ = k ^ 2 + (2 * (k + 1) - 1) := by (have h := congrArg (fun t : ℤ => t + (2 * (k + 1) - 1)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (k + 1) ^ 2 := by parley_ring
   -- 2. def:nat0 n := N
@@ -71,7 +73,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
     -- 3.1. D1, from C1
     have s3_1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := by simp (disch := omega) only [hD1]
     -- 3.2. calculation
-    calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := by exact s3_1
+    calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (2 * k - 1 : ℤ)) = S N := s3_1
       _ = N ^ 2 := by exact (s1 N hC1)
   · skip
     -- 3.3. mun:sum-single a := 0
@@ -84,7 +86,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
     have s3_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by linear_combination (norm := parley_norm) s3_3 + (-1) * s3_4
     -- 3.6. calculation
     have s3_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 ^ 2 := by
-      calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by exact s3_5
+      calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := s3_5
         _ = 0 ^ 2 := by norm_num
     -- 3.7. substitute N = 0 (C2) into line 3.6
     (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (2 * k - 1 : ℤ)) = t ^ 2)) hC2.symm s3_6; push_cast at h ⊢; all_goals exact_mod_cast h)

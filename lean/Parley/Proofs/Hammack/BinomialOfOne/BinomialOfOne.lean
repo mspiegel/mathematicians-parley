@@ -42,7 +42,7 @@ theorem binomial_of_one (m : ℤ) (hH1 : 0 ≤ m) :
         have e_arith : (1 - 1 : ℤ) = 0 := by parley_arith
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ))) e_arith s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.6. calculation
-      calc (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := by exact s1_5.symm
+      calc (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := s1_5.symm
         _ = j + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = j + 1 := by (have h := congrArg (fun t : ℤ => j + t) s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. instantiate j := m in line 1

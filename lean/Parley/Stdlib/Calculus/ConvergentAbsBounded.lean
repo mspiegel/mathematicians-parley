@@ -52,7 +52,6 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
   obtain ⟨C, s6⟩ := s5
   -- 7. membership
   set B : ℝ := max C (abs L + 1) with hD1
-  have hD1_kind : True := by trivial
   -- 8. mun:le-max x := C, y := |L| + 1, from D1
   have s8 : C ≤ B := by
     try simp only [hD1] at ⊢

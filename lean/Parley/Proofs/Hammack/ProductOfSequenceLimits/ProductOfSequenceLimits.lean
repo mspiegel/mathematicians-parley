@@ -46,7 +46,6 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have hI : 0 ≤ abs L := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))))
     exact hI
   set s : ℝ := abs L + 1 with hD1
-  have hD1_kind : True := by trivial
   -- 3. inequalities, from D1, 2
   have s3 : s > 0 := by linarith only [s2, hD1]
   -- 4. mun:abs-real x := M
@@ -55,7 +54,6 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have hI : 0 ≤ abs M := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))))
     exact hI
   set t : ℝ := abs M + 1 with hD2
-  have hD2_kind : True := by trivial
   -- 6. inequalities, from D2, 5
   have s6 : t > 0 := by linarith only [s5, hD2]
   -- 7. inequalities
@@ -80,7 +78,6 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have s9_6 : ε / (2 * t) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) hA1 s9_4)
     -- 9.7. mun:quotient-real x := ε, y := 2·t, from 9.5
     set m : ℝ := min 1 (ε / (2 * t)) with hD3
-    have hD3_kind : True := by trivial
     -- 9.8. mun:lt-min z := 0, x := 1, y := ε/(2·t), from 9.6, 9.7
     have r148_1 : (0 : ℤ) < 1 := by parley_arith
     have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr ⟨by norm_num, s9_6⟩
@@ -152,7 +149,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.15. calculation
       calc abs (a n * b n - L * M) = abs (a n * (b n - M) + M * (a n - L)) := by (have h := congrArg (fun u : ℝ => abs u) s9_20_13; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ ≤ abs (a n * (b n - M)) + abs (M * (a n - L)) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L)))
-        _ < ε / 2 + ε / 2 := by exact s9_20_14
+        _ < ε / 2 + ε / 2 := s9_20_14
         _ = ε := by parley_ring
     -- 9.21. exhibit, from 9.20
     exact ⟨P + Q, add_pos (s9_14a) (s9_15a), s9_20⟩

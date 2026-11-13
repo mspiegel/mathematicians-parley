@@ -26,7 +26,7 @@ theorem a_part_of_a_set :
   -- 2. mun:or-left, from 1
   have s2 : (1 : ℤ) = 1 ∨ (1 : ℤ) = 2 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) (by norm_num))
   -- 3. def:pair x := 1, u := 1, w := 2, from 2
-  have s3 : (1 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (1 : ℤ)))).mpr s2
+  have s3 : (1 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (1 : ℤ)))).mpr (by (have h := s2; revert h; norm_num))
   -- 4. mun:singleton-subset a := 1, X := {1, 2}, from 3
   have s4 : ({(1 : ℤ)} : Set ℤ) ⊆ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (a := (1 : ℤ)) s3)
   -- 5. def:powerset, from 4

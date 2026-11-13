@@ -52,7 +52,6 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   set m : ℝ := (f a - f b) / (b - a) with hD1
-  have hD1_kind : True := by parley_set_side
   set g : ℝ → ℝ := fun x : ℝ => m * x with hD2
   set F : ℝ → ℝ := fun x : ℝ => f x + g x with hD3
   -- 5. D2
@@ -60,12 +59,11 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 6. D3
   have s6 : ∀ x ∈ (Set.Icc a b : Set ℝ), F x = f x + g x := by simp (disch := omega) only [hD3, implies_true]
   -- 7. membership, from D2
-  have s7 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; parley_set_side
+  have s7 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; exact by trivial
   -- 8. mun:function-into, from 7
   have s8 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 9. membership, from D2, D3
-  have r68_1 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; (parley_set_side)
-  have s9 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; parley_set_side
+  have s9 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; exact by trivial
   -- 10. mun:function-into, from 9
   have s10 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 11. thm:continuous-linear D := [a, b], from 4, 5
@@ -106,14 +104,14 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 21. calculation
   have r121_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s1])
   have s21 : F a = F b := by
-    calc F a = f a + g a := by exact s17
+    calc F a = f a + g a := s17
       _ = f a + m * a := by (have h := congrArg (fun t : ℝ => f a + t) s18; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = f b + m * b := by
           try simp only [hD1] at s17 s18 s19 s20 r121_1 ⊢
           try push_cast at s17 s18 s19 s20 r121_1 ⊢
           parley_ring
       _ = f b + g b := by (have h := congrArg (fun t : ℝ => f b + t) s20.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = F b := by exact s19
+      _ = F b := s19
   -- 22. obtain c: thm:rolle f := F, from H3, 12, 15, 21
   have r132_1 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
   obtain ⟨c, s22a, s22b⟩ := (Parley.Items.Stdlib.Calculus.thm_rolle (f := F) (a := a) (b := b) hH3 s12 s15 s21)
@@ -123,7 +121,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have s24 : (deriv f) c + m = 0 := by
     calc (deriv f) c + m = (deriv f) c + (deriv g) c := by (have h := congrArg (fun t : ℝ => (deriv f) c + t) s23.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (deriv F) c := by exact (s16 c s22a).symm
-      _ = 0 := by exact s22b
+      _ = 0 := s22b
   -- 25. algebra, from D1, 24
   have r145_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s1])
   have s25 : (deriv f) c = (f b - f a) / (b - a) := by

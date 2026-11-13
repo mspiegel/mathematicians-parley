@@ -21,7 +21,7 @@ namespace Parley.Proofs.Wiedijk.RealsUncountable.DigitRange
 theorem digit_range (t : ℤ) :
     (0 ≤ (t + 1) % (10 : ℤ) ∧ (t + 1) % (10 : ℤ) ≤ 9) := by
   -- 1. D2
-  have s1 : (t + 1) % (10 : ℤ) = (t + 1) % (10 : ℤ) := by parley_side
+  have s1 : (t + 1) % (10 : ℤ) = (t + 1) % (10 : ℤ) := rfl
   -- 2. mun:mod-less a := t + 1, b := 10
   have s2 : (t + 1) % (10 : ℤ) < 10 := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := t + 1) (b := (10 : ℤ)) (by norm_num))
   -- 3. substitute s(t) = (t + 1) mod 10 (line 1) into line 2

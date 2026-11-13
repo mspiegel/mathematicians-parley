@@ -74,6 +74,6 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
     calc (LeanBridges.Counting.choose (N + 1) N : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) N : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t N : ℤ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (1 : ℤ) t : ℤ)) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (1 : ℤ)) (by norm_num))
-      _ = N + 1 := by exact s2_7.symm
+      _ = N + 1 := s2_7.symm
 
 end Parley.Proofs.Setmm.ChooseOneLess.ChooseOneLess

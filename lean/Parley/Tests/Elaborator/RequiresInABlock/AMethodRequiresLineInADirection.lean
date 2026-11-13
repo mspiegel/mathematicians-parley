@@ -26,13 +26,13 @@ theorem a_method_requires_line_in_a_direction (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A
     intro hD1
     -- 1.1. mun:square-less x := A, y := B, from D1
     have r17_1 : A ≥ 0 := by linarith only [hH3]
-    have r17_2 : B ≥ 0 := by parley_side
+    have r17_2 : B ≥ 0 := by exact hH4
     exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) r17_1 r17_2)).mp hD1
   · skip
     intro hD2
     -- 1.2. mun:square-less x := A, y := B, from D2
-    have r25_1 : A ≥ 0 := by parley_side
-    have r25_2 : B ≥ 0 := by parley_side
+    have r25_1 : A ≥ 0 := by exact hH3
+    have r25_2 : B ≥ 0 := by exact hH4
     exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) r25_1 r25_2)).mpr hD2
 
 end Parley.Tests.Elaborator.RequiresInABlock.AMethodRequiresLineInADirection

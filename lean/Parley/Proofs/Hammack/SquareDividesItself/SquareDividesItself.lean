@@ -39,7 +39,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
   rcases s2 with hC1 | hC2
   · skip
     -- 3.1. inspection
-    have s3_1 : (0 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
+    have s3_1 : (0 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by simp
     -- 3.2. substitute a = 0 (C1) into line 3.1
     (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) hC1.symm s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
   · skip
@@ -61,7 +61,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       -- 3.6.4. def:divides d := a, n := 1, from 3.6.3
       have s3_6_4 : a ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := (1 : ℤ)))).mpr ⟨k, s3_6_3⟩
       -- 3.6.5. inspection
-      have s3_6_5 : (1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
+      have s3_6_5 : (1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by simp
       -- 3.6.6. substitute
       have c1 : 1 = a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := a) s3_6_2 s3_6_4).symm
       have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_5; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -78,7 +78,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       -- 3.6.11. mun:divides-one d := −a, from 3.6.8, 3.6.10
       have s3_6_11 : -a = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := -a) s3_6_8 s3_6_10)
       -- 3.6.12. inspection
-      have s3_6_12 : (-1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by parley_set_side
+      have s3_6_12 : (-1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by simp
       -- 3.6.13. substitute
       have c1 : -1 = a := by linear_combination (norm := parley_norm) s3_6_11
       have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_12; push_cast at h ⊢; all_goals exact_mod_cast h)

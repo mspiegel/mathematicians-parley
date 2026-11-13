@@ -41,7 +41,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 1. def:prime, from H2
   have s1 : p > 1 ∧ (∀ d : ℤ, 0 < d → d ∣ p → d = 1 ∨ d = p) := by exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) hH1)).mp hH2
   -- 2. restate 1
-  have s2 : p > 1 := by parley_side
+  have s2 : p > 1 := by exact s1.1
   -- 3. contradiction
   intro hS
   -- 3.1. inequalities

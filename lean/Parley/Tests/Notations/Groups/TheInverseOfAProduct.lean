@@ -62,9 +62,9 @@ theorem the_inverse_of_a_product {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set
   have s19 : a * b * (a * b)⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) (Set.mem_univ _))
   -- 20. calculation
   have s20 : a * b * (a * b)⁻¹ = a * b * (b⁻¹ * a⁻¹) := by
-    calc a * b * (a * b)⁻¹ = (1 : G) := by exact s19
-      _ = a * a⁻¹ := by exact s18.symm
-      _ = a * b * (b⁻¹ * a⁻¹) := by exact s17.symm
+    calc a * b * (a * b)⁻¹ = (1 : G) := s19
+      _ = a * a⁻¹ := s18.symm
+      _ = a * b * (b⁻¹ * a⁻¹) := s17.symm
   -- 21. thm:group-cancel a := (a·b)⁻¹, b := b⁻¹·a⁻¹, g := a·b, from 1, 4, 5, 20
   exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (a * b)⁻¹) (b := b⁻¹ * a⁻¹) (g := a * b) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _) s20)
 

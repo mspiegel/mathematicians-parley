@@ -62,10 +62,10 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
         _ = 0 + 1 := by norm_num
         _ = 0 + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => 0 + t) s1_5.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ)) s1_2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by exact s1_4
+        _ = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := s1_4
     | succ k hK hIH =>
       -- 1.7. calculation
-      have r49_1 : k ≥ 1 := by parley_side
+      have r49_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s1_7 : S (k + 1) = S k + (k + 1) := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (j : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (j : ℤ)) + (k + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := k) r49_1)
@@ -79,10 +79,10 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
         have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
         (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) t : ℤ) = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ))) e_arith s1_9; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.11. calculation
-      calc S (k + 1) = S k + (k + 1) := by exact s1_7
+      calc S (k + 1) = S k + (k + 1) := s1_7
         _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (k + 1) := by (have h := congrArg (fun t : ℤ => t + (k + 1)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℤ) + t) s1_8.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := by exact s1_10
+        _ = (LeanBridges.Counting.choose (k + 1 + 1) (2 : ℤ) : ℤ) := s1_10
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (k : ℤ)) = S n := by simp (disch := omega) only [hD1]
     _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by exact (s1 n hH1)

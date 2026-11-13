@@ -28,6 +28,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -109,9 +110,9 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_4_5 : (0 ^ 2 : ℤ) = 0 := by parley_arith
       -- 4.4.6. calculation
       have s4_4_6 : c = 0 := by
-        calc c = Real.sqrt c ^ 2 := by exact s4_3b.symm
-          _ = 0 ^ 2 := by exact s4_4_4
-          _ = 0 := by parley_set_side
+        calc c = Real.sqrt c ^ 2 := s4_3b.symm
+          _ = 0 ^ 2 := s4_4_4
+          _ = 0 := by (have h := s4_4_5; revert h; norm_num)
       -- 4.4.7. inequalities
       have s4_4_7 : c ≤ 0 := by linarith only [s4_4_6]
       -- 4.4.8. inequalities, from 4.4.7
@@ -163,9 +164,9 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_8_16 : abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by (have h := congrArg (fun t : ℝ => abs (Real.sqrt x - Real.sqrt c) * t) s4_8_13; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.8.17. calculation
       have s4_8_17 : abs (x - c) = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by
-        calc abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := by exact s4_8_14
-          _ = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := by exact s4_8_15
-          _ = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by exact s4_8_16
+        calc abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := s4_8_14
+          _ = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := s4_8_15
+          _ = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := s4_8_16
       -- 4.8.18. mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
       have s4_8_18 : abs (Real.sqrt x - Real.sqrt c) * Real.sqrt x ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := abs (Real.sqrt x - Real.sqrt c)) (y := Real.sqrt x) s4_8_12 s4_8_3a)
       -- 4.8.19. algebra, from 4.3, 4.8.3

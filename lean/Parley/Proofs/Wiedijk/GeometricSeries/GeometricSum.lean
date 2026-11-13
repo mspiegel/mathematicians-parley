@@ -48,26 +48,26 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
     | base =>
       -- 1.1. calculation
       have s1_1 : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = 1 := by
-        calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) := by parley_side
+        calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) := rfl
           _ = a ^ 0 := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ)))
           _ = 1 := by parley_ring
       -- 1.2. calculation
       have r26_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) (-1) * h)
       have s1_2 : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = (1 - a) / (1 - a) := by
-        calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = 1 := by exact s1_1
+        calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = 1 := s1_1
           _ = (1 - a) / (1 - a) := by parley_ring
       simpa only [zero_add, pow_one, Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd, Int.cast_zero] using s1_2
     | succ k hK hIH =>
       -- 1.3. calculation
       have s1_3 : (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by
-        calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) := by parley_side
+        calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) := rfl
           _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => a ^ j.toNat)) (n := k) hK)
-          _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by parley_side
+          _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := rfl
       -- 1.4. mun:exponent-step m := k + 1
       have s1_4 : a ^ (k + 1 + 1).toNat = a ^ (k + 1).toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := k + 1) (add_nonneg (hK) (by norm_num)))
       -- 1.5. calculation
       have r45_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) (-1) * h)
-      calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := by exact s1_3
+      calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := s1_3
         _ = (1 - a ^ (k + 1).toNat) / (1 - a) + a ^ (k + 1).toNat := by (have h := congrArg (fun t : ℝ => t + a ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (1 - a ^ (k + 1).toNat * a) / (1 - a) := by parley_ring
         _ = (1 - a ^ (k + 1 + 1).toNat) / (1 - a) := by (have h := congrArg (fun t : ℝ => (1 - t) / (1 - a)) s1_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)

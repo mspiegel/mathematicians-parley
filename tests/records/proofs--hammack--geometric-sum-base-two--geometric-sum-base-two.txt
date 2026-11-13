@@ -8,6 +8,7 @@ requires line on line 31 cites stdlib/sums/sum-extended group 0; a := 0, n := k,
 step 2 says once Σ(k = 0 to n) 2^k is a number
 a row of step 2 instantiates 1 sentence 0, conditions taken off [], guards [k by once H1 sentence 0 implied by WiderSystem]
 a row of step 1.4 links from 1.2 sentence 0
+requires line 1 of step 1.2 restates K sentence 0 implied by SystemFact { lemma: "nn0ge0" }
 a row of step 1.4 links facing straight
 read 5: Σ(k = 0 to n) 2^k = 2^(n + 1) − 1  as  equality:=(sum:Σ(=to)(name:k, numeral:0, name:n, power:^(numeral:2, name:k)), additive:−(power:^(numeral:2, additive:+(name:n, numeral:1)), numeral:1))  a statement
 read 8: n ∈ ℕ  as  membership:∈(name:n, number-systems:ℕ)  a statement

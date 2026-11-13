@@ -40,7 +40,7 @@ theorem joined_functions {α : Type*} (A : Set α) (B : Set α) (C : Set α) (D 
       -- 1.2.5. calculation
       have s1_2_5 : B ∩ A = ∅ := by
         calc B ∩ A = A ∩ B := by exact (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := B) (Z := A))
-          _ = ∅ := by exact hH7
+          _ = ∅ := hH7
       -- 1.2.6. mun:disjoint-member, from C2, 1.2.5
       have s1_2_6 : ¬ x ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_member (Y := B) (Z := A) (u := x) s1_2_5 hC2)
       -- 1.2.7. D1, from K1, 1.2.6

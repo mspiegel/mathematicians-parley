@@ -26,7 +26,7 @@ namespace Parley.Tests.Notations.Sums.ASumOverARangeWrittenAsASet
 theorem a_sum_over_a_range_written_as_a_set (n : ℤ) (hH1 : 0 < n) (t : ℤ → ℝ) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (t k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (t k : ℝ)) + t (n + 1) := by
   -- 1. mun:sum-extended a := 1
-  have r129_1 : n ≥ 1 := by parley_side
+  have r129_1 : n ≥ 1 := by exact hH1
   exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := t) (a := (1 : ℤ)) (n := n) r129_1)
 
 end Parley.Tests.Notations.Sums.ASumOverARangeWrittenAsASet

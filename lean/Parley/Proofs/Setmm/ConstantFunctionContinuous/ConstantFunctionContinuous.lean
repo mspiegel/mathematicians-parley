@@ -50,7 +50,7 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       -- 1.1.1.4. calculation
       calc abs (f x - f a) = abs 0 := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 0 := by exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero
-        _ < ε := by parley_set_side
+        _ < ε := hA1
     -- 1.1.2. exhibit, from 1.1.1
     have r45_1 : (1 : ℤ) > 0 := by parley_arith
     exact ⟨(1 : ℝ), ⟨by norm_num, s1_1_1⟩⟩

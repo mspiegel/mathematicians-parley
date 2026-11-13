@@ -66,7 +66,7 @@ theorem square_plus_two_not_divisible_by_four (n : ℤ) :
       have s3_8 : 4 * (m - k ^ 2 - k) ≠ 3 := by exact (Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween.four_times_between (j := m - k ^ 2 - k) (r := (3 : ℤ)) (by norm_num) (by norm_num))
       exact absurd s3_7 s3_8
   -- 4. restate 3
-  have s4 : n ^ 2 + 2 ≠ 4 * m := by parley_side
+  have s4 : n ^ 2 + 2 ≠ 4 * m := by exact s3
   exact s4 s1
 
 end Parley.Proofs.Hammack.SquarePlusTwoNotDivisibleByFour.SquarePlusTwoNotDivisibleByFour

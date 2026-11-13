@@ -72,8 +72,8 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
       have s5_4 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
       -- 5.5. calculation
       have s5_5 : F 1 = 1 := by
-        calc F 1 = G 0 := by exact s5_2
-          _ = 1 := by exact s5_3
+        calc F 1 = G 0 := s5_2
+          _ = 1 := s5_3
       -- 5.6. instantiate k := 0 in line 4
       have s5_6 : F 2 = F 0 + F 1 := by simpa only [zero_add, Int.cast_zero] using (s4 (0 : ℤ) (by norm_num))
       -- 5.7. calculation
@@ -84,8 +84,8 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
         _ = F (2 * 1 - 1) := by simp (disch := omega) only [hD2]
         _ = F 1 := by norm_num
-        _ = 1 := by exact s5_5
-        _ = F (1 + 1) := by exact s5_7.symm
+        _ = 1 := s5_5
+        _ = F (1 + 1) := s5_7.symm
         _ = F (2 * 1) := by norm_num
     | succ m hK4 hIH2 =>
       -- 5.9. proof
@@ -105,11 +105,11 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         have row1 : F (2 * (m + 1)) = F (2 * m) + F (2 * m + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F t = F (2 * m) + F (2 * m + 1))) c1 s5_12; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 5.14. calculation
-      have r125_1 : m ≥ 1 := by parley_side
+      have r125_1 : m ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK4
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r125_1)
         _ = F (2 * m) + q (m + 1) := by (have h := congrArg (fun t : ℤ => t + q (m + 1)) hIH2; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = F (2 * m) + F (2 * m + 1) := by (have h := congrArg (fun t : ℤ => F (2 * m) + t) s5_11; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = F (2 * (m + 1)) := by exact s5_13.symm
+        _ = F (2 * (m + 1)) := s5_13.symm
   -- 6. instantiate m := n in line 5, from D2
   exact (s5 n hH1)
 

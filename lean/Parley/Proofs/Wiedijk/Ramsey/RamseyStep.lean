@@ -125,8 +125,8 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s28 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
     calc (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) = (LeanBridges.Counting.choose (k + j - 1 + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k + j - 1) s24 (k := k))
       _ = (LeanBridges.Counting.choose (k + j) k : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) s27; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ ≤ (X.ncard : ℤ) := by parley_set_side
-      _ = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_set_side)
+      _ ≤ (X.ncard : ℤ) := hH9
+      _ = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := s23)
   -- 29. axi:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|
   have s29 : (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) ∨ ¬ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)))
   -- 30. cases, from 29

@@ -64,8 +64,8 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have s4_5 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
       -- 4.6. calculation
       have s4_6 : F 1 = 1 := by
-        calc F 1 = G 0 := by exact s4_3
-          _ = 1 := by exact s4_4
+        calc F 1 = G 0 := s4_3
+          _ = 1 := s4_4
       -- 4.7. instantiate k := 0 in line 3
       have s4_7 : F 2 = F 0 + F 1 := by simpa only [zero_add, Int.cast_zero] using (s3 (0 : ℤ) (by norm_num))
       -- 4.8. calculation
@@ -82,7 +82,7 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.12. proof
       -- what this block shows, Lean's types give
       -- 4.13. mun:sum-extended a := 1, n := m
-      have r87_1 : m ≥ 1 := by parley_side
+      have r87_1 : m ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK3
       have s4_13 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (F j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (F j : ℤ)) + F (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := F) (a := (1 : ℤ)) (n := m) r87_1)
       -- 4.14. instantiate k := m + 1 in line 3
       have s4_14 : F (m + 1 + 2) = F (m + 1) + F (m + 1 + 1) := by exact (s3 (m + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK3)) (by norm_num)))

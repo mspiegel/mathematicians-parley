@@ -73,8 +73,8 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
     -- 5.3. instantiate x := x in line 4, from K1
     have s5_3 : (deriv F) x = 2 * x := by exact (s4b x hK1)
     -- 5.4. calculation
-    calc (deriv F) x = 2 * x := by exact s5_3
-      _ = f x := by exact s5_2.symm
+    calc (deriv F) x = 2 * x := s5_3
+      _ = f x := s5_2.symm
   -- 6. thm:fundamental-calculus a := 0, b := 1, from 1, 2, 4, 5
   have r54_1 : (0 : ℤ) < 1 := by parley_arith
   have s6 : (∫ t in 0..1, (f t : ℝ)) = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) (f := f) (Set.mapsTo_univ _ _) s1 (F := F) (Set.mapsTo_univ _ _) s2 s4a s5)
@@ -95,7 +95,7 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
   -- 12. substitute F(0) = 0² (line 10) into line 11
   have s12 : (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - 0 ^ 2 := by (have h := Eq.subst (motive := (fun u : ℝ => (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - u)) s10 s11; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 13. calculation
-  calc (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - 0 ^ 2 := by exact s12
+  calc (∫ t in 0..1, (f t : ℝ)) = 1 ^ 2 - 0 ^ 2 := s12
     _ = 1 := by norm_num
 
 end Parley.Tests.Notations.Integrals.AnIntegralOfALine

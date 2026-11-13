@@ -134,14 +134,14 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.8. mun:function-into, from 1.18.7
         have s1_18_8 : Set.MapsTo e (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := e) (X := (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Finset.mem_Icc, Set.mem_Icc, Set.mem_ofPred_eq] using s1_18_7))
         -- 1.18.9. D3
-        have r295_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
+        have r295_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by simp
         have s1_18_9 : e 1 = p := by simp (disch := omega) only [hD3]
         -- 1.18.10. substitute r = 1 (C2) into line 1.9
         have s1_18_10 : m = p := by (have h := Eq.subst (motive := (fun t : ℤ => m = p * t)) hC2.symm s1_9; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
         -- 1.18.11. calculation
         have s1_18_11 : m = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
-          calc m = p := by exact s1_18_10
-            _ = e 1 := by exact s1_18_9
+          calc m = p := s1_18_10
+            _ = e 1 := s1_18_9
             _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ))).symm
         -- 1.18.12. exhibit, from 1.18.6, 1.18.8, 1.18.11
         have s1_18_12 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨(1 : ℤ), by norm_num, e, s1_18_8, ⟨s1_18_11, s1_18_6⟩⟩

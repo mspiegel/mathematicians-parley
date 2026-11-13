@@ -42,7 +42,7 @@ theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y
   · skip
     -- 5.1. calculation
     have s5_1 : (Y.ncard : ℤ) = 1 + 1 := by parley_count_after (by
-      calc (Y.ncard : ℤ) = 2 := by parley_set_side
+      calc (Y.ncard : ℤ) = 2 := hH4
         _ = 1 + 1 := by norm_num)
     -- 5.2. mun:card-remove X := Y, a := v, k := 1, from C1, 5.1
     have s5_2 : ((Y \ ({v} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by norm_num) s5_1)

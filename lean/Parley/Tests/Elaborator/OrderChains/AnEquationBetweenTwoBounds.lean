@@ -24,8 +24,8 @@ theorem an_equation_between_two_bounds (x : ℝ) (y : ℝ) (hH3 : 0 ≤ y) :
   -- 3. inequalities
   have s3 : 1 + x ≤ 1 + x + y := by linarith only [hH3]
   -- 4. calculation
-  calc x < x + 1 := by exact s1
-    _ = 1 + x := by exact s2
-    _ ≤ 1 + x + y := by exact s3
+  calc x < x + 1 := s1
+    _ = 1 + x := s2
+    _ ≤ 1 + x + y := s3
 
 end Parley.Tests.Elaborator.OrderChains.AnEquationBetweenTwoBounds

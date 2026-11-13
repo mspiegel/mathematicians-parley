@@ -60,14 +60,14 @@ theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (
     rcases s4_1 with hC3 | hC4
     · skip
       -- 4.2.1. inspection
-      have s4_2_1 : B ∈ ({B, C} : Set α) := by parley_set_side
+      have s4_2_1 : B ∈ ({B, C} : Set α) := by simp
       -- 4.2.2. mun:value-in-image, from 1, 4.2.1
       have s4_2_2 : F B ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := B) (W := Set.univ) s1 s4_2_1 (Set.mapsTo_univ _ _))
       -- 4.2.3. substitute u = F(B) (C3) into line 4.2.2
       parley_subst_at hC3 s4_2_2
     · skip
       -- 4.2.4. inspection
-      have s4_2_4 : C ∈ ({B, C} : Set α) := by parley_set_side
+      have s4_2_4 : C ∈ ({B, C} : Set α) := by simp
       -- 4.2.5. mun:value-in-image, from 1, 4.2.4
       have s4_2_5 : F C ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := C) (W := Set.univ) s1 s4_2_4 (Set.mapsTo_univ _ _))
       -- 4.2.6. substitute u = F(C) (C4) into line 4.2.5

@@ -56,7 +56,7 @@ theorem geometric_sum_base_two (n : ℤ) (hH1 : 0 < n) :
       simpa only [zero_add, Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd] using s1_1
     | succ k hK hIH =>
       -- 1.2. calculation
-      have r28_1 : k ≥ 0 := by parley_side
+      have r28_1 : k ≥ 0 := by exact hK
       have s1_2 : S (k + 1) = S k + 2 ^ (k + 1).toNat := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (2 ^ j.toNat : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℤ)) + 2 ^ (k + 1).toNat := by
@@ -66,7 +66,7 @@ theorem geometric_sum_base_two (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. mun:exponent-step a := 2, m := k + 1
       have s1_3 : (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (add_nonneg (hK) (by norm_num)))
       -- 1.4. calculation
-      calc S (k + 1) = S k + 2 ^ (k + 1).toNat := by exact s1_2
+      calc S (k + 1) = S k + 2 ^ (k + 1).toNat := s1_2
         _ = 2 ^ (k + 1).toNat - 1 + 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => t + 2 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 ^ (k + 1).toNat * 2 - 1 := by parley_ring
         _ = 2 ^ (k + 1 + 1).toNat - 1 := by (have h := congrArg (fun t : ℤ => t - 1) s1_3.symm; push_cast at h ⊢; all_goals exact_mod_cast h)

@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import NormTactics
+public import SetTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -13,9 +14,11 @@ public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -67,7 +70,7 @@ theorem five_consecutive_divisible (n : ℤ) :
       -- 2.7.4. def:range-between k := n + 4, a := 0, b := 4, from C3, 2.7.3
       have s2_7_4 : n + 4 ∈ Finset.Icc (0 : ℤ) (4 : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := n + 4) (a := (0 : ℤ)) (b := (4 : ℤ)))).mpr ⟨hC3, s2_7_3⟩
       -- 2.7.5. inspection, from 2.7.4
-      have s2_7_5 : (((n + 4 = 0 ∨ n + 4 = 1) ∨ n + 4 = 2) ∨ n + 4 = 3) ∨ n + 4 = 4 := by parley_side
+      have s2_7_5 : (((n + 4 = 0 ∨ n + 4 = 1) ∨ n + 4 = 2) ∨ n + 4 = 3) ∨ n + 4 = 4 := by (have h := s2_7_4; norm_num [Finset.mem_Icc, Set.mem_Icc] at h; norm_cast at h; omega)
       -- 2.7.6. cases, from 2.7.5
       rcases s2_7_5 with (((hC4 | hC5) | hC6) | hC7) | hC8
       · skip
@@ -108,7 +111,6 @@ theorem five_consecutive_divisible (n : ℤ) :
       -- 2.7.10. mun:nat-minus-one n := k
       have s2_7_10 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) hD1_pos)
       set P : ℤ := (k - 1 + 1) * (k - 1 + 2) * (k - 1 + 3) * (k - 1 + 4) * (k - 1 + 5) with hD2
-      have hD2_kind : True := by parley_side
       -- 2.7.11. thm:five-consecutive-natural m := k − 1, from D2, 2.7.10
       have s2_7_11 : (120 : ℤ) ∣ P := by
         try simp only [hD2] at ⊢

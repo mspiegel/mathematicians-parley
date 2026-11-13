@@ -34,7 +34,7 @@ theorem a_line_is_one_to_one_and_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x 
     -- 2.1. calculation
     have s2_1 : 2 * s + 1 = 2 * t + 1 := by
       calc 2 * s + 1 = f s := by simp (disch := omega) only [hD1]
-        _ = f t := by parley_set_side
+        _ = f t := hA1
         _ = 2 * t + 1 := by simp (disch := omega) only [hD1]
     -- 2.2. algebra, from 2.1
     linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * s2_1

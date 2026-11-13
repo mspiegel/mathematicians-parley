@@ -17,7 +17,7 @@ namespace Parley.Tests.Docs.Grammar.TheThirdTriangularNumber
 theorem the_third_triangular_number :
     (3 * (3 + 1) / 2 : ℚ) = 6 := by
   -- 1. calculation
-  calc (3 * (3 + 1) / 2 : ℚ) = 3 * (3 + 1) / 2 := by parley_side
+  calc (3 * (3 + 1) / 2 : ℚ) = 3 * (3 + 1) / 2 := rfl
     _ = 6 := by norm_num
 
 end Parley.Tests.Docs.Grammar.TheThirdTriangularNumber

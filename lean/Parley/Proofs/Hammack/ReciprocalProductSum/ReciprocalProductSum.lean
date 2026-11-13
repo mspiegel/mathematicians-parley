@@ -51,7 +51,7 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
       (have h := s2_1; push_cast at h ⊢; all_goals exact h)
     | succ k hK hIH =>
       -- 2.2. calculation
-      have r43_1 : k ≥ 1 := by parley_side
+      have r43_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by
               have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ)) (n := k) r43_1))

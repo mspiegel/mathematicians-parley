@@ -33,7 +33,7 @@ theorem divides_sixth_power (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 ∣ b) (h
   have s4 : c = (a ^ 2 * k) ^ 3 * m := by (have h := Eq.subst (motive := (fun t : ℤ => c = t * m)) s3 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 5. calculation
   have s5 : c = a ^ 6 * (k ^ 3 * m) := by
-    calc c = (a ^ 2 * k) ^ 3 * m := by exact s4
+    calc c = (a ^ 2 * k) ^ 3 * m := s4
       _ = a ^ 6 * (k ^ 3 * m) := by parley_ring
   -- 6. def:divides d := a⁶, n := c, from 5
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a ^ 6) (n := c))).mpr ⟨k ^ 3 * m, s5⟩

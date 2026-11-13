@@ -84,15 +84,15 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.2. inequalities, from 7
     have s10_2 : m > 0 := by linarith only [s7a]
     -- 10.3. mun:reciprocal-order x := m, y := j, from A1
-    have r72_1 : m > 0 := by parley_set_side
-    have r72_2 : j > 0 := by parley_set_side
+    have r72_1 : m > 0 := by exact s10_2
+    have r72_2 : j > 0 := by exact s10_1
     have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (j : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by exact_mod_cast ge_iff_le.mp hA1)
     -- 10.4. inequalities
     have r77_1 : p ≠ 0 := by exact s5
     have s10_4 : (m : ℝ) ≥ 2 / p := by linarith only [s7b]
     -- 10.5. mun:reciprocal-order x := 2/p, y := m, from 10.4
-    have r83_1 : 2 / p > 0 := by parley_set_side
-    have r83_2 : m > 0 := by parley_set_side
+    have r83_1 : 2 / p > 0 := by exact s6
+    have r83_2 : m > 0 := by exact s10_2
     have r83_3 : p ≠ 0 := by exact s5
     have s10_5 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) r83_1 (y := (m : ℝ)) (by exact_mod_cast gt_iff_lt.mp r83_2))).mp s10_4
     -- 10.6. algebra
@@ -102,7 +102,6 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have r93_1 : p ≠ 0 := by exact s5
     have s10_7 : 1 / (j : ℝ) < p := by exact lt_of_le_of_lt (LE.le.trans_eq (le_trans (show 1 / (j : ℝ) ≤ 1 / (m : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s10_3; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s10_5) s10_6) s8
     set t : ℝ := 1 / (j : ℝ) with hD1
-    have hD1_kind : True := by parley_set_side
     -- 10.8. mun:reciprocal-positive x := j, from D1, 10.1
     have s10_8 : t > 0 := by
       try simp only [hD1] at ⊢
@@ -129,7 +128,6 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
       try push_cast at ⊢
       parley_ring
     set T : ℝ := t ^ 2 with hD2
-    have hD2_kind : True := by parley_set_side
     -- 10.17. mun:square-positive x := t, from D2, 10.9
     have s10_17 : T > 0 := by
       try simp only [hD2] at ⊢

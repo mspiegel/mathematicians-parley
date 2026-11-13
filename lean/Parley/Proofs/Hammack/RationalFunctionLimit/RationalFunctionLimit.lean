@@ -87,7 +87,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.16. algebra
       have s1_2_16 : 1 / (n : ℚ) + (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) = (10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) := by parley_ring
       -- 1.2.17. mun:multiply-le x := 1, y := n, c := n, from 1.2.2
-      have r95_1 : n > 0 := by parley_side
+      have r95_1 : n > 0 := by exact s1_2_1
       have s1_2_17 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) s1_2_2 r95_1)
       -- 1.2.18. algebra
       have s1_2_18 : n * n = n ^ 2 := by parley_ring
@@ -108,7 +108,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have s1_2_25 : -(1 / (n : ℚ)) < (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) := by linarith only [s1_2_24]
       -- 1.2.26. mun:reciprocal-order x := N, y := n, from A2
       have r135_1 : N > 0 := by linarith only [s1_1a]
-      have r135_2 : n > 0 := by parley_side
+      have r135_2 : n > 0 := by exact s1_2_1
       have s1_2_26 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 1.2.27. transitivity, from 1.2.26, 1.1
       have s1_2_27 : 1 / (n : ℝ) < ε := by exact lt_of_le_of_lt (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_2_26; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s1_1b

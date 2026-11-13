@@ -44,7 +44,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k
   -- 6. instantiate k := b² in H2, from 2
   have s6 : ¬ b ∣ b ^ 2 := by exact (hH2 (b ^ 2) s2)
   -- 7. restate 5
-  have s7 : b ∣ b ^ 2 := by parley_side
+  have s7 : b ∣ b ^ 2 := by exact s5
   exact s6 s7
 
 end Parley.Proofs.Hammack.DivisorOfNoNaturalNumberIsZero.DivisorOfNoNaturalNumberIsZero

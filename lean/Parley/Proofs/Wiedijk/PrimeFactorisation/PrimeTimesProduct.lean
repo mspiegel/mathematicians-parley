@@ -46,7 +46,7 @@ namespace Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct
 theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r : ℤ) (hH3 : 0 < r) (hH4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) :
     (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by
   -- 1. D1, from H4
-  have s1 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by parley_set_side
+  have s1 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := hH4
   -- 2. obtain j, g from line 1
   obtain ⟨j, s2a, g, s2b, ⟨s2c, s2d⟩⟩ := s1
   set h : ℤ → ℤ := fun i : ℤ => @ite _ (i ≤ j) (Classical.propDecidable (i ≤ j)) (g i) p with hD2
@@ -125,11 +125,11 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 11. substitute r = ∏(i ∈ {1, …, j}) g(i) (line 2)
   have s11 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) = r * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) s2c.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. calculation
-  have r146_1 : j ≥ 1 := by parley_set_side
+  have r146_1 : j ≥ 1 := by exact s2a
   have s12 : p * r = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by
     calc p * r = r * p := by parley_ring
       _ = r * h (j + 1) := by (have h := congrArg (fun t : ℤ => r * t) s10.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) := by exact s11.symm
+      _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) := s11.symm
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) s7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1).symm
   -- 13. exhibit, from 4, 6, 12

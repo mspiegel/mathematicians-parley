@@ -74,7 +74,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     have s2_11 : (LeanBridges.Counting.choose n k : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := n) (le_of_lt hH1) (k := k)) s2_10
     -- 2.12. calculation
     have s2_12 : (LeanBridges.Counting.choose n k : ℤ) = 2 * 0 := by
-      calc (LeanBridges.Counting.choose n k : ℤ) = 0 := by exact s2_11
+      calc (LeanBridges.Counting.choose n k : ℤ) = 0 := s2_11
         _ = 2 * 0 := by norm_num
     -- 2.13. def:even n := C(n, k), from 2.12
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose n k : ℤ)))).mpr ⟨0, s2_12⟩

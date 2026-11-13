@@ -33,7 +33,7 @@ theorem factorial_of_four :
   have s5 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 2 * t)) s4 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. calculation
   have s6 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 6 := by
-    calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by exact s5
+    calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := s5
       _ = 6 := by norm_num
   -- 7. def:factorial n := 3
   have s7 : (LeanBridges.Counting.factorial (3 + 1 : ℤ) : ℤ) = (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) * (3 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := (3 : ℤ)) (by norm_num))
@@ -44,7 +44,7 @@ theorem factorial_of_four :
   -- 10. substitute 3 + 1 = 4 (line 9) into line 8
   have s10 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 6 * t)) s9 s8; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. calculation
-  calc (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by exact s10
+  calc (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := s10
     _ = 24 := by norm_num
 
 end Parley.Tests.Notations.Counting.FactorialOfFour

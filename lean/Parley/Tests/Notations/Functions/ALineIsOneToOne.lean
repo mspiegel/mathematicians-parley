@@ -36,9 +36,9 @@ theorem a_line_is_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x +
     have s2_2 : f t = 2 * t + 1 := by simp (disch := omega) only [hD1]
     -- 2.3. calculation
     have s2_3 : 2 * s + 1 = 2 * t + 1 := by
-      calc 2 * s + 1 = f s := by exact s2_1.symm
-        _ = f t := by parley_set_side
-        _ = 2 * t + 1 := by exact s2_2
+      calc 2 * s + 1 = f s := s2_1.symm
+        _ = f t := hA1
+        _ = 2 * t + 1 := s2_2
     -- 2.4. algebra, from 2.3
     linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * s2_3
   -- 3. def:one-to-one, from 1, 2

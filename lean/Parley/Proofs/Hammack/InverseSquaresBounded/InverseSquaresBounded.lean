@@ -58,7 +58,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       (have h := s2_1; push_cast at h ⊢; all_goals exact h)
     | succ k hK hIH =>
       -- 2.2. mun:sum-extended a := 1, n := k, from 1
-      have r35_1 : k ≥ 1 := by parley_side
+      have r35_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by
         have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (b : ℚ) ^ 2 : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / (b : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1))
         exact hI

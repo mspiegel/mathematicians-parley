@@ -45,7 +45,7 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. inequalities, from IH, 1.2
       have s1_3 : k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by linarith only [hIH, s1_2]
       -- 1.4. calculation
-      calc k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by exact s1_3
+      calc k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := s1_3
         _ = 2 ^ k.toNat * 2 := by parley_ring
         _ = 2 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK))).symm
   -- 2. instantiate k := n in line 1

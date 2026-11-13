@@ -30,7 +30,7 @@ theorem cosine_of_a_sum_at_zero :
   -- 5. substitute sin(0) = 0 (line 3) into line 4
   have s5 : Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by (have h := Eq.subst (motive := (fun t : ℝ => Real.cos (0 + 0 : ℝ) = 1 * 1 - t * t)) s3 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. calculation
-  calc Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := by exact s5
+  calc Real.cos (0 + 0 : ℝ) = 1 * 1 - 0 * 0 := s5
     _ = 1 := by norm_num
 
 end Parley.Tests.Notations.Trigonometry.CosineOfASumAtZero

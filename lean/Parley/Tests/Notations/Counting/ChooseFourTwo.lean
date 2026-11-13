@@ -56,7 +56,7 @@ theorem choose_four_two :
     (have h := Eq.subst (motive := (fun t : ℚ => (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (t * t))) e_w s6; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 8. calculation
   try qify
-  calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by exact s7
+  calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := s7
     _ = 6 := by norm_num
 
 end Parley.Tests.Notations.Counting.ChooseFourTwo

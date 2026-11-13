@@ -20,6 +20,6 @@ theorem a_define_applied_in_a_calculation_link (a : ℤ) (hH1 : 0 < a) (q : ℤ 
   have s1 : a + 1 + 1 = a + 2 := by parley_ring
   -- 2. calculation
   calc q a + 1 = a + 1 + 1 := by simp (disch := omega) only [hD1]
-    _ = a + 2 := by exact s1
+    _ = a + 2 := s1
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineAppliedInACalculationLink

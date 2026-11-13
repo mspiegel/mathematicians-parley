@@ -413,6 +413,13 @@ pub struct CheckedTheorem {
     /// names says (`ShownBy::Beside`): a^(p − 1) ∈ ℤ from a^(p − 1) =
     /// a^(p − 2)·a and a^(p − 2) ∈ ℤ. A backend proves it the same way.
     pub members_shown: IndexMap<usize, PlaceShown>,
+    /// Each claim the `inspection` method decides holds, a step's or a
+    /// requires line's, by the line its reason is on: the case that decided
+    /// it (`methods::inspection::Case`), and for an "or" of what a term is,
+    /// the cited line whose membership it is read against. A backend
+    /// proves each case one way: r = 0 or r = 1 or r = 2 from r ∈ {0, …, 2}
+    /// by the range's bounds.
+    pub inspected: IndexMap<usize, Inspection>,
     /// The parts of the terms a reason's claim and lines write that the
     /// lines it names put in a number system, each with how, by the line
     /// the reason is on: a step's, or a requires line's
@@ -501,6 +508,26 @@ pub struct PlaceShown {
     pub term: Node,
     pub system: crate::rules::System,
     pub by: ShownBy,
+}
+
+/// The case of `inspection` that decided a claim
+/// (`CheckedTheorem::inspected`, `methods::inspection::Case`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Inspection {
+    /// A line of "or"s saying what a term is, one equation for each element
+    /// of the set a cited membership puts it in: that membership's line, by
+    /// its reference, and whether the set is a range of integers.
+    OneOf { from: String, range: bool },
+    /// Whether a number is prime.
+    Prime,
+    /// That nothing is in ∅.
+    Empty,
+    /// A membership of a set listed in full, or its denial.
+    Member,
+    /// The size of a set listed in full.
+    Size,
+    /// Any other the method decides.
+    Other,
 }
 
 /// How a step shows a term is in a number system.

@@ -35,7 +35,6 @@ theorem remainder_of_sum (A : ℝ) (B : ℝ) (M : ℝ) (hH4 : M > 0) :
   -- 1. inequalities
   have s1 : M ≠ 0 := ne_of_gt (by linarith only [hH4])
   set q : ℤ := ⌊A / M⌋ with hD1
-  have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := M, from D1, H4
   have s2 : LeanBridges.Divisibility.mod A M = A - M * (q : ℝ) := by
     try simp only [hD1] at ⊢

@@ -85,12 +85,12 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       have r63_1 : (2 : ℤ) > 0 := by parley_arith
       have s2_2_2 : (2 ^ n.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := n) (by norm_num)); simp only [parley_zpow_toNat (n := n) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s2_2_1))] at h ⊢; exact_mod_cast h)
       -- 2.2.3. mun:reciprocal-order x := n, y := 2^n, from 1
-      have r67_1 : n > 0 := by parley_side
-      have r67_2 : (2 ^ n.toNat : ℤ) > 0 := by parley_side
+      have r67_1 : n > 0 := by exact s2_2_1
+      have r67_2 : (2 ^ n.toNat : ℤ) > 0 := by exact s2_2_2
       have s2_2_3 : 1 / 2 ^ n.toNat ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r67_1) (y := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r67_2))).mp (by exact_mod_cast (s1 n hK2))
       -- 2.2.4. mun:reciprocal-order x := N, y := n, from A2
       have r72_1 : N > 0 := by linarith only [s2_1a]
-      have r72_2 : n > 0 := by parley_side
+      have r72_2 : n > 0 := by exact s2_2_1
       have s2_2_4 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 2.2.5. transitivity, from 2.2.3, 2.2.4, 2.1
       have s2_2_5 : 1 / 2 ^ n.toNat < ε := by exact lt_of_le_of_lt (le_trans (show 1 / 2 ^ n.toNat ≤ 1 / (n : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s2_2_3; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h) (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s2_2_4; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h)) s2_1b

@@ -22,6 +22,6 @@ namespace Parley.Tests.Elaborator.AnIdentityALinkDrops.AnIdentityALinkDrops
 theorem an_identity_a_link_drops (b : ℤ → ℝ) (k : ℤ) (hH3 : b k * 1 ^ k = b k * 1) :
     b k * 1 ^ k = b k := by
   -- 1. calculation
-  simpa only [mul_one] using hH3
+  exact by simpa only [mul_one] using hH3
 
 end Parley.Tests.Elaborator.AnIdentityALinkDrops.AnIdentityALinkDrops

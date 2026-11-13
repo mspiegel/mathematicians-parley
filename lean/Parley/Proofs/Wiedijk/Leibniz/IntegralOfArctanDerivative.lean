@@ -110,9 +110,9 @@ theorem integral_of_arctan_derivative :
     -- 12.3. D1, from 12.1
     have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by simp (disch := omega) only [hD1]
     -- 12.4. calculation
-    calc (deriv F) x = 1 / (1 + x ^ 2) := by exact (s11 x hK2)
+    calc (deriv F) x = 1 / (1 + x ^ 2) := (s11 x hK2)
       _ = x ^ (2 * 0) / (1 + x ^ 2) := by (have h := congrArg (fun t : ℝ => t / (1 + x ^ 2)) s12_2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = g x := by exact s12_3
+      _ = g x := s12_3
   -- 13. arithmetic
   have s13 : (0 : ℤ) < 1 := by parley_arith
   -- 14. def:interval a := 0, b := 1, x := 0
@@ -132,16 +132,16 @@ theorem integral_of_arctan_derivative :
   have s18 : F 0 = Real.arctan (0 : ℝ) := by simp (disch := omega) only [hD2]
   -- 19. calculation
   have s19 : F 1 = Real.pi / 4 := by
-    calc F 1 = Real.arctan (1 : ℝ) := by exact s17
-      _ = Real.pi / 4 := by exact s16b
+    calc F 1 = Real.arctan (1 : ℝ) := s17
+      _ = Real.pi / 4 := s16b
   -- 20. calculation
   have s20 : F 0 = 0 := by
-    calc F 0 = Real.arctan (0 : ℝ) := by exact s18
-      _ = 0 := by exact s16a
+    calc F 0 = Real.arctan (0 : ℝ) := s18
+      _ = 0 := s16a
   -- 21. D0, from D1
   have s21 : (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by simp (disch := omega) only [hD1]
   -- 22. calculation
-  calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by exact s21
+  calc (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := s21
     _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) (f := g) (Set.mapsTo_univ _ _) s8 (F := F) (Set.mapsTo_univ _ _) s9 s10 s12)
     _ = Real.pi / 4 - F 0 := by (have h := congrArg (fun t : ℝ => t - F 0) s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = Real.pi / 4 := by (have h := congrArg (fun t : ℝ => Real.pi / 4 - t) s20; push_cast [sub_zero] at h ⊢; all_goals exact_mod_cast h)

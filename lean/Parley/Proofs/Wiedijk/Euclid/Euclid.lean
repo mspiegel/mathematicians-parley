@@ -10,6 +10,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.GCD
@@ -59,7 +60,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           -- 3.5.3. substitute a(k + 1) = a(k) (line 3.5.1) into IH1
           have s3_5_3 : 0 ≤ a (k + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => 0 ≤ t)) s3_5_1.symm hIH1.1; push_cast at h ⊢; all_goals exact_mod_cast h)
           -- 3.5.4. membership, from 3.5.2
-          have s3_5_4 : 0 ≤ b (k + 1) := by parley_side
+          have s3_5_4 : 0 ≤ b (k + 1) := le_of_le_of_eq (by norm_num) (s3_5_2).symm
           -- 3.5.5. join 3.5.3, 3.5.4
           have s3_5_5 : 0 ≤ a (k + 1) ∧ 0 ≤ b (k + 1) := ⟨s3_5_3, s3_5_4⟩
           exact ⟨(s3_5_5).1, (s3_5_5).2⟩
@@ -103,7 +104,7 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         calc (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd (a k) (b (k + 1)) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t (b (k + 1)) : ℤ)) s4_3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd (a k) (0 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a k) t : ℤ)) s4_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd (a k) (b k) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (a k) t : ℤ)) hC3.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = (Int.gcd M N : ℤ) := by parley_side
+          _ = (Int.gcd M N : ℤ) := hIH2
       · skip
         -- 4.3.4. D1, from C4
         have s4_3_4 : a (k + 1) = b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC4] at h; (try ring_nf at h ⊢); linarith
@@ -118,9 +119,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         -- 4.3.9. calculation
         calc (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd (b k) (b (k + 1)) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t (b (k + 1)) : ℤ)) s4_3_4; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd (b k) (a k % b k) : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd (b k) t : ℤ)) s4_3_5; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = (Int.gcd (a k % b k) (b k) : ℤ) := by exact s4_3_8
+          _ = (Int.gcd (a k % b k) (b k) : ℤ) := s4_3_8
           _ = (Int.gcd (a k) (b k) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := a k) (b := b k) s4_3_6)
-          _ = (Int.gcd M N : ℤ) := by parley_side
+          _ = (Int.gcd M N : ℤ) := hIH2
   -- 5. induction on k starting at 0
   have s5 : ∀ k : ℤ, 0 ≤ k → b k + k ≤ N ∨ b k = 0 := by
     intro k h_k

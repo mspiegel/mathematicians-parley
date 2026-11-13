@@ -34,7 +34,6 @@ theorem rounding_error (A : ℝ) :
   -- 3. mun:floor-above x := A + 1/2
   have s3 : A + 1 / 2 < (⌊A + 1 / 2⌋ : ℝ) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2))
   set e : ℝ := (⌊A + 1 / 2⌋ : ℝ) - A with hD1
-  have hD1_kind : True := by parley_side
   -- 4. inequalities
   have s4 : (⌊A + 1 / 2⌋ : ℝ) - A ≤ 1 / 2 := by linarith only [s2]
   -- 5. transitivity, from D1, 4

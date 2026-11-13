@@ -8,12 +8,14 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
@@ -47,13 +49,13 @@ theorem sum_of_eight_i_minus_five (n : ℤ) (hH1 : 0 < n) :
         _ = 4 * 1 ^ 2 - 1 := by norm_num
     | succ k hK hIH =>
       -- 1.2. calculation
-      have r27_1 : k ≥ 1 := by parley_side
+      have r27_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s1_2 : S (k + 1) = S k + (8 * (k + 1) - 5) := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (8 * j - 5 : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (8 * j - 5 : ℤ)) + (8 * (k + 1) - 5) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 8 * j - 5)) (a := (1 : ℤ)) (n := k) r27_1)
           _ = S k + (8 * (k + 1) - 5) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
-      calc S (k + 1) = S k + (8 * (k + 1) - 5) := by exact s1_2
+      calc S (k + 1) = S k + (8 * (k + 1) - 5) := s1_2
         _ = 4 * k ^ 2 - k + (8 * (k + 1) - 5) := by (have h := congrArg (fun t : ℤ => t + (8 * (k + 1) - 5)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 4 * (k + 1) ^ 2 - (k + 1) := by parley_ring
   -- 2. calculation

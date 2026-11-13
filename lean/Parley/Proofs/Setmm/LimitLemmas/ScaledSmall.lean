@@ -30,7 +30,6 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   -- 2. thm:abs-nonneg x := C
   have s2 : abs C ≥ 0 := by exact (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C))
   set d : ℝ := abs C + 1 with hD1
-  have hD1_kind : True := by trivial
   -- 3. inequalities, from D1, 2
   have s3 : d > 0 := by linarith only [s2, hD1]
   -- 4. inequalities

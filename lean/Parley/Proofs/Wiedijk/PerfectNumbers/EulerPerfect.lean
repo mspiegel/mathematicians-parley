@@ -75,7 +75,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have s2_1 : n = 2 ^ 0 * m := by (have h := Eq.subst (motive := (fun t : ℤ => n = 2 ^ t.toNat * m)) hS1 s1d; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 2.2. calculation
     have s2_2 : n = m := by
-      calc n = 2 ^ 0 * m := by exact s2_1
+      calc n = 2 ^ 0 * m := s2_1
         _ = m := by parley_ring
     -- 2.3. substitute n = m (line 2.2) into line 1
     have s2_3 : Odd n := by (have h := Eq.subst (motive := (fun t : ℤ => Odd t)) s2_2.symm s1c; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -253,7 +253,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     parley_ring
   -- 31. calculation
   have s31 : (n : ℚ) = 2 ^ (p - 1) * (2 ^ p.toNat - 1) := by
-    calc (n : ℚ) = 2 ^ k.toNat * (m : ℚ) := by parley_side
+    calc (n : ℚ) = 2 ^ k.toNat * (m : ℚ) := by exact_mod_cast s1d
       _ = 2 ^ (p - 1) * (m : ℚ) := by (have h := congrArg (fun t : ℤ => 2 ^ t * (m : ℚ)) s30.symm; simp only [parley_zpow_toNat (n := k) (h := s1a)] at h ⊢; exact_mod_cast h)
       _ = 2 ^ (p - 1) * (2 ^ p.toNat - 1) := by
           have e_w : (m : ℚ) = 2 ^ p.toNat - 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination (norm := parley_norm) h

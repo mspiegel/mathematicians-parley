@@ -65,14 +65,14 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
     -- 6.2. def:interval, from 6.1
     exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp s6_1).2
   -- 7. def:upper-bound, from 6
-  have s7 : ∀ s ∈ S, s ≤ b := by parley_set_side
+  have s7 : ∀ s ∈ S, s ≤ b := s6
   -- 8. obtain c: axi:completeness, from 2, 5, 7
   obtain ⟨c, s8⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s5 ⟨a, s2, trivial⟩ ⟨b, s7⟩)
   -- 9. def:least-upper-bound, from 8
-  have s9a : ∀ s ∈ S, s ≤ c := by parley_set_side
-  have s9b : ∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u := by parley_set_side
+  have s9a : ∀ s ∈ S, s ≤ c := s8.1
+  have s9b : ∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u := s8.2
   -- 10. def:upper-bound, from 9
-  have s10 : ∀ s ∈ S, s ≤ c := by parley_set_side
+  have s10 : ∀ s ∈ S, s ≤ c := s9a
   -- 11. instantiate s := a in line 10, from 2
   have s11 : a ≤ c := by exact (s10 a s2)
   -- 12. instantiate u := b in line 9, from 7
@@ -111,7 +111,6 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.5. obtain δ from line 16.4
       obtain ⟨δ, ⟨s16_5a, s16_5b⟩⟩ := s16_4
       set x₁ : ℝ := min b (c + δ / 2) with hD2
-      have hD2_kind : True := by trivial
       -- 16.6. inequalities
       have s16_6 : δ / 2 > 0 := by linarith only [s16_5a]
       -- 16.7. inequalities
@@ -202,7 +201,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         have s16_29_10 : ¬ f s < 0 := by linarith only [s16_29_9]
         exact s16_29_10 s16_29_2
       -- 16.30. def:upper-bound, from 16.29
-      have s16_30 : ∀ s ∈ S, s ≤ c - δ := by parley_set_side
+      have s16_30 : ∀ s ∈ S, s ≤ c - δ := s16_29
       -- 16.31. instantiate u := c − δ in line 9, from 16.30
       have s16_31 : c ≤ c - δ := by exact (s9b (c - δ) s16_30)
       -- 16.32. inequalities

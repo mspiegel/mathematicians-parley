@@ -83,8 +83,8 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   have s18 : d = (Int.gcd a b : ℤ) := le_antisymm s14 s17
   -- 19. calculation
   have s19 : a * x₀ + b * y₀ = (Int.gcd a b : ℤ) := by
-    calc a * x₀ + b * y₀ = d := by parley_set_side
-      _ = (Int.gcd a b : ℤ) := by exact s18
+    calc a * x₀ + b * y₀ = d := s7.symm
+      _ = (Int.gcd a b : ℤ) := s18
   -- 20. exhibit, from 19
   exact ⟨x₀, y₀, s19⟩
 

@@ -78,12 +78,12 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 5. D3
   have s5 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), F x = 1 / ((m : ℝ) + 1) * q x := by simp (disch := omega) only [hD3, implies_true]
   -- 6. membership, from D1
-  have s6 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
+  have s6 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; exact by trivial
   -- 7. membership, from D2
-  have s7 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
+  have s7 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; exact by trivial
   -- 8. membership, from D2, D3
   have r85_1 : m + 1 ≠ 0 := s1.ne'
-  have s8 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
+  have s8 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; exact by trivial
   -- 9. mun:function-into, from 6
   have s9 : Set.MapsTo p (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := p) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 10. mun:function-into, from 7
@@ -123,10 +123,10 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     have s19_2 : p x = x ^ m.toNat := by simp (disch := omega) only [hD1]
     -- 19.3. calculation
     have r142_1 : m + 1 ≠ 0 := s1.ne'
-    calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := by exact (s18 x hK1)
+    calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := (s18 x hK1)
       _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) (s16 x hK1); push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = x ^ m.toNat := by parley_ring
-      _ = p x := by exact s19_2
+      _ = p x := s19_2
   -- 20. arithmetic
   have s20 : (0 : ℤ) < 1 := by parley_arith
   -- 21. def:interval a := 0, b := 1, x := 0
@@ -151,14 +151,14 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   have s28 : F 0 = 1 / ((m : ℝ) + 1) * q 0 := by simp (disch := omega) only [hD3]
   -- 29. calculation
   have s29 : F 1 = 1 / ((m : ℝ) + 1) * 1 := by
-    calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := by exact s27
+    calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := s27
       _ = 1 / ((m : ℝ) + 1) * 1 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s23; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 / ((m : ℝ) + 1) * 1 := by
           have e_w : (1 ^ (m + 1).toNat : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
           (have h := congrArg (fun t : ℚ => 1 / ((m : ℚ) + 1) * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 30. calculation
   have s30 : F 0 = 1 / ((m : ℝ) + 1) * 0 := by
-    calc F 0 = 1 / ((m : ℝ) + 1) * q 0 := by exact s28
+    calc F 0 = 1 / ((m : ℝ) + 1) * q 0 := s28
       _ = 1 / ((m : ℝ) + 1) * 0 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s25; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 / ((m : ℝ) + 1) * 0 := by
           have e_w : (0 ^ (m + 1).toNat : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s26; push_cast at h; linear_combination (norm := parley_norm) h

@@ -77,7 +77,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
       -- 2.3.8. calculation
       have s2_3_8 : (LeanBridges.Counting.factorial (N + 1 - (N - 1)) : ℤ) = 2 := by
         calc (LeanBridges.Counting.factorial (N + 1 - (N - 1)) : ℤ) = (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2_3_4; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 1 * 2 := by exact s2_3_7
+          _ = 1 * 2 := s2_3_7
           _ = 2 := by norm_num
       -- 2.3.9. thm:factorial-by-predecessor, from C1
       have s2_3_9 : (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by exact (Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor.factorial_by_predecessor (N := N) hC1)

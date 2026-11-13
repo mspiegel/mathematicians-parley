@@ -65,7 +65,6 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   have r318_1 : (2 : ℤ) > 0 := by parley_arith
   have s2_3 : (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (by norm_num))
   set g : ℝ := (2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ) with hD1
-  have hD1_kind : True := by parley_side
   -- 2.4. instantiate j := i − n in line 1, from 2.1
   have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + (i - n)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) := by (have h := (s1 (i - n) s2_1); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (h := add_nonneg (Nat.cast_nonneg _) (s2_1))] at h ⊢; exact_mod_cast h)
   -- 2.5. substitute

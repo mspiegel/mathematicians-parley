@@ -18,6 +18,6 @@ namespace Parley.Tests.Elaborator.ListedNumerals.ASizeHoldingFive
 theorem a_size_holding_five :
     (({(1 : ℤ), (5 : ℤ), (9 : ℤ)} : Set ℤ).ncard : ℤ) = 3 := by
   -- 1. inspection
-  parley_set_side
+  simp [Set.ncard_insert_of_notMem, Set.ncard_singleton]
 
 end Parley.Tests.Elaborator.ListedNumerals.ASizeHoldingFive

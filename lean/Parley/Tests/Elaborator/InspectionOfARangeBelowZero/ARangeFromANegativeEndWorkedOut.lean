@@ -1,12 +1,15 @@
 module
 
+public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 
@@ -19,6 +22,6 @@ namespace Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeFromANegativ
 theorem a_range_from_a_negative_end_worked_out (n : ℤ) (hH2 : n ∈ Finset.Icc (0 - 4 : ℤ) (0 : ℤ)) :
     ((((n = -4 ∨ n = -3) ∨ n = -2) ∨ n = -1) ∨ n = 0) := by
   -- 1. inspection, from H2
-  parley_side
+  (have h := hH2; norm_num [Finset.mem_Icc, Set.mem_Icc] at h; norm_cast at h; omega)
 
 end Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeFromANegativeEndWorkedOut

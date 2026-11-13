@@ -34,7 +34,6 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 1. inequalities
   have s1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   set q : ℤ := ⌊A / B⌋ with hD1
-  have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
     try simp only [hD1] at ⊢
@@ -59,7 +58,7 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
         _ = A / B := by rw [← (by exact_mod_cast Classical.choose_spec hC2 : ((Classical.choose hC2 : ℤ) : ℝ) = A / B)]; (exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorOfInteger.floor_of_integer (A := (Classical.choose hC2))))
     -- 3.5. calculation
     have r48_1 : B ≠ 0 := by exact s1
-    calc LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by exact s2
+    calc LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := s2
       _ = 0 := by linear_combination (norm := parley_field) (-B) * s3_4
 
 end Parley.Proofs.Setmm.RemainderZero.NoRemainderIsWholeQuotient

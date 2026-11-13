@@ -60,7 +60,7 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
       have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + t)) c1 s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
     -- 2.4. calculation
-    calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := by exact s2_3
+    calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := s2_3
       _ = N ^ 3 := by parley_ring
   · skip
     -- 2.5. mun:sum-single a := 0
@@ -73,7 +73,7 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by linear_combination (norm := parley_norm) s2_5 + (-1) * s2_6
     -- 2.8. calculation
     have s2_8 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 ^ 3 := by
-      calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by exact s2_7
+      calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := s2_7
         _ = 0 ^ 3 := by norm_num
     -- 2.9. substitute N = 0 (C2) into line 2.8
     (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (t ^ 2 - t + (2 * k - 1) : ℤ)) = t ^ 3)) hC2.symm s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)

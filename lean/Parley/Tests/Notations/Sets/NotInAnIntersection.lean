@@ -6,6 +6,7 @@ public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Parley.Items.Stdlib.Reasoning
 public import Parley.Items.Stdlib.Sets
@@ -26,9 +27,9 @@ theorem not_in_an_intersection :
   have s3 : ¬ (3 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by
     intro hS
     -- 3.1. def:pair x := 3, u := 1, w := 2, from S
-    have s3_1 : (3 : ℤ) = 1 ∨ (3 : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (3 : ℤ)))).mp hS
+    have s3_1 : (3 : ℤ) = 1 ∨ (3 : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (3 : ℤ)))).mp (by (have h := hS; revert h; norm_num))
     -- 3.2. mun:disjunctive-syllogism, from 2, 3.1
-    have s3_2 : (3 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := (3 : ℤ) = 1) (Q := (3 : ℤ) = 2) s3_1 s2)
+    have s3_2 : (3 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := (3 : ℤ) = 1) (Q := (3 : ℤ) = 2) s3_1 (by (have h := s2; revert h; norm_num)))
     exact s1 s3_2
   -- 4. contradiction
   intro hS

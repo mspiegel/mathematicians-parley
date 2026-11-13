@@ -20,6 +20,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
 public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
@@ -90,8 +91,8 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s13 : Real.sqrt (3 : ℝ) * 3 ^ m ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt (3 : ℝ)) (y := (3 ^ m : ℝ)) s11a (show 0 ≤ (3 ^ m : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr r65_1; simp only [Rat.cast_zpow, Rat.cast_zero, Rat.cast_ofNat] at h; exact h))
   -- 14. calculation
   have s14 : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by
-    calc Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := by exact s12b
-      _ = 3 ^ m * 3 ^ m * 3 := by parley_side
+    calc Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := s12b
+      _ = 3 ^ m * 3 ^ m * 3 := (show 3 ^ k.toNat = 3 ^ m * 3 ^ m * 3 by have h := (Rat.cast_inj (α := ℝ)).mpr s10; simp only [Rat.cast_mul, Rat.cast_pow, Rat.cast_zpow, Rat.cast_ofNat] at h; exact h)
       _ = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by linear_combination (norm := parley_norm) (-((3 ^ m) ^ 2)) * s11b
   -- 15. thm:sqrt3-irrational
   have s15 : Irrational (Real.sqrt (3 : ℝ)) := by exact Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational.sqrt3_irrational

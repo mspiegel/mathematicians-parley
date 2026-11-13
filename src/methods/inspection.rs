@@ -119,6 +119,52 @@ impl Facts {
         }
     }
 
+    /// The case of the method that decides `claim`, where the facts show it
+    /// holds (`Case`); None where they do not.
+    pub fn case(&self, claim: &Term) -> Option<Case> {
+        if !matches!(self.decide(claim), Inspected::Holds) {
+            return None;
+        }
+        if let Some(member) = self.membership_of(claim) {
+            let fact = self.said.iter().position(|f| {
+                matches!((f.label(), f.children()), (Some("wcel"), [e, s])
+                    if same(e, &member.term) && same(s, &member.is))
+            })?;
+            // The set as the facts list it, through a cited equation naming
+            // it, `S = {3, …, 5}`.
+            let set = self
+                .listed
+                .iter()
+                .find(|l| same(&l.term, &member.is))
+                .map_or(&member.is, |l| &l.is);
+            return Some(Case::OneOf {
+                fact,
+                range: set.label() == Some("co"),
+            });
+        }
+        if self.said.iter().any(|s| same(s, claim)) {
+            return Some(Case::Other);
+        }
+        let (negated, inner) = match (claim.label(), claim.children()) {
+            (Some("wn"), [inner]) => (true, inner),
+            _ => (false, claim),
+        };
+        // The size of a set written by listing, not of one taken from it.
+        let size = |t: &Term| {
+            matches!((t.label(), t.children()), (Some("cfv"), [set, s])
+                if s.label() == Some("chash") && listing(set))
+        };
+        Some(match (inner.label(), inner.children()) {
+            (Some("wcel"), [_, set]) if set.label() == Some("cprime") => Case::Prime,
+            (Some("wcel"), [_, set]) if negated && set.label() == Some("c0") => {
+                Case::Empty
+            }
+            (Some("wcel"), _) => Case::Member,
+            (Some("wceq"), [a, b]) if !negated && (size(a) || size(b)) => Case::Size,
+            _ => Case::Other,
+        })
+    }
+
     /// The cited `t ∈ S` a line of equations joined by "or", or one equation
     /// alone, is read against: the first whose t is one side of every
     /// equation and whose S the facts list. None where the claim is no such
@@ -434,6 +480,27 @@ const PRIMES_SETTLED: u32 = 841;
 /// something read at a glance; the build's proof also grows with each
 /// element, a step of `fzsuc` and its numerals apiece.
 pub const RANGE_LISTED: u32 = 64;
+
+/// Which case of the method decides a claim that holds (`Facts::case`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Case {
+    /// A line of "or"s saying what a term is, one equation for each element
+    /// of the set listed in full a cited membership puts it in: the cited
+    /// sentence by its place among those the facts were read from; a range
+    /// of integers where `range`.
+    OneOf { fact: usize, range: bool },
+    /// Whether a number is prime.
+    Prime,
+    /// That nothing is in ∅.
+    Empty,
+    /// A membership of a set listed in full, or its denial.
+    Member,
+    /// The size of a set listed in full.
+    Size,
+    /// Any other: a cited sentence, an equation of sets or of numbers, a
+    /// property worked out at the values the facts give.
+    Other,
+}
 
 /// What inspection finds of a claim.
 pub enum Inspected {

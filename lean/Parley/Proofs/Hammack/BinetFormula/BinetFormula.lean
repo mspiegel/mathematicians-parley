@@ -41,9 +41,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
   -- 1. real arithmetic
   have s1 : Real.sqrt (5 : ℝ) ≠ 0 := by parley_real
   set φ : ℝ := (1 + Real.sqrt (5 : ℝ)) / 2 with hD2
-  have hD2_kind : True := by parley_side
   set ψ : ℝ := (1 - Real.sqrt (5 : ℝ)) / 2 with hD3
-  have hD3_kind : True := by parley_side
   -- 2. calculation
   have s2 : φ ^ 2 = φ + 1 := by
     calc φ ^ 2 = ((1 + Real.sqrt (5 : ℝ)) / 2) ^ 2 := by simp (disch := omega) only [hD2]
@@ -66,11 +64,11 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have s4_2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
       -- 4.3. calculation
       have s4_3 : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by
-        calc (F 0 : ℝ) = 0 := by parley_side
+        calc (F 0 : ℝ) = 0 := by exact_mod_cast s4_1
           _ = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by parley_ring
       -- 4.4. calculation
       have s4_4 : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by
-        calc (G 0 : ℝ) = 1 := by parley_side
+        calc (G 0 : ℝ) = 1 := by exact_mod_cast s4_2
           _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_real
           _ = (φ ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD2]
           _ = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD3]
@@ -94,7 +92,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.11. calculation
       have r101_1 : Real.sqrt (5 : ℝ) ≠ 0 := by exact s1
       have s4_11 : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by
-        calc (G (j + 1) : ℝ) = (F j : ℝ) + (G j : ℝ) := by parley_side
+        calc (G (j + 1) : ℝ) = (F j : ℝ) + (G j : ℝ) := by exact_mod_cast s4_7
           _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (G j : ℝ) := by (have h := congrArg (fun t : ℝ => t + (G j : ℝ)) hIH.1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by (have h := congrArg (fun t : ℝ => (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + t) hIH.2; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by linear_combination (norm := parley_field) ((-1) / ((Real.sqrt (5 : ℝ)))) * s4_9 + ((1) / ((Real.sqrt (5 : ℝ)))) * s4_10
@@ -105,7 +103,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
   -- 5. instantiate j := n in line 4
   have s5 : (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) ∧ (G n : ℝ) = (φ ^ (n + 1).toNat - ψ ^ (n + 1).toNat) / Real.sqrt (5 : ℝ) := by exact (s4 n (le_of_lt hH1))
   -- 6. calculation
-  calc (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by exact s5.1
+  calc (F n : ℝ) = (φ ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := s5.1
     _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ψ ^ n.toNat) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD2]
     _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n.toNat - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n.toNat) / Real.sqrt (5 : ℝ) := by simp (disch := omega) only [hD3]
 

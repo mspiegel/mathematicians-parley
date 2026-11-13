@@ -40,7 +40,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     · skip
       -- 6.1. calculation
       have s6_1 : (Int.gcd a b : ℤ) = b := by
-        calc (Int.gcd a b : ℤ) = (Int.gcd (a % b) b : ℤ) := by exact s1.symm
+        calc (Int.gcd a b : ℤ) = (Int.gcd (a % b) b : ℤ) := s1.symm
           _ = (Int.gcd (0 : ℤ) b : ℤ) := by (have h := congrArg (fun t : ℤ => (Int.gcd t b : ℤ)) hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = (Int.gcd b (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := (0 : ℤ)) (b := b))
           _ = b := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_zero (n := b) (le_of_lt hH2))

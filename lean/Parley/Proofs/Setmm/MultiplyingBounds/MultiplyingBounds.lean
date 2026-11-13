@@ -26,7 +26,7 @@ theorem multiplying_bounds (A : ℝ) (B : ℝ) (C : ℝ) (D : ℝ) (hH5 : 0 ≤ 
   -- 4. transitivity, from H5, H6
   have s4 : B > 0 := by exact lt_of_le_of_lt hH5 hH6
   -- 5. calculation
-  calc A * C ≤ B * C := by exact s3
+  calc A * C ≤ B * C := s3
     _ < B * D := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := C) (y := D) (c := B) s4)).mp hH8
 
 end Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds

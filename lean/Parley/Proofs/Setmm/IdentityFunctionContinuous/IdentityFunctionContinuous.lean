@@ -45,7 +45,7 @@ theorem identity_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
           _ = x - a := by (have h := congrArg (fun t : ℝ => x - t) s1_1_1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 1.1.1.4. calculation
       calc abs (f x - f a) = abs (x - a) := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ < ε := by parley_set_side
+        _ < ε := hA2
     -- 1.1.2. exhibit, from A1, 1.1.1
     exact ⟨ε, ⟨hA1, s1_1_1⟩⟩
   -- 2. def:continuous-on, from H1, 1

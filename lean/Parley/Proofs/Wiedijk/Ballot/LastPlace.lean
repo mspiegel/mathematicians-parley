@@ -45,7 +45,7 @@ theorem last_place (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c : Set 
   -- 6. calculation
   have s6 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by parley_count_after (by
     calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = (c.ncard : ℤ) := by parley_subst s5
-      _ = m := by parley_set_side)
+      _ = m := hH4)
   -- 7. join 4, 6
   have s7a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := s4
   have s7b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := s6

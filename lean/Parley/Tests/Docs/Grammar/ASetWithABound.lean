@@ -18,9 +18,9 @@ namespace Parley.Tests.Docs.Grammar.ASetWithABound
 theorem a_set_with_a_bound (S : Set ℝ) (hH1 : S ⊆ (Set.univ : Set ℝ)) (hH2 : (0 : ℝ) ∈ S) (hH3 : ∀ s ∈ S, s ≤ 1) :
     (∃ c : ℝ, (∀ s ∈ S, s ≤ c) ∧ (∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u)) := by
   -- 1. exhibit, from H2
-  have s1 : ∃ s ∈ S, True := ⟨(0 : ℝ), by parley_set_side, trivial⟩
+  have s1 : ∃ s ∈ S, True := ⟨(0 : ℝ), hH2, trivial⟩
   -- 2. def:upper-bound u := 1, from H3
-  have s2 : ∀ s ∈ S, s ≤ 1 := by parley_set_side
+  have s2 : ∀ s ∈ S, s ≤ 1 := hH3
   -- 3. exhibit, from 2
   have s3 : ∃ u : ℝ, ∀ s ∈ S, s ≤ u := ⟨(1 : ℝ), s2⟩
   -- 4. axi:completeness, from H1, 1, 3

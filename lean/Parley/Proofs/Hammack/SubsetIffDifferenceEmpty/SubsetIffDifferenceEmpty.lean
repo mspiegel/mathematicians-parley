@@ -4,6 +4,7 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -47,7 +48,7 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
       -- 4.2. substitute A ∖ B = ∅ (D2) into line 4.1
       have s4_2 : t ∈ (∅ : Set α) := by parley_subst_at hD2 s4_1
       -- 4.3. inspection
-      have s4_3 : ¬ t ∈ (∅ : Set α) := by parley_set_side
+      have s4_3 : ¬ t ∈ (∅ : Set α) := Set.notMem_empty _
       exact s4_3 s4_2
     -- 5. def:subset, from 4
     exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr s4

@@ -46,7 +46,7 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
     exact hI
   -- 4.4. calculation
   have s4_4 : y = (5 * x + 1) / (x - 2) := by
-    calc y = f x := by parley_set_side
+    calc y = f x := s4_2b
       _ = (5 * x + 1) / (x - 2) := by exact (hH2 x s4_2a)
   -- 4.5. mun:inverse-value g := f, y := x, from 1, 4.2
   have s4_5 : (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) (f x) = x := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (g := f) (y := x) s1 s4_2a)
@@ -55,7 +55,7 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
   -- 4.7. calculation
   have r46_1 : x - 2 ≠ 0 := fun h => s4_3 (by linarith only [h])
   have r46_2 : y - 5 ≠ 0 := fun h => s4_1 (by linarith only [h])
-  calc (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = x := by exact s4_6
+  calc (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = x := s4_6
     _ = (2 * y + 1) / (y - 5) := by linear_combination (norm := parley_field) ((x - 2) / ((y - 5))) * s4_4
 
 end Parley.Proofs.Hammack.MobiusInverse.MobiusInverse

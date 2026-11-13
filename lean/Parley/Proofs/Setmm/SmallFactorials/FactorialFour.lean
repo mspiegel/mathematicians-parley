@@ -34,7 +34,7 @@ theorem factorial_four :
     have row1 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 6 * t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. calculation
-  calc (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by exact s3
+  calc (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := s3
     _ = 24 := by norm_num
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialFour

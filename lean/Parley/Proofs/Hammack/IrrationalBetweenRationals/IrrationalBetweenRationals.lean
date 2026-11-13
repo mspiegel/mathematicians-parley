@@ -53,13 +53,13 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   have s3 : 0 ^ 2 < Real.sqrt (2 : ℝ) ^ 2 := by
     calc (0 ^ 2 : ℝ) = 0 := by norm_num
       _ < 2 := by norm_num
-      _ = Real.sqrt (2 : ℝ) ^ 2 := by exact s1b.symm
+      _ = Real.sqrt (2 : ℝ) ^ 2 := s1b.symm
   -- 4. mun:square-less x := 0, y := √2, from 1, 3
   have r33_1 : (0 : ℤ) ≥ 0 := by parley_arith
   have s4 : 0 < Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (0 : ℝ)) (y := Real.sqrt (2 : ℝ)) (by norm_num) s1a)).mpr s3
   -- 5. calculation
   have s5 : Real.sqrt (2 : ℝ) ^ 2 < 2 ^ 2 := by
-    calc Real.sqrt (2 : ℝ) ^ 2 = 2 := by exact s1b
+    calc Real.sqrt (2 : ℝ) ^ 2 = 2 := s1b
       _ < 2 ^ 2 := by norm_num
   -- 6. mun:square-less x := √2, y := 2, from 1, 5
   have r42_1 : (2 : ℤ) ≥ 0 := by parley_arith
@@ -75,7 +75,6 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 9. inequalities
   have s9 : 0 < s - r := by linarith only [hH3]
   set u : ℝ := (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) with hD1
-  have hD1_kind : True := by parley_side
   -- 10. mun:product-positive x := s − r, y := (1/2)·√2, from 7, 9
   have s10 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (show 0 < (s : ℝ) - (r : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr s9; simp only [Rat.cast_sub, Rat.cast_zero] at h; exact h) s7)
   -- 11. inequalities

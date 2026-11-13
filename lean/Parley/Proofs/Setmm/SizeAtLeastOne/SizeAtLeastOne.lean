@@ -35,7 +35,7 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
       intro s hK
       intro hS2
       -- 1.1.1. exhibit, from S2
-      have s1_1_1 : ∃ a ∈ A, True := ⟨s, by parley_set_side, trivial⟩
+      have s1_1_1 : ∃ a ∈ A, True := ⟨s, hS2, trivial⟩
       -- 1.1.2. restate S
       have s1_1_2 : ¬ (∃ a ∈ A, True) := by exact hS
       exact s1_1_2 s1_1_1

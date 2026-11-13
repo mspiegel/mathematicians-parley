@@ -11,6 +11,10 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
@@ -60,8 +64,8 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 <
     have r64_1 : 3 * n - 1 ≠ 0 := by exact s1_2_5
     have s1_2_10 : (3 * (n : ℝ) - 1) * ((n : ℝ) / 3) < (3 * (n : ℝ) - 1) * a n := by
       calc (3 * (n : ℝ) - 1) * ((n : ℝ) / 3) = (n : ℝ) ^ 2 - (n : ℝ) / 3 := by parley_ring
-        _ < (n : ℝ) ^ 2 := by parley_side
-        _ < 2 * (n : ℝ) ^ 2 + 1 := by parley_side
+        _ < (n : ℝ) ^ 2 := (show (n : ℝ) ^ 2 - (n : ℝ) / 3 < (n : ℝ) ^ 2 by have h := (Rat.cast_lt (K := ℝ)).mpr s1_2_6; simp only [Rat.cast_sub, Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)
+        _ < 2 * (n : ℝ) ^ 2 + 1 := by exact_mod_cast s1_2_9
         _ = (3 * (n : ℝ) - 1) * a n := by linear_combination (norm := parley_field) (-(3 * (n : ℝ)) + 1) * (hH2 n hK2)
     -- 1.2.11. mun:less-scaled x := n/3, y := a(n), c := 3n − 1, from 1.2.4, 1.2.10
     have s1_2_11 : (n : ℝ) / 3 < a n := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a n) (c := 3 * (n : ℝ) - 1) (by exact_mod_cast gt_iff_lt.mp s1_2_4))).mpr s1_2_10

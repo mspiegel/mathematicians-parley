@@ -29,7 +29,7 @@ theorem six_minus_n_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 6 - n)
     -- 1.1. calculation
     have s1_1 : 6 - s = 6 - t := by
       calc 6 - s = f s := by exact (hH2 s).symm
-        _ = f t := by parley_set_side
+        _ = f t := hA1
         _ = 6 - t := by exact (hH2 t)
     -- 1.2. algebra, from 1.1
     linear_combination (norm := parley_norm) (-1) * s1_1

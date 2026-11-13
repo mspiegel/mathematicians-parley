@@ -47,7 +47,7 @@ theorem power_of_two_at_least_four (m : ℤ) (hH1 : 0 < m) :
       -- 1.5. calculation
       calc (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
         _ = 2 ^ (k + 1).toNat + 2 ^ (k + 1).toNat := by parley_ring
-        _ ≥ 4 := by exact s1_4
+        _ ≥ 4 := s1_4
   -- 2. instantiate k := m in line 1
   exact (s1 m hH1)
 

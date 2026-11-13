@@ -39,8 +39,8 @@ theorem divisor_exceeds_root (p : ℤ) (hH1 : 0 < p) (d : ℤ) (hH2 : 0 < d) (hH
   -- 2.2. calculation
   have s2_2 : (d : ℝ) ^ 2 ≤ Real.sqrt (p : ℝ) ^ 2 := by
     calc (d : ℝ) ^ 2 = (d : ℝ) * (d : ℝ) := by parley_ring
-      _ ≤ (p : ℝ) := by parley_side
-      _ = Real.sqrt (p : ℝ) ^ 2 := by exact s1b.symm
+      _ ≤ (p : ℝ) := by exact_mod_cast s2_1
+      _ = Real.sqrt (p : ℝ) ^ 2 := s1b.symm
   -- 2.3. mun:square-le x := d, y := √p, from 1, 2.2
   have r39_1 : d ≥ 0 := by linarith only [hH2]
   have s2_3 : (d : ℝ) ≤ Real.sqrt (p : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (d : ℝ)) (y := Real.sqrt (p : ℝ)) (by exact_mod_cast ge_iff_le.mp r39_1) s1a)).mpr s2_2

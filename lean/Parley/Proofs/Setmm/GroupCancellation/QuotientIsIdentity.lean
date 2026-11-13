@@ -33,7 +33,7 @@ theorem quotient_is_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.uni
     -- 2. substitute a·b⁻¹ = e (D1) into line 1
     have s2 : (1 : G) * b = a := by parley_subst_at hD1 s1
     -- 3. calculation
-    calc a = (1 : G) * b := by exact s2.symm
+    calc a = (1 : G) * b := s2.symm
       _ = b := by exact (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := b) (Set.mem_univ _))
   · skip
     intro hD2

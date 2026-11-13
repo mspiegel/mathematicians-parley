@@ -39,7 +39,7 @@ theorem add_element_bijection {α : Type*} (X : Set α) (a : α) (hH2 : ¬ a ∈
     have s1_6 : (T ∪ ({a} : Set α)) \ ({a} : Set α) = S \ ({a} : Set α) := by parley_subst_at hK3 s1_5
     -- 1.7. calculation
     calc S = S \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3).symm
-      _ = (T ∪ ({a} : Set α)) \ ({a} : Set α) := by exact s1_6.symm
+      _ = (T ∪ ({a} : Set α)) \ ({a} : Set α) := s1_6.symm
       _ = T \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := T) (a := a))
       _ = T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := T) (a := a) s1_4)
   -- 2. mun:image-of-injection Y := 𝒫X, from 1

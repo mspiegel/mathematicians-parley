@@ -49,7 +49,7 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     have s3_3 : A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by (have h := Eq.subst (motive := (fun t : ℝ => A = (r : ℝ) / (s : ℝ) - t)) s2b s3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 3.4. calculation
     have s3_4 : A = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by
-      calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by exact s3_3
+      calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := s3_3
         _ = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by parley_ring
     -- 3.5. exhibit, from 3.4
     have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, mul_pos (s3_1a) (s2a), by (have h := s3_4; push_cast at h ⊢; all_goals exact h)⟩

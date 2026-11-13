@@ -31,9 +31,9 @@ theorem a_square_is_not_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x
   have s2 : f 1 = 1 ^ 2 := by simp (disch := omega) only [hD1]
   -- 3. calculation
   have s3 : f (-1) = f 1 := by
-    calc f (-1) = (-1) ^ 2 := by exact s1
+    calc f (-1) = (-1) ^ 2 := s1
       _ = 1 ^ 2 := by norm_num
-      _ = f 1 := by exact s2.symm
+      _ = f 1 := s2.symm
   -- 4. contradiction
   intro hS
   -- 4.1. def:one-to-one, from S

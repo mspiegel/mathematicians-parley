@@ -25,7 +25,6 @@ namespace Parley.Proofs.Setmm.IntegerUnderTwiceHalfFloor.IntegerUnderTwiceHalfFl
 theorem integer_under_twice_half_floor (N : ℤ) :
     N ≤ 2 * ⌊((N : ℝ) + 1) / 2⌋ := by
   set k : ℤ := ⌊((N : ℝ) + 1) / 2⌋ with hD1
-  have hD1_kind : True := by trivial
   -- 1. mun:floor-above x := (N + 1)/2, from D1
   have s1 : ((N : ℝ) + 1) / 2 < (k : ℝ) + 1 := by
     try simp only [hD1] at ⊢

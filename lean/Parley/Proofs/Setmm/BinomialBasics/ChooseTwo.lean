@@ -75,7 +75,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
         exact row1
       -- 2.3.9. calculation
       have s2_3_9 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 2 := by
-        calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by exact s2_3_8
+        calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := s2_3_8
           _ = 2 := by norm_num
       -- 2.3.10. thm:factorial-by-predecessor, from C1
       have s2_3_10 : (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by exact (Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor.factorial_by_predecessor (N := N) hC1)

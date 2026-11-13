@@ -21,7 +21,7 @@ theorem empty_set_unique {α : Type*} (A : Set α) (hH2 : ¬ (∃ a ∈ A, True)
   have s1 : ∀ x ∈ A, x ∈ (∅ : Set α) := by
     intro x hK
     -- 1.1. exhibit, from K
-    have s1_1 : ∃ a ∈ A, True := ⟨x, by parley_set_side, trivial⟩
+    have s1_1 : ∃ a ∈ A, True := ⟨x, hK, trivial⟩
     -- 1.2. restate H2
     have s1_2 : ¬ (∃ a ∈ A, True) := by exact hH2
     exact absurd s1_1 s1_2

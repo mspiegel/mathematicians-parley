@@ -116,7 +116,7 @@ theorem leibniz :
               have e_w : (abs ((-1) ^ (n + 1).toNat) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3_2_4; push_cast at h; linear_combination (norm := parley_norm) h
               (have h := congrArg (fun u : ℝ => u * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by (have h := congrArg (fun u : ℝ => 1 * u) s3_2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact s3_2_7
+          _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := s3_2_7
       -- 3.2.9. inequalities, from A2, K2
       have s3_2_9 : N ≤ 2 * (n + 1) + 1 := by linarith only [hA2, hK2]
       -- 3.2.10. mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.9

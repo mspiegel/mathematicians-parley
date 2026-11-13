@@ -41,9 +41,7 @@ namespace Parley.Proofs.Wiedijk.AmGm.AmGm
 theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ≥ 0) :
     (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ^ (1 / (n : ℝ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) := by
   set P : ℝ := ∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ) with hD1
-  have hD1_kind : True := by trivial
   set M : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) with hD2
-  have hD2_kind : True := by parley_side
   -- 1. thm:am-gm-power, from D1, D2, H3
   have s1 : P ≤ M ^ n.toNat := by
     try simp only [hD1, hD2] at ⊢
@@ -62,7 +60,6 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
     try push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) (y := (n : ℝ)) s3 (by exact_mod_cast gt_iff_lt.mp hH1))
   set r : ℝ := P ^ (1 / (n : ℝ)) with hD3
-  have hD3_kind : True := by trivial
   -- 5. mun:root-power x := P, from D3
   have s5 : r ^ n.toNat = P := by
     try simp only [hD3] at ⊢
@@ -83,7 +80,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
   -- 7. calculation
   calc (∏ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) ^ (1 / (n : ℝ)) = P ^ (1 / (n : ℝ)) := by simp (disch := omega) only [hD1]
     _ = r := by simp (disch := omega) only [hD3]
-    _ ≤ M := by exact s6
+    _ ≤ M := s6
     _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k : ℝ)) / (n : ℝ) := by simp (disch := omega) only [hD2]
 
 end Parley.Proofs.Wiedijk.AmGm.AmGm

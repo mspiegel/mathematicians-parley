@@ -87,8 +87,8 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 8.5. membership, from 8.2, 8.3
     -- 8.6. calculation
     have s8_6 : f (f x) < f x := by
-      calc f (f x) = x := by exact s8_2
-        _ < f x := by exact s8_1b
+      calc f (f x) = x := s8_2
+        _ < f x := s8_1b
     -- 8.7. inequalities
     have s8_7 : f (f x) ≤ f x := by linarith only [s8_6]
     -- 8.8. inequalities, from 8.4, 8.5, 8.7
@@ -113,9 +113,9 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s10_4 : g t = f t := by simp (disch := omega) only [hD3]
     -- 10.5. calculation
     have s10_5 : f s = f t := by
-      calc f s = g s := by exact s10_3
-        _ = g t := by parley_set_side
-        _ = f t := by exact s10_4
+      calc f s = g s := s10_3
+        _ = g t := hK4
+        _ = f t := s10_4
     -- 10.6. calculation
     calc s = f (f s) := by exact (hH5 s s10_1).symm
       _ = f (f t) := by (have h := congrArg (fun u : ℤ => f u) s10_5; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -143,16 +143,16 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s12_4 : f u < u := Or.elim (Ne.lt_or_gt s12_3) (fun h1 => by linarith only [s12_1b, h1]) (fun h1 => by linarith only [s12_1b, h1])
     -- 12.5. calculation
     have s12_5 : f u < f (f u) := by
-      calc f u < u := by exact s12_4
-        _ = f (f u) := by exact s12_2.symm
+      calc f u < u := s12_4
+        _ = f (f u) := s12_2.symm
     -- 12.6. def:set-builder u := f(u), from D1, H4, 12.1, 12.5
     have s12_6 : f u ∈ L := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => x < f x)) (X := X) (u := f u))).mpr ⟨hH4 s12_1a, s12_5⟩
     -- 12.7. D3, from 12.6
     have s12_7 : g (f u) = f (f u) := by simp (disch := omega) only [hD3]
     -- 12.8. calculation
     have s12_8 : u = g (f u) := by
-      calc u = f (f u) := by exact s12_2.symm
-        _ = g (f u) := by exact s12_7
+      calc u = f (f u) := s12_2.symm
+        _ = g (f u) := s12_7
     -- 12.9. exhibit, from 12.6, 12.8
     exact ⟨f u, s12_6, s12_8⟩
   -- 13. def:onto, from 9, 12
@@ -164,7 +164,6 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have hI : (∏ᶠ z ∈ U, (z : ℤ)) = (∏ᶠ y ∈ L, (g y : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun x : ℤ => x)) (Y := L) (Z := U) (g := g) s5 s14))
     exact hI
   -- 16. mun:int-real m := f(x)
-  have r223_1 : ∀ x ∈ L, True := by intro x h_x; (trivial)
   have s16 : ∀ x ∈ L, True := by intro x h_x; (trivial)
   -- 17. proof
   have s17 : ∀ x ∈ L, x * f x ≡ (1 : ℤ) [ZMOD n] := by
@@ -188,7 +187,6 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have row1 : (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => (∏ᶠ x ∈ L, (x * f x : ℤ)) ≡ t [ZMOD n])) c1 s19; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 21. calculation
-  have r258_1 : ∀ x ∈ L, True := by exact s16
   have s21 : (∏ᶠ x ∈ X, (x : ℤ)) = (∏ᶠ x ∈ L, (x * f x : ℤ)) := by
     calc (∏ᶠ x ∈ X, (x : ℤ)) = (∏ᶠ x ∈ L, (x : ℤ)) * (∏ᶠ x ∈ U, (x : ℤ)) := by
           have hI : (∏ᶠ a ∈ X, (a : ℤ)) = (∏ᶠ a ∈ L, (a : ℤ)) * (∏ᶠ a ∈ U, (a : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2))

@@ -18,7 +18,7 @@ theorem a_value_of_a_line (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x + 1)
   -- 1. D1
   have s1 : f 3 = 2 * 3 + 1 := by simp (disch := omega) only [hD1]
   -- 2. calculation
-  calc f 3 = 2 * 3 + 1 := by exact s1
+  calc f 3 = 2 * 3 + 1 := s1
     _ = 7 := by norm_num
 
 end Parley.Tests.Notations.Functions.AValueOfALine

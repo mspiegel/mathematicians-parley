@@ -34,12 +34,12 @@ theorem a_product_of_a_define_said_once (p : ℤ) (hH1 : 0 < p) :
   -- 1. mun:product-single a := 1, t := e
   have s1 : (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) = e 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ)))
   -- 2. D1
-  have r15_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
+  have r15_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by simp
   have s2 : e 1 = p := by simp (disch := omega) only [hD1]
   -- 3. calculation
   have s3 : p = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
-    calc p = e 1 := by exact s2
-      _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by exact s1.symm
+    calc p = e 1 := s2
+      _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := s1.symm
   -- 4. membership, from D1
   have s4 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; parley_set_side
   -- 5. mun:function-into, from 4

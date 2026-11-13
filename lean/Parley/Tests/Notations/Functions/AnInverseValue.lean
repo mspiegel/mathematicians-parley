@@ -26,7 +26,7 @@ theorem an_inverse_value (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.univ : Set �
   have s2 : f 3 = 2 * 3 + 1 := by exact (hH2 (3 : ℝ))
   -- 3. calculation
   have s3 : f 3 = 7 := by
-    calc f 3 = 2 * 3 + 1 := by exact s2
+    calc f 3 = 2 * 3 + 1 := s2
       _ = 7 := by norm_num
   -- 4. substitute f(3) = 7 (line 3) into line 1
   (have h := Eq.subst (motive := (fun t : ℝ => (LeanBridges.Functions.inverse f (Set.univ : Set ℝ)) t = 3)) s3 s1; push_cast at h ⊢; all_goals exact_mod_cast h)

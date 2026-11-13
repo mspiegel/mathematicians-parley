@@ -44,7 +44,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     have s4_2 : n ^ 2 - 1 = 4 * (2 * j * (2 * j + 1)) := by (have h := Eq.subst (motive := (fun t : ℤ => n ^ 2 - 1 = 4 * (t * (t + 1)))) s4_1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.3. calculation
     have s4_3 : n ^ 2 - 1 = 8 * (j * (2 * j + 1)) := by
-      calc n ^ 2 - 1 = 4 * (2 * j * (2 * j + 1)) := by exact s4_2
+      calc n ^ 2 - 1 = 4 * (2 * j * (2 * j + 1)) := s4_2
         _ = 8 * (j * (2 * j + 1)) := by parley_ring
     -- 4.4. def:divides d := 8, n := n² − 1, from 4.3
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), s4_3⟩
@@ -55,7 +55,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     have s4_6 : n ^ 2 - 1 = 4 * ((2 * j + 1) * (2 * j + 1 + 1)) := by (have h := Eq.subst (motive := (fun t : ℤ => n ^ 2 - 1 = 4 * (t * (t + 1)))) s4_5 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 4.7. calculation
     have s4_7 : n ^ 2 - 1 = 8 * ((2 * j + 1) * (j + 1)) := by
-      calc n ^ 2 - 1 = 4 * ((2 * j + 1) * (2 * j + 1 + 1)) := by exact s4_6
+      calc n ^ 2 - 1 = 4 * ((2 * j + 1) * (2 * j + 1 + 1)) := s4_6
         _ = 8 * ((2 * j + 1) * (j + 1)) := by parley_ring
     -- 4.8. def:divides d := 8, n := n² − 1, from 4.7
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), s4_7⟩

@@ -94,11 +94,8 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     linarith only [s5_7]
   · skip
     set A : ℝ := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ) with hD1
-    have hD1_kind : True := by parley_side
     set B : ℝ := ∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ) with hD2
-    have hD2_kind : True := by parley_side
     set C : ℝ := ∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ) with hD3
-    have hD3_kind : True := by parley_side
     -- 5.9. inequalities, from C3, D1
     have s5_9 : A > 0 := by linarith only [hC3, hD1]
     -- 5.10. instantiate t := −B/A in line 1, from D1, D2, D3
@@ -124,7 +121,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
       exact row1
     -- 5.16. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = B ^ 2 := by simp (disch := omega) only [hD2]
-      _ ≤ A * C := by exact s5_15
+      _ ≤ A * C := s5_15
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * C := by simp (disch := omega) only [hD1]
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by simp (disch := omega) only [hD3]
 

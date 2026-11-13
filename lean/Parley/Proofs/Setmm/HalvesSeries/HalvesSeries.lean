@@ -88,7 +88,7 @@ theorem halves_series :
         have e_w : (2 ^ (m + 1).toNat : ℚ) = 2 ^ m.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
         (have h := congrArg (fun t : ℚ => 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.6. calculation
-      calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ m.toNat + 1 / 2 ^ (m + 1).toNat := by exact s2_3
+      calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ m.toNat + 1 / 2 ^ (m + 1).toNat := s2_3
         _ = 1 - 1 / 2 ^ m.toNat + 1 / (2 ^ m.toNat * 2) := by (have h := congrArg (fun t : ℚ => 1 - 1 / 2 ^ m.toNat + t) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 1 - 1 / (2 ^ m.toNat * 2) := by parley_ring
         _ = 1 - 1 / 2 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℚ => 1 - t) s2_5.symm; push_cast at h ⊢; all_goals exact_mod_cast h)

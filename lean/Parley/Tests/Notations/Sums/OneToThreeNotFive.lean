@@ -30,8 +30,8 @@ theorem one_to_three_not_five :
   intro hS
   -- 2.1. calculation
   have s2_1 : (6 : ℤ) = 5 := by
-    calc (6 : ℤ) = (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) := by exact s1.symm
-      _ = 5 := by parley_side
+    calc (6 : ℤ) = (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) := s1.symm
+      _ = 5 := hS
   exact absurd s2_1 (by norm_num)
 
 end Parley.Tests.Notations.Sums.OneToThreeNotFive

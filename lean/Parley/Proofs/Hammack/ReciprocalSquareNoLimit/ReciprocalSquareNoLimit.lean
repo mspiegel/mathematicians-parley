@@ -101,7 +101,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have s21 : abs (1 + 1 / (N : ℝ) - 1) < p := by
     calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by (have h := congrArg (fun t : ℚ => abs t) s20; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (show 0 ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr (ge_iff_le.mp r103_1); simp only [Rat.cast_div, Rat.cast_zero, Rat.cast_one, Rat.cast_intCast] at h; exact h)
-      _ < p := by exact s19
+      _ < p := s19
   -- 22. join 16, 21
   have s22 : 1 + 1 / (N : ℚ) ≠ 1 ∧ abs (1 + 1 / (N : ℝ) - 1) < p := ⟨s16, s21⟩
   -- 23. instantiate x := 1 + 1/N in line 4, from 17, 22

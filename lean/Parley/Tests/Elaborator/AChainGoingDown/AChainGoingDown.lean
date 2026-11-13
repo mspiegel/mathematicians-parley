@@ -14,8 +14,8 @@ namespace Parley.Tests.Elaborator.AChainGoingDown.AChainGoingDown
 theorem a_chain_going_down (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a ≥ b) (hH5 : b > c) (hH6 : c = 2) :
     a > 2 := by
   -- 1. calculation
-  calc a ≥ b := by exact hH4
-    _ > c := by exact hH5
-    _ = 2 := by exact hH6
+  calc a ≥ b := hH4
+    _ > c := hH5
+    _ = 2 := hH6
 
 end Parley.Tests.Elaborator.AChainGoingDown.AChainGoingDown

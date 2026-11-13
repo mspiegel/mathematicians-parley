@@ -706,6 +706,7 @@ fn theorem_record(
     record.kind_letters = library::kind_letters(&c.known[i]);
     record.members_shown =
         formulas::members_shown(thm, &c.known[i], &c.library.targets);
+    record.inspected = formulas::inspected(thm, &c.known[i], &c.library.targets);
     record.held_by_lines =
         formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
     let ctx = &c.library.ctx;

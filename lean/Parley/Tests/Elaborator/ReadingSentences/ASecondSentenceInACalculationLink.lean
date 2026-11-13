@@ -16,7 +16,7 @@ namespace Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceInACalculation
 theorem a_second_sentence_in_a_calculation_link (a : ℝ) (b : ℝ) (hH3a : a = 1) (hH3b : b = 2) :
     b = 1 + 1 := by
   -- 1. calculation
-  calc b = 2 := by exact hH3b
+  calc b = 2 := hH3b
     _ = 1 + 1 := by norm_num
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceInACalculationLink

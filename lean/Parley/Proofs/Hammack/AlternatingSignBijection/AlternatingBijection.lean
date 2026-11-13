@@ -59,16 +59,16 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       · skip
         -- 1.3.2.1. calculation
         have s1_3_2_1 : (s : ℚ) / 2 = (t : ℚ) / 2 := by
-          calc (s : ℚ) / 2 = (f s : ℚ) := by exact s1_3_1.symm
-            _ = (f t : ℚ) := by parley_set_side
+          calc (s : ℚ) / 2 = (f s : ℚ) := s1_3_1.symm
+            _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (t : ℚ) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := t) hK2 hC3)
         -- 1.3.2.2. algebra, from 1.3.2.1
         qify at *; linear_combination (norm := parley_norm) ((8) / ((4))) * s1_3_2_1
       · skip
         -- 1.3.2.3. calculation
         have s1_3_2_3 : (s : ℚ) / 2 = (1 - (t : ℚ)) / 2 := by
-          calc (s : ℚ) / 2 = (f s : ℚ) := by exact s1_3_1.symm
-            _ = (f t : ℚ) := by parley_set_side
+          calc (s : ℚ) / 2 = (f s : ℚ) := s1_3_1.symm
+            _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (1 - (t : ℚ)) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := t) hK2 hC4)
         -- 1.3.2.4. algebra, from 1.3.2.3
         have s1_3_2_4 : s + t = 1 := by qify at *; linear_combination (norm := parley_norm) ((8) / ((4))) * s1_3_2_3
@@ -85,8 +85,8 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       · skip
         -- 1.3.4.1. calculation
         have s1_3_4_1 : (1 - (s : ℚ)) / 2 = (t : ℚ) / 2 := by
-          calc (1 - (s : ℚ)) / 2 = (f s : ℚ) := by exact s1_3_3.symm
-            _ = (f t : ℚ) := by parley_set_side
+          calc (1 - (s : ℚ)) / 2 = (f s : ℚ) := s1_3_3.symm
+            _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (t : ℚ) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := t) hK2 hC5)
         -- 1.3.4.2. algebra, from 1.3.4.1
         have s1_3_4_2 : s + t = 1 := by qify at *; linear_combination (norm := parley_norm) ((-8) / ((4))) * s1_3_4_1
@@ -98,8 +98,8 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       · skip
         -- 1.3.4.5. calculation
         have s1_3_4_5 : (1 - (s : ℚ)) / 2 = (1 - (t : ℚ)) / 2 := by
-          calc (1 - (s : ℚ)) / 2 = (f s : ℚ) := by exact s1_3_3.symm
-            _ = (f t : ℚ) := by parley_set_side
+          calc (1 - (s : ℚ)) / 2 = (f s : ℚ) := s1_3_3.symm
+            _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (1 - (t : ℚ)) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := t) hK2 hC6)
         -- 1.3.4.6. algebra, from 1.3.4.5
         qify at *; linear_combination (norm := parley_norm) ((-8) / ((4))) * s1_3_4_5

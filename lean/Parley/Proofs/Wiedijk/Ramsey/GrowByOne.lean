@@ -49,7 +49,7 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
     have s4_4 : k + 1 ≤ (W.ncard : ℤ) + 1 := by parley_count_int; (linarith only [s4_1.1])
     -- 4.5. calculation
     have s4_5 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) := by parley_count_after (by
-      calc k + 1 ≤ (W.ncard : ℤ) + 1 := by parley_set_side
+      calc k + 1 ≤ (W.ncard : ℤ) + 1 := s4_4
         _ = ((W ∪ ({v} : Set α)).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2).symm)
     -- 4.6. proof
     have s4_6 : ∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E := by
@@ -76,7 +76,7 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 4.8. mun:union-subset, from 3, 4.7
     have s4_8 : W ∪ ({v} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := W) (Y := ({v} : Set α)) (Z := X) s3 s4_7)
     -- 4.9. D1, from 4.5, 4.6
-    have s4_9 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E) := by parley_set_side
+    have s4_9 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E) := ⟨s4_5, s4_6⟩
     -- 4.10. mun:or-left, from 4.9
     have s4_10 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F)) s4_9)
     -- 4.11. exhibit, from 4.8, 4.10

@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.AnIntervalMemberIsCited.AMemberOfAnIntervalIsA
 theorem a_member_of_an_interval_is_a_number (a : ℝ) (b : ℝ) :
     (∀ x ∈ (Set.Icc a b : Set ℝ), True) := by
   -- 1. membership
-  intro x h_x; parley_set_side
+  intro x h_x; exact by trivial
 
 end Parley.Tests.Elaborator.AnIntervalMemberIsCited.AMemberOfAnIntervalIsANumber

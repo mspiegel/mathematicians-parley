@@ -41,7 +41,7 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
     -- 6. calculation
     have s6 : B = B ∪ A := by
       calc B = B ∪ ∅ := by exact (Parley.Items.Stdlib.Sets.mun_union_empty (Y := B)).symm
-        _ = B ∪ A := by exact s5
+        _ = B ∪ A := s5
     -- 7. thm:subset-of-union-right
     have s7 : A ⊆ B ∪ A := by exact (Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight.subset_of_union_right (A := A) (B := B))
     -- 8. substitute B = B ∪ A (line 6) into line 7

@@ -9,6 +9,7 @@ public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Insert
@@ -83,7 +84,7 @@ theorem two_elements {α : Type*} (V : Set α) :
             have row1 : t ∈ (∅ : Set α) := by parley_subst_at c1 s7_2_5_3
             exact row1)
           -- 7.2.5.5. inspection
-          have s7_2_5_5 : ¬ t ∈ (∅ : Set α) := by parley_set_side
+          have s7_2_5_5 : ¬ t ∈ (∅ : Set α) := Set.notMem_empty _
           exact absurd s7_2_5_4 s7_2_5_5
     -- 8. def:subset X := V, Y := {a, b}, from 7
     have s8 : V ⊆ ({a, b} : Set α) := ((Parley.Items.Stdlib.Sets.def_subset (X := V) (Y := ({a, b} : Set α)))).mpr s7

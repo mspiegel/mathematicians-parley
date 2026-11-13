@@ -17,7 +17,7 @@ namespace Parley.Tests.Docs.Tri.TriOne
 theorem tri_one :
     (1 * (1 + 1) / 2 : ℚ) = 1 := by
   -- 1. calculation
-  calc (1 * (1 + 1) / 2 : ℚ) = 1 * (1 + 1) / 2 := by parley_side
+  calc (1 * (1 + 1) / 2 : ℚ) = 1 * (1 + 1) / 2 := rfl
     _ = 1 := by norm_num
 
 end Parley.Tests.Docs.Tri.TriOne

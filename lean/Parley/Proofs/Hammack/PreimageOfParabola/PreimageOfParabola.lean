@@ -45,12 +45,12 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
     have s1_3 : f u = u ^ 2 + 3 := by exact (hH2 u)
     -- 1.4. calculation
     have s1_4 : 12 ≤ u ^ 2 + 3 := by
-      calc (12 : ℝ) ≤ f u := by exact s1_2a
-        _ = u ^ 2 + 3 := by exact s1_3
+      calc (12 : ℝ) ≤ f u := s1_2a
+        _ = u ^ 2 + 3 := s1_3
     -- 1.5. calculation
     have s1_5 : u ^ 2 + 3 ≤ 19 := by
-      calc u ^ 2 + 3 = f u := by exact s1_3.symm
-        _ ≤ 19 := by exact s1_2b
+      calc u ^ 2 + 3 = f u := s1_3.symm
+        _ ≤ 19 := s1_2b
     -- 1.6. mun:nonneg-or-neg x := u, from 1.1
     have s1_6 : u ≥ 0 ∨ u < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := u))
     -- 1.7. cases, from 1.6
@@ -70,12 +70,12 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s1_7_5 : (-u) ^ 2 + 3 = u ^ 2 + 3 := by parley_ring
       -- 1.7.6. calculation
       have s1_7_6 : 12 ≤ (-u) ^ 2 + 3 := by
-        calc (12 : ℝ) ≤ u ^ 2 + 3 := by exact s1_4
-          _ = (-u) ^ 2 + 3 := by exact s1_7_5.symm
+        calc (12 : ℝ) ≤ u ^ 2 + 3 := s1_4
+          _ = (-u) ^ 2 + 3 := s1_7_5.symm
       -- 1.7.7. calculation
       have s1_7_7 : (-u) ^ 2 + 3 ≤ 19 := by
-        calc (-u) ^ 2 + 3 = u ^ 2 + 3 := by exact s1_7_5
-          _ ≤ 19 := by exact s1_5
+        calc (-u) ^ 2 + 3 = u ^ 2 + 3 := s1_7_5
+          _ ≤ 19 := s1_5
       -- 1.7.8. thm:square-window-out t := −u, from 1.1, 1.7.4, 1.7.6, 1.7.7
       have s1_7_8a : 3 ≤ -u := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) s1_7_4 s1_7_6 s1_7_7).1
       have s1_7_8b : -u ≤ 4 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := -u) s1_7_4 s1_7_6 s1_7_7).2
@@ -113,14 +113,14 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s3_2_6 : f u = u ^ 2 + 3 := by exact (hH2 u)
       -- 3.2.7. calculation
       have s3_2_7 : 12 ≤ f u := by
-        calc (12 : ℝ) ≤ (-u) ^ 2 + 3 := by exact s3_2_4a
-          _ = u ^ 2 + 3 := by exact s3_2_5
-          _ = f u := by exact s3_2_6.symm
+        calc (12 : ℝ) ≤ (-u) ^ 2 + 3 := s3_2_4a
+          _ = u ^ 2 + 3 := s3_2_5
+          _ = f u := s3_2_6.symm
       -- 3.2.8. calculation
       have s3_2_8 : f u ≤ 19 := by
-        calc f u = u ^ 2 + 3 := by exact s3_2_6
-          _ = (-u) ^ 2 + 3 := by exact s3_2_5.symm
-          _ ≤ 19 := by exact s3_2_4b
+        calc f u = u ^ 2 + 3 := s3_2_6
+          _ = (-u) ^ 2 + 3 := s3_2_5.symm
+          _ ≤ 19 := s3_2_4b
       -- 3.2.9. membership, from 3.2.1, 3.2.6
       -- 3.2.10. def:interval a := 12, b := 19, x := f(u), from 3.2.7, 3.2.8, 3.2.9
       have s3_2_10 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mpr ⟨⟨by trivial, s3_2_7⟩, s3_2_8⟩
@@ -137,12 +137,12 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s3_2_14 : f u = u ^ 2 + 3 := by exact (hH2 u)
       -- 3.2.15. calculation
       have s3_2_15 : 12 ≤ f u := by
-        calc (12 : ℝ) ≤ u ^ 2 + 3 := by exact s3_2_13a
-          _ = f u := by exact s3_2_14.symm
+        calc (12 : ℝ) ≤ u ^ 2 + 3 := s3_2_13a
+          _ = f u := s3_2_14.symm
       -- 3.2.16. calculation
       have s3_2_16 : f u ≤ 19 := by
-        calc f u = u ^ 2 + 3 := by exact s3_2_14
-          _ ≤ 19 := by exact s3_2_13b
+        calc f u = u ^ 2 + 3 := s3_2_14
+          _ ≤ 19 := s3_2_13b
       -- 3.2.17. membership, from 3.2.12, 3.2.14
       -- 3.2.18. def:interval a := 12, b := 19, x := f(u), from 3.2.15, 3.2.16, 3.2.17
       have s3_2_18 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mpr ⟨⟨by trivial, s3_2_15⟩, s3_2_16⟩

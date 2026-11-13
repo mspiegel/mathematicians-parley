@@ -34,7 +34,7 @@ theorem gcd_add_multiple (K : ℤ) (M : ℤ) (hH2 : 0 < M) (N : ℤ) :
   -- 5. calculation
   calc (Int.gcd M N : ℤ) = (Int.gcd N M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := M)).symm
     _ = (Int.gcd (N % M) M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) hH2).symm
-    _ = (Int.gcd (N + K * M) M : ℤ) := by exact s4
+    _ = (Int.gcd (N + K * M) M : ℤ) := s4
     _ = (Int.gcd M (N + K * M) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N + K * M) (b := M))
 
 end Parley.Proofs.Setmm.GcdAddMultiple.GcdAddMultiple

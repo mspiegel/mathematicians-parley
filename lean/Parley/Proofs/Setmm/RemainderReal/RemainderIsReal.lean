@@ -31,7 +31,6 @@ theorem remainder_is_real (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 1. inequalities
   have s1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   set q : ℤ := ⌊A / B⌋ with hD1
-  have hD1_kind : True := by trivial
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
     try simp only [hD1] at ⊢

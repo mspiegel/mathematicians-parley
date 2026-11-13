@@ -972,11 +972,21 @@ pub fn restatements(
     library: &Library,
     known: &Known,
 ) -> IndexMap<usize, FirstAt> {
+    // Each fact read in the standard order, as the lines it is sought
+    // among are (`states`): `k ≥ 1` as `1 ≤ k`.
+    let ctx = &library.ctx;
     let mut out = IndexMap::new();
     for step in &thm.steps {
         if step.just.head.is(Method::Restate) && step.claim.sentences().len() == 1 {
             let at = known.whole_as_written(&step.claim).and_then(|claim| {
-                fact_at(step, &step.just.refs, None, &claim, known, library)
+                fact_at(
+                    step,
+                    &step.just.refs,
+                    None,
+                    &standard(&claim, ctx),
+                    known,
+                    library,
+                )
             });
             if let Some(at) = at {
                 out.insert(step.just.line, at);
@@ -984,7 +994,14 @@ pub fn restatements(
         }
         for req in step.requires.iter().filter(|r| r.is_lines()) {
             let at = known.whole_as_written(&req.fact).and_then(|fact| {
-                fact_at(step, req.lines(), None, &fact, known, library)
+                fact_at(
+                    step,
+                    req.lines(),
+                    None,
+                    &standard(&fact, ctx),
+                    known,
+                    library,
+                )
             });
             if let Some(at) = at {
                 out.insert(req.line, at);

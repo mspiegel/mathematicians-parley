@@ -47,9 +47,9 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
     -- 6. calculation
     have r66_1 : 2 ≤ n + 1 + j + 1 := by linarith only [hH1, hK]
     have r66_2 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) ≥ 0 := by linarith only [s3]
-    calc (LeanBridges.Counting.factorial (n + 1) : ℤ) + (j + 1) ≤ 2 * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact s5
+    calc (LeanBridges.Counting.factorial (n + 1) : ℤ) + (j + 1) ≤ 2 * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := s5
       _ ≤ (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := (2 : ℤ)) (y := n + 1 + j + 1) (c := (LeanBridges.Counting.factorial (n + 1 + j) : ℤ)) r66_1 r66_2)
-      _ = (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) := by exact s4.symm
+      _ = (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) := s4.symm
       _ = (LeanBridges.Counting.factorial (n + 1 + j + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n + 1 + j) (add_nonneg (add_nonneg (le_of_lt hH1) (by norm_num)) (hK))).symm
       _ = (LeanBridges.Counting.factorial (n + 1 + (j + 1)) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
 

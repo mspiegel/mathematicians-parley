@@ -66,7 +66,7 @@ theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     have s2_10 : (T ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) = S \ ({m + n} : Set ℤ) := by parley_subst_at hK3 s2_9
     -- 2.11. calculation
     calc S = S \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := m + n) s2_7).symm
-      _ = (T ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) := by exact s2_10.symm
+      _ = (T ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) := s2_10.symm
       _ = T \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := T) (a := m + n))
       _ = T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := T) (a := m + n) s2_8)
   -- 3. mun:nat-minus-one n := m

@@ -55,7 +55,7 @@ theorem triangular_reciprocals :
   have s1 : ∀ k : ℤ, 0 < k → 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) = 2 / (k : ℚ) - 2 / ((k : ℚ) + 1) := by
     intro k hK1
     -- 1.1. calculation
-    calc 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) = 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) := by parley_side
+    calc 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) = 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) := rfl
       _ = 2 / (k : ℚ) - 2 / ((k : ℚ) + 1) := by parley_ring
   -- 2. proof
   -- what this block shows, Lean's types give

@@ -5854,6 +5854,74 @@ pub fn members_shown(
     out
 }
 
+/// The claims `inspection` decides hold, a step's and each requires line's
+/// whose reason is the method, each by the line its reason is on, with the
+/// case that decided it (`CheckedTheorem::inspected`).
+pub fn inspected(
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) -> IndexMap<usize, super::record::Inspection> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Inspection) {
+            if let Some(how) =
+                inspection_case(&ClosureClaim::step(step), known, targets)
+            {
+                out.insert(step.just.line, how);
+            }
+        }
+        for req in step.requires.iter().filter(|r| r.is(Method::Inspection)) {
+            let (at, Ok(by)) = (ClosureClaim::requires(step, req), &req.by) else {
+                continue;
+            };
+            if let Some(how) = inspection_case(&at, known, targets) {
+                out.insert(by.line, how);
+            }
+        }
+    }
+    out
+}
+
+/// The case of `inspection` that decides one claim from the lines it
+/// cites, as `inspection_holds` reads them; None where it does not hold.
+fn inspection_case(
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> Option<super::record::Inspection> {
+    use super::record::Inspection;
+    use crate::methods::inspection::{Case, Facts};
+    let claim = known.whole(at.step, at.claim)?;
+    let scope = known.scope(at.step);
+    let defined = known.citing_step(at.step);
+    // Each cited sentence beside the reference it is read from.
+    let mut cited: Vec<Term> = Vec::new();
+    let mut from: Vec<&String> = Vec::new();
+    for r in at.refs {
+        let Some(stated) = scope.get(r) else {
+            continue;
+        };
+        for n in known.supplied(stated, &defined) {
+            cited.push(term_of_node(&n, targets));
+            from.push(r);
+        }
+    }
+    Some(
+        match Facts::of(&cited).case(&term_of_node(&claim, targets))? {
+            Case::OneOf { fact, range } => Inspection::OneOf {
+                from: from.get(fact)?.to_string(),
+                range,
+            },
+            Case::Prime => Inspection::Prime,
+            Case::Empty => Inspection::Empty,
+            Case::Member => Inspection::Member,
+            Case::Size => Inspection::Size,
+            Case::Other => Inspection::Other,
+        },
+    )
+}
+
 /// The parts each reason's lines put in a number system, by the line the
 /// reason is on (`CheckedTheorem::held_by_lines`): of a step's claim and the
 /// lines it names, and of each requires line and the lines its own reason

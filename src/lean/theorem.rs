@@ -2309,6 +2309,65 @@ impl PutBack {
     }
 }
 
+/// Mathlib's lemmas `names`, each a rule used forwards.
+fn lemma_rules(names: &[&str]) -> Vec<super::doc::Rule> {
+    names
+        .iter()
+        .map(|n| super::tactics::forwards(super::tactics::lemma(n)))
+        .collect()
+}
+
+/// `tactic`, `simp` or `norm_num`, with `rules` where there are any.
+fn simp_call(tactic: &'static str, rules: Vec<super::doc::Rule>) -> super::doc::Proof {
+    let args = match rules.is_empty() {
+        true => vec![],
+        false => vec![TacticArg::Rules(rules)],
+    };
+    super::doc::Proof::By(super::tactics::call(tactic, args))
+}
+
+/// A calculation's row as Lean states it: `a ≡ b [ZMOD n]` of a congruence
+/// with its modulus `n`, else `a R b` by the relation. None of a relation
+/// Lean has no operator for.
+fn calc_row(
+    relation: &str,
+    modulus: Option<&Printed>,
+    from: &Printed,
+    to: &Printed,
+) -> Option<Printed> {
+    use super::doc::{LeanType, TermKind};
+    match modulus {
+        Some(n) => Some(Printed::of(
+            TermKind::ModEq {
+                a: Box::new(from.clone()),
+                b: Box::new(to.clone()),
+                n: Box::new(n.clone()),
+            },
+            LeanType::Prop,
+        )),
+        None => Some(Printed::infix(
+            super::doc::Op::of(relation)?,
+            from.clone(),
+            to.clone(),
+            LeanType::Prop,
+        )),
+    }
+}
+
+/// What `statement` says under its leading "for all"s, `P` of `∀ x ∈ S, ∀
+/// y, P`; the statement itself where it opens with none.
+fn under_for_alls(statement: &Printed) -> &Printed {
+    let bare = bare_term(statement);
+    match &bare.kind {
+        super::doc::TermKind::Quantified {
+            quant: super::doc::Quant::ForAll,
+            body,
+            ..
+        } => under_for_alls(body),
+        _ => bare,
+    }
+}
+
 /// `t` with each natural number cast back to the integer it was taken
 /// from, `((u).toNat : ℤ)`, written as that integer `u`, each such `u`
 /// pushed to `found`.
@@ -4322,7 +4381,9 @@ impl<'a> Proof<'a> {
                 Route::Built(f) => f,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            if fact.is_truth() {
+            // A fact Lean's types give, said under the claim's "for all"s
+            // or not, `∀ x ∈ Set.Icc a b, True` of f(x) ∈ ℝ.
+            if under_for_alls(&fact).is_truth() {
                 continue;
             }
             let Ok(just) = &r.by else {
@@ -5454,25 +5515,31 @@ impl<'a> Proof<'a> {
     }
 
     /// `0 ≤ t` of a term the said-once walk puts in ℕ₀ at the step being
-    /// written, by the walk's reason (`citing::reason_within`, over the
-    /// checker's letters, each part held as the check found it), as
-    /// `name_wholes` reads it: `abs_nonneg` of |A| of an A in ℤ. None
-    /// outside a step, or where the walk gives no reason or no proof.
+    /// written (`said_bound`): `abs_nonneg` of |A| of an A in ℤ.
     fn said_nonneg(&self, term: &Node) -> Option<Printed> {
+        self.said_bound(term, crate::rules::System::N0)
+    }
+
+    /// The bound a membership of ℕ₀ or ℕ is in Lean, `0 ≤ t` or `0 < t`, of
+    /// a term the said-once walk puts there at the step being written, by
+    /// the walk's reason (`citing::reason_within`, over the checker's
+    /// letters, each part held as the check found it), as `name_wholes`
+    /// reads it: `nonneg_by`, `positive_by`. None outside a step, of
+    /// another system, or where the walk gives no reason or no proof.
+    fn said_bound(&self, term: &Node, system: crate::rules::System) -> Option<Printed> {
+        use crate::rules::System;
         let i = self.step_now.get()?;
         let letters = self.rec.introduced.get(i)?;
         let facts = self.step_facts(i);
-        let said =
-            |t: &Node, s: crate::rules::System| self.held_reason(t, s, letters, &facts);
+        let said = |t: &Node, s: System| self.held_reason(t, s, letters, &facts);
         let nonzero = |d: &Node| crate::citing::nonzero_said_once(d, letters);
-        let reason = crate::citing::reason_within(
-            term,
-            crate::rules::System::N0,
-            letters,
-            &nonzero,
-            &said,
-        )?;
-        self.nonneg_by(term, &reason, &self.wholes_in_scope())
+        let reason =
+            crate::citing::reason_within(term, system, letters, &nonzero, &said)?;
+        match system {
+            System::N0 => self.nonneg_by(term, &reason, &self.wholes_in_scope()),
+            System::N => self.positive_by(term, &reason),
+            _ => None,
+        }
     }
 
     /// The proof of sentence `k` of a claim, by its reason.
@@ -6063,6 +6130,27 @@ impl<'a> Proof<'a> {
                                 )));
                             }
                         }
+                        // A define Lean writes out in place, a function's
+                        // value at its argument, leaves the two sides alike:
+                        // `rfl`.
+                        if let Route::Built(claim) = self.writer.formula(node) {
+                            if let super::doc::TermKind::Infix { op, lhs, rhs } =
+                                &bare_term(&claim).kind
+                            {
+                                if op.symbol == "="
+                                    && bare_term(lhs).untyped()
+                                        == bare_term(rhs).untyped()
+                                {
+                                    return Route::Built(Proof::Term(
+                                        Printed::constant(
+                                            "rfl",
+                                            super::doc::Source::Core,
+                                            super::doc::LeanType::Prop,
+                                        ),
+                                    ));
+                                }
+                            }
+                        }
                         let mut ways = match unfold.is_empty() {
                             true => Vec::new(),
                             false => unfolded(&unfold),
@@ -6387,7 +6475,11 @@ impl<'a> Proof<'a> {
                     Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
                 }
             },
-            Method::Inspection | Method::Restate => {
+            Method::Inspection => match self.inspection_proof(just) {
+                Some(proof) => proof,
+                None => Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![])),
+            },
+            Method::Restate => {
                 Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
             }
             other => {
@@ -6396,6 +6488,88 @@ impl<'a> Proof<'a> {
                     other.as_str()
                 ))
             }
+        })
+    }
+
+    /// An `inspection` claim, by the case the checker found decides it
+    /// (`CheckedTheorem::inspected`):
+    /// - an "or" of what a term is, read against a cited range, `r ∈ {0, …,
+    ///   2}`: the range's bounds, `simp only [Finset.mem_Icc] at h; omega`;
+    ///   against a set listed in full: its members' equations, `simp only
+    ///   [Set.mem_insert_iff, Set.mem_singleton_iff] at h; tauto`;
+    /// - nothing in ∅: `Set.notMem_empty _`;
+    /// - a membership of a set listed in full, or its denial, and the size
+    ///   of one: `simp`, with the cited equations that give a set or a
+    ///   value, and the size lemmas;
+    /// - whether a number is prime: `norm_num`, with those equations.
+    ///
+    /// None for any other case, or where the record has none.
+    fn inspection_proof(&self, just: &Justification) -> Option<super::doc::Proof> {
+        use super::doc::Proof;
+        use super::tactics as t;
+        use crate::checker::record::Inspection;
+        // The cited lines that are equations, which give a set or a value.
+        let equations: Vec<super::doc::Rule> = self
+            .cited_parts(&just.refs)
+            .into_iter()
+            .filter(|c| c.node.notation() == crate::notations::EQUALITY)
+            .map(|c| t::forwards(c.proof))
+            .collect();
+        Some(match self.rec.inspected.get(&just.line)? {
+            Inspection::OneOf { from, range } => {
+                let member =
+                    self.cited_parts(std::slice::from_ref(from))
+                        .into_iter()
+                        .find(|c| c.node.notation() == crate::notations::MEMBERSHIP)?;
+                // The set read through the cited equations that name it, then
+                // a range by its bounds, worked out and taken to ℤ where
+                // they are written in a wider type; a listed set by its
+                // members' equations.
+                let steps = match range {
+                    true => {
+                        let mut rules = equations;
+                        rules.extend(lemma_rules(&["Finset.mem_Icc", "Set.mem_Icc"]));
+                        vec![
+                            t::call(
+                                "norm_num",
+                                vec![TacticArg::Rules(rules), t::at_h(false)],
+                            ),
+                            t::call("norm_cast", vec![t::at_h(false)]),
+                            t::call("omega", vec![]),
+                        ]
+                    }
+                    false => {
+                        let mut rules = equations;
+                        rules.extend(lemma_rules(&[
+                            "Set.mem_insert_iff",
+                            "Set.mem_singleton_iff",
+                        ]));
+                        vec![
+                            t::simp_only(false, None, rules, Some(t::at_h(false))),
+                            t::call("tauto", vec![]),
+                        ]
+                    }
+                };
+                Proof::By(t::on_h(&member.proof, steps))
+            }
+            Inspection::Empty => Proof::Term(Printed::applied(
+                "Set.notMem_empty",
+                super::doc::Source::Mathlib,
+                vec![Printed::of(
+                    super::doc::TermKind::Elided,
+                    super::doc::LeanType::Prop,
+                )],
+                super::doc::LeanType::Prop,
+            )),
+            Inspection::Member => simp_call("simp", equations),
+            Inspection::Size => {
+                let mut rules =
+                    lemma_rules(&["Set.ncard_insert_of_notMem", "Set.ncard_singleton"]);
+                rules.extend(equations);
+                simp_call("simp", rules)
+            }
+            Inspection::Prime => simp_call("norm_num", equations),
+            Inspection::Other => return None,
         })
     }
 
@@ -6675,12 +6849,16 @@ impl<'a> Proof<'a> {
         self.name_value(d, &def.name, LetterType::Number(ty), value, body, depth);
         // A define of a kind whose value is already of the type, `let n =
         // a·b, an integer`: the kind's fact is still a line, proved by the
-        // define's reason.
+        // define's reason; none where Lean's types give it, `True` of `let
+        // X = A^k − 1, a real number`, as a requires line of that is none.
         if def.kind.is_some() {
             let KindShown { says, proof, .. } = match self.kind_shown(d) {
                 Route::Built(s) => s,
                 Route::Declined(why) => return Route::Declined(why),
             };
+            if says.is_truth() {
+                return Route::Built(());
+            }
             let line = &self.thm.defines[d];
             let label = line_name(&line.label);
             self.push_at(
@@ -6935,6 +7113,19 @@ impl<'a> Proof<'a> {
     /// `obtain` takes from an item, is read as the writer writes its tree.
     fn store(&mut self, label: String, said: Vec<LineSentence>) {
         self.trees.insert(label, said);
+    }
+
+    /// A line's one sentence that the writer states here as a hypothesis,
+    /// a case, an induction's hypothesis, a `let`'s fact or a supposition,
+    /// with what Lean is told it says, written now: later readings read it
+    /// so, though the writer would write the tree otherwise by then, a
+    /// count Lean took in ℕ∞, `V.encard = 2`, before its set was known
+    /// finite.
+    fn stated_here(&self, node: Node, name: String) -> LineSentence {
+        LineSentence {
+            says: self.writer.formula(&node).built(),
+            ..LineSentence::only(node, name)
+        }
     }
 
     /// What a line says in Lean: as it was stated (`store`), or, of a line
@@ -8497,6 +8688,21 @@ impl<'a> Proof<'a> {
         if let Some(p) = self.parts_apart(&proof, &says, wanted) {
             return Route::Built(p);
         }
+        // A line of numerals alone for a statement of numerals alone in
+        // another type or turned, `(0 ^ 2 : ℤ) = 0` for `0 ^ 2 = 0` in ℝ:
+        // the line put in the goal and the whole worked out, which holds
+        // whether the line is true or, in a contradiction, false.
+        if !says.lettered() && !wanted.lettered() && says.untyped() != wanted.untyped()
+        {
+            use super::tactics as t;
+            return Route::Built(t::by_term(super::doc::Proof::By(t::on_h(
+                &proof,
+                vec![
+                    t::call("revert", vec![TacticArg::Term(t::hyp("h"))]),
+                    t::call("norm_num", vec![]),
+                ],
+            ))));
+        }
         // How the line met the hypothesis, where the checker met them
         // otherwise than as written (`Supplied::meeting`): a listed set's
         // members in another order (`reordered`); the sides turned, the
@@ -8580,12 +8786,12 @@ impl<'a> Proof<'a> {
         // through the relation, every cast of what Lean asks moves, and the
         // two are alike but for their casts. `exact_mod_cast` compares the
         // relations as written, so a line saying `>` where Lean asks `<` is
-        // turned first (`gt_iff_lt`). ℚ's order is taken to ℝ's by ℚ's cast
-        // lemmas (`rat_to_real`): `norm_cast` does not take a fact of
-        // numerals across there, `(0 : ℚ) ≤ 3^m` for `(0 : ℝ) ≤ 3^m`, nor
-        // a disequality, nor an equation where the cast table says it
-        // moves no cast, a function's value cast, `(L k : ℝ)`. A fact of
-        // numerals alone never gets here (`lean_truth`).
+        // turned first (`gt_iff_lt`). A fact of ℚ is taken to ℝ by ℚ's cast
+        // lemmas (`rat_to_real`), whatever its relation: `exact_mod_cast`
+        // writes a power of a numeral as a cast of ℕ, `3 ^ k.toNat`, and
+        // then leaves the fact in ℚ and the goal in ℝ, and does not take a
+        // fact of numerals across, `(0 : ℚ) ≤ 3^m` for `(0 : ℝ) ≤ 3^m`. A
+        // fact of numerals alone never gets here (`lean_truth`).
         if forms::relation_types_apart(&says, wanted) {
             use super::{doc::LeanType, templates::Num};
             let by_norm_cast = forms::relation_type(wanted)
@@ -8593,8 +8799,7 @@ impl<'a> Proof<'a> {
                 && super::casts::norm_cast_moves_all(wanted);
             let rational_to_real = forms::relation_type(&says)
                 == Some(LeanType::Num(Num::Rat))
-                && forms::relation_type(wanted) == Some(LeanType::Num(Num::Real))
-                && (relation_symbol(wanted) != Some("=") || !by_norm_cast);
+                && forms::relation_type(wanted) == Some(LeanType::Num(Num::Real));
             let lifts = rational_to_real || by_norm_cast;
             // A cited line the step's proof puts in terms of the numbers
             // lines name before the citation (`proof_of`), 5.5.2's
@@ -9775,10 +9980,15 @@ impl<'a> Proof<'a> {
             let Some(members) = self.writer.set_members(set) else {
                 return Route::no("there is some member of a set with no Lean type");
             };
+            // That the value is in X, from the record's first fact.
+            let membership = crate::formula::page::made_as(
+                self.writer.grammar,
+                "_ ∈ _",
+                vec![value.clone(), set.clone()],
+            );
+            let wanted = membership.and_then(|m| self.writer.formula(&m).built());
+            let in_set = self.fact_shown(wanted.as_ref(), &[], shown.next());
             return self.writer.element_term(value, &members).map(|v| {
-                let in_set = super::tactics::by_term(super::doc::Proof::By(
-                    super::tactics::bridge(BridgeTactic::SetSide, vec![]),
-                ));
                 let nothing = Printed::constant(
                     "trivial",
                     super::doc::Source::Core,
@@ -13364,6 +13574,63 @@ impl<'a> Proof<'a> {
         ])))
     }
 
+    /// A `membership` claim `t ∈ ℕ₀` or `t ∈ ℕ` of a t Lean writes in ℤ,
+    /// which Lean states as its bound, `0 ≤ t` or `0 < t`, as the checker
+    /// found it shown (`members_shown`): beside a cited equation, t = u,
+    /// the equation put in and u's bound, from the line stating u is in
+    /// the system or by the said-once walk, `by rw [s1_6]; exact hIH.2`;
+    /// otherwise t's own bound by the walk (`said_bound`). None where the
+    /// record has none, or no proof is written for the bound.
+    fn member_bound(&self, just: &Justification, node: &Node) -> Option<Printed> {
+        use super::tactics as t;
+        use crate::checker::record::ShownBy;
+        use crate::rules::System;
+        let [term, set] = node.children.as_slice() else {
+            return None;
+        };
+        if set.notation() != crate::notations::NUMBER_SYSTEMS {
+            return None;
+        }
+        let system = System::of_sign(&set.text)
+            .filter(|s| matches!(s, System::N0 | System::N))?;
+        // The record keeps a membership shown beside an equation; any other
+        // is shown by what the page says once (`ShownBy::Said`).
+        let by = self.rec.members_shown.get(&just.line).map(|s| &s.by);
+        match by.unwrap_or(&ShownBy::Said) {
+            ShownBy::Said => self.said_bound(term, system),
+            ShownBy::Beside(beside) => {
+                let cited = self.cited_parts(&just.refs);
+                let ctx = self.sources.ctx;
+                let equation = cited.iter().find(|c| {
+                    crate::matching::alike_top(&c.node, &beside.equation, ctx)
+                })?;
+                let other = match &beside.other_stated {
+                    Some(stated) => cited
+                        .iter()
+                        .find(|c| crate::matching::alike_top(&c.node, stated, ctx))?
+                        .proof
+                        .clone(),
+                    None => self.said_bound(&beside.other, system)?,
+                };
+                // The equation faced u = t, and u's bound carried along it.
+                let to_term = match beside.facing {
+                    Facing::Straight => t::symm(t::bracket(equation.proof.clone())),
+                    Facing::Turned => equation.proof.clone(),
+                };
+                let lemma = match system {
+                    System::N => "lt_of_lt_of_eq",
+                    _ => "le_of_le_of_eq",
+                };
+                Some(Printed::applied(
+                    lemma,
+                    super::doc::Source::Mathlib,
+                    vec![t::bracket(other), to_term],
+                    super::doc::LeanType::Prop,
+                ))
+            }
+        }
+    }
+
     /// `membership`. A term of a wider type said to be in a number system,
     /// an integer or a real, is one by a cited equation (`member_by_equation`).
     /// Any other membership is what the lines and the letters' types give.
@@ -13373,8 +13640,16 @@ impl<'a> Proof<'a> {
         node: &Node,
         writer: &Writer,
     ) -> Route<super::doc::Proof> {
+        // What Lean proves as it stands: `True` of a membership its types
+        // give, x ∈ ℝ of a real x; a fact of numerals alone.
+        if let Some(p) = writer.formula(node).built().as_ref().and_then(lean_truth) {
+            return Route::Built(super::doc::Proof::Term(p));
+        }
         if let Some(proof) = self.member_from_record(just, node, writer) {
             return Route::Built(proof);
+        }
+        if let Some(proof) = self.member_bound(just, node) {
+            return Route::Built(super::doc::Proof::Term(proof));
         }
         Route::Built(super::doc::Proof::By(super::tactics::bridge(
             BridgeTactic::Side,
@@ -14090,40 +14365,34 @@ impl<'a> Proof<'a> {
                     ways.extend(in_named);
                     // The row is what the cited line says where the checker
                     // found it (`link_places`), that sentence or part as the
-                    // line states it, met with the row as Lean writes it:
-                    // as it stands, turned round, or apart in casts the cast
-                    // table moves, a line in ℤ read in the chain's ℚ.
+                    // line states it, met with the row as Lean writes it as
+                    // a cited item's hypothesis is met with its line
+                    // (`said_proof`): as it stands, turned round, or across
+                    // casts, a line in ℤ read in the chain's ℚ, one in ℚ in
+                    // the chain's ℝ.
+                    // A count Lean may hold in ℕ∞ where the chain takes it
+                    // in ℤ, `V.encard = 2` of an assumption: met only from a
+                    // line whose statement the writer wrote (`store`).
                     let placed = self
                         .rec
                         .link_places
                         .get(&line.line)
-                        // A line whose statement the writer wrote (`store`):
-                        // what Lean states for an obtained part is not known
-                        // here.
-                        .filter(|at| {
-                            self.line_part(at)
-                                .built()
-                                .is_some_and(|found| found.says.is_some())
+                        .and_then(|at| {
+                            let stated = self.line_part(at).built()?.says.is_some();
+                            let (proof, says) = self.line_says(at).built()?;
+                            Some((stated, proof, says))
                         })
-                        .and_then(|at| self.line_says(at).built())
-                        .and_then(|(proof, says)| {
-                            let op = super::doc::Op::of(relation.as_str())?;
-                            let row = Printed::infix(
-                                op,
-                                printed[k].clone(),
-                                printed[k + 1].clone(),
-                                super::doc::LeanType::Prop,
-                            );
-                            // As the closer takes a meeting: of statements in
-                            // one type, and no count, whose ℕ∞ a chain of
-                            // counts may take its rows in.
-                            let agree =
-                                super::doc::forms::relation_types_agree(&says, &row)
-                                    && fields_of(&says) == fields_of(&row);
-                            if !agree || item_counts(&says) || item_counts(&row) {
+                        .and_then(|(stated, proof, says)| {
+                            let row = calc_row(
+                                &relation,
+                                modulus.as_ref(),
+                                &printed[k],
+                                &printed[k + 1],
+                            )?;
+                            if !stated && (item_counts(&says) || item_counts(&row)) {
                                 return None;
                             }
-                            self.proof_meeting(proof, &says, &row)
+                            self.said_proof(proof, says, &row, None).built()
                         });
                     // A row that writes a power as the integer power where
                     // the line has it to its exponent's `toNat`, or the other
@@ -14148,15 +14417,34 @@ impl<'a> Proof<'a> {
                             false,
                         )
                     };
-                    match (by_define, placed) {
-                        (Some(proof), _) => proof,
-                        (None, Some(proved)) => super::doc::Proof::By(proved.closer()),
-                        (None, None) => match (converted(), at_letter, named_decided) {
-                            (Some(proof), _, _)
-                            | (None, Some(proof), _)
-                            | (None, None, Some(proof)) => proof,
-                            (None, None, None) => ways_proof(ListReason::RowRead, ways),
-                        },
+                    // An equation whose two sides Lean writes alike once a
+                    // define is written out in both, `T(1) = 1(1 + 1)/2`:
+                    // `rfl`. Not a row of numerals worked out, which in a
+                    // contradiction may be false.
+                    let as_it_stands = (relation == "="
+                        && bare_term(&printed[k]).untyped()
+                            == bare_term(&printed[k + 1]).untyped())
+                    .then(|| {
+                        Printed::constant(
+                            "rfl",
+                            super::doc::Source::Core,
+                            super::doc::LeanType::Prop,
+                        )
+                    });
+                    match (as_it_stands, by_define, placed) {
+                        (Some(truth), _, _) => super::doc::Proof::Term(truth),
+                        (None, Some(proof), _) => proof,
+                        (None, None, Some(proved)) => super::doc::Proof::Term(proved),
+                        (None, None, None) => {
+                            match (converted(), at_letter, named_decided) {
+                                (Some(proof), _, _)
+                                | (None, Some(proof), _)
+                                | (None, None, Some(proof)) => proof,
+                                (None, None, None) => {
+                                    ways_proof(ListReason::RowRead, ways)
+                                }
+                            }
+                        }
                     }
                 }
                 // A row the page works out by real arithmetic, = 3·ln(2).
@@ -15006,6 +15294,44 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// Sentence `k` of a claim citing a phrase's define, which Lean writes
+    /// out as its meaning in the claim and the lines alike: read backward,
+    /// the claim's parts each from where the checker found it
+    /// (`Cited::unfolded`, `unfolded_proof`), `⟨s7, s6⟩`; read forward,
+    /// the line the reading starts from (`Cited::firsts`), the part of its
+    /// "and" that met the claim projected (`Concluded::part`), `s12.1`, and
+    /// met with the claim as a hypothesis is with its line (`said_proof`).
+    /// None where the record gives neither, or a witness's facts must be put
+    /// in scope first.
+    fn phrase_proof(
+        &self,
+        cited: &crate::checker::record::Cited,
+        k: usize,
+        node: &Node,
+    ) -> Option<Printed> {
+        let wanted = self.writer.formula(node).built()?;
+        let concluded = cited.concluded.get(k)?;
+        if concluded.way == crate::citing::Way::Backward {
+            let parts = cited.unfolded.get(k)?.as_ref()?;
+            let mut known = Vec::new();
+            return self
+                .unfolded_proof(&wanted, parts.iter().collect(), &mut known)
+                .filter(|_| known.is_empty());
+        }
+        cited.firsts.iter().find_map(|by| {
+            let (proof, says) = self.line_proof(by).built()?;
+            let (proof, says) = match concluded.part {
+                Some(part) => {
+                    let parts = conjoined_parts(&says);
+                    let at = parts.get(part)?.clone();
+                    (fields(proof, &projection_path(part, parts.len())), at)
+                }
+                None => (proof, says),
+            };
+            self.said_proof(proof, says, &wanted, None).built()
+        })
+    }
+
     /// Sentence `k` of a claim, by the item its reason cites.
     fn citation(
         &self,
@@ -15028,7 +15354,10 @@ impl<'a> Proof<'a> {
                 r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
             });
         if phrase {
-            return Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![])));
+            return Route::Built(match self.phrase_proof(cited, k, node) {
+                Some(p) => Proof::Term(p),
+                None => Proof::By(t::bridge(BridgeTactic::Side, vec![])),
+            });
         }
         let Some(concluded) = cited.concluded.get(k) else {
             return Route::no("a claim sentence no conclusion of the item gives");
@@ -16614,10 +16943,8 @@ impl<'a> Proof<'a> {
                             .filter_map(|s| self.rec.page.get(s).cloned())
                             .collect();
                         if let [node] = nodes.as_slice() {
-                            self.store(
-                                o.label.clone(),
-                                vec![LineSentence::only(node.clone(), label.clone())],
-                            );
+                            let said = self.stated_here(node.clone(), label.clone());
+                            self.store(o.label.clone(), vec![said]);
                         }
                     }
                     let children: Vec<usize> = block
@@ -16833,10 +17160,8 @@ impl<'a> Proof<'a> {
                         .unwrap_or_else(|| "IH".to_string());
                     if let Some(o) = openers.iter().find(|o| o.is_hypothesis) {
                         self.named.insert(o.label.clone(), vec![hypothesis.clone()]);
-                        self.store(
-                            o.label.clone(),
-                            vec![LineSentence::only(body.clone(), hypothesis.clone())],
-                        );
+                        let said = self.stated_here(body.clone(), hypothesis.clone());
+                        self.store(o.label.clone(), vec![said]);
                     }
                     let letter_line = openers
                         .iter()
@@ -17042,17 +17367,13 @@ impl<'a> Proof<'a> {
                     if let Some(n) = self.opener_node(&guard) {
                         self.named
                             .insert(guard.label.clone(), vec![guard_name.clone()]);
-                        self.store(
-                            guard.label.clone(),
-                            vec![LineSentence::only(n, guard_name.clone())],
-                        );
+                        let said = self.stated_here(n, guard_name.clone());
+                        self.store(guard.label.clone(), vec![said]);
                     }
                     self.named
                         .insert(hypothesis.label.clone(), vec![ih_name.clone()]);
-                    self.store(
-                        hypothesis.label.clone(),
-                        vec![LineSentence::only(body.clone(), ih_name.clone())],
-                    );
+                    let said = self.stated_here(body.clone(), ih_name.clone());
+                    self.store(hypothesis.label.clone(), vec![said]);
                     Tactic::Intro(vec![name.clone(), guard_name, ih_name])
                 }
                 other => return Route::no(format!("an induction part {other:?}")),
@@ -17390,10 +17711,11 @@ impl<'a> Proof<'a> {
                         Route::Built(s) => s,
                         Route::Declined(d) => return Route::Declined(d),
                     };
-                    self.store(
-                        o.label.clone(),
-                        vec![LineSentence::only(node.clone(), label.clone())],
-                    );
+                    let said = LineSentence {
+                        says: Some(says.clone()),
+                        ..LineSentence::only(node.clone(), label.clone())
+                    };
+                    self.store(o.label.clone(), vec![said]);
                     if let Route::Declined(d) =
                         self.suppose(&label, says, o.line, &spot, depth)
                     {

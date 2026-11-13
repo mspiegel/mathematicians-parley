@@ -51,7 +51,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       -- 3.2. calculation
       have s3_2 : ((∅ : Set α).ncard : ℤ) = j := by
         calc ((∅ : Set α).ncard : ℤ) = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
-          _ = j := by parley_set_side
+          _ = j := hC1.symm
       -- 3.3. def:part-builder u := ∅, from D1, 3.1, 3.2
       have s3_3 : ∅ ∈ F := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := ∅))).mpr ⟨s3_1, s3_2⟩
       -- 3.4. proof
@@ -90,7 +90,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         have s3_9_2 : R = ∅ := by exact ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := R))).mp s3_9_1
         -- 3.9.3. calculation
         have s3_9_3 : j = 0 := by
-          calc j = (R.ncard : ℤ) := by parley_set_side
+          calc j = (R.ncard : ℤ) := hS1.symm
             _ = ((∅ : Set α).ncard : ℤ) := by parley_subst s3_9_2
             _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
         -- 3.9.4. restate C2

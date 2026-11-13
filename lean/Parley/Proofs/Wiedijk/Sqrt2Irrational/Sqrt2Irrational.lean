@@ -66,7 +66,7 @@ theorem sqrt2_irrational :
     obtain ⟨r, s2_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := p))).mp s2_5
     -- 2.7. calculation
     have s2_7 : 2 * q ^ 2 = 4 * r ^ 2 := by
-      calc 2 * q ^ 2 = p ^ 2 := by exact s2_3.symm
+      calc 2 * q ^ 2 = p ^ 2 := s2_3.symm
         _ = (2 * r) ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) s2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 4 * r ^ 2 := by parley_ring
     -- 2.8. algebra, from 2.7

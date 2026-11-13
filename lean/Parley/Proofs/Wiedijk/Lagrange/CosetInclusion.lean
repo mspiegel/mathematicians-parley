@@ -45,7 +45,7 @@ theorem coset_inclusion {G : Type*} [Group G] (H : Subgroup G) (a : G) (hH3 : a 
     have s6_3 : h * c ∈ (H : Set G) := by exact (Parley.Items.Stdlib.Groups.mun_subgroup_closed (G := G) (H := H) (a := h) s2a (b := c) s6_1a)
     -- 6.4. calculation
     have s6_4 : u = a * (h * c) := by
-      calc u = x * c := by exact s6_1b
+      calc u = x * c := s6_1b
         _ = a * h * c := by parley_subst s2b
         _ = a * (h * c) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := h) (c := c) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _))
     -- 6.5. def:coset g := a, from H2, H3, 6.3, 6.4

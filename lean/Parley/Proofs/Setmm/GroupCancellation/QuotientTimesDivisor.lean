@@ -33,7 +33,7 @@ theorem quotient_times_divisor {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.u
     have row1 : a * b⁻¹ * b = a * (1 : G) := by parley_subst_at c1 s2
     exact row1
   -- 4. calculation
-  calc a * b⁻¹ * b = a * (1 : G) := by exact s3
+  calc a * b⁻¹ * b = a * (1 : G) := s3
     _ = a := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) (Set.mem_univ _))
 
 end Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor

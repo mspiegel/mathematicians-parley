@@ -73,7 +73,7 @@ theorem sum_of_factorial_quotients (n : ℤ) (hH1 : 0 < n) :
       -- 2.5. mun:factorial-nat n := k + 1
       have s2_5 : 0 < (LeanBridges.Counting.factorial (k + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
       -- 2.6. calculation
-      have r133_1 : k ≥ 1 := by parley_side
+      have r133_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), ((j : ℚ) / (LeanBridges.Counting.factorial (j + 1) : ℚ) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, ((j : ℚ) / (LeanBridges.Counting.factorial (j + 1) : ℚ) : ℚ)) + ((k : ℚ) + 1) / (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by
             have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), ((b : ℚ) / (LeanBridges.Counting.factorial (b + 1) : ℚ) : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, ((b : ℚ) / (LeanBridges.Counting.factorial (b + 1) : ℚ) : ℚ)) + ((k : ℚ) + 1) / (LeanBridges.Counting.factorial (k + 1 + 1) : ℚ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (j : ℚ) / (LeanBridges.Counting.factorial (j + 1) : ℚ))) (a := (1 : ℤ)) (n := k) r133_1))
             exact hI

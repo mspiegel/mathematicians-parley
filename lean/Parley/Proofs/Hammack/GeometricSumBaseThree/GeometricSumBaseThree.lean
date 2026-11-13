@@ -58,7 +58,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
         _ = (3 ^ (1 + 1) - 3) / 2 := by norm_num
     | succ k hK hIH =>
       -- 1.2. calculation
-      have r28_1 : k ≥ 1 := by parley_side
+      have r28_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s1_2 : S (k + 1) = S k + 3 ^ (k + 1).toNat := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (3 ^ j.toNat : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (3 ^ j.toNat : ℤ)) + 3 ^ (k + 1).toNat := by
@@ -68,7 +68,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. mun:exponent-step a := 3, m := k + 1
       have s1_3 : (3 ^ (k + 1 + 1).toNat : ℤ) = 3 ^ (k + 1).toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
       -- 1.4. calculation
-      calc (S (k + 1) : ℚ) = (S k : ℚ) + 3 ^ (k + 1).toNat := by parley_side
+      calc (S (k + 1) : ℚ) = (S k : ℚ) + 3 ^ (k + 1).toNat := by exact_mod_cast s1_2
         _ = (3 ^ (k + 1).toNat - 3) / 2 + 3 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℚ => t + 3 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = (3 ^ (k + 1).toNat * 3 - 3) / 2 := by parley_ring
         _ = (3 ^ (k + 1 + 1).toNat - 3) / 2 := by

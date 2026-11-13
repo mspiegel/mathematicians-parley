@@ -62,7 +62,6 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
     obtain ⟨C, s1_4⟩ := hIH
     -- 1.5. mun:abs-real x := x(K + 1)
     set E : ℝ := max C (abs (x (K + 1))) with hD
-    have hD_kind : True := by trivial
     -- 1.6. mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
     have s1_6 : C ≤ E := by
       try simp only [hD] at ⊢

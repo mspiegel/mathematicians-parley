@@ -81,7 +81,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       have hI : ∀ a : ℤ, a ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) a : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) a : Set ℤ) ∩ c).ncard : ℤ) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m}) (u := c))).mp s6_1a).2)
       exact hI
     -- 6.3. D1, from 6.2
-    have s6_3 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by parley_set_side
+    have s6_3 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := s6_2b
     -- 6.4. def:part-builder u := c, from 6.2
     have s6_4a : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mp s6_2a).1
     have s6_4b : (c.ncard : ℤ) = m := by
@@ -124,7 +124,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 6.10.9. substitute {1, …, i} ∖ c = {1, …, i} ∖ (c ∖ {m + n}) (line 6.10.7) into line 6.10.8
       parley_subst_at s6_10_7 s6_10_8
     -- 6.11. D1, from 6.10
-    have s6_11 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (c \ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (c \ ({m + n} : Set ℤ))).ncard : ℤ) := by parley_set_side
+    have s6_11 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (c \ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (c \ ({m + n} : Set ℤ))).ncard : ℤ) := s6_10
     -- 6.12. def:part-builder u := c ∖ {m + n}, X := {1, …, (m − 1) + n}, from 6.6, 6.8
     have s6_12 : c \ ({m + n} : Set ℤ) ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m - 1)) (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (u := c \ ({m + n} : Set ℤ)))).mpr ⟨s6_6, s6_8⟩
     -- 6.13. def:set-builder u := c ∖ {m + n}, from D2, 1, 6.11, 6.12
@@ -174,7 +174,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       try push_cast at hK4
       try have hK4_bounds := Finset.mem_Icc.mp hK4
       -- 8.13.1. D1, from 8.1
-      have s8_13_1 : ∀ j : ℤ, j ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) j : Set ℤ) \ T).ncard : ℤ) < (((Set.Icc (1 : ℤ) j : Set ℤ) ∩ T).ncard : ℤ) := by parley_set_side
+      have s8_13_1 : ∀ j : ℤ, j ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) j : Set ℤ) \ T).ncard : ℤ) < (((Set.Icc (1 : ℤ) j : Set ℤ) ∩ T).ncard : ℤ) := s8_1b
       -- 8.13.2. mun:range-bounds a := 1, b := (m + n) − 1, k := i, from K4
       have s8_13_2 : i ≤ m + n - 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m + n - 1) (k := i) hK4)
       -- 8.13.3. inequalities, from 8.13.2
@@ -191,7 +191,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 8.13.8. substitute {1, …, i} ∖ (T ∪ {m + n}) = {1, …, i} ∖ T (line 8.13.6) into line 8.13.7
       parley_subst_at s8_13_6b s8_13_7
     -- 8.14. D1, from 8.13
-    have s8_14 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := by parley_set_side
+    have s8_14 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := s8_13
     -- 8.15. thm:lead-to-the-end c := T ∪ {m + n}, from H3, 8.8, 8.12, 8.14
     have s8_15 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd.lead_to_the_end (m := m) (le_of_lt hH1) (n := n) (le_of_lt hH2) (c := T ∪ ({m + n} : Set ℤ)) s8_8 hH3 s8_12 s8_14)
     -- 8.16. def:part-builder u := T ∪ {m + n}, X := {1, …, m + n}, from 8.8, 8.12

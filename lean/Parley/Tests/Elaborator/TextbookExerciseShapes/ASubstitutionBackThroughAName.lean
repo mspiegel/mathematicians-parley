@@ -21,7 +21,6 @@ namespace Parley.Tests.Elaborator.TextbookExerciseShapes.ASubstitutionBackThroug
 theorem a_substitution_back_through_a_name (a : ℝ) (s : ℝ) (e : ℝ) (hH4 : abs (s - a / 2) < e) :
     abs (s - a / 2) < e := by
   set K : ℝ := a / 2 with hD1
-  have hD1_kind : True := by parley_side
   -- 1. substitute K = a/2 (D1) into H4
   have s1 : abs (s - K) < e := by (have h := Eq.subst (motive := (fun t : ℝ => abs (s - t) < e)) hD1.symm hH4; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. substitute K = a/2 (D1) into line 1

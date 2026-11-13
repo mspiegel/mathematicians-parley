@@ -85,13 +85,10 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.11. instantiate k := j + 1 in H3, from 1.10
       have s1_11 : a (j + 1) ≥ 0 := by exact (hH3 (j + 1) s1_10)
       set x : ℝ := a (j + 1) with hD1
-      have hD1_kind : True := by parley_side
       set A : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ) with hD2
-      have hD2_kind : True := by parley_side
       set B : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1) with hD3
-      have hD3_kind : True := by parley_side
       -- 1.12. mun:sum-extended a := 1, n := j, from 1.9
-      have r128_1 : j ≥ 1 := by parley_side
+      have r128_1 : j ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK1
       have s1_12 : (∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) + a (j + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := j) r128_1)
       -- 1.13. algebra, from D1, D2, D3, 1.12
       have s1_13 : B * ((j : ℝ) + 1) = A * (j : ℝ) + x := by
@@ -120,7 +117,6 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
         rcases s1_18 with hC3 | hC4
         · skip
           set r : ℝ := B / A with hD4
-          have hD4_kind : True := by parley_side
           -- 1.19.1. mun:quotient-nonneg, from C3, D4, 1.17
           have s1_19_1 : r ≥ 0 := by
             try simp only [hD4] at ⊢
@@ -171,7 +167,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           -- 1.19.15. transitivity, from 1.19.13, 1.19.14
           exact Eq.trans_le s1_19_13 s1_19_14
       -- 1.20. calculation
-      have r222_1 : j ≥ 1 := by parley_side
+      have r222_1 : j ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK1
       have s1_20 : (∏ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by
         calc (∏ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) = (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) * a (j + 1) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := a) (a := (1 : ℤ)) (n := j) r222_1)
           _ = (∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) * x := by simp (disch := omega) only [hD1]
@@ -179,7 +175,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
               try simp only [hD1, hD2] at ⊢
               try push_cast at ⊢
               exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := ∏ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) (y := ((∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) / (j : ℝ)) ^ j.toNat) (c := a (j + 1)) s1_7 s1_11)
-          _ ≤ B ^ (j + 1).toNat := by exact s1_19
+          _ ≤ B ^ (j + 1).toNat := s1_19
           _ = ((∑ k ∈ Finset.Icc (1 : ℤ) (j + 1), (a k : ℝ)) / ((j : ℝ) + 1)) ^ (j + 1).toNat := by simp (disch := omega) only [hD3]
       (have h := s1_20; push_cast at h ⊢; all_goals exact h)
   -- 2. instantiate j := n in line 1

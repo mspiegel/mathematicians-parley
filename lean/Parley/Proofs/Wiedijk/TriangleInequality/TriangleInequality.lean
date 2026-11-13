@@ -35,13 +35,13 @@ theorem triangle_inequality (a : ℝ) (b : ℝ) :
     have s4_1 : a + b ≤ abs a + abs b := by linarith only [s2a, s3a]
     -- 4.2. calculation
     calc abs (a + b) = a + b := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) hC1
-      _ ≤ abs a + abs b := by exact s4_1
+      _ ≤ abs a + abs b := s4_1
   · skip
     -- 4.3. inequalities, from 2, 3
     have s4_3 : -a + -b ≤ abs a + abs b := by linarith only [s2b, s3b]
     -- 4.4. calculation
     calc abs (a + b) = -(a + b) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := a + b)) hC2
       _ = -a + -b := by parley_ring
-      _ ≤ abs a + abs b := by exact s4_3
+      _ ≤ abs a + abs b := s4_3
 
 end Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality

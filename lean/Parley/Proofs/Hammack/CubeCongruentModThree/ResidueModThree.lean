@@ -1,11 +1,13 @@
 module
 
+public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
@@ -24,6 +26,6 @@ theorem residue_mod_three (r : ℤ) (hH1 : 0 ≤ r) (hH2 : r < 3) :
   -- 1. mun:range-from-bounds, from H2
   have s1 : r ∈ Finset.Icc (0 : ℤ) (3 - 1 : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := (3 : ℤ)) (by norm_num) (x := r) hH1 hH2)
   -- 2. inspection, from 1
-  parley_side
+  (have h := s1; norm_num [Finset.mem_Icc, Set.mem_Icc] at h; norm_cast at h; omega)
 
 end Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree

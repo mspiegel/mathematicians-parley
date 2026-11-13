@@ -3,6 +3,7 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
@@ -33,7 +34,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
       -- 1.2. substitute F[B] = ∅ (D1) into line 1.1
       have s1_2 : F t ∈ (∅ : Set α) := by parley_subst_at hD1 s1_1
       -- 1.3. inspection
-      have s1_3 : ¬ F t ∈ (∅ : Set α) := by parley_set_side
+      have s1_3 : ¬ F t ∈ (∅ : Set α) := Set.notMem_empty _
       exact absurd s1_2 s1_3
     -- 2. def:subset, from 1
     have s2 : B ⊆ ∅ := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := ∅))).mpr s1
@@ -51,7 +52,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
       -- 4.3. substitute B = ∅ (D2) into line 4.2
       have s4_3 : s ∈ (∅ : Set α) := by parley_subst_at hD2 s4_2a
       -- 4.4. inspection
-      have s4_4 : ¬ s ∈ (∅ : Set α) := by parley_set_side
+      have s4_4 : ¬ s ∈ (∅ : Set α) := Set.notMem_empty _
       exact absurd s4_3 s4_4
     -- 5. def:subset, from 4
     have s5 : F '' (A ∩ B) ⊆ ∅ := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B)) (Y := ∅))).mpr s4

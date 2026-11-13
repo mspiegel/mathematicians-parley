@@ -33,7 +33,7 @@ namespace Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumReal
 theorem partial_sum_real (m : ℤ) (hH1 : 0 < m) :
     True := by
   -- 1. D0, from H1
-  have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) m, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) m, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by parley_side
+  have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) m, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) m, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := rfl
   -- 2. thm:terms-real
   -- 3. mun:sum-real a := 1, b := m, from 2
   -- 4. substitute Σ(k = 1 to m) 1/2^(k!) = s(m) (line 1) into line 3

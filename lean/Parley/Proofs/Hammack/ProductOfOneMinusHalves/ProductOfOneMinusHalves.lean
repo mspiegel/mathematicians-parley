@@ -90,7 +90,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
         _ ≥ 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 := by
             have hI : 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 ≤ (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by parley_instance_real ((Parley.Proofs.Hammack.ProductStepBound.ProductStepBound.product_step_bound (t := (1 / 2 ^ (m + 1).toNat : ℝ)) (p := ∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) (show 0 < (1 / 2 ^ (m + 1).toNat : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_5); simp only [Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat] at h; exact h) (show (1 / 2 ^ (m + 1).toNat : ℝ) ≤ 1 / 4 by have h := (Rat.cast_le (K := ℝ)).mpr s2_6; simp only [Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h) (show (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) ≥ 1 / 4 + (1 / 2 ^ (m + 1).toNat : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr hIH; simp only [Rat.cast_prod, Rat.cast_add, Rat.cast_sub, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)))
             exact hI
-        _ = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := by exact s2_9
+        _ = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := s2_9
         _ = 1 / 4 + 1 / 2 ^ (m + 1 + 1).toNat := by
             have e_w : (2 ^ (m + 1).toNat * 2 : ℚ) = 2 ^ (m + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_8.symm; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℚ => 1 / 4 + 1 / t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)

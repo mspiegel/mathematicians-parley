@@ -40,9 +40,9 @@ theorem a_requires_weakening_with_its_membership (x : ℝ) (hH2 : x ≥ 0) :
   have s4 : x < x + 1 := by linarith
   -- 5. calculation
   have s5 : Real.sqrt x ^ 2 < Real.sqrt (x + 1) ^ 2 := by
-    calc Real.sqrt x ^ 2 = x := by exact s3b
-      _ < x + 1 := by exact s4
-      _ = Real.sqrt (x + 1) ^ 2 := by exact s2b.symm
+    calc Real.sqrt x ^ 2 = x := s3b
+      _ < x + 1 := s4
+      _ = Real.sqrt (x + 1) ^ 2 := s2b.symm
   -- 6. mun:square-less x := √x, y := √(x + 1), from 2, 3, 5
   have s6 : Real.sqrt x < Real.sqrt (x + 1) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt x) (y := Real.sqrt (x + 1)) s3a s2a)).mpr s5
   -- 7. transitivity, from 3, 6

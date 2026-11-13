@@ -48,7 +48,6 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     intro ε
     intro hA1
     set m : ℝ := min 1 (ε / 12) with hD1
-    have hD1_kind : True := by trivial
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 12 := by linarith only [hA1]
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
@@ -95,8 +94,8 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
         have row1 : abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (4 * x + 4) * abs (x - 1))) c1 s1_4_12; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.4.14. calculation
-      have r99_1 : ε / 12 > 0 := by parley_set_side
-      calc abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := by exact s1_4_13
+      have r99_1 : ε / 12 > 0 := by exact s1_1
+      calc abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := s1_4_13
         _ < abs (4 * x + 4) * (ε / 12) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 1)) (y := ε / 12) (c := abs (4 * x + 4)) s1_4_9.1)).mp s1_4_1.2
         _ = ε / 12 * abs (4 * x + 4) := by parley_ring
         _ ≤ ε / 12 * 12 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (4 * x + 4)) (y := (12 : ℝ)) (c := ε / 12) s1_4_10 r99_1)

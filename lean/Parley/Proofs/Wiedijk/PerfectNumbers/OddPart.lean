@@ -100,7 +100,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.10. instantiate j := i in IH, from 1.7.9
           have s1_7_10 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ i = 2 ^ k.toNat * m)) := by exact (hIH i s1_7_9)
           -- 1.7.11. D1, from 1.7.10
-          have s1_7_11 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ i = 2 ^ k.toNat * m)) := by parley_side
+          have s1_7_11 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ i = 2 ^ k.toNat * m)) := s1_7_10
           -- 1.7.12. obtain k, m from line 1.7.11
           obtain ⟨k, s1_7_12a, m, s1_7_12b, ⟨s1_7_12c, s1_7_12d⟩⟩ := s1_7_11
           -- 1.7.13. mun:exponent-step a := 2, m := k
@@ -125,6 +125,6 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
   -- 4. instantiate j := n in line 2, from 3
   have s4 : ∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ n = 2 ^ k.toNat * m)) := by exact (s2 n s3)
   -- 5. D1, from 4
-  parley_side
+  exact s4
 
 end Parley.Proofs.Wiedijk.PerfectNumbers.OddPart

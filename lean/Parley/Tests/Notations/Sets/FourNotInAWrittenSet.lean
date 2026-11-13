@@ -15,6 +15,6 @@ namespace Parley.Tests.Notations.Sets.FourNotInAWrittenSet
 theorem four_not_in_a_written_set :
     ¬ (4 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ), (3 : ℤ)} : Set ℤ) := by
   -- 1. inspection
-  parley_set_side
+  simp
 
 end Parley.Tests.Notations.Sets.FourNotInAWrittenSet

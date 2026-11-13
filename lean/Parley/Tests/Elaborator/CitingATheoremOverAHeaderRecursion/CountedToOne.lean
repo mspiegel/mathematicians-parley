@@ -27,8 +27,8 @@ theorem counted_to_one (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ (∀ k : ℤ
   have s3 : F 0 + 1 = 0 + 1 := by (have h := congrArg (fun t : ℤ => t + 1) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. calculation
   calc F 1 = F (0 + 1) := by norm_num
-    _ = F 0 + 1 := by exact s2
-    _ = 0 + 1 := by exact s3
+    _ = F 0 + 1 := s2
+    _ = 0 + 1 := s3
     _ = 1 := by norm_num
 
 end Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne

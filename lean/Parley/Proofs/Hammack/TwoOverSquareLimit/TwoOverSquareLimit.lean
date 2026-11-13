@@ -60,7 +60,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.2. inequalities, from K2
       have s1_3_2 : n ≥ 1 := by linarith only [hK2]
       -- 1.3.3. mun:multiply-le x := 1, y := n, c := n, from 1.3.2
-      have r41_1 : n > 0 := by parley_side
+      have r41_1 : n > 0 := by exact s1_3_1
       have s1_3_3 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) s1_3_2 r41_1)
       -- 1.3.4. algebra
       have s1_3_4 : n * n = n ^ 2 := by parley_ring
@@ -69,12 +69,12 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.6. transitivity, from 1.3.1, 1.3.5
       have s1_3_6 : n ^ 2 > 0 := by exact lt_of_lt_of_le s1_3_1 s1_3_5
       -- 1.3.7. mun:reciprocal-order x := n, y := n², from 1.3.5
-      have r54_1 : n > 0 := by parley_side
-      have r54_2 : n ^ 2 > 0 := by parley_side
+      have r54_1 : n > 0 := by exact s1_3_1
+      have r54_2 : n ^ 2 > 0 := by exact s1_3_6
       have s1_3_7 : 1 / (n : ℚ) ^ 2 ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r54_1) (y := (n : ℚ) ^ 2) (by exact_mod_cast gt_iff_lt.mp r54_2))).mp (by exact_mod_cast s1_3_5)
       -- 1.3.8. mun:reciprocal-order x := N, y := n, from A2
       have r59_1 : N > 0 := by linarith only [s1_2a]
-      have r59_2 : n > 0 := by parley_side
+      have r59_2 : n > 0 := by exact s1_3_1
       have s1_3_8 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 1.3.9. inequalities
       have s1_3_9 : 2 * (1 / (n : ℚ) ^ 2) ≤ 2 * (1 / (n : ℚ)) := by linarith only [s1_3_7]

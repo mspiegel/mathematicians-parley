@@ -26,7 +26,7 @@ namespace Parley.Proofs.Hammack.SumOfFactorialQuotients.NextTermSum
 theorem next_term_sum (k : ℤ) (hH1 : 0 < k) (t : ℤ → ℝ) :
     (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (t j : ℝ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (t j : ℝ)) + t (k + 1) := by
   -- 1. mun:sum-extended a := 1, n := k
-  have r40_1 : k ≥ 1 := by parley_side
+  have r40_1 : k ≥ 1 := by exact hH1
   exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := t) (a := (1 : ℤ)) (n := k) r40_1)
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.NextTermSum

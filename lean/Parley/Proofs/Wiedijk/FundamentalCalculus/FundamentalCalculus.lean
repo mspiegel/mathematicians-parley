@@ -73,9 +73,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 8. mun:function-into, from 7
   have s8 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := G) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 9. membership, from D2
-  have r111_1 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; (parley_set_side)
-  have r111_2 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; (parley_set_side)
-  have s9 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; parley_set_side
+  have s9 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; exact by trivial
   -- 10. mun:function-into, from 9
   have s10 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := H) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 11. thm:area-function, from H3, H5, 5
@@ -123,17 +121,17 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 22. calculation
   have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
   have s22 : G b - F b = G a - F a := by
-    calc G b - F b = H b := by exact s19
+    calc G b - F b = H b := s19
       _ = H a := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds.zero_derivative_ends (a := a) (b := b) hH3 (H := H) (Set.mapsTo_univ _ _) s14 s15 s17)
-      _ = G a - F a := by exact s18
+      _ = G a - F a := s18
   -- 23. calculation
   have s23 : G a = 0 := by
-    calc G a = (∫ t in a..a, (f t : ℝ)) := by exact s20
+    calc G a = (∫ t in a..a, (f t : ℝ)) := s20
       _ = 0 := by exact (Parley.Items.Stdlib.Calculus.mun_integral_point (f := f) (X := (Set.Icc a b : Set ℝ)) (a := a))
   -- 24. substitute G(a) = 0 (line 23) into line 22
   have s24 : G b - F b = 0 - F a := by (have h := Eq.subst (motive := (fun t : ℝ => G b - F b = t - F a)) s23 s22; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 25. calculation
-  calc (∫ t in a..b, (f t : ℝ)) = G b := by exact s21
+  calc (∫ t in a..b, (f t : ℝ)) = G b := s21
     _ = F b - F a := by linear_combination (norm := parley_norm) s24
 
 end Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus

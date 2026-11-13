@@ -52,7 +52,6 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   intro hS
   -- 4.1. def:continuous-on D := [0, 1], from S
   have r37_1 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
-  have r37_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   have r37_4 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   have s4_1 : ∀ c ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), abs (x - c) < δ → abs (f x - f c) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) r37_1)).mp hS
   -- 4.2. instantiate c := 1/2, ε := 1/2 in line 4.1, from 1
@@ -61,9 +60,7 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 4.3. obtain δ from line 4.2
   obtain ⟨δ, ⟨s4_3a, s4_3b⟩⟩ := s4_2
   set m : ℝ := min δ (1 / 2) with hD2
-  have hD2_kind : True := by trivial
   set x₁ : ℝ := 1 / 2 - m / 2 with hD3
-  have hD3_kind : True := by parley_set_side
   -- 4.4. mun:lt-min z := 0, x := δ, y := 1/2, from 4.3
   have r62_1 : (0 : ℚ) < 1 / 2 := by parley_arith
   have s4_4 : 0 < min δ (1 / 2) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := δ) (y := (1 / 2 : ℝ)))).mpr ⟨s4_3a, by norm_num⟩

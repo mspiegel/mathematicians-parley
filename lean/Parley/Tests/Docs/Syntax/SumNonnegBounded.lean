@@ -31,7 +31,7 @@ theorem sum_nonneg_bounded (a : ℝ) (b : ℝ) (hH3 : a + b ≥ 0) :
   -- 4. inequalities, from 1, 2
   have s4 : a + b ≤ abs a + abs b := by linarith only [s1a, s2a]
   -- 5. calculation
-  calc abs (a + b) = a + b := by exact s3
-    _ ≤ abs a + abs b := by exact s4
+  calc abs (a + b) = a + b := s3
+    _ ≤ abs a + abs b := s4
 
 end Parley.Tests.Docs.Syntax.SumNonnegBounded

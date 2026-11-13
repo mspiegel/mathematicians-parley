@@ -28,7 +28,7 @@ theorem a_half_does_not_bound_the_unit_interval :
   -- 2. contradiction
   intro hS
   -- 2.1. def:upper-bound u := 1/2, S := [0, 1], from S
-  have s2_1 : ∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 / 2 := by parley_set_side
+  have s2_1 : ∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 / 2 := hS
   -- 2.2. instantiate s := 1 in line 2.1, from 1
   have s2_2 : (1 : ℚ) ≤ 1 / 2 := by
     have hI : (1 : ℚ) ≤ 1 / 2 := by parley_instance_real ((s2_1 (1 : ℝ) s1))

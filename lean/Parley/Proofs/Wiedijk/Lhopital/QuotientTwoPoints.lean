@@ -95,7 +95,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have r208_2 : v - u < 0 := by linarith only [hC1]
       have s4_13 : abs (ξ - u) < abs (v - u) := by
         calc abs (ξ - u) = -(ξ - u) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := ξ - u)) r208_1
-          _ < -(v - u) := by exact s4_12
+          _ < -(v - u) := s4_12
           _ = abs (v - u) := by exact ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := v - u)) r208_2).symm
       -- 4.14. exhibit, from 4.9, 4.10, 4.13
       have s4_14 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_9, ⟨s4_13, s4_10⟩⟩
@@ -144,7 +144,7 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       have r281_2 : v - u ≥ 0 := by linarith only [s4_26]
       have s4_28 : abs (ξ - u) < abs (v - u) := by
         calc abs (ξ - u) = ξ - u := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ξ - u)) r281_1
-          _ < v - u := by exact s4_27
+          _ < v - u := s4_27
           _ = abs (v - u) := by exact ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := v - u)) r281_2).symm
       -- 4.29. exhibit, from 4.22, 4.23, 4.28
       have s4_29 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4_23, ⟨s4_28, s4_22b⟩⟩

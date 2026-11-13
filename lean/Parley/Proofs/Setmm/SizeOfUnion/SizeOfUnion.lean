@@ -59,7 +59,7 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   have s12 : (A.ncard : ℤ) + ((B \ A).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_count_int; (linarith only [s6])
   -- 13. calculation
   parley_count_after (by
-    calc ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_set_side
-      _ ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_set_side)
+    calc ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := s11
+      _ ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := s12)
 
 end Parley.Proofs.Setmm.SizeOfUnion.SizeOfUnion

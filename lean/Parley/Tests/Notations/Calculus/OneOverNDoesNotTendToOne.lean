@@ -60,7 +60,7 @@ theorem one_over_n_does_not_tend_to_one :
   have s2_7 : 2 ≤ N + 1 := by linarith only [s2_3a]
   -- 2.8. mun:reciprocal-order x := 2, y := N + 1, from 2.7
   have r316_1 : (2 : ℤ) > 0 := by parley_arith
-  have r316_2 : N + 1 > 0 := by parley_side
+  have r316_2 : N + 1 > 0 := by exact s2_5
   have s2_8 : 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 : ℚ)) (by norm_num) (y := (N : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r316_2))).mp (by exact_mod_cast s2_7)
   -- 2.9. inequalities, from 2.6
   have s2_9 : ¬ 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by linarith only [s2_6.1]

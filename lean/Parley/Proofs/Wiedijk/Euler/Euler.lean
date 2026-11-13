@@ -124,9 +124,9 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     have s7_4 : f t = t * a % n := by simp (disch := omega) only [hD2]
     -- 7.5. calculation
     have s7_5 : s * a % n = t * a % n := by
-      calc s * a % n = f s := by exact s7_3
-        _ = f t := by parley_set_side
-        _ = t * a % n := by exact s7_4
+      calc s * a % n = f s := s7_3
+        _ = f t := hK4
+        _ = t * a % n := s7_4
     -- 7.6. mun:mod-equal-congruent, from 7.5
     have s7_6 : s * a ≡ t * a [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_equal_congruent (x := s * a) (y := t * a) (n := n) hH1 s7_5)
     -- 7.7. thm:congruent-cancel c := a, from H3, 7.6

@@ -42,7 +42,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   have s6 : abs C * abs u ≤ K * abs u := by linarith only [s5]
   -- 7. calculation
   calc abs (C * u) = abs C * abs u := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := C) (y := u))
-    _ ≤ K * abs u := by exact s6
+    _ ≤ K * abs u := s6
     _ < K * d := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs u) (y := d) (c := K) hH5)).mp hH7
 
 end Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall

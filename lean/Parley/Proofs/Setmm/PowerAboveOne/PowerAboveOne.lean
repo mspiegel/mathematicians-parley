@@ -48,7 +48,7 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℤ) (hH3 : 0 < n) :
       -- 1.6. transitivity, from H2, 1.5
       have s1_6 : 1 < A * A ^ k.toNat := by exact lt_of_lt_of_le hH2 s1_5
       -- 1.7. calculation
-      calc (1 : ℝ) < A * A ^ k.toNat := by exact s1_6
+      calc (1 : ℝ) < A * A ^ k.toNat := s1_6
         _ = A ^ k.toNat * A := by parley_ring
         _ = A ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK))).symm
   -- 2. instantiate k := n in line 1

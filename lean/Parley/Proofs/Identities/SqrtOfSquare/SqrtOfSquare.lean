@@ -38,7 +38,7 @@ theorem sqrt_of_square (x : ℝ) :
     exact hI
   -- 4. calculation
   have s4 : Real.sqrt (x ^ 2) ^ 2 = abs x ^ 2 := by
-    calc Real.sqrt (x ^ 2) ^ 2 = x ^ 2 := by exact s2b
+    calc Real.sqrt (x ^ 2) ^ 2 = x ^ 2 := s2b
       _ = abs x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_abs_square (x := x)).symm
   -- 5. mun:square-equal x := √(x²), y := |x|, from 2, 3, 4
   exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (x ^ 2)) (y := abs x) s2a s3)).mp s4

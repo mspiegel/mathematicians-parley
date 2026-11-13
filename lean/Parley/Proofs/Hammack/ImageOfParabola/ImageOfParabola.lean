@@ -49,7 +49,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s2_2b : s ≤ 5 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).2
     -- 2.3. calculation
     have s2_3 : y = s ^ 2 + 3 := by
-      calc y = f s := by exact s2_1b
+      calc y = f s := s2_1b
         _ = s ^ 2 + 3 := by exact (hH2 s)
     -- 2.4. mun:square-nonneg x := s
     have s2_4 : s ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := s))
@@ -57,8 +57,8 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s2_5 : s ^ 2 + 3 ≥ 3 := by linarith only [s2_4]
     -- 2.6. calculation
     have s2_6 : y ≥ 3 := by
-      calc y = s ^ 2 + 3 := by exact s2_3
-        _ ≥ 3 := by exact s2_5
+      calc y = s ^ 2 + 3 := s2_3
+        _ ≥ 3 := s2_5
     -- 2.7. inequalities
     have s2_7 : s + 3 ≥ 0 := by linarith only [s2_2a]
     -- 2.8. inequalities
@@ -71,9 +71,9 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s2_11 : 2 * s + 18 ≤ 28 := by linarith only [s2_2b]
     -- 2.12. calculation
     have s2_12 : y ≤ 28 := by
-      calc y = s ^ 2 + 3 := by exact s2_3
-        _ ≤ 2 * s + 18 := by exact s2_10
-        _ ≤ 28 := by exact s2_11
+      calc y = s ^ 2 + 3 := s2_3
+        _ ≤ 2 * s + 18 := s2_10
+        _ ≤ 28 := s2_11
     -- 2.13. membership, from 2.3
     -- 2.14. def:interval a := 3, b := 28, x := y, from 2.6, 2.12, 2.13
     exact ((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mpr ⟨⟨by trivial, s2_6⟩, s2_12⟩
@@ -94,8 +94,8 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s4_4 : y - 3 ≤ 25 := by linarith only [s4_1b]
     -- 4.5. calculation
     have s4_5 : Real.sqrt (y - 3) ^ 2 ≤ 5 ^ 2 := by
-      calc Real.sqrt (y - 3) ^ 2 = y - 3 := by exact s4_3b
-        _ ≤ 25 := by exact s4_4
+      calc Real.sqrt (y - 3) ^ 2 = y - 3 := s4_3b
+        _ ≤ 25 := s4_4
         _ = 5 ^ 2 := by norm_num
     -- 4.6. mun:square-le x := √(y − 3), y := 5, from 4.3, 4.5
     have r121_1 : (0 : ℤ) ≤ 5 := by parley_arith

@@ -54,7 +54,7 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
     -- 3.6. calculation
     calc (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s3_3; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
-      _ = 1 * N := by exact s3_5.symm
+      _ = 1 * N := s3_5.symm
       _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := by (have h := congrArg (fun t : ℤ => t * N) s3_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor

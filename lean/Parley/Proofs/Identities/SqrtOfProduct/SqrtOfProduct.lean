@@ -43,8 +43,8 @@ theorem sqrt_of_product (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
       _ = a * b := by (have h := congrArg (fun t : ℝ => a * t) s2b; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 7. calculation
   have s7 : Real.sqrt (a * b) ^ 2 = (Real.sqrt a * Real.sqrt b) ^ 2 := by
-    calc Real.sqrt (a * b) ^ 2 = a * b := by exact s4b
-      _ = (Real.sqrt a * Real.sqrt b) ^ 2 := by exact s6.symm
+    calc Real.sqrt (a * b) ^ 2 = a * b := s4b
+      _ = (Real.sqrt a * Real.sqrt b) ^ 2 := s6.symm
   -- 8. mun:square-equal x := √(a·b), y := √a·√b, from 1, 2, 4, 5, 7
   exact ((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (a * b)) (y := Real.sqrt a * Real.sqrt b) s4a s5)).mp s7
 

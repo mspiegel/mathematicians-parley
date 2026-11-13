@@ -23,7 +23,7 @@ theorem a_for_all_line_contradicted (hH1 : ∀ x : ℝ, x ^ 2 + 1 ≠ 0) :
   -- 1.1. contradiction
   intro hS
   -- 1.1.1. restate S
-  have s1_1_1 : y ^ 2 + 1 = 0 := by parley_side
+  have s1_1_1 : y ^ 2 + 1 = 0 := by exact hS
   exact (hH1 y) s1_1_1
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineContradicted

@@ -35,7 +35,7 @@ namespace Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd
 theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c : Set ℤ) (hH3 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (hH4 : n < m) (hH5 : (c.ncard : ℤ) = m) (hH6 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)) :
     (∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)) := by
   -- 1. D1, from H6
-  have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by parley_set_side
+  have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := hH6
   -- 2. proof
   have s2 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by
     intro i hK1
@@ -51,9 +51,9 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       have s2_2_1b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) hH3 hH5).2
       -- 2.2.2. calculation
       have s2_2_2 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by parley_count_after (by
-        calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by parley_set_side
-          _ < m := by exact hH4
-          _ = (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by parley_set_side)
+        calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := s2_2_1a
+          _ < m := hH4
+          _ = (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := s2_2_1b.symm)
       -- 2.2.3. substitute i = m + n (C1) into line 2.2.2
       (have h := Eq.subst (motive := (fun t : ℤ => (((Set.Icc (1 : ℤ) t : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) t : Set ℤ) ∩ c).ncard : ℤ))) hC1.symm s2_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
@@ -71,6 +71,6 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       -- 2.2.9. instantiate i := i in line 1, from 2.2.8
       exact (s1 i s2_2_8)
   -- 3. D1, from 2
-  parley_set_side
+  exact s2
 
 end Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd

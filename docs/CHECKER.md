@@ -142,7 +142,9 @@ line's own. A list holds one entry for each step, in the proof's order.
   requires line reasoned from lines alone, where the claim stands in a line
   it names (`FirstAt`), by the line of the justification: a sentence, a
   part of one, a "for all" read at a block's letter, or what a line
-  implies. A fact only the lines together give has no entry. Lean proves
+  implies. The fact is read in the standard order, as the line is, so
+  `k ≥ 1: from K` finds `K` saying `k ∈ ℕ`. A fact only the lines
+  together give has no entry. Lean proves
   the step by that line, `s5_9 a hK8`.
 - `link_places`: for each link of a calculation that cites a line, where in
   the line the link stands (`FirstAt`), by the link's line. A link read off
@@ -299,6 +301,13 @@ line's own. A list holds one entry for each step, in the proof's order.
 - `members_shown`: the same of each claim the `membership` method proves
   whose term is in its system beside an equation, by the line its reason is
   on. Lean proves it the same way.
+- `inspected`: for each claim the `inspection` method decides holds, a
+  step's or a requires line's, by the line its reason is on, the case that
+  decided it (`Inspection`): an "or" of what a term is, read against a
+  cited membership of a range or a listed set, with that line (`OneOf`);
+  whether a number is prime; that nothing is in ∅; a membership of a
+  listed set, or its denial; the size of a listed set; or another. Lean
+  proves each case one way.
 - `kind_letters`: the letters the reason under a function's define that says
   a kind of number is read with, the step's below the define and the define's
   argument in its domain. Lean proves the kind with them.

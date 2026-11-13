@@ -71,7 +71,7 @@ theorem multiples_of_six :
       exact row1
     -- 3.8. calculation
     have s3_8 : t = 6 * (a - b) := by
-      calc t = 6 * a - 6 * b := by exact s3_7
+      calc t = 6 * a - 6 * b := s3_7
         _ = 6 * (a - b) := by parley_ring
     -- 3.9. exhibit, from 3.8
     have s3_9 : ∃ n : ℤ, t = 6 * n := ⟨a - b, s3_8⟩

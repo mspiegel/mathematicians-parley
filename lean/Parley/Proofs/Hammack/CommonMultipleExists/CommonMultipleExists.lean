@@ -8,6 +8,7 @@ public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
@@ -46,7 +47,7 @@ theorem common_multiple_exists (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) :
   -- 8.1. substitute {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ} = ∅ (S) into line 7
   have s8_1 : p * q * p ∈ (∅ : Set ℤ) := by parley_subst_at hS s7
   -- 8.2. inspection
-  have s8_2 : ¬ p * q * p ∈ (∅ : Set ℤ) := by parley_set_side
+  have s8_2 : ¬ p * q * p ∈ (∅ : Set ℤ) := Set.notMem_empty _
   exact s8_2 s8_1
 
 end Parley.Proofs.Hammack.CommonMultipleExists.CommonMultipleExists

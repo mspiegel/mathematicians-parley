@@ -34,7 +34,7 @@ theorem factorial_three :
     have row1 : (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 2 * t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. calculation
-  calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := by exact s3
+  calc (LeanBridges.Counting.factorial (3 : ℤ) : ℤ) = 2 * 3 := s3
     _ = 6 := by norm_num
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialThree

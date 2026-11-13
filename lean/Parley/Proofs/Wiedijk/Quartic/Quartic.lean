@@ -49,11 +49,8 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
   -- 6. algebra, from 5
   have s6 : M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M = 0 := by linear_combination (norm := parley_norm) ((1 / 27 : ℂ)) * s5
   set y : ℂ := x + a / 4 with hD1
-  have hD1_kind : True := by parley_side
   set u : ℂ := (y + S - I) * (y + S + I) with hD2
-  have hD2_kind : True := by parley_side
   set v : ℂ := (y - S - J) * (y - S + J) with hD3
-  have hD3_kind : True := by parley_side
   -- 7. algebra, from D2, H27, 1
   have s7 : u = y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S := by
     try simp only [hD2] at s1 hH27 ⊢
@@ -82,8 +79,8 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
     intro hA1
     -- 10.1. calculation
     have s10_1 : u * v = 0 := by
-      calc u * v = x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d := by exact s9.symm
-        _ = 0 := by parley_side
+      calc u * v = x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d := s9.symm
+        _ = 0 := hA1
     -- 10.2. mun:zero-product x := u, y := v, from 10.1
     have s10_2 : u = 0 ∨ v = 0 := by exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v))).mp s10_1
     -- 10.3. cases, from 10.2
@@ -194,7 +191,7 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           try push_cast at s10_4_2_3 ⊢
           linear_combination (norm := parley_norm) (-(J * u) - S * u + u * y) * s10_4_2_3
     -- 10.5. calculation
-    calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by exact s9
-      _ = 0 := by exact s10_4
+    calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := s9
+      _ = 0 := s10_4
 
 end Parley.Proofs.Wiedijk.Quartic.Quartic

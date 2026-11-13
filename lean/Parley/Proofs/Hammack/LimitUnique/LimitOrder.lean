@@ -60,14 +60,12 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
   -- 8. obtain q from line 6
   obtain ⟨q, ⟨s8a, s8b⟩⟩ := s6
   set m : ℝ := min p q with hD1
-  have hD1_kind : True := by trivial
   -- 9. mun:lt-min z := 0, x := p, y := q, from 7, 8
   have s9 : 0 < min p q := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr ⟨s7a, s8a⟩
   -- 10. mun:min-le x := p, y := q
   have s10a : min p q ≤ p := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := p) (y := q))
   have s10b : min p q ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := p) (y := q))
   set x₁ : ℝ := c + m / 2 with hD2
-  have hD2_kind : True := by parley_set_side
   -- 11. inequalities, from D1, 9
   have s11 : 0 < m := by linarith only [s9, hD1]
   -- 12. inequalities

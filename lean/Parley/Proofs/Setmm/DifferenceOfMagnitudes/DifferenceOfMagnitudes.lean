@@ -50,7 +50,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     have s8_1 : abs A - abs B ≤ abs (A - B) := by linarith only [s2]
     -- 8.2. calculation
     calc abs (abs A - abs B) = abs A - abs B := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) hC1
-      _ ≤ abs (A - B) := by exact s8_1
+      _ ≤ abs (A - B) := s8_1
   · skip
     -- 8.3. substitute |B − A| = |A − B| (line 6) into line 4
     have s8_3 : abs B ≤ abs (A - B) + abs A := by (have h := Eq.subst (motive := (fun t : ℝ => abs B ≤ t + abs A)) s6 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -58,6 +58,6 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     have s8_4 : -(abs A - abs B) ≤ abs (A - B) := by linarith only [s8_3]
     -- 8.5. calculation
     calc abs (abs A - abs B) = -(abs A - abs B) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) hC2
-      _ ≤ abs (A - B) := by exact s8_4
+      _ ≤ abs (A - B) := s8_4
 
 end Parley.Proofs.Setmm.DifferenceOfMagnitudes.DifferenceOfMagnitudes

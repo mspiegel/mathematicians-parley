@@ -214,9 +214,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_7_10 := parley_witness_at s5_7_10 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))
       have s5_7_2 := parley_witness_at s5_7_2 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))
       (try rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 1))] at s5_7_11; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_11); norm_cast at s5_7_11)
-      calc a * f a = f a * a := by exact s5_7_11
-        _ ≡ (Classical.choose whole1 : ℤ) [ZMOD p] := by exact s5_7_10
-        _ ≡ 1 [ZMOD p] := by exact s5_7_2
+      calc a * f a = f a * a := s5_7_11
+        _ ≡ (Classical.choose whole1 : ℤ) [ZMOD p] := s5_7_10
+        _ ≡ 1 [ZMOD p] := s5_7_2
     -- 5.8. proof
     have s5_8 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → ¬ p ∣ a - 1 := by
       intro a hK5
@@ -355,9 +355,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_15_3 : f (f a) * f a = f a * f (f a) := by parley_ring
       -- 5.15.4. calculation
       have s5_15_4 : f (f a) * f a ≡ a * f a [ZMOD p] := by
-        calc f (f a) * f a = f a * f (f a) := by exact s5_15_3
+        calc f (f a) * f a = f a * f (f a) := s5_15_3
           _ ≡ 1 [ZMOD p] := by exact (s5_7 (f a) (s5_13 a hK9))
-          _ ≡ a * f a [ZMOD p] := by exact (s5_7 a hK9).symm
+          _ ≡ a * f a [ZMOD p] := (s5_7 a hK9).symm
       -- 5.15.5. instantiate a := f(a) in line 5.4, from 5.13
       have s5_15_5 : (Int.gcd (f a) p : ℤ) = 1 := by exact (s5_4 (f a) (s5_13 a hK9))
       -- 5.15.6. thm:congruent-cancel c := f(a), from 5.6, 5.15.2, 5.15.4, 5.15.5
@@ -404,10 +404,10 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.28. thm:congruent-times b := 1, c := p − 1, from 5.19, 5.25
     have s5_28 : (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) * (p - 1) ≡ p - 1 [ZMOD p] := by simpa only [one_mul] using (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := ∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) (b := (1 : ℤ)) (c := p - 1) (n := p) hH1 s5_19)
     -- 5.29. calculation
-    calc (LeanBridges.Counting.factorial (p - 1) : ℤ) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) := by exact s5_21
-      _ = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by exact s5_23
-      _ = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by exact s5_27
-      _ ≡ p - 1 [ZMOD p] := by parley_set_side
+    calc (LeanBridges.Counting.factorial (p - 1) : ℤ) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) := s5_21
+      _ = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := s5_23
+      _ = (∏ k ∈ Finset.Icc (2 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := s5_27
+      _ ≡ p - 1 [ZMOD p] := s5_28
       _ ≡ -1 [ZMOD p] := by exact (Parley.Items.Stdlib.Divisibility.mun_minus_one_congruent (n := p) hH1)
   · skip
     -- 5.30. arithmetic

@@ -22,7 +22,6 @@ theorem a_define_inside_a_case (x : ℝ) (hH2 : x = 1 ∨ x = 2) :
   rcases hH2 with hC1 | hC2
   · skip
     set y : ℝ := x with hD1
-    have hD1_kind : True := by parley_side
     -- 1.1. D1
     have s1_1 : y = x := by simp (disch := omega) only [hD1]
     -- 1.2. arithmetic

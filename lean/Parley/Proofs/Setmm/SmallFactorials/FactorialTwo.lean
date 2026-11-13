@@ -33,7 +33,7 @@ theorem factorial_two :
     have row1 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1 * t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. calculation
-  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by exact s3
+  calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := s3
     _ = 2 := by norm_num
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialTwo

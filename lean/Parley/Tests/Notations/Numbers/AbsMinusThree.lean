@@ -27,7 +27,7 @@ theorem abs_minus_three :
   -- 2. def:abs x := −3, from 1
   have s2 : (abs (-3) : ℤ) = -(-3) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (-3 : ℤ))) (by norm_num)
   -- 3. calculation
-  calc (abs (-3) : ℤ) = -(-3) := by exact s2
+  calc (abs (-3) : ℤ) = -(-3) := s2
     _ = 3 := by norm_num
 
 end Parley.Tests.Notations.Numbers.AbsMinusThree

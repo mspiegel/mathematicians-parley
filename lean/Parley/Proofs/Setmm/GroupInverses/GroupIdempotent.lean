@@ -30,14 +30,14 @@ theorem group_idempotent {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
     intro hD1
     -- 3.1. calculation
     have s3_1 : a * a = a * (1 : G) := by
-      calc a * a = a := by parley_set_side
-        _ = a * (1 : G) := by exact s2.symm
+      calc a * a = a := hD1
+        _ = a * (1 : G) := s2.symm
     -- 3.2. thm:group-cancel b := e, g := a, from H2, 1, 3.1
     exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := a) (b := (1 : G)) (g := a) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _) s3_1)
   · skip
     intro hD2
     -- 3.3. calculation
     calc a * a = a * (1 : G) := by parley_subst hD2
-      _ = a := by exact s2
+      _ = a := s2
 
 end Parley.Proofs.Setmm.GroupInverses.GroupIdempotent

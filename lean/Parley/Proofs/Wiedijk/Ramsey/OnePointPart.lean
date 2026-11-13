@@ -51,7 +51,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
   -- 7. inequalities
   have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (linarith only [s5])
   -- 8. D1, from 6, 7
-  have s8 : 1 ≤ (({v} : Set α).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G) := by parley_set_side
+  have s8 : 1 ≤ (({v} : Set α).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G) := ⟨s7, s6⟩
   -- 9. exhibit, from 4, 8
   exact ⟨({v} : Set α), s4, s8⟩
 

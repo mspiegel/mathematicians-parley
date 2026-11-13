@@ -67,21 +67,21 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       have s4_3 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
       -- 4.4. calculation
       have s4_4 : F 1 = 1 := by
-        calc F 1 = G 0 := by exact s4_2
-          _ = 1 := by exact s4_3
+        calc F 1 = G 0 := s4_2
+          _ = 1 := s4_3
       -- 4.5. instantiate k := 0 in line 3
       have s4_5 : F 2 = F 0 + F 1 := by simpa only [zero_add, Int.cast_zero] using (s3 (0 : ℤ) (by norm_num))
       -- 4.6. calculation
       have s4_6 : F (3 * 0) = 2 * 0 := by
         calc F (3 * 0) = F 0 := by norm_num
-          _ = 0 := by exact s4_1
+          _ = 0 := s4_1
           _ = 2 * 0 := by norm_num
       -- 4.7. def:even n := F(3·0), from 4.6
       have s4_7 : Even (F (3 * 0)) := ((Parley.Items.Stdlib.Divisibility.def_even (n := F (3 * 0)))).mpr ⟨(0 : ℤ), s4_6⟩
       -- 4.8. calculation
       have s4_8 : F (3 * 0 + 1) = 2 * 0 + 1 := by
         calc F (3 * 0 + 1) = F 1 := by norm_num
-          _ = 1 := by exact s4_4
+          _ = 1 := s4_4
           _ = 2 * 0 + 1 := by norm_num
       -- 4.9. def:odd n := F(3·0 + 1), from 4.8
       have s4_9 : Odd (F (3 * 0 + 1)) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 1)))).mpr ⟨(0 : ℤ), s4_8⟩
@@ -169,7 +169,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.11. calculation
     have s5_11 : q > -1 := by
       try qify
-      calc (q : ℚ) > -(2 / 3) := by exact s5_10
+      calc (q : ℚ) > -(2 / 3) := s5_10
         _ > -1 := by norm_num
     -- 5.12. calculation
     have s5_12 : 0 ≤ q := by
@@ -229,7 +229,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.19. calculation
     have s5_19 : k > 0 := by
       try qify
-      calc (k : ℚ) ≥ 1 / 3 := by exact s5_18
+      calc (k : ℚ) ≥ 1 / 3 := s5_18
         _ > 0 := by norm_num
     -- 5.20. mun:pos-int-nat m := k, from 5.19
     have s5_20 : 0 < k := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) s5_19)

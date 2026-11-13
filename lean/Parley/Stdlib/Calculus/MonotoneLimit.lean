@@ -55,14 +55,14 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
     -- 4.3. transitivity, from 4.1, 4.2
     exact Eq.trans_le s4_1b s4_2
   -- 5. def:upper-bound, from 4
-  have s5 : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ B := by parley_set_side
+  have s5 : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ B := s4
   -- 6. obtain c: axi:completeness, from 2, 3, 5
   obtain ⟨c, s6⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n})) s2 ⟨x 1, s3, trivial⟩ ⟨B, s5⟩)
   -- 7. def:least-upper-bound, from 6
-  have s7a : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ c := by parley_set_side
-  have s7b : ∀ u : ℝ, (∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ u) → c ≤ u := by parley_set_side
+  have s7a : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ c := s6.1
+  have s7b : ∀ u : ℝ, (∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ u) → c ≤ u := s6.2
   -- 8. def:upper-bound, from 7
-  have s8 : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ c := by parley_set_side
+  have s8 : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ c := s7a
   -- 9. mun:increasing-terms, from H2
   have s9 : ∀ n : ℤ, 0 < n → (∀ m : ℤ, 0 < m → m ≤ n → x m ≤ x n) := by exact (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2)
   -- 10. proof
@@ -85,7 +85,7 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x
         have s10_2_1_3 : ∃ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), c - ε < s := ⟨s, hK2, s10_2_1_2⟩
         exact hS s10_2_1_3
       -- 10.2.2. def:upper-bound, from 10.2.1
-      have s10_2_2 : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ c - ε := by parley_set_side
+      have s10_2_2 : ∀ s ∈ x '' ({n : ℤ | 0 < n} ∩ {n : ℤ | 0 < n}), s ≤ c - ε := s10_2_1
       -- 10.2.3. instantiate u := c − ε in line 7, from 10.2.2
       have s10_2_3 : c ≤ c - ε := by exact (s7b (c - ε) s10_2_2)
       -- 10.2.4. inequalities, from 10.1

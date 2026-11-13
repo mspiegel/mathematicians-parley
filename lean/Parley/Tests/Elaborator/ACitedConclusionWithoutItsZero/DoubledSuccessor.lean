@@ -17,8 +17,8 @@ namespace Parley.Tests.Elaborator.ACitedConclusionWithoutItsZero.DoubledSuccesso
 theorem doubled_successor (n : ℤ) (hH1 : 0 ≤ n) :
     2 * (n + 1) = 2 * n + 2 := by
   -- 1. calculation
-  calc 2 * (n + 1) = 2 * (n + 1) := by parley_side
+  calc 2 * (n + 1) = 2 * (n + 1) := rfl
     _ = 2 * n + 2 := by parley_ring
-    _ = 2 * n + 2 := by parley_side
+    _ = 2 * n + 2 := rfl
 
 end Parley.Tests.Elaborator.ACitedConclusionWithoutItsZero.DoubledSuccessor

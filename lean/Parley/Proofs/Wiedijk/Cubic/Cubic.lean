@@ -49,9 +49,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
     have s3_w : (Real.sqrt (3 : ℝ) : ℂ) ^ 2 = 3 := by have h := congrArg (fun x : ℝ => (x : ℂ)) s3; push_cast at h; linear_combination (norm := parley_norm) h
     linear_combination (norm := parley_norm) ((Real.sqrt (3 : ℝ) : ℂ) ^ 2) * s2 + (-1) * s3_w
   set ω₁ : ℂ := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 with hD1
-  have hD1_kind : True := by parley_set_side
   set ω₂ : ℂ := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 with hD2
-  have hD2_kind : True := by parley_set_side
   -- 5. algebra, from D1, D2, 1, 4
   have s5 : ω₁ * ω₂ = 1 := by
     try simp only [hD1, hD2] at s4 ⊢
@@ -72,13 +70,9 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
   -- 8. algebra, from H12, H14, H15
   have s8 : T ^ 3 + M ^ 3 / T ^ 3 = N := by linear_combination (norm := parley_field) (((1 / 4 : ℂ)) / ((T ^ 3))) * hH12 + ((2 * T ^ 3 + G - N) / ((T ^ 3) * (2))) * hH14
   set y : ℂ := 3 * a * x + b with hD3
-  have hD3_kind : True := by parley_set_side
   set u : ℂ := y + T + M / T with hD4
-  have hD4_kind : True := by parley_set_side
   set v : ℂ := y + ω₁ * T + M / (ω₁ * T) with hD5
-  have hD5_kind : True := by parley_set_side
   set w : ℂ := y + ω₂ * T + M / (ω₂ * T) with hD6
-  have hD6_kind : True := by parley_set_side
   -- 9. algebra, from D3, H6, H8, H10
   have s9 : a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := by
     try simp only [hD3] at hH10 hH6 hH8 ⊢
@@ -102,7 +96,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
     intro hA1
     -- 12.1. calculation
     have s12_1 : u * (v * w) = 0 := by
-      calc u * (v * w) = y ^ 3 - 3 * M * y + N := by exact s11.symm
+      calc u * (v * w) = y ^ 3 - 3 * M * y + N := s11.symm
         _ = 0 := by linear_combination (norm := parley_field) (27 * a ^ 2) * hA1 + (-(27 * a ^ 2)) * s9
     -- 12.2. mun:zero-product x := u, y := v·w, from 12.1
     have s12_2 : u = 0 ∨ v * w = 0 := by exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := u) (y := v * w))).mp s12_1
@@ -184,10 +178,10 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         linear_combination (norm := parley_norm) (u * v) * s12_6_8
     -- 12.7. calculation
     have s12_7 : y ^ 3 - 3 * M * y + N = 0 := by
-      calc y ^ 3 - 3 * M * y + N = u * (v * w) := by exact s11
-        _ = 0 := by exact s12_6
+      calc y ^ 3 - 3 * M * y + N = u * (v * w) := s11
+        _ = 0 := s12_6
     -- 12.8. calculation
-    calc a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := by exact s9
+    calc a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := s9
       _ = 0 / (27 * a ^ 2) := by (have h := congrArg (fun t : ℂ => t / (27 * a ^ 2)) s12_7; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = 0 := by parley_ring
 

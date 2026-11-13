@@ -48,7 +48,6 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     intro ε
     intro hA1
     set m : ℝ := min 1 (ε / 7) with hD1
-    have hD1_kind : True := by trivial
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 7 := by linarith only [hA1]
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/7
@@ -95,7 +94,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
         exact row1
       -- 1.4.14. calculation
       have r94_1 : ε / 7 > 0 := by linarith only [hA1]
-      calc abs (f x - 7) = abs (x + 3) * abs (x - 3) := by exact s1_4_13
+      calc abs (f x - 7) = abs (x + 3) * abs (x - 3) := s1_4_13
         _ < abs (x + 3) * (ε / 7) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 3)) (y := ε / 7) (c := abs (x + 3)) s1_4_9.1)).mp s1_4_1.2
         _ = ε / 7 * abs (x + 3) := by parley_ring
         _ ≤ ε / 7 * 7 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (x + 3)) (y := (7 : ℝ)) (c := ε / 7) s1_4_10 r94_1)

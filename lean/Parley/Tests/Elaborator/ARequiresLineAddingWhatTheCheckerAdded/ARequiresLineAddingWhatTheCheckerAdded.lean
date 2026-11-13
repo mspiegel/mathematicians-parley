@@ -30,7 +30,7 @@ theorem a_requires_line_adding_what_the_checker_added (p : ℝ) (hH2 : p > 0) (h
   have r21_1 : p ≠ 0 := ne_of_gt (by linarith only [hH2])
   have s3 : (m : ℝ) ≥ 2 / p := by linarith only [s2b]
   -- 4. mun:reciprocal-order x := 2/p, y := m, from 3
-  have r27_1 : 2 / p > 0 := by parley_side
+  have r27_1 : 2 / p > 0 := by exact s1
   have r27_2 : m > 0 := by linarith only [s2a]
   have r27_3 : p ≠ 0 := ne_of_gt (by linarith only [hH2])
   have s4 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) r27_1 (y := (m : ℝ)) (by exact_mod_cast gt_iff_lt.mp r27_2))).mp s3

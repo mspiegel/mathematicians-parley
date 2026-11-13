@@ -52,8 +52,8 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
       have s2_4 : ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ 0 = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by
         calc ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ 0 = 1 := by parley_ring
           _ = 1 + Complex.I * 0 := by parley_ring
-          _ = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by exact s2_3.symm
-          _ = (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by exact s2_2.symm
+          _ = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := s2_3.symm
+          _ = (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) := s2_2.symm
           _ = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) s2_1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_4
     | succ k hK hIH =>

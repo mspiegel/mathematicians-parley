@@ -46,7 +46,6 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       -- 1.4. inequalities
       have s1_4 : 0 ≤ A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) := by linarith only [hIH]
       set X : ℝ := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) with hD1
-      have hD1_kind : True := by parley_side
       -- 1.5. thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
       have s1_5 : 0 ≤ A * X := by
         try simp only [hD1] at ⊢

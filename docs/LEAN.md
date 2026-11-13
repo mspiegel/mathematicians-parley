@@ -497,9 +497,10 @@ no line states the fact.
 | antisymmetry | `le_antisymm` of the two lines in `antisymmetric` |
 | restate | the line the checker found the claim in (`CheckedTheorem::restated`), a "for all" read at a block's letter with its `let` line as the guard (`ReadAt::opened_by`); `parley_side` where no one line states it |
 | join | each part of the claim the line the checker found it in (`joined`), in `⟨…⟩` as the sentence joins them; a part Lean's types make true, `trivial`; a line Lean states under the claim's binders read at them; `parley_side` where the record has no entry |
-| membership, inspection | `parley_side`; an integer the cited lines give, as a witness |
+| membership | a membership Lean's types give, `trivial`; one of ℕ₀ or ℕ, its bound by the said-once walk's reason, or beside a cited equation, the other side's bound carried along it (`le_of_le_of_eq`); an integer the cited lines give, as a witness |
+| inspection | by the case recorded (`inspected`): one of a range, its bounds worked out (`norm_num … at h; norm_cast at h; omega`); one of a listed set, its members' equations and `tauto`; nothing in ∅, `Set.notMem_empty`; a listed set's membership or size, `simp`; a prime, `norm_num` |
 | substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); `exact` of the line where the record puts the equation at no place; else `parley_subst` from the equation and the line the record names, the equation either way round; rows one at a time |
-| calculation | `calc`, each link by its reason |
+| calculation | `calc`, each link by its reason; a link citing a line met as a cited hypothesis is (`said_proof`): turned, across casts, a congruence with its modulus; sides Lean writes alike, `rfl`; numerals alone, the line put in the goal and worked out |
 | proof | `intro` |
 | contradiction | `by_contra hS` where the supposition is the claim negated, `intro hS` where the claim is the supposition negated, the supposition ascribed or turned where Lean writes it otherwise |
 | cases | `rcases` on the line that says "or" |
