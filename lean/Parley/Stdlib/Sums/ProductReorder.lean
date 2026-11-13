@@ -93,6 +93,6 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
     have hI : (∏ᶠ a ∈ X, (a : ℤ)) = (∏ᶠ y ∈ X, (f y : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun z : ℤ => z)) (Y := X) (Z := X) (g := f) hH2 s18))
     exact hI
   -- 21. restate 20
-  parley_set_side
+  exact s20.symm
 
 end Parley.Stdlib.Sums.ProductReorder

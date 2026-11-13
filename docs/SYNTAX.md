@@ -598,9 +598,9 @@ Besides what it writes, a cited line says:
   P ∈ line AB, and `P is not on line AB` says P ∉ line AB, each also the
   other way round. A part of a set and a member of its power set are the
   same: `X ⊆ A` says X ∈ 𝒫A.
-- **a "for all" at a block's letter**: inside a block that opened with
-  `let x ∈ X`, a line written above it saying "for all a ∈ X, P(a)" says
-  P(x).
+- **a "for all" at a let's letter**: a line saying "for all a ∈ X, P(a)"
+  says P(x) where the header says `let x ∈ X`, and inside a block that
+  opened with `let x ∈ X` below the line.
 - **a defined name as what it names**, where the step cites the define
   (below, "A step may cite a define").
 
@@ -1373,6 +1373,9 @@ are not hidden steps:
   reads it: `5.8. For all a ∈ {2, …, p − 2}, a·f(a) ≡ 1 (mod p)`, cited in
   a block opened by `let x ∈ {2, …, p − 2}`, supplies `x·f(x) ≡ 1
   (mod p)`. The letters need not agree; the sets are written the same.
+  A `let x ∈ X` of the header is read the same way, at every step. Where
+  a block's let and the header's both give a letter of X, the block's is
+  meant, as an inner letter hides an outer one.
   Where blocks around the step open with two letters of X, the citation
   does not say which is meant, and the step is an `instantiate` instead.
   The line at any other term, such as f(x), is an `instantiate` too: the

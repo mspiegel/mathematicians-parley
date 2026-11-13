@@ -967,48 +967,64 @@ fn line_at(
 /// read at a block's letter, or what a line implies (`fact_at`). By the
 /// line of the justification; one no line it names states, a fact only the
 /// lines together give, is left out.
-pub fn restatements(
-    thm: &Theorem,
-    library: &Library,
-    known: &Known,
-) -> IndexMap<usize, FirstAt> {
-    // Each fact read in the standard order, as the lines it is sought
-    // among are (`states`): `k ≥ 1` as `1 ≤ k`.
-    let ctx = &library.ctx;
-    let mut out = IndexMap::new();
+pub fn restatements(thm: &Theorem, library: &Library, known: &Known) -> Restatements {
+    let mut out = Restatements::default();
     for step in &thm.steps {
         if step.just.head.is(Method::Restate) && step.claim.sentences().len() == 1 {
-            let at = known.whole_as_written(&step.claim).and_then(|claim| {
-                fact_at(
-                    step,
-                    &step.just.refs,
-                    None,
-                    &standard(&claim, ctx),
-                    known,
-                    library,
-                )
-            });
-            if let Some(at) = at {
-                out.insert(step.just.line, at);
+            if let Some(found) =
+                restated_at(step, &step.just.refs, &step.claim, known, library)
+            {
+                out.add(step.just.line, found);
             }
         }
         for req in step.requires.iter().filter(|r| r.is_lines()) {
-            let at = known.whole_as_written(&req.fact).and_then(|fact| {
-                fact_at(
-                    step,
-                    req.lines(),
-                    None,
-                    &standard(&fact, ctx),
-                    known,
-                    library,
-                )
-            });
-            if let Some(at) = at {
-                out.insert(req.line, at);
+            if let Some(found) =
+                restated_at(step, req.lines(), &req.fact, known, library)
+            {
+                out.add(req.line, found);
             }
         }
     }
     out
+}
+
+/// Where each restatement stands (`CheckedTheorem::restated`) and how the
+/// line met it where not as written (`CheckedTheorem::restated_meetings`),
+/// by the line of the justification.
+#[derive(Default)]
+pub struct Restatements {
+    pub places: IndexMap<usize, FirstAt>,
+    pub meetings: IndexMap<usize, crate::matching::Meeting>,
+}
+
+impl Restatements {
+    fn add(
+        &mut self,
+        line: usize,
+        (at, meeting): (FirstAt, Option<crate::matching::Meeting>),
+    ) {
+        if let Some(met) = meeting.filter(|m| !m.as_written()) {
+            self.meetings.insert(line, met);
+        }
+        self.places.insert(line, at);
+    }
+}
+
+/// Where `said`, a restatement, stands among the lines `refs` names
+/// (`fact_at`), and how the line as written met it (`Known::alike_how`).
+/// The fact is read in the standard order, as the lines it is sought among
+/// are (`states`): `k ≥ 1` as `1 ≤ k`.
+fn restated_at(
+    step: &Step,
+    refs: &[String],
+    said: &Written,
+    known: &Known,
+    library: &Library,
+) -> Option<(FirstAt, Option<crate::matching::Meeting>)> {
+    let fact = standard(&known.whole_as_written(said)?, &library.ctx);
+    let at = fact_at(step, refs, None, &fact, known, library)?;
+    let meeting = known.alike_how(&fact, &at.written);
+    Some((at, meeting))
 }
 
 /// Where `fact`, a membership the page says once, stands among the lines

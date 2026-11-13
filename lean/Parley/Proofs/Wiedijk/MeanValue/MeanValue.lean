@@ -111,7 +111,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
           try push_cast at s17 s18 s19 s20 r121_1 ⊢
           parley_ring
       _ = f b + g b := by (have h := congrArg (fun t : ℝ => f b + t) s20.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = F b := s19
+      _ = F b := s19.symm
   -- 22. obtain c: thm:rolle f := F, from H3, 12, 15, 21
   have r132_1 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
   obtain ⟨c, s22a, s22b⟩ := (Parley.Items.Stdlib.Calculus.thm_rolle (f := F) (a := a) (b := b) hH3 s12 s15 s21)

@@ -9,7 +9,6 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sets
@@ -27,7 +26,7 @@ theorem a_repeat_counts_once :
   -- 2. arithmetic
   have s2 : (1 : ℤ) ≠ 2 := by parley_arith
   -- 3. mun:card-pair-distinct u := 1, w := 2, from 2
-  have s3 : (({(1 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := (1 : ℤ)) (w := (2 : ℤ)))).mp (by (have h := s2; revert h; norm_num))
+  have s3 : (({(1 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := (1 : ℤ)) (w := (2 : ℤ)))).mp s2
   -- 4. substitute {1, 2} = {1, 2, 2} (line 1) into line 3
   parley_subst_at s1 s3
 

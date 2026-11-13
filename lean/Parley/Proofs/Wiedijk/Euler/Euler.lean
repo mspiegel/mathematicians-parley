@@ -124,7 +124,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     have s7_4 : f t = t * a % n := by simp (disch := omega) only [hD2]
     -- 7.5. calculation
     have s7_5 : s * a % n = t * a % n := by
-      calc s * a % n = f s := s7_3
+      calc s * a % n = f s := s7_3.symm
         _ = f t := hK4
         _ = t * a % n := s7_4
     -- 7.6. mun:mod-equal-congruent, from 7.5

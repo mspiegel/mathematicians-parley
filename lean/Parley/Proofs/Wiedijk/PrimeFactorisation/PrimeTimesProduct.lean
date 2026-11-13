@@ -135,6 +135,6 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 13. exhibit, from 4, 6, 12
   have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, add_pos (s2a) (by norm_num), h, s6, ⟨s12, s4⟩⟩
   -- 14. D1, from 13
-  parley_set_side
+  exact s13
 
 end Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct

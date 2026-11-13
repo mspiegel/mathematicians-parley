@@ -36,7 +36,7 @@ theorem ninety_one_is_not_prime :
   -- 4.3. mun:modus-ponens, from 1, 4.2
   have s4_3 : (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (7 : ℤ) ∣ (91 : ℤ)) (Q := (7 : ℤ) = 1 ∨ (7 : ℤ) = 91) s4_2 s1)
   -- 4.4. mun:disjunctive-syllogism, from 3, 4.3
-  have s4_4 : (7 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := (7 : ℤ) = 1) (Q := (7 : ℤ) = 91) s4_3 (by (have h := s3; revert h; norm_num)))
+  have s4_4 : (7 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := (7 : ℤ) = 1) (Q := (7 : ℤ) = 91) s4_3 s3)
   exact s2 s4_4
 
 end Parley.Tests.Notations.Primes.NinetyOneIsNotPrime

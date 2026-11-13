@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -27,7 +28,7 @@ theorem digit_range (t : ℤ) :
   -- 3. substitute s(t) = (t + 1) mod 10 (line 1) into line 2
   have s3 : (t + 1) % (10 : ℤ) < 10 := by exact s2
   -- 4. membership, from 1
-  have s4 : 0 ≤ (t + 1) % (10 : ℤ) := by parley_side
+  have s4 : 0 ≤ (t + 1) % (10 : ℤ) := le_of_le_of_eq (Int.emod_nonneg _ (ne_of_gt (by norm_num))) (s1).symm
   -- 5. mun:integer-step m := s(t), n := 10, from 3, 4
   have s5 : (t + 1) % (10 : ℤ) + 1 ≤ 10 := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (t + 1) % (10 : ℤ)) (n := (10 : ℤ)) s3)
   -- 6. inequalities, from 4, 5

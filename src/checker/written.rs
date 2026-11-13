@@ -280,6 +280,10 @@ pub fn written_out(
         b.equation = out(&b.equation);
         b.other = out(&b.other);
         b.other_stated = b.other_stated.as_ref().map(out);
+        if let Some(row) = &mut b.other_row {
+            row.left = out(&row.left);
+            row.right = out(&row.right);
+        }
     };
     for shown in written
         .places_shown
@@ -288,8 +292,15 @@ pub fn written_out(
         .chain(written.members_shown.values_mut())
     {
         shown.term = out(&shown.term);
-        if let super::record::ShownBy::Beside(b) = &mut shown.by {
-            beside_written(b);
+        use super::record::ShownBy;
+        match &mut shown.by {
+            ShownBy::Beside(b) => beside_written(b),
+            ShownBy::Typed { map, at } => {
+                *map = out(map);
+                *at = out(at);
+            }
+            ShownBy::Define { value } => *value = out(value),
+            ShownBy::Said => {}
         }
     }
     for held in written.held_by_lines.values_mut().flatten() {

@@ -25,6 +25,6 @@ theorem ten_is_triangular :
   -- 2. exhibit, from 1
   have s2 : ∃ k : ℤ, 0 < k ∧ 10 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(4 : ℤ), by norm_num, by norm_num⟩
   -- 3. def:triangular-number n := 10, from 2
-  parley_side
+  exact ⟨by norm_num, s2⟩
 
 end Parley.Tests.Elaborator.APhraseImported.TenIsTriangular

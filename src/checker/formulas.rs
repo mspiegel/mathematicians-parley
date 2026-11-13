@@ -5917,6 +5917,8 @@ fn inspection_case(
             Case::Empty => Inspection::Empty,
             Case::Member => Inspection::Member,
             Case::Size => Inspection::Size,
+            Case::TakenSize => Inspection::TakenSize,
+            Case::Taken => Inspection::Taken,
             Case::Other => Inspection::Other,
         },
     )
@@ -6032,9 +6034,33 @@ fn member_beside(
 ) -> Option<super::record::PlaceShown> {
     use super::record::{PlaceShown, ShownBy};
     let read = at.read(known, targets, true)?;
-    let held = MembershipIn::of(at, &read, known);
-    let (MEMBERSHIP, [term, set]) =
-        (read.claimed.notation(), read.claimed.children.as_slice())
+    let mut held = MembershipIn::of(at, &read, known);
+    // A claim said of every member is read at a member, as
+    // `membership_holds` decides it.
+    // The claim as the page writes it, no define written out.
+    let as_page = match at.claim.sentences().as_slice() {
+        [one] => known.read_as_written(one),
+        _ => None,
+    };
+    let (claimed, written) = match (
+        read.claimed.notation(),
+        read.claimed.children.as_slice(),
+        as_page,
+    ) {
+        (FOR_ALL, [bound, set, body], written) => {
+            if !member_of(bound, set, &mut held.letters, &mut held.ranged) {
+                return None;
+            }
+            let written =
+                written.and_then(|w| match (w.notation(), w.children.as_slice()) {
+                    (FOR_ALL, [_, _, b]) => Some(b.clone()),
+                    _ => None,
+                });
+            (body.clone(), written)
+        }
+        (_, _, written) => (read.claimed.clone(), written),
+    };
+    let (MEMBERSHIP, [term, set]) = (claimed.notation(), claimed.children.as_slice())
     else {
         return None;
     };
@@ -6042,14 +6068,39 @@ fn member_beside(
         .then(|| System::of_sign(&set.text))
         .flatten()?;
     let given = held.given(targets, known);
-    match methods_membership::atom_held_by(term, system, &given)? {
-        methods_membership::Held::Beside(b) => Some(PlaceShown {
+    let shown = |by| {
+        Some(PlaceShown {
             term: term.clone(),
             system,
-            by: ShownBy::Beside(super::record::Besides::of(&b)),
-        }),
-        methods_membership::Held::Said => None,
+            by,
+        })
+    };
+    if let Some(methods_membership::Held::Beside(b)) =
+        methods_membership::atom_held_by(term, system, &given)
+    {
+        return shown(ShownBy::Beside(super::record::Besides::of(&b)));
     }
+    // A term a cited define writes out, read as its value.
+    let as_written =
+        written.and_then(|w| match (w.notation(), w.children.as_slice()) {
+            (MEMBERSHIP, [t, _]) => Some(t.clone()),
+            _ => None,
+        });
+    if as_written.is_some_and(|w| !known.alike(&w, term)) {
+        return shown(ShownBy::Define {
+            value: term.clone(),
+        });
+    }
+    // A function's value by its type.
+    if let Some(map) = methods_membership::value_typed_by(term, system, &given) {
+        if let [_, point] = term.children.as_slice() {
+            return shown(ShownBy::Typed {
+                map: map.clone(),
+                at: point.clone(),
+            });
+        }
+    }
+    None
 }
 
 /// `check_membership_holds` of one claim; whether it was decided.
@@ -7057,6 +7108,13 @@ pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlace
                 }
             });
             if let Some(at) = placed {
+                // How the line as written met the link, where not as written.
+                if let Some(met) = known
+                    .alike_how(&reading.said, &at.written)
+                    .filter(|m| !m.as_written())
+                {
+                    out.meetings.insert(link.line.line, met);
+                }
                 out.places.insert(link.line.line, at);
             }
             let facing = reading.at.and_then(|k| {
@@ -7080,6 +7138,8 @@ pub fn link_places(thm: &Theorem, library: &Library, known: &Known) -> LinkPlace
 pub struct LinkPlaces {
     pub places: IndexMap<usize, crate::checker::record::FirstAt>,
     pub facings: IndexMap<usize, crate::checker::record::Facing>,
+    /// How the line met the link, where not as written.
+    pub meetings: IndexMap<usize, crate::matching::Meeting>,
 }
 
 /// A calculation link read against the line it cites: what the line says

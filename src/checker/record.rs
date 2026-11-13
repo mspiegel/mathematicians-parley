@@ -335,6 +335,10 @@ pub struct CheckedTheorem {
     /// block's letter among them, by the line of its justification
     /// (`citations::restatements`).
     pub restated: IndexMap<usize, FirstAt>,
+    /// How the line met each restatement it does not state as written:
+    /// turned, identity elements dropped, bound letters renamed, `d = n` of
+    /// `n = d·1`. By the line of the justification (`restatements`).
+    pub restated_meetings: IndexMap<usize, crate::matching::Meeting>,
     /// How each calculation link citing a define, and each step whose reason
     /// is defines, meets the defines written out: its equation's two sides
     /// once each define's name is its value, a "for all"'s at its body; None
@@ -355,6 +359,10 @@ pub struct CheckedTheorem {
     /// a = c of a = b = c, is placed at the chain's sentence with the pair it
     /// reads as `written`.
     pub link_places: IndexMap<usize, FirstAt>,
+    /// How the line met each calculation link it does not state as written,
+    /// as `restated_meetings`: `F(0) + G(0) = G(1)` of `G(0 + 1) = F(0) +
+    /// G(0)`. By the link's line (`formulas::link_places`).
+    pub link_meetings: IndexMap<usize, crate::matching::Meeting>,
     /// Which way each calculation link that cites a line faces what the line
     /// says, an equation of the line's turned round where the link writes
     /// its sides the other way (`citations::facing_of`), by the link's line
@@ -526,6 +534,11 @@ pub enum Inspection {
     Member,
     /// The size of a set listed in full.
     Size,
+    /// The size of a set taken by a property from a set listed in full.
+    TakenSize,
+    /// A set taken by a property from a set listed in full, said equal to
+    /// the members it keeps.
+    Taken,
     /// Any other the method decides.
     Other,
 }
@@ -540,6 +553,23 @@ pub enum ShownBy {
     /// beside `other`, a term in the system: a·f(a) of a·f(a) = f(a)·a
     /// where a requires line says f(a)·a ∈ ℤ (`Besides`).
     Beside(Besides),
+    /// A function's value at a point of its domain, by its type `map`,
+    /// `f : ℕ → ℕ` of f(a) with a ∈ ℕ, the function applied at `at`.
+    Typed { map: Node, at: Node },
+    /// The term as a define the claim cites writes it out, `value`: e(i) ∈
+    /// ℕ of `let e(i) = p` with p ∈ ℕ, as p is.
+    Define { value: Node },
+}
+
+/// A row of the closure table (`rules::WHOLE`) that puts a term in a
+/// system by its operation, and the term's two parts in the systems the
+/// row asks: (t + 1) mod 10 ∈ ℕ₀, an integer modulo a natural number.
+#[derive(Clone, Debug)]
+pub struct WholeRow {
+    /// The row, by its operation.
+    pub op: String,
+    pub left: Node,
+    pub right: Node,
 }
 
 /// An equation that puts a term beside `other`, a term in a number system
@@ -556,6 +586,9 @@ pub struct Besides {
     /// The line stating `other` is in the system, as the lines hold it;
     /// None where the page says it once or the closure table puts it there.
     pub other_stated: Option<Node>,
+    /// The closure table's row that puts `other` in the system, where no
+    /// line states it: (t + 1) mod 10 beside s(t).
+    pub other_row: Option<WholeRow>,
 }
 
 impl Besides {
@@ -569,6 +602,11 @@ impl Besides {
                 false => Facing::Turned,
             },
             other_stated: b.other_stated.cloned(),
+            other_row: b.other_row.map(|(row, [left, right])| WholeRow {
+                op: row.op.to_string(),
+                left: left.clone(),
+                right: right.clone(),
+            }),
         }
     }
 }

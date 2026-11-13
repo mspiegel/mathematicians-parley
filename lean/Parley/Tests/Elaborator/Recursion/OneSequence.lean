@@ -33,6 +33,6 @@ theorem one_sequence (c : ℤ → ℤ) (hD1 : c 0 = (1 : ℤ) ∧ (∀ k : ℤ, 
   -- 6. calculation
   calc c (0 + 1) = 2 * c 0 := s3
     _ = 2 * 1 := s4
-    _ = 2 := by (have h := s5; revert h; norm_num)
+    _ = 2 := s5
 
 end Parley.Tests.Elaborator.Recursion.OneSequence

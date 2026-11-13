@@ -104,7 +104,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
           _ = 0 + 1 := by norm_num
           _ = 0 + G 0 := by (have h := congrArg (fun t : ℤ => 0 + t) s2_2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = F 0 + G 0 := by (have h := congrArg (fun t : ℤ => t + G 0) s2_13.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = G 1 := by parley_side
+          _ = G 1 := by simpa only [zero_add] using s2_12.symm
       -- 2.15. join 2.3, 2.14
       have s2_15a : S 0 = G 0 := s2_3
       have s2_15b : S 1 = G 1 := s2_14

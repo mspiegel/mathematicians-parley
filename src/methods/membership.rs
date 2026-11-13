@@ -124,6 +124,10 @@ pub struct Beside<'f> {
     /// (`stated_by`); None where it is said once or the closure table puts
     /// it there.
     pub other_stated: Option<&'f Node>,
+    /// The row of the closure table that puts the other side in the
+    /// system by its own operation, with its two parts, where no fact
+    /// states it: (t + 1) mod 10 beside s(t) of s(t) = (t + 1) mod 10.
+    pub other_row: Option<(&'static rules::Whole, [&'f Node; 2])>,
 }
 
 /// `besides`, each with the equation that puts the term there.
@@ -137,16 +141,39 @@ fn besides_by<'f>(term: &Node, facts: &'f Facts) -> Vec<Beside<'f>> {
                 other: b,
                 term_left: true,
                 other_stated: None,
+                other_row: None,
             }),
             (EQUALITY, [a, b]) if same(b, term, facts.ctx) => Some(Beside {
                 equation: f,
                 other: a,
                 term_left: false,
                 other_stated: None,
+                other_row: None,
             }),
             _ => None,
         })
         .collect()
+}
+
+/// `b` with how its other side is in `system`: the fact stating it, or else
+/// the closure table's row of its own operation, its parts walked to
+/// `depth`.
+fn with_other_held<'f>(
+    b: Beside<'f>,
+    system: System,
+    facts: &'f Facts,
+    depth: usize,
+) -> Beside<'f> {
+    let other_stated = stated_by(b.other, system, facts);
+    let other_row = match other_stated {
+        Some(_) => None,
+        None => whole_by(b.other, system, facts, depth),
+    };
+    Beside {
+        other_stated,
+        other_row,
+        ..b
+    }
 }
 
 /// How an atom is in its system (`atom_held`), so that a backend proves it
@@ -178,12 +205,7 @@ pub fn atom_held_by<'f>(
     besides_by(term, facts)
         .into_iter()
         .find(|b| holds(b.other, system, facts))
-        .map(|b| {
-            Held::Beside(Beside {
-                other_stated: stated_by(b.other, system, facts),
-                ..b
-            })
-        })
+        .map(|b| Held::Beside(with_other_held(b, system, facts, CARRIED)))
 }
 
 /// Whether a bare `from` line reads `term ∈ system` off its facts
@@ -345,10 +367,12 @@ fn held_at<'f>(
             .into_iter()
             .find(|b| member(b.other, system, facts, depth - 1))
         {
-            return Some(HeldHow::Beside(Beside {
-                other_stated: stated_by(b.other, system, facts),
-                ..b
-            }));
+            return Some(HeldHow::Beside(with_other_held(
+                b,
+                system,
+                facts,
+                depth - 1,
+            )));
         }
     }
     let closed = whole(term, system, facts, depth)
@@ -386,10 +410,29 @@ fn powered(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
 /// says `f : D → E` and x is in D: by a number system D holds, by a range
 /// D x runs over, or by a fact putting x in D.
 fn valued(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
+    typed_by(term, system, facts, depth).is_some()
+}
+
+/// The type among `facts`, `f : X → Y`, that puts `term`, a function's
+/// value f(a) at a point of X, in `system`; None where none does.
+pub fn value_typed_by<'f>(
+    term: &Node,
+    system: System,
+    facts: &'f Facts,
+) -> Option<&'f Node> {
+    typed_by(term, system, facts, 0)
+}
+
+fn typed_by<'f>(
+    term: &Node,
+    system: System,
+    facts: &'f Facts,
+    depth: usize,
+) -> Option<&'f Node> {
     let (APPLICATION, [f, at]) = (term.notation(), term.children.as_slice()) else {
-        return false;
+        return None;
     };
-    facts.typed.iter().any(|t| {
+    facts.typed.iter().find(|t| {
         let [g, domain, codomain] = t.children.as_slice() else {
             return false;
         };
@@ -436,22 +479,38 @@ fn in_domain(x: &Node, domain: &Node, facts: &Facts, depth: usize) -> bool {
 /// asks. The operation is read off the term's target, a notation's or a
 /// library function's (`Targets::operation`).
 fn whole(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
-    let Some(op) = facts.targets.operation(term) else {
-        return false;
-    };
-    let Some(w) = rules::WHOLE.iter().find(|w| w.op == op.label) else {
-        return false;
-    };
+    whole_by(term, system, facts, depth).is_some()
+}
+
+/// The row of the closure table that puts `term` in `system`
+/// (`rules::WHOLE`), with the term's two parts; None where none does.
+pub fn whole_row<'n>(
+    term: &'n Node,
+    system: System,
+    facts: &Facts,
+) -> Option<(&'static rules::Whole, [&'n Node; 2])> {
+    whole_by(term, system, facts, CARRIED)
+}
+
+fn whole_by<'n>(
+    term: &'n Node,
+    system: System,
+    facts: &Facts,
+    depth: usize,
+) -> Option<(&'static rules::Whole, [&'n Node; 2])> {
+    let op = facts.targets.operation(term)?;
+    let w = rules::WHOLE.iter().find(|w| w.op == op.label)?;
     let ([left, right], Some(left_in), Some(right_in)) = (
         op.parts.as_slice(),
         System::of_label(w.left.1),
         System::of_label(w.right.1),
     ) else {
-        return false;
+        return None;
     };
-    System::N0.within(system)
+    (System::N0.within(system)
         && member(left, left_in, facts, depth)
-        && member(right, right_in, facts, depth)
+        && member(right, right_in, facts, depth))
+    .then_some((w, [*left, *right]))
 }
 
 /// A sum over a range in ℝ or ℂ, its term in that system at every index:

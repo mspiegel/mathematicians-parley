@@ -126,7 +126,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := (s18 x hK1)
       _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) (s16 x hK1); push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = x ^ m.toNat := by parley_ring
-      _ = p x := s19_2
+      _ = p x := s19_2.symm
   -- 20. arithmetic
   have s20 : (0 : ℤ) < 1 := by parley_arith
   -- 21. def:interval a := 0, b := 1, x := 0

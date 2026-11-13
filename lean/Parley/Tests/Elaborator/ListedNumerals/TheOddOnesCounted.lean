@@ -22,6 +22,6 @@ namespace Parley.Tests.Elaborator.ListedNumerals.TheOddOnesCounted
 theorem the_odd_ones_counted :
     ({x ∈ ({(2 : ℤ), (3 : ℤ), (7 : ℤ), (8 : ℤ)} : Set ℤ) | Odd x}.ncard : ℤ) = 2 := by
   -- 1. inspection
-  parley_set_side
+  rw [Set.ncard_eq_toFinset_card']; decide
 
 end Parley.Tests.Elaborator.ListedNumerals.TheOddOnesCounted

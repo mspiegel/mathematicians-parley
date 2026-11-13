@@ -34,6 +34,6 @@ theorem odd_square_less_one_over_eight (n : ℤ) (hH2 : Odd n) :
   -- 3. thm:triangular-number-integer n := k
   have s3 : ∃ m : ℤ, (m : ℚ) = (k : ℚ) * ((k : ℚ) + 1) / 2 := by exact (Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger.triangular_number_integer (n := k))
   -- 4. membership, from 2, 3
-  parley_side
+  exact s3.imp (fun _ h => h.trans (s2).symm)
 
 end Parley.Proofs.Setmm.OddSquareLessOneOverEight.OddSquareLessOneOverEight

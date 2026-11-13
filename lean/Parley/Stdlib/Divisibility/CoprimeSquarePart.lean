@@ -5,8 +5,10 @@ public import NormTactics
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Order.Ring
 public import Mathlib.Data.Nat.Notation
@@ -109,10 +111,10 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
     have row2 : (Int.gcd s w : ℤ) ^ 2 ∣ s := by (have h := Eq.subst (motive := (fun u : ℤ => (Int.gcd s w : ℤ) ^ 2 ∣ u)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2
   -- 23. mun:divides-le e := s, m := gcd(s, w)², from 16
-  have r335_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := by parley_side
+  have r335_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := pow_pos (s1a) _
   have s23 : s ≤ (Int.gcd s w : ℤ) ^ 2 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := s) hH1 (m := (Int.gcd s w : ℤ) ^ 2) r335_1 s16)
   -- 24. mun:divides-le e := gcd(s, w)², m := s, from 22
-  have r339_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := by parley_side
+  have r339_1 : 0 < (Int.gcd s w : ℤ) ^ 2 := pow_pos (s1a) _
   have s24 : (Int.gcd s w : ℤ) ^ 2 ≤ s := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd s w : ℤ) ^ 2) r339_1 (m := s) hH1 s22)
   -- 25. antisymmetry, from 23, 24
   exact le_antisymm s23 s24

@@ -6057,7 +6057,8 @@ fn cases() -> Vec<Case> {
                 None,
                 "theorem planted\n  assume for all y ∈ ℝ, for all z ∈ ℝ, y + z = z + y    (H1)\n  let x ∈ ℝ    (H2)\n  then for all y ∈ ℝ, y + x = x + y\n\n1.  For all y ∈ ℝ, y + x = x + y.\n    instantiate z := x in H1\n".to_string(),
             )],
-            "step 1 instantiates H1, which quantifies a name the step gives no value, before the ones it does",
+            // H1 read at the header's x gives z its value and none other.
+            "H1 at those terms says x + x = x + x",
         ),
         // A cited item's group identity is the citing proof's, and no letter
         // a hypothesis on it can be met by.

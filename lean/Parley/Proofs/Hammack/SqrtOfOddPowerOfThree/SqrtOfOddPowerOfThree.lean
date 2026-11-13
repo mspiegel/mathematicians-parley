@@ -73,7 +73,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 9. mun:exponent-sum a := 3, n := m, from 5
   have s9 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (3 : ℚ)) (m := m) s5 (n := m) s5); simp only [parley_zpow_toNat (n := m + m) (h := add_nonneg (s5) (s5)), parley_zpow_toNat (n := m) (h := s5)] at h ⊢; exact_mod_cast h)
   -- 10. calculation
-  have r50_1 : 0 ≤ m + m := by parley_side
+  have r50_1 : 0 ≤ m + m := add_nonneg (le_trans (by norm_num) s4) (le_trans (by norm_num) s4)
   have s10 : (3 ^ k.toNat : ℚ) = 3 ^ m * 3 ^ m * 3 := by
     calc (3 ^ k.toNat : ℚ) = 3 ^ (m + m + 1) := by (have h := congrArg (fun t : ℤ => ((3 ^ t) : ℚ)) s8; simp only [parley_zpow_toNat (n := k) (h := le_trans (by norm_num) s2), parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num))] at h ⊢; exact_mod_cast h)
       _ = 3 ^ (m + m) * 3 := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℚ)) (m := m + m) r50_1); simp only [parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num)), parley_zpow_toNat (n := m + m) (h := r50_1)] at h ⊢; exact_mod_cast h)

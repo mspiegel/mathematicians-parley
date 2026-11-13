@@ -101,8 +101,8 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   have s4_19 : (abs (0 - 1) : ℤ) = -(0 - 1) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := (0 - 1 : ℤ))) (by norm_num)
   -- 4.20. calculation
   have s4_20 : (-(0 - 1) : ℚ) < 1 / 2 := by
-    calc (-(0 - 1) : ℚ) = abs (0 - 1) := by parley_set_side
-      _ < 1 / 2 := by parley_set_side
+    calc (-(0 - 1) : ℚ) = abs (0 - 1) := by (have h := s4_19; revert h; norm_num)
+      _ < 1 / 2 := by (have h := s4_17; revert h; norm_num)
   exact absurd s4_20 (by norm_num)
 
 end Parley.Tests.Notations.Continuity.AStepIsNotContinuous

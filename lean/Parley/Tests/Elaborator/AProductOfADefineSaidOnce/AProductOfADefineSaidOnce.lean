@@ -38,10 +38,10 @@ theorem a_product_of_a_define_said_once (p : ℤ) (hH1 : 0 < p) :
   have s2 : e 1 = p := by simp (disch := omega) only [hD1]
   -- 3. calculation
   have s3 : p = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
-    calc p = e 1 := s2
+    calc p = e 1 := s2.symm
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := s1.symm
   -- 4. membership, from D1
-  have s4 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; parley_set_side
+  have s4 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; exact by rw [hD1]; exact hH1
   -- 5. mun:function-into, from 4
   have s5 : Set.MapsTo e (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := e) (X := (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Finset.mem_Icc, Set.mem_Icc, Set.mem_ofPred_eq] using s4))
   -- 6. exhibit, from 3, 5

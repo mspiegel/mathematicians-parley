@@ -4,7 +4,6 @@ public import ArithTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
-public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Parley.Items.Stdlib.Divisibility
@@ -23,6 +22,6 @@ theorem zero_does_not_divide_five :
   -- 2. arithmetic
   have s2 : (5 : ℤ) ≠ 0 := by parley_arith
   -- 3. mun:iff-not-from-right, from 1, 2
-  exact (Parley.Items.Stdlib.Reasoning.mun_iff_not_from_right (P := (0 : ℤ) ∣ (5 : ℤ)) (Q := (5 : ℤ) = 0) s1 (by (have h := s2; revert h; norm_num)))
+  exact (Parley.Items.Stdlib.Reasoning.mun_iff_not_from_right (P := (0 : ℤ) ∣ (5 : ℤ)) (Q := (5 : ℤ) = 0) s1 s2)
 
 end Parley.Tests.Notations.Divisibility.ZeroDoesNotDivideFive

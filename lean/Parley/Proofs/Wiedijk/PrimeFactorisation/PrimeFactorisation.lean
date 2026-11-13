@@ -130,7 +130,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
           -- 1.18.6.2. substitute e(i) = p (line 1.18.6.1) into line 1.7
           (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s1_18_6_1.symm s1_7b; push_cast at h ⊢; all_goals exact_mod_cast h)
         -- 1.18.7. membership, from D3
-        have s1_18_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; parley_set_side
+        have s1_18_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; exact by rw [hD3]; exact s1_7a
         -- 1.18.8. mun:function-into, from 1.18.7
         have s1_18_8 : Set.MapsTo e (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := e) (X := (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Finset.mem_Icc, Set.mem_Icc, Set.mem_ofPred_eq] using s1_18_7))
         -- 1.18.9. D3
@@ -141,12 +141,12 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.11. calculation
         have s1_18_11 : m = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
           calc m = p := s1_18_10
-            _ = e 1 := s1_18_9
+            _ = e 1 := s1_18_9.symm
             _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ))).symm
         -- 1.18.12. exhibit, from 1.18.6, 1.18.8, 1.18.11
         have s1_18_12 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨(1 : ℤ), by norm_num, e, s1_18_8, ⟨s1_18_11, s1_18_6⟩⟩
         -- 1.18.13. D1, from 1.18.12
-        parley_set_side
+        exact s1_18_12
   -- 2. instantiate N := n in line 1
   have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n hH1 m h_m)
   -- 3. def:range-between k := n, a := 2, b := n, from H2

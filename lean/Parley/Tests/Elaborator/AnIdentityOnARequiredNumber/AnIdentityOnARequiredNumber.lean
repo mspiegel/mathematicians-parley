@@ -22,7 +22,7 @@ namespace Parley.Tests.Elaborator.AnIdentityOnARequiredNumber.AnIdentityOnARequi
 theorem an_identity_on_a_required_number (b : ℤ → ℤ) (hH1 : Set.MapsTo b (Set.univ : Set ℤ) {n : ℤ | 0 < n}) (A : ℤ) :
     b A * b A = 1 * (b A * b A) := by
   -- 1. membership, from H1
-  have s1 : 0 < b A := by parley_set_side
+  have s1 : 0 < b A := hH1 (Set.mem_univ _)
   -- 2. algebra
   parley_ring
 

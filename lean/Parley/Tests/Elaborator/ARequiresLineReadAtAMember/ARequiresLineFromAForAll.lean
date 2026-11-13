@@ -23,7 +23,7 @@ namespace Parley.Tests.Elaborator.ARequiresLineReadAtAMember.ARequiresLineFromAF
 theorem a_requires_line_from_a_for_all (n : ℤ) (hH1 : 0 < n) (hH2 : ∀ m : ℤ, 0 < m → (2 ^ m.toNat : ℤ) > 0) :
     (1 / 2 ^ n.toNat : ℚ) > 0 := by
   -- 1. mun:reciprocal-positive x := 2^n
-  have r19_1 : (2 ^ n.toNat : ℤ) > 0 := by parley_side
+  have r19_1 : (2 ^ n.toNat : ℤ) > 0 := by exact (hH2 n hH1)
   exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r19_1))
 
 end Parley.Tests.Elaborator.ARequiresLineReadAtAMember.ARequiresLineFromAForAll

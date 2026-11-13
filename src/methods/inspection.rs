@@ -154,6 +154,12 @@ impl Facts {
             matches!((t.label(), t.children()), (Some("cfv"), [set, s])
                 if s.label() == Some("chash") && listing(set))
         };
+        // A set taken by a property from a set listed in full, and its size.
+        let taken = |t: &Term| matches!((t.label(), t.children()), (Some("crab"), [_, _, over]) if listing(over));
+        let taken_size = |t: &Term| {
+            matches!((t.label(), t.children()), (Some("cfv"), [set, s])
+                if s.label() == Some("chash") && taken(set))
+        };
         Some(match (inner.label(), inner.children()) {
             (Some("wcel"), [_, set]) if set.label() == Some("cprime") => Case::Prime,
             (Some("wcel"), [_, set]) if negated && set.label() == Some("c0") => {
@@ -161,6 +167,10 @@ impl Facts {
             }
             (Some("wcel"), _) => Case::Member,
             (Some("wceq"), [a, b]) if !negated && (size(a) || size(b)) => Case::Size,
+            (Some("wceq"), [a, b]) if !negated && (taken_size(a) || taken_size(b)) => {
+                Case::TakenSize
+            }
+            (Some("wceq"), [a, b]) if !negated && (taken(a) || taken(b)) => Case::Taken,
             _ => Case::Other,
         })
     }
@@ -497,6 +507,12 @@ pub enum Case {
     Member,
     /// The size of a set listed in full.
     Size,
+    /// The size of a set taken by a property from a set listed in full,
+    /// `|{x ∈ {2, 3, 7, 8} : x is odd}| = 2`.
+    TakenSize,
+    /// A set taken by a property from a set listed in full, said equal to
+    /// the members it keeps, `{x ∈ {−3, −2, 0, 5} : x is odd} = {−3, 5}`.
+    Taken,
     /// Any other: a cited sentence, an equation of sets or of numbers, a
     /// property worked out at the values the facts give.
     Other,

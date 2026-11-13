@@ -121,7 +121,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 22. calculation
   have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
   have s22 : G b - F b = G a - F a := by
-    calc G b - F b = H b := s19
+    calc G b - F b = H b := s19.symm
       _ = H a := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds.zero_derivative_ends (a := a) (b := b) hH3 (H := H) (Set.mapsTo_univ _ _) s14 s15 s17)
       _ = G a - F a := s18
   -- 23. calculation
@@ -131,7 +131,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 24. substitute G(a) = 0 (line 23) into line 22
   have s24 : G b - F b = 0 - F a := by (have h := Eq.subst (motive := (fun t : ℝ => G b - F b = t - F a)) s23 s22; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 25. calculation
-  calc (∫ t in a..b, (f t : ℝ)) = G b := s21
+  calc (∫ t in a..b, (f t : ℝ)) = G b := s21.symm
     _ = F b - F a := by linear_combination (norm := parley_norm) s24
 
 end Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus

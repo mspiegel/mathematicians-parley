@@ -145,21 +145,33 @@ pub enum Stated {
     /// An induction hypothesis: what its induction's claim, "for all k ∈ X,
     /// …", says at its letter.
     Hypothesis(Written),
-    /// A line cited from inside blocks that opened with `let x ∈ X`, each
-    /// below the line: what it writes, and the lets, by which a sentence
-    /// "for all a ∈ X, P(a)" of it supplies P(x) as well (`SYNTAX.md`).
+    /// A line cited where lets `let x ∈ X` introduce letters: the header's,
+    /// and those opening blocks around the citing step below the line. What
+    /// it writes, and the lets, by which a sentence "for all a ∈ X, P(a)"
+    /// of it supplies P(x) as well (`SYNTAX.md`).
     InBlocks {
         line: Written,
         lets: Rc<Vec<BlockLet>>,
     },
 }
 
-/// A `let x ∈ X` line opening a block around a step: its label, and what it
-/// introduces.
+/// A `let x ∈ X` line of the header, or opening a block around a step: its
+/// label, and what it introduces.
 #[derive(Clone)]
 pub struct BlockLet {
     pub label: String,
     pub introduction: Introduction,
+    /// Whether the let is the header's, whose letter a block's of the same
+    /// set hides.
+    pub header: bool,
+}
+
+/// A membership `x ∈ X` a `let` a line is cited under says, where it
+/// stands, and whether the let is the header's.
+struct LetMember {
+    member: Node,
+    at: super::record::FirstAt,
+    header: bool,
 }
 
 impl Stated {
@@ -801,17 +813,13 @@ impl<'a> Known<'a> {
         said: &[Node],
         defined: Option<&Definitions>,
     ) -> Vec<Node> {
-        let members: Vec<Node> = self
-            .block_members(stated, defined)
-            .into_iter()
-            .map(|(m, _)| m)
-            .collect();
+        let members = self.block_members(stated, defined);
         let mut out = Vec::new();
         for sentence in said {
             let Some(k) = self.block_letter(&members, sentence) else {
                 continue;
             };
-            let letter = members[k].children[0].clone();
+            let letter = members[k].member.children[0].clone();
             let [bound, _, body] = sentence.children.as_slice() else {
                 continue;
             };
@@ -822,14 +830,14 @@ impl<'a> Known<'a> {
         out
     }
 
-    /// The memberships the `let` lines of the blocks a line is cited from
-    /// inside say, `x ∈ X` (`Stated::InBlocks`), each with where it stands:
-    /// the `let`'s label and the sentence; none for a line cited otherwise.
+    /// The memberships the `let` lines a line is cited under say, `x ∈ X`
+    /// (`Stated::InBlocks`), each with where it stands; none for a line
+    /// cited otherwise.
     fn block_members(
         &self,
         stated: &Stated,
         defined: Option<&Definitions>,
-    ) -> Vec<(Node, super::record::FirstAt)> {
+    ) -> Vec<LetMember> {
         let Stated::InBlocks { lets, .. } = stated else {
             return Vec::new();
         };
@@ -840,39 +848,50 @@ impl<'a> Known<'a> {
                     .into_iter()
                     .enumerate()
                     .filter_map(|(k, m)| m.map(|m| (k, m)))
-                    .map(|(k, m)| {
-                        let at = super::record::FirstAt {
+                    .map(|(k, m)| LetMember {
+                        at: super::record::FirstAt {
                             line: l.label.clone(),
                             sentence: Some(k),
                             part: None,
                             written: m.clone(),
                             implied: None,
-                        };
-                        (m, at)
+                        },
+                        member: m,
+                        header: l.header,
                     })
                     .collect::<Vec<_>>()
             })
-            .filter(|(m, _)| m.notation() == MEMBERSHIP && m.children.len() == 2)
+            .filter(|m| {
+                m.member.notation() == MEMBERSHIP && m.member.children.len() == 2
+            })
             .collect()
     }
 
-    /// The block's letter a sentence "for all a ∈ X, P" is read at, by the
-    /// place in `members` of the one membership that puts a letter in X.
-    /// None for any other sentence, or where none or several do.
-    fn block_letter(&self, members: &[Node], sentence: &Node) -> Option<usize> {
+    /// The letter a sentence "for all a ∈ X, P" is read at, by the place in
+    /// `members` of the one membership that puts a letter in X, a block's
+    /// before the header's: a block's letter is the nearer, as an inner
+    /// letter hides an outer. None for any other sentence, or where none or
+    /// several of the nearest do.
+    fn block_letter(&self, members: &[LetMember], sentence: &Node) -> Option<usize> {
         let [_, domain, _] = sentence.children.as_slice() else {
             return None;
         };
         if sentence.notation() != FOR_ALL {
             return None;
         }
-        let found: Vec<usize> = members
+        let found: Vec<(usize, bool)> = members
             .iter()
             .enumerate()
-            .filter(|(_, m)| self.alike(&m.children[1], domain))
-            .map(|(k, _)| k)
+            .filter(|(_, m)| self.alike(&m.member.children[1], domain))
+            .map(|(k, m)| (k, m.header))
             .collect();
-        match found.as_slice() {
+        let in_block = found.iter().any(|(_, header)| !header);
+        let nearest: Vec<usize> = found
+            .iter()
+            .filter(|(_, header)| !(in_block && *header))
+            .map(|(k, _)| *k)
+            .collect();
+        match nearest.as_slice() {
             [k] => Some(*k),
             _ => None,
         }
@@ -913,7 +932,6 @@ impl<'a> Known<'a> {
         if placed.is_empty() {
             return Vec::new();
         }
-        let members: Vec<Node> = placed.iter().map(|(m, _)| m.clone()).collect();
         let mut out = Vec::new();
         for sentence in self.said_parts(stated, None).into_iter().flatten() {
             let mut sentences = vec![sentence.clone()];
@@ -922,14 +940,13 @@ impl<'a> Known<'a> {
                 sentences.extend(parts);
             }
             for said in sentences {
-                let Some(k) = self.block_letter(&members, &said) else {
+                let Some(k) = self.block_letter(&placed, &said) else {
                     continue;
                 };
-                let (member, opened_by) = &placed[k];
                 out.push(super::record::ReadAt {
                     said,
-                    letter: member.children[0].clone(),
-                    opened_by: opened_by.clone(),
+                    letter: placed[k].member.children[0].clone(),
+                    opened_by: placed[k].at.clone(),
                 });
             }
         }
@@ -1033,18 +1050,19 @@ pub fn statements_in_scope(
     // of it reads the one written nearest above the citing step.
     let visible = labels_in_scope(thm, shape, step, env.scopes);
     let lets = block_lets(thm, &visible);
+    let header = header_lets(thm);
     let mut out: Statements = Statements::new();
     for s in &thm.steps {
         let key = s.number.to_string();
         if s.line <= step.line || !out.contains_key(&key) {
-            out.insert(key, in_blocks(s.claim.clone(), s.line, &lets));
+            out.insert(key, in_blocks(s.claim.clone(), s.line, &lets, &header));
         }
     }
     for h in &thm.hypotheses {
         if let Some(label) = &h.label {
             let stated = match h.kind {
                 Intro::Let => said(h.kind, h.body(&thm.path)),
-                _ => in_blocks(h.body(&thm.path), h.line, &lets),
+                _ => in_blocks(h.body(&thm.path), h.line, &lets, &header),
             };
             out.insert(label.clone(), stated);
         }
@@ -1093,6 +1111,7 @@ fn block_lets(
                 BlockLet {
                     label: o.label.clone(),
                     introduction,
+                    header: false,
                 },
             )
         })
@@ -1101,21 +1120,45 @@ fn block_lets(
 }
 
 /// What a line written on `line` says to a citation: its text, read at the
-/// letters of the lets below it that open blocks around the citing step
+/// letters of the header's lets (`header`), which hold on every line, and
+/// of the lets below it that open blocks around the citing step
 /// (`Stated::InBlocks`).
-fn in_blocks(written: Written, line: usize, lets: &[(usize, BlockLet)]) -> Stated {
-    let below: Vec<BlockLet> = lets
-        .iter()
-        .filter(|(at, _)| *at > line)
-        .map(|(_, l)| l.clone())
-        .collect();
-    if below.is_empty() {
+fn in_blocks(
+    written: Written,
+    line: usize,
+    lets: &[(usize, BlockLet)],
+    header: &[BlockLet],
+) -> Stated {
+    let mut at: Vec<BlockLet> = header.to_vec();
+    at.extend(
+        lets.iter()
+            .filter(|(at, _)| *at > line)
+            .map(|(_, l)| l.clone()),
+    );
+    if at.is_empty() {
         return Stated::Written(written);
     }
     Stated::InBlocks {
         line: written,
-        lets: Rc::new(below),
+        lets: Rc::new(at),
     }
+}
+
+/// The header's `let x ∈ X` lines, each with its label.
+fn header_lets(thm: &Theorem) -> Vec<BlockLet> {
+    thm.hypotheses
+        .iter()
+        .filter(|h| h.kind == Intro::Let)
+        .filter_map(|h| {
+            let label = h.label.clone()?;
+            let introduction = Introduction::read(h.body(&thm.path));
+            matches!(introduction.form, Form::Member).then_some(BlockLet {
+                label,
+                introduction,
+                header: true,
+            })
+        })
+        .collect()
 }
 
 /// The lets above `step` that say what kind of number their names are, each

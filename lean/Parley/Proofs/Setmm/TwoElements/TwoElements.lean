@@ -38,7 +38,7 @@ theorem two_elements {α : Type*} (V : Set α) :
     intro hC1
     -- 1. calculation
     have s1 : (V.ncard : ℤ) = 1 + 1 := by parley_count_after (by
-      calc (V.ncard : ℤ) = 2 := by parley_set_side
+      calc (V.ncard : ℤ) = 2 := by (have h := hC1; simp only [← Set.Finite.cast_ncard_eq ((Set.finite_of_encard_eq_coe hC1 : (V : Set α).Finite))] at h ⊢; norm_cast at h ⊢; all_goals omega)
         _ = 1 + 1 := by norm_num)
     -- 2. obtain b: mun:card-nonempty X := V, k := 1, from 1
     obtain ⟨b, s2, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V) (k := (1 : ℤ)) (by norm_num) s1)

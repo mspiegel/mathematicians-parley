@@ -33,7 +33,7 @@ theorem the_identity_is_its_own_inverse {G : Type*} [Group G] :
   -- 5. calculation
   have s5 : (1 : G) * (1 : G)⁻¹ = (1 : G) * (1 : G) := by
     calc (1 : G) * (1 : G)⁻¹ = (1 : G) := s3
-      _ = (1 : G) * (1 : G) := by (have h := s4; revert h; norm_num)
+      _ = (1 : G) * (1 : G) := s4.symm
   -- 6. thm:group-cancel a := e⁻¹, b := e, g := e, from 1, 2, 5
   exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G)⁻¹) (b := (1 : G)) (g := (1 : G)) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _) (by norm_num))
 

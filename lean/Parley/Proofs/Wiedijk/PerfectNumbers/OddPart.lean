@@ -115,7 +115,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.17. exhibit, from C2, 1.7.16
           exact ⟨(0 : ℤ), by norm_num, j, lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp hK3).1, ⟨hC2, by simpa only [Int.cast_zero, Int.reduceToNat] using s1_7_16⟩⟩
       -- 1.8. D1, from 1.7
-      parley_side
+      exact s1_7
   -- 2. instantiate N := n in line 1
   have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; exact (s1 n (le_of_lt hH1) j h_j)
   -- 3. def:range-between k := n, a := 1, b := n

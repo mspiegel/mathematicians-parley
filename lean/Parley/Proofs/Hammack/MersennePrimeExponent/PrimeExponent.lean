@@ -100,7 +100,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       -- 4.5.1. substitute e = 1 (S4) into line 4.2
       have s4_5_1 : n = d * 1 := by (have h := Eq.subst (motive := (fun t : ℤ => n = d * t)) hS4 s4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.5.2. restate 4.5.1
-      have s4_5_2 : d = n := by parley_side
+      have s4_5_2 : d = n := by simpa only [mul_one] using s4_5_1.symm
       exact s4_1b s4_5_2
     -- 4.6. mun:integer-step m := 1, n := e
     have r247_1 : 1 < e := Or.elim (Ne.lt_or_gt s4_5) (fun h1 => by linarith only [s4_4, h1]) (fun h1 => by linarith only [s4_4, h1])

@@ -39,7 +39,7 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
   rcases hH11 with hC1 | hC4
   · skip
     -- 4.1. D1, from C1
-    have s4_1 : k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) := by parley_set_side
+    have s4_1 : k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) := hC1
     -- 4.2. mun:subset-of-difference, from 2
     have s4_2 : ¬ v ∈ W := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := X) (Y := W) (a := v) s2)
     -- 4.3. mun:finite-part, from H2, 3

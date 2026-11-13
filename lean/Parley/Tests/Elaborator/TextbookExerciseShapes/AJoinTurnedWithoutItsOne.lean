@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -15,6 +16,6 @@ namespace Parley.Tests.Elaborator.TextbookExerciseShapes.AJoinTurnedWithoutItsOn
 theorem a_join_turned_without_its_one (x : ℝ) (y : ℝ) (hH3 : x * 1 = y) :
     y = x := by
   -- 1. restate H3
-  parley_side
+  simpa only [mul_one] using hH3.symm
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AJoinTurnedWithoutItsOne

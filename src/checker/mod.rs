@@ -681,12 +681,15 @@ fn theorem_record(
     record.exhibited = citations::exhibit_values(thm, c.library, &c.known[i]);
     record.obtained_parts = citations::obtained_parts(thm, c.library, &c.known[i]);
     record.instantiated = citations::instantiations(thm, c.library, &c.known[i]);
-    record.restated = citations::restatements(thm, c.library, &c.known[i]);
+    let restated = citations::restatements(thm, c.library, &c.known[i]);
+    record.restated = restated.places;
+    record.restated_meetings = restated.meetings;
     record.define_links = formulas::define_link_meetings(thm, &c.known[i]);
     record.define_cases = formulas::define_cases(thm, c.library, &c.known[i]);
     let links = formulas::link_places(thm, c.library, &c.known[i]);
     record.link_places = links.places;
     record.link_facings = links.facings;
+    record.link_meetings = links.meetings;
     record.substituted = citations::substitutions(thm, c.library, &c.known[i]);
     record.substituted_rows = citations::row_substitutions(thm, &c.known[i]);
     record.define_domains =

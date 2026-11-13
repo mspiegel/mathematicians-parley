@@ -70,7 +70,7 @@ fn a_congruence_asks_its_sides_whole_and_says_how() {
             ShownBy::Beside(b) => {
                 Some((read.grammar.print(&p.term), read.grammar.print(&b.equation)))
             }
-            ShownBy::Said => None,
+            ShownBy::Said | ShownBy::Typed { .. } | ShownBy::Define { .. } => None,
         })
         .collect();
     assert!(

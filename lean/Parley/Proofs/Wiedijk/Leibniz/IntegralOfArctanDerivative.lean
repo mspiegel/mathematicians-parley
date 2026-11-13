@@ -112,7 +112,7 @@ theorem integral_of_arctan_derivative :
     -- 12.4. calculation
     calc (deriv F) x = 1 / (1 + x ^ 2) := (s11 x hK2)
       _ = x ^ (2 * 0) / (1 + x ^ 2) := by (have h := congrArg (fun t : ℝ => t / (1 + x ^ 2)) s12_2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = g x := s12_3
+      _ = g x := s12_3.symm
   -- 13. arithmetic
   have s13 : (0 : ℤ) < 1 := by parley_arith
   -- 14. def:interval a := 0, b := 1, x := 0

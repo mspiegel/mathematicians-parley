@@ -113,7 +113,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     have s10_4 : g t = f t := by simp (disch := omega) only [hD3]
     -- 10.5. calculation
     have s10_5 : f s = f t := by
-      calc f s = g s := s10_3
+      calc f s = g s := s10_3.symm
         _ = g t := hK4
         _ = f t := s10_4
     -- 10.6. calculation
@@ -152,7 +152,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     -- 12.8. calculation
     have s12_8 : u = g (f u) := by
       calc u = f (f u) := s12_2.symm
-        _ = g (f u) := s12_7
+        _ = g (f u) := s12_7.symm
     -- 12.9. exhibit, from 12.6, 12.8
     exact ⟨f u, s12_6, s12_8⟩
   -- 13. def:onto, from 9, 12

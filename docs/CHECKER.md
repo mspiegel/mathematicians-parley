@@ -145,7 +145,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   implies. The fact is read in the standard order, as the line is, so
   `k ≥ 1: from K` finds `K` saying `k ∈ ℕ`. A fact only the lines
   together give has no entry. Lean proves
-  the step by that line, `s5_9 a hK8`.
+  the step by that line, `s5_9 a hK8`. Where the line meets the fact
+  otherwise than as written, turned round or with identity elements
+  dropped, how it meets it is kept in `restated_meetings`, by the same
+  line, and Lean adds `.symm` or `simpa only`.
 - `link_places`: for each link of a calculation that cites a line, where in
   the line the link stands (`FirstAt`), by the link's line. A link read off
   a chain, `a = c` of `a = b = c`, stands at the chain's sentence, with the
@@ -156,6 +159,10 @@ line's own. A list holds one entry for each step, in the proof's order.
   citation's facing is (`citations::facing_of`), by the link's line. Lean
   uses the line as it stands or turned round, `linear_combination line` or
   `-line`, `exact` or `.symm`.
+- `link_meetings`: for each link of a calculation that cites a line, how
+  the line meets the link where not as written (`Known::alike_how`), its
+  identity elements dropped. Lean proves the link through it, `simpa only
+  [mul_one] using …`.
 - `substituted`: for each `substitute` step and calculation row that
   writes no rows, how its substitution makes the claim (`Substituted`), by
   its line. It holds the equation as the page writes it, and where the line
@@ -295,18 +302,23 @@ line's own. A list holds one entry for each step, in the proof's order.
   number system (both sides of a ≡, the places of "divides" and "is prime"),
   with how the step shows it is in that system: said once, or beside an
   equation a line the step names says, with which side of the equation the
-  term is and the line stating the other side's membership (`Besides`).
+  term is and the line stating the other side's membership, or the
+  closure table's row that puts it there (`Besides`, `WholeRow`).
   Lean proves the second from the
   equation and the other side's line, as the check found it.
 - `members_shown`: the same of each claim the `membership` method proves
-  whose term is in its system beside an equation, by the line its reason is
-  on. Lean proves it the same way.
+  whose term is in its system beside an equation, as the value of a define
+  the claim cites (`ShownBy::Define`), or as a function's value by the type
+  a cited line gives it (`ShownBy::Typed`), by the line its reason is on.
+  Lean proves it the same way.
 - `inspected`: for each claim the `inspection` method decides holds, a
   step's or a requires line's, by the line its reason is on, the case that
   decided it (`Inspection`): an "or" of what a term is, read against a
   cited membership of a range or a listed set, with that line (`OneOf`);
   whether a number is prime; that nothing is in ∅; a membership of a
-  listed set, or its denial; the size of a listed set; or another. Lean
+  listed set, or its denial; the size of a listed set; the size of a set
+  taken by a property from a listed set, or that set said equal to the
+  members it keeps; or another. Lean
   proves each case one way.
 - `kind_letters`: the letters the reason under a function's define that says
   a kind of number is read with, the step's below the define and the define's
@@ -319,7 +331,8 @@ line's own. A list holds one entry for each step, in the proof's order.
   names a part whole only from such a line, m of m² from `m ∈ ℕ` where the
   step names it, and never from a line the reason does not name.
 - `read_at`: each "for all" a line a step may cite says that the step reads
-  at the letter of a block around it, with that letter, by the step's index:
+  at the letter of a `let` of the header or of a block around it, with
+  that letter, by the step's index:
   "for all x ∈ ℝ, x < x + 1" read at the y of the block's `let y ∈ ℝ`. Lean
   reads a cited "for all" at that letter and at no other. Each reading
   records the `let` line that puts the letter in its set
