@@ -1,7 +1,6 @@
 module
 
 public import SetTactics
-public import SubstTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -77,7 +76,7 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
         -- 4.6.2.4. instantiate w := w in H9, from 4.6.2.3
         have s4_6_2_4 : ({v, w} : Set α) ∈ E := by exact (hH9 w s4_6_2_3)
         -- 4.6.2.5. substitute Y = {v, w} (line 4.6.2.2) into line 4.6.2.4
-        parley_subst_at s4_6_2_2b s4_6_2_4
+        exact Eq.subst (motive := (fun t : Set α => t ∈ E)) s4_6_2_2b.symm s4_6_2_4
     -- 4.7. mun:singleton-subset, from H7
     have s4_7 : ({v} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := X) (a := v) hH7)
     -- 4.8. mun:union-subset, from 3, 4.7

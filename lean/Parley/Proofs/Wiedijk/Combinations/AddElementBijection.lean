@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Int.ModEq
@@ -56,7 +55,7 @@ theorem add_element_bijection {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈
     -- 1.5. mun:difference-of-union
     have s1_5 : (S ∪ ({a} : Set α)) \ ({a} : Set α) = S \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := S) (a := a))
     -- 1.6. substitute S ∪ {a} = T ∪ {a} (K3) into line 1.5
-    have s1_6 : (T ∪ ({a} : Set α)) \ ({a} : Set α) = S \ ({a} : Set α) := by parley_subst_at hK3 s1_5
+    have s1_6 : (T ∪ ({a} : Set α)) \ ({a} : Set α) = S \ ({a} : Set α) := Eq.subst (motive := (fun t : Set α => t \ ({a} : Set α) = S \ ({a} : Set α))) hK3 s1_5
     -- 1.7. calculation
     calc S = S \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := a) s1_3).symm
       _ = (T ∪ ({a} : Set α)) \ ({a} : Set α) := s1_6.symm

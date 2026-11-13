@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import SetTactics
-public import SubstTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -39,7 +38,7 @@ theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
     intro hS1
     -- 1. calculation
     have s1 : (A.ncard : ℤ) = 0 := by parley_count_after (by
-      calc (A.ncard : ℤ) = ((∅ : Set α).ncard : ℤ) := by parley_subst hS1
+      calc (A.ncard : ℤ) = ((∅ : Set α).ncard : ℤ) := congrArg (fun t : Set α => (t.ncard : ℤ)) hS1
         _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty)
     -- 2. arithmetic
     have s2 : ¬ (0 : ℤ) < 0 := by parley_arith

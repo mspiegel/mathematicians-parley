@@ -1,7 +1,6 @@
 module
 
-public import SetTactics
-public import SubstTactics
+public import NormTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -12,6 +11,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -39,7 +39,10 @@ theorem size_without_a_pair {α : Type*} (A : Set α) (B : α) (hH2 : B ∈ A) (
   have s2 : ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - (({B, C} : Set α).ncard : ℤ) := by exact (Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference.size_of_difference (A := A) (B := ({B, C} : Set α)) hH4 s1)
   -- 3. substitute
   have c1 : (({B, C} : Set α).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5
-  have row1 : ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - 2 := by parley_count_int; parley_subst_at c1 s2
+  have row1 : ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - 2 := by
+    have e_nat : ({B, C} : Set α).ncard = 2 := by exact_mod_cast c1
+    have e_w : (({B, C} : Set α).ncard : ℤ) = 2 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+    (have h := Eq.subst (motive := (fun t : ℤ => ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - t)) e_w s2; push_cast at h ⊢; all_goals exact_mod_cast h)
   exact row1
 
 end Parley.Proofs.Setmm.SizeWithoutAPair.SizeWithoutAPair

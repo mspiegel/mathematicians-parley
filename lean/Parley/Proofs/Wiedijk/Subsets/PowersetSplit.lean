@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
@@ -47,7 +46,7 @@ theorem powerset_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) :
       -- 1.3.4. substitute
       have s1_3_4 : V ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := by
         have c1 : V \ ({a} : Set α) ∪ ({a} : Set α) = V := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := V) (a := a) hC1)
-        have row1 : V ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := by parley_subst_at c1 s1_3_3
+        have row1 : V ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))) := Eq.subst (motive := (fun t : Set α => t ∈ (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α))))) c1 s1_3_3
         exact row1
       -- 1.3.5. mun:in-union-right, from 1.3.4
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := 𝒫 (X \ ({a} : Set α))) (Z := (fun S : Set α => S ∪ ({a} : Set α)) '' (𝒫 (X \ ({a} : Set α)))) (u := V) s1_3_4)

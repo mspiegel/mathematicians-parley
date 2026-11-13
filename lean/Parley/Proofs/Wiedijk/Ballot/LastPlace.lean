@@ -2,7 +2,6 @@ module
 
 public import NormTactics
 public import SetTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Finite.Defs
@@ -52,7 +51,7 @@ theorem last_place (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c : Set 
   have s5 : (Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c = c := by exact (Parley.Items.Stdlib.Sets.mun_intersection_of_part (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) hH3)
   -- 6. calculation
   have s6 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by parley_count_after (by
-    calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = (c.ncard : ℤ) := by parley_subst s5
+    calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = (c.ncard : ℤ) := congrArg (fun t : Set ℤ => (t.ncard : ℤ)) s5
       _ = m := hH4)
   -- 7. join 4, 6
   have s7a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := s4

@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -25,6 +24,6 @@ namespace Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWaySubsti
 theorem a_congruence_the_other_way_substituted_into (a : ℤ) (b : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (hH5 : b ≡ a [ZMOD n]) (hH6 : a = c) :
     c ≡ b [ZMOD n] := by
   -- 1. substitute a = c (H6) into H5
-  parley_subst_at hH6 hH5
+  symm; (have h := Eq.subst (motive := (fun t : ℤ => b ≡ t [ZMOD n])) hH6 hH5; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWaySubstitutedInto

@@ -3,7 +3,6 @@ module
 public import InstanceTactics
 public import NormTactics
 public import SetTactics
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
@@ -96,7 +95,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.11. substitute
       have s1_3_11 : R ∈ W := by
         have c1 : R \ ({a} : Set α) ∪ ({a} : Set α) = R := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := R) (a := a) hC1)
-        have row1 : R ∈ W := by parley_subst_at c1 s1_3_10
+        have row1 : R ∈ W := Eq.subst (motive := (fun t : Set α => t ∈ W)) c1 s1_3_10
         exact row1
       -- 1.3.12. mun:in-union-right, from 1.3.11
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := U) (Z := W) (u := R) s1_3_11)

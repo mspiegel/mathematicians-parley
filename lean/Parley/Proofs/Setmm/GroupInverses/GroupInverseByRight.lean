@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -38,7 +37,7 @@ theorem group_inverse_by_right {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.u
   · skip
     intro hD1
     -- 3.1. substitute a⁻¹ = b (D1) into line 2
-    parley_subst_at hD1 s2
+    exact Eq.subst (motive := (fun t : G => a * t = (1 : G))) hD1 s2
   · skip
     intro hD2
     -- 3.2. calculation

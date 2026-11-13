@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -44,17 +43,17 @@ theorem the_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
   -- 7. substitute
   have s7 : a * (a⁻¹ * a) = (1 : G) * a := by
     have c1 : a * a⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) (Set.mem_univ _))
-    have row1 : a * (a⁻¹ * a) = (1 : G) * a := by parley_subst_at c1 s6
+    have row1 : a * (a⁻¹ * a) = (1 : G) * a := Eq.subst (motive := (fun t : G => a * (a⁻¹ * a) = t * a)) c1 s6
     exact row1
   -- 8. axi:group-associative a := a⁻¹, b := e, c := a, from H2, 1, 2
   have s8 : a⁻¹ * ((1 : G) * a) = a⁻¹ * (1 : G) * a := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a⁻¹) (b := (1 : G)) (c := a) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _)).symm
   -- 9. substitute
   have s9 : a⁻¹ * ((1 : G) * a) = a⁻¹ * a := by
     have c1 : a⁻¹ * (1 : G) = a⁻¹ := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a⁻¹) (Set.mem_univ _))
-    have row1 : a⁻¹ * ((1 : G) * a) = a⁻¹ * a := by parley_subst_at c1 s8
+    have row1 : a⁻¹ * ((1 : G) * a) = a⁻¹ * a := Eq.subst (motive := (fun t : G => a⁻¹ * ((1 : G) * a) = t * a)) c1 s8
     exact row1
   -- 10. substitute a·(a⁻¹·a) = e·a (line 7) into line 5
-  have s10 : a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * ((1 : G) * a) := by parley_subst_at s7 s5
+  have s10 : a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * ((1 : G) * a) := Eq.subst (motive := (fun t : G => a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * t)) s7 s5
   -- 11. calculation
   have s11 : a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * a := by
     calc a⁻¹ * a * (a⁻¹ * a) = a⁻¹ * ((1 : G) * a) := s10
@@ -62,11 +61,11 @@ theorem the_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
   -- 12. axi:group-associative a := a⁻¹·a, b := a⁻¹·a, c := (a⁻¹·a)⁻¹, from 3, 4
   have s12 : a⁻¹ * a * (a⁻¹ * a) * (a⁻¹ * a)⁻¹ = a⁻¹ * a * (a⁻¹ * a * (a⁻¹ * a)⁻¹) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a⁻¹ * a) (b := a⁻¹ * a) (c := (a⁻¹ * a)⁻¹) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _))
   -- 13. substitute (a⁻¹·a)·(a⁻¹·a) = a⁻¹·a (line 11) into line 12
-  have s13 : a⁻¹ * a * (a⁻¹ * a)⁻¹ = a⁻¹ * a * (a⁻¹ * a * (a⁻¹ * a)⁻¹) := by parley_subst_at s11 s12
+  have s13 : a⁻¹ * a * (a⁻¹ * a)⁻¹ = a⁻¹ * a * (a⁻¹ * a * (a⁻¹ * a)⁻¹) := Eq.subst (motive := (fun t : G => t * (a⁻¹ * a)⁻¹ = a⁻¹ * a * (a⁻¹ * a * (a⁻¹ * a)⁻¹))) s11 s12
   -- 14. substitute
   have s14 : (1 : G) = a⁻¹ * a * (1 : G) := by
     have c1 : a⁻¹ * a * (a⁻¹ * a)⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a⁻¹ * a) (Set.mem_univ _))
-    have row1 : (1 : G) = a⁻¹ * a * (1 : G) := by parley_subst_at c1 s13
+    have row1 : (1 : G) = a⁻¹ * a * (1 : G) := Eq.subst (motive := (fun t : G => t = a⁻¹ * a * t)) c1 s13
     exact row1
   -- 15. calculation
   calc a⁻¹ * a = a⁻¹ * a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a⁻¹ * a) (Set.mem_univ _)).symm

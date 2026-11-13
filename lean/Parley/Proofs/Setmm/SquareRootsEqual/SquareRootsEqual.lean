@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -47,6 +46,6 @@ theorem square_roots_equal (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : 0 ≤ b) :
   · skip
     intro hD2
     -- 2.3. substitute a = b (D2)
-    parley_subst hD2
+    (have h := congrArg (fun t : ℝ => Real.sqrt t) hD2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Setmm.SquareRootsEqual.SquareRootsEqual

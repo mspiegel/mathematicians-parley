@@ -5,7 +5,6 @@ public import Counting
 public import FactorialTactics
 public import NormTactics
 public import SetTactics
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Interval
@@ -63,7 +62,7 @@ theorem tie_count (m : ℤ) (hH1 : 0 ≤ m) :
     have s2_5 : {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} = ∅ := by exact (Parley.Proofs.Wiedijk.Ballot.TieAtTheEnd.tie_at_the_end (m := m) s2_4)
     -- 2.6. calculation
     have s2_6 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) = 0 := by parley_count_after (by
-      calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) = ((∅ : Set (Set ℤ)).ncard : ℤ) := by parley_subst s2_5
+      calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + m) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) = ((∅ : Set (Set ℤ)).ncard : ℤ) := congrArg (fun t : Set (Set ℤ) => (t.ncard : ℤ)) s2_5
         _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty)
     -- 2.7. calculation
     parley_count_after (by

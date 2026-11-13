@@ -5,7 +5,6 @@ public import Functions
 public import InstanceTactics
 public import NormTactics
 public import RealTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Complex.Order
@@ -53,9 +52,15 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
       -- 2.1. algebra
       have s2_1 : 0 * x = 0 := by parley_ring
       -- 2.2. substitute cos(0) = 1 (real arithmetic)
-      have s2_2 : (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by parley_subst (show (Real.cos (0 : ℝ) : ℂ) = 1 by parley_real)
+      have s2_2 : (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by
+        have e_real : Real.cos (0 : ℝ) = 1 := by parley_real
+        have e_w : (Real.cos (0 : ℝ) : ℂ) = 1 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h; linear_combination (norm := parley_norm) h
+        (have h := congrArg (fun t : ℂ => t + Complex.I * (Real.sin (0 : ℝ) : ℂ)) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.3. substitute sin(0) = 0 (real arithmetic)
-      have s2_3 : 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * 0 := by parley_subst (show (Real.sin (0 : ℝ) : ℂ) = 0 by parley_real)
+      have s2_3 : 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * 0 := by
+        have e_real : Real.sin (0 : ℝ) = 0 := by parley_real
+        have e_w : (Real.sin (0 : ℝ) : ℂ) = 0 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h; linear_combination (norm := parley_norm) h
+        (have h := congrArg (fun t : ℂ => 1 + Complex.I * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 2.4. calculation
       have s2_4 : ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ 0 = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by
         calc ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ 0 = 1 := by parley_ring

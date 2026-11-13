@@ -2,7 +2,6 @@ module
 
 public import NormTactics
 public import SetTactics
-public import SubstTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -61,7 +60,7 @@ theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finit
   -- 9. substitute
   have s9 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by parley_count_after (by
     have c1 : B ∪ A \ B = A := by exact (Parley.Proofs.Setmm.SizeOfDifference.PartAndRest.part_and_rest (A := A) (B := B) hH4)
-    have row1 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by parley_subst_at c1 s8
+    have row1 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ))) c1 s8
     exact row1)
   -- 10. algebra, from 4, 5, 9
   parley_count_int; (linear_combination (norm := parley_norm) (-1) * s9)

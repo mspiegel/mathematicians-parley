@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
@@ -69,6 +68,6 @@ theorem subset_by_double_difference {α : Type*} (A : Set α) (B : Set α) :
     -- 6. mun:difference-subset X := B, Y := B ∖ A
     have s6 : B \ (B \ A) ⊆ B := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := B) (Y := B \ A))
     -- 7. substitute B ∖ (B ∖ A) = A (D2) into line 6
-    parley_subst_at hD2 s6
+    exact Eq.subst (motive := (fun t : Set α => t ⊆ B)) hD2 s6
 
 end Parley.Proofs.Setmm.SubsetByDoubleDifference.SubsetByDoubleDifference

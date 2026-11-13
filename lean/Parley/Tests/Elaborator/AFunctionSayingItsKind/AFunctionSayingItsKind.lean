@@ -1,7 +1,6 @@
 module
 
 public import Divisibility
-public import SubstTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -12,6 +11,8 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Defs
+public import Mathlib.Data.Int.Cast.Lemmas
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -72,7 +73,7 @@ theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
   -- 2.4. D1, from K1
   have s2_4 : (f k : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by simp (disch := omega) only [hD1]
   -- 2.5. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.3
-  have s2_5 : f k ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_subst_at s2_4 s2_3
+  have s2_5 : f k ∈ Finset.Icc (0 : ℤ) (n - 1) := by obtain ⟨m, hm, hk⟩ := s2_3; rw [← Int.cast_injective (hm.trans s2_4.symm)]; exact hk
   -- 2.6. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.5
   exact ⟨_, s2_4, s2_5⟩
 

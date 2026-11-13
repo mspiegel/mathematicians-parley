@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Defs
@@ -69,7 +68,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
           try push_cast at ⊢
           exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).1
         -- 3.4.2. substitute X = ∅ (line 1) into line 3.4.1
-        have s3_4_2 : R ⊆ ∅ := by parley_subst_at s1 s3_4_1
+        have s3_4_2 : R ⊆ ∅ := Eq.subst (motive := (fun t : Set α => R ⊆ t)) s1 s3_4_1
         -- 3.4.3. mun:subset-empty, from 3.4.2
         have s3_4_3 : R = ∅ := by exact ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := R))).mp s3_4_2
         -- 3.4.4. def:singleton x := R, a := ∅, from 3.4.3
@@ -81,7 +80,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       -- 3.7. mun:subset-antisymmetric, from 3.5, 3.6
       have s3_7 : F = ({∅} : Set (Set α)) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F) (Y := ({∅} : Set (Set α))) s3_5 s3_6)
       -- 3.8. calculation
-      calc (F.ncard : ℤ) = (({∅} : Set (Set α)).ncard : ℤ) := by parley_subst s3_7
+      calc (F.ncard : ℤ) = (({∅} : Set (Set α)).ncard : ℤ) := congrArg (fun t : Set (Set α) => (t.ncard : ℤ)) s3_7
         _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)))
         _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by norm_num)).symm
         _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (0 : ℤ) t : ℤ)) hC1.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -91,13 +90,13 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         intro R hK2
         intro hS1
         -- 3.9.1. substitute X = ∅ (line 1) into K2
-        have s3_9_1 : R ⊆ ∅ := by parley_subst_at s1 hK2
+        have s3_9_1 : R ⊆ ∅ := Eq.subst (motive := (fun t : Set α => R ⊆ t)) s1 hK2
         -- 3.9.2. mun:subset-empty, from 3.9.1
         have s3_9_2 : R = ∅ := by exact ((Parley.Items.Stdlib.Sets.mun_subset_empty (Y := R))).mp s3_9_1
         -- 3.9.3. calculation
         have s3_9_3 : j = 0 := by
           calc j = (R.ncard : ℤ) := hS1.symm
-            _ = ((∅ : Set α).ncard : ℤ) := by parley_subst s3_9_2
+            _ = ((∅ : Set α).ncard : ℤ) := congrArg (fun t : Set α => (t.ncard : ℤ)) s3_9_2
             _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
         -- 3.9.4. restate C2
         have s3_9_4 : j ≠ 0 := by exact hC2
@@ -117,10 +116,10 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         have s3_11_4 : j ≠ 0 := by exact hC2
         exact s3_11_4 s3_11_3
       -- 3.12. calculation
-      calc (F.ncard : ℤ) = ((∅ : Set (Set α)).ncard : ℤ) := by parley_subst s3_10
+      calc (F.ncard : ℤ) = ((∅ : Set (Set α)).ncard : ℤ) := congrArg (fun t : Set (Set α) => (t.ncard : ℤ)) s3_10
         _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
         _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := (0 : ℤ)) (by norm_num) (k := j) s3_11).symm
   -- 4. substitute F = {S ⊆ X : |S| = j} (D1) into line 3
-  parley_subst_at hD1 s3
+  exact Eq.subst (motive := (fun t : Set (Set α) => (t.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ))) hD1 s3
 
 end Parley.Proofs.Wiedijk.Combinations.ChooseFromNone

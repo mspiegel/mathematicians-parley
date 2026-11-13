@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Subgroup.Defs
 public import Mathlib.Algebra.Order.Field.Basic
@@ -49,9 +48,9 @@ theorem coset_of_member {G : Type*} [Group G] (H : Subgroup G) (a : G) (hH3 : a 
   -- 7. calculation
   have s7 : a = x * h⁻¹ := by
     calc a = a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a) (Set.mem_univ _)).symm
-      _ = a * (h * h⁻¹) := by parley_subst s6
+      _ = a * (h * h⁻¹) := congrArg (fun t : G => a * t) s6.symm
       _ = a * h * h⁻¹ := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := h) (c := h⁻¹) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _)).symm
-      _ = x * h⁻¹ := by parley_subst s2b
+      _ = x * h⁻¹ := congrArg (fun t : G => t * h⁻¹) s2b.symm
   -- 8. thm:coset-within g := a, from H2, H3
   have s8 : (a * ·) '' (H : Set G) ⊆ (Set.univ : Set G) := by exact (Parley.Proofs.Wiedijk.Lagrange.CosetWithin.coset_within (G := G) (H := H) (g := a) (Set.mem_univ _))
   -- 9. mun:in-subset, from H4, 8

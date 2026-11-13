@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -11,6 +10,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -50,9 +50,9 @@ theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f :
     -- 3.4. mun:value-in-image Y := X, from H5, 3.2
     have s3_4 : f s ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := s) (W := Set.univ) hH5 s3_2b (Set.mapsTo_univ _ _))
     -- 3.5. substitute y = f(s) (line 3.1) into line 3.3
-    have s3_5 : y ∈ f '' (A ∩ W) := by parley_subst_at s3_1b s3_3
+    have s3_5 : y ∈ f '' (A ∩ W) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ W))) s3_1b.symm s3_3
     -- 3.6. substitute y = f(s) (line 3.1) into line 3.4
-    have s3_6 : y ∈ f '' (A ∩ X) := by parley_subst_at s3_1b s3_4
+    have s3_6 : y ∈ f '' (A ∩ X) := Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ X))) s3_1b.symm s3_4
     -- 3.7. def:intersection u := y, Y := f[W], Z := f[X], from 3.5, 3.6
     exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := f '' (A ∩ W)) (Z := f '' (A ∩ X)) (u := y))).mpr ⟨s3_5, s3_6⟩
   -- 4. def:subset, from 3

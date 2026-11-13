@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import NormTactics
-public import SubstTactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Defs
@@ -25,6 +24,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.Data.Rat.Cast.Defs
 public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Basic
@@ -274,7 +274,8 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
         calc y = (N j : ℝ) / 10 ^ j.toNat := s10_1_1b
           _ = (L j : ℝ) := by simp (disch := omega) only [hD5]; push_cast; norm_num
       -- 10.1.4. substitute y = L(j) (line 10.1.3) into line 10.1.2
-      parley_subst_at s10_1_3 s10_1_2
+      have s10_1_2_w : (L j : ℝ) ≤ (U k : ℝ) := (Rat.cast_le (K := ℝ)).mpr s10_1_2
+      (have h := Eq.subst (motive := (fun t : ℝ => t ≤ (U k : ℝ))) s10_1_3.symm s10_1_2_w; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 10.2. def:upper-bound, from 10.1
     exact s10_1
   -- 11. instantiate k := 0 in line 10

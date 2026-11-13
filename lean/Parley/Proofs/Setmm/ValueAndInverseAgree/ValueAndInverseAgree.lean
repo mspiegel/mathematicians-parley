@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
@@ -34,12 +33,12 @@ theorem value_and_inverse_agree {α : Type*} (A : Set α) (B : Set α) (F : α �
     -- 1. thm:inverse-of-value, from H3, H4, H5
     have s1 : LeanBridges.Functions.inverse F A (F C) = C := by exact (Parley.Proofs.Setmm.InverseOfValue.InverseOfValue.inverse_of_value (A := A) (B := B) (F := F) hH3 hH4 (C := C) hH5)
     -- 2. substitute F(C) = D (D1) into line 1
-    parley_subst_at hD1 s1
+    exact Eq.subst (motive := (fun t : α => LeanBridges.Functions.inverse F A t = C)) hD1 s1
   · skip
     intro hD2
     -- 3. thm:value-of-inverse C := D, from H3, H4, H6
     have s3 : F (LeanBridges.Functions.inverse F A D) = D := by exact (Parley.Proofs.Setmm.ValueOfInverse.ValueOfInverse.value_of_inverse (A := A) (B := B) (F := F) hH3 hH4 (C := D) hH6)
     -- 4. substitute F⁻¹(D) = C (D2) into line 3
-    parley_subst_at hD2 s3
+    exact Eq.subst (motive := (fun t : α => F t = D)) hD2 s3
 
 end Parley.Proofs.Setmm.ValueAndInverseAgree.ValueAndInverseAgree

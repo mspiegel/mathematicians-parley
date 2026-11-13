@@ -1,7 +1,6 @@
 module
 
 public import SetTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Defs
@@ -89,7 +88,7 @@ theorem two_elements {α : Type*} (V : Set α) :
           -- 7.2.5.4. substitute
           have s7_2_5_4 : t ∈ (∅ : Set α) := by parley_count_after (by
             have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by (have h := s6; rw [← Set.Finite.cast_ncard_eq (((Set.finite_of_ncard_ne_zero (by omega)).subset (fun _ h => h.1) : ((V \ ({b} : Set α)) \ ({a} : Set α) : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
-            have row1 : t ∈ (∅ : Set α) := by parley_subst_at c1 s7_2_5_3
+            have row1 : t ∈ (∅ : Set α) := Eq.subst (motive := (fun u : Set α => t ∈ u)) c1 s7_2_5_3
             exact row1)
           -- 7.2.5.5. inspection
           have s7_2_5_5 : ¬ t ∈ (∅ : Set α) := Set.notMem_empty _
@@ -108,7 +107,7 @@ theorem two_elements {α : Type*} (V : Set α) :
     obtain ⟨c, s12a, d, s12b, ⟨s12c, s12d⟩⟩ := hC6
     -- 13. calculation
     parley_count_after (by
-      calc V.encard = ((({c, d} : Set α).ncard : ℕ) : ℕ∞) := by parley_subst s12d
+      calc V.encard = ((({c, d} : Set α).ncard : ℕ) : ℕ∞) := by (have h := congrArg (fun t : Set α => t.encard) s12d; simp only [← Set.Finite.cast_ncard_eq ((Set.toFinite _ : (({c, d} : Set α) : Set α).Finite))] at h ⊢; norm_cast at h ⊢; all_goals exact h)
         _ = ((2 : ℕ) : ℕ∞) := by exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp s12c)
 
 end Parley.Proofs.Setmm.TwoElements.TwoElements

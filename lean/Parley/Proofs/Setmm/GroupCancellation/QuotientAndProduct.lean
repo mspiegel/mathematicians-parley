@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -37,7 +36,7 @@ theorem quotient_and_product {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.uni
     -- 1. thm:quotient-times-divisor, from H2, H3
     have s1 : a * b⁻¹ * b = a := by exact (Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor.quotient_times_divisor (G := G) (a := a) (Set.mem_univ _) (b := b) (Set.mem_univ _))
     -- 2. substitute a·b⁻¹ = c (D1) into line 1
-    parley_subst_at hD1 s1
+    exact Eq.subst (motive := (fun t : G => t * b = a)) hD1 s1
   · skip
     intro hD2
     -- 3. axi:group-inverse-closed a := b, from H3
@@ -47,10 +46,10 @@ theorem quotient_and_product {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.uni
     -- 5. substitute
     have s5 : c * b * b⁻¹ = c * (1 : G) := by
       have c1 : b * b⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) (Set.mem_univ _))
-      have row1 : c * b * b⁻¹ = c * (1 : G) := by parley_subst_at c1 s4
+      have row1 : c * b * b⁻¹ = c * (1 : G) := Eq.subst (motive := (fun t : G => c * b * b⁻¹ = c * t)) c1 s4
       exact row1
     -- 6. calculation
-    calc a * b⁻¹ = c * b * b⁻¹ := by parley_subst hD2
+    calc a * b⁻¹ = c * b * b⁻¹ := congrArg (fun t : G => t * b⁻¹) hD2.symm
       _ = c * (1 : G) := s5
       _ = c := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := c) (Set.mem_univ _))
 

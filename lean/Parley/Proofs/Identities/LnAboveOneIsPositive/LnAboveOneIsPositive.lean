@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import RealTactics
-public import SubstTactics
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -37,6 +36,6 @@ theorem ln_above_one_is_positive (x : ℝ) (hH2 : x > 1) :
   -- 3. real arithmetic
   have s3 : Real.log (1 : ℝ) = 0 := by parley_real
   -- 4. substitute ln(1) = 0 (line 3) into line 2
-  parley_subst_at s3 s2
+  (have h := Eq.subst (motive := (fun t : ℝ => t < Real.log x)) s3 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Identities.LnAboveOneIsPositive.LnAboveOneIsPositive

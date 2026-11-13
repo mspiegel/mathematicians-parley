@@ -1,7 +1,6 @@
 module
 
 public import NormTactics
-public import SubstTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -54,12 +53,12 @@ theorem inclusion_exclusion_three {α : Type*} (A : Set α) (B : Set α) (C : Se
   -- 9. substitute
   have s9 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ C) ∩ (B ∩ C)).ncard : ℤ) := by
     have c1 : A ∩ C ∪ B ∩ C = (A ∪ B) ∩ C := by exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes_right (X := A) (Y := B) (Z := C)).symm
-    have row1 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ C) ∩ (B ∩ C)).ncard : ℤ) := by parley_subst_at c1 s8
+    have row1 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ C) ∩ (B ∩ C)).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ C) ∩ (B ∩ C)).ncard : ℤ))) c1 s8
     exact row1
   -- 10. substitute
   have s10 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ B) ∩ C).ncard : ℤ) := by
     have c1 : (A ∩ C) ∩ (B ∩ C) = (A ∩ B) ∩ C := by exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes_over_intersection (X := A) (Y := B) (Z := C)).symm
-    have row1 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ B) ∩ C).ncard : ℤ) := by parley_subst_at c1 s9
+    have row1 : (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (((A ∩ B) ∩ C).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (((A ∪ B) ∩ C).ncard : ℤ) = ((A ∩ C).ncard : ℤ) + ((B ∩ C).ncard : ℤ) - (t.ncard : ℤ))) c1 s9
     exact row1
   -- 11. mun:intersection-subset Y := A, Z := B
   have s11 : A ∩ B ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B))

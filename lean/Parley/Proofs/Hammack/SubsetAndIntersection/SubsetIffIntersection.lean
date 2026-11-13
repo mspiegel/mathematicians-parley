@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -53,7 +52,7 @@ theorem subset_iff_intersection {α : Type*} (A : Set α) (B : Set α) :
     have s6 : ∀ t ∈ A, t ∈ B := by
       intro t hK3
       -- 6.1. substitute A ∩ B = A (D2) into K3
-      have s6_1 : t ∈ A ∩ B := by parley_subst_at hD2 hK3
+      have s6_1 : t ∈ A ∩ B := Eq.subst (motive := (fun u : Set α => t ∈ u)) hD2.symm hK3
       -- 6.2. def:intersection u := t, Y := A, Z := B, from 6.1
       exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := t))).mp s6_1).2
     -- 7. def:subset, from 6

@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -43,7 +42,7 @@ theorem prefix_unchanged (T : Set ℤ) (i : ℤ) (p : ℤ) (hH4 : i < p) :
   -- 3. calculation
   have s3 : (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := by
     calc (Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({p} : Set ℤ)) = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T ∪ (Set.Icc (1 : ℤ) i : Set ℤ) ∩ ({p} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_intersection_distributes (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T) (Z := ({p} : Set ℤ)))
-      _ = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T ∪ ∅ := by parley_subst s2
+      _ = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T ∪ ∅ := congrArg (fun t : Set ℤ => (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T ∪ t) s2
       _ = (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T := by exact (Parley.Items.Stdlib.Sets.mun_union_empty (Y := (Set.Icc (1 : ℤ) i : Set ℤ) ∩ T))
   -- 4. mun:difference-subset X := {1, …, i}, Y := T
   have s4 : (Set.Icc (1 : ℤ) i : Set ℤ) \ T ⊆ (Set.Icc (1 : ℤ) i : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.Icc (1 : ℤ) i : Set ℤ)) (Y := T))

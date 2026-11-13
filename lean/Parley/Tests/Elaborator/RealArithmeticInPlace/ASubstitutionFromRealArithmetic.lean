@@ -1,7 +1,6 @@
 module
 
 public import RealTactics
-public import SubstTactics
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -27,6 +26,7 @@ namespace Parley.Tests.Elaborator.RealArithmeticInPlace.ASubstitutionFromRealAri
 theorem a_substitution_from_real_arithmetic (a : ℝ) (hH2 : a = Real.sqrt (8 : ℝ)) :
     a = 2 * Real.sqrt (2 : ℝ) := by
   -- 1. substitute √8 = 2·√2 (real arithmetic) into H2
-  parley_subst_at (show Real.sqrt (8 : ℝ) = 2 * Real.sqrt (2 : ℝ) by parley_real) hH2
+  have e_real : Real.sqrt (8 : ℝ) = 2 * Real.sqrt (2 : ℝ) := by parley_real
+  (have h := Eq.subst (motive := (fun t : ℝ => a = t)) e_real hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.RealArithmeticInPlace.ASubstitutionFromRealArithmetic

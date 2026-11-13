@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -297,7 +296,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     -- 67.4. algebra
     have s67_4 : m ^ 2 - n ^ 2 = (m + n) * (m - n) := by parley_ring
     -- 67.5. substitute m + n = 2u (line 67.3) into line 67.4
-    have s67_5 : m ^ 2 - n ^ 2 = 2 * u * (m - n) := by parley_subst_at s67_3 s67_4
+    have s67_5 : m ^ 2 - n ^ 2 = 2 * u * (m - n) := by (have h := Eq.subst (motive := (fun v : ℤ => m ^ 2 - n ^ 2 = v * (m - n))) s67_3 s67_4; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 67.6. calculation
     have s67_6 : b = 2 * (u * (m - n)) := by
       calc b = m ^ 2 - n ^ 2 := s53

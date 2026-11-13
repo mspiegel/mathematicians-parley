@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Basic
@@ -53,7 +52,7 @@ theorem subset_iff_difference_empty {α : Type*} (A : Set α) (B : Set α) :
       -- 4.1. def:difference u := t, Y := A, Z := B, from K2, S
       have s4_1 : t ∈ A \ B := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr ⟨hK2, hS⟩
       -- 4.2. substitute A ∖ B = ∅ (D2) into line 4.1
-      have s4_2 : t ∈ (∅ : Set α) := by parley_subst_at hD2 s4_1
+      have s4_2 : t ∈ (∅ : Set α) := Eq.subst (motive := (fun u : Set α => t ∈ u)) hD2 s4_1
       -- 4.3. inspection
       have s4_3 : ¬ t ∈ (∅ : Set α) := Set.notMem_empty _
       exact s4_3 s4_2

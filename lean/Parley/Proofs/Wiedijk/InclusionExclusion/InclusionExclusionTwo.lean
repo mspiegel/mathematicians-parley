@@ -2,7 +2,6 @@ module
 
 public import NormTactics
 public import SetTactics
-public import SubstTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -56,21 +55,21 @@ theorem inclusion_exclusion_two {α : Type*} (A : Set α) (B : Set α) (hH3 : A.
   -- 10. mun:union-difference Y := A, Z := B
   have s10 : A ∪ B \ A = A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_union_difference (Y := A) (Z := B))
   -- 11. substitute A ∪ (B ∖ A) = A ∪ B (line 10) into line 9
-  have s11 : ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_subst_at s10 s9
+  have s11 : ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ))) s10 s9
   -- 12. mun:intersection-commutes Y := B, Z := A
   have s12 : B ∩ A = A ∩ B := by exact (Parley.Items.Stdlib.Sets.mun_intersection_commutes (Y := B) (Z := A))
   -- 13. mun:intersection-and-difference-disjoint Y := B, Z := A
   have s13 : (B ∩ A) ∩ (B \ A) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_intersection_and_difference_disjoint (Y := B) (Z := A))
   -- 14. substitute B ∩ A = A ∩ B (line 12) into line 13
-  have s14 : (A ∩ B) ∩ (B \ A) = ∅ := by parley_subst_at s12 s13
+  have s14 : (A ∩ B) ∩ (B \ A) = ∅ := Eq.subst (motive := (fun t : Set α => t ∩ (B \ A) = ∅)) s12 s13
   -- 15. mun:intersection-and-difference Y := B, Z := A
   have s15 : B ∩ A ∪ B \ A = B := by exact (Parley.Items.Stdlib.Sets.mun_intersection_and_difference (Y := B) (Z := A))
   -- 16. substitute B ∩ A = A ∩ B (line 12) into line 15
-  have s16 : A ∩ B ∪ B \ A = B := by parley_subst_at s12 s15
+  have s16 : A ∩ B ∪ B \ A = B := Eq.subst (motive := (fun t : Set α => t ∪ B \ A = B)) s12 s15
   -- 17. mun:card-disjoint-union X := A ∩ B, Y := B ∖ A, m := |A ∩ B|, n := |B ∖ A|, from 6, 7, 14
   have s17 : ((A ∩ B ∪ B \ A).ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A ∩ B) (Y := B \ A) (m := ((A ∩ B).ncard : ℤ)) s7 (n := ((B \ A).ncard : ℤ)) s6 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s4 : (A ∩ B : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s2 : (B \ A : Set α).Finite))]) s14)
   -- 18. substitute (A ∩ B) ∪ (B ∖ A) = B (line 16) into line 17
-  have s18 : (B.ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_subst_at s16 s17
+  have s18 : (B.ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ))) s16 s17
   -- 19. algebra, from 5, 6, 7, 11, 18
   parley_count_int; (linear_combination (norm := parley_norm) s11 + (-1) * s18)
 

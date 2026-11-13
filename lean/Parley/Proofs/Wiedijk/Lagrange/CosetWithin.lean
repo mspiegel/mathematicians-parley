@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Subgroup.Defs
 public import Mathlib.Data.Int.ModEq
@@ -12,6 +11,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
@@ -41,7 +41,7 @@ theorem coset_within {G : Type*} [Group G] (H : Subgroup G) (g : G) (hH3 : g ∈
     -- 2.3. axi:group-closed a := g, b := h, from H3, 2.2
     have s2_3 : g * h ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := g) (b := h) (Set.mem_univ _) (Set.mem_univ _))
     -- 2.4. substitute u = g·h (line 2.1) into line 2.3
-    parley_subst_at s2_1b s2_3
+    exact Eq.subst (motive := (fun t : G => t ∈ (Set.univ : Set G))) s2_1b.symm s2_3
   -- 3. def:subset, from 2
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := (g * ·) '' (H : Set G)) (Y := (Set.univ : Set G)))).mpr (by intro t _; exact Set.mem_univ _)
 

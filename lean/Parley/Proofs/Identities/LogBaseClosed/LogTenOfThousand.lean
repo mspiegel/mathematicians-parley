@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import RealTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -29,7 +28,9 @@ namespace Parley.Proofs.Identities.LogBaseClosed.LogTenOfThousand
 theorem log_ten_of_thousand :
     Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 := by
   -- 1. substitute ln(1000) = 3·ln(10) (real arithmetic)
-  have s1 : Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := by parley_subst (show Real.log (1000 : ℝ) = 3 * Real.log (10 : ℝ) by parley_real)
+  have s1 : Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := by
+    have e_real : Real.log (1000 : ℝ) = 3 * Real.log (10 : ℝ) := by parley_real
+    (have h := congrArg (fun t : ℝ => t / Real.log (10 : ℝ)) e_real; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 2. calculation
   have r25_1 : Real.log (10 : ℝ) ≠ 0 := by parley_real
   calc Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := s1

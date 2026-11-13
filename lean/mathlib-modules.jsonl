@@ -20,6 +20,7 @@
 {"key":"Finset.Icc","kind":"const","modules":["Mathlib.Order.Interval.Finset.Defs"]}
 {"key":"Finset.mem_Icc","kind":"const","modules":["Mathlib.Order.Interval.Finset.Defs"]}
 {"key":"Finset.mem_Icc.mp","kind":"const","modules":[]}
+{"key":"Int.cast_injective","kind":"const","modules":["Mathlib.Data.Int.Cast.Lemmas"]}
 {"key":"Int.cast_ofNat","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
 {"key":"Int.cast_one","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
 {"key":"Int.cast_zero","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
@@ -320,12 +321,17 @@
 {"key":"Complex.sin (sorry : ℂ)","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric","Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"ContinuousOn (sorry : ℝ → ℝ) (sorry : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Filter","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
 {"key":"DifferentiableAt a (sorry : ℝ → ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Analysis.Calculus.FDeriv.Defs"]}
+{"key":"Eq.subst (motive := (sorry : Set (Set ℤ) → Prop)) a a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"Eq.subst (motive := (sorry : Set ℚ → Prop)) a a","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"Eq.subst (motive := (sorry : Set ℤ → Prop)) a a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℂ → Prop)) a a","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℕ → Prop)) a a","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℚ → Prop)) a (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℚ → Prop)) a a","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℝ → Prop)) a a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"Eq.subst (motive := (sorry : ℤ → Prop)) a (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.subst (motive := (sorry : ℤ → Prop)) a a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"Eq.subst (motive := a) a a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.trans (sorry : Prop) a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.trans a a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"Eq.trans_le (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Order.Basic"]}
@@ -341,6 +347,7 @@
 {"key":"Filter.limUnder a (sorry : ℤ → ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Order.Filter.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.Defs.Filter","Mathlib.Topology.UniformSpace.Defs","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
 {"key":"Finset.Icc (sorry : ℤ) (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Interval","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Data.Int.Order.Basic","Mathlib.Order.Interval.Finset.Defs"]}
 {"key":"Finset.mem_Icc.mp a","kind":"term","modules":["Mathlib.Basic.SetLike.Basic","Mathlib.Data.Finset.Defs","Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"Int.cast_injective a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq","Mathlib.Data.Int.Cast.Defs","Mathlib.Data.Int.Cast.Lemmas"]}
 {"key":"Int.emod_nonneg (sorry : Prop) (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"Int.gcd (sorry : ℤ) (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.GCD","Mathlib.Tactic.Positivity.Basic"]}
 {"key":"Int.lcm (sorry : ℤ) (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.GCD","Mathlib.Tactic.Positivity.Basic"]}
@@ -450,7 +457,11 @@
 {"key":"add_pos (sorry : Prop) a","kind":"term","modules":["Mathlib.Algebra.Order.Monoid.Unbundled.Basic"]}
 {"key":"add_pos a a","kind":"term","modules":["Mathlib.Algebra.Group.Monoid","Mathlib.Order.Defs.PartialOrder","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Algebra.Order.Monoid.Unbundled.Basic"]}
 {"key":"a⁻¹","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Inv","Mathlib.Algebra.Order.Field.Basic"]}
+{"key":"congrArg (sorry : Set (Set ℤ) → ℤ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"congrArg (sorry : Set ℤ → Set ℤ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"congrArg (sorry : Set ℤ → ℤ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℂ → ℂ) a","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"congrArg (sorry : ℕ → ℤ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℚ → ℚ) a","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℚ → ℝ) a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℝ → ℂ) a","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
@@ -460,6 +471,7 @@
 {"key":"congrArg (sorry : ℤ → ℚ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℤ → ℝ) a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"congrArg (sorry : ℤ → ℤ) a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
+{"key":"congrArg a a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Eq"]}
 {"key":"deriv (sorry : ℝ → ℝ)","kind":"term","modules":["Mathlib.Algebra.Field.Defs","Mathlib.Algebra.Module.Defs","Mathlib.Algebra.Ring.Defs","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic","Mathlib.Topology.UniformSpace.Defs","Mathlib.Analysis.Calculus.Deriv.Basic","Mathlib.Analysis.Normed.Field.Basic","Mathlib.Topology.MetricSpace.Pseudo.Defs"]}
 {"key":"div_eq_mul_one_div (sorry : ℚ) (sorry : ℚ)","kind":"term","modules":["Mathlib.Algebra.Field.Defs","Mathlib.Algebra.Field.Rat","Mathlib.Algebra.Group.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"div_eq_mul_one_div (sorry : ℝ) (sorry : ℝ)","kind":"term","modules":["Mathlib.Algebra.Group.Basic","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
@@ -502,10 +514,26 @@
 {"key":"fun r : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun s : Set α => a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun s : α => a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : G => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : G => a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set (Set α) => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set (Set α) => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set (Set ℤ) => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set (Set ℤ) => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set α => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set α => (sorry : ℕ∞)","kind":"term","modules":["Mathlib.Data.ENat.Defs","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set α => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : Set α => a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set ℚ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set ℤ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set ℤ => (sorry : Set ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : Set ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : α => a","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℂ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℂ => (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℕ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun t : ℕ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℚ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℚ => (sorry : ℚ)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
@@ -515,15 +543,19 @@
 {"key":"fun t : ℤ => (sorry : ℚ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℤ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun t : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun u : Set α => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun u : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun u : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun u : ℝ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun u : ℤ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun u : ℤ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun u : ℤ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun v : ℤ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun w : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun w : ℤ => (sorry : Prop)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : α => (sorry : Prop)","kind":"term","modules":["Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : α => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
+{"key":"fun x : ℕ => (sorry : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℚ => (sorry : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Rat.Init","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℝ => (sorry : Prop)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
 {"key":"fun x : ℝ => (sorry : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Basic.Real.Basic","Mathlib.Tactic.NormNum.Basic"]}
@@ -1191,6 +1223,7 @@
 {"key":"simpa only [a] using a","kind":"tactic","modules":[]}
 {"key":"skip","kind":"tactic","modules":[]}
 {"key":"specialize a","kind":"tactic","modules":[]}
+{"key":"symm","kind":"tactic","modules":[]}
 {"key":"tauto","kind":"tactic","modules":["Mathlib.Tactic.Tauto"]}
 {"key":"trivial","kind":"tactic","modules":[]}
 {"key":"namespace Parley.Items.Proofs.Wiedijk.Ballot\n\ntheorem def_ahead (c : Set ℤ) (k : ℤ) :\n    (∀ i : ℤ, i ∈ Finset.Icc 1 k → (((Set.Icc (1 : ℤ) i : Set ℤ) \\ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)) ↔ (∀ i : ℤ, i ∈ Finset.Icc 1 k → (((Set.Icc (1 : ℤ) i : Set ℤ) \\ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)) :=\n  Iff.rfl\n\nend Parley.Items.Proofs.Wiedijk.Ballot\n","kind":"command","modules":["Mathlib.Basic.SetLike.Basic","Mathlib.Data.Finset.Defs","Mathlib.Data.Int.Interval","Mathlib.Data.Set.Card","Mathlib.Data.Set.Defs","Mathlib.Tactic.NormNum.Basic","Mathlib.Tactic.NormNum.Ineq","Mathlib.Data.Int.Order.Basic","Mathlib.Order.Interval.Finset.Defs","Mathlib.Order.Interval.Set.Defs"]}

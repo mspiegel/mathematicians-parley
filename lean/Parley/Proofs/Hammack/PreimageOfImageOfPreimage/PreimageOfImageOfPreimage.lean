@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -47,7 +46,7 @@ theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f 
     have s3_3a : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (Set.mapsTo_univ _ _))).mp s3_2a).1
     have s3_3b : f s ∈ Y := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (Set.mapsTo_univ _ _))).mp s3_2a).2
     -- 3.4. substitute f(u) = f(s) (line 3.2) into line 3.3
-    have s3_4 : f u ∈ Y := by parley_subst_at s3_2b s3_3b
+    have s3_4 : f u ∈ Y := Eq.subst (motive := (fun t : α => t ∈ Y)) s3_2b.symm s3_3b
     -- 3.5. def:preimage Z := Y, from 3.1, 3.4
     exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := u) (W := Set.univ) (Set.mapsTo_univ _ _))).mpr ⟨s3_1a, s3_4⟩
   -- 4. def:subset, from 3

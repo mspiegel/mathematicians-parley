@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -45,14 +44,14 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
       -- 2.4.1. mun:value-in-image, from C1, H4
       have s2_4_1 : F s ∈ F '' (A ∩ B) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := B) (f := F) (s := s) (W := Set.univ) hH4 hC1 (Set.mapsTo_univ _ _))
       -- 2.4.2. substitute u = F(s) (line 2.2) into line 2.4.1
-      have s2_4_2 : u ∈ F '' (A ∩ B) := by parley_subst_at s2_2b s2_4_1
+      have s2_4_2 : u ∈ F '' (A ∩ B) := Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ B))) s2_2b.symm s2_4_1
       -- 2.4.3. mun:in-union-left, from 2.4.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := F '' (A ∩ B)) (Z := F '' (A ∩ C)) (u := u) s2_4_2)
     · skip
       -- 2.4.4. mun:value-in-image, from C2, H5
       have s2_4_4 : F s ∈ F '' (A ∩ C) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := C) (f := F) (s := s) (W := Set.univ) hH5 hC2 (Set.mapsTo_univ _ _))
       -- 2.4.5. substitute u = F(s) (line 2.2) into line 2.4.4
-      have s2_4_5 : u ∈ F '' (A ∩ C) := by parley_subst_at s2_2b s2_4_4
+      have s2_4_5 : u ∈ F '' (A ∩ C) := Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ C))) s2_2b.symm s2_4_4
       -- 2.4.6. mun:in-union-right, from 2.4.5
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := F '' (A ∩ B)) (Z := F '' (A ∩ C)) (u := u) s2_4_5)
   -- 3. def:subset, from 2
@@ -74,7 +73,7 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
       -- 4.2.4. mun:value-in-image, from 1, 4.2.3
       have s4_2_4 : F s ∈ F '' (A ∩ (B ∪ C)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := B ∪ C) (f := F) (s := s) (W := Set.univ) s1 s4_2_3 (Set.mapsTo_univ _ _))
       -- 4.2.5. substitute u = F(s) (line 4.2.2) into line 4.2.4
-      parley_subst_at s4_2_2b s4_2_4
+      exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ (B ∪ C)))) s4_2_2b.symm s4_2_4
     · skip
       -- 4.2.6. def:image X := A, Y := C, from C4, H5
       have s4_2_6 : ∃ s ∈ C, u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := C) (f := F) (u := u) (W := Set.univ) hH5 (Set.mapsTo_univ _ _))).mp hC4
@@ -85,7 +84,7 @@ theorem image_of_union {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (h
       -- 4.2.9. mun:value-in-image, from 1, 4.2.8
       have s4_2_9 : F s ∈ F '' (A ∩ (B ∪ C)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := B ∪ C) (f := F) (s := s) (W := Set.univ) s1 s4_2_8 (Set.mapsTo_univ _ _))
       -- 4.2.10. substitute u = F(s) (line 4.2.7) into line 4.2.9
-      parley_subst_at s4_2_7b s4_2_9
+      exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ (B ∪ C)))) s4_2_7b.symm s4_2_9
   -- 5. def:subset, from 4
   have s5 : F '' (A ∩ B) ∪ F '' (A ∩ C) ⊆ F '' (A ∩ (B ∪ C)) := ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ B) ∪ F '' (A ∩ C)) (Y := F '' (A ∩ (B ∪ C))))).mpr s4
   -- 6. mun:subset-antisymmetric, from 3, 5

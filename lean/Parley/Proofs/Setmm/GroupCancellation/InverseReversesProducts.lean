@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -46,7 +45,7 @@ theorem inverse_reverses_products {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Se
   -- 7. substitute
   have s7 : (1 : G) * a⁻¹ = b * (b⁻¹ * a⁻¹) := by
     have c1 : b * b⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) (Set.mem_univ _))
-    have row1 : (1 : G) * a⁻¹ = b * (b⁻¹ * a⁻¹) := by parley_subst_at c1 s6
+    have row1 : (1 : G) * a⁻¹ = b * (b⁻¹ * a⁻¹) := Eq.subst (motive := (fun t : G => t * a⁻¹ = b * (b⁻¹ * a⁻¹))) c1 s6
     exact row1
   -- 8. calculation
   have s8 : b * (b⁻¹ * a⁻¹) = a⁻¹ := by
@@ -55,7 +54,7 @@ theorem inverse_reverses_products {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Se
   -- 9. axi:group-associative c := b⁻¹·a⁻¹, from H2, H3, 4
   have s9 : a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := b⁻¹ * a⁻¹) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _))
   -- 10. substitute b·(b⁻¹·a⁻¹) = a⁻¹ (line 8) into line 9
-  have s10 : a * b * (b⁻¹ * a⁻¹) = a * a⁻¹ := by parley_subst_at s8 s9
+  have s10 : a * b * (b⁻¹ * a⁻¹) = a * a⁻¹ := Eq.subst (motive := (fun t : G => a * b * (b⁻¹ * a⁻¹) = a * t)) s8 s9
   -- 11. calculation
   have s11 : a * b * (a * b)⁻¹ = a * b * (b⁻¹ * a⁻¹) := by
     calc a * b * (a * b)⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a * b) (Set.mem_univ _))

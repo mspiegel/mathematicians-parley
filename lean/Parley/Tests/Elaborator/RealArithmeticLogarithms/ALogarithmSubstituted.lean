@@ -1,7 +1,6 @@
 module
 
 public import RealTactics
-public import SubstTactics
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -26,6 +25,7 @@ namespace Parley.Tests.Elaborator.RealArithmeticLogarithms.ALogarithmSubstituted
 theorem a_logarithm_substituted (a : ℝ) (hH2 : a = Real.log (8 : ℝ)) :
     a = 3 * Real.log (2 : ℝ) := by
   -- 1. substitute ln(8) = 3·ln(2) (real arithmetic) into H2
-  parley_subst_at (show Real.log (8 : ℝ) = 3 * Real.log (2 : ℝ) by parley_real) hH2
+  have e_real : Real.log (8 : ℝ) = 3 * Real.log (2 : ℝ) := by parley_real
+  (have h := Eq.subst (motive := (fun t : ℝ => a = t)) e_real hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.RealArithmeticLogarithms.ALogarithmSubstituted

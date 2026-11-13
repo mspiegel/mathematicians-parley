@@ -597,6 +597,20 @@ impl<'a> Writer<'a> {
 
     /// The line that says this term is an integer or a rational; None
     /// where none does.
+    /// Whether a step names the term as a whole number, its `toNat` by a
+    /// line saying it is at least 0 (`SaidInteger::back`), p − 1 from the
+    /// requires line p − 1 ∈ ℕ₀.
+    pub fn named_whole(&self, node: &Node) -> bool {
+        self.whole_back(node).is_some()
+    }
+
+    /// Of a term a step names as a whole number by its `toNat`, the proof
+    /// that its cast back is the term, `Int.toNat_of_nonneg h :
+    /// ((t.toNat : ℕ) : ℤ) = t` (`SaidInteger::back`); None otherwise.
+    pub fn whole_back(&self, node: &Node) -> Option<Printed> {
+        self.said_integer(node).and_then(|s| s.back.clone())
+    }
+
     fn said_integer(&self, node: &Node) -> Option<&SaidInteger> {
         if node.notation() == NUMERAL {
             return None;

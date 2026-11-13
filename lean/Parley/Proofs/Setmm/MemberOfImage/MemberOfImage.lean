@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -42,6 +41,6 @@ theorem member_of_image {α : Type*} (A : Set α) (B : Set α) (y : α) (F : α 
     -- 4. mun:value-in-image Y := X, s := x, from H4, 3
     have s4 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := Set.univ) hH4 s3a (Set.mapsTo_univ _ _))
     -- 5. substitute F(x) = y (line 3) into line 4
-    parley_subst_at s3b s4
+    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ X))) s3b s4
 
 end Parley.Proofs.Setmm.MemberOfImage.MemberOfImage

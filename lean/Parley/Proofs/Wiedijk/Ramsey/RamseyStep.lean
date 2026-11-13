@@ -4,8 +4,8 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
+public import NormTactics
 public import SetTactics
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
@@ -22,6 +22,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -108,16 +109,22 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 20. mun:card-disjoint-union X := R, Y := B, m := |R|, n := |B|, from 11, 18, 19
   have s20 : ((R ∪ B).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := R) (Y := B) (m := (R.ncard : ℤ)) s18 (n := (B.ncard : ℤ)) s19 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((hD2_finite : (R : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((hD3_finite : (B : Set α).Finite))]) s11)
   -- 21. substitute X ∖ {v} = R ∪ B (line 10) into line 20
-  have s21 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by parley_subst_at s10 s20
+  have s21 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ))) s10.symm s20
   -- 22. mun:card-add-one, from 13
   have r375_1 : ¬ v ∈ X \ ({v} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_not_in_difference (X := X) (a := v))
   have s22 : ((X \ ({v} : Set α) ∪ ({v} : Set α)).ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := X \ ({v} : Set α)) (a := v) s13 r375_1)
   -- 23. substitute
   have s23 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
     have c1 : X \ ({v} : Set α) ∪ ({v} : Set α) = X := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := X) (a := v) s9)
-    have row1 : (X.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := by parley_subst_at c1 s22
-    have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by (have h := congrArg (fun t : ℤ => t) s21; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (X.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1)) c1 s22
+    have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by
+      have e_nat : (X \ ({v} : Set α)).ncard = R.ncard + B.ncard := by exact_mod_cast s21
+      have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+      (have h := congrArg (fun t : ℤ => t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by
+      have e_nat : (X \ ({v} : Set α)).ncard = R.ncard + B.ncard := by exact_mod_cast c2
+      have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+      (have h := Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) e_w row1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row2)
   -- 24. mun:nat-minus-one n := k + j
   have s24 : 0 ≤ k + j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k + j) (add_pos (hH1) (hH2)))

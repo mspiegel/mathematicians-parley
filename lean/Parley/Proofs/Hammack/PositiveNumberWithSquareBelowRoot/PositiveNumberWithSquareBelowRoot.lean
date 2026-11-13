@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -11,6 +10,10 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Lemmas
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -45,7 +48,9 @@ theorem positive_number_with_square_below_root :
   -- 2. arithmetic
   have s2 : ((1 / 16) ^ 2 : ℚ) < 1 / 4 := by parley_arith
   -- 3. substitute (√(1/4))² = 1/4 (line 1) into line 2
-  have s3 : (1 / 16) ^ 2 < Real.sqrt (1 / 4 : ℝ) ^ 2 := by parley_subst_at s1b s2
+  have s3 : (1 / 16) ^ 2 < Real.sqrt (1 / 4 : ℝ) ^ 2 := by
+    have s2_w : ((1 / 16) ^ 2 : ℝ) < 1 / 4 := (show ((1 / 16) ^ 2 : ℝ) < 1 / 4 by have h := (Rat.cast_lt (K := ℝ)).mpr s2; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h)
+    (have h := Eq.subst (motive := (fun t : ℝ => (1 / 16) ^ 2 < t)) s1b.symm s2_w; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 4. mun:square-less x := 1/16, y := √(1/4), from 1, 3
   have r20_1 : (1 / 16 : ℚ) ≥ 0 := by parley_arith
   have s4 : 1 / 16 < Real.sqrt (1 / 4 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 / 16 : ℝ)) (y := Real.sqrt (1 / 4 : ℝ)) (by norm_num) s1a)).mpr s3

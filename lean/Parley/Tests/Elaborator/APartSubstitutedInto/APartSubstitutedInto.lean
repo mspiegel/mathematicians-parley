@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -25,6 +24,6 @@ namespace Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto
 theorem a_part_substituted_into {α : Type*} (X : Set α) (R : Set α) (hH2 : R ⊆ X) (hH3 : X = ∅) :
     R ⊆ ∅ := by
   -- 1. substitute X = ∅ (H3) into H2
-  parley_subst_at hH3 hH2
+  exact Eq.subst (motive := (fun t : Set α => R ⊆ t)) hH3 hH2
 
 end Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto

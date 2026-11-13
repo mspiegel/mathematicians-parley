@@ -2,7 +2,6 @@ module
 
 public import AlgebraTactics
 public import InstanceTactics
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.SetLike.Basic
@@ -55,7 +54,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
   -- 3. mun:difference-subset X := {1, …, m + n}, Y := {m + n}
   have s3 : (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := ({m + n} : Set ℤ)))
   -- 4. substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 3
-  have s4 : (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by parley_subst_at s2 s3
+  have s4 : (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := Eq.subst (motive := (fun t : Set ℤ => t ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ))) s2.symm s3
   -- 5. algebra
   have s5 : m + n - 1 = m + (n - 1) := by parley_ring
   -- 6. proof
@@ -86,7 +85,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 6.5. mun:subset-into-difference, from 6.1, 6.4
     have s6_5 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (a := m + n) s6_4a s6_1b)
     -- 6.6. substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 6.5
-    have s6_6 : c ⊆ (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) := by parley_subst_at s2 s6_5
+    have s6_6 : c ⊆ (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) := Eq.subst (motive := (fun t : Set ℤ => c ⊆ t)) s2.symm s6_5
     -- 6.7. proof
     have s6_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by
       intro i hK2
@@ -122,7 +121,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.3. mun:subset-transitive, from 4, 8.2
     have s8_3 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := c) (Y := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) s8_2a s4)
     -- 8.4. substitute {1, …, m + (n − 1)} = {1, …, m + n} ∖ {m + n} (line 2) into line 8.2
-    have s8_4 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by parley_subst_at s2 s8_2a
+    have s8_4 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := Eq.subst (motive := (fun t : Set ℤ => c ⊆ t)) s2 s8_2a
     -- 8.5. mun:subset-of-difference, from 8.4
     have s8_5 : ¬ m + n ∈ c := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (a := m + n) s8_4)
     -- 8.6. substitute (m + n) − 1 = m + (n − 1) (line 5) into line 8.1

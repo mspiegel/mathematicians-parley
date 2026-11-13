@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -37,7 +36,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
       have s1_1a : u ∈ C := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mp hK1).1
       have s1_1b : ¬ u ∈ A := by exact (((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mp hK1).2
       -- 1.2. substitute A ∪ B = C (D1) into line 1.1
-      have s1_2 : u ∈ A ∪ B := by parley_subst_at hD1 s1_1a
+      have s1_2 : u ∈ A ∪ B := Eq.subst (motive := (fun t : Set α => u ∈ t)) hD1.symm s1_1a
       -- 1.3. def:union Y := A, Z := B, from 1.2
       have s1_3 : u ∈ A ∨ u ∈ B := by exact ((Parley.Items.Stdlib.Sets.def_union (Y := A) (Z := B) (u := u))).mp s1_2
       -- 1.4. cases, from 1.3
@@ -57,7 +56,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
       -- 3.1. mun:in-union-right Y := A, Z := B, from K2
       have s3_1 : u ∈ A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) hK2)
       -- 3.2. substitute A ∪ B = C (D1) into line 3.1
-      have s3_2 : u ∈ C := by parley_subst_at hD1 s3_1
+      have s3_2 : u ∈ C := Eq.subst (motive := (fun t : Set α => u ∈ t)) hD1 s3_1
       -- 3.3. contradiction
       have s3_3 : ¬ u ∈ A := by
         intro hS
@@ -75,7 +74,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
     -- 6. mun:difference-subset X := C, Y := A
     have s6 : C \ A ⊆ C := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := C) (Y := A))
     -- 7. substitute C ∖ A = B (D2) into line 6
-    have s7 : B ⊆ C := by parley_subst_at hD2 s6
+    have s7 : B ⊆ C := Eq.subst (motive := (fun t : Set α => t ⊆ C)) hD2 s6
     -- 8. mun:union-subset X := A, Y := B, Z := C, from H4, 7
     have s8 : A ∪ B ⊆ C := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := A) (Y := B) (Z := C) hH4 s7)
     -- 9. proof
@@ -92,7 +91,7 @@ theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : S
         -- 9.2.2. def:difference Y := C, Z := A, from C4, K3
         have s9_2_2 : u ∈ C \ A := ((Parley.Items.Stdlib.Sets.def_difference (Y := C) (Z := A) (u := u))).mpr ⟨hK3, hC4⟩
         -- 9.2.3. substitute C ∖ A = B (D2) into line 9.2.2
-        have s9_2_3 : u ∈ B := by parley_subst_at hD2 s9_2_2
+        have s9_2_3 : u ∈ B := Eq.subst (motive := (fun t : Set α => u ∈ t)) hD2 s9_2_2
         -- 9.2.4. mun:in-union-right Y := A, Z := B, from 9.2.3
         exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A) (Z := B) (u := u) s9_2_3)
     -- 10. def:subset X := C, Y := A ∪ B, from 9

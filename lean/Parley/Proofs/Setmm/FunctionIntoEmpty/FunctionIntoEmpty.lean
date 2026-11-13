@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
@@ -30,7 +29,7 @@ theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH3 : A =
   have s1 : ∀ x ∈ A, F x ∈ (∅ : Set α) := by
     intro x hK1
     -- 1.1. substitute A = ∅ (H3) into K1
-    have s1_1 : x ∈ (∅ : Set α) := by parley_subst_at hH3 hK1
+    have s1_1 : x ∈ (∅ : Set α) := Eq.subst (motive := (fun t : Set α => x ∈ t)) hH3 hK1
     -- 1.2. inspection
     have s1_2 : ¬ x ∈ (∅ : Set α) := Set.notMem_empty _
     exact absurd s1_1 s1_2

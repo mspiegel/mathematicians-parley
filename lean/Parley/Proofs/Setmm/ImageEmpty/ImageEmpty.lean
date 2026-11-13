@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
@@ -39,7 +38,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
       -- 1.1. mun:value-in-image, from H3, K1
       have s1_1 : F t ∈ F '' (A ∩ B) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := B) (f := F) (s := t) (W := Set.univ) hH3 hK1 (Set.mapsTo_univ _ _))
       -- 1.2. substitute F[B] = ∅ (D1) into line 1.1
-      have s1_2 : F t ∈ (∅ : Set α) := by parley_subst_at hD1 s1_1
+      have s1_2 : F t ∈ (∅ : Set α) := Eq.subst (motive := (fun u : Set α => F t ∈ u)) hD1 s1_1
       -- 1.3. inspection
       have s1_3 : ¬ F t ∈ (∅ : Set α) := Set.notMem_empty _
       exact absurd s1_2 s1_3
@@ -57,7 +56,7 @@ theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 
       -- 4.2. obtain s from line 4.1
       obtain ⟨s, s4_2a, s4_2b⟩ := s4_1
       -- 4.3. substitute B = ∅ (D2) into line 4.2
-      have s4_3 : s ∈ (∅ : Set α) := by parley_subst_at hD2 s4_2a
+      have s4_3 : s ∈ (∅ : Set α) := Eq.subst (motive := (fun t : Set α => s ∈ t)) hD2 s4_2a
       -- 4.4. inspection
       have s4_4 : ¬ s ∈ (∅ : Set α) := Set.notMem_empty _
       exact absurd s4_3 s4_4

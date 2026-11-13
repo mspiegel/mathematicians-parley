@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -36,7 +35,7 @@ theorem union_equals_intersection {α : Type*} (A : Set α) (B : Set α) :
     -- 1. thm:subset-of-union
     have s1 : A ⊆ A ∪ B := by exact (Parley.Proofs.Setmm.SubsetOfUnion.SubsetOfUnion.subset_of_union (A := A) (B := B))
     -- 2. substitute A ∪ B = A ∩ B (D1) into line 1
-    have s2 : A ⊆ A ∩ B := by parley_subst_at hD1 s1
+    have s2 : A ⊆ A ∩ B := Eq.subst (motive := (fun t : Set α => A ⊆ t)) hD1 s1
     -- 3. thm:intersection-subset-right
     have s3 : A ∩ B ⊆ B := by exact (Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetRight.intersection_subset_right (A := A) (B := B))
     -- 4. mun:subset-transitive X := A, Y := A ∩ B, Z := B, from 2, 3
@@ -44,7 +43,7 @@ theorem union_equals_intersection {α : Type*} (A : Set α) (B : Set α) :
     -- 5. thm:subset-of-union-right A := B, B := A
     have s5 : B ⊆ A ∪ B := by exact (Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight.subset_of_union_right (A := B) (B := A))
     -- 6. substitute A ∪ B = A ∩ B (D1) into line 5
-    have s6 : B ⊆ A ∩ B := by parley_subst_at hD1 s5
+    have s6 : B ⊆ A ∩ B := Eq.subst (motive := (fun t : Set α => B ⊆ t)) hD1 s5
     -- 7. thm:intersection-subset-left
     have s7 : A ∩ B ⊆ A := by exact (Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetLeft.intersection_subset_left (A := A) (B := B))
     -- 8. mun:subset-transitive X := B, Y := A ∩ B, Z := A, from 6, 7
@@ -54,9 +53,9 @@ theorem union_equals_intersection {α : Type*} (A : Set α) (B : Set α) :
   · skip
     intro hD2
     -- 10. calculation
-    calc A ∪ B = A ∪ A := by parley_subst hD2
+    calc A ∪ B = A ∪ A := congrArg (fun t : Set α => A ∪ t) hD2.symm
       _ = A := by exact (Parley.Items.Stdlib.Sets.mun_union_self (Y := A))
       _ = A ∩ A := by exact (Parley.Items.Stdlib.Sets.mun_intersection_self (Y := A)).symm
-      _ = A ∩ B := by parley_subst hD2
+      _ = A ∩ B := congrArg (fun t : Set α => A ∩ t) hD2
 
 end Parley.Proofs.Setmm.SetOrderLaws.UnionEqualsIntersection

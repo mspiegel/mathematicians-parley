@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -11,6 +10,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -38,7 +38,7 @@ theorem image_of_part {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
     have s1_3 : F s ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := s) (W := Set.univ) r25_1 s1_2 (Set.mapsTo_univ _ _))
     -- 1.4. substitute u = F(s) (line 1.1) into line 1.3
-    parley_subst_at s1_1b s1_3
+    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ A))) s1_1b.symm s1_3
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := F '' (A ∩ X)) (Y := F '' (A ∩ A)))).mpr s1
 

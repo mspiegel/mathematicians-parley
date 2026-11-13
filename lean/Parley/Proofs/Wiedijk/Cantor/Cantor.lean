@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
@@ -49,10 +48,10 @@ theorem cantor {α : Type*} (A : Set α) (f : α → Set α) (hH2 : Set.MapsTo f
         have hI : ¬ x ∈ f x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mp hS1).2)
         exact hI
       -- 2.1.2. substitute f(x) = B (S) into line 2.1.1
-      have s2_1_2 : ¬ x ∈ B := by parley_subst_at hS s2_1_1
+      have s2_1_2 : ¬ x ∈ B := Eq.subst (motive := (fun t : Set α => ¬ x ∈ t)) hS s2_1_1
       exact s2_1_2 hS1
     -- 2.2. substitute f(x) = B (S) into line 2.1
-    have s2_2 : ¬ x ∈ f x := by parley_subst_at hS s2_1
+    have s2_2 : ¬ x ∈ f x := Eq.subst (motive := (fun t : Set α => ¬ x ∈ t)) hS.symm s2_1
     -- 2.3. def:set-builder, from D1, K, 2.2
     have s2_3 : x ∈ B := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : α => ¬ x ∈ f x)) (X := A) (u := x))).mpr ⟨hK, s2_2⟩
     exact s2_1 s2_3

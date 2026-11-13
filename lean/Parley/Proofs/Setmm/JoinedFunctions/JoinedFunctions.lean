@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
@@ -40,7 +39,7 @@ theorem joined_functions {α : Type*} (A : Set α) (B : Set α) (C : Set α) (D 
       -- 1.2.2. mun:function-value f := F, from C1
       have s1_2_2 : F x ∈ C := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := C) (f := F) (x := x) hC1 hH5)
       -- 1.2.3. substitute H(x) = F(x) (line 1.2.1) into line 1.2.2
-      have s1_2_3 : H x ∈ C := by parley_subst_at s1_2_1 s1_2_2
+      have s1_2_3 : H x ∈ C := Eq.subst (motive := (fun t : α => t ∈ C)) s1_2_1.symm s1_2_2
       -- 1.2.4. mun:in-union-left, from 1.2.3
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := C) (Z := D) (u := H x) s1_2_3)
     · skip
@@ -55,7 +54,7 @@ theorem joined_functions {α : Type*} (A : Set α) (B : Set α) (C : Set α) (D 
       -- 1.2.8. mun:function-value f := G, from C2
       have s1_2_8 : G x ∈ D := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := B) (E := D) (f := G) (x := x) hC2 hH6)
       -- 1.2.9. substitute H(x) = G(x) (line 1.2.7) into line 1.2.8
-      have s1_2_9 : H x ∈ D := by parley_subst_at s1_2_7 s1_2_8
+      have s1_2_9 : H x ∈ D := Eq.subst (motive := (fun t : α => t ∈ D)) s1_2_7.symm s1_2_8
       -- 1.2.10. mun:in-union-right, from 1.2.9
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := C) (Z := D) (u := H x) s1_2_9)
   -- 2. mun:function-into, from 1

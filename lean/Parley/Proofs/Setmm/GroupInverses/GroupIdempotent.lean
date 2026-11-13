@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
@@ -44,7 +43,7 @@ theorem group_idempotent {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : 
   · skip
     intro hD2
     -- 3.3. calculation
-    calc a * a = a * (1 : G) := by parley_subst hD2
+    calc a * a = a * (1 : G) := congrArg (fun t : G => a * t) hD2
       _ = a := s2
 
 end Parley.Proofs.Setmm.GroupInverses.GroupIdempotent

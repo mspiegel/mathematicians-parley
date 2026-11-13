@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Subgroup.Defs
 public import Mathlib.Data.Int.ModEq
@@ -53,7 +52,7 @@ theorem coset_inclusion {G : Type*} [Group G] (H : Subgroup G) (a : G) (hH3 : a 
     -- 6.4. calculation
     have s6_4 : u = a * (h * c) := by
       calc u = x * c := s6_1b
-        _ = a * h * c := by parley_subst s2b
+        _ = a * h * c := congrArg (fun t : G => t * c) s2b
         _ = a * (h * c) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := h) (c := c) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _))
     -- 6.5. def:coset g := a, from H2, H3, 6.3, 6.4
     exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := a) (u := u) (H := H) (Set.mem_univ _))).mpr ⟨h * c, s6_3, s6_4⟩

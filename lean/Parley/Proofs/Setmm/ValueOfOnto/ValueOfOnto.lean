@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -29,7 +28,7 @@ namespace Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
 theorem value_of_onto {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B) (hH4 : F '' (A ∩ A) = B) (y : α) (hH5 : y ∈ B) :
     (∃ x ∈ A, y = F x) := by
   -- 1. substitute F[A] = B (H4) into H5
-  have s1 : y ∈ F '' (A ∩ A) := by parley_subst_at hH4 hH5
+  have s1 : y ∈ F '' (A ∩ A) := Eq.subst (motive := (fun t : Set α => y ∈ t)) hH4.symm hH5
   -- 2. obtain x: def:image u := y, Y := A, from 1
   have r16_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
   obtain ⟨x, s2a, s2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A) (f := F) (u := y) (W := Set.univ) r16_1 (Set.mapsTo_univ _ _))).mp s1

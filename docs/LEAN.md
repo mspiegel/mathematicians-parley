@@ -45,7 +45,7 @@ installed; the gate does.
 The Lean bridges are written by hand in `corpus/lean-bridges/`, a Lake
 library of their own, and the build never touches them. Each family of
 tactics is a module of its own (`NormTactics`, `AlgebraTactics`,
-`SubstTactics`, `PowerTactics`, `InstanceTactics`, `ComplexTactics`,
+`PowerTactics`, `InstanceTactics`, `ComplexTactics`,
 `ArithTactics`, `SetTactics`, `RealTactics`), imported only by the files
 that call one of its tactics, since a change to a module rebuilds every
 file that imports it. `Counting.lean` and `Sums.lean` hold the bridges. A bridge states its item
@@ -142,7 +142,8 @@ its arithmetic is first stated in the wider, as a line's is, cast up with
 wider. Each row of a `substitute` step is put into the row above the same
 way, its change proved by its reason (`substituted_rows`). An equation no
 line says is proved where it is put: by `parley_arith` where the step works
-it out, and by the define's hypothesis, turned where the step writes the
+it out, by `parley_real` where real arithmetic does, and by the define's
+hypothesis, turned where the step writes the
 name on the right. Identity elements the record says the claim drops are
 rewritten away by `push_cast` with their lemmas, `push_cast [one_mul] at h
 ⊢`.
@@ -170,19 +171,32 @@ written as Lean writes the exponents at both its values
 (`Writer::natural_form`): as its `toNat` where both are written so, a
 numeral put counting so; else an integer, its powers converted to the
 claim's after, the exponent's fact from the record, as a citation's is (see
-"Number types"). A
-substitution keeps the earlier ways, registered as "substitute: equation put
-in", where the record has none or the motive does not state it as written:
-- a place that is an exponent in a type with no integer powers, ℤ;
-- a fact the line implies and does not write;
-- a line, or a motive, of a term written as the whole number it is;
-- a line in a narrower type than the equation; in a wider one, the equation
-  is first stated in the type its place is written in;
-- places of more than two types, or of two where an exponent's form or a
-  whole-number line is among them;
-- an equation of rationals put into a wider field at a place written in its
-  own type;
-- an equation with a side holding a cast of a `toNat`.
+"Number types").
+Where the record gives a substitution no way, it declines, as any step does.
+The route also takes:
+- a term that is no number, a set or a group's element: the motive's letter
+  of its type, and a count of it in ℕ∞ met with the claim's natural counts
+  (`counted_between`);
+- a putting that meets the claim turned round, by turning the goal first
+  (`symm`); respelled, `0 < x` of `x > 0`, as it stands; a listed set in
+  another order, by `reordered`;
+- a fact the line implies, `k ≤ n` of `k ∈ {1, …, n}`, proved from the line
+  first (`line_says`);
+- a line in a narrower type than the equation, stated in the equation's type
+  first, an order of ℚ by ℚ's cast lemmas;
+- a line of the whole number a term is, put into where the equation puts an
+  integer: the line's m, which is that integer by the cast being one to one;
+- a count or an exponent Lean writes as a natural number: the equation
+  stated in ℕ (`e_nat`), by `omega` where a side is an integer the step's
+  lines show at least 0;
+- a natural number put for a letter written by its `toNat`, whose `toNat`
+  of its cast is it (`Int.toNat_natCast`);
+- a side holding a cast of a `toNat`: the casts back of the whole numbers
+  the step names, `rw [Int.toNat_of_nonneg h]`, then the motive.
+
+The motive's letter is told what the lines say of both terms it stands for:
+finite where the set put for is, and at least the lesser of their bounds, so
+`√t` is Lean's real root of t ≥ 0.
 
 **Casts.** Where two statements are alike but for casts, the closer comes
 from the cast table (`src/lean/casts.rs`). For each operation the writer
@@ -502,7 +516,7 @@ No proof is left to a general search tactic.
 | join | each part of the claim the line the checker found it in (`joined`), in `⟨…⟩` as the sentence joins them; a part Lean's types make true, `trivial`; a line Lean states under the claim's binders read at them |
 | membership | a membership Lean's types give, `trivial`; one of ℕ₀ or ℕ, its bound by the said-once walk's reason, or beside a cited equation, the other side's bound carried along it (`le_of_le_of_eq`); a define's value, `rw [hD1]` and the value's bound; a function's value, its type applied to the point's membership; the other side of an equation put in ℕ₀ by the closure table, `Int.emod_nonneg` or `Nat.cast_nonneg`; an integer the cited lines give, as a witness |
 | inspection | by the case recorded (`inspected`): one of a range, its bounds worked out (`norm_num … at h; norm_cast at h; omega`); one of a listed set, its members' equations and `tauto`; nothing in ∅, `Set.notMem_empty`; a listed set's membership or size, `simp`; a set taken by a property from a listed set, `ext x; simp only […]; omega`, and its size, `rw [Set.ncard_eq_toFinset_card']; decide`; a prime, `norm_num` |
-| substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); `exact` of the line where the record puts the equation at no place; else `parley_subst` from the equation and the line the record names, the equation either way round; rows one at a time |
+| substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); `exact` of the line where the record puts the equation at no place; rows one at a time |
 | calculation | `calc`, each link by its reason; a link citing a line met as a cited hypothesis is (`said_proof`): turned, across casts, a congruence with its modulus; sides Lean writes alike, `rfl`; numerals alone, the line put in the goal and worked out |
 | proof | `intro` |
 | contradiction | `by_contra hS` where the supposition is the claim negated, `intro hS` where the claim is the supposition negated, the supposition ascribed or turned where Lean writes it otherwise |

@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -24,6 +23,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundSubstituted
 theorem a_membership_bound_substituted_into (k : ℤ) (hH1 : 0 < k) (m : ℤ) (hH3 : k = m) :
     m > 0 := by
   -- 1. substitute k = m (H3) into H1
-  parley_subst_at hH3 hH1
+  (have h := Eq.subst (motive := (fun t : ℤ => t > 0)) hH3 hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundSubstitutedInto

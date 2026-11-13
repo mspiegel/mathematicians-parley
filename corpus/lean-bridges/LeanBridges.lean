@@ -34,7 +34,7 @@ rebuild to the files that use what changed.
 
 - Each family of tactics is a module of its own, imported only by the
   files that name one of its tactics: `NormTactics`, `AlgebraTactics`,
-  `SubstTactics`, `PowerTactics`, `InstanceTactics`, `ComplexTactics`,
+  `PowerTactics`, `InstanceTactics`, `ComplexTactics`,
   `ArithTactics`, `SetTactics`, `RealTactics`.
 - A module imports the whole family of each Mathlib tactic it calls,
   `Mathlib.Tactic.NormNum` for `norm_num`, so that the tactic has every

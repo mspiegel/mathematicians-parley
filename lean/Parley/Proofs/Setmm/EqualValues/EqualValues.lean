@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
@@ -36,6 +35,6 @@ theorem equal_values {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3
   · skip
     intro hD2
     -- 2.2. substitute C = D (D2)
-    parley_subst hD2
+    exact congrArg (fun t : α => F t) hD2
 
 end Parley.Proofs.Setmm.EqualValues.EqualValues

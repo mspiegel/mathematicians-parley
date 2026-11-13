@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
@@ -41,7 +40,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 1.4. mun:function-value f := F, x := s, from 1.3
     have s1_4 : F s ∈ B := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := B) (f := F) (x := s) s1_3 hH3)
     -- 1.5. substitute u = F(s) (line 1.2) into line 1.4
-    have s1_5 : u ∈ B := by parley_subst_at s1_2b s1_4
+    have s1_5 : u ∈ B := Eq.subst (motive := (fun t : α => t ∈ B)) s1_2b.symm s1_4
     -- 1.6. exhibit, from 1.2
     have s1_6 : ∃ x ∈ X, F x = u := ⟨s, s1_2a, s1_2b.symm⟩
     -- 1.7. def:set-builder, from 1.5, 1.6
@@ -58,7 +57,7 @@ theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → 
     -- 3.3. mun:value-in-image, from H4, 3.2
     have s3_3 : F x ∈ F '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := F) (s := x) (W := Set.univ) hH4 s3_2a (Set.mapsTo_univ _ _))
     -- 3.4. substitute F(x) = u (line 3.2) into line 3.3
-    parley_subst_at s3_2b s3_3
+    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ X))) s3_2b s3_3
   -- 4. def:subset, from 3
   have s4 : {y ∈ B | ∃ x ∈ X, F x = y} ⊆ F '' (A ∩ X) := ((Parley.Items.Stdlib.Sets.def_subset (X := {y ∈ B | ∃ x ∈ X, F x = y}) (Y := F '' (A ∩ X)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -37,7 +36,7 @@ theorem quotient_times_divisor {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.u
   -- 3. substitute
   have s3 : a * b⁻¹ * b = a * (1 : G) := by
     have c1 : b⁻¹ * b = (1 : G) := by exact (Parley.Proofs.Setmm.GroupCancellation.TheLeftInverse.the_left_inverse (G := G) (a := b) (Set.mem_univ _))
-    have row1 : a * b⁻¹ * b = a * (1 : G) := by parley_subst_at c1 s2
+    have row1 : a * b⁻¹ * b = a * (1 : G) := Eq.subst (motive := (fun t : G => a * b⁻¹ * b = a * t)) c1 s2
     exact row1
   -- 4. calculation
   calc a * b⁻¹ * b = a * (1 : G) := s3

@@ -1,11 +1,13 @@
 module
 
-public import SubstTactics
+public import Mathlib.Basic.SetLike.Basic
+public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
@@ -27,6 +29,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundSubstitutedInto
 theorem a_range_bound_substituted_into (n : ℤ) (m : ℤ) (k : ℤ) (hH3 : k ∈ Finset.Icc (1 : ℤ) n) (hH4 : n = m) :
     k ≤ m := by
   -- 1. substitute n = m (H4) into H3
-  parley_subst_at hH4 hH3
+  (have h := Eq.subst (motive := (fun t : ℤ => k ≤ t)) hH4 (Finset.mem_Icc.mp hH3).2; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundSubstitutedInto

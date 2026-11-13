@@ -1,7 +1,6 @@
 module
 
 public import SetTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.ModEq
@@ -42,7 +41,7 @@ theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y
   -- 2. mun:difference-shrinks, from H3
   have s2 : Y \ ({v} : Set α) ⊆ (W ∪ ({v} : Set α)) \ ({v} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_shrinks (X := W ∪ ({v} : Set α)) (Y := Y) (Z := ({v} : Set α)) hH3)
   -- 3. substitute (W ∪ {v}) ∖ {v} = W (line 1) into line 2
-  have s3 : Y \ ({v} : Set α) ⊆ W := by parley_subst_at s1 s2
+  have s3 : Y \ ({v} : Set α) ⊆ W := Eq.subst (motive := (fun t : Set α => Y \ ({v} : Set α) ⊆ t)) s1 s2
   -- 4. axi:excluded-middle P := v ∈ Y
   have s4 : v ∈ Y ∨ ¬ v ∈ Y := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := v ∈ Y))
   -- 5. cases, from 4
@@ -71,7 +70,7 @@ theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y
     -- 5.9. mun:subset-into-difference, from C2, H3
     have s5_9 : Y ⊆ (W ∪ ({v} : Set α)) \ ({v} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := W ∪ ({v} : Set α)) (Y := Y) (a := v) hH3 hC2)
     -- 5.10. substitute (W ∪ {v}) ∖ {v} = W (line 1) into line 5.9
-    have s5_10 : Y ⊆ W := by parley_subst_at s1 s5_9
+    have s5_10 : Y ⊆ W := Eq.subst (motive := (fun t : Set α => Y ⊆ t)) s1 s5_9
     -- 5.11. mun:or-left, from 5.10
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Y ⊆ W) (Q := ∃ w ∈ W, Y = ({v, w} : Set α)) s5_10)
 

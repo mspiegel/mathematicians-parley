@@ -1,7 +1,6 @@
 module
 
 public import AlgebraTactics
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -58,9 +57,9 @@ theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     -- 2.4. def:part-builder u := T, from 2.2
     have s2_4 : T ⊆ (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m - 1)) (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (u := T))).mp s2_2).1
     -- 2.5. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.3
-    have s2_5 : S ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by parley_subst_at s1 s2_3
+    have s2_5 : S ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := Eq.subst (motive := (fun t : Set ℤ => S ⊆ t)) s1 s2_3
     -- 2.6. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.4
-    have s2_6 : T ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by parley_subst_at s1 s2_4
+    have s2_6 : T ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := Eq.subst (motive := (fun t : Set ℤ => T ⊆ t)) s1 s2_4
     -- 2.7. mun:subset-of-difference, from 2.5
     have s2_7 : ¬ m + n ∈ S := by exact (Parley.Items.Stdlib.Sets.mun_subset_of_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := S) (a := m + n) s2_5)
     -- 2.8. mun:subset-of-difference, from 2.6
@@ -68,7 +67,7 @@ theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     -- 2.9. mun:difference-of-union
     have s2_9 : (S ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) = S \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := S) (a := m + n))
     -- 2.10. substitute S ∪ {m + n} = T ∪ {m + n} (K3) into line 2.9
-    have s2_10 : (T ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) = S \ ({m + n} : Set ℤ) := by parley_subst_at hK3 s2_9
+    have s2_10 : (T ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) = S \ ({m + n} : Set ℤ) := Eq.subst (motive := (fun t : Set ℤ => t \ ({m + n} : Set ℤ) = S \ ({m + n} : Set ℤ))) hK3 s2_9
     -- 2.11. calculation
     calc S = S \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := S) (a := m + n) s2_7).symm
       _ = (T ∪ ({m + n} : Set ℤ)) \ ({m + n} : Set ℤ) := s2_10.symm

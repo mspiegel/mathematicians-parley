@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -37,12 +36,12 @@ theorem the_left_identity {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ :
   -- 3. substitute
   have s3 : a * a⁻¹ * a = a * (1 : G) := by
     have c1 : a⁻¹ * a = (1 : G) := by exact (Parley.Proofs.Setmm.GroupCancellation.TheLeftInverse.the_left_inverse (G := G) (a := a) (Set.mem_univ _))
-    have row1 : a * a⁻¹ * a = a * (1 : G) := by parley_subst_at c1 s2
+    have row1 : a * a⁻¹ * a = a * (1 : G) := Eq.subst (motive := (fun t : G => a * a⁻¹ * a = a * t)) c1 s2
     exact row1
   -- 4. substitute
   have s4 : (1 : G) * a = a * (1 : G) := by
     have c1 : a * a⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) (Set.mem_univ _))
-    have row1 : (1 : G) * a = a * (1 : G) := by parley_subst_at c1 s3
+    have row1 : (1 : G) * a = a * (1 : G) := Eq.subst (motive := (fun t : G => t * a = a * (1 : G))) c1 s3
     exact row1
   -- 5. calculation
   calc (1 : G) * a = a * (1 : G) := s4

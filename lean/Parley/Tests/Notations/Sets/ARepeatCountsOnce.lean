@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -35,6 +34,6 @@ theorem a_repeat_counts_once :
   -- 3. mun:card-pair-distinct u := 1, w := 2, from 2
   have s3 : (({(1 : ℤ), (2 : ℤ)} : Set ℤ).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := (1 : ℤ)) (w := (2 : ℤ)))).mp s2
   -- 4. substitute {1, 2} = {1, 2, 2} (line 1) into line 3
-  parley_subst_at s1 s3
+  exact Eq.subst (motive := (fun t : Set ℤ => (t.ncard : ℤ) = 2)) s1.symm s3
 
 end Parley.Tests.Notations.Sets.ARepeatCountsOnce

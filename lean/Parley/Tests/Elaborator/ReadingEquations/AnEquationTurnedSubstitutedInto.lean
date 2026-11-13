@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -24,6 +23,6 @@ namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedSubstitutedIn
 theorem an_equation_turned_substituted_into (x : ℝ) (y : ℝ) (hH3 : x + 1 = y) (hH4 : x = 2) :
     y = 2 + 1 := by
   -- 1. substitute x = 2 (H4) into H3
-  parley_subst_at hH4 hH3
+  symm; (have h := Eq.subst (motive := (fun t : ℝ => t + 1 = y)) hH4 hH3; push_cast at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedSubstitutedInto

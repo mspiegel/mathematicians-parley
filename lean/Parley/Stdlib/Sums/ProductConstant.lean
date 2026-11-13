@@ -1,9 +1,7 @@
 module
 
 public import AlgebraTactics
-public import SetTactics
 public import Sets
-public import SubstTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Monoid
@@ -55,7 +53,9 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       -- 1.3. substitute
       have s1_3 : c ^ (∅ : Set α).ncard = 1 := by
         have c1 : 0 = ((∅ : Set α).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_empty (α := α)).symm
-        have row1 : c ^ (∅ : Set α).ncard = 1 := by parley_count_int; parley_subst_at c1 s1_2
+        have row1 : c ^ (∅ : Set α).ncard = 1 := by
+          have e_nat : 0 = (∅ : Set α).ncard := by exact_mod_cast c1
+          (have h := Eq.subst (motive := (fun t : ℕ => c ^ t = 1)) e_nat s1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 1.4. transitivity, from 1.1, 1.3
       exact Eq.trans s1_1 s1_3.symm
@@ -77,7 +77,9 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       have s1_11 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ (Y.ncard + 1) := by exact Eq.trans s1_10 s1_9.symm
       -- 1.12. substitute
       have c1 : (Y.ncard : ℤ) + 1 = ((Y ∪ ({a} : Set α)).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := Y) (a := a) s1_6 s1_5.2).symm
-      have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ (Y ∪ ({a} : Set α)).ncard := by parley_count_int; parley_subst_at c1 s1_11
+      have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ (Y ∪ ({a} : Set α)).ncard := by
+        have e_nat : Y.ncard + 1 = (Y ∪ ({a} : Set α)).ncard := by exact_mod_cast c1
+        (have h := Eq.subst (motive := (fun t : ℕ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ t)) e_nat s1_11; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 2. instantiate Y := X in line 1
   have r124_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))

@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
@@ -9,6 +8,7 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -32,6 +32,6 @@ theorem a_define_put_into_a_line {α : Type*} (A : Set α) (B : Set α) :
     try push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_intersection_subset (Y := A) (Z := B))
   -- 2. substitute C = A ∩ B (D1) into line 1
-  parley_subst_at hD1 s1
+  exact Eq.subst (motive := (fun t : Set α => t ⊆ A)) hD1 s1
 
 end Parley.Tests.Elaborator.ADefinePutIntoALine.ADefinePutIntoALine

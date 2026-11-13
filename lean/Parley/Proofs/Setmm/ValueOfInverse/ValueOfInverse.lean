@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
@@ -32,9 +31,9 @@ theorem value_of_inverse {α : Type*} (A : Set α) (B : Set α) (F : α → α) 
   -- 2. mun:inverse-value g := F, y := x, from H3, 1
   have s2 : LeanBridges.Functions.inverse F A (F x) = x := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) hH3 s1a)
   -- 3. substitute C = F(x) (line 1) into line 2
-  have s3 : LeanBridges.Functions.inverse F A C = x := by parley_subst_at s1b s2
+  have s3 : LeanBridges.Functions.inverse F A C = x := Eq.subst (motive := (fun t : α => LeanBridges.Functions.inverse F A t = x)) s1b.symm s2
   -- 4. calculation
-  calc F (LeanBridges.Functions.inverse F A C) = F x := by parley_subst s3
+  calc F (LeanBridges.Functions.inverse F A C) = F x := congrArg (fun t : α => F t) s3
     _ = C := s1b.symm
 
 end Parley.Proofs.Setmm.ValueOfInverse.ValueOfInverse

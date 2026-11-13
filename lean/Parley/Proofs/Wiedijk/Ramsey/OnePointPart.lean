@@ -1,5 +1,6 @@
 module
 
+public import NormTactics
 public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
@@ -11,6 +12,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -51,9 +53,15 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     -- 6.1. mun:card-subset A := Y, B := {v}, from K1
     have s6_1 : (Y.ncard : ℤ) ≤ (({v} : Set α).ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1); simp only [← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (by omega) : (Y : Set α).Finite)), ← Set.Finite.cast_ncard_eq ((Set.finite_of_ncard_ne_zero (by omega) : (({v} : Set α) : Set α).Finite))] at h ⊢; exact_mod_cast h)
     -- 6.2. substitute |{v}| = 1 (line 5) into line 6.1
-    have s6_2 : (Y.ncard : ℤ) ≤ 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (Y.ncard : ℤ) ≤ t)) s5 s6_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s6_2 : (Y.ncard : ℤ) ≤ 1 := by
+      have e_nat : ({v} : Set α).ncard = 1 := by exact_mod_cast s5
+      have e_w : (({v} : Set α).ncard : ℤ) = 1 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+      (have h := Eq.subst (motive := (fun t : ℤ => (Y.ncard : ℤ) ≤ t)) e_w s6_1; push_cast at h ⊢; all_goals exact_mod_cast h)
     -- 6.3. substitute |Y| = 2 (K2) into line 6.2
-    have s6_3 : (2 : ℤ) ≤ 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t ≤ 1)) hK2 s6_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s6_3 : (2 : ℤ) ≤ 1 := by
+      have e_nat : Y.ncard = 2 := by exact_mod_cast hK2
+      have e_w : (Y.ncard : ℤ) = 2 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+      (have h := Eq.subst (motive := (fun t : ℤ => t ≤ 1)) e_w s6_2; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact absurd s6_3 (by norm_num)
   -- 7. inequalities
   have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (linarith only [s5])

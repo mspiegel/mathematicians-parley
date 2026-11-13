@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import Functions
 public import NormTactics
 public import RealTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -91,7 +90,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.8. substitute G(j) = (φ^(j + 1) − ψ^(j + 1))/√5 (IH) into line 4.6
       have s4_8 : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by
         have s4_6_w : (F (j + 1) : ℝ) = (G j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h; linear_combination (norm := parley_norm) h
-        parley_subst_at hIH.2 s4_6_w
+        (have h := Eq.subst (motive := (fun t : ℝ => (F (j + 1) : ℝ) = t)) hIH.2 s4_6_w; push_cast at h ⊢; all_goals exact_mod_cast h)
       -- 4.9. thm:power-recurrence x := φ, k := j, from 2
       have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) s2 (k := j) hK)
       -- 4.10. thm:power-recurrence x := ψ, k := j, from 3

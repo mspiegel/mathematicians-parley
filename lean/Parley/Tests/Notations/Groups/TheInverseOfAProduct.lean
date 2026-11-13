@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -52,17 +51,17 @@ theorem the_inverse_of_a_product {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set
   -- 11. axi:group-identity a := a⁻¹, from 2
   have s11 : a⁻¹ * (1 : G) = a⁻¹ := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := a⁻¹) (Set.mem_univ _))
   -- 12. substitute a⁻¹·e = a⁻¹ (line 11) into line 10
-  have s12 : a⁻¹ * ((1 : G) * a⁻¹) = a⁻¹ * a⁻¹ := by parley_subst_at s11 s10
+  have s12 : a⁻¹ * ((1 : G) * a⁻¹) = a⁻¹ * a⁻¹ := Eq.subst (motive := (fun t : G => a⁻¹ * ((1 : G) * a⁻¹) = t * a⁻¹)) s11 s10
   -- 13. axi:group-closed a := e, b := a⁻¹, from 2, 6
   have s13 : (1 : G) * a⁻¹ ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := (1 : G)) (b := a⁻¹) (Set.mem_univ _) (Set.mem_univ _))
   -- 14. thm:group-cancel a := e·a⁻¹, b := a⁻¹, g := a⁻¹, from 2, 12, 13
   have s14 : (1 : G) * a⁻¹ = a⁻¹ := by exact (Parley.Items.Stdlib.Groups.thm_group_cancel (G := G) (a := (1 : G) * a⁻¹) (b := a⁻¹) (g := a⁻¹) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _) s12)
   -- 15. substitute b·b⁻¹ = e (line 9) into line 8
-  have s15 : b * (b⁻¹ * a⁻¹) = (1 : G) * a⁻¹ := by parley_subst_at s9 s8
+  have s15 : b * (b⁻¹ * a⁻¹) = (1 : G) * a⁻¹ := Eq.subst (motive := (fun t : G => b * (b⁻¹ * a⁻¹) = t * a⁻¹)) s9 s8
   -- 16. substitute e·a⁻¹ = a⁻¹ (line 14) into line 15
-  have s16 : b * (b⁻¹ * a⁻¹) = a⁻¹ := by parley_subst_at s14 s15
+  have s16 : b * (b⁻¹ * a⁻¹) = a⁻¹ := Eq.subst (motive := (fun t : G => b * (b⁻¹ * a⁻¹) = t)) s14 s15
   -- 17. substitute b·(b⁻¹·a⁻¹) = a⁻¹ (line 16) into line 7
-  have s17 : a * b * (b⁻¹ * a⁻¹) = a * a⁻¹ := by parley_subst_at s16 s7
+  have s17 : a * b * (b⁻¹ * a⁻¹) = a * a⁻¹ := Eq.subst (motive := (fun t : G => a * b * (b⁻¹ * a⁻¹) = a * t)) s16 s7
   -- 18. axi:group-inverse, from H2
   have s18 : a * a⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) (Set.mem_univ _))
   -- 19. axi:group-inverse a := a·b, from 1

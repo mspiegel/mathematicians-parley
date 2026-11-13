@@ -7,7 +7,6 @@ public import FactorialTactics
 public import Functions
 public import NormTactics
 public import PowerTactics
-public import SubstTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Field.Rat
@@ -132,6 +131,6 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         _ ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := s3_20
         _ = 2 / 2 ^ A.toNat - 2 / 2 ^ (A + (j + 1)).toNat := by linear_combination (norm := parley_field) s3_19
   -- 4. substitute A = (n + 1)! (D1) into line 3
-  parley_subst_at hD1 s3
+  (have h := Eq.subst (motive := (fun t : ℤ => ∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ t.toNat - 2 / 2 ^ (t + j).toNat)) hD1 s3; push_cast [Int.toNat_natCast] at h ⊢; all_goals exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound

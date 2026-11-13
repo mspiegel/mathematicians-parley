@@ -7,7 +7,6 @@ public import Divisibility
 public import FactorialTactics
 public import InstanceTactics
 public import PowerTactics
-public import SubstTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -22,6 +21,8 @@ public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Defs
+public import Mathlib.Data.Int.Cast.Lemmas
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -133,7 +134,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.5.4. D1, from K2
       have s5_5_4 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1]
       -- 5.5.5. substitute f(a) = (a^(p − 2)) mod p (line 5.5.4) into line 5.5.3
-      parley_subst_at s5_5_4 s5_5_3
+      obtain ⟨m, hm, hk⟩ := s5_5_3; rw [← Int.cast_injective (hm.trans s5_5_4.symm)]; exact hk
     -- 5.6. proof
     -- what this block shows, Lean's types give
     -- 5.7. proof
@@ -150,7 +151,9 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         refine ⟨(a ^ (p - 1).toNat), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
         exact (by
           have c1 : (Nat.totient p.toNat : ℤ) = p - 1 := by exact (Parley.Items.Stdlib.Divisibility.thm_phi_prime (p := p) hH1 hH2)
-          have row1 : (a ^ (p - 1).toNat) ≡ (1 : ℤ) [ZMOD p] := by parley_subst_at c1 s5_7_1
+          have row1 : (a ^ (p - 1).toNat) ≡ (1 : ℤ) [ZMOD p] := by
+            have e_nat : Nat.totient p.toNat = (p - 1).toNat := by (have h := c1; omega)
+            (have h := Eq.subst (motive := (fun t : ℕ => a ^ t ≡ (1 : ℤ) [ZMOD p])) e_nat s5_7_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           exact row1)
       -- 5.7.3. mun:exponent-step m := p − 2, from 5.3
       have s5_7_3 : (a : ℚ) ^ (p - 2 + 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (a : ℚ)) (m := p - 2) (le_of_lt s5_3)); simp only [parley_zpow_toNat (n := p - 2 + 1) (h := add_nonneg (le_of_lt s5_3) (by norm_num)), parley_zpow_toNat (n := p - 2) (h := le_of_lt s5_3)] at h ⊢; exact_mod_cast h)
@@ -180,7 +183,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         have s5_7_6 := parley_witness_at s5_7_6 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))
         (try rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec whole1); push_cast at h; exact h : ((Classical.choose whole1 : ℤ) : ℝ) = (a : ℝ) ^ (p - 2))] at s5_7_7; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)] at s5_7_7); norm_cast at s5_7_7)
         refine ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring), ?_⟩
-        (parley_subst_at s5_7_7 s5_7_6)
+        ((have h := Eq.subst (motive := (fun t : ℤ => (Classical.choose whole1 : ℤ) ≡ t [ZMOD p])) s5_7_7.symm s5_7_6; push_cast at h ⊢; all_goals exact_mod_cast h))
       -- 5.7.9. thm:congruent-times c := a, from 5.6, 5.7.5, 5.7.8
       have s5_7_9 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) * (a : ℚ) ∧ f a * a ≡ m [ZMOD p] := by
         have whole1 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) := by obtain ⟨m, hm⟩ := s5_7_5; exact ⟨m, by exact_mod_cast hm⟩

@@ -426,6 +426,14 @@ struct GivenEquation {
     above: Option<super::algebra::Cited>,
 }
 
+/// The two terms of a substitution: the one put for, and the one put in
+/// its place.
+#[derive(Clone, Copy)]
+struct PutTerms<'n> {
+    was: &'n Node,
+    now: &'n Node,
+}
+
 /// The claim a citation is met with, as Lean prints it.
 #[derive(Clone, Copy)]
 struct StepClaim<'p> {
@@ -1585,12 +1593,18 @@ fn rat_to_real(proof: Printed, narrow: &Printed, wide: Printed) -> Option<Printe
         },
         LeanType::Prop,
     );
+    // Where no cast is left inside to push down, the relation's cast is
+    // the fact in ℝ as it stands.
+    let lemmas = rat_cast_lemmas(&wide);
+    if lemmas.is_empty() {
+        return Some(cast);
+    }
     let steps = vec![
         Tactic::Name {
             name: "h".to_string(),
             term: cast,
         },
-        t::simp_only(false, None, rat_cast_lemmas(&wide), Some(t::at_h(false))),
+        t::simp_only(false, None, lemmas, Some(t::at_h(false))),
         Tactic::Exact(t::hyp("h")),
     ];
     Some(t::bracket(shown(wide, Proof::By(Tactic::Seq(steps)))))
@@ -7354,6 +7368,21 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// The fact a substitution is put into, where the checker found it in a
+    /// line (`FirstAt`): the sentence or part there, or a fact the line
+    /// implies, `k ≤ n` of `k ∈ {1, …, n}`, proved from it (`line_says`).
+    fn put_into_line(&self, at: &FirstAt) -> Route<super::algebra::Cited> {
+        if at.implied.is_none() {
+            return self.line_part(at);
+        }
+        self.line_says(at)
+            .map(|(proof, says)| super::algebra::Cited {
+                node: at.written.clone(),
+                proof,
+                says: Some(says),
+            })
+    }
+
     /// What stands where the checker found a fact in a line (`FirstAt`), as
     /// a term that proves it and the statement Lean writes for it: the
     /// sentence at that place, a "for all" of the line read at the block's
@@ -7397,9 +7426,9 @@ impl<'a> Proof<'a> {
 
     /// The proof of a substitution's own equation where no line says it
     /// (`Substituted::from` None), by the source the step names: worked out
-    /// by arithmetic, a `have` proved by `parley_arith`; or a define of a
-    /// name, its hypothesis, turned where the step writes the name on the
-    /// right. None of any other source.
+    /// by arithmetic or real arithmetic, a `have` proved by `parley_arith`
+    /// or `parley_real`; or a define of a name, its hypothesis, turned where
+    /// the step writes the name on the right. None of any other source.
     fn equation_given(
         &self,
         just: &Justification,
@@ -7410,29 +7439,30 @@ impl<'a> Proof<'a> {
         if rec.from.is_some() {
             return None;
         }
-        match just.source.as_ref()? {
-            Source::Arithmetic => {
-                let says = self.writer.formula(&rec.equation).built()?;
-                let have = Tactic::Have {
-                    name: "e_arith".to_string(),
-                    says: says.clone(),
-                    proof: Box::new(super::doc::Proof::By(t::bridge(
-                        BridgeTactic::Arith,
-                        vec![],
-                    ))),
-                };
-                Some((
-                    Some(have),
-                    GivenEquation {
-                        change: super::algebra::Cited {
-                            node: rec.equation.clone(),
-                            proof: t::hyp("e_arith"),
-                            says: Some(says),
-                        },
-                        above: None,
+        // Worked out by arithmetic, or by real arithmetic, a `have` its
+        // tactic proves.
+        let worked = |name: &str, by: BridgeTactic| {
+            let says = self.writer.formula(&rec.equation).built()?;
+            let have = Tactic::Have {
+                name: name.to_string(),
+                says: says.clone(),
+                proof: Box::new(super::doc::Proof::By(t::bridge(by, vec![]))),
+            };
+            Some((
+                Some(have),
+                GivenEquation {
+                    change: super::algebra::Cited {
+                        node: rec.equation.clone(),
+                        proof: t::hyp(name),
+                        says: Some(says),
                     },
-                ))
-            }
+                    above: None,
+                },
+            ))
+        };
+        match just.source.as_ref()? {
+            Source::Arithmetic => worked("e_arith", BridgeTactic::Arith),
+            Source::RealArithmetic => worked("e_real", BridgeTactic::Real),
             Source::At(place) => {
                 let label = place.named();
                 let d = self.thm.defines.iter().find(|d| d.label == label)?;
@@ -7474,7 +7504,6 @@ impl<'a> Proof<'a> {
                     },
                 ))
             }
-            Source::RealArithmetic => None,
         }
     }
 
@@ -10527,8 +10556,9 @@ impl<'a> Proof<'a> {
     /// `nodes` count that either counts in ℕ∞, shown finite as the record
     /// says, taken to its count in ℕ in the line and the goal alike
     /// (`Set.Finite.cast_ncard_eq`), the casts taken off, and the two met
-    /// as `omega` meets them. None where neither counts in ℕ∞, or such a
-    /// set is not shown finite.
+    /// as `omega` meets them; a set not shown finite keeps its count in ℕ∞,
+    /// and the line is then the goal as it stands. None where no set counted
+    /// in ℕ∞ is shown finite.
     fn counted_between(
         &self,
         proof: &Printed,
@@ -10547,23 +10577,35 @@ impl<'a> Proof<'a> {
             })
         };
         let mut rules = Vec::new();
+        let mut kept_extended = false;
         for set in self.counted_sets(nodes) {
             let Route::Built(written) = self.writer.set_term(&set) else {
                 continue;
             };
-            if in_extended(&written) {
-                rules.push(t::backwards(cast_ncard_eq(&self.shown_finite(&set)?)));
+            if !in_extended(&written) {
+                continue;
+            }
+            // A set not shown finite keeps its count in ℕ∞ in both.
+            match self.shown_finite(&set) {
+                Some(finite) => rules.push(t::backwards(cast_ncard_eq(&finite))),
+                None => kept_extended = true,
             }
         }
         if rules.is_empty() {
             return None;
         }
+        // Counts all in ℕ, met by `omega`; one left in ℕ∞, the line then as
+        // the goal is.
+        let met = match kept_extended {
+            false => t::call("omega", vec![]),
+            true => Tactic::Exact(t::hyp("h")),
+        };
         Some(t::by_term(super::doc::Proof::By(t::on_h(
             proof,
             vec![
                 t::simp_only(false, None, rules, Some(t::at_h(true))),
                 t::call("norm_cast", vec![t::at_h(true)]),
-                Tactic::AllGoals(Box::new(t::call("omega", vec![]))),
+                Tactic::AllGoals(Box::new(met)),
             ],
         ))))
     }
@@ -12637,16 +12679,51 @@ impl<'a> Proof<'a> {
     /// `t = t′`, `congrArg` of the motive is the claim, turned where the side
     /// is its right. Either is closed by `exact_mod_cast`, as a numeral put
     /// where the claim writes it in a wider type is written with its cast.
-    /// Declined where the record has none, or a place of no number type.
-    /// A row of a `substitute` step (`SubstitutedInto::RowAbove`) is put
-    /// into the row above as into a line, its change proved by its reason;
-    /// a step's own equation from no line, by its proof (`GivenEquation`).
+    /// Declined where the record has none. A row of a `substitute` step
+    /// (`SubstitutedInto::RowAbove`) is put into the row above as into a
+    /// line, its change proved by its reason; a step's own equation from no
+    /// line, by its proof (`GivenEquation`). A putting that meets the claim
+    /// turned round (`Meeting::turned`), `b ≡ c` of the claim `c ≡ b`, turns
+    /// the goal first, `symm`, and proves it as written.
     fn substituted_by_record(
         &self,
         line: usize,
         sentence: Option<usize>,
         claim: &Node,
         row: Option<&GivenEquation>,
+        writer: &Writer,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        let turned = self
+            .substitution_record(line, sentence, row.is_some_and(|r| r.above.is_some()))
+            .is_some_and(|r| r.meeting.turned);
+        let proof = self.substituted_as_written(line, sentence, claim, row, writer);
+        match turned {
+            false => proof,
+            true => proof.map(|p| {
+                let rest = match p {
+                    Proof::Term(t) => Tactic::Exact(t),
+                    Proof::By(t) => t,
+                    Proof::Block(ts) => Tactic::Seq(ts),
+                };
+                Proof::By(Tactic::Seq(vec![
+                    super::tactics::call("symm", vec![]),
+                    rest,
+                ]))
+            }),
+        }
+    }
+
+    /// `substituted_by_record` of a putting that makes the claim as written,
+    /// or turned round where the goal is turned already. `writer` is the
+    /// step's, which knows what the step's lines say of its terms.
+    fn substituted_as_written(
+        &self,
+        line: usize,
+        sentence: Option<usize>,
+        claim: &Node,
+        row: Option<&GivenEquation>,
+        writer: &Writer,
     ) -> Route<super::doc::Proof> {
         use super::doc::{LeanType, Proof};
         use super::tactics as t;
@@ -12715,10 +12792,18 @@ impl<'a> Proof<'a> {
                 return Route::no("an equation the record takes from no line")
             }
         };
+        // A term put for that is no number, a set or a group's element: the
+        // motive's letter is of its type, and there are no casts to move.
+        if let Some(letter_ty) = self.member_letter(was) {
+            let put = PutTerms { was, now };
+            return self
+                .substituted_members(rec, letter_ty, put, equation, row, line, claim);
+        }
         // A side holding a cast of a `toNat`, `((2^p − 1).toNat : ℤ)`, which
-        // `push_cast` moves only knowing the term is not negative. A `toNat`
-        // with no cast over it, an exponent's `2 ^ m.toNat`, is a term like
-        // any other.
+        // `push_cast` moves only knowing the term is not negative: what the
+        // motive makes is the claim as it stands, closed with no cast moved.
+        // A `toNat` with no cast over it, an exponent's `2 ^ m.toNat`, is a
+        // term like any other.
         let cast_to_nat = [left, right].iter().any(|side| {
             self.writer
                 .formula(side)
@@ -12728,9 +12813,6 @@ impl<'a> Proof<'a> {
                 })
                 .is_some_and(|p| casts_a_to_nat(&p))
         });
-        if cast_to_nat {
-            return Route::no("an equation with a side holding a cast of a toNat");
-        }
         // A place that is an exponent is written by what the page says of
         // its term, `(−1)^m.toNat` of m said a whole number. Where the page
         // says so of the term put for and of the term put, and neither is a
@@ -12743,28 +12825,45 @@ impl<'a> Proof<'a> {
             .iter()
             .any(|p| place_is_exponent(&rec.start, p));
         use super::expr::NaturalForm;
-        let form = |n: &Node| self.writer.natural_form(n);
+        // How the lines and the claim write the terms where a natural number
+        // is wanted; and the step's writer knowing what its lines bound, its
+        // requires lines among them, which an equation stated in ℕ may use,
+        // φ(p) = (p − 1).toNat of the requires line p − 1 ∈ ℕ₀.
+        let form = |n: &Node| writer.natural_form(n);
+        let lines: Vec<Node> = self
+            .step_now
+            .get()
+            .map(|i| self.step_facts(i).into_iter().map(|c| c.node).collect())
+            .unwrap_or_default();
+        let knowing = writer.knowing(&lines);
         // An equation of natural numbers put at exponents, φ(n) = |S| put in
-        // a^φ(n): Lean's exponent is of ℕ, so the equation is put there in
-        // ℕ, stated so first (`e_nat`), and the motive's letter is of ℕ.
-        let natural_exponent = exponent
-            && rec
-                .put
-                .places
-                .iter()
-                .all(|p| place_is_exponent(&rec.start, p))
+        // a^φ(n), or at a count of a finite set, |{a}| = 1 put in |{a}| ≤
+        // |A|: Lean writes either as a natural number, so the equation is put
+        // there in ℕ, stated so first (`e_nat`), and the motive's letter is
+        // of ℕ.
+        let natural_place = |p: &Vec<usize>| {
+            place_is_exponent(&rec.start, p)
+                || at_path(&rec.start, p)
+                    .is_some_and(|n| self.writer.finite_count(n).is_some())
+        };
+        let natural_exponent = !rec.put.places.is_empty()
+            && rec.put.places.iter().all(natural_place)
             && form(was) == NaturalForm::AsItIs
-            && form(now) == NaturalForm::AsItIs;
+            && natural_form_named(&knowing, now) != NaturalForm::Integer;
         // Else the motive's letter is written as Lean writes the exponents
         // at both its values (`Writer::natural_form`): as its `toNat` where
         // both are, a numeral put counting so, since its `toNat` works out
-        // (`Int.reduceToNat`); else an integer, its power an integer one,
-        // converted to the claim's after (`int_exponent`,
+        // (`Int.reduceToNat`), and a natural number put, the `toNat` of its
+        // cast, which is it (`Int.toNat_natCast`); else an integer, its power
+        // an integer one, converted to the claim's after (`int_exponent`,
         // `powers_converted_at`), each exponent's fact from the record. A
         // difference put for a whole letter, p − 1 for k, leaves it an
         // integer.
+        let natural_put = form(now) == NaturalForm::AsItIs
+            && now.notation() != crate::notations::NUMERAL;
         let now_to_nat = form(now) == NaturalForm::ToNat
-            || now.notation() == crate::notations::NUMERAL;
+            || now.notation() == crate::notations::NUMERAL
+            || natural_put;
         let whole_was = exponent
             && !natural_exponent
             && form(was) == NaturalForm::ToNat
@@ -12796,7 +12895,7 @@ impl<'a> Proof<'a> {
         };
         let (ty, equation, in_nat) = match natural_exponent {
             false => (ty, equation, None),
-            true => match self.nat_equation(was, now, &equation) {
+            true => match self.nat_equation(was, now, &equation, &knowing) {
                 Route::Built(have) => {
                     (super::templates::Num::Nat, t::hyp("e_nat"), Some(have))
                 }
@@ -12806,10 +12905,7 @@ impl<'a> Proof<'a> {
         // What every way out states before its proof: `e_nat`, and `e_w`
         // where the equation is widened (`haves_then`).
         let mut haves: Vec<Tactic> = in_nat.into_iter().collect();
-        let taken = rec.start.names();
-        let Some(letter) = ["t", "u", "w", "s", "r"].into_iter().find(|l| {
-            !taken.iter().any(|n| n == l) && !self.writer.letters.contains_key(*l)
-        }) else {
+        let Some(letter) = self.motive_letter(&rec.start) else {
             return Route::no("no fresh letter for a substitution's motive");
         };
         let marked = mark_places(
@@ -12821,14 +12917,19 @@ impl<'a> Proof<'a> {
         letters.insert(letter.to_string(), LetterType::Number(ty));
         let mut inner = self.writer.with_letters(letters);
         whole_letter(&mut inner, letter);
+        self.motive_knows(&mut inner, letter, was, now);
         // The motive's letter standing in a slot of whole numbers in a wider
         // type, a range's member, is written as the whole number it is
-        // (`Writer::wide_in_slot`), `∃ m : ℤ, (m : ℚ) = t ∧ P m`: put into a
-        // line Lean writes so too, the slot's whole numbers, else declined.
+        // (`Writer::wide_in_slot`), `∃ m : ℤ, (m : ℚ) = t ∧ P m`, where the
+        // line Lean writes is so too, the slot's whole numbers. Where the
+        // line holds the term as the integer it is, `w ≡ w % p` of a power
+        // the step names by its integer, the letter is an integer, as the
+        // slot's members are.
         let slot = self.writer.wide_in_slot(&rec.start).map(|(_, whole)| whole);
-        if inner.wide_in_slot(&marked).is_some() && slot.is_none() {
-            return Route::no("a motive whose letter stands for a whole number");
-        }
+        let ty = match inner.wide_in_slot(&marked).is_some() && slot.is_none() {
+            true => super::templates::Num::Int,
+            false => ty,
+        };
         // Stated by a `have` first: `exact_mod_cast` elaborates its term
         // with no type for a numeral exponent to default to, `t ^ 3` as an
         // integer power. The casts of both are pushed down to the letters
@@ -12839,22 +12940,50 @@ impl<'a> Proof<'a> {
         // A putting that makes the claim only turned round, or with a listed
         // set's members in another order (`Substituted::meeting`), is no
         // motive's: the claim is not the line with the equation put in.
+        // Another spelling of the same notation, `0 < x` of `x > 0`, is one
+        // Lean writes alike or unfolds (`Meeting::respelled`).
         let m = &rec.meeting;
-        if m.turned || m.permuted || m.renamed || m.respelled {
+        if m.permuted || m.renamed {
             return Route::no("a putting that meets the claim other than as written");
         }
         // The identity elements the putting leaves and the claim drops, as
         // the record names them, `1·x` as `x` by `one_mul`.
         let dropped: Option<Vec<&'static str>> =
             m.identities.iter().map(identity_lemma).collect();
-        let Some(dropped) = dropped else {
+        let Some(mut dropped) = dropped else {
             return Route::no("an identity element dropped that no lemma names");
         };
+        // A natural number put for a letter written by its `toNat` leaves
+        // the `toNat` of its cast, which is it.
+        if whole_was && natural_put {
+            dropped.push("Int.toNat_natCast");
+        }
         // Dropped with the casts pushed, as rewrites `push_cast` takes beside
         // its own: a numeral put where the claim has it in a wider type is
         // cast, `((1 : ℤ) : ℝ) * x`, which `one_mul` meets only as `1 * x`,
         // and `push_cast` may drop the identity itself.
+        // Where a side holds a cast of a `toNat`, the casts back of the
+        // whole numbers the step names (`Writer::whole_back`), which take
+        // `((2^p − 1).toNat : ℤ)` in the goal to the integer the line says.
+        let backs: Vec<Printed> = [was, now]
+            .iter()
+            .filter_map(|n| self.writer.whole_back(n))
+            .collect();
         let close = |term: Printed| {
+            if cast_to_nat && dropped.is_empty() {
+                return match backs.is_empty() {
+                    true => Proof::Term(term),
+                    false => Proof::By(Tactic::Seq(vec![
+                        t::call(
+                            "rw",
+                            vec![TacticArg::Rules(
+                                backs.iter().cloned().map(t::forwards).collect(),
+                            )],
+                        ),
+                        Tactic::Exact(term),
+                    ])),
+                };
+            }
             let pushed = match dropped.is_empty() {
                 true => t::push_cast(Some(t::at_h(true))),
                 false => t::call(
@@ -12877,15 +13006,8 @@ impl<'a> Proof<'a> {
             |path: &Vec<usize>| self.place_in_formula_type(&rec.start, path);
         match &rec.into {
             SubstitutedInto::Line(_) | SubstitutedInto::RowAbove => {
-                // A fact the line implies, `k ≤ n` of `k ∈ {1, …, n}`, has
-                // no name of its own: the line's proves what it writes.
-                if let SubstitutedInto::Line(at) = &rec.into {
-                    if at.implied.is_some() {
-                        return Route::no("a substitution into a fact a line implies");
-                    }
-                }
                 let into = match (&rec.into, row) {
-                    (SubstitutedInto::Line(at), _) => match self.line_part(at) {
+                    (SubstitutedInto::Line(at), _) => match self.put_into_line(at) {
                         Route::Built(p) => p,
                         Route::Declined(d) => return Route::Declined(d),
                     },
@@ -12995,14 +13117,32 @@ impl<'a> Proof<'a> {
                     }
                 };
                 // A line in a narrower type than the equation, `F (j + 1) =
-                // G j` of ℤ for an equation of ℝ, holds the term in no type
-                // the equation has; in a wider, the equation is stated in the
-                // line's type first, as `widened` states it.
-                if place_type < ty {
-                    return Route::no(
-                        "a line in a narrower type than the equation put into it",
-                    );
-                }
+                // G j` of ℤ for an equation of ℝ, is stated in the equation's
+                // type first (`widened_to`); in a wider, the equation is
+                // stated in the line's type, as `widened` states it.
+                let (into, place_type) = match place_type < ty {
+                    false => (into, place_type),
+                    true => {
+                        match self.widened_to(
+                            &into.node,
+                            &into.proof,
+                            place_type,
+                            ty,
+                            &self.writer,
+                        ) {
+                            Route::Built(w) => {
+                                haves.extend(w.have);
+                                let widened = super::algebra::Cited {
+                                    proof: w.name,
+                                    says: None,
+                                    ..into
+                                };
+                                (widened, ty)
+                            }
+                            Route::Declined(d) => return Route::Declined(d),
+                        }
+                    }
+                };
                 let equation = match place_type > ty {
                     false => equation,
                     true => {
@@ -13019,6 +13159,7 @@ impl<'a> Proof<'a> {
                 letters.insert(letter.to_string(), LetterType::Number(place_type));
                 let mut inner = self.writer.with_letters(letters);
                 whole_letter(&mut inner, letter);
+                self.motive_knows(&mut inner, letter, was, now);
                 let body = match inner.formula(&marked) {
                     Route::Built(b) => b,
                     Route::Declined(d) => return Route::Declined(d),
@@ -13058,6 +13199,41 @@ impl<'a> Proof<'a> {
                 let witnessed = match (slot, in_form(&line_said), in_form(&claimed)) {
                     (_, true, true) => None,
                     (Some(whole), true, false) => Some(whole),
+                    // A line of the whole number a term is, `∃ m : ℤ, (m : ℝ)
+                    // = M ∧ m ∈ X`, put into where the equation puts an
+                    // integer for M, `M = (f a : ℝ)`, and the claim says it of
+                    // that integer, `f a ∈ X`: the line's m, which is f a by
+                    // the cast being one to one.
+                    (None, true, false) => {
+                        let same = Printed::applied(
+                            "Int.cast_injective",
+                            super::doc::Source::Mathlib,
+                            vec![applied_to(
+                                fields(t::hyp("hm"), &["trans"]),
+                                equation.clone(),
+                            )],
+                            LeanType::Prop,
+                        );
+                        return Route::Built(haves_then(
+                            haves,
+                            Proof::By(Tactic::Seq(vec![
+                                Tactic::Obtain {
+                                    names: vec![
+                                        "m".to_string(),
+                                        "hm".to_string(),
+                                        "hk".to_string(),
+                                    ],
+                                    says: None,
+                                    from: into.proof.clone(),
+                                },
+                                t::call(
+                                    "rw",
+                                    vec![TacticArg::Rules(vec![t::backwards(same)])],
+                                ),
+                                Tactic::Exact(t::hyp("hk")),
+                            ])),
+                        ));
+                    }
                     _ => return Route::no(
                         "a motive written in another form than the claim or the line",
                     ),
@@ -13288,6 +13464,7 @@ impl<'a> Proof<'a> {
                 letters.insert(letter.to_string(), LetterType::Number(letter_ty));
                 let mut wide = self.writer.with_letters(letters);
                 whole_letter(&mut wide, letter);
+                self.motive_knows(&mut wide, letter, was, now);
                 let body = match wide.number(&marked, at) {
                     Route::Built(b) => b,
                     Route::Declined(d) => return Route::Declined(d),
@@ -13309,6 +13486,207 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// The motive's writer `w` told what the lines say of both terms its
+    /// letter stands for, `was` and `now`, so that the motive writes the
+    /// letter as they are written: finite where the set put for is, so a
+    /// count of it is `t.ncard`; at least the lesser of their bounds, √a =
+    /// √b of a, b ≥ 0 written with Lean's real root.
+    fn motive_knows(&self, w: &mut Writer, letter: &str, was: &Node, now: &Node) {
+        let grammar = self.writer.grammar;
+        if let Some(why) =
+            crate::citing::finite::finite_by(grammar, &self.writer.finite, was)
+        {
+            w.finite.insert(letter.to_string(), why);
+        }
+        if let (Some(a), Some(b)) = (self.writer.least(was), self.writer.least(now)) {
+            w.bounds.terms.push(crate::citing::bounds::Bound {
+                term: Node::name(was.sort.clone(), letter),
+                least: a.min(b),
+                said_by: None,
+            });
+        }
+    }
+
+    /// A letter for a substitution's motive, fresh to `start`, what the
+    /// equation is put into, and to the letters in scope.
+    fn motive_letter(&self, start: &Node) -> Option<&'static str> {
+        let taken = start.names();
+        ["t", "u", "w", "s", "r", "v", "q", "z"]
+            .into_iter()
+            .find(|l| {
+                !taken.iter().any(|n| n == l) && !self.writer.letters.contains_key(*l)
+            })
+    }
+
+    /// The type of the term a substitution puts for, where it is no number:
+    /// a set, by what it holds, or a member of one, a group's element among
+    /// them. None for a number, and for a term the writer has no type for.
+    fn member_letter(&self, was: &Node) -> Option<LetterType> {
+        if self.writer.is_number(was) {
+            return None;
+        }
+        self.writer
+            .set_members(was)
+            .map(LetterType::Set)
+            .or_else(|| {
+                self.writer
+                    .member_kind(was)
+                    .filter(|m| !matches!(m, super::expr::Members::Numbers(_)))
+                    .map(LetterType::Member)
+            })
+    }
+
+    /// `substituted_by_record` of a term that is no number, `was`, of the
+    /// type `letter_ty`: the motive over the places the record names, its
+    /// letter of that type. Into a line or the row above, `Eq.subst` of the
+    /// equation along it; into a side of the claim, `congrArg` of the
+    /// motive, turned for the right side. What it makes meets the claim as
+    /// written, respelled, or with a listed set's members in another order;
+    /// turned round is `substituted_by_record`'s; a letter renamed or an
+    /// identity element dropped declines.
+    #[allow(clippy::too_many_arguments)]
+    fn substituted_members(
+        &self,
+        rec: &crate::checker::record::Substituted,
+        letter_ty: LetterType,
+        put: PutTerms,
+        equation: Printed,
+        row: Option<&GivenEquation>,
+        line: usize,
+        claim: &Node,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::{Arg, Proof};
+        use super::tactics as t;
+        use crate::checker::record::SubstitutedInto;
+        let PutTerms { was, now } = put;
+        let m = &rec.meeting;
+        if m.renamed || !m.identities.is_empty() {
+            return Route::no("a putting that meets the claim other than as written");
+        }
+        let Some(letter) = self.motive_letter(&rec.start) else {
+            return Route::no("no fresh letter for a substitution's motive");
+        };
+        let marked = mark_places(
+            &rec.start,
+            &rec.put.places,
+            &Node::name(was.sort.clone(), letter),
+        );
+        let mut letters = self.writer.letters.clone();
+        letters.insert(letter.to_string(), letter_ty.clone());
+        let mut inner = self.writer.with_letters(letters);
+        self.motive_knows(&mut inner, letter, was, now);
+        let made = match &rec.into {
+            SubstitutedInto::Line(_) | SubstitutedInto::RowAbove => {
+                let into = match (&rec.into, row) {
+                    (SubstitutedInto::Line(at), _) => match self.put_into_line(at) {
+                        Route::Built(p) => p.proof,
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
+                    (
+                        _,
+                        Some(GivenEquation {
+                            above: Some(above), ..
+                        }),
+                    ) => above.proof.clone(),
+                    _ => return Route::no("a row's substitution with no row above"),
+                };
+                let body = match inner.formula(&marked) {
+                    Route::Built(b) => b,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                applied(
+                    "Eq.subst",
+                    vec![
+                        Arg::Named {
+                            name: "motive".to_string(),
+                            value: lambda(letter, letter_ty.lean_type(), body),
+                        },
+                        Arg::Explicit(equation),
+                        Arg::Explicit(into),
+                    ],
+                )
+            }
+            // A side that is a number is written as the number it is; a count
+            // in ℕ∞, |V|, as Lean counts it (`count_term`), then met with
+            // the claim's counts (`counted_between`); any other as the set or
+            // member.
+            SubstitutedInto::ClaimSide(side) => {
+                let counted = self.writer.counts(&rec.start);
+                let body = match (self.writer.is_number(&rec.start), counted) {
+                    (true, _) => match self.writer.carrier(&rec.start) {
+                        Route::Built(at) => inner.number(&marked, at),
+                        Route::Declined(d) => Route::Declined(d),
+                    },
+                    (false, true) => inner.count_term(&marked),
+                    (false, false) => inner.set_term(&marked),
+                };
+                let body = match body {
+                    Route::Built(b) => b,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let motive = lambda(letter, letter_ty.lean_type(), body.clone());
+                let made = applied(
+                    "congrArg",
+                    vec![Arg::Explicit(motive), Arg::Explicit(equation)],
+                );
+                let made = match side {
+                    0 => made,
+                    _ => t::symm(t::bracket(made)),
+                };
+                if !counted {
+                    made
+                } else {
+                    // What `congrArg` makes: the motive's body at each term,
+                    // `V.encard = {c, d}.encard`, met with the claim's counts.
+                    let (Route::Built(at_was), Route::Built(at_now)) =
+                        (self.writer.set_term(was), self.writer.set_term(now))
+                    else {
+                        return Route::no("a set Lean writes no way of");
+                    };
+                    let forms = super::doc::forms::substituted;
+                    let (l, r) =
+                        (forms(&body, letter, &at_was), forms(&body, letter, &at_now));
+                    let (l, r) = match side {
+                        0 => (l, r),
+                        _ => (r, l),
+                    };
+                    let says = Printed::infix(
+                        super::doc::Op::EQUALS,
+                        l,
+                        r,
+                        super::doc::LeanType::Prop,
+                    );
+                    let Some(wanted) = self.claim_as_stated(line, claim) else {
+                        return Route::no("a claim Lean states no form of");
+                    };
+                    let put_in = crate::matching::put_at_places(
+                        &rec.start,
+                        &rec.put.places,
+                        now,
+                    );
+                    match self.counted_between(
+                        &made,
+                        &says,
+                        &wanted,
+                        &[&rec.start, &put_in],
+                    ) {
+                        Some(p) => p,
+                        None => made,
+                    }
+                }
+            }
+        };
+        // A listed set the putting leaves in another order than the claim's
+        // (`Meeting::permuted`): taken in the claim's order (`reordered`).
+        match m.permuted {
+            false => Route::Built(Proof::Term(made)),
+            true => Route::Built(Proof::By(reordered(
+                &made,
+                rec.start.notation() == crate::notations::EQUALITY,
+            ))),
+        }
+    }
+
     fn substitute(
         &self,
         just: &Justification,
@@ -13321,12 +13699,14 @@ impl<'a> Proof<'a> {
         // As the checker recorded it, where it did; an equation from no line
         // by its own proof (`equation_given`).
         let given = self.equation_given(just);
-        if let Route::Built(proof) = self.substituted_by_record(
+        let by_record = self.substituted_by_record(
             just.line,
             Some(k),
             claim,
             given.as_ref().map(|(_, g)| g),
-        ) {
+            writer,
+        );
+        if let Route::Built(proof) = by_record {
             return Route::Built(match given.and_then(|(have, _)| have) {
                 Some(have) => haves_then(vec![have], proof),
                 None => proof,
@@ -13352,8 +13732,6 @@ impl<'a> Proof<'a> {
             }
         }
         let mut haves = Vec::new();
-        // The equation's own name, where it is widened to the claim's type.
-        let mut stated: Option<Printed> = None;
         // The equation put in, as a tree.
         let mut put: Option<Node> = None;
         let equation = match (&just.source, &just.equation) {
@@ -13429,7 +13807,6 @@ impl<'a> Proof<'a> {
                     {
                         Route::Built(w) => {
                             haves.extend(w.have);
-                            stated = Some(name.clone());
                             put = Some(line.clone());
                             w.name
                         }
@@ -13667,50 +14044,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        // The equation is put in at the type its term has where it stands:
-        // widened to the claim's, or as stated, where the term sits in a
-        // part of a fixed type, (4 − 2)! of a claim in ℚ.
-        // Of several lines, each is rewritten into before any is simplified,
-        // since a simplification that loops ends the search (`parley_put_at`).
-        let own = stated.clone().filter(|s| *s != equation);
-        // An equation of natural numbers, A = (n + 1)!, put where its term
-        // stands as a natural number, the exponent of 2^A: Lean's exponent
-        // is of ℕ, so the equation is put there in ℕ.
-        let in_nat = match (&put, &stated) {
-            (Some(e), Some(name)) if e.notation() == EQUALITY => {
-                match e.children.as_slice() {
-                    [l, r] => self.nat_equation(l, r, name).built(),
-                    _ => None,
-                }
-            }
-            _ => None,
-        };
         let mut ways: Vec<Tactic> = Vec::new();
-        let tactics: &[BridgeTactic] = if into.len() > 1 {
-            &[BridgeTactic::PutAt, BridgeTactic::SubstAt]
-        } else {
-            &[BridgeTactic::SubstAt]
-        };
-        for tactic in tactics {
-            for line in &into {
-                ways.push(put_into(*tactic, &equation, line));
-                if let Some(own) = &own {
-                    ways.push(put_into(*tactic, own, line));
-                }
-                if let Some(in_nat) = &in_nat {
-                    ways.push(super::tactics::steps(vec![
-                        in_nat.clone(),
-                        put_into(*tactic, &t::hyp("e_nat"), line),
-                    ]));
-                }
-            }
-        }
-        if into.is_empty() {
-            ways.push(subst_by(&equation));
-            if let Some(own) = &own {
-                ways.push(subst_by(own));
-            }
-        }
         // A range member Lean computes wider is said as the integer that is
         // it (`wide_range_member`): an equation ↑(f k) = v put into f k ∈
         // {0, …, n − 1} is that integer, its equation and the line.
@@ -13723,6 +14057,9 @@ impl<'a> Proof<'a> {
             }
         }
         ways.extend(witnessed);
+        if ways.is_empty() {
+            return Route::no("a substitution the record gives no way of");
+        }
         Route::Built(haves_then(haves, ways_proof(ListReason::Substituted, ways)))
     }
 
@@ -14034,11 +14371,6 @@ impl<'a> Proof<'a> {
                 first.cite
             ));
         };
-        let mut above_node: Option<Node> = self
-            .trees
-            .get(first.cite.trim())
-            .and_then(|t| t.first())
-            .map(|s| s.node.clone());
         // The row above as Lean has it, its name and statement: the cited
         // line's one sentence, then each row as it is written.
         let mut above_cited: Option<super::algebra::Cited> =
@@ -14096,99 +14428,27 @@ impl<'a> Proof<'a> {
             let row_name = format!("row{k}");
             // The change put into the row above at the places the checker
             // recorded (`SubstitutedInto::RowAbove`), as a line's equation
-            // is put into a line; not where the row's lines say counts both
-            // ways, which are taken to integers first (`count_conversion`).
-            let counted_both_ways = {
-                let lines: Vec<&Node> = std::iter::once(&change)
-                    .chain(above_node.as_ref())
-                    .chain(std::iter::once(&row_node))
-                    .collect();
-                self.count_forms(&lines).mixed
+            // is put into a line.
+            let Some(above_line) = above_cited.clone() else {
+                return Route::no("a row put into a row above of several sentences");
             };
-            let recorded =
-                above_cited
-                    .clone()
-                    .filter(|_| !counted_both_ways)
-                    .and_then(|above| {
-                        let put = GivenEquation {
-                            change: super::algebra::Cited {
-                                node: change.clone(),
-                                proof: change_h.clone(),
-                                says: Some(change_says.clone()),
-                            },
-                            above: Some(above),
-                        };
-                        self.substituted_by_record(
-                            reason.line,
-                            None,
-                            &row_node,
-                            Some(&put),
-                        )
-                        .built()
-                    });
-            let proof = match recorded {
-                Some(proof) => proof,
-                None => {
-                    // Where the checker recorded the places the change goes in
-                    // (`substituted_rows`) and none is a term of the row's arithmetic,
-                    // a count in an exponent, each is written in its own type, and the
-                    // change goes in as it is stated (`place_in_formula_type`); else
-                    // widened to the row's type.
-                    let in_own_type =
-                        self.rec.substituted_rows.get(&reason.line).is_some_and(
-                            |rec| {
-                                !rec.put.places.is_empty()
-                                    && rec.put.places.iter().all(|p| {
-                                        !self.place_in_formula_type(&rec.start, p)
-                                    })
-                            },
-                        );
-                    let used = match in_own_type {
-                        true => change_h.clone(),
-                        false => {
-                            match self.widened(&change, &change_h, &row_node, writer) {
-                                Route::Built(w) => {
-                                    haves.extend(w.have);
-                                    w.name
-                                }
-                                Route::Declined(d) => return Route::Declined(d),
-                            }
-                        }
-                    };
-                    // At the type the term has where it stands, as `substitute`
-                    // puts its equation in; each equation put by rewriting before
-                    // either by `simp`, which loops where one side stands in the
-                    // other, k in k + 1 − 1, and `first` goes on past no loop.
-                    let above_h = super::tactics::hyp(&above);
-                    let put = if used == change_h {
-                        put_into(BridgeTactic::SubstAt, &used, &above_h)
-                    } else {
-                        super::tactics::first(
-                            ListReason::RowPut,
-                            vec![
-                                put_into(BridgeTactic::PutAt, &used, &above_h),
-                                put_into(BridgeTactic::PutAt, &change_h, &above_h),
-                                put_into(BridgeTactic::SubstAt, &used, &above_h),
-                                put_into(BridgeTactic::SubstAt, &change_h, &above_h),
-                            ],
-                        )
-                    };
-                    // A row whose lines say counts both ways takes them to
-                    // integers first, as a step does (`count_conversion`).
-                    let lines: Vec<&Node> = std::iter::once(&change)
-                        .chain(above_node.as_ref())
-                        .chain(std::iter::once(&row_node))
-                        .collect();
-                    let forms = self.count_forms(&lines);
-                    let put = match forms.mixed {
-                        true => Tactic::Seq(vec![
-                            super::tactics::bridge(BridgeTactic::CountInt, vec![]),
-                            put,
-                        ]),
-                        false => put,
-                    };
-                    super::doc::Proof::By(put)
-                }
+            let put = GivenEquation {
+                change: super::algebra::Cited {
+                    node: change.clone(),
+                    proof: change_h.clone(),
+                    says: Some(change_says.clone()),
+                },
+                above: Some(above_line),
+            };
+            let proof = match self.substituted_by_record(
+                reason.line,
+                None,
+                &row_node,
+                Some(&put),
+                writer,
+            ) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
             };
             haves.push(Tactic::Have {
                 name: row_name.clone(),
@@ -14201,7 +14461,6 @@ impl<'a> Proof<'a> {
                 says: Some(row_says),
             });
             above = row_name;
-            above_node = Some(row_node);
         }
         let last = super::doc::Proof::By(Tactic::Exact(super::tactics::hyp(&above)));
         Route::Built(haves_then(haves, last))
@@ -14254,6 +14513,31 @@ impl<'a> Proof<'a> {
         if wanted == own {
             return same();
         }
+        self.widened_to(line, name, own, wanted, writer)
+    }
+
+    /// The equation `line` of numbers of type `own`, proved by `name`,
+    /// stated in the wider `wanted` and proved from it by its casts: a
+    /// `have` of `<name>_w`.
+    fn widened_to(
+        &self,
+        line: &Node,
+        name: &Printed,
+        own: super::templates::Num,
+        wanted: super::templates::Num,
+        writer: &Writer,
+    ) -> Route<Widened> {
+        let sides: Vec<Node> = line
+            .children
+            .iter()
+            .filter(|c| writer.is_number(c))
+            .cloned()
+            .collect();
+        let equation = line.notation() == crate::notations::EQUALITY;
+        let order = line.notation() == crate::notations::ORDER;
+        if !(equation || order) || sides.len() != 2 {
+            return Route::no("a line widened that is no relation of two numbers");
+        }
         let mut printed = Vec::new();
         for s in &sides {
             match writer.number(s, wanted) {
@@ -14269,24 +14553,57 @@ impl<'a> Proof<'a> {
             Ok(both) => both,
             Err(_) => return Route::no("an equation of other than two sides"),
         };
-        // The equation mapped into the wider type, its casts pushed in, and
-        // compared with what is wanted up to the ring's laws.
         let wide = format!("{}_w", name.text().replace('.', "_"));
-        let said = Printed::infix(
-            super::doc::Op::EQUALS,
-            left,
-            right,
-            super::doc::LeanType::Prop,
-        );
+        let op = match equation {
+            true => super::doc::Op::EQUALS,
+            false => match super::doc::Op::of(&line.spelling().text()) {
+                Some(op) => op,
+                None => return Route::no("an order Lean writes no relation for"),
+            },
+        };
+        let said = Printed::infix(op, left, right, super::doc::LeanType::Prop);
+        // An equation mapped into the wider type, its casts pushed in, and
+        // compared with what is wanted up to the ring's laws; an order
+        // taken across by its casts.
+        // From ℚ to ℝ by ℚ's cast lemmas (`rat_to_real`), as any fact of ℚ
+        // crosses; from ℤ, by its casts.
+        let rational_to_real =
+            own == super::templates::Num::Rat && wanted == super::templates::Num::Real;
+        let have = match (equation, rational_to_real) {
+            (true, _) => widening_have(writer, &wide, said, own, wanted, name.clone()),
+            (false, true) => {
+                let mut narrow = Vec::new();
+                for s in &sides {
+                    match writer.number(s, own) {
+                        Route::Built(p) => narrow.push(p),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                let [nl, nr]: [Printed; 2] = match narrow.try_into() {
+                    Ok(both) => both,
+                    Err(_) => return Route::no("an order of other than two sides"),
+                };
+                let narrow = Printed::infix(op, nl, nr, super::doc::LeanType::Prop);
+                let Some(proof) = rat_to_real(name.clone(), &narrow, said.clone())
+                else {
+                    return Route::no("an order of ℚ with no lemma to ℝ");
+                };
+                Tactic::Have {
+                    name: wide.clone(),
+                    says: said,
+                    proof: Box::new(super::doc::Proof::Term(proof)),
+                }
+            }
+            (false, false) => Tactic::Have {
+                name: wide.clone(),
+                says: said,
+                proof: Box::new(super::doc::Proof::By(super::tactics::exact_mod_cast(
+                    name.clone(),
+                ))),
+            },
+        };
         Route::Built(Widened {
-            have: Some(widening_have(
-                writer,
-                &wide,
-                said,
-                own,
-                wanted,
-                name.clone(),
-            )),
+            have: Some(have),
             name: super::tactics::hyp(&wide),
         })
     }
@@ -14357,24 +14674,43 @@ impl<'a> Proof<'a> {
             .is_some_and(|parent| self.writer.in_formula_type(parent, last))
     }
 
-    /// `have e_nat : was = now` in ℕ, from the equation's proof `equation` by
-    /// `exact_mod_cast`: an equation of natural numbers put where Lean's
-    /// term is of ℕ, a power's exponent. Declined where either side is no
-    /// natural number Lean writes in ℕ.
+    /// `have e_nat : was = now` in ℕ, from the equation's proof `equation`:
+    /// an equation of natural numbers put where Lean's term is of ℕ, a
+    /// power's exponent or a count. By `exact_mod_cast`, or by `omega`
+    /// where a side is an integer said whole, written as its `toNat`, φ(p) =
+    /// (p − 1).toNat. Declined where either side is an integer not said
+    /// whole.
     fn nat_equation(
         &self,
         was: &Node,
         now: &Node,
         equation: &Printed,
+        writer: &Writer,
     ) -> Route<Tactic> {
+        use super::expr::NaturalForm;
         use super::templates::Num;
-        if !(self.writer.natural(was) && self.writer.natural(now)) {
+        let forms = [
+            natural_form_named(writer, was),
+            natural_form_named(writer, now),
+        ];
+        if forms.contains(&NaturalForm::Integer) {
             return Route::no("an equation not of natural numbers");
         }
-        let (Route::Built(l), Route::Built(r)) = (
-            self.writer.number(was, Num::Nat),
-            self.writer.number(now, Num::Nat),
-        ) else {
+        let to_nat = forms.contains(&NaturalForm::ToNat);
+        // Each side in ℕ: a natural number as it stands, a whole integer as
+        // its `toNat`.
+        let side = |n: &Node, form: NaturalForm| match form {
+            NaturalForm::ToNat => writer.number(n, Num::Int).map(|t| {
+                Printed::of(
+                    super::doc::TermKind::ToNat(Box::new(super::tactics::bracket(t))),
+                    super::doc::LeanType::Num(Num::Nat),
+                )
+            }),
+            _ => writer.number(n, Num::Nat),
+        };
+        let (Route::Built(l), Route::Built(r)) =
+            (side(was, forms[0]), side(now, forms[1]))
+        else {
             return Route::no("an equation of natural numbers not written in ℕ");
         };
         Route::Built(Tactic::Have {
@@ -14385,9 +14721,13 @@ impl<'a> Proof<'a> {
                 r,
                 super::doc::LeanType::Prop,
             ),
-            proof: Box::new(super::doc::Proof::By(super::tactics::exact_mod_cast(
-                equation.clone(),
-            ))),
+            proof: Box::new(super::doc::Proof::By(match to_nat {
+                false => super::tactics::exact_mod_cast(equation.clone()),
+                true => super::tactics::on_h(
+                    equation,
+                    vec![super::tactics::call("omega", vec![])],
+                ),
+            })),
         })
     }
 
@@ -18295,6 +18635,22 @@ enum PowersMet {
     Apart,
 }
 
+/// How Lean writes `node` where a natural number is wanted
+/// (`Writer::natural_form`), an integer the step's lines show at least 0,
+/// p − 1 of the requires line p − 1 ∈ ℕ₀, or name as a whole number by its
+/// `toNat` (`Writer::named_whole`), written as its `toNat`.
+fn natural_form_named(writer: &Writer, node: &Node) -> super::expr::NaturalForm {
+    use super::expr::NaturalForm;
+    match writer.natural_form(node) {
+        NaturalForm::Integer
+            if writer.named_whole(node) || writer.nonnegative(node) =>
+        {
+            NaturalForm::ToNat
+        }
+        form => form,
+    }
+}
+
 /// Whether the place at `path` in `start` is a power's exponent, the second
 /// child of a `POWER`.
 fn place_is_exponent(start: &Node, path: &[usize]) -> bool {
@@ -18992,24 +19348,6 @@ fn reordered(cited: &Printed, equation: bool) -> Tactic {
                 Some(t::at_h(true)),
             ),
             t::call("tauto", vec![]),
-        ],
-    )
-}
-
-/// `parley_subst e`: the equation e put into the goal.
-fn subst_by(equation: &Printed) -> Tactic {
-    use super::tactics as t;
-    t::bridge(BridgeTactic::Subst, vec![TacticArg::Term(equation.clone())])
-}
-
-/// `parley_put_at e h` or `parley_subst_at e h`: the equation e put into
-/// the line h.
-fn put_into(tactic: BridgeTactic, equation: &Printed, into: &Printed) -> Tactic {
-    super::tactics::bridge(
-        tactic,
-        vec![
-            TacticArg::Term(equation.clone()),
-            TacticArg::Term(into.clone()),
         ],
     )
 }

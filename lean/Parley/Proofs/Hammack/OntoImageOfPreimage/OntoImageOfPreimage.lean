@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -52,7 +51,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       have s2_3_2a : s ∈ A := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (Set.mapsTo_univ _ _))).mp s2_3_1a).1
       have s2_3_2b : f s ∈ Y := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := s) (W := Set.univ) (Set.mapsTo_univ _ _))).mp s2_3_1a).2
       -- 2.3.3. substitute y = f(s) (line 2.3.1) into line 2.3.2
-      parley_subst_at s2_3_1b s2_3_2b
+      exact Eq.subst (motive := (fun t : α => t ∈ Y)) s2_3_1b.symm s2_3_2b
     -- 2.4. def:subset, from 2.3
     have s2_4 : f '' (A ∩ (A ∩ f ⁻¹' Y)) ⊆ Y := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' (A ∩ (A ∩ f ⁻¹' Y))) (Y := Y))).mpr s2_3
     -- 2.5. proof
@@ -65,13 +64,13 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 2.5.3. obtain x from line 2.5.2
       obtain ⟨x, s2_5_3a, s2_5_3b⟩ := s2_5_2
       -- 2.5.4. substitute y = f(x) (line 2.5.3) into K4
-      have s2_5_4 : f x ∈ Y := by parley_subst_at s2_5_3b hK4
+      have s2_5_4 : f x ∈ Y := Eq.subst (motive := (fun t : α => t ∈ Y)) s2_5_3b hK4
       -- 2.5.5. def:preimage u := x, Z := Y, from 2.5.3, 2.5.4
       have s2_5_5 : x ∈ A ∩ f ⁻¹' Y := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y) (f := f) (u := x) (W := Set.univ) (Set.mapsTo_univ _ _))).mpr ⟨s2_5_3a, s2_5_4⟩
       -- 2.5.6. mun:value-in-image Y := f⁻¹[Y], s := x, from 2.2, 2.5.5
       have s2_5_6 : f x ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A ∩ f ⁻¹' Y) (f := f) (s := x) (W := Set.univ) s2_2 s2_5_5 (Set.mapsTo_univ _ _))
       -- 2.5.7. substitute y = f(x) (line 2.5.3) into line 2.5.6
-      parley_subst_at s2_5_3b s2_5_6
+      exact Eq.subst (motive := (fun t : α => t ∈ f '' (A ∩ (A ∩ f ⁻¹' Y)))) s2_5_3b.symm s2_5_6
     -- 2.6. def:subset, from 2.5
     have s2_6 : Y ⊆ f '' (A ∩ (A ∩ f ⁻¹' Y)) := ((Parley.Items.Stdlib.Sets.def_subset (X := Y) (Y := f '' (A ∩ (A ∩ f ⁻¹' Y))))).mpr s2_5
     -- 2.7. mun:subset-antisymmetric, from 2.4, 2.6
@@ -88,7 +87,7 @@ theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α �
       -- 3.3. substitute
       have s3_3 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by
         have c1 : ({y} : Set α) = f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by exact (hD2 ({y} : Set α) s3_1).symm
-        have row1 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := by parley_subst_at c1 s3_2
+        have row1 : y ∈ f '' (A ∩ (A ∩ f ⁻¹' ({y} : Set α))) := Eq.subst (motive := (fun t : Set α => y ∈ t)) c1 s3_2
         exact row1
       -- 3.4. proof
       have s3_4 : ∀ u ∈ A ∩ f ⁻¹' ({y} : Set α), u ∈ A := by

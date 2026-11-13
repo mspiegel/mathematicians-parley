@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -38,7 +37,7 @@ theorem group_inverse_by_left {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.un
     -- 1. thm:group-left-inverse, from H2
     have s1 : a⁻¹ * a = (1 : G) := by exact (Parley.Proofs.Setmm.GroupInverses.GroupLeftInverse.group_left_inverse (G := G) (a := a) (Set.mem_univ _))
     -- 2. substitute a⁻¹ = b (D1) into line 1
-    parley_subst_at hD1 s1
+    exact Eq.subst (motive := (fun t : G => t * a = (1 : G))) hD1 s1
   · skip
     intro hD2
     -- 3. axi:group-inverse-closed, from H2
@@ -47,9 +46,9 @@ theorem group_inverse_by_left {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.un
     have s4 : a * a⁻¹ = (1 : G) := by exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) (Set.mem_univ _))
     -- 5. calculation
     calc a⁻¹ = (1 : G) * a⁻¹ := (Parley.Proofs.Setmm.GroupInverses.GroupLeftIdentity.group_left_identity (G := G) (a := a⁻¹) (Set.mem_univ _)).symm
-      _ = b * a * a⁻¹ := by parley_subst hD2
+      _ = b * a * a⁻¹ := congrArg (fun t : G => t * a⁻¹) hD2.symm
       _ = b * (a * a⁻¹) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := a⁻¹) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _))
-      _ = b * (1 : G) := by parley_subst s4
+      _ = b * (1 : G) := congrArg (fun t : G => b * t) s4
       _ = b := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) (Set.mem_univ _))
 
 end Parley.Proofs.Setmm.GroupInverses.GroupInverseByLeft

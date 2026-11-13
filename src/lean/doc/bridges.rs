@@ -8,7 +8,6 @@ pub enum BridgeModule {
     NormTactics,
     SetTactics,
     AlgebraTactics,
-    SubstTactics,
     PowerTactics,
     InstanceTactics,
     ComplexTactics,
@@ -30,11 +29,10 @@ pub enum BridgeModule {
 
 impl BridgeModule {
     /// Every module, in no order Lean reads.
-    pub const ALL: [BridgeModule; 21] = [
+    pub const ALL: [BridgeModule; 20] = [
         BridgeModule::NormTactics,
         BridgeModule::SetTactics,
         BridgeModule::AlgebraTactics,
-        BridgeModule::SubstTactics,
         BridgeModule::PowerTactics,
         BridgeModule::InstanceTactics,
         BridgeModule::ComplexTactics,
@@ -61,7 +59,6 @@ impl BridgeModule {
             BridgeModule::NormTactics => "NormTactics",
             BridgeModule::SetTactics => "SetTactics",
             BridgeModule::AlgebraTactics => "AlgebraTactics",
-            BridgeModule::SubstTactics => "SubstTactics",
             BridgeModule::PowerTactics => "PowerTactics",
             BridgeModule::InstanceTactics => "InstanceTactics",
             BridgeModule::ComplexTactics => "ComplexTactics",
@@ -108,9 +105,6 @@ pub enum BridgeTactic {
     Nz,
     PosNe,
     Radical,
-    Subst,
-    SubstAt,
-    PutAt,
     CastToNat,
     WitnessAt,
     WitnessNotAt,
@@ -132,7 +126,7 @@ pub enum BridgeTactic {
 
 impl BridgeTactic {
     /// Every tactic, in no order Lean reads.
-    pub const ALL: [BridgeTactic; 35] = [
+    pub const ALL: [BridgeTactic; 32] = [
         BridgeTactic::Norm,
         BridgeTactic::CountAfter,
         BridgeTactic::CountExt,
@@ -148,9 +142,6 @@ impl BridgeTactic {
         BridgeTactic::Nz,
         BridgeTactic::PosNe,
         BridgeTactic::Radical,
-        BridgeTactic::Subst,
-        BridgeTactic::SubstAt,
-        BridgeTactic::PutAt,
         BridgeTactic::CastToNat,
         BridgeTactic::WitnessAt,
         BridgeTactic::WitnessNotAt,
@@ -188,9 +179,6 @@ impl BridgeTactic {
             BridgeTactic::Nz => "parley_nz",
             BridgeTactic::PosNe => "parley_pos_ne",
             BridgeTactic::Radical => "parley_radical",
-            BridgeTactic::Subst => "parley_subst",
-            BridgeTactic::SubstAt => "parley_subst_at",
-            BridgeTactic::PutAt => "parley_put_at",
             BridgeTactic::CastToNat => "parley_cast_toNat",
             BridgeTactic::WitnessAt => "parley_witness_at",
             BridgeTactic::WitnessNotAt => "parley_witness_not_at",
@@ -229,9 +217,6 @@ impl BridgeTactic {
             | BridgeTactic::Nz
             | BridgeTactic::PosNe
             | BridgeTactic::Radical => BridgeModule::AlgebraTactics,
-            BridgeTactic::Subst | BridgeTactic::SubstAt | BridgeTactic::PutAt => {
-                BridgeModule::SubstTactics
-            }
             BridgeTactic::CastToNat
             | BridgeTactic::WitnessAt
             | BridgeTactic::WitnessNotAt

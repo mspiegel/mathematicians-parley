@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
@@ -44,11 +43,11 @@ theorem left_cancellation {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ :
     -- 4. axi:group-associative a := g⁻¹, b := g, c := b, from H3, H4, 1
     have s4 : g⁻¹ * g * b = g⁻¹ * (g * b) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := g⁻¹) (b := g) (c := b) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _))
     -- 5. substitute g⁻¹·g = e (line 2) into line 3
-    have s5 : (1 : G) * a = g⁻¹ * (g * a) := by parley_subst_at s2 s3
+    have s5 : (1 : G) * a = g⁻¹ * (g * a) := Eq.subst (motive := (fun t : G => t * a = g⁻¹ * (g * a))) s2 s3
     -- 6. substitute g·a = g·b (D1) into line 5
-    have s6 : (1 : G) * a = g⁻¹ * (g * b) := by parley_subst_at hD1 s5
+    have s6 : (1 : G) * a = g⁻¹ * (g * b) := Eq.subst (motive := (fun t : G => (1 : G) * a = g⁻¹ * t)) hD1 s5
     -- 7. substitute g⁻¹·g = e (line 2) into line 4
-    have s7 : (1 : G) * b = g⁻¹ * (g * b) := by parley_subst_at s2 s4
+    have s7 : (1 : G) * b = g⁻¹ * (g * b) := Eq.subst (motive := (fun t : G => t * b = g⁻¹ * (g * b))) s2 s4
     -- 8. calculation
     calc a = (1 : G) * a := (Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity.the_left_identity (G := G) (a := a) (Set.mem_univ _)).symm
       _ = g⁻¹ * (g * b) := s6
@@ -57,6 +56,6 @@ theorem left_cancellation {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ :
   · skip
     intro hD2
     -- 9. substitute a = b (D2)
-    parley_subst hD2
+    exact congrArg (fun t : G => g * t) hD2
 
 end Parley.Proofs.Setmm.GroupCancellation.LeftCancellation

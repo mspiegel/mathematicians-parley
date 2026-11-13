@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import NormTactics
-public import SubstTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -99,7 +98,7 @@ theorem powers_of_nine_in_powers_of_three :
     -- 4.3. def:set-image u := 3, from 4.2
     have s4_3 : (3 : ℚ) ∈ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := (3 : ℚ)) (Z := Set.univ) (Set.mapsTo_univ _ _))).mpr (by simpa only [Set.mem_univ, true_and] using s4_2)
     -- 4.4. substitute {9^n : n ∈ ℤ} = {3^n : n ∈ ℤ} (S2) into line 4.3
-    have s4_4 : (3 : ℚ) ∈ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by parley_subst_at hS2 s4_3
+    have s4_4 : (3 : ℚ) ∈ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) := Eq.subst (motive := (fun t : Set ℚ => (3 : ℚ) ∈ t)) hS2.symm s4_3
     exact s3 s4_4
   -- 5. join 2, 4
   have s5 : (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) ∧ ¬ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) = (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := ⟨s2, s4⟩

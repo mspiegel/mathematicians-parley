@@ -1,7 +1,6 @@
 module
 
 public import SetTactics
-public import SubstTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Basic
@@ -63,7 +62,9 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
   -- 5. substitute
   parley_count_after (by
     have c1 : (({a} : Set α).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a))
-    have row1 : ((1 : ℕ) : ℕ∞) ≤ A.encard := by parley_subst_at c1 s4
+    have row1 : ((1 : ℕ) : ℕ∞) ≤ A.encard := by
+      have e_nat : ({a} : Set α).ncard = 1 := by exact_mod_cast c1
+      (have h := Eq.subst (motive := (fun t : ℕ => ((t : ℕ) : ℕ∞) ≤ A.encard)) e_nat s4; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1)
 
 end Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne

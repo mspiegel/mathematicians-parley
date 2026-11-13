@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -39,7 +38,7 @@ theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α)
     have r25_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
     have s2_2 : F x ∈ F '' (A ∩ A) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := A) (f := F) (s := x) (W := Set.univ) r25_1 s2_1a (Set.mapsTo_univ _ _))
     -- 2.3. substitute y = F(x) (line 2.1) into line 2.2
-    parley_subst_at s2_1b s2_2
+    exact Eq.subst (motive := (fun t : α => t ∈ F '' (A ∩ A))) s2_1b.symm s2_2
   -- 3. def:subset, from 2
   have s3 : B ⊆ F '' (A ∩ A) := ((Parley.Items.Stdlib.Sets.def_subset (X := B) (Y := F '' (A ∩ A)))).mpr s2
   -- 4. mun:subset-antisymmetric, from 1, 3

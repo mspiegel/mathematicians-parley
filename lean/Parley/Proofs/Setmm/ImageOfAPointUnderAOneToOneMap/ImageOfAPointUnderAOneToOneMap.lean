@@ -1,6 +1,5 @@
 module
 
-public import SubstTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
@@ -42,7 +41,7 @@ theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : S
     -- 2.3. instantiate s := X, t := s in line 1, from H4, 2.1, 2.2
     have s2_3 : X = s := by exact (s1b X hH4 s s2_2 s2_1b)
     -- 2.4. substitute X = s (line 2.3) into line 2.1
-    parley_subst_at s2_3 s2_1a
+    exact Eq.subst (motive := (fun t : α => t ∈ Y)) s2_3.symm s2_1a
   · skip
     intro hD2
     -- 2.5. mun:value-in-image s := X, from D2, H5
