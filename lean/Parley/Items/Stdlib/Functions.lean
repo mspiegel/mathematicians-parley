@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import Tactics
 public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function

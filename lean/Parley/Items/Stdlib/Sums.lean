@@ -1,7 +1,6 @@
 module
 
 public import Sums
-public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic

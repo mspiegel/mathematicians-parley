@@ -10,9 +10,8 @@ public import ParleySimp
 
 `parley_norm` is the check `linear_combination` ends with in a generated
 proof, `linear_combination (norm := parley_norm) e`, and in the tactic
-modules that call it. It is a module of its own, apart from `parley_side`
-in `Tactics`, so that a change to either rebuilds only the files that call
-it.
+modules that call it. It is a module of its own, so that a change to it
+rebuilds only the files that call it.
 -/
 
 public section

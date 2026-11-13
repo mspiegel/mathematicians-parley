@@ -132,11 +132,24 @@ struct Unwritten {
     import: String,
 }
 
-/// The bridge module of tactics every generated file uses.
-const TACTICS: &str = "Tactics";
-
-/// The module of the tactics a proof about sets uses beside the others.
-const SET_TACTICS: &str = "SetTactics";
+/// The Mathlib every generated file imports besides what its names ask:
+/// the whole family of each tactic a step calls, with every extension a
+/// goal may need, and the instances those goals are solved with. The table
+/// of names (`mathlib_of`) gives a tactic's syntax and a constant's module,
+/// but not an instance Lean finds by its type, `Finite ↑{1, 2, 3}` of a
+/// listed set, nor an extension `linarith` or `norm_num` runs. These are
+/// Mathlib's, so a change to the bridges rebuilds no file for them.
+const TACTIC_FAMILIES: &[&str] = &[
+    "Mathlib.Tactic.Linarith",
+    "Mathlib.Tactic.NormNum",
+    "Mathlib.Tactic.Positivity",
+    "Mathlib.Tactic.Ring",
+    "Mathlib.Data.Int.ModEq",
+    "Mathlib.Order.Interval.Finset.Defs",
+    "Mathlib.Tactic.FieldSimp",
+    "Mathlib.Tactic.Linarith.Frontend",
+    "Mathlib.Tactic.Rify",
+];
 
 /// Modules that tag definitions into the tactics' simp set `parley_unfold`,
 /// by what a file's Lean text writes that they apply to: a file that writes
@@ -178,15 +191,13 @@ fn named_in(text: &str) -> BTreeSet<String> {
     out
 }
 
-/// The modules of the library a declaration uses: the tactics every file
-/// uses, the module of each bridge tactic it calls and of each bridge
-/// constant it names, the module that tags a definition it names into
+/// The modules of the library a declaration uses: the module of each
+/// bridge tactic it calls and of each bridge constant it names, the module that tags a definition it names into
 /// `parley_unfold` (`RULE_MODULES`), and those a record's own proof names.
 /// A file imports no module it does not use, so that a change in one
 /// rebuilds only the files that use it.
 fn modules_of(decl: &Declaration) -> BTreeSet<String> {
-    let mut out = BTreeSet::from([TACTICS.to_string()]);
-    out.extend(decl.verbatim_modules());
+    let mut out = decl.verbatim_modules();
     let parts = decl.parts();
     for t in &parts.terms {
         let TermKind::Const(c) = &t.kind else {
@@ -490,27 +501,17 @@ pub fn make(
         }
         let cited: Vec<String> = cited.into_iter().collect();
         imported.insert(module.clone(), (name.clone(), cited.clone()));
-        // A proof about sets leaves its reader the ways of sets as well,
-        // from their own module (`SetTactics`).
-        // A proof about sets leaves its side conditions to the ways of sets
-        // as well, from their own module (`SetTactics`).
-        let mut decl = file.decl.clone();
-        let of_sets = decl.about_sets();
-        if of_sets {
-            decl.with_set_side();
-        }
+        let decl = &file.decl;
         let body = format!("{}\n", decl.text());
-        let mut library = modules_of(&decl);
-        if of_sets {
-            library.insert(SET_TACTICS.to_string());
-        }
-        let mathlib = match mathlib_of(decl.lookups(), table, &mut made) {
+        let library = modules_of(decl);
+        let mut mathlib = match mathlib_of(decl.lookups(), table, &mut made) {
             Ok(mathlib) => mathlib,
             Err(problem) => {
                 made.failed.insert(name, problem.to_string());
                 continue;
             }
         };
+        mathlib.extend(TACTIC_FAMILIES.iter().map(|m| m.to_string()));
         let imports: Vec<String> =
             library.into_iter().chain(mathlib).chain(cited).collect();
         let mut text = header(&imports, &thm.path);

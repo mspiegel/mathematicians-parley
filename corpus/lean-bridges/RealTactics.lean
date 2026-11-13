@@ -19,9 +19,9 @@ public import Roots
 What a page's `real arithmetic` decides: √8 = 2·√2, ln(8) = 3·ln(2),
 ln(2) ≠ 0, cos(π/2) = 0, e < π. `parley_real` tries `parley_arith` first,
 which decides the rest of real arithmetic, and then the ways below, each
-from Mathlib's values and laws of these functions. A generated file that
-calls it imports this module alone of the tactics beside `Tactics`
-(`build::lean`), so a change here rebuilds only those files.
+from Mathlib's values and laws of these functions. Only a generated file
+that calls it imports this module (`build::lean`), so a change here
+rebuilds only those files.
 -/
 
 public section

@@ -15,8 +15,8 @@ use super::templates::{Num, Slot, Template, Templates};
 use crate::citing::bounds::{self, SaidBounds};
 use crate::formula::{Grammar, Node};
 use crate::notations::{
-    EQUALITY, EQUALS, FOR_ALL, IN, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NAME,
-    NATURALS, NATURALS0, NUMBER_SYSTEMS, NUMERAL, ORDER, THERE_IS,
+    EQUALITY, EQUALS, FOR_ALL, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NAME, NATURALS,
+    NATURALS0, NUMBER_SYSTEMS, NUMERAL, ORDER, THERE_IS,
 };
 use crate::outcome::Route;
 
@@ -1083,65 +1083,6 @@ impl Writer<'_> {
                 }
             }
         }
-    }
-
-    /// Where the claim is that a power to an integer exponent is an integer,
-    /// 2^(n − 1) ∈ ℤ, the witness: the base's integer to the exponent's
-    /// `toNat`, which is the power where a line in scope shows the exponent
-    /// not negative. None for any other claim.
-    pub fn integer_power_witness(&self, claim: &Node) -> Option<Printed> {
-        use super::doc::{Op, Proof, Tactic, TacticArg, TermKind};
-        use super::tactics as t;
-        let [t, set] = claim.children.as_slice() else {
-            return None;
-        };
-        if claim.spelling() != IN
-            || set.notation() != NUMBER_SYSTEMS
-            || &*set.text != "ℤ"
-        {
-            return None;
-        }
-        let [base, exponent] = self.integer_power(t)?;
-        let base = self.number_fixed(base, Num::Int).built()?;
-        let exponent = self.number_fixed(exponent, Num::Int).built()?;
-        let int = LeanType::Num(Num::Int);
-        let e = match exponent.prec() < MAX {
-            true => t::bracket(exponent),
-            false => exponent,
-        };
-        let e_nat = Printed::of(
-            TermKind::ToNat(Box::new(e.clone())),
-            LeanType::Num(Num::Nat),
-        );
-        let power = Printed::infix(Op::POWER, base, e_nat, int.clone());
-        let at_least_0 = Printed::infix(
-            Op::AT_MOST,
-            Printed::cast(Printed::numeral("0", int.clone()), int.clone()),
-            e,
-            LeanType::Prop,
-        );
-        let shown = Printed::of(
-            super::doc::TermKind::Show {
-                says: Box::new(at_least_0),
-                proof: Box::new(t::by_term(Proof::By(t::bridge(
-                    super::doc::bridges::BridgeTactic::Side,
-                    vec![],
-                )))),
-            },
-            LeanType::Prop,
-        );
-        let nonneg = Printed::applied(
-            "Int.toNat_of_nonneg",
-            super::doc::Source::Core,
-            vec![shown],
-            LeanType::Prop,
-        );
-        let rules = vec![t::backwards(t::lemma("zpow_natCast")), t::forwards(nonneg)];
-        let equal = t::by_term(Proof::By(Tactic::Seq(vec![
-            t::push_cast(None),
-            t::call("rw", vec![TacticArg::Rules(rules)]),
-        ])));
-        Some(anonymous(vec![power, equal]))
     }
 
     /// How Lean writes a term where a natural number is wanted, a power's

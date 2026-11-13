@@ -7,9 +7,7 @@ public import Divisibility
 public import FactorialTactics
 public import InstanceTactics
 public import PowerTactics
-public import SetTactics
 public import SubstTactics
-public import Tactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -38,7 +36,10 @@ public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
 public import Mathlib.Tactic.NormNum.Core
@@ -49,7 +50,10 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.ModEq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.Prime
+public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Counting

@@ -68,15 +68,6 @@ impl LeanType {
             | LeanType::Subgroup(_) => false,
         }
     }
-
-    /// Whether it is a type of sets, or is made of one, `ℤ → Set ℕ`.
-    pub fn has_set(&self) -> bool {
-        match self {
-            LeanType::Set(_) => true,
-            LeanType::Fun { from, to } => from.has_set() || to.has_set(),
-            _ => false,
-        }
-    }
 }
 
 /// Where a constant a term names comes from, which is what a file that
@@ -458,7 +449,7 @@ pub enum TermKind {
     /// A bracket no precedence asks for, kept where the writer writes one.
     Paren(Box<Term>),
     /// A proof standing as a term, `by t`, as the proof part of `⟨w, by t⟩`
-    /// or an argument `(by parley_side)`.
+    /// or an argument `(by norm_num)`.
     By(Box<super::tactic::Proof>),
 }
 
@@ -691,17 +682,6 @@ impl Term {
         }
     }
 
-    /// The side tactic of sets wherever the side tactic stands in a proof
-    /// inside the term.
-    pub fn set_side(&mut self) {
-        if let TermKind::By(p) = &mut self.kind {
-            p.set_side();
-        }
-        for c in self.children_mut() {
-            c.set_side();
-        }
-    }
-
     /// The constants of Lean's or Mathlib's this node names: its own, and
     /// those its printed form names through Lean's resolution of a field,
     /// `A.ncard` for `Set.ncard`.
@@ -810,20 +790,6 @@ impl Term {
             TermKind::Quantified { letter_ty, .. } => letter_ty.contains(ty),
             _ => false,
         })
-    }
-
-    /// Whether this node writes something of Lean's sets: a constant of
-    /// `Set`'s namespace, a set counted in ℕ∞, a cast to or a letter of a
-    /// type of sets, or a notation whose text names `Set`.
-    pub fn about_sets(&self) -> bool {
-        match &self.kind {
-            TermKind::Const(c) => c.name.starts_with("Set."),
-            TermKind::Count { form, .. } => *form == CountForm::Extended,
-            TermKind::Cast { to, .. } => to.has_set(),
-            TermKind::Quantified { letter_ty, .. } => letter_ty.has_set(),
-            TermKind::Bound { letter_ty, .. } => letter_ty.has_set(),
-            _ => false,
-        }
     }
 
     /// The term with each letter `given` names put for by the term it

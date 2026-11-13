@@ -1,6 +1,5 @@
 module
 
-public import Tactics
 public import Mathlib.Data.ENat.Basic
 public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Nat.Notation

@@ -329,7 +329,7 @@ const SITES: &[Site] = &[
         step: "5.15.7",
         holds: "s5_12 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK9)",
         list: false,
-        why: "an item's hypotheses over a range the citation gives, taken from the lines the checker found them in before parley_whole_side: the subset as line 5.12 states it, and the membership the let line writes as a Finset.Icc met as the Set.Icc Lean asks (Meets::Ranges)",
+        why: "an item's hypotheses over a range the citation gives, taken from the lines the checker found them in: the subset as line 5.12 states it, and the membership the let line writes as a Finset.Icc met as the Set.Icc Lean asks (Meets::Ranges)",
     },
     Site {
         file: "lean/Parley/Proofs/Setmm/BoundedBySquare/BoundedBySquare.lean",

@@ -4,7 +4,14 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.NormNum
 public import Lean.Parser.Command
 public import Mathlib.Tactic.LinearCombination
-public import Tactics
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Rify
+public import ParleySimp
 public import PowerTactics
 
 /-!
@@ -100,8 +107,6 @@ macro "parley_put_at " e:term:max h:ident : tactic =>
     | (rw [← $e:term] at $h:ident; linarith; done)
     -- What the putting leaves to tidy, a 0 + x of a term put to 0.
     | (rw [$e:term] at $h:ident; simpa using $h; done)
-    | (rw [$e:term] at $h:ident; parley_side; done)
-    | (rw [← $e:term] at $h:ident; parley_side; done)
     | (rw [$e:term] at $h:ident; exact_mod_cast $h; done)
     | (rw [← $e:term] at $h:ident; exact_mod_cast $h; done)
     | (rw [← $e:term]; exact $h _; done)

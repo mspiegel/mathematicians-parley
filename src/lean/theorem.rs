@@ -1128,7 +1128,7 @@ enum Closing {
     Closed,
 }
 
-/// A proof given as an argument: a line's name or `(by parley_side)`.
+/// A proof given as an argument: a line's name or `(by norm_num)`.
 fn proof_arg(proof: super::expr::Printed) -> super::doc::Arg {
     super::doc::Arg::Explicit(proof)
 }
@@ -5991,7 +5991,7 @@ impl<'a> Proof<'a> {
             // In ℕ₀: the integer, beside its being at least 0, by the
             // said-once walk's reason for the term (`nonneg_by`).
             Num::Nat => {
-                let order = self.said_nonneg(term).unwrap_or_else(|| side_term(&[]));
+                let order = self.said_nonneg(term)?;
                 vec![witness, order, equal]
             }
             _ => vec![witness, equal],
@@ -6254,34 +6254,32 @@ impl<'a> Proof<'a> {
                                 }
                             }
                         }
-                        let mut ways = match unfold.is_empty() {
-                            true => Vec::new(),
-                            false => unfolded(&unfold),
-                        };
-                        ways.push(t::bridge(BridgeTactic::Side, vec![]));
+                        if unfold.is_empty() {
+                            return Route::no(
+                                "a define step Lean writes with two sides apart",
+                            );
+                        }
                         let why = match by_cases {
                             true => ListReason::DefineByCases,
                             false => ListReason::DefineSides,
                         };
-                        Route::Built(ways_proof(why, ways))
+                        Route::Built(ways_proof(why, unfolded(&unfold)))
                     }
                 },
             },
             // One manipulation of a line: linear arithmetic on the line the
             // checker found it made from (`orders`).
-            Head::Manipulation(_) => self
-                .order_proof(reason.just.line, k, node, &self.writer)
-                .or_try(|| {
-                    Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![])))
-                }),
+            Head::Manipulation(_) => {
+                self.order_proof(reason.just.line, k, node, &self.writer)
+            }
             // A requires line's lines: the fact is what they say, or
             // follows from it by arithmetic.
             // A membership of ℕ₀ or ℕ they give, `gcd(s, w)² ∈ ℕ: from 1`,
             // by the said-once walk over them (`member_bound`).
-            Head::Lines => Route::Built(match self.member_bound(reason.just, node) {
-                Some(p) => Proof::Term(p),
-                None => Proof::By(t::bridge(BridgeTactic::Side, vec![])),
-            }),
+            Head::Lines => match self.member_bound(reason.just, node) {
+                Some(p) => Route::Built(Proof::Term(p)),
+                None => Route::no("a requires line its lines give no bound for"),
+            },
         }
     }
 
@@ -6527,8 +6525,6 @@ impl<'a> Proof<'a> {
             // Rows are linear moves on the line the first row cites, so the
             // claim follows from that line by linear arithmetic, as a step
             // with no rows does from the lines it cites.
-            // An order is left to the ways of orders alone; a chain of
-            // equations, A = B = C, to `parley_side`.
             Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
                 // A chain whose links the checker placed: composed link by
                 // link (`chain_composed`).
@@ -6541,7 +6537,7 @@ impl<'a> Proof<'a> {
                 }
                 // What the checker recorded the step rests on (`orders`,
                 // `antisymmetric`).
-                let recorded = match m {
+                return match m {
                     Method::Inequalities => {
                         self.order_proof(just.line, k, node, writer)
                     }
@@ -6550,23 +6546,6 @@ impl<'a> Proof<'a> {
                     }
                     _ => Route::no("a transitivity chain is composed from its links"),
                 };
-                if let Route::Built(proof) = recorded {
-                    return Route::Built(proof);
-                }
-                // A cited "for all", a(n) = 1 − 1/2ⁿ for every n, is read
-                // at the claim's letter, which linear arithmetic can use.
-                let mut steps: Vec<Tactic> = self
-                    .cited_parts(&just.refs)
-                    .iter()
-                    .filter_map(|c| self.at_recorded_letter(c, &node.names()))
-                    .map(|at| Tactic::Fact(at.proof))
-                    .collect();
-                let close = match node.notation() == ORDER {
-                    true => BridgeTactic::Order,
-                    false => BridgeTactic::Side,
-                };
-                steps.push(super::tactics::bridge(close, vec![]));
-                super::doc::Proof::By(Tactic::Seq(steps))
             }
             Method::Substitute => return self.substitute(just, k, node, writer),
             Method::Calculation => return self.calculation(just, writer),
@@ -6575,18 +6554,13 @@ impl<'a> Proof<'a> {
             Method::Membership => return self.membership(just, node, writer),
             // The lines the checker found each part of the claim in
             // (`joined`), put together.
-            Method::Join => match self.join_proof(just.line, k, node, writer) {
-                Route::Built(proof) => return Route::Built(proof),
-                Route::Declined(_) => {
-                    Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
-                }
-            },
+            Method::Join => return self.join_proof(just.line, k, node, writer),
             Method::Inspection => match self.inspection_proof(just) {
                 Some(proof) => proof,
-                None => Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![])),
+                None => return Route::no("an inspection the record names no case of"),
             },
             Method::Restate => {
-                Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
+                return Route::no("a restatement the record places in no line")
             }
             other => {
                 return Route::no(format!(
@@ -8444,7 +8418,7 @@ impl<'a> Proof<'a> {
     /// The proof of the side a forward reading of `statement`, an item's
     /// sentence at the citation's values, starts from: the line the checker
     /// read it from (`Cited::firsts`), met with that side as Lean has it;
-    /// `parley_side` where no line the citation names says it.
+    /// None where no line the citation names says it.
     /// `wanted`, a "there is" with no condition on its letter, `∃ u, P u`,
     /// read as `Witnessed` where `says` is P of a term it names, `P b`: the
     /// term of the line that, put for u, makes P meet the line as Lean has
@@ -8476,29 +8450,23 @@ impl<'a> Proof<'a> {
 
     /// The proof of a definition's left side, which a citation that
     /// concludes its right side takes as its premise, from the line the
-    /// checker read it from (`first_proof`); by `parley_side` where none
-    /// says it.
-    fn premise(&self, cited: &Cited, statement: &Printed) -> Printed {
-        left_side(statement)
-            .and_then(|wanted| self.first_proof(cited, &wanted))
-            .unwrap_or_else(|| side_term(&[]))
+    /// checker read it from (`first_proof`); None where none says it.
+    fn premise(&self, cited: &Cited, statement: &Printed) -> Option<Printed> {
+        left_side(statement).and_then(|wanted| self.first_proof(cited, &wanted))
     }
 
     /// What proves a fact a definition's right side asks, `wanted` as Lean
-    /// has it where it is known: the line the checker read it from, or,
-    /// where none says it or a witness's facts must be put in scope first
-    /// (`known`), `parley_side`.
+    /// has it: the line the checker read it from. None where none says it,
+    /// or a witness's facts must be put in scope first (`known`).
     fn shown_by_line(
         &self,
         cited: &Cited,
         wanted: Option<&Printed>,
         known: &[Tactic],
-    ) -> Printed {
+    ) -> Option<Printed> {
         match (known.is_empty(), wanted) {
-            (true, Some(w)) => self
-                .first_proof(cited, w)
-                .unwrap_or_else(|| side_term(known)),
-            _ => side_term(known),
+            (true, Some(w)) => self.first_proof(cited, w),
+            _ => None,
         }
     }
 
@@ -9350,9 +9318,9 @@ impl<'a> Proof<'a> {
 
     /// The proof that the value an instantiation gives `letter` is in its
     /// domain, from where the checker found that supplied
-    /// (`Instantiated::guards`), the membership as Lean writes it; by
-    /// `parley_side` where no line supplies it, or the line says it
-    /// otherwise than Lean asks. A letter the page gives no value, one Lean
+    /// (`Instantiated::guards`), the membership as Lean writes it; None
+    /// where no line supplies it, or the line says it otherwise than Lean
+    /// asks. A letter the page gives no value, one Lean
     /// opens in the line where the claim says a phrase, `s` of "U(0) is an
     /// upper bound of S", has none recorded: its value, `value`, is the
     /// letter the claim's own "for all" binds, whose membership the claim
@@ -9362,28 +9330,21 @@ impl<'a> Proof<'a> {
         recorded: &crate::checker::record::Instantiated,
         letter: &str,
         value: &Node,
-    ) -> Printed {
+    ) -> Option<Printed> {
         let opened = value.is_name()
             && self
                 .intros_now
                 .borrow()
                 .contains(&super::names::letter(&value.text));
         let Some(g) = recorded.guards.iter().find(|g| g.letter == letter) else {
-            if opened {
-                return bound_proof(&value.text);
-            }
-            return side_term(&[]);
+            return opened.then(|| bound_proof(&value.text));
         };
         // The claim's own membership, whatever Lean writes it as.
         if let SuppliedBy::Bound { letter } = &g.by {
-            return bound_proof(letter);
+            return Some(bound_proof(letter));
         }
-        let Some(wanted) = self.writer.formula(&g.written).built() else {
-            return side_term(&[]);
-        };
-        self.supplied_proof(&g.by, &wanted, None)
-            .built()
-            .unwrap_or_else(|| side_term(&[]))
+        let wanted = self.writer.formula(&g.written).built()?;
+        self.supplied_proof(&g.by, &wanted, None).built()
     }
 
     /// Puts what ends a block, a part or a theorem at `depth`: its last
@@ -9521,8 +9482,30 @@ impl<'a> Proof<'a> {
 
     /// The fact a define of a kind says of its value, `gcd(t, w) ∈ ℕ` of
     /// `let n = gcd(t, w), a positive integer`, as Lean writes it, and its
-    /// proof by the define's reason.
+    /// proof by the define's reason; `trivial` where Lean's types give it,
+    /// `True` of `let x = a(j + 1), a real number`.
     fn kind_shown(&self, d: usize) -> Route<KindShown> {
+        let (fact, says) = match self.kind_fact(d) {
+            Route::Built(f) => f,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let proof = match says.is_truth() {
+            true => super::doc::Proof::Term(Printed::constant(
+                "trivial",
+                super::doc::Source::Core,
+                super::doc::LeanType::Prop,
+            )),
+            false => match self.kind_proof(d, &fact) {
+                Route::Built(p) => p,
+                Route::Declined(why) => return Route::Declined(why),
+            },
+        };
+        Route::Built(KindShown { fact, says, proof })
+    }
+
+    /// The fact a define of a kind says of its value, as the page and as
+    /// Lean write it.
+    fn kind_fact(&self, d: usize) -> Route<(Node, Printed)> {
         let line = &self.thm.defines[d];
         let members = &self.sources.checked.grammar.members;
         let kinded = match line.kinded(&self.thm.path, members) {
@@ -9534,9 +9517,17 @@ impl<'a> Proof<'a> {
             Route::Built(n) => n,
             Route::Declined(why) => return Route::Declined(why),
         };
-        let says = match self.writer.formula(&fact) {
-            Route::Built(f) => f,
-            Route::Declined(why) => return Route::Declined(why),
+        self.writer.formula(&fact).map(|says| (fact, says))
+    }
+
+    /// The proof of `fact`, a define of a kind's, by the define's reason.
+    fn kind_proof(&self, d: usize, fact: &Node) -> Route<super::doc::Proof> {
+        let line = &self.thm.defines[d];
+        let members = &self.sources.checked.grammar.members;
+        let kinded = match line.kinded(&self.thm.path, members) {
+            Ok(Some(k)) => k,
+            Ok(None) => return Route::no("a define of a kind with no reason"),
+            Err(p) => return Route::no(p.to_string()),
         };
         let Ok(just) = &kinded.shown.by else {
             return Route::no("a define whose reason does not read");
@@ -9545,11 +9536,7 @@ impl<'a> Proof<'a> {
             just,
             cited: self.rec.cited_requires.get(&kinded.shown.line),
         };
-        let proof = match self.proof_of(reason, 0, &fact) {
-            Route::Built(p) => p,
-            Route::Declined(why) => return Route::Declined(why),
-        };
-        Route::Built(KindShown { fact, says, proof })
+        self.proof_of(reason, 0, fact)
     }
 
     /// A define naming a whole number its value is shown to be, `let e =
@@ -9695,13 +9682,16 @@ impl<'a> Proof<'a> {
         let Some(param) = def.params.first() else {
             return Route::no("a kinded function of no argument");
         };
-        let KindShown { fact, says, proof } = match self.kind_shown(d) {
-            Route::Built(s) => s,
+        let (fact, says) = match self.kind_fact(d) {
+            Route::Built(f) => f,
             Route::Declined(why) => return Route::Declined(why),
         };
         let proof = match self.kind_by_witness(d, param, &fact) {
             Some(p) => p,
-            None => proof,
+            None => match self.kind_proof(d, &fact) {
+                Route::Built(p) => p,
+                Route::Declined(why) => return Route::Declined(why),
+            },
         };
         // ∀ a ∈ X, ∃ m : ℤ, ↑m = v: the guard, and the value in its type.
         let TermKind::Quantified {
@@ -10126,7 +10116,7 @@ impl<'a> Proof<'a> {
 
     /// `exhibit`: the claim's "there is", with the values the checker read
     /// for its letters, and what it says of them by the lines the checker
-    /// found to state it (`Exhibit::shown`), `parley_side` where none does.
+    /// found to state it (`Exhibit::shown`); declined where none does.
     fn exhibit(&self, just: &Justification, node: &Node) -> Route<super::doc::Proof> {
         let Some(exhibit) = self
             .rec
@@ -10158,7 +10148,10 @@ impl<'a> Proof<'a> {
                 vec![value.clone(), set.clone()],
             );
             let wanted = membership.and_then(|m| self.writer.formula(&m).built());
-            let in_set = self.fact_shown(wanted.as_ref(), &[], shown.next());
+            let Some(in_set) = self.fact_shown(wanted.as_ref(), &[], shown.next())
+            else {
+                return Route::no(UNSHOWN_FACT);
+            };
             return self.writer.element_term(value, &members).map(|v| {
                 let nothing = Printed::constant(
                     "trivial",
@@ -10193,7 +10186,11 @@ impl<'a> Proof<'a> {
                 };
                 let (guard, next) = exists_at(lean_body.as_ref(), &term);
                 parts.push(term);
-                parts.push(self.fact_shown(guard.as_ref(), &known, membership));
+                let Some(fact) = self.fact_shown(guard.as_ref(), &known, membership)
+                else {
+                    return Route::no(UNSHOWN_FACT);
+                };
+                parts.push(fact);
                 lean_body = next;
                 body = inner;
                 continue;
@@ -10225,7 +10222,11 @@ impl<'a> Proof<'a> {
                     (None, None) => (None, None),
                 };
                 parts.push(p);
-                parts.push(self.fact_shown(asked.as_ref(), &known, membership));
+                let Some(fact) = self.fact_shown(asked.as_ref(), &known, membership)
+                else {
+                    return Route::no(UNSHOWN_FACT);
+                };
+                parts.push(fact);
                 lean_body = rest;
                 body = inner;
                 continue;
@@ -10253,7 +10254,11 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             if guarded {
-                parts.push(self.fact_shown(guard.as_ref(), &known, membership));
+                let Some(fact) = self.fact_shown(guard.as_ref(), &known, membership)
+                else {
+                    return Route::no(UNSHOWN_FACT);
+                };
+                parts.push(fact);
             }
             lean_body = next;
             body = inner;
@@ -10261,31 +10266,32 @@ impl<'a> Proof<'a> {
         if parts.is_empty() {
             return Route::no("an exhibit of no \"there is\"");
         }
-        parts.push(self.facts_shown(body, lean_body.as_ref(), &known, &mut shown));
+        let Some(facts) =
+            self.facts_shown(body, lean_body.as_ref(), &known, &mut shown)
+        else {
+            return Route::no(UNSHOWN_FACT);
+        };
+        parts.push(facts);
         Route::Built(super::doc::Proof::Term(super::expr::anonymous(parts)))
     }
 
     /// What proves a fact an exhibit says of its values, `wanted` as Lean
     /// has it where it is known, from where the checker found it stated
     /// (`shown`), after the tactics `known` that put a witness's facts in
-    /// scope; `parley_side` where no line states it.
+    /// scope; None where no line states it.
     fn fact_shown(
         &self,
         wanted: Option<&Printed>,
         known: &[Tactic],
         shown: Option<&Supplied>,
-    ) -> Printed {
-        let (Some(wanted), Some(shown)) = (wanted, shown) else {
-            return side_term(known);
-        };
+    ) -> Option<Printed> {
+        let (wanted, shown) = (wanted?, shown?);
         match self
             .supplied_proof(&shown.by, wanted, shown.meeting.as_ref())
             .built()
         {
-            Some(p) => after_known(known, p),
-            None => self
-                .with_known(&shown.by, wanted, known)
-                .unwrap_or_else(|| side_term(known)),
+            Some(p) => Some(after_known(known, p)),
+            None => self.with_known(&shown.by, wanted, known),
         }
     }
 
@@ -10301,7 +10307,7 @@ impl<'a> Proof<'a> {
         wanted: Option<&Printed>,
         known: &[Tactic],
         shown: &mut std::iter::Peekable<I>,
-    ) -> Printed {
+    ) -> Option<Printed> {
         // One entry left for all `said` says: the record holds it whole.
         let whole = shown.clone().count() == 1;
         match self.writer.and_sides(said).filter(|_| !whole) {
@@ -10310,9 +10316,9 @@ impl<'a> Proof<'a> {
                     Some((a, b)) => (Some(a), Some(b)),
                     None => (None, None),
                 };
-                let left = self.facts_shown(l, wl.as_ref(), known, shown);
-                let right = self.facts_shown(r, wr.as_ref(), known, shown);
-                super::expr::anonymous(vec![left, right])
+                let left = self.facts_shown(l, wl.as_ref(), known, shown)?;
+                let right = self.facts_shown(r, wr.as_ref(), known, shown)?;
+                Some(super::expr::anonymous(vec![left, right]))
             }
             _ => self.fact_shown(wanted, known, shown.next()),
         }
@@ -12259,7 +12265,11 @@ impl<'a> Proof<'a> {
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                args.push(self.value_guard(recorded, &letter.text, &value));
+                let Some(guard) = self.value_guard(recorded, &letter.text, &value)
+                else {
+                    return Route::no(UNSUPPLIED_GUARD);
+                };
+                args.push(guard);
                 body = inner;
                 continue;
             }
@@ -12275,7 +12285,11 @@ impl<'a> Proof<'a> {
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                args.push(self.value_guard(recorded, &letter.text, &value));
+                let Some(guard) = self.value_guard(recorded, &letter.text, &value)
+                else {
+                    return Route::no(UNSUPPLIED_GUARD);
+                };
+                args.push(guard);
                 body = inner;
                 continue;
             }
@@ -12297,7 +12311,10 @@ impl<'a> Proof<'a> {
                     given.push((p.clone(), guarded));
                     args.push(p);
                     if guarded {
-                        args.push(self.value_guard(recorded, &letter.text, &value));
+                        match self.value_guard(recorded, &letter.text, &value) {
+                            Some(g) => args.push(g),
+                            None => return Route::no(UNSUPPLIED_GUARD),
+                        }
                     }
                 }
                 Route::Declined(d) => return Route::Declined(d),
@@ -12318,7 +12335,12 @@ impl<'a> Proof<'a> {
                     .built(),
                 Route::Declined(_) => None,
             };
-            args.push(proof.unwrap_or_else(|| side_term(&[])));
+            match proof {
+                Some(p) => args.push(p),
+                None => {
+                    return Route::no("a condition of an instance no line supplies")
+                }
+            }
         }
         let instance = instance.map(|i| i.left);
         // What is left of the line once its letters are given and its
@@ -13325,13 +13347,7 @@ impl<'a> Proof<'a> {
                         vec![t::forwards(t::hyp(&hyp))],
                         Some(everywhere),
                     )),
-                    t::first(
-                        ListReason::HeaderFunction,
-                        vec![
-                            t::call("done", vec![]),
-                            t::bridge(BridgeTactic::Side, vec![]),
-                        ],
-                    ),
+                    t::call("done", vec![]),
                 ])));
             }
         }
@@ -13434,14 +13450,12 @@ impl<'a> Proof<'a> {
                 };
                 // An equation shown by real arithmetic where it is put, ln(8)
                 // = 3·ln(2) (real arithmetic), is the real arithmetic's.
-                let real = matches!(
+                if !matches!(
                     just.source,
                     Some(crate::corpus::skeleton::Source::RealArithmetic)
-                );
-                let tactic = match real {
-                    true => BridgeTactic::Real,
-                    false => BridgeTactic::Side,
-                };
+                ) {
+                    return Route::no("an equation put in that no line states");
+                }
                 // Of numerals alone, cos(0) = 1, it is said in the type the
                 // claim is computed in, where it is put: `Complex.cos 0` in
                 // a line of complex numbers.
@@ -13461,13 +13475,14 @@ impl<'a> Proof<'a> {
                     false => self.writer.formula(&node),
                 };
                 match said {
-                    Route::Built(p) => {
-                        t::bracket(shown(p, Proof::By(t::bridge(tactic, vec![]))))
-                    }
+                    Route::Built(p) => t::bracket(shown(
+                        p,
+                        Proof::By(t::bridge(BridgeTactic::Real, vec![])),
+                    )),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
-            _ => return Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![]))),
+            _ => return Route::no("a substitution with no equation to put in"),
         };
         // The line put into, cast up to the claim's type where it is
         // narrower. Of a line saying several things, the one the equation
@@ -13728,23 +13743,14 @@ impl<'a> Proof<'a> {
             return None;
         }
         // A guarded "for all", over ℕ or ℕ₀, asks a proof besides the
-        // letter, that it is above 0 or at least 0, which the lines in scope
-        // give; one over any other set, ℝ ∖ {5} or B, that the letter is in
-        // it.
-        let guard_by =
-            |tactic| Some(super::tactics::by_term(super::doc::Proof::By(tactic)));
-        let (ty, guard) = match super::expr::system_of(set) {
+        // letter, that it is above 0 or at least 0; one over any other set,
+        // ℝ ∖ {5} or B, that the letter is in it.
+        let (ty, guarded) = match super::expr::system_of(set) {
             Some(system) => (
                 LetterType::Number(super::expr::letter_type(system)),
-                match system {
-                    super::expr::System::Type(_) => None,
-                    _ => guard_by(super::tactics::bridge(BridgeTactic::Side, vec![])),
-                },
+                !matches!(system, super::expr::System::Type(_)),
             ),
-            None => (
-                self.writer.set_members(set)?.letter(),
-                guard_by(super::tactics::bridge(BridgeTactic::SetSide, vec![])),
-            ),
+            None => (self.writer.set_members(set)?.letter(), true),
         };
         // The block's letter the check read the line at (`read_at`), where
         // the claim names it.
@@ -13772,14 +13778,12 @@ impl<'a> Proof<'a> {
             &put,
             &self.sources.checked.grammar.binders(),
         );
-        // The guard is the block's `let` line that puts the letter in the
-        // set (`ReadAt::opened_by`), `hK7`, where Lean names that line.
-        let guard = match (guard, self.line_part(&read_at.opened_by)) {
-            (Some(_), Route::Built(line)) => Some(line.proof),
-            (guard, _) => guard,
-        };
+        // The guard is the `let` line that puts the letter in the set
+        // (`ReadAt::opened_by`), `hK7`; None where Lean names no such line.
         let mut args = vec![super::tactics::hyp(&super::names::letter(at))];
-        args.extend(guard);
+        if guarded {
+            args.push(self.line_part(&read_at.opened_by).built()?.proof);
+        }
         let at_letter = args.into_iter().fold(cited.proof.clone(), applied_to);
         Some(super::algebra::Cited {
             node: read,
@@ -13997,13 +14001,10 @@ impl<'a> Proof<'a> {
         if let Some(proof) = self.member_from_record(just, node, writer) {
             return Route::Built(proof);
         }
-        if let Some(proof) = self.member_bound(just, node) {
-            return Route::Built(super::doc::Proof::Term(proof));
+        match self.member_bound(just, node) {
+            Some(proof) => Route::Built(super::doc::Proof::Term(proof)),
+            None => Route::no("a membership the record shows no way to"),
         }
-        Route::Built(super::doc::Proof::By(super::tactics::bridge(
-            BridgeTactic::Side,
-            vec![],
-        )))
     }
 
     /// `substitute` in rows: each row the row above with the change its
@@ -14704,7 +14705,6 @@ impl<'a> Proof<'a> {
                             ways.push(Tactic::Exact(faced(at.proof.clone(), facing)));
                         }
                     }
-                    ways.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
                     // In the named numbers' forms, the line used the way the
                     // record says the row faces it: the row's proof.
                     let named_decided = in_named
@@ -14888,30 +14888,6 @@ impl<'a> Proof<'a> {
         })
     }
 
-    /// Whether a citation gives one of the letters an item's hypothesis
-    /// uses, as Lean states it, all of a number system or a range, D := ℝ:
-    /// the item asks `∀ x ∈ Set.univ, …` or `i ∈ Set.Icc a b` where the
-    /// citing proof's line says `∀ x : ℝ, …` or `i ∈ Finset.Icc a b`, which
-    /// `parley_whole_side` takes the one to the other. The Lean statement
-    /// shows the letters a function's domain adds to the page's, D of
-    /// `D ∈ nhds x`.
-    fn given_whole(&self, asked: &Printed, binding: &crate::matching::Binding) -> bool {
-        let used: Vec<&str> = asked
-            .walk()
-            .into_iter()
-            .filter_map(|t| match &t.kind {
-                super::doc::TermKind::Letter(name) => Some(name.as_str()),
-                _ => None,
-            })
-            .collect();
-        binding.iter().any(|(letter, v)| {
-            matches!(
-                v.notation(),
-                crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
-            ) && used.contains(&super::names::letter(letter.as_ref()).as_str())
-        })
-    }
-
     /// The type each of an item's type variables is taken at where a
     /// citation gives its things numbers, x ∈ {u, w} cited of 1 and 2: the
     /// least that holds every number given them. From ℕ: a set of naturals
@@ -15030,8 +15006,8 @@ impl<'a> Proof<'a> {
 
     /// The item applied to what the citation gives it, and what it then
     /// says: the theorem with each letter given its value, and each
-    /// hypothesis given by the line cited that says it as Lean writes both,
-    /// or else left to `parley_side`.
+    /// hypothesis given by the line cited that says it as Lean writes both;
+    /// declined where no line does.
     fn instance_of(
         &self,
         sentence: &Sentence,
@@ -15481,10 +15457,7 @@ impl<'a> Proof<'a> {
                 // writes it (`Supplied::at`), a letter's number system
                 // among them: that line by its name, met with the
                 // hypothesis as Lean asks it at the values given, as it
-                // stands or by its casts (`supplied_proof`). Where none
-                // does, and the citation gives the hypothesis's set all of
-                // ℝ or a range, what the lines say read as the item asks
-                // it (`parley_whole_side`); else `parley_side`.
+                // stands or by its casts (`supplied_proof`).
                 Binder::Fact { at, says, .. } => {
                     // As the statement is, in the type the citation gives
                     // the item's general letters.
@@ -15509,13 +15482,14 @@ impl<'a> Proof<'a> {
                             .map(|ours| super::tactics::hyp(&line_name(ours))),
                         None => None,
                     });
-                    let search = || match self.given_whole(says, binding) {
-                        true => super::tactics::by_term(super::doc::Proof::By(
-                            super::tactics::bridge(BridgeTactic::WholeSide, vec![]),
-                        )),
-                        false => side_term(&[]),
-                    };
-                    args.push(proof_arg(proof.unwrap_or_else(search)));
+                    match proof {
+                        Some(p) => args.push(proof_arg(p)),
+                        None => {
+                            return Route::no(
+                                "a cited item's hypothesis no line the checker found supplies",
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -15727,12 +15701,12 @@ impl<'a> Proof<'a> {
                 r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
             });
         if phrase {
-            return Route::Built(
-                match self.phrase_proof(cited, &reason.just.refs, k, node) {
-                    Some(p) => Proof::Term(p),
-                    None => Proof::By(t::bridge(BridgeTactic::Side, vec![])),
-                },
-            );
+            return match self.phrase_proof(cited, &reason.just.refs, k, node) {
+                Some(p) => Route::Built(Proof::Term(p)),
+                None => {
+                    Route::no("a phrase's define cited where no line says the claim")
+                }
+            };
         }
         let Some(concluded) = cited.concluded.get(k) else {
             return Route::no("a claim sentence no conclusion of the item gives");
@@ -15981,12 +15955,20 @@ impl<'a> Proof<'a> {
         // states it so (`stated_form`).
         let stated = self.stated_form(reason.just.line, node);
         let claim_lean = self.claim_as_stated(reason.just.line, node);
+        let premise = || match self.premise(cited, &statement) {
+            Some(p) => Route::Built(p),
+            None => Route::no("a premise of a cited sentence no line says"),
+        };
         let term = match concluded.way {
             Way::AsWritten => inst,
-            Way::Forward if iff => forwards_of(inst, self.premise(cited, &statement)),
-            Way::Forward if implication => {
-                applied_to(inst, self.premise(cited, &statement))
-            }
+            Way::Forward if iff => match premise() {
+                Route::Built(p) => forwards_of(inst, p),
+                Route::Declined(d) => return Route::Declined(d),
+            },
+            Way::Forward if implication => match premise() {
+                Route::Built(p) => applied_to(inst, p),
+                Route::Declined(d) => return Route::Declined(d),
+            },
             Way::Forward => {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
             }
@@ -15996,10 +15978,6 @@ impl<'a> Proof<'a> {
                         Route::Built(w) => w,
                         Route::Declined(d) => return Route::Declined(d),
                     };
-                // What the definition's left side says, read in the claim's
-                // own words where the two say one thing otherwise: an item
-                // over any ring says "∈ ℕ₀" `∃ m : ℕ, ↑m = x`, a claim of
-                // integers `0 ≤ x` (`parley_side`).
                 // A claim a requires line above already states, "0 ≤ b − c"
                 // for "b − c ∈ ℕ₀", is that line: tried first, as it is
                 // quick and the others may search long.
@@ -16087,16 +16065,7 @@ impl<'a> Proof<'a> {
                 ];
                 if by_to_nat {
                     ways.push(t::on_h(&mpr, vec![t::exact_mod_cast(t::hyp("h"))]));
-                    ways.push(t::on_h(
-                        &mpr,
-                        vec![
-                            cast_to_nat_at_h(),
-                            t::try_(t::push_cast(Some(t::at_h(true)))),
-                            t::exact_mod_cast(t::hyp("h")),
-                        ],
-                    ));
                 }
-                ways.push(t::on_h(&mpr, vec![t::bridge(BridgeTactic::Side, vec![])]));
                 return Route::Built(ways_proof(ListReason::DefinitionBackwards, ways));
             }
         };
@@ -16212,7 +16181,7 @@ impl<'a> Proof<'a> {
             identities: &identities,
             numeral_to_nat,
         };
-        let closed = match (self.writer.integer_power_witness(node), read_as_written) {
+        let closed = match read_as_written {
             _ if !counted.is_empty()
                 || !powered.is_empty()
                 || cast_powers
@@ -16221,16 +16190,13 @@ impl<'a> Proof<'a> {
                 forms_converted(&term, &conversion, turned)
             }
             _ if agrees => Proof::By(Tactic::Exact(term)),
-            (Some(witness), _) => Proof::By(Tactic::Exact(witness)),
             // The item read in the step's spelling and met with the claim
             // (`docs/LEAN.md`, a citation); the recorded identities where
             // they are all that stands apart; the closer's rules where
             // neither holds.
-            (None, Some(read)) => read,
-            (None, None) if by_identities => {
-                forms_converted(&term, &conversion, turned)
-            }
-            (None, None) => self.closer(
+            Some(read) => read,
+            None if by_identities => forms_converted(&term, &conversion, turned),
+            None => self.closer(
                 node,
                 claim_lean.as_ref().map(|printed| StepClaim {
                     printed,
@@ -16268,8 +16234,8 @@ impl<'a> Proof<'a> {
     /// the checker found it supplied (`unfolded_proofs`); or the side whole,
     /// by the line the checker read it from (`Cited::firsts`), as Lean has
     /// it in `statement`, the definition at the citation's values, where a
-    /// witness is a letter the line cited binds. Left to `parley_side`
-    /// where no line says it.
+    /// witness is a letter the line cited binds. Declined where no line
+    /// says it.
     fn witnesses(
         &self,
         statement: &Printed,
@@ -16278,7 +16244,12 @@ impl<'a> Proof<'a> {
         refs: &[String],
     ) -> Route<Printed> {
         let lean_body = right_side(statement);
-        let whole = || Route::Built(self.shown_by_line(cited, lean_body.as_ref(), &[]));
+        let whole = || match self.shown_by_line(cited, lean_body.as_ref(), &[]) {
+            Some(p) => Route::Built(p),
+            None => {
+                Route::no("a definition's right side no line the checker found says")
+            }
+        };
         if self.witness_bound_by_line(cited, refs) {
             return whole();
         }
@@ -16365,7 +16336,7 @@ impl<'a> Proof<'a> {
             }
         }
         match parts.next()? {
-            Unfolded::Fact { by, .. } => Some(self.unfolded_fact(&lean, by, known)),
+            Unfolded::Fact { by, .. } => self.unfolded_fact(&lean, by, known),
             Unfolded::Witness {
                 value,
                 member,
@@ -16399,7 +16370,7 @@ impl<'a> Proof<'a> {
                 let mut proofs = vec![term];
                 let mut inner: Vec<&Unfolded> = body.iter().collect();
                 match guard {
-                    Some(guard) => proofs.push(self.unfolded_fact(&guard, by, known)),
+                    Some(guard) => proofs.push(self.unfolded_fact(&guard, by, known)?),
                     None => inner.insert(0, member),
                 }
                 let body = self.unfolded_proof(&at, inner, known)?;
@@ -16411,19 +16382,17 @@ impl<'a> Proof<'a> {
     /// The proof of one fact of a definition's right side, `wanted` as Lean
     /// states it at the citation's values: from where the checker found it
     /// supplied, after the tactics `known` that put a witness's facts in
-    /// scope; by `parley_side` where no line supplies it or the line says it
-    /// otherwise than Lean asks.
+    /// scope; None where no line supplies it or the line says it otherwise
+    /// than Lean asks.
     fn unfolded_fact(
         &self,
         wanted: &Printed,
         by: &SuppliedBy,
         known: &[Tactic],
-    ) -> Printed {
+    ) -> Option<Printed> {
         match self.supplied_proof(by, wanted, None).built() {
-            Some(p) => after_known(known, p),
-            None => self
-                .with_known(by, wanted, known)
-                .unwrap_or_else(|| side_term(known)),
+            Some(p) => Some(after_known(known, p)),
+            None => self.with_known(by, wanted, known),
         }
     }
 
@@ -16736,7 +16705,12 @@ impl<'a> Proof<'a> {
             read_at_values(&says, &binding, &self.sources.checked.grammar.binders());
         // A definition read forwards from the line that says its left side.
         let term = match iff {
-            true => forwards_of(inst, self.premise(cited, &statement)),
+            true => match self.premise(cited, &statement) {
+                Some(p) => forwards_of(inst, p),
+                None => {
+                    return Route::no("a premise of a cited definition no line says")
+                }
+            },
             false => inst,
         };
         // The "there is" as Lean states it: the sentence, or the side of a
@@ -18427,6 +18401,14 @@ fn member_by_equation(
     })
 }
 
+/// Why an exhibit declines where a fact it says of its values has no line
+/// the checker found stating it (`fact_shown`).
+const UNSHOWN_FACT: &str = "an exhibit's fact no line the checker found states";
+
+/// Why an instantiation declines where the membership of a value it gives
+/// has no line the checker found supplying it (`value_guard`).
+const UNSUPPLIED_GUARD: &str = "an instantiated value's membership no line supplies";
+
 /// A witness as Lean writes it, and the tactic that puts what a line says
 /// of it in scope, where it is an integer a line gives.
 struct Witness {
@@ -18443,18 +18425,6 @@ fn after_known(known: &[Tactic], proof: Printed) -> Printed {
     let mut tactics = known.to_vec();
     tactics.push(Tactic::Exact(proof));
     super::tactics::by_term(super::doc::Proof::By(Tactic::Seq(tactics)))
-}
-
-/// `by parley_side` as a term, after the tactics that put what lines say
-/// of the witnesses before it in scope.
-fn side_term(known: &[Tactic]) -> Printed {
-    let mut tactics = known.to_vec();
-    tactics.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
-    let tactic = match <[Tactic; 1]>::try_from(tactics) {
-        Ok([one]) => one,
-        Err(all) => Tactic::Seq(all),
-    };
-    super::tactics::by_term(super::doc::Proof::By(tactic))
 }
 
 /// A define a step cites: its letter, the term it names, and the Lean name
@@ -19431,9 +19401,8 @@ fn unfolded_by(defines: &[String], alone: bool, for_all: bool) -> Tactic {
     simp_unfolded(rules, alone, for_all)
 }
 
-/// The ways a step citing a function the header lets keeps where the record
-/// does not decide it: the function's equation put in, then the claim as it
-/// stands or worked out.
+/// A step citing a function the header lets, where the record does not
+/// decide it: the function's equation put in, which closes the claim.
 fn header_ways(hyp: &str) -> super::doc::Proof {
     use super::tactics as t;
     super::doc::Proof::By(Tactic::Seq(vec![
@@ -19443,13 +19412,7 @@ fn header_ways(hyp: &str) -> super::doc::Proof {
             vec![t::forwards(t::hyp(hyp))],
             None,
         )),
-        t::first(
-            ListReason::HeaderFunction,
-            vec![
-                t::call("done", vec![]),
-                t::bridge(BridgeTactic::Side, vec![]),
-            ],
-        ),
+        t::call("done", vec![]),
     ]))
 }
 
@@ -19862,21 +19825,6 @@ fn pushed_then(cited: &Printed, by: Printed) -> Tactic {
     )
 }
 
-/// `simp (disch := parley_side) only [parley_cast_toNat] at h`: a natural
-/// given as an integer's `toNat` put back as the integer, cast to ℚ or ℝ.
-fn cast_to_nat_at_h() -> Tactic {
-    use super::tactics as t;
-    t::simp_only(
-        false,
-        Some(t::bridge(BridgeTactic::Side, vec![])),
-        vec![t::forwards(t::bridge_lemma(
-            "parley_cast_toNat",
-            BridgeModule::PowerTactics,
-        ))],
-        Some(t::at_h(false)),
-    )
-}
-
 /// The ways a claim is closed from a term that proves it, or something
 /// near it, tried in order (`close`).
 fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
@@ -19971,9 +19919,6 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
                 ])
             });
             let by_to_nat = to_nat_put_back;
-            // The `▸` of a `toNat` rewrites its cast to ℤ only; one cast to
-            // ℚ or ℝ, (1 − 2y).toNat in ℚ, is put back as the integer by
-            // `parley_cast_toNat`.
             // The term itself, given to `linear_combination`: not one with a
             // `toNat` put back by `▸`, whose error is logged as above; the
             // `have` after it takes that one.
@@ -19982,14 +19927,6 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
                 true => vec![
                     t::on_h(&cited, vec![t::exact_mod_cast(h())]),
                     t::on_h(&cited, vec![t::exact_mod_cast(t::symm(h()))]),
-                    t::on_h(
-                        &cited,
-                        vec![
-                            cast_to_nat_at_h(),
-                            t::try_(t::push_cast(Some(t::at_h(true)))),
-                            t::linear_combination(h()),
-                        ],
-                    ),
                 ],
                 false => vec![
                     t::exact_mod_cast(cited.clone()),
@@ -20016,7 +19953,6 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
             out.extend(as_remainder);
             out.extend(of_complex);
             out.extend(of_real);
-            out.push(t::on_h(&cited, vec![t::bridge(BridgeTactic::Side, vec![])]));
             out
         }
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
@@ -20034,7 +19970,6 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
                     ],
                 ),
                 t::exact_mod_cast(cited.clone()),
-                t::on_h(&cited, vec![t::bridge(BridgeTactic::Side, vec![])]),
             ]
         }
         // A relation said either way round, a congruence or a ↔, as the
@@ -20055,9 +19990,7 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
             // A natural given as an integer's `toNat`, put back by `▸`: an
             // error elaborating that against the goal is logged and does not
             // fail the alternative, so the term is stated by a `have`, which
-            // fails. `▸` puts it back only where it is cast to ℤ; cast to ℚ
-            // or ℝ, m/(2^p − 1).toNat inside a "there is", it is put back by
-            // `parley_cast_toNat`.
+            // fails.
             match to_nat_put_back {
                 true => {
                     let mut out = vec![
@@ -20070,18 +20003,6 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
                         t::on_h(&cited, vec![t::exact_mod_cast(h())]),
                     ];
                     out.extend(reorder);
-                    out.push(t::on_h(
-                        &cited,
-                        vec![
-                            cast_to_nat_at_h(),
-                            t::try_(t::push_cast(Some(t::at_h(true)))),
-                            Tactic::Exact(h()),
-                        ],
-                    ));
-                    out.push(t::on_h(
-                        &cited,
-                        vec![t::bridge(BridgeTactic::Side, vec![])],
-                    ));
                     out
                 }
                 false => {
@@ -20148,10 +20069,6 @@ fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
                     }
                     out.extend(reorder);
                     out.extend(of_real);
-                    out.push(t::on_h(
-                        &cited,
-                        vec![t::bridge(BridgeTactic::Side, vec![])],
-                    ));
                     out
                 }
             }

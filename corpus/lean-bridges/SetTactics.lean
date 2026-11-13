@@ -4,16 +4,24 @@ public import Lean.Parser.Command
 public import Lean.Parser.Syntax
 public import Mathlib.Data.Set.Card
 public import Mathlib.Tactic.Zify
-public import Tactics
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.NormNum
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Rify
+public import ParleySimp
 
 /-!
 # What a page about sets leaves to its reader
 
-`parley_side`, and after it the ways a goal about sets is closed: finite
-sets compared or counted member by member, and a membership of a listed set
-taken case by case. A generated file whose statements or steps use sets
-calls `parley_set_side` where any other calls `parley_side`
-(`build::lean`), so that a change here rebuilds only those files.
+The tactics of finite sets and their counts: a count in ℕ∞ taken to the
+integer it is, a set made finite by its count, a witness found by an
+order. A generated file imports this module only where it names one of
+them, so that a change here rebuilds only those files.
 -/
 
 public section
@@ -176,62 +184,3 @@ other in the same words (`theorem::count_conversion`); a calculation that
 divides is built in ℚ, and is cast to the goal's type. -/
 macro "parley_count_after " e:term : tactic =>
   `(tactic| (have hStep : _ := $e; parley_count_int; exact_mod_cast hStep))
-
-/-- `parley_side`, then the ways of sets. -/
-macro "parley_set_side" : tactic =>
-  `(tactic| first
-    -- Something said of every or some member of a set given by a property,
-    -- the page's ℕ as {n : ℤ | 0 < n}, of a line that says it with the
-    -- property beside the letter; a map into all of a type maps anything
-    -- there. This and the next are tried before `parley_side`, whose last
-    -- way, `simp_all`, recurses past Lean's limit beside a set a define
-    -- builds and a line x = e(x), a = a·1 + b·0, which `first` does not
-    -- recover from.
-    | (simp only [Set.mem_ofPred_eq, Set.mem_univ, Set.mapsTo_univ, true_and, true_implies,
-         forall_const];
-       and_intros <;> first | assumption | omega | (exact ⟨_, ‹_›⟩) | (exact ⟨_, _, ‹_›⟩) | (exact ⟨_, _, rfl⟩) | parley_witness_by_order)
-    -- A line of membership in a set given by a property within all of a
-    -- type, {t ∈ ℝ : P t}, where the goal names the set by its letter.
-    | (simp only [Set.mem_ofPred_eq, Set.mem_univ, true_and] at *; assumption)
-    -- There is some member of a set, of a member a line names.
-    | (exact ⟨_, ‹_ ∈ _›, trivial⟩)
-    -- A part a line says, Y ⊆ W, asked as a member of the power set,
-    -- Y ∈ 𝒫W, or the other way round. Before `parley_side`, for the
-    -- reason above.
-    | (simp only [Set.mem_powerset_iff] at *; assumption)
-    -- A count in ℕ∞ an item asks or gives, of a set the proof counts as a
-    -- natural number, |A| = 0 of card-zero from (A.ncard : ℤ) = 0: each
-    -- count of a finite set as that number, then the casts taken off.
-    | (simp (disch := parley_finite) only [parley_encard_of_finite] at *;
-       (try norm_cast at *);
-       first | done | assumption | omega | (exact_mod_cast ‹_›))
-    | parley_side
-    -- Two finite sets of numbers equal, {x ∈ {−3, −2, 0, 5} : x is odd} =
-    -- {−3, 5}: member by member, each case decided.
-    | (ext x; simp only [Set.mem_setOf_eq, Set.mem_insert_iff, Set.mem_singleton_iff];
-       constructor <;> intro h <;> (try casesm* _ ∨ _, _ ∧ _) <;> (try subst_vars) <;>
-       simp_all (config := {decide := true}); done)
-    -- A count of a finite set the page lists or builds, |{1, 2}| = 2:
-    -- counted as a Finset, each member decided.
-    | (rw [Set.encard_eq_coe_toFinset_card];
-       simp (config := {decide := true})
-         [Set.toFinset_insert, Set.toFinset_singleton, Set.toFinset_setOf]; done)
-    -- The same counted as a natural number, (|{1, 2}| : ℤ) = 2.
-    | (norm_cast; rw [Set.ncard_eq_toFinset_card'];
-       simp (config := {decide := true}); done)
-    -- One of a listed set, x ∈ {a, b}, taken case by case.
-    | (simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at *;
-       rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
-    -- One of a range of integers, x ∈ S with S = {3, …, 5}: its bounds,
-    -- and the integers between them.
-    | (subst_vars; simp only [Set.mem_Icc] at *; omega)
-    -- A pair a line says, in the other order: {a, b} is {b, a}, a listed
-    -- set's order being none of the page's.
-    | (rw [Set.pair_comm]; assumption)
-    -- A listed set a line puts inside another, in another order: each of
-    -- its members, one of the line's.
-    | (intro x hx; apply_assumption; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx ⊢;
-        tauto)
-    -- A map's value at a member of its domain, f(a) > 0 of f : ℕ → ℕ:
-    -- the page's ℕ is the integers above 0, which a natural a is among.
-    | (simp only [Set.MapsTo, Set.mem_ofPred_eq] at *; apply_assumption; omega))

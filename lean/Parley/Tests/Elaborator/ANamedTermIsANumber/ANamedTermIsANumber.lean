@@ -1,11 +1,19 @@
 module
 
 public import AlgebraTactics
-public import Tactics
+public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/a-named-term-is-a-number.proof by parley build lean. -/

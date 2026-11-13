@@ -32,7 +32,7 @@ use crate::outcome::Route;
 pub struct Cited {
     pub node: Node,
     /// The line's proof: its name, a part of it, `H3.1`, or the line
-    /// read at a letter, `(h n (by parley_side))`.
+    /// read at a letter, `(h n hK1)`.
     pub proof: Printed,
     /// What the line says in Lean, as its `have` or hypothesis states it,
     /// where it is a line of the proof's; None where it is to be written

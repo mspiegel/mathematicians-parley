@@ -1,7 +1,6 @@
 module
 
 public import Polynomials
-public import Tactics
 public import Batteries.Logic
 public import Mathlib.Algebra.Algebra.Basic
 public import Mathlib.Algebra.Algebra.Defs

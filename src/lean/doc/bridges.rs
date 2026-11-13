@@ -5,18 +5,15 @@
 /// A module of `corpus/lean-bridges/`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BridgeModule {
-    Tactics,
     NormTactics,
     SetTactics,
     AlgebraTactics,
     SubstTactics,
-    OrderTactics,
     PowerTactics,
     InstanceTactics,
     ComplexTactics,
     ArithTactics,
     RealTactics,
-    WholeTactics,
     FactorialTactics,
     Roots,
     Counting,
@@ -33,19 +30,16 @@ pub enum BridgeModule {
 
 impl BridgeModule {
     /// Every module, in no order Lean reads.
-    pub const ALL: [BridgeModule; 24] = [
-        BridgeModule::Tactics,
+    pub const ALL: [BridgeModule; 21] = [
         BridgeModule::NormTactics,
         BridgeModule::SetTactics,
         BridgeModule::AlgebraTactics,
         BridgeModule::SubstTactics,
-        BridgeModule::OrderTactics,
         BridgeModule::PowerTactics,
         BridgeModule::InstanceTactics,
         BridgeModule::ComplexTactics,
         BridgeModule::ArithTactics,
         BridgeModule::RealTactics,
-        BridgeModule::WholeTactics,
         BridgeModule::FactorialTactics,
         BridgeModule::Roots,
         BridgeModule::Counting,
@@ -64,18 +58,15 @@ impl BridgeModule {
     /// `LeanBridges.<name>` is written.
     pub fn name(self) -> &'static str {
         match self {
-            BridgeModule::Tactics => "Tactics",
             BridgeModule::NormTactics => "NormTactics",
             BridgeModule::SetTactics => "SetTactics",
             BridgeModule::AlgebraTactics => "AlgebraTactics",
             BridgeModule::SubstTactics => "SubstTactics",
-            BridgeModule::OrderTactics => "OrderTactics",
             BridgeModule::PowerTactics => "PowerTactics",
             BridgeModule::InstanceTactics => "InstanceTactics",
             BridgeModule::ComplexTactics => "ComplexTactics",
             BridgeModule::ArithTactics => "ArithTactics",
             BridgeModule::RealTactics => "RealTactics",
-            BridgeModule::WholeTactics => "WholeTactics",
             BridgeModule::FactorialTactics => "FactorialTactics",
             BridgeModule::Roots => "Roots",
             BridgeModule::Counting => "Counting",
@@ -102,9 +93,7 @@ impl BridgeModule {
 /// tactic.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BridgeTactic {
-    Side,
     Norm,
-    SetSide,
     CountAfter,
     CountExt,
     CountInt,
@@ -122,7 +111,6 @@ pub enum BridgeTactic {
     Subst,
     SubstAt,
     PutAt,
-    Order,
     CastToNat,
     WitnessAt,
     WitnessNotAt,
@@ -135,7 +123,6 @@ pub enum BridgeTactic {
     Suppose,
     Real,
     RatOfReal,
-    WholeSide,
     Roots,
     RootsOrder,
     RootsSplit,
@@ -145,10 +132,8 @@ pub enum BridgeTactic {
 
 impl BridgeTactic {
     /// Every tactic, in no order Lean reads.
-    pub const ALL: [BridgeTactic; 39] = [
-        BridgeTactic::Side,
+    pub const ALL: [BridgeTactic; 35] = [
         BridgeTactic::Norm,
-        BridgeTactic::SetSide,
         BridgeTactic::CountAfter,
         BridgeTactic::CountExt,
         BridgeTactic::CountInt,
@@ -166,7 +151,6 @@ impl BridgeTactic {
         BridgeTactic::Subst,
         BridgeTactic::SubstAt,
         BridgeTactic::PutAt,
-        BridgeTactic::Order,
         BridgeTactic::CastToNat,
         BridgeTactic::WitnessAt,
         BridgeTactic::WitnessNotAt,
@@ -179,7 +163,6 @@ impl BridgeTactic {
         BridgeTactic::Suppose,
         BridgeTactic::Real,
         BridgeTactic::RatOfReal,
-        BridgeTactic::WholeSide,
         BridgeTactic::Roots,
         BridgeTactic::RootsOrder,
         BridgeTactic::RootsSplit,
@@ -190,9 +173,7 @@ impl BridgeTactic {
     /// Its name in Lean.
     pub fn name(self) -> &'static str {
         match self {
-            BridgeTactic::Side => "parley_side",
             BridgeTactic::Norm => "parley_norm",
-            BridgeTactic::SetSide => "parley_set_side",
             BridgeTactic::CountAfter => "parley_count_after",
             BridgeTactic::CountExt => "parley_count_ext",
             BridgeTactic::CountInt => "parley_count_int",
@@ -210,7 +191,6 @@ impl BridgeTactic {
             BridgeTactic::Subst => "parley_subst",
             BridgeTactic::SubstAt => "parley_subst_at",
             BridgeTactic::PutAt => "parley_put_at",
-            BridgeTactic::Order => "parley_order",
             BridgeTactic::CastToNat => "parley_cast_toNat",
             BridgeTactic::WitnessAt => "parley_witness_at",
             BridgeTactic::WitnessNotAt => "parley_witness_not_at",
@@ -223,7 +203,6 @@ impl BridgeTactic {
             BridgeTactic::Suppose => "parley_suppose",
             BridgeTactic::Real => "parley_real",
             BridgeTactic::RatOfReal => "parley_rat_of_real",
-            BridgeTactic::WholeSide => "parley_whole_side",
             BridgeTactic::Roots => "parley_roots",
             BridgeTactic::RootsOrder => "parley_roots_order",
             BridgeTactic::RootsSplit => "parley_roots_split",
@@ -235,10 +214,8 @@ impl BridgeTactic {
     /// The module that defines it, which a file calling it imports.
     pub fn module(self) -> BridgeModule {
         match self {
-            BridgeTactic::Side => BridgeModule::Tactics,
             BridgeTactic::Norm => BridgeModule::NormTactics,
-            BridgeTactic::SetSide
-            | BridgeTactic::CountAfter
+            BridgeTactic::CountAfter
             | BridgeTactic::CountExt
             | BridgeTactic::CountInt
             | BridgeTactic::EncardClosed
@@ -255,7 +232,6 @@ impl BridgeTactic {
             BridgeTactic::Subst | BridgeTactic::SubstAt | BridgeTactic::PutAt => {
                 BridgeModule::SubstTactics
             }
-            BridgeTactic::Order => BridgeModule::OrderTactics,
             BridgeTactic::CastToNat
             | BridgeTactic::WitnessAt
             | BridgeTactic::WitnessNotAt
@@ -266,7 +242,6 @@ impl BridgeTactic {
             BridgeTactic::OfComplex => BridgeModule::ComplexTactics,
             BridgeTactic::Arith | BridgeTactic::Suppose => BridgeModule::ArithTactics,
             BridgeTactic::Real | BridgeTactic::RatOfReal => BridgeModule::RealTactics,
-            BridgeTactic::WholeSide => BridgeModule::WholeTactics,
             BridgeTactic::Roots
             | BridgeTactic::RootsOrder
             | BridgeTactic::RootsSplit

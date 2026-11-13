@@ -1,7 +1,6 @@
 module
 
 public import Divisibility
-public import Tactics
 public import Batteries.Logic
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod

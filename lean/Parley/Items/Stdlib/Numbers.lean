@@ -1,7 +1,6 @@
 module
 
 public import Numbers
-public import Tactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.CharZero.Defs

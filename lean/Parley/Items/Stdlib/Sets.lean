@@ -1,7 +1,6 @@
 module
 
 public import Sets
-public import Tactics
 public import Aesop.BuiltinRules
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs

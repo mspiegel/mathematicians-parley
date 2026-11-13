@@ -1,6 +1,5 @@
 module
 
-public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset

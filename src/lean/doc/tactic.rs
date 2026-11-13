@@ -277,21 +277,6 @@ impl TacticArg {
     }
 }
 
-impl Proof {
-    /// `Tactic::set_side` of every tactic and term of the proof.
-    pub fn set_side(&mut self) {
-        match self {
-            Proof::Term(t) => t.set_side(),
-            Proof::By(t) => t.set_side(),
-            Proof::Block(ts) => {
-                for t in ts {
-                    t.set_side();
-                }
-            }
-        }
-    }
-}
-
 impl Tactic {
     /// Every tactic of the tree, this one first.
     pub fn walk(&self) -> Vec<&Tactic> {
@@ -330,67 +315,6 @@ impl Tactic {
             i += 1;
         }
         out
-    }
-
-    /// The side tactic of sets, `parley_set_side`, wherever the side
-    /// tactic stands, in the proofs and terms inside included: the proof
-    /// is about sets, and its side conditions take their ways as well.
-    pub fn set_side(&mut self) {
-        match self {
-            Tactic::Call { tactic, args } => {
-                if *tactic == TacticRef::Bridge(BridgeTactic::Side) {
-                    *tactic = TacticRef::Bridge(BridgeTactic::SetSide);
-                }
-                for a in args {
-                    match a {
-                        TacticArg::Term(t) | TacticArg::Using(t) => t.set_side(),
-                        TacticArg::Setting { value, .. } => value.set_side(),
-                        TacticArg::Rules(rules) => {
-                            for r in rules {
-                                r.by.set_side();
-                            }
-                        }
-                        TacticArg::Only | TacticArg::Flag(_) | TacticArg::At(_) => {}
-                    }
-                }
-            }
-            Tactic::Exact(t)
-            | Tactic::Fact(t)
-            | Tactic::Name { term: t, .. }
-            | Tactic::Set { value: t, .. }
-            | Tactic::Rcases { from: t, .. }
-            | Tactic::Induction { using: t, .. } => t.set_side(),
-            Tactic::First { ways: ts, .. } | Tactic::Seq(ts) => {
-                for t in ts {
-                    t.set_side();
-                }
-            }
-            Tactic::Group(t)
-            | Tactic::Try(t)
-            | Tactic::AllGoals(t)
-            | Tactic::Bullet(t) => t.set_side(),
-            Tactic::Have { says, proof, .. } | Tactic::Replace { says, proof, .. } => {
-                says.set_side();
-                proof.set_side();
-            }
-            Tactic::Obtain { says, from, .. } => {
-                if let Some(s) = says {
-                    s.set_side();
-                }
-                from.set_side();
-            }
-            Tactic::Calc { first, links } => {
-                first.set_side();
-                for l in links {
-                    l.term.set_side();
-                    if let Some(m) = &mut l.modulus {
-                        m.set_side();
-                    }
-                    l.proof.set_side();
-                }
-            }
-            Tactic::Comment(_) | Tactic::Intro(_) | Tactic::Alternative(_) => {}
-        }
     }
 
     /// The tactic's own syntax with each term a letter, `linarith [a]`:

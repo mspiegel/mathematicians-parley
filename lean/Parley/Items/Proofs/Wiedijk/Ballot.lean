@@ -1,6 +1,5 @@
 module
 
-public import Tactics
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval

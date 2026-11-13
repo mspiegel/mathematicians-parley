@@ -1,7 +1,6 @@
 module
 
 public import Groups
-public import Tactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid

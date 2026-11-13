@@ -1,6 +1,5 @@
 module
 
-public import Tactics
 public import Mathlib.Basic.Logic.Basic
 public import Mathlib.Tactic.NormNum.Basic
 

@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import Tactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.CharP.Defs

@@ -1,7 +1,6 @@
 module
 
 public import Calculus
-public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Algebra.Defs
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs

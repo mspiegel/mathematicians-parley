@@ -1,6 +1,5 @@
 module
 
-public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Analysis.InnerProductSpace.Basic
 public import Mathlib.Analysis.InnerProductSpace.Defs
@@ -8,12 +7,21 @@ public import Mathlib.Analysis.Normed.Group.Defs
 public import Mathlib.Analysis.Normed.Group.Real
 public import Mathlib.Analysis.RCLike.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.ModEq
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
+public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/integral.proof by parley build lean. -/

@@ -1,19 +1,26 @@
 module
 
-public import SetTactics
-public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Int.Parity
 public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Insert
 public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring
 
 /-! Written from tests/elaborator/signed-divisibility.proof by parley build lean. -/
 

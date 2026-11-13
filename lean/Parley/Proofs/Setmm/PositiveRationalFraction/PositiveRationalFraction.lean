@@ -1,21 +1,28 @@
 module
 
 public import AlgebraTactics
-public import Tactics
 public import Batteries.Classes.RatCast
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Cast.CharZero
 public import Mathlib.Data.Rat.Cast.Defs
 public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/positive-rational-fraction.proof by parley build lean. -/

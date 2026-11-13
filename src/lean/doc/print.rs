@@ -543,7 +543,7 @@ mod tests {
             LeanType::Prop,
         );
         let side = Tactic::Call {
-            tactic: TacticRef::Bridge(super::super::bridges::BridgeTactic::Side),
+            tactic: TacticRef::Bridge(super::super::bridges::BridgeTactic::Norm),
             args: Vec::new(),
         };
         let proof = Proof::By(Tactic::First {
@@ -567,7 +567,7 @@ mod tests {
         });
         assert_eq!(
             proof.text(),
-            "by first | exact Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)) | (have h := (x); parley_side)"
+            "by first | exact Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)) | (have h := (x); parley_norm)"
         );
         let names: Vec<&str> = applied
             .constants()

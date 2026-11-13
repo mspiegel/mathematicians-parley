@@ -5,7 +5,12 @@ public import Mathlib.Tactic.NormNum
 public import Lean.Parser.Command
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith.Frontend
-public import Tactics
+public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Ring
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Rify
+public import ParleySimp
 
 /-!
 # Arithmetic, and a contradiction's `suppose` line

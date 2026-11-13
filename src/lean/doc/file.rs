@@ -236,31 +236,6 @@ impl Declaration {
             DeclProof::Steps(_) => BTreeSet::new(),
         }
     }
-
-    /// Whether it is about sets: a binder, a letter it sets or a term of
-    /// Lean's `Set`, a constant of its namespace, or a set counted in ℕ∞.
-    pub fn about_sets(&self) -> bool {
-        let typed = self.binders.iter().any(|b| match b {
-            Binder::Typed { ty: Some(ty), .. } => ty.has_set(),
-            _ => false,
-        });
-        let parts = self.parts();
-        let set_letter = parts
-            .tactics
-            .iter()
-            .any(|t| matches!(t, Tactic::Set { ty, .. } if ty.has_set()));
-        typed || set_letter || parts.terms.iter().any(|t| t.about_sets())
-    }
-
-    /// The proof with the side tactic of sets wherever the side tactic
-    /// stands.
-    pub fn with_set_side(&mut self) {
-        if let DeclProof::Steps(steps) = &mut self.proof {
-            for s in steps {
-                s.tactic.set_side();
-            }
-        }
-    }
 }
 
 /// Every term node and every tactic of a declaration, a proof standing as

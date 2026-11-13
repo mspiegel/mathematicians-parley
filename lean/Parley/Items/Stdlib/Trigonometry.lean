@@ -1,6 +1,5 @@
 module
 
-public import Tactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Defs
