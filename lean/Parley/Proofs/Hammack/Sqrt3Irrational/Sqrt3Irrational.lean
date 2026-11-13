@@ -21,6 +21,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -43,7 +44,7 @@ theorem sqrt3_irrational :
     Irrational (Real.sqrt (3 : ℝ)) := by
   -- 1. def:sqrt x := 3
   have r139_1 : (3 : ℤ) ≥ 0 := by parley_arith
-  have s1 : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by parley_side))
+  have s1 : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by norm_num))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (3 : ℝ)) := by
     intro hS
@@ -71,9 +72,9 @@ theorem sqrt3_irrational :
     have s2_10 : (3 : ℤ) ∣ q := by exact (Parley.Proofs.Hammack.Sqrt3Irrational.ThreeDividesSquare.three_divides_square (n := q) s2_9)
     -- 2.11. exhibit, from 2.5, 2.10
     have r179_1 : (3 : ℤ) > 1 := by parley_arith
-    have s2_11 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(3 : ℤ), ⟨⟨r179_1, s2_5⟩, s2_10⟩⟩
+    have s2_11 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(3 : ℤ), ⟨⟨by norm_num, s2_5⟩, s2_10⟩⟩
     exact s2_1c s2_11
   -- 3. def:irrational x := √3, from 2
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (3 : ℝ)))).mpr ⟨by parley_side, s2⟩
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (3 : ℝ)))).mpr ⟨by trivial, s2⟩
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational

@@ -71,11 +71,11 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.7. mun:reciprocal-order x := n, y := n², from 1.3.5
       have r54_1 : n > 0 := by parley_side
       have r54_2 : n ^ 2 > 0 := by parley_side
-      have s1_3_7 : 1 / (n : ℚ) ^ 2 ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r54_1) (y := (n : ℚ) ^ 2) (by exact_mod_cast gt_iff_lt.mp r54_2))).mp (by parley_side)
+      have s1_3_7 : 1 / (n : ℚ) ^ 2 ≤ 1 / (n : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r54_1) (y := (n : ℚ) ^ 2) (by exact_mod_cast gt_iff_lt.mp r54_2))).mp (by exact_mod_cast s1_3_5)
       -- 1.3.8. mun:reciprocal-order x := N, y := n, from A2
       have r59_1 : N > 0 := by linarith only [s1_2a]
       have r59_2 : n > 0 := by parley_side
-      have s1_3_8 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by parley_side)
+      have s1_3_8 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 1.3.9. inequalities
       have s1_3_9 : 2 * (1 / (n : ℚ) ^ 2) ≤ 2 * (1 / (n : ℚ)) := by linarith only [s1_3_7]
       -- 1.3.10. inequalities
@@ -94,7 +94,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       have s1_3_16 : 0 < a n - 5 := by exact LT.lt.trans_eq (show 2 * (1 / (n : ℝ) ^ 2) > 0 by have h := (Rat.cast_lt (K := ℝ)).mpr s1_3_15; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_pow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h) s1_3_12.symm
       -- 1.3.17. def:abs x := a(n) − 5
       have r99_2 : 0 ≤ a n - 5 := by linarith only [s1_3_16]
-      have s1_3_17 : abs (a n - 5) = a n - 5 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a n - 5)) (by parley_side)
+      have s1_3_17 : abs (a n - 5) = a n - 5 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a n - 5)) r99_2
       -- 1.3.18. transitivity, from 1.3.17, 1.3.13
       exact Eq.trans_lt s1_3_17 s1_3_13
     -- 1.4. exhibit, from 1.3

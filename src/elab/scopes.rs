@@ -3274,19 +3274,20 @@ impl<'a> Elaborator<'a> {
         if !self.file_given {
             self.file_given = true;
             let written = self.checked.outside.clone();
-            for (name, d, src) in self.visible_outside() {
-                let Some(made) = written.get(&name) else {
+            for v in self.visible_outside() {
+                let Some(made) = written.get(&v.name) else {
                     continue;
                 };
-                let label = self.outside_label(&name, &d, src);
-                let line = if src == self.thm.scope {
-                    d.line
+                let label = self.outside_label(&v.name, &v.define, v.scope);
+                let line = if v.scope == self.thm.scope {
+                    v.define.line
                 } else {
                     self.thm.line
                 };
                 let body = self.outside_term(made)?;
-                (scope, facts, closers) = self
-                    .one_define(&label, line, &name, &body, &scope, &facts, closers)?;
+                (scope, facts, closers) = self.one_define(
+                    &label, line, &v.name, &body, &scope, &facts, closers,
+                )?;
             }
         }
         while self.unread < self.thm.defines.len() {

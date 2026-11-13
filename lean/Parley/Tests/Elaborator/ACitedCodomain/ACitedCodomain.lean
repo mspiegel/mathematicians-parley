@@ -20,6 +20,6 @@ theorem a_cited_codomain {α : Type*} (A : Set α) (C : Set α) (B : α) (F : α
   -- 1. proof
   intro hS
   -- 1.1. def:one-to-one f := F, from S
-  exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) (by parley_set_side))).mp hS).2
+  exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) hS.1)).mp hS).2
 
 end Parley.Tests.Elaborator.ACitedCodomain.ACitedCodomain

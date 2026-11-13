@@ -3,11 +3,11 @@ module
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -34,6 +34,6 @@ theorem a_line_is_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x + 1) :
     -- 2.3. exhibit, from 2.2
     exact ⟨(y - 1) / 2, s2_2⟩
   -- 3. def:onto, from 1, 2
-  exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, by simpa only [Set.mem_univ, forall_const, true_and] using s2⟩
 
 end Parley.Tests.Notations.Functions.ALineIsOnto

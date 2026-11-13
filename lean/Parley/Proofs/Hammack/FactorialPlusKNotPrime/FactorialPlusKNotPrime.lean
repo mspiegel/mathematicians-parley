@@ -44,7 +44,7 @@ theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k �
   -- 4. mun:factorial-nat
   have s4 : 0 < (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n) (le_of_lt hH1))
   -- 5. mun:nat-closure a := n!, b := k, from 3
-  have s5 : 0 < (LeanBridges.Counting.factorial n : ℤ) + k := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_1 (a := (LeanBridges.Counting.factorial n : ℤ)) (by parley_side) (b := k) s3)
+  have s5 : 0 < (LeanBridges.Counting.factorial n : ℤ) + k := by exact (Parley.Items.Stdlib.Numbers.mun_nat_closure_1 (a := (LeanBridges.Counting.factorial n : ℤ)) (LeanBridges.Counting.factorial_nat (n) (le_of_lt hH1)) (b := k) s3)
   -- 6. mun:factorial-divisible m := k, from 1, 3
   have s6 : k ∣ (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := n) hH1 (m := k) s3 s1b)
   -- 7. mun:divides-self n := k

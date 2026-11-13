@@ -13,6 +13,7 @@ public import Mathlib.Analysis.Calculus.FDeriv.Defs
 public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Set.Defs
@@ -39,13 +40,13 @@ theorem zero_derivative_ends (a : ℝ) (b : ℝ) (hH3 : a < b) (H : ℝ → ℝ)
   -- 1. def:interval x := a
   have r26_1 : a ≤ a := by linarith
   have r26_2 : a ≤ b := by linarith only [hH3]
-  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r26_1⟩, r26_2⟩
+  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by trivial, r26_1⟩, r26_2⟩
   -- 2. def:interval x := b
   have r31_1 : a ≤ b := by linarith only [hH3]
   have r31_2 : b ≤ b := by linarith
-  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r31_1⟩, r31_2⟩
+  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by trivial, r31_1⟩, r31_2⟩
   -- 3. obtain c: thm:mean-value f := H, from H3, H5, H6
-  obtain ⟨c, s3a, s3b⟩ := (Parley.Proofs.Wiedijk.MeanValue.MeanValue.mean_value (a := a) (b := b) hH3 (f := H) (by parley_set_side) hH5 hH6)
+  obtain ⟨c, s3a, s3b⟩ := (Parley.Proofs.Wiedijk.MeanValue.MeanValue.mean_value (a := a) (b := b) hH3 (f := H) (Set.mapsTo_univ _ _) hH5 hH6)
   -- 4. calculation
   have s4 : (H b - H a) / (b - a) = 0 := by
     calc (H b - H a) / (b - a) = (deriv H) c := by exact s3b.symm

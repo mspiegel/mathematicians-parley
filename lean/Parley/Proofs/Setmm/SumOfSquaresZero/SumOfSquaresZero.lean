@@ -52,9 +52,9 @@ theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
     -- 10. antisymmetry, from 3, 9
     have s10 : B ^ 2 = 0 := le_antisymm s9 s3
     -- 11. mun:square-zero x := A, from 7
-    have s11 : A = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) (by parley_side))
+    have s11 : A = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := A) s7)
     -- 12. mun:square-zero x := B, from 10
-    have s12 : B = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) (by parley_side))
+    have s12 : B = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := B) s10)
     -- 13. join 11, 12
     have s13 : A = 0 ∧ B = 0 := ⟨s11, s12⟩
     exact ⟨(s13).1, (s13).2⟩

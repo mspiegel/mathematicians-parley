@@ -73,7 +73,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
     -- 9.3. mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
     have r59_1 : k > 0 := by parley_side
     have r59_2 : (2 ^ (j + 1).toNat : ℤ) > 0 := by linarith only [s3]
-    exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (2 ^ (j + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by parley_side)
+    exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_1) (y := (2 ^ (j + 1).toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r59_2))).mp (by exact_mod_cast s9_1b)
   -- 10. proof
   -- what this block shows, Lean's types give
   -- 11. mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 9

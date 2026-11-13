@@ -10,6 +10,7 @@ public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
@@ -23,6 +24,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -59,7 +61,7 @@ namespace Parley.Proofs.Wiedijk.Leibniz.SeriesRemainder
 theorem series_remainder :
     (∀ n : ℤ, 0 ≤ n → Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by
   -- 1. membership
-  have r682_1 : ∀ j : ℤ, 0 ≤ j → 0 < 2 * j + 1 := by intro j h_j; (exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * j) (by parley_side)))
+  have r682_1 : ∀ j : ℤ, 0 ≤ j → 0 < 2 * j + 1 := by intro j h_j; (exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * j) (mul_nonneg (by norm_num) (h_j))))
   -- 2. induction on n starting at 0
   intro n h_n
   replace h_n : 0 ≤ n := by omega
@@ -86,7 +88,7 @@ theorem series_remainder :
             have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
             (have h := congrArg (fun t : ℝ => Real.pi / 4 - t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = -1 * (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) := by linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * s2_3
-    simpa only [zero_add, pow_one, Int.reduceAdd, Int.reduceMul, Int.reduceToNat, Nat.reduceAdd, Nat.reduceMul] using s2_4
+    simpa only [zero_add, pow_one, Int.reduceAdd, Int.reduceMul, Int.reduceToNat, Nat.reduceAdd, Nat.reduceMul, Int.cast_zero] using s2_4
   | succ n hK hIH =>
     -- 2.5. mun:sum-last, from 1
     have s2_5 : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℚ) + 1) + 1) := by

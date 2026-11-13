@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -9,6 +8,7 @@ public import Mathlib.Algebra.Group.Even
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Set
@@ -26,7 +26,6 @@ theorem even_in_the_evens :
   -- 1. arithmetic
   have s1 : Even (4 : ℤ) := by parley_arith
   -- 2. def:set-builder u := 4, from D1, 1
-  have hI : (4 : ℤ) ∈ {t : ℤ | 0 < t ∧ Even t} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => Even x)) (X := {n : ℤ | 0 < n}) (u := (4 : ℤ)))).mpr ⟨by parley_set_side, s1⟩)
-  exact hI
+  exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => Even x)) (X := {n : ℤ | 0 < n}) (u := (4 : ℤ)))).mpr ⟨by norm_num, s1⟩
 
 end Parley.Tests.Notations.Sets.EvenInTheEvens

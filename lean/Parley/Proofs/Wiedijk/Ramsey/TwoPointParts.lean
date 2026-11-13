@@ -3,6 +3,8 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
@@ -43,16 +45,16 @@ theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y
       calc (Y.ncard : ℤ) = 2 := by parley_set_side
         _ = 1 + 1 := by norm_num)
     -- 5.2. mun:card-remove X := Y, a := v, k := 1, from C1, 5.1
-    have s5_2 : ((Y \ ({v} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by norm_num) (by parley_set_side))
+    have s5_2 : ((Y \ ({v} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by norm_num) s5_1)
     -- 5.3. obtain w: mun:card-nonempty X := Y ∖ {v}, k := 0, from 5.2
-    obtain ⟨w, s5_3, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := Y \ ({v} : Set α)) (k := (0 : ℤ)) (by norm_num) (by parley_set_side))
+    obtain ⟨w, s5_3, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := Y \ ({v} : Set α)) (k := (0 : ℤ)) (by norm_num) (by simpa only [zero_add, Int.cast_zero] using s5_2))
     -- 5.4. mun:remove-member u := w, a := v, from 5.3
     have s5_4a : w ∈ Y := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).1
     have s5_4b : ¬ w = v := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := Y) (a := v) (u := w))).mp s5_3).2
     -- 5.5. mun:in-subset, from 3, 5.3
     have s5_5 : w ∈ W := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y \ ({v} : Set α)) (Y := W) (u := w) s3 s5_3)
     -- 5.6. mun:card-two a := v, b := w, from C1, H4, 5.4
-    have s5_6 : Y = ({v, w} : Set α) := by exact (Parley.Items.Stdlib.Counting.mun_card_two (Y := Y) (a := v) (b := w) (by parley_set_side) hC1 s5_4a (Ne.symm s5_4b))
+    have s5_6 : Y = ({v, w} : Set α) := by exact (Parley.Items.Stdlib.Counting.mun_card_two (Y := Y) (a := v) (b := w) hH4 hC1 s5_4a (Ne.symm s5_4b))
     -- 5.7. exhibit, from 5.5, 5.6
     have s5_7 : ∃ w ∈ W, Y = ({v, w} : Set α) := ⟨w, s5_5, s5_6⟩
     -- 5.8. mun:or-right, from 5.7

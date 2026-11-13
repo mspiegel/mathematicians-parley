@@ -23,20 +23,43 @@ pub struct Phrase {
     meaning: Node,
 }
 
+/// Where a fact is supplied, with `out` applied to what each line it names
+/// writes there, those inside what lines give together among them.
+fn supplied_written(by: &mut super::record::SuppliedBy, out: &impl Fn(&Node) -> Node) {
+    use super::record::SuppliedBy;
+    match by {
+        SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) => {
+            at.written = out(&at.written)
+        }
+        SuppliedBy::Through { carrier, member } => {
+            supplied_written(carrier, out);
+            supplied_written(member, out);
+        }
+        SuppliedBy::Parts(parts) => {
+            for p in parts {
+                supplied_written(p, out);
+            }
+        }
+        SuppliedBy::Requires { .. }
+        | SuppliedBy::Walked(_)
+        | SuppliedBy::Bound { .. }
+        | SuppliedBy::Identity(_)
+        | SuppliedBy::Unstated => {}
+    }
+}
+
 /// The parts of a definition's right side (`Cited::unfolded`) with `out`
 /// applied to each fact, witness and place.
 fn unfolded_written(
     parts: &mut [super::record::Unfolded],
     out: &impl Fn(&Node) -> Node,
 ) {
-    use super::record::{SuppliedBy, Unfolded};
+    use super::record::Unfolded;
     for part in parts {
         match part {
             Unfolded::Fact { fact, by } => {
                 *fact = out(fact);
-                if let SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) = by {
-                    at.written = out(&at.written);
-                }
+                supplied_written(by, out);
             }
             Unfolded::Witness {
                 value,
@@ -101,14 +124,10 @@ pub fn written_out(
     {
         c.binding = binding(&c.binding);
         for f in &mut c.firsts {
-            f.written = out(&f.written);
+            supplied_written(f, &out);
         }
         for s in &mut c.supplied {
-            if let super::record::SuppliedBy::Line(at)
-            | super::record::SuppliedBy::SaidOnce(at) = &mut s.by
-            {
-                at.written = out(&at.written);
-            }
+            supplied_written(&mut s.by, &out);
         }
         for parts in c.unfolded.iter_mut().flatten() {
             unfolded_written(parts, &out);
@@ -118,11 +137,7 @@ pub fn written_out(
         for e in all.iter_mut().flatten() {
             e.values = binding(&e.values);
             for s in &mut e.shown {
-                if let super::record::SuppliedBy::Line(at)
-                | super::record::SuppliedBy::SaidOnce(at) = &mut s.by
-                {
-                    at.written = out(&at.written);
-                }
+                supplied_written(&mut s.by, &out);
             }
         }
     }
@@ -207,11 +222,7 @@ pub fn written_out(
             .map(|g| &mut g.by)
             .chain(i.conditions.iter_mut().map(|c| &mut c.by));
         for by in bys {
-            if let super::record::SuppliedBy::Line(at)
-            | super::record::SuppliedBy::SaidOnce(at) = by
-            {
-                at.written = out(&at.written);
-            }
+            supplied_written(by, &out);
         }
     }
     for c in written.contradicted.values_mut() {

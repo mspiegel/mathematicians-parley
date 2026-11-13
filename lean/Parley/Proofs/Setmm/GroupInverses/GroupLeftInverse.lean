@@ -6,6 +6,7 @@ public import Tactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Inv
@@ -30,39 +31,39 @@ theorem group_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ 
   have s2 : b ∈ (Set.univ : Set G) := by
     try simp only [hD1] at ⊢
     try push_cast at ⊢
-    exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) hH2)
+    exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) (Set.mem_univ _))
   -- 3. axi:group-inverse-closed a := b, from D2, 2
   have s3 : c ∈ (Set.univ : Set G) := by
     try simp only [hD2] at ⊢
     try push_cast at ⊢
-    exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) s2)
+    exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) (Set.mem_univ _))
   -- 4. axi:group-closed a := b, b := a, from H2, 2
-  have s4 : b * a ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b) (b := a) s2 hH2)
+  have s4 : b * a ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b) (b := a) (Set.mem_univ _) (Set.mem_univ _))
   -- 5. axi:group-closed a := b, b := c, from 2, 3
-  have s5 : b * c ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b) (b := c) s2 s3)
+  have s5 : b * c ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b) (b := c) (Set.mem_univ _) (Set.mem_univ _))
   -- 6. axi:group-inverse a := b, from D2, 2
   have s6 : b * c = (1 : G) := by
     try simp only [hD2] at ⊢
     try push_cast at ⊢
-    exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) s2)
+    exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) (Set.mem_univ _))
   -- 7. axi:group-inverse, from D1, H2
   have s7 : a * b = (1 : G) := by
     try simp only [hD1] at ⊢
     try push_cast at ⊢
-    exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) hH2)
+    exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) (Set.mem_univ _))
   -- 8. calculation
   have s8 : a * (b * c) = (1 : G) * c := by
-    calc a * (b * c) = a * b * c := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := c) hH2 s2 s3).symm
+    calc a * (b * c) = a * b * c := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := a) (b := b) (c := c) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _)).symm
       _ = (1 : G) * c := by parley_subst s7
   -- 9. axi:group-identity a := b, from 2
-  have s9 : b * (1 : G) = b := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) s2)
+  have s9 : b * (1 : G) = b := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b) (Set.mem_univ _))
   -- 10. calculation
   calc a⁻¹ * a = b * a := by simp (disch := omega) only [hD1]
-    _ = b * a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b * a) s4).symm
+    _ = b * a * (1 : G) := (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := b * a) (Set.mem_univ _)).symm
     _ = b * a * (b * c) := by parley_subst s6
-    _ = b * (a * (b * c)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := b * c) s2 hH2 s5)
+    _ = b * (a * (b * c)) := by exact (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := a) (c := b * c) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _))
     _ = b * ((1 : G) * c) := by parley_subst s8
-    _ = b * (1 : G) * c := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := (1 : G)) (c := c) s2 s1 s3).symm
+    _ = b * (1 : G) * c := (Parley.Items.Stdlib.Groups.axi_group_associative (G := G) (a := b) (b := (1 : G)) (c := c) (Set.mem_univ _) (Set.mem_univ _) (Set.mem_univ _)).symm
     _ = b * c := by parley_subst s9
     _ = (1 : G) := by exact s6
 

@@ -27,11 +27,11 @@ namespace Parley.Proofs.Hammack.MobiusInverse.MobiusInverse
 theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) ∧ Set.InjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ∧ Set.SurjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ))) (hH2 : ∀ x ∈ (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ), f x = (5 * x + 1) / (x - 2)) :
     (∀ y ∈ (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ), (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = (2 * y + 1) / (y - 5)) := by
   -- 1. def:one-to-one-onto, from H1
-  have s1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) ∧ Set.InjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mp hH1).1
+  have s1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) ∧ Set.InjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (f := f) hH1.1)).mp hH1).1
   -- 2. def:one-to-one-onto, from H1
-  have s2 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) ∧ Set.SurjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mp hH1).2
+  have s2 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) ∧ Set.SurjOn f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) ((Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (f := f) hH1.1)).mp hH1).2
   -- 3. def:onto, from 2
-  have s3 : ∀ y ∈ (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ), ∃ x ∈ (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ), y = f x := by exact (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mp s2).2
+  have s3 : ∀ y ∈ (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ), ∃ x ∈ (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ), y = f x := by exact (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(5 : ℝ)} : Set ℝ)) (f := f) s2.1)).mp s2).2
   -- 4. proof
   intro y hK1
   -- 4.1. mun:remove-member u := y, Y := ℝ, a := 5, from K1

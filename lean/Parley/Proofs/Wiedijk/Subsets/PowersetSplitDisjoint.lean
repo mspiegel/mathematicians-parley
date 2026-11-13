@@ -22,7 +22,7 @@ theorem powerset_split_disjoint {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ 
   -- 1. proof
   have s1 : ∀ S ∈ 𝒫 (X \ ({a} : Set α)), ¬ S ∪ ({a} : Set α) ∈ 𝒫 (X \ ({a} : Set α)) := by
     intro S hK1
-    intro hS1
+    intro (hS1 : S ∪ ({a} : Set α) ∈ 𝒫 (X \ ({a} : Set α)))
     -- 1.1. mun:in-union-singleton
     have s1_1 : a ∈ S ∪ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_in_union_singleton (Y := S) (a := a))
     -- 1.2. def:powerset S := S ∪ {a}, from S1

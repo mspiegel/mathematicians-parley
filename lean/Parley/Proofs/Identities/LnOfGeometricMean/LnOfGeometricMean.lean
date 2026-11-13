@@ -42,7 +42,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 4. mun:factor-positive a := √(x·y), b := √(x·y), from 2, 3
-  have s4 : Real.sqrt (x * y) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) s2a (by parley_side))
+  have s4 : Real.sqrt (x * y) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) s2a s3)
   -- 5. restate 2
   have s5 : Real.sqrt (x * y) ^ 2 = x * y := by exact s2b
   -- 6. calculation

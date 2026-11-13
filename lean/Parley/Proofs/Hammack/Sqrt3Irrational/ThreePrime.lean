@@ -71,7 +71,7 @@ theorem three_prime :
         -- 2.4.4.8. arithmetic
         have s2_4_4_8 : (3 : ℤ) = 2 * 1 + 1 := by parley_arith
         -- 2.4.4.9. def:odd n := 3, from 2.4.4.8
-        have s2_4_4_9 : Odd (3 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), s2_4_4_8⟩
+        have s2_4_4_9 : Odd (3 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), by norm_num⟩
         -- 2.4.4.10. mun:not-both n := 3, from 2.4.4.7
         have s2_4_4_10 : ¬ Odd (3 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7)
         exact absurd s2_4_4_9 s2_4_4_10
@@ -79,6 +79,6 @@ theorem three_prime :
       -- 2.4.5. mun:or-left, from C2
       exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) hC2.symm)
   -- 3. def:prime p := 3, from 1, 2
-  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by norm_num))).mpr ⟨s1, s2⟩
+  exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by norm_num))).mpr ⟨by norm_num, s2⟩
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime

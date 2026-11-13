@@ -15,6 +15,9 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
@@ -24,6 +27,7 @@ public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -54,7 +58,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) r33_1 (c := (1 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r37_1 : (0 : ℤ) < 1 := by parley_arith
-  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
+  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), x ≠ 1 ∧ abs (x - 1) < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by norm_num))
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
@@ -81,7 +85,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 16. inequalities
   have s16 : 1 + 1 / (N : ℚ) ≠ 1 := ne_of_gt (by linarith only [s15])
   -- 17. mun:remove-member u := 1 + 1/N, from 16
-  have s17 : 1 + 1 / (N : ℝ) ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := 1 + 1 / (N : ℝ)))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  have s17 : 1 + 1 / (N : ℝ) ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := 1 + 1 / (N : ℝ)))).mpr ⟨Set.mem_univ _, (show ¬ 1 + 1 / (N : ℝ) = (1 : ℝ) by have h := (Rat.cast_inj (α := ℝ)).not.mpr s16; simp only [Rat.cast_add, Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h)⟩
   -- 18. mun:reciprocal-order-strict x := 1/p, y := N, from 6, 7, 12, 14
   have s18 : 1 / (N : ℝ) < 1 / (1 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order_strict (x := 1 / p) s6 (y := (N : ℝ)) (by exact_mod_cast gt_iff_lt.mp s14))).mp s12
   -- 19. substitute
@@ -96,12 +100,12 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have r103_1 : 1 / (N : ℚ) ≥ 0 := by linarith only [s15]
   have s21 : abs (1 + 1 / (N : ℝ) - 1) < p := by
     calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by (have h := congrArg (fun t : ℚ => abs t) s20; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (by parley_set_side)
+      _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (show 0 ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr (ge_iff_le.mp r103_1); simp only [Rat.cast_div, Rat.cast_zero, Rat.cast_one, Rat.cast_intCast] at h; exact h)
       _ < p := by exact s19
   -- 22. join 16, 21
   have s22 : 1 + 1 / (N : ℚ) ≠ 1 ∧ abs (1 + 1 / (N : ℝ) - 1) < p := ⟨s16, s21⟩
   -- 23. instantiate x := 1 + 1/N in line 4, from 17, 22
-  have s23 : abs (f (1 + 1 / (N : ℝ)) - L) < 1 := by exact (s4b (1 + 1 / (N : ℝ)) s17 (by parley_set_side))
+  have s23 : abs (f (1 + 1 / (N : ℝ)) - L) < 1 := by exact (s4b (1 + 1 / (N : ℝ)) s17 ⟨(show 1 + 1 / (N : ℝ) ≠ 1 by have h := (Rat.cast_inj (α := ℝ)).not.mpr s22.1; simp only [Rat.cast_add, Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h), s22.2⟩)
   -- 24. inequalities
   have s24 : 1 / (N : ℚ) ≠ 0 := ne_of_gt (by linarith only [s15])
   -- 25. mun:square-positive x := 1/N, from 24

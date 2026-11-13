@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -47,10 +48,10 @@ theorem sum_of_binomials_along_a_diagonal (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (h
         calc S 0 = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (n + j) j : ℤ) : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (LeanBridges.Counting.choose n (0 : ℤ) : ℤ) := by
               have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (n + k) k : ℤ) : ℤ)) = (LeanBridges.Counting.choose (n + 0) (0 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (LeanBridges.Counting.choose (n + j) j : ℤ))) (a := (0 : ℤ))))
-              simpa only [add_zero] using hI
+              simpa only [Int.cast_zero, add_zero] using hI
           _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := n) hH1)
           _ = (LeanBridges.Counting.choose (n + 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := n + 1) (add_nonneg (hH1) (by norm_num))).symm
-      simpa only [add_zero] using s1_1
+      simpa only [add_zero, Int.cast_zero] using s1_1
     | succ m hK hIH =>
       -- 1.2. calculation
       have r31_1 : m ≥ 0 := by parley_side

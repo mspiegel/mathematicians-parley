@@ -22,7 +22,7 @@ namespace Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialInALink
 theorem a_factorial_in_a_link (x : ℝ) (hH2 : x = 1 / (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℝ)) :
     x = 1 - 1 / (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℝ) := by
   -- 1. calculation
-  calc x = 1 / (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℝ) := by parley_side
+  calc x = 1 / (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℝ) := by exact hH2
     _ = 1 - 1 / (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℝ) := by norm_num
 
 end Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialInALink

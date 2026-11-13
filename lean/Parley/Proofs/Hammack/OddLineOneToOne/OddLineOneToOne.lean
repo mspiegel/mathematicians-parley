@@ -3,11 +3,11 @@ module
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -38,6 +38,6 @@ theorem odd_line_one_to_one (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 2 * n + 
     -- 1.2. algebra, from 1.1
     qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1_1
   -- 2. def:one-to-one, from H1, 1
-  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, by simpa only [Set.mem_univ, forall_const] using s1⟩
 
 end Parley.Proofs.Hammack.OddLineOneToOne.OddLineOneToOne

@@ -16,6 +16,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -68,7 +69,7 @@ theorem rational_cube_root_of_two :
   have s14 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s12⟩
   -- 15. exhibit, from 13, 14
   have r109_1 : (2 : ℤ) > 1 := by parley_arith
-  have s15 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r109_1, s13⟩, s14⟩⟩
+  have s15 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨by norm_num, s13⟩, s14⟩⟩
   exact s2c s15
 
 end Parley.Proofs.Hammack.RationalCubeRootOfTwo.RationalCubeRootOfTwo

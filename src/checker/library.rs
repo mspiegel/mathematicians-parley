@@ -1457,7 +1457,7 @@ pub fn parts_in_scope(known: &Known, step: &Step) -> Vec<(Node, Node)> {
 
 /// The two sets a sentence `X ⊆ Y` or `X ∈ 𝒫Y` says the first is inside
 /// the second of; None for any other sentence.
-fn part_pair(said: &Node) -> Option<(Node, Node)> {
+pub(super) fn part_pair(said: &Node) -> Option<(Node, Node)> {
     match (said.notation(), said.children.as_slice()) {
         (SUBSET, [small, big]) => Some((small.clone(), big.clone())),
         (MEMBERSHIP, [small, power]) if power.notation() == POWERSET => power

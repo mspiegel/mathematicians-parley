@@ -45,7 +45,7 @@ theorem one_over_n_tends_to_zero :
       -- 1.2.1. mun:reciprocal-order x := N, y := n, from A2
       have r238_1 : N > 0 := by linarith only [s1_1a]
       have r238_2 : n > 0 := by linarith only [hK2]
-      have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_2))).mp (by parley_side)
+      have s1_2_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r238_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 1.2.2. mun:reciprocal-positive x := n
       have r243_1 : n > 0 := by linarith only [hK2]
       have s1_2_2 : 1 / (n : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r243_1))

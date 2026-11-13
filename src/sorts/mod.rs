@@ -342,9 +342,10 @@ pub struct OutsideDefines {
 impl OutsideDefines {
     pub fn of(thm: &Theorem, env: Env) -> OutsideDefines {
         let mut labels = indexmap::IndexMap::new();
-        for (name, d, src) in visible(env.scopes, thm.scope, thm.line) {
-            let label = if src == thm.scope {
-                Some(d.label)
+        for v in visible(env.scopes, thm.scope, thm.line) {
+            let name = v.name.clone();
+            let label = if v.scope == thm.scope {
+                Some(v.define.label.clone())
             } else {
                 env.scopes[thm.scope].import_label(&name).map(String::from)
             };
@@ -413,8 +414,8 @@ pub fn stated_over(thm: &Theorem, scopes: &[FileScope], item: &str) -> Vec<Strin
     };
     visible(scopes, thm.scope, line)
         .into_iter()
-        .filter(|(_, _, src)| *src == thm.scope)
-        .map(|(_, d, _)| d.label)
+        .filter(|v| v.scope == thm.scope)
+        .map(|v| v.define.label.clone())
         .collect()
 }
 
@@ -439,16 +440,16 @@ fn written_definitions(
     seen: &BTreeSet<(String, usize)>,
 ) -> Definitions {
     let mut out = Definitions::new();
-    for (name, d, src) in visible(env.scopes, scope, line) {
-        let key = (env.scopes[src].path.clone(), d.line);
+    for v in visible(env.scopes, scope, line) {
+        let key = (env.scopes[v.scope].path.clone(), v.define.line);
         if seen.contains(&key) {
             continue; // an import cycle, which `check_imports` reports
         }
         let mut deeper = seen.clone();
         deeper.insert(key);
         // A define that does not read is `check_file_defines`'s to report.
-        if let Ok(Some(made)) = written_definition(&d, src, env, &deeper) {
-            out.insert(name, made);
+        if let Ok(Some(made)) = written_definition(&v.define, v.scope, env, &deeper) {
+            out.insert(v.name.clone(), made);
         }
     }
     out

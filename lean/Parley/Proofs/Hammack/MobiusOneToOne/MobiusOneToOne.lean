@@ -4,12 +4,12 @@ public import AlgebraTactics
 public import InstanceTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -51,6 +51,6 @@ theorem mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     have r29_2 : t - 2 ≠ 0 := fun h => s1_2 (by linarith only [h])
     linear_combination (norm := parley_field) (-((1 / 11 : ℝ) * s * t) + (2 / 11 : ℝ) * s + (2 / 11 : ℝ) * t - (4 / 11 : ℝ)) * s1_3
   -- 2. def:one-to-one, from H1, 1
-  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr ⟨hH1, s1⟩
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, s1⟩
 
 end Parley.Proofs.Hammack.MobiusOneToOne.MobiusOneToOne

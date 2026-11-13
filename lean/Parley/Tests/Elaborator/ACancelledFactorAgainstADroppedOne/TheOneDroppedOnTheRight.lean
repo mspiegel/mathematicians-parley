@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -16,6 +17,6 @@ namespace Parley.Tests.Elaborator.ACancelledFactorAgainstADroppedOne.TheOneDropp
 theorem the_one_dropped_on_the_right (x : ℝ) (k : ℝ) (hH3 : x ≠ 0) (hH4 : 2 * k * x = x) :
     2 * k = 1 := by
   -- 1. mun:multiply-cancel a := 2·k, b := 1, c := x, from H3, H4
-  exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := 2 * k) (b := (1 : ℝ)) (c := x) (by parley_side) hH3)
+  exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := 2 * k) (b := (1 : ℝ)) (c := x) (by simpa only [one_mul] using hH4) hH3)
 
 end Parley.Tests.Elaborator.ACancelledFactorAgainstADroppedOne.TheOneDroppedOnTheRight

@@ -5,7 +5,6 @@ public import Functions
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -89,7 +88,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.10. inequalities, from 1.8
       have s1_10 : p - 1 > 0 := by linarith only [s1_8]
       -- 1.11. mun:product-positive x := p − 1, y := r, from D2, 1.10
-      have s1_11 : (p - 1) * r > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (p : ℚ) - 1) (y := (r : ℚ)) (by exact_mod_cast gt_iff_lt.mp s1_10) (by parley_set_side))
+      have s1_11 : (p - 1) * r > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (p : ℚ) - 1) (y := (r : ℚ)) (by exact_mod_cast gt_iff_lt.mp s1_10) (by exact_mod_cast gt_iff_lt.mp hD2_pos))
       -- 1.12. substitute
       have s1_12 : m - r > 0 := by
         have c1 : (p - 1) * r = m - r := by linear_combination (norm := parley_norm) (-1) * s1_9
@@ -104,7 +103,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.16. inequalities
       have s1_16 : r ≤ N := by linarith only [s1_15]
       -- 1.17. mun:le-cases x := 1, y := r, from D2
-      have s1_17 : 1 < r ∨ 1 = r := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by parley_set_side)
+      have s1_17 : 1 < r ∨ 1 = r := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℚ)) (y := (r : ℚ)))).mp (by exact_mod_cast ge_iff_le.mp hD2_pos)
       -- 1.18. cases, from 1.17
       rcases s1_17 with hC1 | hC2
       · skip
@@ -116,7 +115,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.3. instantiate m := r in IH, from 1.18.2
         have s1_18_3 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (hIH r s1_18_2)
         -- 1.18.4. thm:prime-times-product, from D2, 1.7, 1.18.3
-        have s1_18_4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct.prime_times_product (p := p) s1_7a s1_7b (r := r) (by parley_set_side) s1_18_3)
+        have s1_18_4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct.prime_times_product (p := p) s1_7a s1_7b (r := r) hD2_pos s1_18_3)
         -- 1.18.5. substitute m = p·r (line 1.9) into line 1.18.4
         (have h := Eq.subst (motive := (fun t : ℤ => ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (t = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))))) s1_9.symm s1_18_4; push_cast at h ⊢; all_goals exact_mod_cast h)
       · skip
@@ -133,7 +132,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.7. membership, from D3
         have s1_18_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; parley_set_side
         -- 1.18.8. mun:function-into, from 1.18.7
-        have s1_18_8 : Set.MapsTo e (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := e) (X := (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
+        have s1_18_8 : Set.MapsTo e (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := e) (X := (Set.Icc (1 : ℤ) (1 : ℤ) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Finset.mem_Icc, Set.mem_Icc, Set.mem_ofPred_eq] using s1_18_7))
         -- 1.18.9. D3
         have r295_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by parley_set_side
         have s1_18_9 : e 1 = p := by simp (disch := omega) only [hD3]
@@ -145,11 +144,11 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
             _ = e 1 := by exact s1_18_9
             _ = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_single (t := e) (a := (1 : ℤ))).symm
         -- 1.18.12. exhibit, from 1.18.6, 1.18.8, 1.18.11
-        have s1_18_12 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨(1 : ℤ), by norm_num, e, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+        have s1_18_12 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨(1 : ℤ), by norm_num, e, s1_18_8, ⟨s1_18_11, s1_18_6⟩⟩
         -- 1.18.13. D1, from 1.18.12
         parley_set_side
   -- 2. instantiate N := n in line 1
-  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n hH1 m (by parley_set_side))
+  have s2 : ∀ m : ℤ, m ∈ Finset.Icc 2 n → (∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (m = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat)))) := by intro m h_m; exact (s1 n hH1 m h_m)
   -- 3. def:range-between k := n, a := 2, b := n, from H2
   have r317_1 : n ≤ n := by linarith
   have s3 : n ∈ Finset.Icc (2 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := n) (a := (2 : ℤ)) (b := n))).mpr ⟨hH2, r317_1⟩

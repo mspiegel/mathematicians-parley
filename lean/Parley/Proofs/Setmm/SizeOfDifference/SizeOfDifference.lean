@@ -49,7 +49,7 @@ theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finit
   -- 7. mun:disjoint-empty Y := B, Z := A ∖ B, from 6
   have s7 : B ∩ (A \ B) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := B) (Z := A \ B) s6)
   -- 8. mun:card-disjoint-union X := B, Y := A ∖ B, m := |B|, n := |A ∖ B|, from 4, 5, 7
-  have s8 : ((B ∪ A \ B).ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := B) (Y := A \ B) (m := (B.ncard : ℤ)) (by parley_set_side) (n := ((A \ B).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s7)
+  have s8 : ((B ∪ A \ B).ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := B) (Y := A \ B) (m := (B.ncard : ℤ)) s4 (n := ((A \ B).ncard : ℤ)) s5 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s3 : (B : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s2 : (A \ B : Set α).Finite))]) s7)
   -- 9. substitute
   have s9 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by parley_count_after (by
     have c1 : B ∪ A \ B = A := by exact (Parley.Proofs.Setmm.SizeOfDifference.PartAndRest.part_and_rest (A := A) (B := B) hH4)

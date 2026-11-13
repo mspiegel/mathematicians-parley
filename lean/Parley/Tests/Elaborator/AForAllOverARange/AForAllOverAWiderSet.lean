@@ -27,7 +27,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AForAllOverARange.AForAllOverAWiderSet
 
-theorem a_for_all_over_a_wider_set (k : ℤ) (hH1 : 0 < k) (x : ℝ) (hH3 : True) :
+theorem a_for_all_over_a_wider_set (k : ℤ) (hH1 : 0 < k) (x : ℝ) :
     (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), ((j : ℝ) / x : ℝ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, ((j : ℝ) / x : ℝ)) + ((k : ℝ) + 1) / x := by
   -- 1. mun:sum-extended a := 1, n := k, from H3
   have r31_1 : k ≥ 1 := by linarith only [hH1]

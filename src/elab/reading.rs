@@ -909,9 +909,9 @@ impl<'a> Elaborator<'a> {
         Ok(hypothesis)
     }
 
-    /// (name, define, scope) for each definition the theorem sees from
-    /// outside it: those its file writes above it and those it imports.
-    pub fn visible_outside(&self) -> Vec<(String, DefineLine, ScopeId)> {
+    /// Each definition the theorem sees from outside it: those its file
+    /// writes above it and those it imports.
+    pub fn visible_outside(&self) -> Vec<&'a crate::corpus::proof::Visible> {
         visible(self.scopes, self.thm.scope, self.thm.line)
     }
 

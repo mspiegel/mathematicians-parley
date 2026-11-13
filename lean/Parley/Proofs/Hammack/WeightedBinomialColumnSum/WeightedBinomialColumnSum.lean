@@ -12,6 +12,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -48,14 +49,14 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
       -- 1.1. mun:sum-single a := 0
       have s1_1 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose m m : ℤ) := by
         have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (b * (LeanBridges.Counting.choose (m + b) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 0) m : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))))
-        simpa only [add_zero] using hI
+        simpa only [Int.cast_zero, add_zero] using hI
       -- 1.2. inequalities
       have s1_2 : m + 1 < m + 2 := by linarith
       -- 1.3. def:C n := m + 1, k := m + 2, from 1.2
       have s1_3 : (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m + 1) (add_nonneg (le_of_lt hH1) (by norm_num)) (k := m + 2)) s1_2
       -- 1.4. algebra, from 1.1, 1.3
       have s1_4 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 1) (m + 1) : ℤ) - (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) := by linear_combination (norm := parley_norm) s1_1 + s1_3
-      simpa only [add_zero] using s1_4
+      simpa only [add_zero, Int.cast_zero] using s1_4
     | succ j hK hIH =>
       -- 1.5. mun:sum-extended a := 0, n := j
       have r35_1 : j ≥ 0 := by parley_side

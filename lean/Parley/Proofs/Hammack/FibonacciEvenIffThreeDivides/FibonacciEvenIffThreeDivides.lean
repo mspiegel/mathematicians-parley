@@ -14,6 +14,7 @@ public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
@@ -47,11 +48,11 @@ namespace Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.FibonacciEvenIffThr
 theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (Even (F n) ↔ (3 : ℤ) ∣ n) := by
   -- 1. thm:fibonacci-natural
-  have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
+  have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) hD1)
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. thm:fibonacci-recurrence
-  have s3 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side))
+  have s3 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) hD1)
   -- 4. induction on k starting at 0
   have s4 : ∀ k : ℤ, 0 ≤ k → (Even (F (3 * k)) ∧ Odd (F (3 * k + 1))) ∧ Odd (F (3 * k + 2)) := by
     intro k h_k
@@ -69,7 +70,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
         calc F 1 = G 0 := by exact s4_2
           _ = 1 := by exact s4_3
       -- 4.5. instantiate k := 0 in line 3
-      have s4_5 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s3 (0 : ℤ) (by norm_num))
+      have s4_5 : F 2 = F 0 + F 1 := by simpa only [zero_add, Int.cast_zero] using (s3 (0 : ℤ) (by norm_num))
       -- 4.6. calculation
       have s4_6 : F (3 * 0) = 2 * 0 := by
         calc F (3 * 0) = F 0 := by norm_num
@@ -152,7 +153,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.3. thm:residue-mod-three r := n mod 3, from 5.1, 5.2
     have s5_3 : (n % (3 : ℤ) = 0 ∨ n % (3 : ℤ) = 1) ∨ n % (3 : ℤ) = 2 := by exact (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := n % (3 : ℤ)) s5_1 s5_2)
     -- 5.4. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 5.1, 5.2
-    obtain ⟨q, s5_4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by norm_num) (r := n % (3 : ℤ)) s5_1 s5_2)).mp (by parley_side)
+    obtain ⟨q, s5_4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by norm_num) (r := n % (3 : ℤ)) s5_1 s5_2)).mp rfl
     -- 5.5. algebra, from 5.4
     have s5_5 : q * 3 = n - n % (3 : ℤ) := by linear_combination (norm := parley_norm) s5_4
     -- 5.6. inequalities, from H1
@@ -176,7 +177,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
         _ ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (-1 : ℤ)) (n := q) s5_11)
     -- 5.13. mun:nat0-as-int n := q, from 5.12
     have s5_13 : 0 ≤ q := by
-      have hI : 0 ≤ q := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr ⟨by parley_side, s5_12⟩)
+      have hI : 0 ≤ q := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr ⟨⟨_, rfl⟩, s5_12⟩)
       exact hI
     -- 5.14. cases, from 5.3
     rcases s5_3 with (hC1 | hC2) | hC3

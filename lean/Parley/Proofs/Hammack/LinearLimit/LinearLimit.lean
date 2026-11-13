@@ -7,6 +7,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -62,6 +63,6 @@ theorem linear_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 8 * x - 3) :
     exact ⟨ε / 8, ⟨s1_1, s1_2⟩⟩
   -- 2. def:limit-at D := ℝ, c := 5, L := 37, from 1
   have r62_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r62_1 (c := (5 : ℝ)) (L := (37 : ℝ)))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r62_1 (c := (5 : ℝ)) (L := (37 : ℝ)))).mpr (by simpa only [gt_iff_lt, Set.mem_univ, forall_const] using s1)
 
 end Parley.Proofs.Hammack.LinearLimit.LinearLimit

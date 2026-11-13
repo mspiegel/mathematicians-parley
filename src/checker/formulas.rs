@@ -1007,7 +1007,7 @@ fn header_letters_introduced(
     scope.extend(
         visible(env.scopes, thm.scope, thm.line)
             .into_iter()
-            .map(|(n, _, _)| n),
+            .map(|v| v.name.clone()),
     );
     scope.extend(known.sorts.imported.iter().cloned());
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
@@ -5607,7 +5607,7 @@ pub fn check_method_cites_used(
     scopes: &[FileScope],
 ) {
     let functions = super::citations::defined_functions(
-        thm.defines.iter().chain(&scopes[thm.scope].defines),
+        &crate::corpus::proof::in_scope(thm, scopes),
     );
     for step in &thm.steps {
         let decides: Decides = match step.just.head.method() {
@@ -6885,13 +6885,11 @@ fn membership_claim_refused(step: &Step, known: &Known) -> Option<String> {
 
 /// The labels of the defines a theorem's links may cite: its own, its
 /// file's and those its file imports.
-fn define_labels<'t>(thm: &'t Theorem, scopes: &'t [FileScope]) -> BTreeSet<&'t str> {
-    let scope = &scopes[thm.scope];
-    let mut defines: BTreeSet<&str> =
-        thm.defines.iter().map(|d| d.label.as_str()).collect();
-    defines.extend(scope.defines.iter().map(|d| d.label.as_str()));
-    defines.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
-    defines
+fn define_labels(thm: &Theorem, scopes: &[FileScope]) -> BTreeSet<String> {
+    crate::corpus::proof::in_scope(thm, scopes)
+        .into_iter()
+        .filter_map(|d| d.label)
+        .collect()
 }
 
 /// How the two sides of a link citing a define meet once the define is
@@ -7142,20 +7140,11 @@ pub fn check_chain_links(
 /// The name the define carrying `label` gives, or None: one this theorem
 /// writes, one its file writes, or one its file imports under an alias.
 fn define_named(thm: &Theorem, label: &str, scopes: &[FileScope]) -> Option<String> {
-    let scope = &scopes[thm.scope];
-    for d in thm.defines.iter().chain(scope.defines.iter()) {
-        if d.label == label {
-            return match define_parts(&d.text) {
-                Built(said) => said.name().map(String::from),
-                Declined(_) => None,
-            };
-        }
-    }
-    scope
-        .imports
-        .iter()
-        .find(|i| i.label.as_deref() == Some(label))
-        .map(|i| i.alias.clone())
+    // A recursion gives no one name.
+    crate::corpus::proof::in_scope(thm, scopes)
+        .into_iter()
+        .find(|d| d.label.as_deref() == Some(label))
+        .and_then(|d| d.parts.name().map(|_| d.name))
 }
 
 /// The define by recursion this theorem writes under `label`, with the line

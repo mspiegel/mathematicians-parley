@@ -12,6 +12,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Parley.Items.Stdlib.Sums
@@ -28,10 +29,10 @@ theorem values_of_an_obtained_function (n : ℤ) (hH1 : 0 < n) (m : ℤ) (hH2 : 
   obtain ⟨g, s1a, s1b⟩ := hH3
   -- 2. def:range-between k := 1, a := 1, b := n, from H1
   have r115_1 : (1 : ℤ) ≤ 1 := by parley_arith
-  have s2 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := n))).mpr ⟨r115_1, hH1⟩
+  have s2 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := n))).mpr ⟨by norm_num, hH1⟩
   -- 3. inequalities
   have s3 : g 1 ≤ g 1 := by linarith
   -- 4. exhibit, from 1, 3
-  exact ⟨g, by parley_set_side, by parley_set_side⟩
+  exact ⟨g, s1a, s3⟩
 
 end Parley.Tests.Elaborator.SetsADefineNames.ValuesOfAnObtainedFunction

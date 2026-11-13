@@ -10,7 +10,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ADerivativeTyped.ADerivativeTyped
 
-theorem a_derivative_typed (f : ℝ → ℝ) (hH2 : True) :
+theorem a_derivative_typed (f : ℝ → ℝ) :
     True := by
   -- 1. restate H2
   exact trivial

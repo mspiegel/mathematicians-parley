@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -16,6 +15,7 @@ public import Mathlib.Analysis.Calculus.FDeriv.Defs
 public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Set.Defs
@@ -83,7 +83,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
     -- what this block shows, Lean's types give
     exact trivial
   -- 11. mun:function-into, from 10
-  have s11 : Set.MapsTo F (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s11 : Set.MapsTo F (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 12. proof
   have s12 : ∀ t ∈ (Set.Ioo a b : Set ℝ), True := by
     intro t hK4
@@ -93,7 +93,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
     -- what this block shows, Lean's types give
     exact trivial
   -- 13. mun:function-into, from 12
-  have s13 : Set.MapsTo G (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := G) (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s13 : Set.MapsTo G (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := G) (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 14. thm:continuous-extension U := (a, b), L := 0, from H3, H6, H8, 1, 6, 8, 11
   have r432_1 : IsOpen (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := a) (b := b))
   have s14 : ContinuousOn F (Set.Ioo a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_extension (f := f) (F := F) (U := (Set.Ioo a b : Set ℝ)) (c := c) s1 r432_1 hH3 (L := (0 : ℝ)) s8 s6 hH6 hH8)
@@ -121,8 +121,8 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 22. mun:remove-member, from H11
   have s22 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp hH11
   -- 23. thm:quotient-two-points u := c, v := x, from H3, 11, 13, 14, 15, 17, 19, 21, 22
-  have s23a : G c ≠ G x := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (by parley_set_side) (G := G) (by parley_set_side) s14 s15 s17 s19 s21).1
-  have s23b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ (F x - F c) / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (by parley_set_side) (G := G) (by parley_set_side) s14 s15 s17 s19 s21).2
+  have s23a : G c ≠ G x := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (Set.mapsTo_univ _ _) (G := G) (Set.mapsTo_univ _ _) s14 s15 s17 s19 s21).1
+  have s23b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ (F x - F c) / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by exact (Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints.quotient_two_points (a := a) (b := b) (u := c) hH3 (v := x) s22.1 s22.2 (F := F) (Set.mapsTo_univ _ _) (G := G) (Set.mapsTo_univ _ _) s14 s15 s17 s19 s21).2
   -- 24. restate 23
   have s24 : G c ≠ G x := by exact s23a
   -- 25. substitute G(c) = 0 (line 7) into line 24

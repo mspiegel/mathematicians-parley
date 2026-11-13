@@ -1,11 +1,9 @@
 module
 
 public import AlgebraTactics
-public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -19,6 +17,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
@@ -79,9 +78,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       -- 4.2.3. instantiate i := i in line 2, from 4.2.2
       have s4_2_3 : Nat.Prime (g i).toNat := by exact (s2d i s4_2_2)
       -- 4.2.4. substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
-      have r76_1 : 0 < g i := by
-        have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s4_2_2) (by parley_whole_side)))
-        exact hI
+      have r76_1 : 0 < g i := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s4_2_2) s2b)
       (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s4_2_1.symm s4_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
       -- 4.2.5. D2, from C2, K2
@@ -104,9 +101,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have r105_1 : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := j + 1) (k := i) hK3)
       have s5_2_2 : i ∈ Finset.Icc (1 : ℤ) j := ((Parley.Items.Stdlib.Sums.def_range_between (k := i) (a := (1 : ℤ)) (b := j))).mpr ⟨r105_1, hC3⟩
       -- 5.2.3. mun:function-value f := g, from 5.2.2
-      have s5_2_3 : 0 < g i := by
-        have hI : 0 < g i := by parley_instance ((Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_2_2) (by parley_whole_side)))
-        exact hI
+      have s5_2_3 : 0 < g i := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_2_2) s2b)
       -- 5.2.4. substitute h(i) = g(i) (line 5.2.1) into line 5.2.3
       (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s5_2_1.symm s5_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
     · skip
@@ -115,10 +110,10 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       -- 5.2.6. substitute h(i) = p (line 5.2.5) into H1
       (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s5_2_5.symm hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 6. mun:function-into, from 5
-  have s6 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (1 : ℤ) (j + 1) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
+  have s6 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (1 : ℤ) (j + 1) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Finset.mem_Icc, Set.mem_Icc, Set.mem_ofPred_eq] using s5))
   -- 7. mun:product-termwise a := 1, b := j, t := h, u := g, from 3
   have r128_1 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact s6
-  have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) s3 (by parley_set_side) (by parley_set_side))
+  have s7 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_product_termwise (t := h) (u := g) (X := (Set.univ : Set ℤ)) (Z := Set.univ) (Y := (Set.univ : Set ℤ)) (W := Set.univ) (a := (1 : ℤ)) (b := j) s3 (Set.mapsTo_univ _ _) (Set.mapsTo_univ _ _))
   -- 8. inequalities
   have s8 : ¬ j + 1 ≤ j := by linarith
   -- 9. def:range-between k := j + 1, a := 1, b := j + 1
@@ -138,7 +133,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) s7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1).symm
   -- 13. exhibit, from 4, 6, 12
-  have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, add_pos (s2a) (by norm_num), h, by parley_set_side, ⟨by parley_set_side, by parley_set_side⟩⟩
+  have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, add_pos (s2a) (by norm_num), h, s6, ⟨s12, s4⟩⟩
   -- 14. D1, from 13
   parley_set_side
 

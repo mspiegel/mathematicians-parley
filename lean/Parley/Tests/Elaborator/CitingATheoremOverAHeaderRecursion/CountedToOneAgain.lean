@@ -17,6 +17,6 @@ namespace Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOn
 theorem counted_to_one_again (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ (∀ n : ℤ, 0 ≤ n → F (n + 1) = F n + 1)) :
     F 1 = 1 := by
   -- 1. thm:counted-to-one
-  exact (Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne.counted_to_one (F := F) (by parley_side))
+  exact (Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne.counted_to_one (F := F) hD1)
 
 end Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOneAgain

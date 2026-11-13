@@ -31,7 +31,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 3. mun:mod-less
   have s3 : a % b < b := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := b) hH2)
   -- 4. obtain q: mun:mod-remainder m := b, r := a mod b, from 2, 3
-  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := b) hH2 (r := a % b) s2 s3)).mp (by parley_side)
+  obtain ⟨q, s4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := b) hH2 (r := a % b) s2 s3)).mp rfl
   -- 5. axi:excluded-middle P := a mod b = 0
   have s5 : a % b = 0 ∨ a % b ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a % b = 0))
   -- 6. cases, from 5

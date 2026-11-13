@@ -111,7 +111,7 @@ theorem halves_series :
       -- 3.2.4. mun:reciprocal-order x := N, y := 2^n, from 3.2.3
       have r115_1 : N > 0 := by linarith only [s3_1a]
       have r115_2 : (2 ^ n.toNat : ℤ) > 0 := by linarith only [s3_2_1]
-      have s3_2_4 : 1 / 2 ^ n.toNat ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_1) (y := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_2))).mp (by parley_side)
+      have s3_2_4 : 1 / 2 ^ n.toNat ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_1) (y := (2 ^ n.toNat : ℚ)) (by exact_mod_cast gt_iff_lt.mp r115_2))).mp (by exact_mod_cast s3_2_3)
       -- 3.2.5. transitivity, from 3.2.4, 3.1
       have s3_2_5 : 1 / 2 ^ n.toNat < ε := by exact lt_of_le_of_lt (show 1 / 2 ^ n.toNat ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s3_2_4; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h) s3_1b
       -- 3.2.6. mun:reciprocal-positive x := 2^n

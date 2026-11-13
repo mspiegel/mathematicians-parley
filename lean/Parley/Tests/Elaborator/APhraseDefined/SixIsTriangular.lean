@@ -23,7 +23,7 @@ theorem six_is_triangular :
   -- 1. arithmetic
   have s1 : (6 : ℚ) = 3 * (3 + 1) / 2 := by parley_arith
   -- 2. exhibit, from 1
-  have s2 : ∃ k : ℤ, 0 < k ∧ 6 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(3 : ℤ), by norm_num, by (have h := s1; push_cast at h ⊢; all_goals exact h)⟩
+  have s2 : ∃ k : ℤ, 0 < k ∧ 6 = (k : ℚ) * ((k : ℚ) + 1) / 2 := ⟨(3 : ℤ), by norm_num, by norm_num⟩
   -- 3. D1 n := 6, from 2
   parley_side
 

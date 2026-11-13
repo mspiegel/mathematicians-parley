@@ -30,7 +30,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
   have r61_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
   have s1 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [hH3])
   -- 2. mun:card-positive, from 1
-  have s2 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side))
+  have s2 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s1; rw [← Set.Finite.cast_ncard_eq ((hH2 : (X : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
   -- 3. obtain v: mun:nonempty-member, from 2
   obtain ⟨v, s3, _⟩ := (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := X) s2)
   -- 4. mun:singleton-subset, from 3
@@ -53,6 +53,6 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
   -- 8. D1, from 6, 7
   have s8 : 1 ≤ (({v} : Set α).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G) := by parley_set_side
   -- 9. exhibit, from 4, 8
-  exact ⟨({v} : Set α), s4, ⟨by parley_set_side, by parley_set_side⟩⟩
+  exact ⟨({v} : Set α), s4, s8⟩
 
 end Parley.Proofs.Wiedijk.Ramsey.OnePointPart

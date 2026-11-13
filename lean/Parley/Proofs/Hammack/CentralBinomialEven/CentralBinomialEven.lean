@@ -57,7 +57,7 @@ theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
   -- 8. algebra, from 6
   have s8 : (LeanBridges.Counting.choose (2 * n) n : ℤ) * n = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) * n := by linear_combination (norm := parley_norm) s6
   -- 9. mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 8
-  have s9 : (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (LeanBridges.Counting.choose (2 * n) n : ℤ)) (b := 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ)) (c := n) (by parley_side) hH1.ne')
+  have s9 : (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (LeanBridges.Counting.choose (2 * n) n : ℤ)) (b := 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ)) (c := n) s8 hH1.ne')
   -- 10. def:even n := C(2n, n), from 9
   exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose (2 * n) n : ℤ)))).mpr ⟨(LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ), s9⟩
 

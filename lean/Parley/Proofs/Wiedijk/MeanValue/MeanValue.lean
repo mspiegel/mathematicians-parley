@@ -3,7 +3,6 @@ module
 public import AlgebraTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Module.Defs
@@ -45,11 +44,11 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 2. def:interval x := a
   have r32_1 : a ≤ a := by linarith
   have r32_2 : a ≤ b := by linarith only [hH3]
-  have s2 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r32_1⟩, r32_2⟩
+  have s2 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by trivial, r32_1⟩, r32_2⟩
   -- 3. def:interval x := b
   have r37_1 : a ≤ b := by linarith only [hH3]
   have r37_2 : b ≤ b := by linarith
-  have s3 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r37_1⟩, r37_2⟩
+  have s3 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by trivial, r37_1⟩, r37_2⟩
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   set m : ℝ := (f a - f b) / (b - a) with hD1
@@ -63,12 +62,12 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   -- 7. membership, from D2
   have s7 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; parley_set_side
   -- 8. mun:function-into, from 7
-  have s8 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s8 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 9. membership, from D2, D3
   have r68_1 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; (parley_set_side)
   have s9 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; parley_set_side
   -- 10. mun:function-into, from 9
-  have s10 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s10 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 11. thm:continuous-linear D := [a, b], from 4, 5
   have r76_1 : Set.MapsTo g (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s11 : ContinuousOn g (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_linear (g := g) (D := (Set.Icc a b : Set ℝ)) s4 (m := m) s5)

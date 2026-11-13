@@ -619,6 +619,16 @@ pub enum Meets {
     /// `Finset.Icc a b`, is read as the set the other writes, `Set.Icc a
     /// b`: `simpa only [Finset.mem_Icc, Set.mem_Icc] using` it.
     Ranges,
+    /// Alike once the whole of a type is read away as `simp` reads it by
+    /// `Set.mem_univ`: `∀ x ∈ Set.univ, P` as `∀ x, P`, `∃ x ∈ Set.univ, P`
+    /// as `∃ x, P` and `{x ∈ Set.univ | P}` as `{x | P}`, with the identity
+    /// elements dropped where `rules` names them, and the letters whose
+    /// `set` equations `through` names put as their values: `simpa only
+    /// [..] using` it, by the rewrites `universe_rules` names.
+    Universe {
+        rules: Vec<&'static str>,
+        through: Vec<String>,
+    },
     /// Alike once casts are pushed down onto the parts they cast, as
     /// `push_cast` takes them, the letters whose `set` equations `through`
     /// names put as their values first, which `push_cast` does not look
@@ -662,16 +672,33 @@ pub fn relation_type(term: &Term) -> Option<LeanType> {
 /// types left to Lean, is not known to be in the other's.
 pub fn relation_types_agree(a: &Term, b: &Term) -> bool {
     match (relation_type(a), relation_type(b)) {
-        (Some(x), Some(y)) => x == y,
+        (Some(x), Some(y)) => x == y || x.open() || y.open(),
         (None, None) => true,
+        // Lean takes a member's type from its set, so a membership whose
+        // member one side alone ascribes, `(∅ : Set α) ∈ F` beside `∅ ∈
+        // F`, is in the other's; and a membership of a set-builder is what
+        // the set-builder says of the member (`unfolded`), compared as that.
+        _ => is_membership(a) || is_membership(b),
+    }
+}
+
+/// Whether the statement is a membership or its negation, `x ∈ S`, `x ∉ S`.
+fn is_membership(term: &Term) -> bool {
+    match &term.kind {
+        TermKind::Paren(inner) | TermKind::Not(inner) => is_membership(inner),
+        TermKind::Infix { op, .. } => matches!(op.symbol, "∈" | "∉"),
         _ => false,
     }
 }
 
 /// Whether the two state their relation in two types their trees both
-/// give, `1 ≤ 1/2` in ℝ beside it in ℚ.
+/// give, `1 ≤ 1/2` in ℝ beside it in ℚ. A type an item leaves for its
+/// citation to give (`LeanType::open`) is apart from none.
 pub fn relation_types_apart(a: &Term, b: &Term) -> bool {
-    matches!((relation_type(a), relation_type(b)), (Some(x), Some(y)) if x != y)
+    matches!(
+        (relation_type(a), relation_type(b)),
+        (Some(x), Some(y)) if x != y && !x.open() && !y.open()
+    )
 }
 
 /// How `given` stands to `line` (`Meets`), each letter of `values` read as
@@ -722,10 +749,36 @@ pub fn meets(given: &Term, line: &Term, values: &Values) -> Option<Meets> {
         identities_dropped(&line, &mut used),
     );
     if dropped_given == dropped_line {
+        // Each 0 or 1 Lean casts up is the numeral by its cast's rewrite.
+        used.extend(cast_unit_lemmas(given_written));
+        used.extend(cast_unit_lemmas(line_written));
         return Some(Meets::Identities(used.into_iter().collect()));
     }
     if ranges_as_sets(&given) == ranges_as_sets(&line) {
         return Some(Meets::Ranges);
+    }
+    // A member of a set-builder over the whole of a type is read as what
+    // the set-builder says of it once the whole is read away.
+    let whole = |t: &Term| {
+        let dropped = universe_dropped(t);
+        let changed = dropped != *t;
+        (
+            renamed_bound(&unfolded(&dropped), &mut 0).untyped(),
+            changed,
+        )
+    };
+    let ((given_whole, given_changed), (line_whole, line_changed)) =
+        (whole(&given), whole(&line));
+    if given_changed || line_changed {
+        let mut used = std::collections::BTreeSet::new();
+        if identities_dropped(&given_whole, &mut used)
+            == identities_dropped(&line_whole, &mut used)
+        {
+            return Some(Meets::Universe {
+                rules: universe_rules(given_written, line_written, values, used),
+                through: equations_named(given_written, line_written, values),
+            });
+        }
     }
     casts_alike(given_written, line_written, values, false)
 }
@@ -752,6 +805,124 @@ fn ranges_as_sets(term: &Term) -> Term {
         _ => {}
     }
     out
+}
+
+/// Whether the term is the whole of its type, `(Set.univ : Set ℤ)`.
+fn is_universe(term: &Term) -> bool {
+    match &bare(term).kind {
+        TermKind::Const(c) => c.name == "Set.univ",
+        TermKind::Cast { inner, .. } => is_universe(inner),
+        _ => false,
+    }
+}
+
+/// Whether the statement is a membership of the whole of a type, the
+/// guard `x ∈ Set.univ`.
+fn in_universe(term: &Term) -> bool {
+    matches!(&bare(term).kind, TermKind::Infix { op, rhs, .. }
+        if op.symbol == "∈" && is_universe(rhs))
+}
+
+/// The term with the whole of a type read away, as `simp` reads it by
+/// `Set.mem_univ`: `∀ x ∈ Set.univ, P` as `∀ x, P`, `∃ x ∈ Set.univ, P`
+/// as `∃ x, P`, and `{x ∈ Set.univ | P}` as `{x | P}`.
+fn universe_dropped(term: &Term) -> Term {
+    let mut out = term.clone();
+    for c in out.children_mut() {
+        *c = universe_dropped(c);
+    }
+    match &mut out.kind {
+        TermKind::Quantified { guard, bounded, .. }
+            if guard.as_deref().is_some_and(in_universe) =>
+        {
+            *guard = None;
+            *bounded = false;
+        }
+        TermKind::Bound { form, .. } if matches!(&*form, BoundForm::SetOfMember { set } if is_universe(set)) =>
+        {
+            *form = BoundForm::SetOf;
+        }
+        // `x ∈ Set.univ ∧ P` as `P`: a member of a set-builder over the
+        // whole of a type, as `unfolded` reads one.
+        TermKind::Infix { op, lhs, rhs } if op.symbol == "∧" && in_universe(lhs) => {
+            return (**rhs).clone();
+        }
+        _ => {}
+    }
+    out
+}
+
+/// The rewrites that read `given` and `line`, each letter of `values` put as
+/// its value, alike as `universe_dropped` reads them, the identity rules
+/// `identities` after them: `Set.mem_univ` with `forall_const` for a "for
+/// all" over the whole of a type and `true_and` for a "there is",
+/// `Set.sep_univ` for a set-builder over it, `Set.mem_ofPred_eq` for a
+/// member of a set-builder, and `gt_iff_lt` and `ge_iff_le` for an order
+/// Lean writes the other way.
+fn universe_rules(
+    given: &Term,
+    line: &Term,
+    values: &Values,
+    identities: std::collections::BTreeSet<&'static str>,
+) -> Vec<&'static str> {
+    let mut rules = Vec::new();
+    let mut add = |rule: &'static str| {
+        if !rules.contains(&rule) {
+            rules.push(rule);
+        }
+    };
+    for side in [given, line] {
+        for t in with_values(side, values, 8).walk() {
+            match &t.kind {
+                TermKind::Quantified { quant, guard, .. }
+                    if guard.as_deref().is_some_and(in_universe) =>
+                {
+                    add("Set.mem_univ");
+                    add(match quant {
+                        super::term::Quant::Exists => "true_and",
+                        _ => "forall_const",
+                    });
+                }
+                TermKind::Bound { form, .. } => match form {
+                    BoundForm::SetOfMember { set } if is_universe(set) => {
+                        add("Set.sep_univ");
+                        add("Set.mem_ofPred_eq");
+                    }
+                    BoundForm::SetOf => add("Set.mem_ofPred_eq"),
+                    _ => {}
+                },
+                TermKind::Infix { op, lhs, .. }
+                    if op.symbol == "∧" && in_universe(lhs) =>
+                {
+                    add("Set.mem_univ");
+                    add("true_and");
+                }
+                TermKind::Infix { op, .. } if op.symbol == ">" => add("gt_iff_lt"),
+                TermKind::Infix { op, .. } if op.symbol == "≥" => add("ge_iff_le"),
+                _ => {}
+            }
+        }
+    }
+    rules.extend(identities);
+    rules
+}
+
+/// The `set` equations of the letters of `values` that `given` or `line`
+/// names.
+fn equations_named(given: &Term, line: &Term, values: &Values) -> Vec<String> {
+    let named: std::collections::BTreeSet<&str> = [given, line]
+        .iter()
+        .flat_map(|t| t.walk())
+        .filter_map(|t| match &t.kind {
+            TermKind::Letter(l) => Some(l.as_str()),
+            _ => None,
+        })
+        .collect();
+    values
+        .iter()
+        .filter(|(name, _)| named.contains(name.as_str()))
+        .map(|(_, v)| v.equation.clone())
+        .collect()
 }
 
 /// `Meets::Casts` where the two are alike once their casts are pushed
@@ -785,20 +956,10 @@ fn casts_alike(
     if valued(given) != valued(line) {
         return None;
     }
-    let named: std::collections::BTreeSet<&str> = [given, line]
-        .iter()
-        .flat_map(|t| t.walk())
-        .filter_map(|t| match &t.kind {
-            TermKind::Letter(l) => Some(l.as_str()),
-            _ => None,
-        })
-        .collect();
-    let through = values
-        .iter()
-        .filter(|(name, _)| named.contains(name.as_str()))
-        .map(|(_, v)| v.equation.clone())
-        .collect();
-    Some(Meets::Casts { through, lift })
+    Some(Meets::Casts {
+        through: equations_named(given, line, values),
+        lift,
+    })
 }
 
 /// The term as `simp` reads it, each function written by its rule applied
@@ -1241,6 +1402,19 @@ fn identities_dropped(
             return (**inner).clone();
         }
     }
+    // A 0 or 1 cast up, `((0 : ℤ) : ℝ)`, is the numeral before an identity
+    // is dropped beside it; the cast's rewrite is named from the typed term
+    // (`meets`, `cast_unit_lemmas`).
+    if let TermKind::Cast { inner, .. } = &out.kind {
+        if let TermKind::Numeral(n) = &bare(inner).kind {
+            if n == "0" || n == "1" {
+                return Term {
+                    kind: TermKind::Numeral(n.clone()),
+                    ty: out.ty.clone(),
+                };
+            }
+        }
+    }
     if let TermKind::Infix { op, lhs, rhs } = &out.kind {
         let kept = match op.symbol {
             "+" if numeral(rhs, "0") => Some((lhs, "add_zero")),
@@ -1429,8 +1603,10 @@ pub fn denied(term: &Term) -> Option<Term> {
 
 /// The term with no bracket the writer kept, each `a ≠ b` written
 /// `¬ a = b`, each `x ∉ A` written `¬ x ∈ A`, and each `a ≥ b` and `a > b`
-/// written `b ≤ a` and `b < a`, as Lean's notations unfold.
-fn unfolded(term: &Term) -> Term {
+/// written `b ≤ a` and `b < a`, as Lean's notations unfold; and each
+/// membership Mathlib defines as a statement written as that statement,
+/// `A ⊆ B` of `A ∈ 𝒫 B` and `0 < n` of `n ∈ {n : ℤ | 0 < n}`.
+pub fn unfolded(term: &Term) -> Term {
     use super::term::Op;
     match &term.kind {
         TermKind::Paren(inner) => return unfolded(inner),
@@ -1443,6 +1619,71 @@ fn unfolded(term: &Term) -> Term {
     let mut out = term.clone();
     for c in out.children_mut() {
         *c = unfolded(c);
+    }
+    if let TermKind::Infix { op, lhs, rhs } = &out.kind {
+        if op.symbol == "∈" {
+            match &bare(rhs).kind {
+                // Mathlib defines a member of a power set as a part.
+                TermKind::Prefix {
+                    mark: super::term::PrefixMark::Powerset,
+                    inner,
+                } => {
+                    if let Some(subset) = Op::of("⊆") {
+                        return Term {
+                            kind: TermKind::Infix {
+                                op: subset,
+                                lhs: lhs.clone(),
+                                rhs: inner.clone(),
+                            },
+                            ty: out.ty.clone(),
+                        };
+                    }
+                }
+                TermKind::Bound {
+                    form: super::term::BoundForm::SetOf,
+                    letter,
+                    body,
+                    ..
+                } => {
+                    let given = std::collections::BTreeMap::from([(
+                        letter.clone(),
+                        (**lhs).clone(),
+                    )]);
+                    return unfolded(&body.substituted(&given));
+                }
+                // Mathlib defines a member of `{t ∈ S | P t}` as `x ∈ S ∧
+                // P x`.
+                TermKind::Bound {
+                    form: super::term::BoundForm::SetOfMember { set },
+                    letter,
+                    body,
+                    ..
+                } => {
+                    let given = std::collections::BTreeMap::from([(
+                        letter.clone(),
+                        (**lhs).clone(),
+                    )]);
+                    let member = Term {
+                        kind: TermKind::Infix {
+                            op: *op,
+                            lhs: lhs.clone(),
+                            rhs: set.clone(),
+                        },
+                        ty: out.ty.clone(),
+                    };
+                    let both = Term {
+                        kind: TermKind::Infix {
+                            op: Op::AND,
+                            lhs: Box::new(member),
+                            rhs: Box::new(body.substituted(&given)),
+                        },
+                        ty: out.ty.clone(),
+                    };
+                    return unfolded(&both);
+                }
+                _ => {}
+            }
+        }
     }
     if let TermKind::Infix { op, lhs, rhs } = &out.kind {
         let flipped = match op.symbol {

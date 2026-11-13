@@ -4,7 +4,6 @@ public import ArithTactics
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -12,6 +11,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -43,7 +43,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
   have s2 : ∀ y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)), y ∈ (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) := by
     intro y hK1
     -- 2.1. obtain s: def:image u := y, Y := [−3, 5], from K1, 1
-    obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (u := y) (W := Set.univ) s1 (by parley_whole_side))).mp hK1
+    obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (u := y) (W := Set.univ) s1 (Set.mapsTo_univ _ _))).mp hK1
     -- 2.2. def:interval a := −3, b := 5, x := s, from 2.1
     have s2_2a : -3 ≤ s := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).1.2
     have s2_2b : s ≤ 5 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mp s2_1a).2
@@ -76,7 +76,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
         _ ≤ 28 := by exact s2_11
     -- 2.13. membership, from 2.3
     -- 2.14. def:interval a := 3, b := 28, x := y, from 2.6, 2.12, 2.13
-    exact ((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mpr ⟨⟨by parley_set_side, s2_6⟩, s2_12⟩
+    exact ((Parley.Items.Stdlib.Calculus.def_interval (x := y) (a := (3 : ℝ)) (b := (28 : ℝ)))).mpr ⟨⟨by trivial, s2_6⟩, s2_12⟩
   -- 3. def:subset, from 2
   have s3 : f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) ⊆ (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Sets.def_subset (X := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))) (Y := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)))).mpr s2
   -- 4. proof
@@ -99,15 +99,15 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
         _ = 5 ^ 2 := by norm_num
     -- 4.6. mun:square-le x := √(y − 3), y := 5, from 4.3, 4.5
     have r121_1 : (0 : ℤ) ≤ 5 := by parley_arith
-    have s4_6 : Real.sqrt (y - 3) ≤ 5 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (y - 3)) (y := (5 : ℝ)) s4_3a (by parley_set_side))).mpr s4_5
+    have s4_6 : Real.sqrt (y - 3) ≤ 5 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (y - 3)) (y := (5 : ℝ)) s4_3a (by norm_num))).mpr s4_5
     -- 4.7. inequalities, from 4.3
     have s4_7 : -3 ≤ Real.sqrt (y - 3) := by linarith only [s4_3a]
     -- 4.8. def:interval a := −3, b := 5, x := √(y − 3), from 4.3, 4.6, 4.7
-    have s4_8 : Real.sqrt (y - 3) ∈ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr ⟨⟨by parley_set_side, s4_7⟩, s4_6⟩
+    have s4_8 : Real.sqrt (y - 3) ∈ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := Real.sqrt (y - 3)) (a := (-3 : ℝ)) (b := (5 : ℝ)))).mpr ⟨⟨by trivial, s4_7⟩, s4_6⟩
     -- 4.9. instantiate x := √(y − 3) in H2, from 4.3
     have s4_9 : f (Real.sqrt (y - 3)) = Real.sqrt (y - 3) ^ 2 + 3 := by exact (hH2 (Real.sqrt (y - 3)))
     -- 4.10. mun:value-in-image Y := [−3, 5], s := √(y − 3), from 1, 4.8
-    have s4_10 : f (Real.sqrt (y - 3)) ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (s := Real.sqrt (y - 3)) (W := Set.univ) s1 s4_8 (by parley_whole_side))
+    have s4_10 : f (Real.sqrt (y - 3)) ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (s := Real.sqrt (y - 3)) (W := Set.univ) s1 s4_8 (Set.mapsTo_univ _ _))
     -- 4.11. substitute
     have c1 : f (Real.sqrt (y - 3)) = y := by linear_combination (norm := parley_norm) s4_3b + s4_9
     have row1 : y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by (have h := Eq.subst (motive := (fun t : ℝ => t ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)))) c1 s4_10; push_cast at h ⊢; all_goals exact_mod_cast h)

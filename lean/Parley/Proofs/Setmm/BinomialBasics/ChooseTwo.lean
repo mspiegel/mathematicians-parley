@@ -37,7 +37,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = (N : ℚ) * ((N : ℚ) - 1) / 2 := by
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by
-    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side))
+    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
     exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
@@ -46,7 +46,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) hC1)
     -- 2.2. def:nat0 n := N − 1, from 2.1
     have s2_2 : 0 < N - 1 ∨ N - 1 = 0 := by
-      have hI : 0 < N - 1 ∨ N - 1 = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp (by parley_side))
+      have hI : 0 < N - 1 ∨ N - 1 = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp ⟨N - 1, s2_1, rfl⟩)
       exact hI
     -- 2.3. cases, from 2.2
     rcases s2_2 with hC3 | hC4
@@ -57,7 +57,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
       have s2_3_2a : (0 : ℤ) ≤ 2 := by linarith
       have s2_3_2b : 2 ≤ N := by linarith only [hC3]
       -- 2.3.3. def:range-between k := 2, a := 0, b := N, from 2.3.2
-      have s2_3_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_3_2a, s2_3_2b⟩
+      have s2_3_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr ⟨by norm_num, s2_3_2b⟩
       -- 2.3.4. algebra
       have s2_3_4 : N - 2 = N - 1 - 1 := by parley_ring
       -- 2.3.5. substitute N − 2 = (N − 1) − 1 (line 2.3.4)

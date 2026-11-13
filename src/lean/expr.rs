@@ -355,6 +355,10 @@ pub struct SaidInteger {
     /// term keeps its own form. A line saying the term is an integer gives
     /// one that stands for it everywhere after.
     pub slot_only: bool,
+    /// Of a number named as an integer's `toNat` by a line saying the
+    /// integer is at least 0, the proof that it cast back is the integer,
+    /// `Int.toNat_of_nonneg h : ((t.toNat : ℕ) : ℤ) = t`; None otherwise.
+    pub back: Option<Printed>,
 }
 
 /// Whether the node is a sum or a product over a range, Σ(k = a to b) t or
@@ -2752,6 +2756,9 @@ impl Writer<'_> {
             }
             return self.in_system(x, set);
         }
+        if &*set.notation_name() == "functions-from" {
+            return self.in_functions_from(x, set);
+        }
         // x ∈ {a, b, c} of numbers: a membership of Lean's sets, in the
         // least type that holds x and every member, so that x is written
         // once, as the page writes it. Ahead of other sets, whose type is
@@ -3070,13 +3077,9 @@ impl Writer<'_> {
     /// "there is f : A → B with …" and "for all f : A → B, …": f a Lean
     /// function of the types the sets' members are, and that it maps A
     /// into B a fact beside it, `∃ f : ℤ → ℤ, Set.MapsTo f A B ∧ …`.
-    fn quantified_over_functions(
-        &self,
-        letter: &Node,
-        set: &Node,
-        body: &Node,
-        exists: bool,
-    ) -> Route<Printed> {
+    /// The functions from X to Y, `set`, as Lean takes them: the type of
+    /// such a function and its two sets as Lean writes them.
+    fn functions_from(&self, set: &Node) -> Route<FunctionsFrom> {
         let [from, to] = set.children.as_slice() else {
             return Route::no("the functions between other than two sets");
         };
@@ -3089,11 +3092,43 @@ impl Writer<'_> {
             }
             _ => (self.set_term(from), self.set_term(to)),
         };
-        let (from_text, to_text) = match sides {
-            (Route::Built(f), Route::Built(t)) => (f, t),
-            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
-                return Route::Declined(d)
+        match sides {
+            (Route::Built(from), Route::Built(to)) => {
+                Route::Built(FunctionsFrom { ty, from, to })
             }
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
+        }
+    }
+
+    /// `f ∈ (the functions from X to Y)`, as Lean says it of f, which a
+    /// "for all f : X → Y" asks of its letter: `Set.MapsTo f X Y`.
+    fn in_functions_from(&self, f: &Node, set: &Node) -> Route<Printed> {
+        let sets = match self.functions_from(set) {
+            Route::Built(s) => s,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        if !f.is_name() {
+            return Route::no("a membership of the functions of other than a letter");
+        }
+        let ty = self
+            .letters
+            .get(f.text.as_str())
+            .unwrap_or(&sets.ty)
+            .lean_type();
+        let letter = Printed::letter(super::names::letter(&f.text), ty);
+        Route::Built(maps_to(letter, sets.from, sets.to))
+    }
+
+    fn quantified_over_functions(
+        &self,
+        letter: &Node,
+        set: &Node,
+        body: &Node,
+        exists: bool,
+    ) -> Route<Printed> {
+        let FunctionsFrom { ty, from, to } = match self.functions_from(set) {
+            Route::Built(f) => f,
+            Route::Declined(d) => return Route::Declined(d),
         };
         let name = super::names::letter(&letter.text);
         let lean_type = ty.lean_type();
@@ -3103,16 +3138,7 @@ impl Writer<'_> {
             Route::Built(b) => b,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let maps = Printed::applied(
-            "Set.MapsTo",
-            super::doc::Source::Mathlib,
-            vec![
-                Printed::letter(name.clone(), lean_type.clone()),
-                from_text,
-                to_text,
-            ],
-            super::doc::LeanType::Prop,
-        );
+        let maps = maps_to(Printed::letter(name.clone(), lean_type.clone()), from, to);
         Route::Built(Printed::of(
             super::doc::TermKind::Quantified {
                 quant: match exists {
@@ -3128,6 +3154,27 @@ impl Writer<'_> {
             super::doc::LeanType::Prop,
         ))
     }
+}
+
+/// The functions from one set to another, as Lean takes them
+/// (`Writer::functions_from`).
+struct FunctionsFrom {
+    /// The type of such a function.
+    ty: LetterType,
+    /// The set it maps from, as Lean writes it.
+    from: Printed,
+    /// The set it maps into, as Lean writes it.
+    to: Printed,
+}
+
+/// `Set.MapsTo f from to`: f takes each member of `from` into `to`.
+fn maps_to(f: Printed, from: Printed, to: Printed) -> Printed {
+    Printed::applied(
+        "Set.MapsTo",
+        super::doc::Source::Mathlib,
+        vec![f, from, to],
+        super::doc::LeanType::Prop,
+    )
 }
 
 /// The letter a membership in a number system names its witness by, `∃ m :

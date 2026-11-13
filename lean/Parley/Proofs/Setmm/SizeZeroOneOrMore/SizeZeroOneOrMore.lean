@@ -31,25 +31,25 @@ theorem size_zero_one_or_more {α : Type*} (M : Set α) (hH2 : M.Finite) :
   -- 2. contradiction
   by_contra hS
   -- 2.1. mun:not-either, from S
-  have s2_1a : ¬ ((M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) (Q := 1 < (M.ncard : ℤ)))).mp (by parley_set_side)).1
-  have s2_1b : ¬ 1 < (M.ncard : ℤ) := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) (Q := 1 < (M.ncard : ℤ)))).mp (by parley_set_side)).2
+  have s2_1a : ¬ ((M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) (Q := 1 < (M.ncard : ℤ)))).mp hS).1
+  have s2_1b : ¬ 1 < (M.ncard : ℤ) := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) (Q := 1 < (M.ncard : ℤ)))).mp hS).2
   -- 2.2. mun:not-either, from 2.1
   have s2_2a : (M.ncard : ℤ) ≠ 0 := by
-    have hI : (M.ncard : ℤ) ≠ 0 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp (by parley_set_side)).1)
+    have hI : (M.ncard : ℤ) ≠ 0 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp s2_1a).1)
     exact hI
   have s2_2b : (M.ncard : ℤ) ≠ 1 := by
-    have hI : (M.ncard : ℤ) ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp (by parley_set_side)).2)
+    have hI : (M.ncard : ℤ) ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp s2_1a).2)
     exact hI
   -- 2.3. mun:nat0-nonzero m := |M|, from 1, 2.2
-  have s2_3 : 0 < (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (M.ncard : ℤ)) (by parley_set_side) (by parley_set_side))
+  have s2_3 : 0 < (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (M.ncard : ℤ)) s1 s2_2a)
   -- 2.4. inequalities, from 2.3
   have s2_4 : 1 ≤ (M.ncard : ℤ) := by parley_count_int; (linarith only [s2_3])
   -- 2.5. mun:le-cases x := 1, y := |M|
   have s2_5 : 1 ≤ (M.ncard : ℤ) ↔ 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ)))
   -- 2.6. mun:iff-from-left P := 1 ≤ |M|, Q := 1 < |M| or 1 = |M|, from 2.4, 2.5
-  have s2_6 : 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := 1 ≤ (M.ncard : ℤ)) (Q := 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ)) (by parley_set_side) (by parley_set_side))
+  have s2_6 : 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_iff_from_left (P := 1 ≤ (M.ncard : ℤ)) (Q := 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ)) s2_5 s2_4)
   -- 2.7. mun:disjunctive-syllogism-left, from 2.1, 2.6
-  have s2_7 : 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := 1 < (M.ncard : ℤ)) (Q := 1 = (M.ncard : ℤ)) (by parley_set_side) (by parley_set_side))
+  have s2_7 : 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := 1 < (M.ncard : ℤ)) (Q := 1 = (M.ncard : ℤ)) s2_6 s2_1b)
   exact s2_2b s2_7.symm
 
 end Parley.Proofs.Setmm.SizeZeroOneOrMore.SizeZeroOneOrMore

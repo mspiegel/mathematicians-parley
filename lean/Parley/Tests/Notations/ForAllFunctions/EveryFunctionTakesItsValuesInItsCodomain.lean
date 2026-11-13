@@ -19,6 +19,6 @@ theorem every_function_takes_its_values_in_its_codomain {α : Type*} (X : Set α
   -- 1. proof
   intro f hK1
   -- 1.1. mun:function-value x := a, from H3
-  exact (Parley.Items.Stdlib.Functions.mun_function_value (D := X) (E := Y) (f := f) (x := a) hH3 (by parley_set_side))
+  exact (Parley.Items.Stdlib.Functions.mun_function_value (D := X) (E := Y) (f := f) (x := a) hH3 hK1)
 
 end Parley.Tests.Notations.ForAllFunctions.EveryFunctionTakesItsValuesInItsCodomain

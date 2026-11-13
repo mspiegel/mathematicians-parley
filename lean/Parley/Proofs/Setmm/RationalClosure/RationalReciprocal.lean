@@ -21,7 +21,7 @@ namespace Parley.Proofs.Setmm.RationalClosure.RationalReciprocal
 theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
     True := by
   -- 1. obtain p, q: def:rational x := A
-  obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+  obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp ⟨_, rfl⟩
   -- 2. contradiction
   have s2 : p ≠ 0 := by
     intro hS

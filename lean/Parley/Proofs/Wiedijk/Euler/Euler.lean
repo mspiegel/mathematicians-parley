@@ -134,9 +134,9 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 7.8. mun:congruent-in-range, from 7.1, 7.2, 7.7
     exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := n) hH1 (x := s) s7_1a (y := t) s7_2a s7_7)
   -- 8. mun:function-into, from 6
-  have s8 : Set.MapsTo f S S := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := S) (Y := S) (by parley_set_side) s6)
+  have s8 : Set.MapsTo f S S := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := S) (Y := S) s6)
   -- 9. def:one-to-one, from 7, 8
-  have s9 : Set.MapsTo f S S ∧ Set.InjOn f S := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := S) (Y := S) (f := f) (by parley_set_side))).mpr ⟨s8, s7⟩
+  have s9 : Set.MapsTo f S S ∧ Set.InjOn f S := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := S) (Y := S) (f := f) s8)).mpr ⟨s8, s7⟩
   -- 10. thm:product-reorder, from 4, 5, 9
   have s10 : (∏ᶠ r ∈ S, (f r : ℤ)) = (∏ᶠ r ∈ S, (r : ℤ)) := by exact (Parley.Items.Stdlib.Sums.thm_product_reorder (X := S) (f := f) s5 s4 s9)
   -- 11. proof
@@ -161,7 +161,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     (have h := Eq.subst (motive := (fun t : ℤ => r * a ≡ t [ZMOD n])) s11_3.symm s11_2; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 12. thm:product-congruent X := S, from 4, 5, 11
   have r160_1 : Set.MapsTo f S S := by exact s8
-  have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) hH1 s11 (by parley_set_side))
+  have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) hH1 s11 r160_1)
   -- 13. def:φ, from D1
   have s13 : (Nat.totient n.toNat : ℤ) = (S.ncard : ℤ) := by
     try simp only [hD1] at ⊢
@@ -183,7 +183,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     intro r h_r
     try simp only [hD1] at ⊢
     try push_cast at ⊢
-    have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp (by parley_set_side)).2)
+    have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp h_r).2)
     exact hI
   -- 18. thm:product-coprime, from 4, 5, 17
   have s18 : (Int.gcd (∏ᶠ r ∈ S, (r : ℤ)) n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.thm_product_coprime (X := S) s5 s4 (n := n) hH1 s17)

@@ -21,7 +21,7 @@ namespace Parley.Proofs.Setmm.RationalClosure.RationalNegative
 theorem rational_negative (A : ℚ) :
     True := by
   -- 1. obtain p, q: def:rational x := A
-  obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+  obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp ⟨_, rfl⟩
   -- 2. algebra, from 1
   have s2 : -A = -(p : ℚ) / (q : ℚ) := by linear_combination (norm := parley_field) (-1) * s1b
   -- 3. exhibit, from 2

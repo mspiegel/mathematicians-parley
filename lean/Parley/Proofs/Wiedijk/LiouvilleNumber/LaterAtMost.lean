@@ -34,6 +34,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -62,7 +63,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   -- 2.2. mun:power-real a := 2, m := (n + 1)! + (i − n), from 2.1
   -- 2.3. mun:power-positive a := 2, m := (n + 1)! + (i − n)
   have r318_1 : (2 : ℤ) > 0 := by parley_arith
-  have s2_3 : (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (by parley_side))
+  have s2_3 : (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (by norm_num))
   set g : ℝ := (2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ) with hD1
   have hD1_kind : True := by parley_side
   -- 2.4. instantiate j := i − n in line 1, from 2.1
@@ -79,7 +80,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   have s2_6 : g > 0 := by
     try simp only [hD1] at ⊢
     try push_cast at ⊢
-    exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ)) (by parley_side) (by parley_side))
+    exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ)) (by norm_num) (show 0 < (2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_3); simp only [Rat.cast_add, Rat.cast_sub, Rat.cast_zpow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat, Rat.cast_natCast] at h; exact h))
   -- 2.7. inequalities
   have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - g + (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) := by linarith only [s2_5]
   -- 2.8. inequalities

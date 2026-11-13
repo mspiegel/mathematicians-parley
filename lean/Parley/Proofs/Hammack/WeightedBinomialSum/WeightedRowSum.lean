@@ -38,7 +38,7 @@ namespace Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum
 theorem weighted_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (k * (LeanBridges.Counting.choose (m + 1) k : ℤ) : ℤ)) = (m + 1) * 2 ^ m.toNat := by
   -- 1. thm:weighted-term
-  have s1 : ∀ k : ℤ, k ∈ Finset.Icc 1 (m + 1) → k * (LeanBridges.Counting.choose (m + 1) k : ℤ) = (m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ) := by intro k h_k; (exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m) hH1 (k := k) (by parley_side)))
+  have s1 : ∀ k : ℤ, k ∈ Finset.Icc 1 (m + 1) → k * (LeanBridges.Counting.choose (m + 1) k : ℤ) = (m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ) := by intro k h_k; (exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m) hH1 (k := k) h_k))
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. proof

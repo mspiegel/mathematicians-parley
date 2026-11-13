@@ -8,8 +8,10 @@ public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Cast.Basic
@@ -32,6 +34,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -85,6 +88,6 @@ theorem harmonic_unbounded (M : ℝ) :
   -- 6. transitivity, from 4, 5
   have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℝ) : ℝ)) > M := by exact lt_of_lt_of_le s5 (show (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N.toNat : ℤ), (1 / (k : ℝ) : ℝ)) ≥ (N : ℝ) / 2 by have h := (Rat.cast_le (K := ℝ)).mpr s4; simp only [Rat.cast_sum, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)
   -- 7. exhibit, from 6
-  exact ⟨(2 ^ N.toNat : ℤ), by parley_side, s6⟩
+  exact ⟨(2 ^ N.toNat : ℤ), pow_pos (by norm_num) _, s6⟩
 
 end Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded

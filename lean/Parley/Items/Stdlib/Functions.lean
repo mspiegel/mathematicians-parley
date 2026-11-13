@@ -56,7 +56,7 @@ theorem mun_image_monotone {α β : Type*} (X : Set α) (Y : Set α) (Z : Set α
     f '' (X ∩ Y) ⊆ f '' (X ∩ Z) :=
   Set.image_mono (Set.inter_subset_inter_right X h1)
 
-theorem mun_function_into {α β : Type*} (E : α → β) (X : Set α) (Y : Set β) (h1 : True) (h2 : ∀ x ∈ X, E x ∈ Y) :
+theorem mun_function_into {α β : Type*} (E : α → β) (X : Set α) (Y : Set β) (h2 : ∀ x ∈ X, E x ∈ Y) :
     Set.MapsTo E X Y :=
   fun x hx => h2 x hx
 

@@ -15,6 +15,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
@@ -40,7 +41,7 @@ theorem power_of_three_odd (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.1. arithmetic
       have s1_1 : (3 ^ 0 : ℤ) = 2 * 0 + 1 := by parley_arith
       -- 1.2. def:odd n := 3^0, from 1.1
-      have s1_2 : Odd (3 ^ 0 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), s1_1⟩
+      have s1_2 : Odd (3 ^ 0 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), by norm_num⟩
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
     | succ j hK hIH =>
       -- 1.3. obtain k: def:odd n := 3^j, from IH

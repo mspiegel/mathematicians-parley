@@ -3,7 +3,6 @@ module
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Module.Defs
@@ -18,6 +17,7 @@ public import Mathlib.Analysis.Normed.Group.Real
 public import Mathlib.Analysis.RCLike.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
@@ -52,11 +52,11 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 1. def:interval x := a
   have r78_1 : a ≤ a := by linarith
   have r78_2 : a ≤ b := by linarith only [hH3]
-  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r78_1⟩, r78_2⟩
+  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by trivial, r78_1⟩, r78_2⟩
   -- 2. def:interval x := b
   have r83_1 : a ≤ b := by linarith only [hH3]
   have r83_2 : b ≤ b := by linarith
-  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r83_1⟩, r83_2⟩
+  have s2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by trivial, r83_1⟩, r83_2⟩
   -- 3. mun:interval-real
   have s3 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
   -- 4. mun:open-within-closed
@@ -71,13 +71,13 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
     -- 7.1. mun:integral-real, from D1, H3, H5, K1
     exact trivial
   -- 8. mun:function-into, from 7
-  have s8 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := G) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s8 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := G) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 9. membership, from D2
   have r111_1 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; (parley_set_side)
   have r111_2 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; (parley_set_side)
   have s9 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by intro x h_x; parley_set_side
   -- 10. mun:function-into, from 9
-  have s10 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := H) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s10 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := H) (X := (Set.Icc a b : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 11. thm:area-function, from H3, H5, 5
   have r120_1 : Set.MapsTo G (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s8
   have s11 : ContinuousOn G (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_area_function_1 (f := f) (G := G) (a := a) (b := b) hH3 hH5 s5)
@@ -124,7 +124,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
   have s22 : G b - F b = G a - F a := by
     calc G b - F b = H b := by exact s19
-      _ = H a := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds.zero_derivative_ends (a := a) (b := b) hH3 (H := H) (by parley_set_side) s14 s15 s17)
+      _ = H a := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds.zero_derivative_ends (a := a) (b := b) hH3 (H := H) (Set.mapsTo_univ _ _) s14 s15 s17)
       _ = G a - F a := by exact s18
   -- 23. calculation
   have s23 : G a = 0 := by

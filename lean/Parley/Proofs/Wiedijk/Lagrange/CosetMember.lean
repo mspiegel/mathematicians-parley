@@ -18,13 +18,13 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Lagrange.CosetMember
 
-theorem coset_member {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (g : G) (hH3 : g ∈ (Set.univ : Set G)) :
+theorem coset_member {G : Type*} [Group G] (H : Subgroup G) (g : G) (hH3 : g ∈ (Set.univ : Set G)) :
     g ∈ (g * ·) '' (H : Set G) := by
   -- 1. mun:subgroup-identity, from H2
-  have s1 : (1 : G) ∈ (H : Set G) := by exact (Parley.Items.Stdlib.Groups.mun_subgroup_identity (G := G) (H := H) hH2)
+  have s1 : (1 : G) ∈ (H : Set G) := by exact (Parley.Items.Stdlib.Groups.mun_subgroup_identity (G := G) (H := H))
   -- 2. axi:group-identity a := g, from H3
-  have s2 : g * (1 : G) = g := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := g) hH3)
+  have s2 : g * (1 : G) = g := by exact (Parley.Items.Stdlib.Groups.axi_group_identity (G := G) (a := g) (Set.mem_univ _))
   -- 3. def:coset u := g, from H2, H3, 1, 2
-  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g) (H := H) hH2 hH3)).mpr ⟨(1 : G), s1, s2.symm⟩
+  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g) (H := H) (Set.mem_univ _))).mpr ⟨(1 : G), s1, s2.symm⟩
 
 end Parley.Proofs.Wiedijk.Lagrange.CosetMember

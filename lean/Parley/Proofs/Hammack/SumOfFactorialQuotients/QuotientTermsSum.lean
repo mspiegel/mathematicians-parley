@@ -13,9 +13,11 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -33,6 +35,6 @@ theorem quotient_terms_sum (n : ℤ) (hH1 : 0 < n) (t : ℤ → ℝ) (hH3 : ∀ 
   -- 1. proof
   -- what this block shows, Lean's types give
   -- 2. mun:sum-termwise a := 1, b := n, from H3, 1
-  exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := t) (u := (fun k : ℤ => (k : ℝ) / (LeanBridges.Counting.factorial (k + 1) : ℝ))) (a := (1 : ℤ)) (b := n) (by parley_side))
+  exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := t) (u := (fun k : ℤ => (k : ℝ) / (LeanBridges.Counting.factorial (k + 1) : ℝ))) (a := (1 : ℤ)) (b := n) (fun k h_k => hH3 k (lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp h_k).1)))
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.QuotientTermsSum

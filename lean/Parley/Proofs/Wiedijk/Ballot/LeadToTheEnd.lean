@@ -47,12 +47,12 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
     rcases s2_1 with hC1 | hC2
     · skip
       -- 2.2.1. thm:last-place, from H3, H5
-      have s2_2_1a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) hH3 (by parley_set_side)).1
-      have s2_2_1b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) hH3 (by parley_set_side)).2
+      have s2_2_1a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) hH3 hH5).1
+      have s2_2_1b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) hH3 hH5).2
       -- 2.2.2. calculation
       have s2_2_2 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by parley_count_after (by
         calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by parley_set_side
-          _ < m := by parley_set_side
+          _ < m := by exact hH4
           _ = (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by parley_set_side)
       -- 2.2.3. substitute i = m + n (C1) into line 2.2.2
       (have h := Eq.subst (motive := (fun t : ℤ => (((Set.Icc (1 : ℤ) t : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) t : Set ℤ) ∩ c).ncard : ℤ))) hC1.symm s2_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)

@@ -16,6 +16,6 @@ namespace Parley.Tests.Elaborator.AFamilyOfPartsByADefine.AnInstanceWhoseConditi
 theorem an_instance_whose_condition_is_itself (a : ℤ) (b : ℤ) (hH3 : ∀ k : ℤ, k = a + b → a ≤ k) :
     a ≤ a + b := by
   -- 1. instantiate k := a + b in H3
-  exact (hH3 (a + b) (by parley_side))
+  exact (hH3 (a + b) rfl)
 
 end Parley.Tests.Elaborator.AFamilyOfPartsByADefine.AnInstanceWhoseConditionIsItself

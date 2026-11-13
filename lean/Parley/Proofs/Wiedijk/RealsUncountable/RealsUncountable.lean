@@ -3,11 +3,11 @@ module
 public import InstanceTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -29,7 +29,7 @@ theorem reals_uncountable :
   obtain ⟨f, _, s1⟩ := (Parley.Items.Stdlib.Functions.mun_bijection_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) hS)
   -- 2. def:onto, from 1
   have s2 : ∀ y : ℝ, ∃ n : ℤ, 0 < n ∧ y = f n := by
-    have hI : ∀ y : ℝ, ∃ x : ℤ, 0 < x ∧ y = f x := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp s1).2)
+    have hI : ∀ y : ℝ, ∃ x : ℤ, 0 < x ∧ y = f x := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mp s1).2)
     exact hI
   -- 3. obtain x: thm:sequence-misses-real
   obtain ⟨x, s3⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.SequenceMissesReal.sequence_misses_real (f := f))

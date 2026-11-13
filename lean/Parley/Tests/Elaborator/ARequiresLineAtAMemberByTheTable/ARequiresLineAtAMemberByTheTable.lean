@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ARequiresLineAtAMemberByTheTable.ARequiresLineAtAMemberByTheTable
 
-theorem a_requires_line_at_a_member_by_the_table (m : ℤ) (hH1 : 0 < m) (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) (hH2 : True) :
+theorem a_requires_line_at_a_member_by_the_table (m : ℤ) (hH1 : 0 < m) (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1)) :
     F m + F (m + 1) = F (m + 1) + F m := by
   -- 1. algebra
   parley_ring

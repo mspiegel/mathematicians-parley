@@ -23,6 +23,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -74,7 +75,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           have s1_5_3_3 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s1_5_3_1⟩
           -- 1.5.3.4. exhibit, from 1.5.3.2, 1.5.3.3
           have r63_1 : (2 : ℤ) > 1 := by parley_arith
-          have s1_5_3_4 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r63_1, s1_5_3_2⟩, s1_5_3_3⟩⟩
+          have s1_5_3_4 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨by norm_num, s1_5_3_2⟩, s1_5_3_3⟩⟩
           exact absurd s1_5_3_4 s1_1c
         · skip
           -- 1.5.3.5. obtain s: def:odd n := q, from C3
@@ -123,6 +124,6 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     have s1_7 : Odd (1 : ℤ) := by parley_arith
     exact s1_6 s1_7
   -- 2. def:irrational, from 1
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr ⟨by parley_side, s1⟩
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := x))).mpr ⟨by trivial, s1⟩
 
 end Parley.Proofs.Hammack.CubicRootIsIrrational.CubicRootIsIrrational

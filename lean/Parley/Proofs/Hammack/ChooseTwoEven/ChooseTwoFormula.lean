@@ -37,7 +37,7 @@ theorem choose_two_formula (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_1 : (0 : ℤ) < 2 := by parley_arith
       -- 1.2. calculation
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℚ) = 0 * (0 - 1) / 2 := by
-        calc (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℚ) = 0 := by exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (2 : ℤ))) s1_1
+        calc (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℚ) = 0 := by exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)
           _ = 0 * (0 - 1) / 2 := by norm_num
       (have h := s1_2; push_cast at h ⊢; all_goals exact h)
     | succ k hK hIH =>

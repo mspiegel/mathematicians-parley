@@ -299,7 +299,7 @@ fn citation(cited: &Cited, g: &Grammar) -> String {
         .iter()
         .map(|c| format!("{} {:?}", c.sentence, c.way))
         .collect();
-    let firsts: Vec<String> = cited.firsts.iter().map(place).collect();
+    let firsts: Vec<String> = cited.firsts.iter().map(supplier).collect();
     let from = if firsts.is_empty() {
         "no line".to_string()
     } else {
@@ -503,6 +503,15 @@ fn supplier(by: &parley::checker::record::SuppliedBy) -> String {
             None => format!("requires {}", line + 1),
         },
         SuppliedBy::Walked(walked) => format!("walked {:?}", walked.reason),
+        SuppliedBy::Through { carrier, member } => {
+            format!("through {} and {}", supplier(carrier), supplier(member))
+        }
+        SuppliedBy::Bound { letter } => format!("bound {letter}"),
+        SuppliedBy::Identity(met) => format!("identity {met:?}"),
+        SuppliedBy::Parts(parts) => format!(
+            "parts [{}]",
+            parts.iter().map(supplier).collect::<Vec<_>>().join("; ")
+        ),
         SuppliedBy::Unstated => "unstated".to_string(),
     }
 }

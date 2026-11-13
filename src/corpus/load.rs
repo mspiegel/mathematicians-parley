@@ -61,6 +61,7 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
     crate::sorts::settle_phrases(&mut out.records, &out.scopes);
     let _ = link_functions(&out.records, &mut out.scopes);
     let _ = link_definitions(&out.theorems, &mut out.scopes);
+    super::proof::read_visible(&mut out.scopes);
     Ok(out)
 }
 

@@ -426,6 +426,14 @@ impl<'a> Library<'a> {
     /// groups leave these out, since a function the theorem has asks
     /// nothing; one the citing proof defines is asked it in a requires line.
     pub fn function_types(&self, name: &str) -> Vec<Node> {
+        self.function_type_lines(name)
+            .into_iter()
+            .map(|w| w.tree)
+            .collect()
+    }
+
+    /// `function_types`, each with where the item writes it.
+    pub fn function_type_lines(&self, name: &str) -> Vec<Want> {
         if let Some(&i) = self.items.get(name) {
             return self.record_function_types(i);
         }
@@ -435,8 +443,8 @@ impl<'a> Library<'a> {
         }
     }
 
-    /// `function_types` of the record at `i` in `records`.
-    fn record_function_types(&self, i: usize) -> Vec<Node> {
+    /// `function_type_lines` of the record at `i` in `records`.
+    fn record_function_types(&self, i: usize) -> Vec<Want> {
         let record = &self.records[i];
         let said = record
             .hypotheses
@@ -446,8 +454,8 @@ impl<'a> Library<'a> {
         self.function_lines(said, &self.record_sorts[&i])
     }
 
-    /// `function_types` of a theorem this corpus proves.
-    fn proved_function_types(&self, k: &Proved<'a>) -> Vec<Node> {
+    /// `function_type_lines` of a theorem this corpus proves.
+    fn proved_function_types(&self, k: &Proved<'a>) -> Vec<Want> {
         let said = k
             .thm
             .hypotheses
@@ -457,17 +465,28 @@ impl<'a> Library<'a> {
         self.function_lines(said, &k.sorts)
     }
 
-    /// The function-type `let` lines among `said`, read with `sorts`.
-    fn function_lines(&self, said: Vec<(Intro, Written)>, sorts: &Sorts) -> Vec<Node> {
-        let lines: Vec<Written> = said
-            .into_iter()
-            .filter(|(kind, _)| *kind == Intro::Let)
-            .map(|(_, body)| body)
-            .filter(|body| {
-                matches!(Introduction::read(body.clone()).form, Form::Function)
-            })
-            .collect();
-        self.trees(&lines, sorts)
+    /// The function-type `let` lines among `said`, the item's hypotheses
+    /// from its first, read with `sorts`, each sentence with where it
+    /// stands.
+    fn function_lines(&self, said: Vec<(Intro, Written)>, sorts: &Sorts) -> Vec<Want> {
+        let mut out = Vec::new();
+        for (line, (kind, body)) in said.into_iter().enumerate() {
+            if kind != Intro::Let
+                || !matches!(Introduction::read(body.clone()).form, Form::Function)
+            {
+                continue;
+            }
+            for (sentence, s) in body.sentences().iter().enumerate() {
+                if let Ok(tree) = s.read(self.env.g, sorts) {
+                    out.push(Want {
+                        text: s.text().to_string(),
+                        tree: standard(&tree, &self.ctx),
+                        at: HypothesisAt { line, sentence },
+                    });
+                }
+            }
+        }
+        out
     }
 
     /// The number system each place of each notation a definition defines
@@ -537,11 +556,11 @@ impl<'a> Library<'a> {
 
     /// What every item's function-type `let` lines say (`function_types`),
     /// by the item's full name, for the build to read from.
-    pub fn all_function_types(&self) -> IndexMap<String, Vec<Node>> {
+    pub fn all_function_types(&self) -> IndexMap<String, Vec<Want>> {
         self.items
             .keys()
             .chain(self.proved.keys())
-            .map(|name| (name.clone(), self.function_types(name)))
+            .map(|name| (name.clone(), self.function_type_lines(name)))
             .collect()
     }
 
@@ -625,8 +644,11 @@ impl<'a> Library<'a> {
         if !written_alike(&gives_of(&said), &gives_of(&proved)) {
             return Some("it concludes something else than the proof".to_string());
         }
-        let maps = self.record_function_types(i);
-        if !written_alike(&maps, &self.proved_function_types(k)) {
+        let trees = |typed: Vec<Want>| -> Vec<Node> {
+            typed.into_iter().map(|w| w.tree).collect()
+        };
+        let maps = trees(self.record_function_types(i));
+        if !written_alike(&maps, &trees(self.proved_function_types(k))) {
             return Some(
                 "its functions map between other sets than the proof's".to_string(),
             );

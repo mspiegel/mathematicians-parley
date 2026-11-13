@@ -41,7 +41,7 @@ theorem a_product_of_ones_by_induction {α : Type*} (X : Set α) (hH2 : X.Finite
       -- 1.3. def:difference u := a, Y := X, Z := Y, from K2
       have s1_3 : a ∈ X ∧ ¬ a ∈ Y := by exact ((Parley.Items.Stdlib.Sets.def_difference (Y := X) (Z := Y) (u := a))).mp hK2
       -- 1.4. mun:product-add-one, from K, 1.2, 1.3
-      have s1_4 : (∏ᶠ y ∈ (Y ∪ ({a} : Set α)), (1 : ℤ)) = (∏ᶠ y ∈ Y, (1 : ℤ)) * 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_add_one (t := (fun y : α => (1 : ℤ))) (X := X) (Y := Y) (a := a) (by parley_set_side) s1_2 s1_3.1 s1_3.2)
+      have s1_4 : (∏ᶠ y ∈ (Y ∪ ({a} : Set α)), (1 : ℤ)) = (∏ᶠ y ∈ Y, (1 : ℤ)) * 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_add_one (t := (fun y : α => (1 : ℤ))) (X := X) (Y := Y) (a := a) hK s1_2 s1_3.1 s1_3.2)
       -- 1.5. transitivity, from 1.4, IH
       linarith only [s1_4, hIH]
   -- 2. instantiate Y := X in line 1

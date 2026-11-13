@@ -18,6 +18,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -37,7 +38,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = N := by
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by
-    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side))
+    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
     exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
@@ -48,7 +49,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_2a : (0 : ℤ) ≤ 1 := by linarith
     have s2_2b : 1 ≤ N := by linarith only [hC1]
     -- 2.3. def:range-between k := 1, a := 0, b := N, from 2.2
-    have s2_3 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_2a, s2_2b⟩
+    have s2_3 : (1 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr ⟨by norm_num, s2_2b⟩
     -- 2.4. def:factorial
     have s2_4 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
     -- 2.5. thm:factorial-by-predecessor, from C1

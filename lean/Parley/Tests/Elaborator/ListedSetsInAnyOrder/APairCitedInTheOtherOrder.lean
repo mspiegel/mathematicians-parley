@@ -22,6 +22,6 @@ namespace Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairCitedInTheOtherOrder
 theorem a_pair_cited_in_the_other_order {α : Type*} (Y : Set α) (hH2 : (Y.ncard : ℤ) = 2) (v : α) (hH3 : v ∈ Y) (w : α) (hH4 : w ∈ Y) (hH5 : ¬ v = w) :
     Y = ({v, w} : Set α) := by
   -- 1. mun:card-two a := w, b := v, from H2, H3, H4, H5
-  (have h := (Parley.Items.Stdlib.Counting.mun_card_two (Y := Y) (a := w) (b := v) (by parley_set_side) hH4 hH3 (Ne.symm hH5)); ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)
+  (have h := (Parley.Items.Stdlib.Counting.mun_card_two (Y := Y) (a := w) (b := v) hH2 hH4 hH3 (Ne.symm hH5)); ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)
 
 end Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairCitedInTheOtherOrder

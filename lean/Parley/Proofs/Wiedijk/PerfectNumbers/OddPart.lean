@@ -15,6 +15,7 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -82,7 +83,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.3. mun:factor-positive a := 2, b := i
           have r197_1 : (2 : ℤ) ≥ 0 := by parley_arith
           have r197_2 : 2 * i > 0 := by linarith only [s1_7_2]
-          have s1_7_3 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) r197_1 (by parley_side))
+          have s1_7_3 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := (2 : ℤ)) (b := i) (by norm_num) r197_2)
           -- 1.7.4. mun:pos-int-nat m := i, from 1.7.3
           have s1_7_4 : 0 < i := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := i) s1_7_3)
           -- 1.7.5. inequalities
@@ -112,11 +113,11 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.16. algebra
           have s1_7_16 : j = 2 ^ 0 * j := by parley_ring
           -- 1.7.17. exhibit, from C2, 1.7.16
-          exact ⟨(0 : ℤ), by norm_num, j, by parley_side, ⟨hC2, by simpa only [Int.reduceToNat] using s1_7_16⟩⟩
+          exact ⟨(0 : ℤ), by norm_num, j, lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp hK3).1, ⟨hC2, by simpa only [Int.cast_zero, Int.reduceToNat] using s1_7_16⟩⟩
       -- 1.8. D1, from 1.7
       parley_side
   -- 2. instantiate N := n in line 1
-  have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; exact (s1 n (le_of_lt hH1) j (by parley_side))
+  have s2 : ∀ j : ℤ, j ∈ Finset.Icc 1 n → (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * m))) := by intro j h_j; exact (s1 n (le_of_lt hH1) j h_j)
   -- 3. def:range-between k := n, a := 1, b := n
   have r260_1 : 1 ≤ n := by linarith only [hH1]
   have r260_2 : n ≤ n := by linarith

@@ -5,12 +5,14 @@ public import Counting
 public import FactorialTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -32,7 +34,7 @@ theorem prime_above (n : ℤ) (hH1 : 0 < n) :
   -- 2. inequalities, from 1
   have s2 : (LeanBridges.Counting.factorial n : ℤ) + 1 > 1 := by linarith only [s1]
   -- 3. obtain p: thm:prime-factor m := n! + 1, from 2
-  obtain ⟨p, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := (LeanBridges.Counting.factorial n : ℤ) + 1) (by parley_side) s2)
+  obtain ⟨p, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := (LeanBridges.Counting.factorial n : ℤ) + 1) (add_pos (LeanBridges.Counting.factorial_nat (n) (le_of_lt hH1)) (by norm_num)) s2)
   -- 4. def:prime, from 3
   have s4 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) s3a)).mp s3b).1
   -- 5. contradiction

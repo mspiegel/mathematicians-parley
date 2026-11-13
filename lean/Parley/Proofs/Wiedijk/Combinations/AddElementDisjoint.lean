@@ -38,7 +38,7 @@ theorem add_element_disjoint {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈ 
     have s1_2 : T ∪ ({a} : Set α) ⊆ Y := by
       try simp only [hD1] at ⊢
       try push_cast at ⊢
-      exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j)) (X := Y) (u := T ∪ ({a} : Set α)))).mp (by parley_set_side)).1
+      exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j)) (X := Y) (u := T ∪ ({a} : Set α)))).mp hS1).1
     -- 1.3. mun:not-in-subset Y := T ∪ {a}, Z := Y, from H2, 1.2
     have s1_3 : ¬ a ∈ T ∪ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_not_in_subset (Y := T ∪ ({a} : Set α)) (Z := Y) (a := a) hH2 s1_2)
     exact s1_3 s1_1
@@ -47,6 +47,6 @@ theorem add_element_disjoint {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈ 
   -- 3. mun:disjoint-empty, from D1, D2, 2
   try simp only [hD1, hD2] at ⊢
   try push_cast at ⊢
-  exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (Z := (fun T : Set α => T ∪ ({a} : Set α)) '' {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j - 1}) (by parley_set_side))
+  exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (Z := (fun T : Set α => T ∪ ({a} : Set α)) '' {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j - 1}) s2)
 
 end Parley.Proofs.Wiedijk.Combinations.AddElementDisjoint

@@ -14,7 +14,7 @@ use super::skeleton::{
 use super::values::Values;
 use super::{cited_name, in_stdlib, module_of};
 use crate::formula::page::Written;
-use crate::outcome::{Built, Checked, Problem};
+use crate::outcome::{Built, Checked, Problem, Route};
 use crate::text::{prefix, repr};
 
 /// How a line introduces what it introduces.
@@ -1276,6 +1276,27 @@ pub struct FileScope {
     /// The line each of its theorems is written on, by the theorem's name:
     /// what a theorem of the file is stated over (`sorts::stated_over`).
     pub theorems: IndexMap<String, usize>,
+    /// Every define a line of the file may use, each read once after the
+    /// imports are linked (`read_visible`): those it imports, by alias, and
+    /// those it writes, each below its own line (`visible`).
+    pub visible: Vec<Visible>,
+}
+
+/// A define a line of a file may use: one the file writes, or one it
+/// imports (`FileScope::visible`).
+#[derive(Clone, Debug)]
+pub struct Visible {
+    /// The name a line uses: the define's own, or the alias an import gives
+    /// it.
+    pub name: String,
+    pub define: DefineLine,
+    /// The define read into its parts, once.
+    pub parts: DefineParts,
+    /// The scope whose file writes it, where it is read.
+    pub scope: ScopeId,
+    /// Whether the file imports it: then every line of the file may use it,
+    /// and otherwise only the lines below it.
+    pub imported: bool,
 }
 
 impl FileScope {
@@ -1291,6 +1312,7 @@ impl FileScope {
             linked: IndexMap::new(),
             functions: Vec::new(),
             theorems: IndexMap::new(),
+            visible: Vec::new(),
         }
     }
 
@@ -1339,31 +1361,107 @@ impl FileScope {
     }
 }
 
-/// (name, define, the scope it is read in) for every definition a line of
-/// the file of scope `id` at `line` may use.
-pub fn visible(
-    scopes: &[FileScope],
-    id: ScopeId,
-    line: usize,
-) -> Vec<(String, DefineLine, ScopeId)> {
-    let scope = &scopes[id];
-    let mut out: Vec<(String, DefineLine, ScopeId)> = scope
-        .linked
+/// Every definition a line of the file of scope `id` at `line` may use: each
+/// it imports, and each it writes above the line (`FileScope::visible`).
+pub fn visible(scopes: &[FileScope], id: ScopeId, line: usize) -> Vec<&Visible> {
+    scopes[id]
+        .visible
         .iter()
-        .map(|(alias, (src, d))| (alias.clone(), d.clone(), *src))
-        .collect();
-    for d in &scope.defines {
-        if d.line < line {
-            if let Built(said) = define_parts(&d.text) {
-                // A recursion is never written at file level, and has no
-                // one name to be found by.
-                if let Some(name) = said.name() {
-                    out.push((name.to_string(), d.clone(), id));
-                }
+        .filter(|v| v.imported || v.define.line < line)
+        .collect()
+}
+
+/// A define a theorem may use, as the theorem uses it (`in_scope`).
+#[derive(Clone, Debug)]
+pub struct InScope<'s> {
+    /// The name it gives: its own, or the alias an import gives it.
+    pub name: String,
+    /// The label a line of the theorem cites it by: its own, or the label on
+    /// the import; None for an import that gives none, which no line cites.
+    pub label: Option<String>,
+    pub define: &'s DefineLine,
+    /// The define read into its parts: once, for the file's and the
+    /// imported (`FileScope::visible`), and here for the theorem's own.
+    pub parts: std::borrow::Cow<'s, DefineParts>,
+    /// Imported from another file, where it is read.
+    pub imported: bool,
+}
+
+/// Every define the theorem `thm` may use: its own, each that reads, then
+/// those its file writes above it and those it imports (`visible`). A
+/// recursion of its own is listed once, under its first name.
+pub fn in_scope<'s>(thm: &'s Theorem, scopes: &'s [FileScope]) -> Vec<InScope<'s>> {
+    let own = thm
+        .defines
+        .iter()
+        .filter_map(|d| match define_parts(&d.text) {
+            Built(parts) => {
+                let name = parts.names().into_iter().next()?;
+                Some(InScope {
+                    name,
+                    label: Some(d.label.clone()),
+                    define: d,
+                    parts: std::borrow::Cow::Owned(parts),
+                    imported: false,
+                })
             }
-        }
+            Route::Declined(_) => None,
+        });
+    let scope = &scopes[thm.scope];
+    let outside = visible(scopes, thm.scope, thm.line)
+        .into_iter()
+        .map(|v| InScope {
+            name: v.name.clone(),
+            label: match v.imported {
+                true => scope.import_label(&v.name).map(String::from),
+                false => Some(v.define.label.clone()),
+            },
+            define: &v.define,
+            parts: std::borrow::Cow::Borrowed(&v.parts),
+            imported: v.imported,
+        });
+    own.chain(outside).collect()
+}
+
+/// Reads each file's defines and the defines it imports once, into
+/// `FileScope::visible`, after `link_definitions` has linked the imports:
+/// the imports first, by alias, then the file's own in order. A define that
+/// does not read is left out, as is a file-level recursion, which gives no
+/// one name to be found by; the checker reports either.
+pub fn read_visible(scopes: &mut [FileScope]) {
+    for (id, scope) in scopes.iter_mut().enumerate() {
+        let imported = scope.linked.iter().filter_map(|(alias, (src, d))| {
+            match define_parts(&d.text) {
+                Built(parts) => Some(Visible {
+                    name: alias.clone(),
+                    define: d.clone(),
+                    parts,
+                    scope: *src,
+                    imported: true,
+                }),
+                Route::Declined(_) => None,
+            }
+        });
+        let written =
+            scope
+                .defines
+                .iter()
+                .filter_map(|d| match define_parts(&d.text) {
+                    Built(parts) => {
+                        let name = parts.name()?.to_string();
+                        Some(Visible {
+                            name,
+                            define: d.clone(),
+                            parts,
+                            scope: id,
+                            imported: false,
+                        })
+                    }
+                    Route::Declined(_) => None,
+                });
+        let visible: Vec<Visible> = imported.chain(written).collect();
+        scope.visible = visible;
     }
-    out
 }
 
 /// One theorem of a proof file.

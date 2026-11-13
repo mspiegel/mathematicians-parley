@@ -14,12 +14,14 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -52,7 +54,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/7
     have r36_1 : (0 : ℤ) < 1 := by parley_arith
     have r36_2 : 0 < ε / 7 := by exact s1_1
-    have s1_2 : 0 < min 1 (ε / 7) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 7))).mpr ⟨by parley_set_side, r36_2⟩
+    have s1_2 : 0 < min 1 (ε / 7) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 7))).mpr ⟨by norm_num, r36_2⟩
     -- 1.3. inequalities, from D1, 1.2
     have s1_3 : m > 0 := by linarith only [s1_2, hD1]
     -- 1.4. proof
@@ -102,6 +104,6 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     exact ⟨m, ⟨s1_3, s1_4⟩⟩
   -- 2. def:limit-at D := ℝ, c := 3, L := 7, from 1
   have r106_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r106_1 (c := (3 : ℝ)) (L := (7 : ℝ)))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r106_1 (c := (3 : ℝ)) (L := (7 : ℝ)))).mpr (by simpa only [gt_iff_lt, Set.mem_univ, forall_const] using s1)
 
 end Parley.Proofs.Hammack.SquareLimit.SquareLimit

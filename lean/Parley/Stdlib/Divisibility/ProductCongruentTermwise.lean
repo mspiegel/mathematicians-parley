@@ -87,11 +87,11 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       have s3_17 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := (∏ᶠ x ∈ Y, (t x : ℤ)) * t a) (b := (∏ᶠ x ∈ Y, (u x : ℤ)) * u a))).mpr s3_16
       -- 3.18. substitute
       have s3_18 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by
-        have c1 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2).symm
+        have c1 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) hK s3_7 s3_6.1 s3_6.2).symm
         have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by (have h := Eq.subst (motive := (fun w : ℤ => w ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n])) c1 s3_17; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 3.19. substitute
-      have c1 : (∏ᶠ x ∈ Y, (u x : ℤ)) * u a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) (by parley_set_side) s3_7 s3_6.1 s3_6.2).symm
+      have c1 : (∏ᶠ x ∈ Y, (u x : ℤ)) * u a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) hK s3_7 s3_6.1 s3_6.2).symm
       have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun w : ℤ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ w [ZMOD n])) c1 s3_18; push_cast at h ⊢; all_goals exact_mod_cast h)
       exact row1
   -- 4. instantiate Y := X in line 3

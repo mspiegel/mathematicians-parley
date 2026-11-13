@@ -18,6 +18,9 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
@@ -55,7 +58,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s4 : 0 ≤ m := by linarith only [s3]
   -- 5. mun:nat0-as-int n := m, from 4
   have s5 : 0 ≤ m := by
-    have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨by parley_side, s4⟩)
+    have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨⟨_, rfl⟩, s4⟩)
     exact hI
   -- 6. mun:power-nat a := 3, from 5
   have s6 : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = 3 ^ m := by
@@ -76,15 +79,15 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
       _ = 3 ^ m * 3 ^ m * 3 := by (have h := congrArg (fun t : ℚ => t * 3) s9; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 11. def:sqrt x := 3
   have r57_1 : (3 : ℤ) ≥ 0 := by parley_arith
-  have s11a : Real.sqrt (3 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by parley_side))
-  have s11b : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by parley_side))
+  have s11a : Real.sqrt (3 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by norm_num))
+  have s11b : Real.sqrt (3 : ℝ) ^ 2 = 3 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 : ℝ)) (by norm_num))
   -- 12. def:sqrt x := 3^k
   have r61_1 : (0 : ℤ) ≤ 3 ^ k.toNat := by linarith only [s7]
   have s12a : Real.sqrt (3 ^ k.toNat : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 ^ k.toNat : ℝ)) (by exact_mod_cast r61_1))
   have s12b : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (3 ^ k.toNat : ℝ)) (by exact_mod_cast r61_1))
   -- 13. mun:product-nonneg x := √3, y := 3^m, from 6, 11
   have r65_1 : (0 : ℚ) ≤ 3 ^ m := by linarith only [(show (3 ^ m : ℚ) ≥ 1 by obtain ⟨w, hw, ew⟩ := s6; rw [← ew]; exact_mod_cast hw)]
-  have s13 : Real.sqrt (3 : ℝ) * 3 ^ m ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt (3 : ℝ)) (y := (3 ^ m : ℝ)) s11a (by parley_side))
+  have s13 : Real.sqrt (3 : ℝ) * 3 ^ m ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sqrt (3 : ℝ)) (y := (3 ^ m : ℝ)) s11a (show 0 ≤ (3 ^ m : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr r65_1; simp only [Rat.cast_zpow, Rat.cast_zero, Rat.cast_ofNat] at h; exact h))
   -- 14. calculation
   have s14 : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by
     calc Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := by exact s12b
@@ -94,7 +97,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s15 : Irrational (Real.sqrt (3 : ℝ)) := by exact Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational.sqrt3_irrational
   -- 16. thm:irrational-product A := √3, B := 3^m, from 6, 15
   have s16 : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by
-    have hI : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (3 : ℝ)) (B := (3 ^ m : ℚ)) (by parley_side) s15))
+    have hI : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (3 : ℝ)) (B := (3 ^ m : ℚ)) (show (3 ^ m : ℚ) ≠ 0 by obtain ⟨w, hw, ew⟩ := s6; rw [← ew]; exact_mod_cast hw.ne') s15))
     exact hI
   -- 17. substitute
   have c1 : Real.sqrt (3 : ℝ) * 3 ^ m = Real.sqrt (3 ^ k.toNat : ℝ) := by exact (((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (3 ^ k.toNat : ℝ)) (y := Real.sqrt (3 : ℝ) * 3 ^ m) s12a s13)).mp s14).symm

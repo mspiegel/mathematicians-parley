@@ -13,7 +13,7 @@ use super::library::{
 };
 use super::record::{
     Cited, Condition, Exhibit, Facing, FirstAt, Guard, Instantiated, ItemLetter,
-    ObtainedPart, Supplied, SuppliedBy, Unfolded,
+    Narrowed, ObtainedPart, Supplied, SuppliedBy, Unfolded,
 };
 use super::structure::letters_in_scope;
 use super::Report;
@@ -255,14 +255,15 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
     let stated = taken.first_facts(&groups, &parts.facts, library);
-    let firsts = firsts_at(step, &step.just.refs, &item, &stated, known, library);
-    let supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    let firsts = firsts_at(step, &step.just.refs, &item, &stated, None, known, library);
+    let mut supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    supplying.extend(typed_supplying(&item, library));
     let supplied = supplied_at(
         step,
         &step.just.refs,
         Some(&item),
         supplying,
-        &taken.binding,
+        &with_seed(&taken.binding, &parts.seed),
         None,
         known,
         library,
@@ -273,7 +274,7 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
     let meetings = meetings(&groups, taken, &parts.claims, known, library);
     let within = parts_within(&groups, taken, &parts.claims, known, library);
     let unfolded = unfolded(step, &groups[taken.group], taken, &item, known, library);
-    Some(Cited {
+    let mut out = Cited {
         item,
         group: taken.group,
         obtained: taken.obtained,
@@ -288,7 +289,10 @@ pub fn cited(step: &Step, library: &Library, known: &Known) -> Option<Cited> {
         bound: taken.bound.clone(),
         written: parts.seed.clone(),
         unfolded,
-    })
+        recursions: IndexMap::new(),
+    };
+    out.recursions = recursions_met(&out, known, library);
+    Some(out)
 }
 
 /// For each sentence `taken` concludes read backwards, what the right side
@@ -317,7 +321,12 @@ fn unfolded(
             if said.notation() != BICONDITIONAL {
                 return None;
             }
-            let at = filled(right, &taken.binding, &library.ctx);
+            // A value that is the rule of a define the step cites is that
+            // define's name (`rules_by_name`), as the record's binding has
+            // it: g, of g(x) = f(x) for x ∈ L, and not its rule standing
+            // alone, which reads as f and drops L.
+            let binding = rules_by_name(&taken.binding, step, known, library);
+            let at = filled(right, &binding, &library.ctx);
             let witnesses = Binding::new();
             Some(unfolded_parts(
                 step,
@@ -349,13 +358,21 @@ fn unfolded_parts(
     known: &Known,
     library: &Library,
 ) -> Vec<Unfolded> {
+    // Each fact is sought as the step's lines are read, with the defines
+    // the step cites written out (`Known::read_citing`): g(s) as f(s).
+    let defined = known.citing_step(step);
     let fact = |fact: Node, at: &Binding| {
         let fact = substitute_apart(&fact, at, &library.ctx);
+        let read = standard(&expand(&fact, &defined), &library.ctx);
         let by = supplied_at(
             step,
             &step.just.refs,
             Some(item),
-            vec![Supplying::sought(fact.clone())],
+            vec![Supplying {
+                want: fact.clone(),
+                fact: Some(read),
+                at: None,
+            }],
             &Binding::new(),
             None,
             known,
@@ -737,14 +754,23 @@ pub fn cited_requires(
     };
     let before: usize = groups[..taken.group].iter().map(|g| g.gives.len()).sum();
     let stated = taken.first_facts(&groups, &parts.facts, library);
-    let firsts = firsts_at(step, req.lines(), &item, &stated, known, library);
-    let supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    let firsts = firsts_at(
+        step,
+        req.lines(),
+        &item,
+        &stated,
+        Some(req.line),
+        known,
+        library,
+    );
+    let mut supplying = taken.supplying_facts(&groups, &parts.facts, library);
+    supplying.extend(typed_supplying(&item, library));
     let supplied = supplied_at(
         step,
         req.lines(),
         Some(&item),
         supplying,
-        &taken.binding,
+        &with_seed(&taken.binding, &parts.seed),
         Some(req.line),
         known,
         library,
@@ -755,7 +781,7 @@ pub fn cited_requires(
     let meetings = meetings(&groups, &taken, &parts.claims, known, library);
     let within = parts_within(&groups, &taken, &parts.claims, known, library);
     let unfolded = unfolded(step, &groups[taken.group], &taken, &item, known, library);
-    Some(Cited {
+    let mut out = Cited {
         item,
         group: taken.group,
         obtained: taken.obtained,
@@ -770,27 +796,77 @@ pub fn cited_requires(
         bound: taken.bound,
         written: parts.seed,
         unfolded,
+        recursions: IndexMap::new(),
+    };
+    out.recursions = recursions_met(&out, known, library);
+    Some(out)
+}
+
+/// Where `fact`, a line's "for all", is over a set that holds the one
+/// `asked` is over, which the search reads it over (`supply::narrowed`, by
+/// `set_within`): the two sets. None where they are the same, or either is
+/// no "for all".
+fn narrowed_of(asked: &Node, fact: &Node, ctx: &Context) -> Option<Narrowed> {
+    let ([_, to, _], [_, from, _]) =
+        (asked.children.as_slice(), fact.children.as_slice())
+    else {
+        return None;
+    };
+    let none = IndexMap::new();
+    let apart = asked.notation() == FOR_ALL
+        && fact.notation() == FOR_ALL
+        && !alike(&standard(to, ctx), &standard(from, ctx), ctx, &none, &none);
+    (apart && crate::citing::set_within(to, from)).then(|| Narrowed {
+        from: from.clone(),
+        to: to.clone(),
     })
 }
 
-/// Where each of `firsts` stands among the lines `refs` names at `step`: the
+/// The search's binding with what the citation's seed gives the letters it
+/// leaves out: the sets of an item's function type, which the search does
+/// not match and `typed_seed` fixes from the citing proof's lets
+/// (`typed_supplying`).
+fn with_seed(binding: &Binding, seed: &Binding) -> Binding {
+    let mut out = binding.clone();
+    for (letter, value) in seed {
+        out.entry(*letter).or_insert_with(|| value.clone());
+    }
+    out
+}
+
+/// Where each of `firsts` stands, searched as a hypothesis the citation
+/// needs is (`Suppliers`): among the lines `refs` names at `step`, the
 /// sentence of a line it is, or is a part of, or the line where it is the
 /// line's sentences together, each read as the citation of `item` reads
-/// them (`Known::supplied`). A fact no line names says has no place.
+/// them; else a requires line, the `let` line that says it once, or the
+/// said-once walk. Each place once; a fact nothing supplies has none.
 fn firsts_at(
     step: &Step,
     refs: &[String],
     item: &str,
     firsts: &[Node],
+    below: Option<usize>,
     known: &Known,
     library: &Library,
-) -> Vec<FirstAt> {
-    let mut out: Vec<FirstAt> = Vec::new();
+) -> Vec<SuppliedBy> {
+    let suppliers = Suppliers::new(step, refs, Some(item), below, known, library);
+    let mut out: Vec<SuppliedBy> = Vec::new();
     for first in firsts {
-        if let Some(at) = fact_at(step, refs, Some(item), first, known, library) {
-            if !out.iter().any(|o| o.same_place(&at)) {
-                out.push(at);
-            }
+        let by = suppliers.by(first);
+        let placed = |o: &SuppliedBy| match (o, &by) {
+            (SuppliedBy::Line(a), SuppliedBy::Line(b))
+            | (SuppliedBy::SaidOnce(a), SuppliedBy::SaidOnce(b)) => a.same_place(b),
+            (
+                SuppliedBy::Requires { line, implied },
+                SuppliedBy::Requires {
+                    line: other,
+                    implied: theirs,
+                },
+            ) => line == other && implied == theirs,
+            _ => false,
+        };
+        if !matches!(by, SuppliedBy::Unstated) && !out.iter().any(placed) {
+            out.push(by);
         }
     }
     out
@@ -804,6 +880,54 @@ pub(super) fn fact_at(
     refs: &[String],
     item: Option<&str>,
     fact: &Node,
+    known: &Known,
+    library: &Library,
+) -> Option<FirstAt> {
+    let states = |said: &Node| states(said, fact, library);
+    line_at(step, refs, item, &states, known, library)
+}
+
+/// Where a "there is", `fact`, stands among the lines `refs` names at
+/// `step` as a line states its body at a witness, `3·k·(k + 1) =
+/// 6·(m·(2m + 1))` of "there is k′ ∈ ℤ with 3·k·(k + 1) = 6·k′" (`SYNTAX.md`,
+/// exhibit), each read as the citation of `item` reads them: the search's
+/// own reading of a "there is" (`supply::supplier`), the witness shown in
+/// its domain among the step's `facts`. None for a fact of another kind,
+/// or where no line states it so.
+fn witnessed_at(
+    step: &Step,
+    refs: &[String],
+    item: Option<&str>,
+    fact: &Node,
+    facts: &[Node],
+    known: &Known,
+    library: &Library,
+) -> Option<FirstAt> {
+    if !library.exists.contains(&fact.notation()) {
+        return None;
+    }
+    let none = Binding::new();
+    let open = BTreeSet::new();
+    let sites = Sites::new();
+    // The line first, then the step's facts, among which the search finds
+    // the witness in its domain (`supply::witnessed_in`); the line states it
+    // where the search takes the line.
+    let states = |said: &Node| {
+        let mut with: Vec<Node> = vec![said.clone()];
+        with.extend(facts.iter().cloned());
+        crate::citing::supplier(fact, &with, &none, &open, library, &sites)
+            .is_some_and(|took| std::ptr::eq(took, &with[0]))
+    };
+    line_at(step, refs, item, &states, known, library)
+}
+
+/// Where a line `refs` names at `step` says what `states` accepts, each
+/// line read as the citation of `item` reads it (`fact_at`).
+fn line_at(
+    step: &Step,
+    refs: &[String],
+    item: Option<&str>,
+    states: &dyn Fn(&Node) -> bool,
     known: &Known,
     library: &Library,
 ) -> Option<FirstAt> {
@@ -826,12 +950,12 @@ pub(super) fn fact_at(
             .enumerate()
             .map(|(k, s)| (own + k, s));
         let said: Vec<(usize, &super::library::Said)> = sentences.chain(at).collect();
-        line_states(fact, r, &said, library).or_else(|| {
+        line_states(states, r, &said, library).or_else(|| {
             // What the line implies, where it writes nothing that states
             // the fact.
             says.iter()
                 .filter(|s| s.implied.is_some())
-                .find(|s| states(&s.cited, fact, library))
+                .find(|s| states(&s.cited))
                 .and_then(|s| placed(r, s, &says, own))
         })
     })
@@ -953,15 +1077,15 @@ pub(super) fn placed(
     })
 }
 
-/// Where `fact` stands in the line `line`, whose sentences read as `said`,
-/// each by its place (`FirstAt::sentence`), with what the page writes there.
+/// Where the line `line`, whose sentences read as `said`, says what `states`
+/// accepts, each sentence by its place (`FirstAt::sentence`), with what the
+/// page writes there.
 fn line_states(
-    fact: &Node,
+    states: &dyn Fn(&Node) -> bool,
     line: &str,
     said: &[(usize, &super::library::Said)],
     library: &Library,
 ) -> Option<FirstAt> {
-    let states = |n: &Node| states(n, fact, library);
     let at = |sentence, part, written| FirstAt {
         line: line.to_string(),
         sentence,
@@ -993,6 +1117,23 @@ fn line_states(
     states(&whole).then(|| at(None, None, written))
 }
 
+/// Each function-type `let` line of the item, `f : X → Y`, as a fact the
+/// citation supplies, after the group's hypotheses: the group leaves it
+/// out (`Library::function_types`), and a backend that states the map's
+/// type as a hypothesis, Lean's `Set.MapsTo f X Y`, finds where it stands
+/// by its place.
+fn typed_supplying(item: &str, library: &Library) -> Vec<Supplying> {
+    library
+        .function_type_lines(item)
+        .into_iter()
+        .map(|w| Supplying {
+            want: w.tree,
+            fact: None,
+            at: Some(w.at),
+        })
+        .collect()
+}
+
 /// What supplies each hypothesis of the group `taken` takes, in the group's
 /// order (`Cited::supplied`): the fact the search took for it, placed among
 /// the lines `refs` names, or among the step's requires lines the citation
@@ -1013,68 +1154,339 @@ fn supplied_at(
     library: &Library,
 ) -> Vec<Supplied> {
     let ctx = &library.ctx;
-    let none = IndexMap::new();
-    let defined = known.citing_step(step);
-    let read = |r: &Requires| -> Vec<Node> {
-        r.fact
-            .sentences()
-            .iter()
-            .filter_map(|s| known.read_citing(s, &defined))
-            .collect()
-    };
-    let required: Vec<Vec<Node>> = match below {
-        None => step.requires.iter().map(read).collect(),
-        Some(line) => step.requires_above(line).map(read).collect(),
-    };
-    let parts = known.parts(step, library);
-    // A membership the said-once walk gives, for its reason.
-    let walked = |fact: &Node| {
-        parts
-            .said_once
-            .iter()
-            .find(|s| alike(&s.fact, fact, ctx, &none, &none))
-            .map(|s| SuppliedBy::Walked(s.clone()))
-    };
+    let suppliers = Suppliers::new(step, refs, item, below, known, library);
     supplying
         .into_iter()
         .map(|Supplying { want, fact, at }| {
             let fact = fact.unwrap_or_else(|| {
                 standard(&substitute_apart(&want, binding, ctx), ctx)
             });
-            let states = |s: &Node| alike(&standard(s, ctx), &fact, ctx, &none, &none);
-            // A requires line that writes the fact, or else one that
-            // implies it, `[0, 1] ⊆ ℝ` of `[0, 1] ∈ 𝒫ℝ`.
-            let written = required
-                .iter()
-                .position(|said| said.iter().any(states))
-                .map(|line| SuppliedBy::Requires {
-                    line,
-                    implied: None,
-                });
-            let implied = || {
-                required.iter().enumerate().find_map(|(line, said)| {
-                    said.iter()
-                        .flat_map(|s| implied_by(s, known.env, &known.sorts))
-                        .find(|(i, _)| states(i))
-                        .map(|(_, rule)| SuppliedBy::Requires {
-                            line,
-                            implied: Some(rule),
-                        })
-                })
-            };
-            let by = match fact_at(step, refs, item, &fact, known, library) {
-                Some(at) => SuppliedBy::Line(at),
-                None => match written.or_else(implied) {
-                    Some(by) => by,
-                    None => match said_once_at(step, item, &fact, known, library) {
-                        Some(line) => SuppliedBy::SaidOnce(line),
-                        None => walked(&fact).unwrap_or(SuppliedBy::Unstated),
-                    },
-                },
-            };
-            Supplied { want, by, at }
+            let by = suppliers.by(&fact);
+            // The hypothesis as the citation asks it, a property given read
+            // as its body where it is applied (`filled`), as a conclusion's
+            // meeting reads it, met with the line as the line writes it.
+            let asked = filled(&want, binding, ctx);
+            let narrowed = narrowed_of(&asked, &fact, ctx);
+            Supplied {
+                meeting: suppliers.meeting(&asked, &fact, &by, narrowed.as_ref()),
+                narrowed,
+                want,
+                by,
+                at,
+            }
         })
         .collect()
+}
+
+/// Where a fact a citation needs stands, searched in one order for an
+/// item's hypothesis (`Cited::supplied`) and for the side a definition is
+/// read from (`Cited::firsts`): a line `refs` names; one of the step's
+/// requires lines the citation reads, all of them for the step's own and
+/// those above it for a citation on the line `below`
+/// (`Step::requires_above`), that writes the fact or else implies it; the
+/// `let` line in scope that says it once; the said-once walk.
+struct Suppliers<'a> {
+    step: &'a Step,
+    refs: &'a [String],
+    item: Option<&'a str>,
+    /// The requires lines the citation reads, each as its sentences.
+    required: Vec<Vec<Node>>,
+    parts: Rc<Parts>,
+    known: &'a Known<'a>,
+    library: &'a Library<'a>,
+}
+
+impl<'a> Suppliers<'a> {
+    fn new(
+        step: &'a Step,
+        refs: &'a [String],
+        item: Option<&'a str>,
+        below: Option<usize>,
+        known: &'a Known<'a>,
+        library: &'a Library<'a>,
+    ) -> Suppliers<'a> {
+        let defined = known.citing_step(step);
+        let read = |r: &Requires| -> Vec<Node> {
+            r.fact
+                .sentences()
+                .iter()
+                .filter_map(|s| known.read_citing(s, &defined))
+                .collect()
+        };
+        let required: Vec<Vec<Node>> = match below {
+            None => step.requires.iter().map(read).collect(),
+            Some(line) => step.requires_above(line).map(read).collect(),
+        };
+        // A citation on a requires line reads that line's parts, the member
+        // a claim's "for all" gives among them (`requires_parts`); one on
+        // the step, the step's.
+        let parts = below
+            .and_then(|line| step.requires.iter().find(|r| r.line == line))
+            .and_then(|req| requires_parts(step, req, &[], known, library))
+            .map(Rc::new)
+            .unwrap_or_else(|| known.parts(step, library));
+        Suppliers {
+            step,
+            refs,
+            item,
+            required,
+            parts,
+            known,
+            library,
+        }
+    }
+
+    /// How the line `by` names, as it writes `fact`, met `asked`, the
+    /// hypothesis at the citation's values (`Known::alike_how`); None where
+    /// no line writes it, or one implies it.
+    fn meeting(
+        &self,
+        asked: &Node,
+        fact: &Node,
+        by: &SuppliedBy,
+        narrowed: Option<&Narrowed>,
+    ) -> Option<crate::matching::Meeting> {
+        let ctx = &self.library.ctx;
+        let none = IndexMap::new();
+        let written = match by {
+            SuppliedBy::Line(at) | SuppliedBy::SaidOnce(at) if at.implied.is_none() => {
+                at.written.clone()
+            }
+            SuppliedBy::Requires {
+                line,
+                implied: None,
+            } => self
+                .required
+                .get(*line)?
+                .iter()
+                .find(|s| alike(&standard(s, ctx), fact, ctx, &none, &none))?
+                .clone(),
+            _ => return None,
+        };
+        // A line narrowed to the set asked is met over that set.
+        let written = match (narrowed, written.children.as_slice()) {
+            (Some(n), [letter, _, body]) if written.notation() == FOR_ALL => {
+                written.with_children(vec![letter.clone(), n.to.clone(), body.clone()])
+            }
+            _ => written,
+        };
+        self.known.alike_how(asked, &written)
+    }
+
+    /// Where `fact`, in its standard form, stands: on a line (`said`), else
+    /// as what lines give together or what needs no line (`derived`);
+    /// `Unstated` where none of those supplies it.
+    fn by(&self, fact: &Node) -> SuppliedBy {
+        self.said(fact)
+            .or_else(|| self.derived(fact))
+            .unwrap_or(SuppliedBy::Unstated)
+    }
+
+    /// What no one line says but the step gives all the same: the membership
+    /// its claim's "for all" gives (`Bound`); a membership a function's type
+    /// or a subset carries, each of the two on its line (`Through`); an
+    /// equation the same on both sides (`Identity`); an "and" whose parts
+    /// stand apart (`Parts`). None where it is none of these.
+    fn derived(&self, fact: &Node) -> Option<SuppliedBy> {
+        let (known, library, ctx) = (self.known, self.library, &self.library.ctx);
+        let none = IndexMap::new();
+        let alike_fact = |n: &Node| alike(n, fact, ctx, &none, &none);
+        // A function's membership of the functions from X to Y, which a line
+        // says as its type, `g : X → Y` (`supply::typed_into`).
+        if let (MEMBERSHIP, [f, set]) = (fact.notation(), fact.children.as_slice()) {
+            if let (crate::notations::FUNCTIONS_FROM, [from, to]) =
+                (set.notation(), set.children.as_slice())
+            {
+                let typed = page::made_as(
+                    library.env.g,
+                    "_ : _ → _",
+                    vec![f.clone(), from.clone(), to.clone()],
+                );
+                if let Some(by) = typed.and_then(|t| self.said(&standard(&t, ctx))) {
+                    return Some(by);
+                }
+            }
+        }
+        // The claim's own "for all".
+        if let Some(bound) = self.claimed(fact) {
+            return Some(bound);
+        }
+        // Two facts of the step that give it together. A subset's member is
+        // also sought where it stands though the step's facts leave it out,
+        // `k ∈ {1, …, m}` a block's `let` says, for `k ∈ {1, …, n}` through
+        // `{1, …, m} ⊆ {1, …, n}`.
+        let facts = &self.parts.facts;
+        for carrier in facts {
+            let sought = subset_member(carrier, fact);
+            for member in facts.iter().chain(sought.as_ref()) {
+                let pair = [carrier.clone(), member.clone()];
+                let carried = function_values(&pair, known.env, &known.sorts)
+                    .iter()
+                    .any(|v| alike_fact(&standard(v, ctx)))
+                    || subset_carries(carrier, member, fact, ctx)
+                    || for_all_carries(carrier, member, fact, ctx);
+                if !carried {
+                    continue;
+                }
+                // The member said by a line, or by the claim's own "for all".
+                let member = self.said(member).or_else(|| self.claimed(member));
+                if let (Some(c), Some(m)) = (self.said(carrier), member) {
+                    return Some(SuppliedBy::Through {
+                        carrier: Box::new(c),
+                        member: Box::new(m),
+                    });
+                }
+            }
+        }
+        // An equation whose two sides meet.
+        if ctx.equations.contains(&fact.notation()) {
+            if let [lhs, rhs] = fact.children.as_slice() {
+                if let Some(met) = known.alike_how(lhs, rhs) {
+                    return Some(SuppliedBy::Identity(met));
+                }
+            }
+        }
+        // An "and", part by part.
+        let parts = conjuncts(fact, library);
+        if parts.len() > 1 {
+            let placed: Vec<SuppliedBy> = parts.iter().map(|p| self.by(p)).collect();
+            if !placed.iter().any(|p| matches!(p, SuppliedBy::Unstated)) {
+                return Some(SuppliedBy::Parts(placed));
+            }
+        }
+        None
+    }
+
+    /// `Bound` where `fact` is the membership the step's claim, a "for all"
+    /// proved in one line, gives its letter (`Known::step_member`); None
+    /// otherwise.
+    fn claimed(&self, fact: &Node) -> Option<SuppliedBy> {
+        let ctx = &self.library.ctx;
+        let member = self.known.step_member(self.step)?;
+        let letter = member.children.first().filter(|l| l.is_name())?;
+        alike(
+            &standard(&member, ctx),
+            fact,
+            ctx,
+            &IndexMap::new(),
+            &IndexMap::new(),
+        )
+        .then(|| SuppliedBy::Bound {
+            letter: letter.text.to_string(),
+        })
+    }
+
+    /// Where `fact`, in its standard form, stands on a line: one the step
+    /// names, a requires line, a `let` line that says it once, or the
+    /// said-once walk's reason. None where no line says it.
+    fn said(&self, fact: &Node) -> Option<SuppliedBy> {
+        let (known, library, ctx) = (self.known, self.library, &self.library.ctx);
+        let none = IndexMap::new();
+        let states = |s: &Node| alike(&standard(s, ctx), fact, ctx, &none, &none);
+        // A line that states the fact, or, of a "there is", its body at a
+        // witness.
+        let line = fact_at(self.step, self.refs, self.item, fact, known, library)
+            .or_else(|| {
+                witnessed_at(
+                    self.step,
+                    self.refs,
+                    self.item,
+                    fact,
+                    &self.parts.facts,
+                    known,
+                    library,
+                )
+            });
+        if let Some(at) = line {
+            return Some(SuppliedBy::Line(at));
+        }
+        // A requires line that writes the fact, or else one that implies
+        // it, `[0, 1] ⊆ ℝ` of `[0, 1] ∈ 𝒫ℝ`.
+        let written = self
+            .required
+            .iter()
+            .position(|said| said.iter().any(states))
+            .map(|line| SuppliedBy::Requires {
+                line,
+                implied: None,
+            });
+        let implied = || {
+            self.required.iter().enumerate().find_map(|(line, said)| {
+                said.iter()
+                    .flat_map(|s| implied_by(s, known.env, &known.sorts))
+                    .find(|(i, _)| states(i))
+                    .map(|(_, rule)| SuppliedBy::Requires {
+                        line,
+                        implied: Some(rule),
+                    })
+            })
+        };
+        if let Some(by) = written.or_else(implied) {
+            return Some(by);
+        }
+        if let Some(line) = said_once_at(self.step, self.item, fact, known, library) {
+            return Some(SuppliedBy::SaidOnce(line));
+        }
+        // A membership the said-once walk gives, for its reason.
+        self.parts
+            .said_once
+            .iter()
+            .find(|s| alike(&s.fact, fact, ctx, &none, &none))
+            .map(|s| SuppliedBy::Walked(s.clone()))
+    }
+}
+
+/// Whether `carrier`, a "for all x ∈ A, P(x)", and `member`, `t ∈ A`, give
+/// `fact`, `P(t)`.
+fn for_all_carries(carrier: &Node, member: &Node, fact: &Node, ctx: &Context) -> bool {
+    let none = IndexMap::new();
+    let same = |a: &Node, b: &Node| alike(a, b, ctx, &none, &none);
+    let ([x, domain, body], [t, within]) =
+        (carrier.children.as_slice(), member.children.as_slice())
+    else {
+        return false;
+    };
+    if carrier.notation() != FOR_ALL
+        || member.notation() != MEMBERSHIP
+        || !same(domain, within)
+    {
+        return false;
+    }
+    let mut at = Binding::new();
+    at.insert(Symbol::of(&x.text), t.clone());
+    same(&standard(&substitute_apart(body, &at, ctx), ctx), fact)
+}
+
+/// Whether `subset`, `A ⊆ B` or `A ∈ 𝒫B` (`library::part_pair`), and
+/// `member`, `k ∈ A`, give `fact`, `k ∈ B`.
+/// The membership `subset`, `A ⊆ B`, carries to `fact`, `t ∈ B`: `t ∈ A`.
+/// None where `subset` is no subset or `fact` no membership.
+fn subset_member(subset: &Node, fact: &Node) -> Option<Node> {
+    let (small, _) = super::library::part_pair(subset)?;
+    match (fact.notation(), fact.children.as_slice()) {
+        (MEMBERSHIP, [point, _]) => {
+            Some(fact.with_children(vec![point.clone(), small]))
+        }
+        _ => None,
+    }
+}
+
+fn subset_carries(subset: &Node, member: &Node, fact: &Node, ctx: &Context) -> bool {
+    let none = IndexMap::new();
+    let same = |a: &Node, b: &Node| alike(a, b, ctx, &none, &none);
+    let Some((small, big)) = super::library::part_pair(subset) else {
+        return false;
+    };
+    match (member.children.as_slice(), fact.children.as_slice()) {
+        ([point, within], [value, wider]) => {
+            member.notation() == MEMBERSHIP
+                && fact.notation() == MEMBERSHIP
+                && same(within, &small)
+                && same(wider, &big)
+                && same(point, value)
+        }
+        _ => false,
+    }
 }
 
 /// What `taken` concludes, each sentence counted across the item's groups,
@@ -1716,6 +2128,59 @@ pub fn check_recursions_cited(
     }
 }
 
+/// The define by recursion of `thm` that gives the first of the sequences
+/// `theirs` gives, with its parts; None where it has none.
+fn our_recursion<'t>(
+    thm: &'t Theorem,
+    theirs: &crate::corpus::Recursion,
+) -> Option<(&'t crate::corpus::DefineLine, crate::corpus::Recursion)> {
+    thm.defines
+        .iter()
+        .find_map(|d| match define_parts(&d.text) {
+            Built(DefineParts::Recursion(r)) if r.names.contains(&theirs.names[0]) => {
+                Some((d, r))
+            }
+            _ => None,
+        })
+}
+
+/// Each recursion the theorem a citation names is stated over, by the
+/// label of its define, with the define of the citing proof that is the
+/// same recursion (`recursion_differs`), by its label (`Cited::recursions`).
+/// One the citing proof has none the same of is `check_recursions_cited`'s
+/// to report.
+fn recursions_met(
+    read: &Cited,
+    known: &Known,
+    library: &Library,
+) -> IndexMap<String, String> {
+    let (Some(Item::Theorem(other)), Some(sorts)) =
+        (library.item(&read.item), library.proved_sorts(&read.item))
+    else {
+        return IndexMap::new();
+    };
+    let thm = known.thm;
+    let mut out = IndexMap::new();
+    for (theirs_line, theirs) in other.stated_recursions() {
+        let same = recursion_differs(
+            thm,
+            other,
+            sorts,
+            (theirs_line, &theirs),
+            &read.binding,
+            known,
+        )
+        .is_none();
+        let theirs_define = other.defines.iter().find(|d| d.line == theirs_line);
+        if let (true, Some(t), Some((o, _))) =
+            (same, theirs_define, our_recursion(thm, &theirs))
+        {
+            out.insert(t.label.clone(), o.label.clone());
+        }
+    }
+    out
+}
+
 /// How the citing proof's sequences differ from those `theirs`, a define by
 /// recursion of the theorem `other` on its line `theirs_line`, read with
 /// `sorts`, gives: in the names, or in the first value or rule that is not
@@ -1729,16 +2194,7 @@ fn recursion_differs(
     binding: &Binding,
     known: &Known,
 ) -> Option<String> {
-    let ours = thm
-        .defines
-        .iter()
-        .find_map(|d| match define_parts(&d.text) {
-            Built(DefineParts::Recursion(r)) if r.names.contains(&theirs.names[0]) => {
-                Some((d, r))
-            }
-            _ => None,
-        });
-    let Some((define, ours)) = ours else {
+    let Some((define, ours)) = our_recursion(thm, theirs) else {
         return Some(format!(
             "this proof defines no {} by recursion",
             theirs.names[0]
@@ -2063,7 +2519,7 @@ pub fn check_function_types(
     scopes: &[FileScope],
 ) {
     let defines: BTreeSet<String> =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines))
+        defined_functions(&crate::corpus::proof::in_scope(thm, scopes))
             .into_iter()
             .map(|f| f.name)
             .collect();
@@ -2417,11 +2873,8 @@ fn terms_unsaid(
 /// rule is a number where its rule is, as the build reads it
 /// (`Elaborator::map_into`).
 fn applies_untyped(term: &Node, thm: &Theorem, facts: &[Node], known: &Known) -> bool {
-    let defines = thm
-        .defines
-        .iter()
-        .chain(&known.env.scopes[thm.scope].defines);
-    let sequences: Vec<String> = defined_functions(defines)
+    let defines = crate::corpus::proof::in_scope(thm, known.env.scopes);
+    let sequences: Vec<String> = defined_functions(&defines)
         .into_iter()
         .filter(|d| d.recursive)
         .map(|d| d.name)
@@ -4082,14 +4535,13 @@ pub(super) fn domains_asked(
     scopes: &[FileScope],
     known: &Known,
 ) -> FxIndexSet<ByShape> {
-    let functions =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return FxIndexSet::default(); // `check_formulas` says it does not read
     };
     let cited: Vec<Defined> = functions
         .iter()
-        .filter(|d| step.just.refs.contains(&d.label))
+        .filter(|d| d.label.as_ref().is_some_and(|l| step.just.refs.contains(l)))
         .cloned()
         .collect();
     applied(&functions, &claim, false, known)
@@ -4105,7 +4557,8 @@ pub(super) fn domains_asked(
 #[derive(Clone)]
 pub(super) struct Defined {
     name: String,
-    label: String,
+    /// The label a line cites it by; None for an import that gives none.
+    label: Option<String>,
     /// Each argument's domain, as the define writes it.
     domains: Vec<Written>,
     /// Defined by recursion, whose domain is its step clause's index: the
@@ -4127,21 +4580,19 @@ pub fn check_defined_types(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let defines: Vec<&crate::corpus::DefineLine> = thm
-        .defines
-        .iter()
-        .chain(&scopes[thm.scope].defines)
-        .collect();
+    let defines = crate::corpus::proof::in_scope(thm, scopes);
     let mut defined: IndexMap<String, Option<DefinedRule>> =
-        defined_functions(defines.iter().copied())
+        defined_functions(&defines)
             .into_iter()
             .map(|d| (d.name, None))
             .collect();
-    for d in &defines {
+    // Each rule read in this theorem's file: an imported define is read in
+    // the file that writes it, and its rule is not this file's to read.
+    for d in defines.iter().filter(|d| !d.imported) {
         // A define that does not read is said where it is written, by
         // `check_formulas` of a theorem's and `check_file_defines` of a
         // file's.
-        if let Ok(Some(rule)) = DefinedRule::of(d, known) {
+        if let Ok(Some(rule)) = DefinedRule::of(d.define, known) {
             defined.insert(rule.name.clone(), Some(rule));
         }
     }
@@ -4483,27 +4934,29 @@ fn values_said(typed: &Node, facts: &[Node], library: &Library) -> bool {
         .any(|fact| crate::matching::alike(fact, &every, &library.ctx, &none, &none))
 }
 
-/// The functions some defines name.
-pub(super) fn defined_functions<'d>(
-    defines: impl Iterator<Item = &'d crate::corpus::DefineLine>,
+/// The functions the defines a theorem may use name (`corpus::in_scope`),
+/// each under the name and label the theorem uses.
+pub(super) fn defined_functions(
+    defines: &[crate::corpus::proof::InScope],
 ) -> Vec<Defined> {
     let mut functions = Vec::new();
-    for d in defines {
-        match define_parts(&d.text) {
-            Built(DefineParts::Recursion(r)) => {
+    for s in defines {
+        let d = s.define;
+        match &*s.parts {
+            DefineParts::Recursion(r) => {
                 for name in &r.names {
                     functions.push(Defined {
                         name: name.clone(),
-                        label: d.label.clone(),
+                        label: s.label.clone(),
                         domains: vec![d.formula(&r.domain)],
                         recursive: true,
                     });
                 }
             }
-            Built(DefineParts::One(one)) if !one.params.is_empty() => {
+            DefineParts::One(one) if !one.params.is_empty() => {
                 functions.push(Defined {
-                    name: one.name.clone(),
-                    label: d.label.clone(),
+                    name: s.name.clone(),
+                    label: s.label.clone(),
                     domains: one.params.iter().map(|p| d.domain(p)).collect(),
                     recursive: false,
                 });
@@ -4539,11 +4992,12 @@ fn function_on_unshown(
         return None;
     };
     let named = req.lines();
-    let defines = thm.defines.iter().chain(&scopes[thm.scope].defines);
-    let given = defined_functions(defines)
-        .into_iter()
-        .find(|f| f.name == function.text && named.contains(&f.label));
-    let Some(given) = given else {
+    let defines = crate::corpus::proof::in_scope(thm, scopes);
+    let given = defined_functions(&defines).into_iter().find_map(|f| {
+        let label = f.label.clone()?;
+        (f.name == function.text && named.contains(&label)).then_some((f, label))
+    });
+    let Some((given, label)) = given else {
         return Some(format!(
             "no define it names gives {}",
             known.print(function)
@@ -4554,7 +5008,7 @@ fn function_on_unshown(
     let [domain] = given.domains.as_slice() else {
         return Some(format!(
             "{} gives {} of {} arguments, and a function on one domain is a map of one argument",
-            given.label,
+            label,
             known.print(function),
             given.domains.len()
         ));
@@ -4563,7 +5017,7 @@ fn function_on_unshown(
     (!known.alike(&domain, on)).then(|| {
         format!(
             "{} gives {} on {}",
-            given.label,
+            label,
             known.print(function),
             known.print(&domain)
         )
@@ -4593,7 +5047,7 @@ fn evaluated(
     let direct = step.just.head == crate::corpus::Head::Define
         && used
             .iter()
-            .any(|f| step.just.defined.as_deref() == Some(f.label.as_str()));
+            .any(|f| f.label.is_some() && step.just.defined == f.label);
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return Vec::new(); // `check_formulas` says it does not read
     };
@@ -4629,7 +5083,7 @@ fn applied_in_cited(
     let scope = known.scope(step);
     let mut out = Vec::new();
     for r in &step.just.refs {
-        if used.iter().any(|f| &f.label == r) {
+        if used.iter().any(|f| f.label.as_ref() == Some(r)) {
             continue;
         }
         let Some(stated) = scope.get(r.as_str()) else {
@@ -4692,6 +5146,10 @@ fn applied(
         recursive,
     } in functions
     {
+        // An import that gives no label is one no line cites.
+        let Some(label) = label else {
+            continue;
+        };
         for node in &nodes {
             let [function, args @ ..] = node.children.as_slice() else {
                 continue;
@@ -4775,8 +5233,7 @@ pub fn check_define_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }
@@ -4892,9 +5349,11 @@ fn read_over_cited_theorem(
         return Vec::new();
     }
     let functions: Vec<Defined> =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines))
+        defined_functions(&crate::corpus::proof::in_scope(thm, scopes))
             .into_iter()
-            .filter(|f| !f.recursive && over.contains(&f.label))
+            .filter(|f| {
+                !f.recursive && f.label.as_ref().is_some_and(|l| over.contains(l))
+            })
             .collect();
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return Vec::new(); // `check_formulas` says it does not read
@@ -4919,8 +5378,7 @@ pub fn check_stated_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }
@@ -4973,8 +5431,7 @@ pub fn check_cited_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }
@@ -4985,7 +5442,9 @@ pub fn check_cited_domains(
         let over = crate::sorts::stated_over(thm, scopes, &step.just.item(&item));
         let used: Vec<Defined> = functions
             .iter()
-            .filter(|f| !f.recursive && over.contains(&f.label))
+            .filter(|f| {
+                !f.recursive && f.label.as_ref().is_some_and(|l| over.contains(l))
+            })
             .cloned()
             .collect();
         if used.is_empty() {
@@ -5107,8 +5566,7 @@ pub fn check_conclusion_domains(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    let functions =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
     if functions.is_empty() {
         return;
     }
@@ -5190,7 +5648,7 @@ pub(super) fn domains_unsaid(
     );
     let used: Vec<Defined> = functions
         .iter()
-        .filter(|f| cited.contains(&f.label))
+        .filter(|f| f.label.as_ref().is_some_and(|l| cited.contains(l)))
         .cloned()
         .collect();
     if used.is_empty() {
@@ -5862,7 +6320,8 @@ fn value_memberships(
         let domain_written = substitute_apart(&w.domain, &outer_written, &library.ctx);
         outer_written.insert(w.letter.text, value_written.clone());
         out.push(ValueMembership {
-            letter: b.letter.text.to_string(),
+            // As the page writes it, which a reading may rename apart.
+            letter: w.letter.text.to_string(),
             read: bound_in(b.how, value, &domain, library.env.g),
             written: bound_in(b.how, &value_written, &domain_written, library.env.g),
             value: value_written,
@@ -5871,10 +6330,50 @@ fn value_memberships(
     out
 }
 
+/// `seed` with the letter of `read`'s binders it gives no value, whose
+/// domain at the values before it is the set the claim's own "for all"
+/// ranges over, `member` (`Known::step_member`), given the claim's letter:
+/// "for all j ∈ {1, …, N}" at N := n, read in a claim "for all j ∈ {1, …,
+/// n}", at j.
+fn at_claim_letter(
+    read: &Node,
+    seed: &Binding,
+    member: Option<Node>,
+    library: &Library,
+) -> Binding {
+    let mut out = seed.clone();
+    let Some(member) = member else {
+        return out;
+    };
+    let [letter, set] = member.children.as_slice() else {
+        return out;
+    };
+    let none = IndexMap::new();
+    for b in binders_of(read) {
+        if out.contains_key(&b.letter.text) {
+            continue;
+        }
+        let domain = substitute_apart(&b.domain, &out, &library.ctx);
+        if alike(
+            &standard(&domain, &library.ctx),
+            &standard(set, &library.ctx),
+            &library.ctx,
+            &none,
+            &none,
+        ) {
+            out.insert(b.letter.text, letter.clone());
+        }
+        break;
+    }
+    out
+}
+
 /// Where each value `step` puts in a domain of `said`, the sentence it
 /// instantiates, is shown to be in it (`Instantiated::guards`): among the
 /// lines the step names, its requires lines, or the `let` line that says
-/// it once, as a citation's hypothesis is (`supplied_at`).
+/// it once, as a citation's hypothesis is (`supplied_at`). A letter the
+/// step gives no value is read at the letter of the claim's own "for all"
+/// over its domain (`at_claim_letter`), whose membership the claim gives.
 fn value_guards(
     step: &Step,
     said: &super::library::Said,
@@ -5883,7 +6382,8 @@ fn value_guards(
     library: &Library,
 ) -> Vec<Guard> {
     let written = values_written(step, known);
-    value_memberships(&said.cited, &said.written, seed, &written, library)
+    let seed = at_claim_letter(&said.cited, seed, known.step_member(step), library);
+    value_memberships(&said.cited, &said.written, &seed, &written, library)
         .into_iter()
         .map(|m| {
             let by = supplied_at(
@@ -6337,12 +6837,11 @@ pub fn check_from_lines(
     known: &Known,
     scopes: &[FileScope],
 ) {
-    // The defines a line may name: the theorem's own and its file's.
-    let defines: BTreeSet<&str> = thm
-        .defines
-        .iter()
-        .chain(&scopes[thm.scope].defines)
-        .map(|d| d.label.as_str())
+    // The defines a line may name: the theorem's own, its file's and those
+    // its file imports.
+    let defines: BTreeSet<String> = crate::corpus::proof::in_scope(thm, scopes)
+        .into_iter()
+        .filter_map(|d| d.label)
         .collect();
     // A let's reason is read as a requires line of the step below it.
     // Its requires lines are the step's own, and are read there.
@@ -6738,8 +7237,7 @@ pub fn check_surplus(
 ) {
     let defines: BTreeSet<&str> =
         thm.defines.iter().map(|d| d.label.as_str()).collect();
-    let functions =
-        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    let functions = defined_functions(&crate::corpus::proof::in_scope(thm, scopes));
 
     // A step holds where its item is supplied and concluded, and every
     // define it cites has its arguments in their domains: a line saying one

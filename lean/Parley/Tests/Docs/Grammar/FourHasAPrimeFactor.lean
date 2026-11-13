@@ -21,6 +21,6 @@ theorem four_has_a_prime_factor :
     (∃ p : ℤ, 0 < p ∧ (Nat.Prime p.toNat ∧ p ∣ (4 : ℤ))) := by
   -- 1. thm:prime-factor m := 4
   have r36_1 : (4 : ℤ) > 1 := by parley_arith
-  exact (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := (4 : ℤ)) (by norm_num) r36_1)
+  exact (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := (4 : ℤ)) (by norm_num) (by norm_num))
 
 end Parley.Tests.Docs.Grammar.FourHasAPrimeFactor

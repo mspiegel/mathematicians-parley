@@ -42,7 +42,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   -- 1. def:interval x := a
   have r37_1 : a ≤ a := by linarith
   have r37_2 : a ≤ b := by linarith only [hH3]
-  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r37_1⟩, r37_2⟩
+  have s1 : a ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := a) (a := a) (b := b))).mpr ⟨⟨by trivial, r37_1⟩, r37_2⟩
   -- 2. def:set-builder u := a, from D1, H6, 1
   have s2 : a ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := a))).mpr ⟨s1, hH6⟩
   -- 3. mun:set-builder-subset, from D1
@@ -67,7 +67,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   -- 7. def:upper-bound, from 6
   have s7 : ∀ s ∈ S, s ≤ b := by parley_set_side
   -- 8. obtain c: axi:completeness, from 2, 5, 7
-  obtain ⟨c, s8⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s5 (by parley_set_side) (by parley_set_side))
+  obtain ⟨c, s8⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s5 ⟨a, s2, trivial⟩ ⟨b, s7⟩)
   -- 9. def:least-upper-bound, from 8
   have s9a : ∀ s ∈ S, s ≤ c := by parley_set_side
   have s9b : ∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u := by parley_set_side
@@ -78,7 +78,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   -- 12. instantiate u := b in line 9, from 7
   have s12 : c ≤ b := by exact (s9b b s7)
   -- 13. def:interval x := c, from 11, 12
-  have s13 : c ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := c) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, s11⟩, s12⟩
+  have s13 : c ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := c) (a := a) (b := b))).mpr ⟨⟨by trivial, s11⟩, s12⟩
   -- 14. axi:trichotomy x := f(c), from H4, 13
   have s14 : (f c < 0 ∨ f c = 0) ∨ 0 < f c := by exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c))
   -- 15. def:continuous-on, from H5
@@ -96,7 +96,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         -- 16.1.2. def:interval x := b
         have r108_1 : a ≤ b := by linarith only [hH3]
         have r108_2 : b ≤ b := by linarith
-        have s16_1_2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, r108_1⟩, r108_2⟩
+        have s16_1_2 : b ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := b) (a := a) (b := b))).mpr ⟨⟨by trivial, r108_1⟩, r108_2⟩
         -- 16.1.3. inequalities
         have s16_1_3 : 0 ≤ f b := by linarith only [hH7]
         -- 16.1.4. inequalities, from 16.1.3
@@ -138,7 +138,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.14. inequalities
       have s16_14 : a ≤ x₁ := by linarith only [s16_13]
       -- 16.15. def:interval x := x₁, from 16.9, 16.14
-      have s16_15 : x₁ ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x₁) (a := a) (b := b))).mpr ⟨⟨by parley_set_side, s16_14⟩, s16_9a⟩
+      have s16_15 : x₁ ∈ (Set.Icc a b : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x₁) (a := a) (b := b))).mpr ⟨⟨by trivial, s16_14⟩, s16_9a⟩
       -- 16.16. inequalities
       have s16_16 : c - δ < c := by linarith only [s16_5a]
       -- 16.17. transitivity, from 16.16, 16.8

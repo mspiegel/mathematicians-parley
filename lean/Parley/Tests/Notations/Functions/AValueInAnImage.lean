@@ -2,10 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
+public import Mathlib.Data.Set.Insert
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -27,9 +28,9 @@ theorem a_value_in_an_image (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 2 * x + 
   -- 1. inspection
   have s1 : (1 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by parley_set_side
   -- 2. mun:pair-subset a := 1, b := 2, X := ℝ
-  have s2 : ({(1 : ℝ), (2 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (b := (2 : ℝ)) (by parley_whole_side) (by parley_whole_side))
+  have s2 : ({(1 : ℝ), (2 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_pair_subset (X := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (b := (2 : ℝ)) (Set.mem_univ _) (Set.mem_univ _))
   -- 3. mun:value-in-image, from 1, 2
-  have s3 : f 1 ∈ f '' ((Set.univ : Set ℝ) ∩ ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) (f := f) (s := (1 : ℝ)) (W := Set.univ) s2 (by parley_set_side) (by parley_whole_side))
+  have s3 : f 1 ∈ f '' ((Set.univ : Set ℝ) ∩ ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := ({(1 : ℝ), (2 : ℝ)} : Set ℝ)) (f := f) (s := (1 : ℝ)) (W := Set.univ) s2 (by (have h := s1; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; exact_mod_cast h)) (Set.mapsTo_univ _ _))
   -- 4. instantiate x := 1 in H2
   have s4 : f 1 = 2 * 1 + 1 := by exact (hH2 (1 : ℝ))
   -- 5. calculation

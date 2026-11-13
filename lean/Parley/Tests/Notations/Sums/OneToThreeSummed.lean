@@ -30,10 +30,10 @@ theorem one_to_three_summed :
   have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k)) (a := (1 : ℤ)))
   -- 2. mun:sum-extended a := 1, n := 1
   have r26_1 : (1 : ℤ) ≥ 1 := by parley_arith
-  have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) + (1 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) r26_1)
+  have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (k : ℤ)) + (1 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (1 : ℤ)) (by norm_num))
   -- 3. mun:sum-extended a := 1, n := 2
   have r30_1 : (2 : ℤ) ≥ 1 := by parley_arith
-  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) + (2 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) r30_1)
+  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 + 1 : ℤ), (k : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (2 : ℤ), (k : ℤ)) + (2 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := (2 : ℤ)) (by norm_num))
   -- 4. arithmetic
   have s4 : (1 + 1 : ℤ) = 2 := by parley_arith
   -- 5. substitute 1 + 1 = 2 (line 4) into line 2

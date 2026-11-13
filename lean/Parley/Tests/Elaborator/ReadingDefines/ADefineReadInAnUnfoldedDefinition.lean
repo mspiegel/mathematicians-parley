@@ -29,6 +29,6 @@ theorem a_define_read_in_an_unfolded_definition (a : ℤ) (b : ℤ) (hH3 : a + 1
     have hH3_w : (a : ℝ) + 1 = 2 * (b : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) hH3; push_cast at h; linear_combination (norm := parley_norm) h
     parley_subst_at hD1 hH3_w
   -- 2. def:even n := a + 1, from D1, 1
-  exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a + 1))).mpr ⟨b, by parley_side⟩
+  exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a + 1))).mpr ⟨b, by (have h := s1; simp only [hD1] at h; exact_mod_cast h)⟩
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnUnfoldedDefinition

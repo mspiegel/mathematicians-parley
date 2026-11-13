@@ -21,6 +21,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
@@ -76,15 +77,15 @@ theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 
       _ = f x := by exact s5_2.symm
   -- 6. thm:fundamental-calculus a := 0, b := 1, from 1, 2, 4, 5
   have r54_1 : (0 : ℤ) < 1 := by parley_arith
-  have s6 : (∫ t in 0..1, (f t : ℝ)) = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := f) (by parley_set_side) s1 (F := F) (by parley_set_side) s2 s4a s5)
+  have s6 : (∫ t in 0..1, (f t : ℝ)) = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) (f := f) (Set.mapsTo_univ _ _) s1 (F := F) (Set.mapsTo_univ _ _) s2 s4a s5)
   -- 7. def:interval a := 0, b := 1, x := 1
   have r58_1 : (0 : ℤ) ≤ 1 := by parley_arith
   have r58_2 : (1 : ℤ) ≤ 1 := by parley_arith
-  have s7 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
+  have s7 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 8. def:interval a := 0, b := 1, x := 0
   have r63_1 : (0 : ℤ) ≤ 0 := by parley_arith
   have r63_2 : (0 : ℤ) ≤ 1 := by parley_arith
-  have s8 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
+  have s8 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 9. instantiate x := 1 in H4, from 7
   have s9 : F 1 = 1 ^ 2 := by exact (hH4 (1 : ℝ) s7)
   -- 10. instantiate x := 0 in H4, from 8

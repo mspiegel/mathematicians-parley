@@ -61,7 +61,7 @@ theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
     have whole1 : ∃ m : ℤ, (m : ℝ) = (k : ℝ) ^ (n - 1) := by obtain ⟨m, hm⟩ := s2_1; exact ⟨m, by have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h⟩
     refine ⟨((Classical.choose whole1 : ℤ) % n), ?_, by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))⟩
     (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := n) hH1))
-  have s2_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1) := by rw [← (Classical.choose_spec r29_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r29_1).1; (try rw [← (Classical.choose_spec r29_1).2] at s2_2; norm_cast at s2_2); (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := (Classical.choose r29_1)) (by parley_side) (by parley_side))⟩)
+  have s2_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1) := by rw [← (Classical.choose_spec r29_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r29_1).1; (try rw [← (Classical.choose_spec r29_1).2] at s2_2; norm_cast at s2_2); (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := (Classical.choose r29_1)) (Classical.choose_spec r29_1).1 (by exact_mod_cast s2_2))⟩)
   -- 2.4. D1, from K1
   have s2_4 : (f k : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by simp (disch := omega) only [hD1]
   -- 2.5. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.3

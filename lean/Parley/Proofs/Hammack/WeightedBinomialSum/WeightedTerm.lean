@@ -59,7 +59,7 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
   -- 9. def:factorial n := m
   have s9 : (LeanBridges.Counting.factorial (m + 1) : ℤ) = (LeanBridges.Counting.factorial m : ℤ) * (m + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := m) hH1)
   -- 10. def:factorial n := k − 1
-  have r49_1 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side))
+  have r49_1 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp hH2).1))
   have s10 : (LeanBridges.Counting.factorial (k - 1 + 1) : ℤ) = (LeanBridges.Counting.factorial (k - 1) : ℤ) * (k - 1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k - 1) r49_1)
   -- 11. substitute
   have s11 : (LeanBridges.Counting.factorial k : ℤ) = (LeanBridges.Counting.factorial (k - 1) : ℤ) * k := by
@@ -71,7 +71,7 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
   -- 13. mun:factorial-nat n := (m + 1) − k, from 12
   have s13 : 0 < (LeanBridges.Counting.factorial (m + 1 - k) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := m + 1 - k) s12)
   -- 14. mun:factorial-nat n := k − 1
-  have r64_1 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (by parley_side))
+  have r64_1 : 0 ≤ k - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k) (lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp hH2).1))
   have s14 : 0 < (LeanBridges.Counting.factorial (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k - 1) r64_1)
   -- 15. calculation
   have s15 : (LeanBridges.Counting.choose m (k - 1) : ℚ) = (LeanBridges.Counting.factorial m : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial (k - 1) : ℚ)) := by

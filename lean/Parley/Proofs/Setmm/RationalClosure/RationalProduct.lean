@@ -23,9 +23,9 @@ namespace Parley.Proofs.Setmm.RationalClosure.RationalProduct
 theorem rational_product (A : ℚ) (B : ℚ) :
     True := by
   -- 1. obtain p, q: def:rational x := A
-  obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+  obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp ⟨_, rfl⟩
   -- 2. obtain r, s: def:rational x := B
-  obtain ⟨r, s, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp (by parley_side)
+  obtain ⟨r, s, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp ⟨_, rfl⟩
   -- 3. calculation
   have s3 : A * B = (p : ℚ) * (r : ℚ) / ((q : ℚ) * (s : ℚ)) := by
     calc A * B = (p : ℚ) / (q : ℚ) * B := by (have h := congrArg (fun t : ℚ => t * B) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)

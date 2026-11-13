@@ -15,6 +15,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -46,9 +47,9 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 6. inequalities
   have s6 : k - 2 ≤ n - 2 := by linarith only [hH4]
   -- 7. def:range-between k := 2, a := 0, b := n, from 2
-  have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr ⟨s2a, s2b⟩
+  have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := n))).mpr ⟨by norm_num, s2b⟩
   -- 8. def:range-between k := 2, a := 0, b := k, from 3
-  have s8 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) k := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := k))).mpr ⟨s3a, s3b⟩
+  have s8 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) k := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := k))).mpr ⟨by norm_num, s3b⟩
   -- 9. def:range-between a := 0, b := n, from 4
   have s9 : k ∈ Finset.Icc (0 : ℤ) n := ((Parley.Items.Stdlib.Sums.def_range_between (k := k) (a := (0 : ℤ)) (b := n))).mpr ⟨s4a, s4b⟩
   -- 10. def:range-between k := k − 2, a := 0, b := n − 2, from 5, 6

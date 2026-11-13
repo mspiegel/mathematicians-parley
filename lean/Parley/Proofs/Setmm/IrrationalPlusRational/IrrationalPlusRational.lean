@@ -14,6 +14,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -57,6 +58,6 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     exact s1 s3_6
   -- 4. mun:real-closure x := A, y := B, from 1
   -- 5. def:difference Y := ℝ, Z := ℚ, from 3, 4
-  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A + B))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A + B))).mpr ⟨Set.mem_univ _, s3⟩
 
 end Parley.Proofs.Setmm.IrrationalPlusRational.IrrationalPlusRational

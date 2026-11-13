@@ -28,7 +28,7 @@ theorem whole_number_by_size (A : ℝ) :
   · skip
     intro hD1
     -- 1. mun:abs-integer z := A, from D1
-    have s1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = abs A := by (exact ⟨abs (Classical.choose hD1 : ℤ), by parley_side, by push_cast; (try simp only [Classical.choose_spec hD1]); all_goals parley_ring⟩)
+    have s1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = abs A := by (exact ⟨abs (Classical.choose hD1 : ℤ), abs_nonneg _, by push_cast; (try simp only [Classical.choose_spec hD1]); all_goals parley_ring⟩)
     -- 2. mun:nat0-int m := |A|, from 1
     have whole1 : ∃ m : ℤ, (m : ℝ) = abs A := by obtain ⟨m, _, hm⟩ := s1; exact ⟨m, by exact_mod_cast hm⟩
     exact ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring)⟩

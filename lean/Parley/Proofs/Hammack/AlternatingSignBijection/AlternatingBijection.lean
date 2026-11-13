@@ -5,7 +5,6 @@ public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
@@ -15,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
@@ -104,7 +104,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
         -- 1.3.4.6. algebra, from 1.3.4.5
         qify at *; linear_combination (norm := parley_norm) ((-8) / ((4))) * s1_3_4_5
   -- 2. def:one-to-one, from H1, 1
-  have s2 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  have s2 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, s1⟩
   -- 3. proof
   have s3 : ∀ y : ℤ, ∃ x : ℤ, 0 < x ∧ y = f x := by
     intro y
@@ -137,7 +137,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       -- 3.2.10. mun:pos-int-nat m := 2·y, from 3.2.9
       have s3_2_10 : 0 < 2 * y := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * y) s3_2_9)
       -- 3.2.11. def:even n := 2·y
-      have s3_2_11 : Even (2 * y) := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * y))).mpr ⟨y, by parley_set_side⟩
+      have s3_2_11 : Even (2 * y) := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * y))).mpr ⟨y, rfl⟩
       -- 3.2.12. thm:alternating-value-even m := 2·y, from H2, 3.2.10, 3.2.11
       have s3_2_12 : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by
         have hI : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) s3_2_10 s3_2_11))
@@ -147,8 +147,8 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       -- 3.2.14. exhibit, from 3.2.10, 3.2.13
       exact ⟨2 * y, s3_2_10, s3_2_13⟩
   -- 4. def:onto, from H1, 3
-  have s4 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  have s4 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, by simpa only [Set.mem_univ, forall_const, Set.mem_ofPred_eq] using s3⟩
   -- 5. def:one-to-one-onto, from 2, 4
-  exact ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨s2, s4⟩
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingBijection

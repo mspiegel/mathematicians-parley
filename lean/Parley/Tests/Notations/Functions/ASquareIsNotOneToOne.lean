@@ -3,12 +3,12 @@ module
 public import InstanceTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
@@ -38,7 +38,7 @@ theorem a_square_is_not_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x
   intro hS
   -- 4.1. def:one-to-one, from S
   have s4_1 : ∀ s : ℝ, ∀ t : ℝ, f s = f t → s = t := by
-    have hI : ∀ s : ℝ, ∀ t : ℝ, f s = f t → s = t := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp hS).2)
+    have hI : ∀ s : ℝ, ∀ t : ℝ, f s = f t → s = t := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mp hS).2)
     exact hI
   -- 4.2. instantiate s := −1, t := 1 in line 4.1, from 3
   have s4_2 : (-1 : ℝ) = 1 := by exact (s4_1 (-1 : ℝ) (1 : ℝ) s3)

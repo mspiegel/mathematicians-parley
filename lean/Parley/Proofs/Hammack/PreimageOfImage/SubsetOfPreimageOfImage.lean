@@ -3,6 +3,7 @@ module
 public import SetTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.SetNotationForOrder
@@ -24,9 +25,9 @@ theorem subset_of_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f : 
     -- 1.1. mun:in-subset, from H4, K1
     have s1_1 : x ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := X) (Y := A) (u := x) hH4 hK1)
     -- 1.2. mun:value-in-image, from H4, K1
-    have s1_2 : f x ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := x) (W := Set.univ) hH4 hK1 (by parley_set_side))
+    have s1_2 : f x ∈ f '' (A ∩ X) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := X) (f := f) (s := x) (W := Set.univ) hH4 hK1 (Set.mapsTo_univ _ _))
     -- 1.3. def:preimage u := x, from 1.1, 1.2
-    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := x) (W := Set.univ) (by parley_set_side))).mpr ⟨s1_1, by parley_set_side⟩
+    exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := f '' (A ∩ X)) (f := f) (u := x) (W := Set.univ) (Set.mapsTo_univ _ _))).mpr ⟨s1_1, s1_2⟩
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := X) (Y := A ∩ f ⁻¹' (f '' (A ∩ X))))).mpr s1
 

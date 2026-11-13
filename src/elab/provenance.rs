@@ -917,7 +917,7 @@ impl<'a> Elaborator<'a> {
         let outside: Vec<String> = self
             .visible_outside()
             .into_iter()
-            .map(|(name, d, src)| self.outside_label(&name, &d, src))
+            .map(|v| self.outside_label(&v.name, &v.define, v.scope))
             .collect();
         let defines = || {
             refs.iter().all(|r| {

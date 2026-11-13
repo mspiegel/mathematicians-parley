@@ -2,7 +2,6 @@ module
 
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Module.Defs
@@ -13,6 +12,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -40,6 +40,6 @@ theorem the_slope_of_a_square (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = x ^ 2)
   have r140_3 : (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := (0 : ℝ)) (b := (1 : ℝ)))
   have r140_4 : (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Z := (Set.univ : Set ℝ)) r140_2 r140_3)
   have r140_5 : IsOpen (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_open_interval_open (a := (0 : ℝ)) (b := (1 : ℝ)))
-  exact (Parley.Items.Stdlib.Calculus.thm_derivative_square_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) r140_1 r140_4 r140_5 (by parley_whole_side))
+  exact (Parley.Items.Stdlib.Calculus.thm_derivative_square_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.Ioo (0 : ℝ) (1 : ℝ) : Set ℝ)) r140_1 r140_4 r140_5 (by simpa only [Set.mem_univ, forall_const] using hH2))
 
 end Parley.Tests.Notations.Calculus.TheSlopeOfASquare

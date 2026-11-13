@@ -15,6 +15,7 @@ public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.GroupWithZero.Nat
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.FunLike.Basic
 public import Mathlib.Basic.Real.Basic
@@ -120,7 +121,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
     exact (by
       try qify
       calc (ArithmeticFunction.sigma 1 (2 ^ (p - 1).toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) (p - 1), (2 ^ j.toNat : ℚ)) := by exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by norm_num) r117_2 (k := p - 1) r117_1)
-        _ = (1 - 2 ^ (p - 1 + 1)) / (1 - 2) := by (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by parley_side) (n := p - 1) r117_1); simp only [parley_zpow_toNat (n := p - 1 + 1) (h := add_nonneg (r117_1) (by norm_num))] at h ⊢; exact_mod_cast h)
+        _ = (1 - 2 ^ (p - 1 + 1)) / (1 - 2) := by (have h := (Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by norm_num) (n := p - 1) r117_1); simp only [parley_zpow_toNat (n := p - 1 + 1) (h := add_nonneg (r117_1) (by norm_num))] at h ⊢; exact_mod_cast h)
         _ = (1 - 2 ^ p.toNat) / (1 - 2) := by (have h := congrArg (fun t : ℤ => (((1 - 2 ^ t) / (1 - 2)) : ℚ)) s1; simp only [parley_zpow_toNat (n := p - 1 + 1) (h := add_nonneg (r117_1) (by norm_num)), parley_zpow_toNat (n := p) (h := le_of_lt hH1)] at h ⊢; exact_mod_cast h)
         _ = 2 ^ p.toNat - 1 := by parley_ring)
   -- 8. algebra, from 3
@@ -136,7 +137,7 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
     have s7 := parley_witness_at_nat s7 (2 ^ (p - 1).toNat) (by (push_cast; simp only [whole1, whole2]; all_goals ring))
     refine ⟨((2 ^ (p - 1).toNat) * (((2 ^ p.toNat - 1 : ℤ)).toNat)), by (push_cast; simp only [whole1, whole2]; all_goals ring), ?_⟩
     exact (by
-      calc (ArithmeticFunction.sigma 1 ((2 ^ (p - 1).toNat) * (((2 ^ p.toNat - 1 : ℤ)).toNat)) : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ (p - 1).toNat) : ℤ) * (ArithmeticFunction.sigma 1 (((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (((2 ^ (p - 1).toNat) : ℤ) : ℤ)) (by parley_side) (n := (((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) : ℤ)) (by parley_side) (by parley_side))
+      calc (ArithmeticFunction.sigma 1 ((2 ^ (p - 1).toNat) * (((2 ^ p.toNat - 1 : ℤ)).toNat)) : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ (p - 1).toNat) : ℤ) * (ArithmeticFunction.sigma 1 (((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (((2 ^ (p - 1).toNat) : ℤ) : ℤ)) (pow_pos (by norm_num) _) (n := (((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) : ℤ)) (by rw [Int.toNat_of_nonneg (le_of_lt r131_2)]; exact r131_2) (by rw [Int.toNat_of_nonneg (le_of_lt r131_2)]; exact s5))
         _ = ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) * (ArithmeticFunction.sigma 1 (((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) := by parley_subst s7
         _ = ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) * 2 ^ p.toNat := by (have h := congrArg (fun t : ℤ => ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) * t) s6; push_cast at h ⊢; all_goals exact_mod_cast h)
         _ = 2 * (((2 ^ (p - 1).toNat) : ℤ) * ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ)) := by (qify; push_cast; simp only [whole1, whole2]; linear_combination (norm := parley_norm) s8))
@@ -147,6 +148,6 @@ theorem euclid_perfect (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime (2 ^ p.toNat - 1
   have whole2 : ((((2 ^ p.toNat - 1 : ℤ)).toNat : ℕ) : ℚ) = (2 ^ p.toNat - 1 : ℚ) := by exact_mod_cast Int.toNat_of_nonneg (le_of_lt r140_2)
   have s9 := parley_witness_at_nat s9 ((2 ^ (p - 1).toNat) * (((2 ^ p.toNat - 1 : ℤ)).toNat)) (by (push_cast; simp only [whole1, whole2]; all_goals ring))
   refine ⟨((2 ^ (p - 1).toNat) * (((2 ^ p.toNat - 1 : ℤ)).toNat)), by (push_cast; simp only [whole1, whole2]; all_goals ring), ?_⟩
-  exact (((Parley.Items.Stdlib.Divisibility.def_perfect (n := (((2 ^ (p - 1).toNat) : ℤ) * ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) : ℤ)) (by parley_side))).mpr (by parley_side))
+  exact (((Parley.Items.Stdlib.Divisibility.def_perfect (n := (((2 ^ (p - 1).toNat) : ℤ) * ((((2 ^ p.toNat - 1 : ℤ)).toNat) : ℤ) : ℤ)) (by rw [Int.toNat_of_nonneg (le_of_lt r140_2)]; exact mul_pos (pow_pos (by norm_num) _) (r140_2)))).mpr (by exact_mod_cast s9))
 
 end Parley.Proofs.Wiedijk.PerfectNumbers.EuclidPerfect

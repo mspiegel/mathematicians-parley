@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Floor.Defs
 public import Mathlib.Algebra.Order.Floor.Ring
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Basic
@@ -40,7 +41,7 @@ theorem floor_quotient_zero (A : ℤ) (hH1 : 0 ≤ A) (B : ℤ) (hH2 : 0 < B) :
     -- 3.2. mun:less-scaled x := A/B, y := 1, c := B, from H2, 3.1
     have s3_2 : (A : ℝ) / (B : ℝ) < 1 := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (A : ℝ) / (B : ℝ)) (y := (1 : ℝ)) (c := (B : ℝ)) (by exact_mod_cast gt_iff_lt.mp hH2))).mpr (by simpa only [mul_one] using s3_1)
     -- 3.3. mun:floor-between x := A/B, k := 0, from 2, 3.2
-    exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mpr ⟨by (have h := s2; push_cast at h ⊢; all_goals exact h), by parley_side⟩
+    exact ((Parley.Items.Stdlib.Numbers.mun_floor_between (x := (A : ℝ) / (B : ℝ)) (k := (0 : ℤ)))).mpr ⟨by simpa only [Int.cast_zero] using s2, by simpa only [Int.cast_zero, zero_add] using s3_2⟩
   · skip
     intro hC2
     -- 3.4. mun:floor-between x := A/B, k := 0, from C2

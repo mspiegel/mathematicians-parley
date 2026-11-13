@@ -417,20 +417,32 @@ pub fn hypothesis_lines(thm: &Theorem, record: &CheckedTheorem) -> Vec<Node> {
 }
 
 /// What a theorem's hypotheses, defines and lines make finite, read from
-/// its record's page (`citing::finite::said_finite`). A define counts
-/// where it names a term, not a function. A backend that writes the page
-/// otherwise, a define of its file written out where applied, reads it
-/// again of the page it writes.
+/// its record's page (`citing::finite::said_finite`). Every define the
+/// theorem sees counts, a function's by its body: its own, read from its
+/// page, and those its file writes above it or imports, as the record
+/// holds them written out (`CheckedTheorem::outside`). A backend that
+/// writes the page otherwise, a define of its file written out where
+/// applied, reads it again of the page it writes.
 pub fn finite_of(
     g: &Grammar,
     ctx: &crate::matching::Context,
     thm: &Theorem,
     record: &CheckedTheorem,
 ) -> crate::citing::finite::SaidFinite {
-    let defines: Vec<crate::citing::finite::Named> = thm
-        .defines
+    use crate::matching::Defined;
+    let outside = record
+        .outside
         .iter()
-        .filter_map(|d| define_named(d, record))
+        .map(|(name, d)| crate::citing::finite::Named {
+            name: name.clone(),
+            value: match d {
+                Defined::Term(body) => body,
+                Defined::Rule(rule) => &rule.body,
+            },
+        });
+    // Those from outside first: the theorem's own may be made from them.
+    let defines: Vec<crate::citing::finite::Named> = outside
+        .chain(thm.defines.iter().filter_map(|d| define_named(d, record)))
         .collect();
     let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
     // A count is at least 1 by the letters the statement's header introduces
@@ -760,12 +772,12 @@ fn theorem_record(
     let header = record.introduced.first().cloned().unwrap_or_default();
     record.statement_bounds =
         bounds::said_by(&hypothesis_lines(thm, &record), &header, &c.library.ctx);
+    record.outside = c.known[i].outside_definitions().clone();
     record.said_finite = finite_of(c.env.g, &c.library.ctx, thm, &record);
     record.set_systems = set_systems_of(&record);
     record.element_systems = element_systems_of(&record);
     record.function_systems = function_systems_of(&record);
     record.items = std::sync::Arc::clone(items);
-    record.outside = c.known[i].outside_definitions().clone();
     record.statement_definitions = statement_definitions(thm, c.env, &c.known[i].sorts);
     record
 }
@@ -1402,6 +1414,7 @@ fn read_corpus(source: &dyn Source, kept: &FileReads) -> Result<Read, Outcome> {
     {
         report.say(&path, no, message);
     }
+    crate::corpus::proof::read_visible(&mut scopes);
     Ok(Read {
         corpus: Corpus {
             records,

@@ -5,7 +5,6 @@ public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Tactic.Init
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Defs
@@ -20,6 +19,7 @@ public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
@@ -65,7 +65,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s2_1 : x > 0 := by
       try simp only [hD1] at ⊢
       try push_cast at ⊢
-      have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
+      have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK1)).2)
       exact hI
     -- 2.2. inequalities
     have s2_2 : x ≥ 0 := by linarith only [s2_1]
@@ -77,7 +77,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     -- 2.5. substitute g(x) = √x (line 2.4) into line 2.3
     exact trivial
   -- 3. mun:function-into, from 2
-  have s3 : Set.MapsTo g D (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s3 : Set.MapsTo g D (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 4. proof
   have s4 : ∀ c ∈ D, ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ D, abs (x - c) < δ → abs (g x - g c) < ε)) := by
     intro c hK2
@@ -87,7 +87,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     have s4_1 : c > 0 := by
       try simp only [hD1] at ⊢
       try push_cast at ⊢
-      have hI : 0 < c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by parley_set_side)).2)
+      have hI : 0 < c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK2)).2)
       exact hI
     -- 4.2. inequalities
     have s4_2 : c ≥ 0 := by linarith only [s4_1]
@@ -130,7 +130,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_8_1 : x > 0 := by
         try simp only [hD1] at ⊢
         try push_cast at ⊢
-        have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by parley_set_side)).2)
+        have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK4)).2)
         exact hI
       -- 4.8.2. inequalities
       have s4_8_2 : x ≥ 0 := by linarith only [s4_8_1]

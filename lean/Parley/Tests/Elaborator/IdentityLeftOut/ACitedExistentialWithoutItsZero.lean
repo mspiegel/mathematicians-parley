@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
@@ -22,6 +23,6 @@ theorem a_cited_existential_without_its_zero (A : ℤ) (N : ℤ) (hH2 : 0 < N) (
     A % N = 0 := by
   -- 1. mun:mod-remainder a := A, m := N, r := 0, from H3
   have r45_1 : 0 < N := by linarith only [hH2]
-  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A) (m := N) hH2 (r := (0 : ℤ)) (by norm_num) r45_1)).mpr (by simpa only [add_zero] using hH3)
+  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := A) (m := N) hH2 (r := (0 : ℤ)) (by norm_num) r45_1)).mpr (by simpa only [Int.cast_zero, add_zero] using hH3)
 
 end Parley.Tests.Elaborator.IdentityLeftOut.ACitedExistentialWithoutItsZero

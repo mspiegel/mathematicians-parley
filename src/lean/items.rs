@@ -10,7 +10,7 @@ use indexmap::IndexMap;
 
 use super::expr::{LetterType, Writer, GENERAL};
 use super::names::{module_of, snake};
-use super::statement::{binders, Asked, Binder};
+use super::statement::{binders, Asked, Binder, StatedAt};
 use super::templates::Num;
 use crate::checker::CheckedCorpus;
 use crate::corpus::{Record, RecordKind};
@@ -890,11 +890,14 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     .insert(g.identity.clone(), LetterType::Identity(g.group.clone()));
             }
             w.bounds = read.bounds.clone();
-            let functions: &[Node] = checked
+            let typed: &[crate::citing::Want] = checked
                 .library
                 .function_types
                 .get(&full)
                 .map_or(&[], Vec::as_slice);
+            let function_trees: Vec<Node> =
+                typed.iter().map(|t| t.tree.clone()).collect();
+            let functions = function_trees.as_slice();
             let free =
                 free_letters(group, says, functions, &w, &writer.grammar.binders());
             // A letter the record's sorts make a set, a member of one or a
@@ -1101,13 +1104,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             }
             // A function the item has, `t : {a, …, b} → ℝ`, which its
             // groups leave out because a citation supplies nothing for it.
-            for node in checked
-                .library
-                .function_types
-                .get(&full)
-                .into_iter()
-                .flatten()
-            {
+            for node in functions {
                 // The X of `t : X → ℝ`, named only in the type, has its
                 // own first, so that t takes its members.
                 if let [_, from, _] = node.children.as_slice() {
@@ -1151,14 +1148,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // other, which its groups leave out as they leave out its type.
             // The fact is written once every letter has its type, after the
             // binders, since D may be made of letters a line lets, [a, b].
-            let mut maps: Vec<(&Node, &Node, &Node)> = Vec::new();
-            for node in checked
-                .library
-                .function_types
-                .get(&full)
-                .into_iter()
-                .flatten()
-            {
+            let mut maps: Vec<&crate::citing::Want> = Vec::new();
+            for typed in typed {
+                let node = &typed.tree;
                 let [f, from, to] = node.children.as_slice() else {
                     continue;
                 };
@@ -1179,7 +1171,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 for set in [from, to] {
                     type_named_set(&mut w, &mut statements, sorts, &things, set);
                 }
-                maps.push((f, from, to));
+                maps.push(typed);
             }
             for letter in &free {
                 if w.letters.contains_key(&letter.name) {
@@ -1194,13 +1186,21 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     general: !letter.fixed && w.general == Some(letter.num),
                 });
             }
-            let domains: Vec<(&Node, &Node)> =
-                maps.iter().map(|(f, from, _)| (*f, *from)).collect();
+            let domains: Vec<(&Node, &Node)> = maps
+                .iter()
+                .filter_map(|m| match m.tree.children.as_slice() {
+                    [f, from, _] => Some((f, from)),
+                    _ => None,
+                })
+                .collect();
             let mut binders: Vec<Binder> = match binders(&mut w, &asked, &domains) {
                 Route::Built(b) => statements.into_iter().chain(b).collect(),
                 Route::Declined(d) => return Route::Declined(d),
             };
-            for (f, from, to) in maps {
+            for typed in maps {
+                let [f, from, to] = typed.tree.children.as_slice() else {
+                    continue;
+                };
                 let name = super::names::letter(&f.text);
                 // Into all of a number type, t : X → ℝ, its Lean type says
                 // where it maps, and K's where the item is general.
@@ -1237,7 +1237,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         vec![map, a.clone(), b],
                         super::doc::LeanType::Prop,
                     ),
-                    at: None,
+                    at: Some(StatedAt::Hypothesis(typed.at)),
                 });
                 w.domains.insert(f.text.to_string(), a);
             }

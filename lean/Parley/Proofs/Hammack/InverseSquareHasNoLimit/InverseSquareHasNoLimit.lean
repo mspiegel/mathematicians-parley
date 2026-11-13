@@ -61,14 +61,14 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by simpa only [sub_zero] using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r28_1 (c := (0 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r32_1 : (0 : ℤ) < 1 := by parley_arith
-  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
+  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by norm_num))
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
   have s5 : p ≠ 0 := ne_of_gt (by linarith only [s4a])
   -- 6. mun:quotient-positive x := 2, y := p, from 4
   have r44_1 : (2 : ℤ) > 0 := by parley_arith
-  have s6 : 2 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) s4a)
+  have s6 : 2 / p > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by norm_num) s4a)
   -- 7. obtain m: thm:archimedean-natural x := 2/p, from 5
   obtain ⟨m, s7a, s7b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / p))
   -- 8. inequalities
@@ -86,7 +86,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.3. mun:reciprocal-order x := m, y := j, from A1
     have r72_1 : m > 0 := by parley_set_side
     have r72_2 : j > 0 := by parley_set_side
-    have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (j : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by parley_set_side)
+    have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_1) (y := (j : ℚ)) (by exact_mod_cast gt_iff_lt.mp r72_2))).mp (by exact_mod_cast ge_iff_le.mp hA1)
     -- 10.4. inequalities
     have r77_1 : p ≠ 0 := by exact s5
     have s10_4 : (m : ℝ) ≥ 2 / p := by linarith only [s7b]
@@ -111,16 +111,16 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.9. inequalities
     have s10_9 : t ≠ 0 := ne_of_gt (by linarith only [s10_8])
     -- 10.10. mun:remove-member u := t, from 10.9
-    have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr ⟨by parley_set_side, s10_9⟩
+    have s10_10 : t ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := t))).mpr ⟨Set.mem_univ _, s10_9⟩
     -- 10.11. def:abs x := t
     have r112_1 : t ≥ 0 := by linarith only [s10_8]
-    have s10_11 : abs t = t := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) (by parley_set_side)
+    have s10_11 : abs t = t := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := t)) r112_1
     -- 10.12. transitivity, from D1, 10.7
     have s10_12 : t < p := by exact Eq.trans_lt hD1 s10_7
     -- 10.13. transitivity, from 10.11, 10.12
     have s10_13 : abs t < p := by exact Eq.trans_lt s10_11 s10_12
     -- 10.14. instantiate x := t in line 4, from 10.9, 10.10, 10.13
-    have s10_14 : abs (f t - L) < 1 := by exact (s4b t s10_10 (by parley_set_side))
+    have s10_14 : abs (f t - L) < 1 := by exact (s4b t s10_10 ⟨s10_9, s10_13⟩)
     -- 10.15. instantiate x := t in H2, from 10.10
     have s10_15 : f t = 1 / t ^ 2 := by exact (hH2 t s10_10)
     -- 10.16. algebra, from D1

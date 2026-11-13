@@ -52,7 +52,7 @@ theorem square_not_prime (A : ℤ) :
     have s4_3 : ¬ A ^ 2 > 1 := by linarith only [s4_2]
     exact s4_3 s2
   -- 5. mun:nat0-nonzero m := |A|, from 4
-  have s5 : 0 < abs A := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := abs A) (by parley_side) s4)
+  have s5 : 0 < abs A := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := abs A) (abs_nonneg _) s4)
   -- 6. algebra, from 3
   have s6 : A ^ 2 = abs A * abs A := by linear_combination (norm := parley_norm) (-1) * s3
   -- 7. def:divides d := |A|, n := A², from 6
@@ -72,7 +72,7 @@ theorem square_not_prime (A : ℤ) :
       -- 11.1. transitivity, from 6, C2
       have s11_1 : abs A * abs A = 1 * abs A := by linarith only [s6, hC2]
       -- 11.2. mun:multiply-cancel a := |A|, b := 1, c := |A|, from 4, 11.1
-      exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := abs A) (b := (1 : ℤ)) (c := abs A) (by parley_side) s4)
+      exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := abs A) (b := (1 : ℤ)) (c := abs A) s11_1 s4)
   -- 12. substitute |A| = 1 (line 11) into line 3
   have s12 : 1 ^ 2 = A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) s11 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
   -- 13. inequalities

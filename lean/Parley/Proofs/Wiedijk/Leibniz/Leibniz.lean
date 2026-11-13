@@ -10,9 +10,11 @@ public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.InnerProductSpace.Basic
 public import Mathlib.Analysis.InnerProductSpace.Defs
@@ -70,7 +72,7 @@ namespace Parley.Proofs.Wiedijk.Leibniz.Leibniz
 theorem leibniz :
     Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = Real.pi / 4 := by
   -- 1. membership
-  have r738_1 : ∀ k : ℤ, 0 ≤ k → 0 < 2 * k + 1 := by intro k h_k; (exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * k) (by parley_side)))
+  have r738_1 : ∀ k : ℤ, 0 ≤ k → 0 < 2 * k + 1 := by intro k h_k; (exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * k) (mul_nonneg (by norm_num) (h_k))))
   -- 2. thm:series-remainder
   have s2 : ∀ n : ℤ, 0 ≤ n → Real.pi / 4 - (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact Parley.Proofs.Wiedijk.Leibniz.SeriesRemainder.series_remainder
   -- 3. proof
@@ -120,7 +122,7 @@ theorem leibniz :
       -- 3.2.10. mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.9
       have r800_1 : N > 0 := by linarith only [s3_1a]
       have r800_2 : 2 * (n + 1) + 1 > 0 := by linarith only [hK2, hK2]
-      have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r800_1) (y := 2 * ((n : ℚ) + 1) + 1) (by exact_mod_cast gt_iff_lt.mp r800_2))).mp (by parley_side)
+      have s3_2_10 : 1 / (2 * ((n : ℚ) + 1) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r800_1) (y := 2 * ((n : ℚ) + 1) + 1) (by exact_mod_cast gt_iff_lt.mp r800_2))).mp (by exact_mod_cast s3_2_9)
       -- 3.2.11. transitivity, from 3.2.8, 3.2.5, 3.2.10, 3.1
       exact lt_of_le_of_lt (le_trans (Eq.trans_le s3_2_8 s3_2_5b) (show 1 / (2 * ((n : ℝ) + 1) + 1) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s3_2_10; simp only [Rat.cast_add, Rat.cast_mul, Rat.cast_div, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) s3_1b
     -- 3.3. exhibit, from 3.2

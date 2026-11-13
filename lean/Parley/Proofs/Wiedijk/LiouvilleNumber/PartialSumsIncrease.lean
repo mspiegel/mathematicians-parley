@@ -15,6 +15,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -28,6 +29,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -53,13 +55,13 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
   | base =>
     -- 2.1. inequalities
     have s2_1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by linarith
-    simpa only [add_zero] using s2_1
+    simpa only [add_zero, Int.cast_one] using s2_1
   | succ j hK hIH =>
     -- 2.2. mun:nat-plus-nat0 a := n, b := j
     have s2_2 : 0 < n + j := by exact (Parley.Items.Stdlib.Numbers.mun_nat_plus_nat0 (a := n) hH1 (b := j) hK)
     -- 2.3. mun:power-positive a := 2, m := (n + j + 1)!
     have r247_1 : (2 : ℤ) > 0 := by parley_arith
-    have s2_3 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by parley_side)); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (h := Nat.cast_nonneg _), zpow_natCast] at h ⊢; exact_mod_cast h)
+    have s2_3 : (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (by norm_num)); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + j + 1) : ℤ)) (h := Nat.cast_nonneg _), zpow_natCast] at h ⊢; exact_mod_cast h)
     -- 2.4. mun:reciprocal-positive x := 2^((n + j + 1)!), from 2.3
     have s2_4 : (1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (2 ^ LeanBridges.Counting.factorial (n + j + 1) : ℚ)) (by exact_mod_cast gt_iff_lt.mp s2_3))
     -- 2.5. thm:partial-sum-real m := n + j, from 2.2

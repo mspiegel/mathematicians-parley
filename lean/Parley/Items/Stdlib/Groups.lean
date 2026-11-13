@@ -55,24 +55,24 @@ theorem thm_group_cancel {G : Type*} [Group G] (a : G) (b : G) (g : G) (h1 : a �
     a = b :=
   mul_left_cancel h4
 
-theorem mun_subgroup_within {G : Type*} [Group G] (H : Subgroup G) (h1 : True) :
+theorem mun_subgroup_within {G : Type*} [Group G] (H : Subgroup G) :
     (H : Set G) ⊆ (Set.univ : Set G) :=
   Set.subset_univ _
 
-theorem mun_subgroup_identity {G : Type*} [Group G] (H : Subgroup G) (h1 : True) :
+theorem mun_subgroup_identity {G : Type*} [Group G] (H : Subgroup G) :
     (1 : G) ∈ (H : Set G) :=
   H.one_mem
 
-theorem mun_subgroup_closed {G : Type*} [Group G] (H : Subgroup G) (h1 : True) (a : G) (h2 : a ∈ (H : Set G)) (b : G) (h3 : b ∈ (H : Set G)) :
+theorem mun_subgroup_closed {G : Type*} [Group G] (H : Subgroup G) (a : G) (h2 : a ∈ (H : Set G)) (b : G) (h3 : b ∈ (H : Set G)) :
     a * b ∈ (H : Set G) :=
   H.mul_mem h2 h3
 
-theorem mun_subgroup_inverse {G : Type*} [Group G] (H : Subgroup G) (h1 : True) (a : G) (h2 : a ∈ (H : Set G)) :
+theorem mun_subgroup_inverse {G : Type*} [Group G] (H : Subgroup G) (a : G) (h2 : a ∈ (H : Set G)) :
     a⁻¹ ∈ (H : Set G) :=
   H.inv_mem h2
 
-theorem def_coset {G : Type*} [Group G] (g : G) (u : G) (H : Subgroup G) (h1 : True) (h2 : g ∈ (Set.univ : Set G)) :
+theorem def_coset {G : Type*} [Group G] (g : G) (u : G) (H : Subgroup G) (h2 : g ∈ (Set.univ : Set G)) :
     u ∈ (g * ·) '' (H : Set G) ↔ (∃ h ∈ (H : Set G), u = g * h) :=
-  LeanBridges.Groups.coset g u H h1 h2
+  LeanBridges.Groups.coset g u H h2
 
 end Parley.Items.Stdlib.Groups

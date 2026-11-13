@@ -16,6 +16,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -53,7 +54,7 @@ theorem sine_is_bounded (x : ℝ) :
     -- 6.3. mun:square-less x := 1, y := sin(x), from 6.1
     have r40_1 : (1 : ℤ) ≥ 0 := by parley_arith
     have r40_2 : Real.sin x ≥ 0 := by linarith only [s6_2]
-    have s6_3 : 1 ^ 2 < Real.sin x ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := Real.sin x) (by parley_side) r40_2)).mp s6_1
+    have s6_3 : 1 ^ 2 < Real.sin x ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := Real.sin x) (by norm_num) r40_2)).mp s6_1
     -- 6.4. inequalities, from 6.3
     have s6_4 : ¬ Real.sin x ^ 2 ≤ 1 := by linarith only [s6_3]
     exact s6_4 s5
@@ -69,7 +70,7 @@ theorem sine_is_bounded (x : ℝ) :
     -- 7.4. mun:square-less x := 1, y := −sin(x), from 7.2
     have r63_1 : (1 : ℤ) ≥ 0 := by parley_arith
     have r63_2 : -Real.sin x ≥ 0 := by linarith only [s7_3]
-    have s7_4 : 1 ^ 2 < (-Real.sin x) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := -Real.sin x) (by parley_side) r63_2)).mp s7_2
+    have s7_4 : 1 ^ 2 < (-Real.sin x) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := -Real.sin x) (by norm_num) r63_2)).mp s7_2
     -- 7.5. algebra
     have s7_5 : (-Real.sin x) ^ 2 = Real.sin x ^ 2 := by parley_ring
     -- 7.6. transitivity, from 7.4, 7.5

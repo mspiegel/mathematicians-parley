@@ -6,7 +6,7 @@ block of 2: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7
   part 1 owes (m + 1) / 2 ≤ Σ(k = 1 to 2^(m + 1)) 1 / k
 step 2.5 cites proofs/wiedijk/harmonic/harmonic-block group 0; j := m; concludes 0 AsWritten; from no line; supplied by 1.1 once K sentence 0; letters j cn0 from cn0; facing none; met as written
 step 3 cites stdlib/numbers/archimedean-natural group 0; x := 2 · M; concludes ; from no line; supplied by 1.1 walked Built([Numeral, Letter]); letters x cr from cr; facing ; met 
-requires line on line 139 cites stdlib/sums/sum-single group 0; a := 1, t := property-of(1 / k); concludes 0 AsWritten; from no line; supplied by 1.1 walked Numeral; letters a cz from cn, t none from none; facing straight; met renamed and identities dropped
+requires line on line 139 cites stdlib/sums/sum-single group 0; a := 1, t := property-of(1 / k); concludes 0 AsWritten; from no line; supplied by 1.1 walked Numeral, 2.1 unstated; letters a cz from cn, t none from none; facing straight; met renamed and identities dropped
 step 2.2 says once Σ(k = 1 to 2^0) 1 / k is a number
 step 2.4 says once Σ(k = 1 to 2^0) 1 / k is a number
 step 2.4 says once Σ(k = 1 to 2^0) 1 / k is a number

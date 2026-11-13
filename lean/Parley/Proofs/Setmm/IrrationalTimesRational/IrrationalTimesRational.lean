@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
@@ -44,6 +45,6 @@ theorem irrational_times_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : S
     have s3_3 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by exact s1
     exact s3_3 s3_2
   -- 4. def:difference u := A·B, from 2, 3
-  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A * B))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  exact ((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A * B))).mpr ⟨Set.mem_univ _, s3⟩
 
 end Parley.Proofs.Setmm.IrrationalTimesRational.IrrationalTimesRational

@@ -4,6 +4,7 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -27,7 +28,7 @@ theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (
   have s2 : ∀ u ∈ F '' (A ∩ ({B, C} : Set α)), u ∈ ({F B, F C} : Set α) := by
     intro u hK1
     -- 2.1. def:image X := A, Y := {B, C}, from K1, 1
-    have s2_1 : ∃ s ∈ ({B, C} : Set α), u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := ({B, C} : Set α)) (f := F) (u := u) (W := Set.univ) s1 (by parley_set_side))).mp hK1
+    have s2_1 : ∃ s ∈ ({B, C} : Set α), u = F s := by exact ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := ({B, C} : Set α)) (f := F) (u := u) (W := Set.univ) s1 (Set.mapsTo_univ _ _))).mp hK1
     -- 2.2. obtain s from line 2.1
     obtain ⟨s, s2_2a, s2_2b⟩ := s2_1
     -- 2.3. def:pair x := s, u := B, w := C, from 2.2
@@ -61,14 +62,14 @@ theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (
       -- 4.2.1. inspection
       have s4_2_1 : B ∈ ({B, C} : Set α) := by parley_set_side
       -- 4.2.2. mun:value-in-image, from 1, 4.2.1
-      have s4_2_2 : F B ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := B) (W := Set.univ) s1 s4_2_1 (by parley_set_side))
+      have s4_2_2 : F B ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := B) (W := Set.univ) s1 s4_2_1 (Set.mapsTo_univ _ _))
       -- 4.2.3. substitute u = F(B) (C3) into line 4.2.2
       parley_subst_at hC3 s4_2_2
     · skip
       -- 4.2.4. inspection
       have s4_2_4 : C ∈ ({B, C} : Set α) := by parley_set_side
       -- 4.2.5. mun:value-in-image, from 1, 4.2.4
-      have s4_2_5 : F C ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := C) (W := Set.univ) s1 s4_2_4 (by parley_set_side))
+      have s4_2_5 : F C ∈ F '' (A ∩ ({B, C} : Set α)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := ({B, C} : Set α)) (f := F) (s := C) (W := Set.univ) s1 s4_2_4 (Set.mapsTo_univ _ _))
       -- 4.2.6. substitute u = F(C) (C4) into line 4.2.5
       parley_subst_at hC4 s4_2_5
   -- 5. def:subset, from 4

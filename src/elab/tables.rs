@@ -1515,11 +1515,11 @@ impl<'a> Elaborator<'a> {
                 return Vec::new();
             }
             let start = self.rpn(&where_.children()[0]);
-            for (inside, first, lemma) in rules::RANGE_WITHIN {
-                if first.is_none() || *first == start.alone() {
-                    if let Some(made) = self.lemma_step(lemma, &node) {
+            for row in rules::RANGE_WITHIN {
+                if row.first.is_none() || row.first == start.alone() {
+                    if let Some(made) = self.lemma_step(row.lemma, &node) {
                         head = vec![made];
-                        system = inside;
+                        system = row.system;
                         break;
                     }
                 }
@@ -2559,8 +2559,8 @@ impl<'a> Elaborator<'a> {
         let start = self.rpn(&range.children()[0]);
         rules::RANGE_WITHIN
             .iter()
-            .find(|(_, first, _)| first.is_none() || *first == start.alone())
-            .map(|(system, _, lemma)| (*system, *lemma))
+            .find(|row| row.first.is_none() || row.first == start.alone())
+            .map(|row| (row.system, row.lemma))
     }
 
     /// `said ∈ system` for a letter introduced in `set`, from the scope's

@@ -48,6 +48,6 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.2.2. inequalities, from 1.2.1
       linarith only [s1_2_1]
   -- 2. instantiate N := n in line 1
-  intro j h_j; exact (s1 n hH1 j (by parley_side))
+  intro j h_j; exact (s1 n hH1 j h_j)
 
 end Parley.Tests.Elaborator.AnInductionOverARangeItEnds.AnInductionOverARangeItEnds

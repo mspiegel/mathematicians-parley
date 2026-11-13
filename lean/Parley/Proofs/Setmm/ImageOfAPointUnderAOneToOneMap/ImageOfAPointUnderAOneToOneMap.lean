@@ -4,6 +4,7 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -21,14 +22,14 @@ namespace Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderA
 theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (X : α) (hH4 : X ∈ A) (Y : Set α) (hH5 : Y ⊆ A) :
     (F X ∈ F '' (A ∩ Y) ↔ X ∈ Y) := by
   -- 1. def:one-to-one, from H3
-  have s1a : Set.MapsTo F A B := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).1
-  have s1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_set_side))).mp hH3).2
+  have s1a : Set.MapsTo F A B := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) hH3.1)).mp hH3).1
+  have s1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) hH3.1)).mp hH3).2
   -- 2. both directions
   constructor
   · skip
     intro hD1
     -- 2.1. obtain s: def:image u := F(X), from D1, H5
-    obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := Y) (f := F) (u := F X) (W := Set.univ) hH5 (by parley_set_side))).mp hD1
+    obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := Y) (f := F) (u := F X) (W := Set.univ) hH5 (Set.mapsTo_univ _ _))).mp hD1
     -- 2.2. mun:in-subset X := Y, Y := A, u := s, from H5, 2.1
     have s2_2 : s ∈ A := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) hH5 s2_1a)
     -- 2.3. instantiate s := X, t := s in line 1, from H4, 2.1, 2.2
@@ -38,6 +39,6 @@ theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : S
   · skip
     intro hD2
     -- 2.5. mun:value-in-image s := X, from D2, H5
-    exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) hH5 hD2 (by parley_set_side))
+    exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) hH5 hD2 (Set.mapsTo_univ _ _))
 
 end Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap

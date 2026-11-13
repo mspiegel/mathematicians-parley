@@ -3,11 +3,11 @@ module
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -42,6 +42,6 @@ theorem a_line_is_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x +
     -- 2.4. algebra, from 2.3
     linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * s2_3
   -- 3. def:one-to-one, from 1, 2
-  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, by simpa only [Set.mem_univ, forall_const] using s2⟩
 
 end Parley.Tests.Notations.Functions.ALineIsOneToOne

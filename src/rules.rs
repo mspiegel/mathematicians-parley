@@ -819,6 +819,18 @@ pub fn implied(system: Option<&str>) -> &'static [(&'static str, &'static str)] 
     system.and_then(|s| lookup(IMPLIED, s)).unwrap_or(&[])
 }
 
+// The notations that say something of a function with its type, `f : A →
+// B is one-to-one`, and so say the type `f : A → B` too: the notation, and
+// the lemma that says it.
+pub const TYPED_BY: &[(&str, &str)] = &[
+    ("one-to-one", "f1f"),
+    ("onto", "fof"),
+    ("one-to-one-onto", "f1of"),
+];
+
+/// The notation that writes a function's type alone, `f : A → B`.
+pub const FUNCTION_TYPE: &str = "function-type";
+
 // What a membership of a range {a, …, b} says of its term besides itself, as
 // the page writes it with x for the term, and the lemma that says it
 // (`SYNTAX.md`, a line saying a term is in a range says its bounds).
@@ -894,13 +906,44 @@ pub const ON_LINE: OtherForms = OtherForms {
 /// for the other. The checker reads the forms, the elaborator the lemmas.
 pub const OTHER_FORMS: &[&OtherForms] = &[&PARTS, &ON_LINE];
 
-// A range lies inside ℕ from 1 and ℕ₀ from 0, and inside ℤ from anywhere:
-// the system, the numeral it must start at or None, the lemma. The checker
-// reads what a member of a range is from it, and so does the elaborator.
-pub const RANGE_WITHIN: &[(&str, Option<&str>, &str)] = &[
-    ("cn", Some("c1"), "elfznn"),
-    ("cn0", Some("cc0"), "elfznn0"),
-    ("cz", None, "elfzelz"),
+/// A system a range lies inside, from the numeral it starts at
+/// (`RANGE_WITHIN`).
+pub struct RangeWithin {
+    /// The system, by its set.mm label.
+    pub system: &'static str,
+    /// The numeral the range must start at, by its label; None for any.
+    pub first: Option<&'static str>,
+    /// set.mm's lemma putting a member of the range in the system.
+    pub lemma: &'static str,
+    /// Mathlib's lemma taking a member's lower bound, `a ≤ k` of `k ∈
+    /// Finset.Icc a b`, to the bound Lean writes the system's membership as,
+    /// from the numeral's own: `0 < k` from `0 < 1`, `0 ≤ k` from `0 ≤ 0`.
+    /// None for ℤ, whose membership Lean's type gives.
+    pub lean: Option<&'static str>,
+}
+
+// A range lies inside ℕ from 1 and ℕ₀ from 0, and inside ℤ from anywhere.
+// The checker reads what a member of a range is from it, and so do the
+// elaborator and the Lean writer.
+pub const RANGE_WITHIN: &[RangeWithin] = &[
+    RangeWithin {
+        system: "cn",
+        first: Some("c1"),
+        lemma: "elfznn",
+        lean: Some("lt_of_lt_of_le"),
+    },
+    RangeWithin {
+        system: "cn0",
+        first: Some("cc0"),
+        lemma: "elfznn0",
+        lean: Some("le_trans"),
+    },
+    RangeWithin {
+        system: "cz",
+        first: None,
+        lemma: "elfzelz",
+        lean: None,
+    },
 ];
 
 /// An interval a letter may be introduced in, and what puts its member in a
@@ -1557,12 +1600,12 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
             put("OTHER_FORMS", &[form.lemma]);
         }
     }
-    for (system, first, lemma) in RANGE_WITHIN {
-        put("RANGE_WITHIN", &[system]);
-        if let Some(first) = first {
+    for row in RANGE_WITHIN {
+        put("RANGE_WITHIN", &[row.system]);
+        if let Some(first) = row.first {
             put("RANGE_WITHIN", &[first]);
         }
-        put("RANGE_WITHIN", &[lemma]);
+        put("RANGE_WITHIN", &[row.lemma]);
     }
     put("RELATIONS", &RELATIONS);
     for (k, _, v) in RENAMED {

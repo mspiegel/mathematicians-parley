@@ -66,14 +66,14 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     exact absurd hC1 s5_1
   · skip
     -- 5.2. mun:sum-zero-terms a := 1, b := n, from C2, 2
-    have s5_2 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ^ 2 = 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_zero_terms (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) s2 (by parley_side))
+    have s5_2 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ^ 2 = 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_zero_terms (t := (fun k : ℤ => a k ^ 2)) (a := (1 : ℤ)) (b := n) s2 hC2)
     -- 5.3. proof
     have s5_3 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k * b k = 0 := by
       intro k hK4
       try push_cast at hK4
       try have hK4_bounds := Finset.mem_Icc.mp hK4
       -- 5.3.1. mun:square-zero x := a(k), from H2, K4, 5.2
-      have s5_3_1 : a k = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (by parley_side))
+      have s5_3_1 : a k = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (s5_2 k hK4))
       -- 5.3.2. algebra, from 5.3.1
       linear_combination (norm := parley_norm) (b k) * s5_3_1
     -- 5.4. calculation

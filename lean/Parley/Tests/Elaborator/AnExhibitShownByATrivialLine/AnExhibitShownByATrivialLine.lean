@@ -19,6 +19,6 @@ theorem an_exhibit_shown_by_a_trivial_line (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH
   -- 1. algebra
   have s1 : p * q = p * q := by parley_ring
   -- 2. exhibit, from 1
-  exact ⟨q, hH2, s1⟩
+  exact ⟨q, hH2, rfl⟩
 
 end Parley.Tests.Elaborator.AnExhibitShownByATrivialLine.AnExhibitShownByATrivialLine

@@ -22,9 +22,9 @@ theorem minus_one_mod_five :
   -- 1. arithmetic
   have s1 : (-1 * 5 + 4 : ℤ) = -1 := by parley_arith
   -- 2. exhibit, from 1
-  have s2 : ∃ q : ℤ, q * 5 + 4 = -1 := ⟨(-1 : ℤ), s1⟩
+  have s2 : ∃ q : ℤ, q * 5 + 4 = -1 := ⟨(-1 : ℤ), by norm_num⟩
   -- 3. mun:mod-remainder a := −1, m := 5, r := 4, from 2
   have r57_1 : (4 : ℤ) < 5 := by parley_arith
-  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := (5 : ℤ)) (by norm_num) (r := (4 : ℤ)) (by norm_num) r57_1)).mpr s2
+  exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (-1 : ℤ)) (m := (5 : ℤ)) (by norm_num) (r := (4 : ℤ)) (by norm_num) (by norm_num))).mpr s2
 
 end Parley.Tests.Notations.Numbers.MinusOneModFive

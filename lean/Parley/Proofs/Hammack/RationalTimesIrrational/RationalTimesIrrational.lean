@@ -46,6 +46,6 @@ theorem rational_times_irrational (a : ℝ) (b : ℝ) (hH3 : ∃ m : ℚ, (m : �
     have s1_6 : ¬ (∃ m : ℚ, (m : ℝ) = a * b) := by exact s1_5
     exact s1_6 s1_4
   -- 2. def:irrational x := b, from 1
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := b))).mpr ⟨by parley_side, s1⟩
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := b))).mpr ⟨by trivial, s1⟩
 
 end Parley.Proofs.Hammack.RationalTimesIrrational.RationalTimesIrrational

@@ -2893,8 +2893,8 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Where the checker read the step's citation of a record as taken from
-    /// (`Cited::firsts`): the line, or the sentence of one, a definition is
-    /// unfolded from.
+    /// (`Cited::firsts`): the cited line, or the sentence of one, a
+    /// definition is unfolded from.
     fn firsts_here(&self, step: &Step) -> Checked<Vec<FirstAt>> {
         let Some(cited) = step.just.cited_item() else {
             return Ok(Vec::new());
@@ -2903,7 +2903,15 @@ impl<'a> Elaborator<'a> {
         let Some(Item::Record(item)) = self.items.get(&name).copied() else {
             return Ok(Vec::new());
         };
-        Ok(self.cited_here(step, &item.qualified())?.firsts)
+        Ok(self
+            .cited_here(step, &item.qualified())?
+            .firsts
+            .into_iter()
+            .filter_map(|by| match by {
+                crate::checker::record::SuppliedBy::Line(at) => Some(at),
+                _ => None,
+            })
+            .collect())
     }
 
     /// What the line `at` names says there, as the checker read it
@@ -4015,8 +4023,8 @@ impl<'a> Elaborator<'a> {
         let chain = chain?.upward();
         let mut defines: BTreeSet<String> =
             self.thm.defines.iter().map(|d| d.label.clone()).collect();
-        for (name, d, src) in self.visible_outside() {
-            defines.insert(self.outside_label(&name, &d, src));
+        for v in self.visible_outside() {
+            defines.insert(self.outside_label(&v.name, &v.define, v.scope));
         }
         // What a line claims: the term before it, its relation, the term it
         // reaches and the modulus it says, as one formula; and the term it

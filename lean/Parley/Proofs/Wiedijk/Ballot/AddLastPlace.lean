@@ -44,14 +44,14 @@ theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     intro hK3
     -- 2.1. def:set-builder u := S, from D2, K1
     have r403_1 : 0 ≤ m - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := m) hH1)
-    have s2_1 : S ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1}) (u := S))).mp (by parley_set_side)).1
+    have s2_1 : S ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1}) (u := S))).mp hK1).1
     -- 2.2. def:set-builder u := T, from D2, K2
     have r407_1 : 0 ≤ m - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := m) hH1)
-    have s2_2 : T ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1}) (u := T))).mp (by parley_set_side)).1
+    have s2_2 : T ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1}) (u := T))).mp hK2).1
     -- 2.3. def:part-builder u := S, from 2.1
-    have s2_3 : S ⊆ (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m - 1)) (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (u := S))).mp (by parley_set_side)).1
+    have s2_3 : S ⊆ (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m - 1)) (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (u := S))).mp s2_1).1
     -- 2.4. def:part-builder u := T, from 2.2
-    have s2_4 : T ⊆ (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m - 1)) (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (u := T))).mp (by parley_set_side)).1
+    have s2_4 : T ⊆ (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m - 1)) (X := (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ)) (u := T))).mp s2_2).1
     -- 2.5. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.3
     have s2_5 : S ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by parley_subst_at s1 s2_3
     -- 2.6. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.4
@@ -72,6 +72,6 @@ theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
   -- 3. mun:nat-minus-one n := m
   have s3 : 0 ≤ m - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := m) hH1)
   -- 4. mun:image-of-injection, from 2, 3
-  exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (a := m + n) (by parley_set_side))
+  exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (a := m + n) s2)
 
 end Parley.Proofs.Wiedijk.Ballot.AddLastPlace

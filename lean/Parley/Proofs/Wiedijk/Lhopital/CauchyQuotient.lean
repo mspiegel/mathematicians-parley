@@ -60,11 +60,11 @@ theorem cauchy_quotient (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (U : Se
   -- 7. def:interval a := p, b := q, x := p
   have r76_1 : p ≤ p := by linarith
   have r76_2 : p ≤ q := by linarith only [hH5]
-  have s7 : p ∈ (Set.Icc p q : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := p) (a := p) (b := q))).mpr ⟨⟨by parley_set_side, r76_1⟩, r76_2⟩
+  have s7 : p ∈ (Set.Icc p q : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := p) (a := p) (b := q))).mpr ⟨⟨by trivial, r76_1⟩, r76_2⟩
   -- 8. def:interval a := p, b := q, x := q
   have r81_1 : p ≤ q := by linarith only [hH5]
   have r81_2 : q ≤ q := by linarith
-  have s8 : q ∈ (Set.Icc p q : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := q) (a := p) (b := q))).mpr ⟨⟨by parley_set_side, r81_1⟩, r81_2⟩
+  have s8 : q ∈ (Set.Icc p q : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := q) (a := p) (b := q))).mpr ⟨⟨by trivial, r81_1⟩, r81_2⟩
   -- 9. mun:in-subset, from H6, 7
   have s9 : p ∈ E := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc p q : Set ℝ)) (Y := E) (u := p) hH6 s7)
   -- 10. mun:in-subset, from H6, 8

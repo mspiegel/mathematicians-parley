@@ -30,12 +30,24 @@ pub enum Binder {
         name: String,
         says: Printed,
         /// Where the statement writes it, where it says a fact the page
-        /// writes: the place a citation's record gives where the fact is
-        /// supplied by (`Supplied::at`). For a letter's number system, `n ∈
-        /// ℕ`, the membership's place, whose `says` is the bound `0 < n`.
-        /// None for a fact only Lean states, a map's `Set.MapsTo`.
-        at: Option<HypothesisAt>,
+        /// writes, by which a citation finds what supplies it. For a
+        /// letter's number system, `n ∈ ℕ`, the membership's place, whose
+        /// `says` is the bound `0 < n`. None for a fact only Lean states.
+        at: Option<StatedAt>,
     },
+}
+
+/// Where a statement writes a hypothesis.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum StatedAt {
+    /// A sentence of a hypothesis line, or the type a `let` line gives a
+    /// map, whose supplier a citation's record gives by this place
+    /// (`Supplied::at`).
+    Hypothesis(HypothesisAt),
+    /// A define by recursion in the header, by its label, which a citation
+    /// meets with the citing proof's define of the same recursion
+    /// (`Cited::recursions`).
+    Recursion(String),
 }
 
 impl Binder {
@@ -358,17 +370,18 @@ pub fn things_binder(
     })
 }
 
-/// Where a line says what sets a map letter maps between, `f : A → B` or
-/// `f : A → B is one-to-one`, the A it maps from is its domain, though the
-/// letter's type came first, from its sort.
-fn record_domain(writer: &mut Writer, node: &Node) {
+/// Where a line says what sets a map or function letter maps between, `f :
+/// A → B` or `f : A → B is one-to-one`, the A it maps from is its domain,
+/// though the letter's type came first. A function from ℕ, whose Lean type
+/// is from ℤ, has ℕ for its domain, not all of ℤ.
+pub(super) fn record_domain(writer: &mut Writer, node: &Node) {
     let kinds = ["function-type", "one-to-one", "onto", "one-to-one-onto"];
     let [f, from, _] = node.children.as_slice() else {
         return;
     };
     let map = matches!(
         writer.letters.get(f.text.as_str()),
-        Some(LetterType::Map { .. })
+        Some(LetterType::Map { .. } | LetterType::Function { .. })
     );
     if !map || !kinds.contains(&&*node.notation_name()) {
         return;
@@ -421,6 +434,7 @@ pub fn binders(
         }
         if let Some((letter, ty)) = introduces_function(a.node) {
             writer.letters.insert(letter.clone(), ty.clone());
+            record_domain(writer, a.node);
             out.push(Binder::Letter {
                 name: super::names::letter(&letter),
                 page: letter,
@@ -449,17 +463,22 @@ pub fn binders(
                 general: false,
                 ty,
             });
-            let (says, at) = match fact {
-                Fact::Said(f) => (f, None),
+            let says = match fact {
+                Fact::Said(f) => f,
                 Fact::Line => match writer.formula(a.node) {
-                    Route::Built(p) => (p, Some(a.at)),
+                    Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 },
             };
+            // What the letter's type says, `H : Subgroup G` of "H is a
+            // subgroup of G", is no hypothesis in Lean.
+            if says.text() == "True" {
+                continue;
+            }
             out.push(Binder::Fact {
                 name: a.name.clone(),
                 says,
-                at,
+                at: Some(StatedAt::Hypothesis(a.at)),
             });
             continue;
         }
@@ -505,7 +524,7 @@ pub fn binders(
                 out.push(Binder::Fact {
                     name: a.name.clone(),
                     says,
-                    at: Some(a.at),
+                    at: Some(StatedAt::Hypothesis(a.at)),
                 });
             }
             continue;
@@ -518,10 +537,16 @@ pub fn binders(
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
+        // A fact Lean's types make true, `H is a subgroup of G` of an `H :
+        // Subgroup G`, is no hypothesis in Lean, and a citation passes
+        // nothing for it.
+        if says.text() == "True" {
+            continue;
+        }
         out.push(Binder::Fact {
             name: a.name.clone(),
             says,
-            at: Some(a.at),
+            at: Some(StatedAt::Hypothesis(a.at)),
         });
         // A term of a wider type said to be an integer is, in what is
         // asked after, the integer this hypothesis gives. A letter is not:
@@ -545,6 +570,7 @@ pub fn binders(
                     ty: super::templates::Num::Int,
                     value: None,
                     slot_only: false,
+                    back: None,
                 });
             }
         }

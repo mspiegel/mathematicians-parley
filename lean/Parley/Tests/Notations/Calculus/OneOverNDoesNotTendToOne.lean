@@ -45,7 +45,7 @@ theorem one_over_n_does_not_tend_to_one :
   -- 2.2. instantiate ε := 1/2 in line 2.1
   have r296_1 : (0 : ℚ) < 1 / 2 := by parley_arith
   have s2_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℚ) - 1) < 1 / 2) := by
-    have hI : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → N ≤ n → abs (1 / (n : ℚ) - 1) < 1 / 2) := by parley_instance_real ((s2_1 (1 / 2 : ℝ) (by parley_side)))
+    have hI : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → N ≤ n → abs (1 / (n : ℚ) - 1) < 1 / 2) := by parley_instance_real ((s2_1 (1 / 2 : ℝ) (by norm_num)))
     exact hI
   -- 2.3. obtain N from line 2.2
   obtain ⟨N, s2_3a, s2_3b⟩ := s2_2
@@ -61,7 +61,7 @@ theorem one_over_n_does_not_tend_to_one :
   -- 2.8. mun:reciprocal-order x := 2, y := N + 1, from 2.7
   have r316_1 : (2 : ℤ) > 0 := by parley_arith
   have r316_2 : N + 1 > 0 := by parley_side
-  have s2_8 : 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 : ℚ)) (by parley_side) (y := (N : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r316_2))).mp (by parley_side)
+  have s2_8 : 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (2 : ℚ)) (by norm_num) (y := (N : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r316_2))).mp (by exact_mod_cast s2_7)
   -- 2.9. inequalities, from 2.6
   have s2_9 : ¬ 1 / ((N : ℚ) + 1) ≤ 1 / 2 := by linarith only [s2_6.1]
   exact s2_9 s2_8

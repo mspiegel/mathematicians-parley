@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Order.Ring
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.DivMod
@@ -44,6 +45,6 @@ theorem gcd_positive (x : ℤ) (y : ℤ) (hH3 : ¬ (x = 0 ∧ y = 0)) :
     have s3_7 : x = 0 ∧ y = 0 := ⟨s3_3, s3_6⟩
     exact hH3 s3_7
   -- 4. mun:nat0-nonzero m := gcd(x, y), from 3
-  exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (Int.gcd x y : ℤ)) (by parley_side) s3)
+  exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (Int.gcd x y : ℤ)) (Nat.cast_nonneg _) s3)
 
 end Parley.Proofs.Hammack.ScaledGcdBound.GcdPositive

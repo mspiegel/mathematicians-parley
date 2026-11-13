@@ -50,7 +50,7 @@ theorem divisor_exceeds_root (p : ℤ) (hH1 : 0 < p) (d : ℤ) (hH2 : 0 < d) (hH
   -- 2.5. instantiate n := d in H5, from H2
   have s2_5 : 2 ≤ d ∧ (d : ℝ) ≤ Real.sqrt (p : ℝ) → ¬ d ∣ p := by exact (hH5 d hH2)
   -- 2.6. mun:modus-ponens P := 2 ≤ d and d ≤ √p, from 2.4, 2.5
-  have s2_6 : ¬ d ∣ p := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := 2 ≤ d ∧ (d : ℝ) ≤ Real.sqrt (p : ℝ)) (Q := ¬ d ∣ p) s2_5 (by parley_side))
+  have s2_6 : ¬ d ∣ p := by exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := 2 ≤ d ∧ (d : ℝ) ≤ Real.sqrt (p : ℝ)) (Q := ¬ d ∣ p) s2_5 ⟨s2_4a, s2_4b⟩)
   exact s2_6 hH4
 
 end Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot

@@ -9,6 +9,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity.Basic
@@ -28,10 +29,10 @@ theorem square_window_out (t : ℝ) (hH2 : t ≥ 0) (hH3 : 12 ≤ t ^ 2 + 3) (hH
   have s2 : t ^ 2 ≤ 4 ^ 2 := by linarith only [hH4]
   -- 3. mun:square-le x := 3, y := t, from H2, 1
   have r66_1 : (3 : ℤ) ≥ 0 := by parley_arith
-  have s3 : 3 ≤ t := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (3 : ℝ)) (y := t) (by parley_side) hH2)).mpr s1
+  have s3 : 3 ≤ t := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (3 : ℝ)) (y := t) (by norm_num) hH2)).mpr s1
   -- 4. mun:square-le x := t, y := 4, from H2, 2
   have r70_1 : (4 : ℤ) ≥ 0 := by parley_arith
-  have s4 : t ≤ 4 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := t) (y := (4 : ℝ)) hH2 (by parley_side))).mpr s2
+  have s4 : t ≤ 4 := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := t) (y := (4 : ℝ)) hH2 (by norm_num))).mpr s2
   -- 5. join 3, 4
   have s5a : 3 ≤ t := s3
   have s5b : t ≤ 4 := s4

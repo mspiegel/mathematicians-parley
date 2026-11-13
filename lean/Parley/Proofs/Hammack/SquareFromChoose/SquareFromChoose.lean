@@ -42,7 +42,7 @@ theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) < 2 := by parley_arith
       -- 1.2. def:C n := 1, k := 2, from 1.1
-      have s1_2 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ))) s1_1
+      have s1_2 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)
       -- 1.3. thm:choose-one n := 1
       have s1_3 : (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) = 1 := by exact (Parley.Proofs.Hammack.SquareFromChoose.ChooseOne.choose_one (n := (1 : ℤ)) (by norm_num))
       -- 1.4. algebra, from 1.2, 1.3

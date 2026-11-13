@@ -191,9 +191,9 @@ pub struct LibraryReading {
     /// theorem's (`citing::Library::groups`).
     pub groups: IndexMap<String, Option<Arc<Vec<Group>>>>,
     /// What each item's function-type `let` lines say, `t : {a, …, b} → ℝ`,
-    /// by its full name, which its groups leave out
-    /// (`citing::Library::function_types`).
-    pub function_types: IndexMap<String, Vec<crate::formula::Node>>,
+    /// by its full name, which its groups leave out, each with where the
+    /// item writes it (`citing::Library::function_type_lines`).
+    pub function_types: IndexMap<String, Vec<crate::citing::Want>>,
     /// What each group of each item says of its terms, its phrases written
     /// out, by the item's full name and the group's place
     /// (`checker::written::item_facts`).
@@ -570,10 +570,11 @@ pub struct Cited {
     /// "there is" whole.
     pub concluded: Vec<Concluded>,
     /// Where the facts the citation's readings are taken from stand
-    /// (`Taken::firsts`): the cited line, or the sentence of it, a
-    /// definition is unfolded from. A fact no line the citation names says,
-    /// a membership said once among them, has none.
-    pub firsts: Vec<FirstAt>,
+    /// (`Taken::firsts`), found as a hypothesis the citation needs is
+    /// (`supplied`): the cited line, or the sentence of it, a definition is
+    /// unfolded from; else a requires line, or the `let` line that says a
+    /// membership once. A fact nothing supplies has none.
+    pub firsts: Vec<SuppliedBy>,
     /// What supplies each hypothesis of the group the citation takes, in
     /// the group's order: the fact the search took for it (`supplier`),
     /// and where that fact stands.
@@ -610,6 +611,11 @@ pub struct Cited {
     /// = N(a)/10^a", bound a := k, is L(k) ∈ ℝ, then the witness k with k ∈
     /// ℕ₀ and L(k) = N(k)/10^k. None for a sentence read otherwise.
     pub unfolded: Vec<Option<Vec<Unfolded>>>,
+    /// Each recursion the cited theorem is stated over, by its define's
+    /// label, with the citing proof's define that is the same recursion,
+    /// by its label: `D1` of fibonacci-natural is `D1` of a proof that
+    /// defines F and G the same way (`citations::recursions_met`).
+    pub recursions: IndexMap<String, String>,
 }
 
 /// One part of what a definition's right side asks, at a citation's values
@@ -993,6 +999,27 @@ pub struct Supplied {
     /// states the item finds it among its own; None for a fact that is no
     /// item's hypothesis, a value's domain or an exhibit's.
     pub at: Option<crate::citing::HypothesisAt>,
+    /// How the fact the line writes met the hypothesis at the citation's
+    /// values (`Known::alike_how`), as `Cited::meetings` records it for a
+    /// conclusion: a listed set's members in another order, the identity
+    /// elements dropped, the two sides turned. None where no line writes
+    /// it.
+    pub meeting: Option<crate::matching::Meeting>,
+    /// Where the line says a "for all" over a set the hypothesis asks of a
+    /// set inside it (`SYNTAX.md`; `citing::supply::narrowed`): "for all k ∈
+    /// ℕ" for "for all k ∈ {1, …, n}". None where the two are over one set.
+    pub narrowed: Option<Narrowed>,
+}
+
+/// A "for all" a line says over one set and a hypothesis asks over a set
+/// inside it (`Supplied::narrowed`), by the row of `rules::RANGE_WITHIN`
+/// or `rules::WITHIN` that puts the one inside the other.
+#[derive(Clone, Debug)]
+pub struct Narrowed {
+    /// The line's set, ℕ.
+    pub from: Node,
+    /// The set the hypothesis asks, {1, …, n}.
+    pub to: Node,
 }
 
 /// Where the fact a hypothesis is supplied by stands.
@@ -1014,6 +1041,26 @@ pub enum SuppliedBy {
     /// writes, `k + 1 ∈ ℕ₀` of a k in ℕ₀, for the reason the said-once walk
     /// gives.
     Walked(crate::citing::SaidOnceFact),
+    /// No one line: a membership a function's type or a subset carries,
+    /// `f(x) ∈ Y` of `f : X → Y` and `x ∈ X` (`citing::function_values`),
+    /// `k ∈ B` of `A ⊆ B` and `k ∈ A`: where each of the two stands.
+    Through {
+        /// The function's type, or the subset.
+        carrier: Box<SuppliedBy>,
+        /// The membership of the argument, or of the smaller set.
+        member: Box<SuppliedBy>,
+    },
+    /// No line: the membership a step's claim "for all t ∈ A, …" gives the
+    /// step that proves it in one line (`citing::claimed_member`), by the
+    /// letter as the page writes it.
+    Bound { letter: String },
+    /// No line: an equation whose two sides are one once the citation's
+    /// values are put in, `P = 1·P` (`SYNTAX.md`, an identity element goes
+    /// without saying), with how the two met (`Known::alike_how`).
+    Identity(crate::matching::Meeting),
+    /// No one line: an "and" no one line says, each part placed as a fact
+    /// is, in the order the "and" joins them (`citing::conjuncts`).
+    Parts(Vec<SuppliedBy>),
     /// No line: a fact the citation's values make true.
     Unstated,
 }

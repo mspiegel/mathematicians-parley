@@ -13,6 +13,7 @@ public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Topology.Defs.Filter
@@ -37,7 +38,7 @@ theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℤ
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < ε)) := by exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r22_1 : (0 : ℤ) < 1 := by parley_arith
-  have s3 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < 1) := by exact (s2 (1 : ℝ) (by parley_side))
+  have s3 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - L) < 1) := by exact (s2 (1 : ℝ) (by norm_num))
   -- 4. obtain P from line 3
   obtain ⟨P, s4a, s4b⟩ := s3
   -- 5. instantiate M := L + 1 in H2

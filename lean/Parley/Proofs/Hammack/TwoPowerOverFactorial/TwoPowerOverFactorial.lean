@@ -77,7 +77,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       -- 1.3.5. mun:reciprocal-order x := N, y := n, from A2
       have r138_1 : N > 0 := by linarith only [s1_2a]
       have r138_2 : n > 0 := by linarith only [hK2]
-      have s1_3_5 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r138_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r138_2))).mp (by parley_side)
+      have s1_3_5 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r138_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r138_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 1.3.6. inequalities
       have s1_3_6 : 4 / (n : ℚ) ≤ 4 / (N : ℚ) := by linarith only [s1_3_5, div_eq_mul_one_div (4 : ℚ) ((n : ℚ)), div_eq_mul_one_div (4 : ℚ) ((N : ℚ))]
       -- 1.3.7. inequalities

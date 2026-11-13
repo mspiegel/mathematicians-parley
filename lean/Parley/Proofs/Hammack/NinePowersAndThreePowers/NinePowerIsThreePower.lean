@@ -15,6 +15,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -35,7 +36,7 @@ theorem nine_power_is_three_power (m : ℤ) :
   have s1 : m ≥ 0 ∨ m < 0 := by exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m))
   -- 2. mun:exponent-sum-integer a := 3, n := m
   have r109_1 : (3 : ℤ) ≠ 0 := by parley_arith
-  have s2 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m))
+  have s2 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by norm_num) (m := m) (n := m))
   -- 3. substitute
   have s3 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by
     have c1 : m + m = 2 * m := by parley_ring
@@ -48,7 +49,7 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.1. mun:nat0-as-int
       have r124_1 : 0 ≤ m := by exact hC1
       have s4_1 : 0 ≤ m := by
-        have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨by parley_side, r124_1⟩)
+        have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨⟨_, rfl⟩, r124_1⟩)
         exact hI
       -- 4.2. thm:nine-power-from-zero n := m, from 4.1
       (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := m) s4_1); simp only [parley_zpow_toNat (n := m) (h := s4_1)] at h ⊢; exact_mod_cast h)
@@ -58,7 +59,7 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.4. mun:nat0-as-int
       have r139_1 : -m ≥ 0 := by linarith only [s4_3]
       have s4_4 : 0 ≤ -m := by
-        have hI : 0 ≤ -m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr ⟨by parley_side, r139_1⟩)
+        have hI : 0 ≤ -m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr ⟨⟨_, rfl⟩, r139_1⟩)
         exact hI
       -- 4.5. thm:nine-power-from-zero n := −m, from 4.4
       have s4_5 : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := -m) s4_4); simp only [parley_zpow_toNat (n := -m) (h := s4_4)] at h ⊢; exact_mod_cast h)
@@ -68,20 +69,20 @@ theorem nine_power_is_three_power (m : ℤ) :
       have r150_1 : (3 : ℤ) > 0 := by parley_arith
       -- 4.8. mun:power-positive a := 9
       have r154_1 : (0 : ℤ) < 9 := by parley_arith
-      have s4_8 : (9 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (9 : ℚ)) (m := m) (by parley_side))
+      have s4_8 : (9 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (9 : ℚ)) (m := m) (by norm_num))
       -- 4.9. mun:power-positive a := 3
       have r158_1 : (0 : ℤ) < 3 := by parley_arith
-      have s4_9 : (3 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := m) (by parley_side))
+      have s4_9 : (3 ^ m : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := m) (by norm_num))
       -- 4.10. substitute
       have r162_1 : (9 : ℤ) ≠ 0 := by parley_arith
       have s4_10 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by
-        have c1 : (9 ^ (-m) : ℚ) = 1 / 9 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (9 : ℚ)) (by parley_side) (m := m))
+        have c1 : (9 ^ (-m) : ℚ) = 1 / 9 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (9 : ℚ)) (by norm_num) (m := m))
         have row1 : (1 / 9 ^ m : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := Eq.subst (motive := (fun t : ℚ => t = 3 ^ (-m) * 3 ^ (-m))) c1 s4_5; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.11. substitute
       have r168_1 : (3 : ℤ) ≠ 0 := by parley_arith
       have s4_11 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by
-        have c1 : (3 ^ (-m) : ℚ) = 1 / 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (3 : ℚ)) (by parley_side) (m := m))
+        have c1 : (3 ^ (-m) : ℚ) = 1 / 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_negative (a := (3 : ℚ)) (by norm_num) (m := m))
         have row1 : (1 / 9 ^ m : ℚ) = 1 / 3 ^ m * (1 / 3 ^ m) := by (have h := Eq.subst (motive := (fun t : ℚ => 1 / 9 ^ m = t * t)) c1 s4_10; push_cast at h ⊢; all_goals exact_mod_cast h)
         exact row1
       -- 4.12. inequalities

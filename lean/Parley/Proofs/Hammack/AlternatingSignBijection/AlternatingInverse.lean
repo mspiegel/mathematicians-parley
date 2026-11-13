@@ -6,7 +6,6 @@ public import InstanceTactics
 public import NormTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
@@ -16,6 +15,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
@@ -41,7 +41,7 @@ namespace Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingInverse
 theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ)) (hH2 : ∀ n : ℤ, 0 < n → (f n : ℚ) = ((-1) ^ n.toNat * (2 * (n : ℚ) - 1) + 1) / 4) :
     (∀ m : ℤ, m > 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m) ∧ (∀ m : ℤ, m ≤ 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m) := by
   -- 1. def:one-to-one-onto, from H1
-  have s1 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mp hH1).1
+  have s1 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mp hH1).1
   -- 2. proof
   have s2 : ∀ m : ℤ, m > 0 → (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := by
     intro m
@@ -51,13 +51,13 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     -- 2.2. mun:pos-int-nat m := 2·m, from 2.1
     have s2_2 : 0 < 2 * m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * m) s2_1)
     -- 2.3. def:even n := 2·m
-    have s2_3 : Even (2 * m) := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * m))).mpr ⟨m, by parley_set_side⟩
+    have s2_3 : Even (2 * m) := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * m))).mpr ⟨m, rfl⟩
     -- 2.4. thm:alternating-value-even m := 2·m, from H2, 2.2, 2.3
     have s2_4 : (f (2 * m) : ℚ) = 2 * (m : ℚ) / 2 := by
       have hI : (f (2 * m) : ℚ) = 2 * (m : ℚ) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * m) s2_2 s2_3))
       exact hI
     -- 2.5. mun:inverse-value g := f, y := 2·m, from 1, 2.2
-    have s2_5 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (2 * m)) = 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 2 * m) s1 (by parley_whole_side))
+    have s2_5 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (2 * m)) = 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 2 * m) s1 s2_2)
     -- 2.6. substitute
     have c1 : f (2 * m) = m := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s2_4
     have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) t = 2 * m)) c1 s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
@@ -81,7 +81,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
       have hI : (f (1 - 2 * m) : ℚ) = (1 - (1 - 2 * (m : ℚ))) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * m) s3_3 s3_5))
       exact hI
     -- 3.7. mun:inverse-value g := f, y := 1 − 2·m, from 1, 3.3
-    have s3_7 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (1 - 2 * m)) = 1 - 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 1 - 2 * m) s1 (by parley_whole_side))
+    have s3_7 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (1 - 2 * m)) = 1 - 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 1 - 2 * m) s1 s3_3)
     -- 3.8. substitute
     have c1 : f (1 - 2 * m) = m := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s3_6
     have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) t = 1 - 2 * m)) c1 s3_7; push_cast at h ⊢; all_goals exact_mod_cast h)

@@ -2,7 +2,6 @@ module
 
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
@@ -31,8 +30,8 @@ theorem a_function_exhibited_by_its_type (n : ℤ) (hH1 : 0 < n) :
   -- 2. membership, from D1
   have s2 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → 0 < g i := by intro i h_i; parley_set_side
   -- 3. mun:function-into, from 2
-  have s3 : Set.MapsTo g (Set.Icc (1 : ℤ) n : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (1 : ℤ) n : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by parley_set_side) (by parley_whole_side))
+  have s3 : Set.MapsTo g (Set.Icc (1 : ℤ) n : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (1 : ℤ) n : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Finset.mem_Icc, Set.mem_Icc, Set.mem_ofPred_eq] using s2))
   -- 4. exhibit, from 1, 3
-  exact ⟨g, by parley_set_side, by parley_set_side⟩
+  exact ⟨g, s3, s1⟩
 
 end Parley.Tests.Elaborator.AFunctionExhibitedByItsType.AFunctionExhibitedByItsType

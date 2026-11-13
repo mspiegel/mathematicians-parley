@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ByName.ValuesByName
 
-theorem values_by_name (a : ℤ) (c : ℤ) (hH3 : c = a * 2) (hH4 : True) :
+theorem values_by_name (a : ℤ) (c : ℤ) (hH3 : c = a * 2) :
     (a ∣ c ∧ True) := by
   -- 1. def:divides n := c, d := a, from H3
   have s1 : a ∣ c := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := c))).mpr ⟨(2 : ℤ), hH3⟩

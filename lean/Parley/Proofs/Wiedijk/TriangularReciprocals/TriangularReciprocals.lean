@@ -31,6 +31,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.BigOperators
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -67,7 +68,7 @@ theorem triangular_reciprocals :
     intro n hK5
     -- 5.1. calculation
     have r55_1 : n + 1 ≥ 1 := by linarith only [hK5]
-    calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 / (k : ℚ) - 2 / ((k : ℚ) + 1) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2))) (u := (fun k : ℤ => 2 / (k : ℚ) - 2 / ((k : ℚ) + 1))) (a := (1 : ℤ)) (b := n) (by parley_side))
+    calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 / (k : ℚ) - 2 / ((k : ℚ) + 1) : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2))) (u := (fun k : ℤ => 2 / (k : ℚ) - 2 / ((k : ℚ) + 1))) (a := (1 : ℤ)) (b := n) (fun k h_k => s1 k (lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp h_k).1)))
       _ = 2 - 2 / ((n : ℚ) + 1) := by (have h := (Parley.Items.Stdlib.Sums.thm_sum_telescopes (t := (fun k : ℤ => 2 / (k : ℚ))) (a := (1 : ℤ)) (b := n) r55_1); simp only [Int.cast_one, div_one] at h ⊢; exact_mod_cast h)
   -- 6. proof
   have s6 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) - 2) < ε)) := by
@@ -85,7 +86,7 @@ theorem triangular_reciprocals :
       -- 6.2.2. mun:reciprocal-order x := N, y := n + 1, from 6.2.1
       have r79_1 : N > 0 := by linarith only [s6_1a]
       have r79_2 : n + 1 > 0 := by linarith only [hK7]
-      have s6_2_2 : 1 / ((n : ℚ) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r79_1) (y := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r79_2))).mp (by parley_side)
+      have s6_2_2 : 1 / ((n : ℚ) + 1) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r79_1) (y := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r79_2))).mp (by exact_mod_cast s6_2_1)
       -- 6.2.3. mun:reciprocal-positive x := n + 1
       have r84_1 : n + 1 > 0 := by linarith only [hK7]
       have s6_2_3 : 1 / ((n : ℚ) + 1) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (n : ℚ) + 1) (by exact_mod_cast gt_iff_lt.mp r84_1))

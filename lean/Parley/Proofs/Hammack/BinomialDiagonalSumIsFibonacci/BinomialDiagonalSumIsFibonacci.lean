@@ -14,6 +14,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -47,7 +48,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
     (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose (n - k) k : ℤ) : ℤ)) = F (n + 1) := by
   set S : ℤ → ℤ := fun m : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose (m - k) k : ℤ) : ℤ) with hD2
   -- 1. thm:fibonacci-natural
-  have s1 : ∀ i : ℤ, 0 ≤ i → 0 ≤ F i ∧ 0 ≤ G i := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
+  have s1 : ∀ i : ℤ, 0 ≤ i → 0 ≤ F i ∧ 0 ≤ G i := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) hD1)
   -- 2. induction on j starting at 0
   have s2 : ∀ j : ℤ, 0 ≤ j → S j = G j ∧ S (j + 1) = G (j + 1) := by
     intro j h_j
@@ -63,7 +64,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
         calc S 0 = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 - k) k : ℤ) : ℤ)) := by simp (disch := omega) only [hD2]
           _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) := by
               have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 - b) b : ℤ) : ℤ)) = (LeanBridges.Counting.choose (0 - 0 : ℤ) (0 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 - k) k : ℤ))) (a := (0 : ℤ))))
-              simpa only [sub_zero] using hI
+              simpa only [Int.cast_zero, sub_zero] using hI
           _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by norm_num))
           _ = G 0 := by exact s2_2.symm
       -- 2.4. proof
@@ -73,7 +74,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       -- 2.6. mun:sum-single a := 0, from 2.5
       have s2_6 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) = (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) := by
         have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - b) b : ℤ) : ℤ)) = (LeanBridges.Counting.choose (1 - 0 : ℤ) (0 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (a := (0 : ℤ))))
-        simpa only [sub_zero] using hI
+        simpa only [Int.cast_one, Int.cast_zero, sub_zero] using hI
       -- 2.7. mun:binomial-zero-index n := 1
       have s2_7 : (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (1 : ℤ)) (by norm_num))
       -- 2.8. arithmetic
@@ -83,12 +84,12 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
       -- 2.10. calculation
       have s2_10 : (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = 0 := by
         calc (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (1 : ℤ) : ℤ)) s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (1 : ℤ))) s2_9
+          _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (1 : ℤ))) (by norm_num)
       -- 2.11. calculation
       have s2_11 : (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) = 1 := by
         calc (∑ k ∈ Finset.Icc (0 : ℤ) (1 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - k) k : ℤ) : ℤ)) + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by
               have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 + 1 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) = (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (1 - a) a : ℤ) : ℤ)) + (LeanBridges.Counting.choose (1 - (0 + 1) : ℤ) (0 + 1 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (1 - k) k : ℤ))) (n := (0 : ℤ)) (by norm_num)))
-              simpa only [zero_add] using hI
+              simpa only [Int.cast_one, Int.cast_zero, zero_add] using hI
           _ = (LeanBridges.Counting.choose (1 : ℤ) (0 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ)) s2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (1 - 1 : ℤ) (1 : ℤ) : ℤ)) s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ = 1 := by (have h := congrArg (fun t : ℤ => 1 + t) s2_10; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)

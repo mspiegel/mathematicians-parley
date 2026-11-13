@@ -17,6 +17,6 @@ namespace Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorAtZero
 theorem successor_at_zero :
     (2 * 1 : ℤ) = 2 * 0 + 2 := by
   -- 1. thm:successor-sum i := 0, j := 1
-  exact (Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorSum.successor_sum (i := (0 : ℤ)) (by norm_num) (j := (1 : ℤ)) (by norm_num) (by parley_side))
+  exact (Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorSum.successor_sum (i := (0 : ℤ)) (by norm_num) (j := (1 : ℤ)) (by norm_num) (by norm_num))
 
 end Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorAtZero

@@ -734,8 +734,7 @@ impl Writer<'_> {
 
     /// The set a map or function is defined on, as Lean writes it: the one
     /// a line gives it, or for a function given between number systems,
-    /// all of its type; None for one from ℕ, whose type Lean's ℕ begins at
-    /// 0 where the page's begins at 1, and for any other letter.
+    /// all of its type; None for any other letter.
     pub fn domain_of(&self, f: &str) -> Option<Printed> {
         if let Some(d) = self.domains.get(f) {
             return Some(d.clone());

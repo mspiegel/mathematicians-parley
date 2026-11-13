@@ -18,6 +18,6 @@ namespace Parley.Tests.Elaborator.UnfoldingALet.ARationalLetterUnfolded
 theorem a_rational_letter_unfolded (A : ℚ) :
     (∃ p : ℤ, ∃ q : ℤ, 0 < q ∧ A = (p : ℚ) / (q : ℚ)) := by
   -- 1. def:rational x := A
-  exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+  exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp ⟨_, rfl⟩
 
 end Parley.Tests.Elaborator.UnfoldingALet.ARationalLetterUnfolded

@@ -20,11 +20,15 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Parity
@@ -71,21 +75,21 @@ theorem log_three_over_two_irrational :
     have r115_2 : (2 : ℤ) > 0 := by parley_arith
     have r115_3 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_5 : Real.log (3 ^ q.toNat : ℝ) = Real.log (2 ^ p : ℝ) := by
-      calc Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (3 : ℝ)) (n := q) (by parley_side)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
+      calc Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (3 : ℝ)) (n := q) (by norm_num)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
         _ = (p : ℝ) * Real.log (2 : ℝ) := by linear_combination (norm := parley_field) (Real.log (2 : ℝ) * (q : ℝ)) * s2_1b
-        _ = Real.log (2 ^ p : ℝ) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := p) (by parley_side)).symm
+        _ = Real.log (2 ^ p : ℝ) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := p) (by norm_num)).symm
     -- 2.6. mun:power-positive a := 3, m := q
     have r124_1 : (3 : ℤ) > 0 := by parley_arith
-    have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by parley_side)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
+    have s2_6 : (3 ^ q.toNat : ℤ) > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (3 : ℚ)) (m := q) (by norm_num)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
     -- 2.7. mun:power-positive a := 2, m := p
     have r128_1 : (2 : ℤ) > 0 := by parley_arith
-    have s2_7 : (2 ^ p : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by parley_side))
+    have s2_7 : (2 ^ p : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by norm_num))
     -- 2.8. calculation
     have s2_8 : (3 ^ q.toNat : ℚ) = 2 ^ p := by
       try rify
       calc (3 ^ q.toNat : ℝ) = Real.exp (Real.log (3 ^ q.toNat : ℝ)) := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (3 ^ q.toNat : ℝ)) (by exact_mod_cast gt_iff_lt.mp s2_6)).symm
         _ = Real.exp (Real.log (2 ^ p : ℝ)) := by (have h := congrArg (fun t : ℝ => Real.exp t) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = 2 ^ p := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (2 ^ p : ℝ)) (by parley_side))
+        _ = 2 ^ p := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (2 ^ p : ℝ)) (show 0 < (2 ^ p : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_7); simp only [Rat.cast_zpow, Rat.cast_zero, Rat.cast_ofNat] at h; exact h))
     -- 2.9. thm:power-of-three-odd n := q
     have s2_9 : Odd (3 ^ q.toNat : ℤ) := by exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd.power_of_three_odd (n := q) (le_of_lt s2_1a))
     -- 2.10. thm:power-of-two-even n := p, from 2.4
@@ -101,6 +105,6 @@ theorem log_three_over_two_irrational :
   -- 3. mun:quotient-real x := ln(3), y := ln(2)
   have r150_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
   -- 4. def:irrational x := ln(3)/ln(2), from 2, 3
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr ⟨by parley_side, s2⟩
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mpr ⟨by trivial, s2⟩
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.LogThreeOverTwoIrrational

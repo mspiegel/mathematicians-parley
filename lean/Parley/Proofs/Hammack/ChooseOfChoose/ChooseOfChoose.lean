@@ -70,7 +70,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 17. mun:nat0-as-int
   have r77_1 : 0 ≤ a - b + c := by exact s14
   have s17 : 0 ≤ a - b + c := by
-    have hI : 0 ≤ a - b + c := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b + c))).mpr ⟨by parley_side, r77_1⟩)
+    have hI : 0 ≤ a - b + c := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b + c))).mpr ⟨⟨_, rfl⟩, r77_1⟩)
     exact hI
   -- 18. def:C n := a − b + c, k := c, from 16
   have r81_1 : 0 ≤ a - b + c := by exact s17
@@ -83,12 +83,12 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 20. mun:nat0-as-int
   have r90_1 : 0 ≤ a - b := by exact s13
   have s20 : 0 ≤ a - b := by
-    have hI : 0 ≤ a - b := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b))).mpr ⟨by parley_side, r90_1⟩)
+    have hI : 0 ≤ a - b := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := a - b))).mpr ⟨⟨_, rfl⟩, r90_1⟩)
     exact hI
   -- 21. mun:nat0-as-int
   have r94_1 : 0 ≤ b - c := by exact s7
   have s21 : 0 ≤ b - c := by
-    have hI : 0 ≤ b - c := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr ⟨by parley_side, r94_1⟩)
+    have hI : 0 ≤ b - c := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := b - c))).mpr ⟨⟨_, rfl⟩, r94_1⟩)
     exact hI
   -- 22. mun:factorial-nat n := a − b, from 20
   have s22 : 0 < (LeanBridges.Counting.factorial (a - b) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := a - b) s20)

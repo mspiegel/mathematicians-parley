@@ -109,7 +109,7 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.26. mun:reciprocal-order x := N, y := n, from A2
       have r135_1 : N > 0 := by linarith only [s1_1a]
       have r135_2 : n > 0 := by parley_side
-      have s1_2_26 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_2))).mp (by parley_side)
+      have s1_2_26 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r135_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 1.2.27. transitivity, from 1.2.26, 1.1
       have s1_2_27 : 1 / (n : ℝ) < ε := by exact lt_of_le_of_lt (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s1_2_26; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s1_1b
       -- 1.2.28. transitivity, from 1.2.8, 1.2.15, 1.2.27

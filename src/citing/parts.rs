@@ -532,6 +532,9 @@ pub enum Implication {
     /// What a membership of a number system says of its term, `x > 0` of
     /// `x ∈ ℕ`, by the lemma (`rules::IMPLIED`).
     SystemFact { lemma: &'static str },
+    /// The type a sentence about a function writes with it, `f : A → B` of
+    /// `f : A → B is one-to-one`, by the lemma (`rules::TYPED_BY`).
+    FunctionType { lemma: &'static str },
 }
 
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
@@ -541,8 +544,28 @@ pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
         .collect()
 }
 
+/// The type a sentence about a function writes with it, `f : A → B` of `f
+/// : A → B is one-to-one`, with the lemma, where its notation is one
+/// `rules::TYPED_BY` names. None for any other sentence.
+fn function_type_of(fact: &Node, g: &Grammar) -> Option<(Node, &'static str)> {
+    let name = fact.notation_name();
+    let &(_, lemma) = rules::TYPED_BY.iter().find(|(n, _)| **n == *name)?;
+    let typed = g.notations.iter().find(|n| {
+        n.name == rules::FUNCTION_TYPE && n.holes.len() == fact.children.len()
+    })?;
+    let node = Node::of(
+        typed.spelling(),
+        Sort::of(&typed.yields),
+        fact.children.clone(),
+    );
+    Some((node, lemma))
+}
+
 /// `implied_facts`, each with the rule that gives it.
 pub fn implied_by(fact: &Node, env: Env, sorts: &Sorts) -> Vec<(Node, Implication)> {
+    if let Some((typed, lemma)) = function_type_of(fact, env.g) {
+        return vec![(typed, Implication::FunctionType { lemma })];
+    }
     if let Some((other, lemma)) = said_otherwise_by(fact, env, sorts) {
         return vec![(other, Implication::OtherForm { lemma })];
     }

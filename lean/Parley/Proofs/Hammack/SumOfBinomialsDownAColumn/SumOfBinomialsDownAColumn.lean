@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -52,7 +53,7 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
           _ = (LeanBridges.Counting.choose (0 : ℤ) r : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (LeanBridges.Counting.choose j r : ℤ))) (a := (0 : ℤ)))
           _ = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := r)) s1_1
           _ = (LeanBridges.Counting.choose (1 : ℤ) (r + 1) : ℤ) := by exact ((Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by norm_num) (k := r + 1)) s1_2).symm
-      simpa only [zero_add] using s1_3
+      simpa only [zero_add, Int.cast_one] using s1_3
     | succ m hK hIH =>
       -- 1.4. calculation
       have r38_1 : m ≥ 0 := by parley_side

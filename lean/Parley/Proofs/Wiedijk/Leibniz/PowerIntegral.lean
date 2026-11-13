@@ -6,7 +6,6 @@ public import NormTactics
 public import PowerTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -31,6 +30,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
@@ -85,11 +85,11 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   have r85_1 : m + 1 ≠ 0 := s1.ne'
   have s8 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 9. mun:function-into, from 6
-  have s9 : Set.MapsTo p (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := p) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s9 : Set.MapsTo p (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := p) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 10. mun:function-into, from 7
-  have s10 : Set.MapsTo q (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := q) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s10 : Set.MapsTo q (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := q) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 11. mun:function-into, from 8
-  have s11 : Set.MapsTo F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s11 : Set.MapsTo F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 12. thm:continuous-power D := [0, 1], n := m, from 2, 3, 9
   have s12 : ContinuousOn p (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := p) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s2 (n := m) hH1 s3)
   -- 13. thm:continuous-power D := [0, 1], n := m + 1, from 2, 4, 10
@@ -132,11 +132,11 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 21. def:interval a := 0, b := 1, x := 0
   have r153_1 : (0 : ℤ) ≤ 0 := by parley_arith
   have r153_2 : (0 : ℤ) ≤ 1 := by parley_arith
-  have s21 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
+  have s21 : (0 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (0 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 22. def:interval a := 0, b := 1, x := 1
   have r158_1 : (0 : ℤ) ≤ 1 := by parley_arith
   have r158_2 : (1 : ℤ) ≤ 1 := by parley_arith
-  have s22 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by parley_set_side, by parley_set_side⟩, by parley_set_side⟩
+  have s22 : (1 : ℝ) ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := (1 : ℝ)) (a := (0 : ℝ)) (b := (1 : ℝ)))).mpr ⟨⟨by trivial, by norm_num⟩, by norm_num⟩
   -- 23. D2, from 22
   have s23 : q 1 = 1 ^ (m + 1).toNat := by simp (disch := omega) only [hD2]
   -- 24. mun:one-power m := m + 1
@@ -166,7 +166,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 31. calculation
   have r193_1 : m + 1 ≠ 0 := s1.ne'
   calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by simp (disch := omega) only [hD1]
-    _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) (f := p) (by parley_set_side) s12 (F := F) (by parley_set_side) s14 s17 s19)
+    _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) (f := p) (Set.mapsTo_univ _ _) s12 (F := F) (Set.mapsTo_univ _ _) s14 s17 s19)
     _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := by (have h := congrArg (fun t : ℝ => t - F 0) s29; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * 1 - t) s30; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 1 / ((m : ℝ) + 1) := by parley_ring

@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Setmm.FunctionIntoEmpty.FunctionIntoEmpty
 
-theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH2 : True) (hH3 : A = ∅) :
+theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH3 : A = ∅) :
     Set.MapsTo F A ∅ := by
   -- 1. proof
   have s1 : ∀ x ∈ A, F x ∈ (∅ : Set α) := by
@@ -27,6 +27,6 @@ theorem function_into_empty {α : Type*} (A : Set α) (F : α → α) (hH2 : Tru
     have s1_2 : ¬ x ∈ (∅ : Set α) := by parley_set_side
     exact absurd s1_1 s1_2
   -- 2. mun:function-into, from 1
-  exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) (by parley_set_side) s1)
+  exact (Parley.Items.Stdlib.Functions.mun_function_into (E := F) (X := A) (Y := ∅) s1)
 
 end Parley.Proofs.Setmm.FunctionIntoEmpty.FunctionIntoEmpty

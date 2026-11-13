@@ -39,7 +39,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1
   have hD1_finite : F.Finite := by rw [hD1]; exact ((Set.finite_of_encard_eq_coe hH3).powerset).subset (fun _ h => h.1)
   -- 1. mun:card-zero, from H3
-  have s1 : X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) (by parley_set_side))
+  have s1 : X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X) hH3)
   -- 2. axi:excluded-middle P := j = 0
   have s2 : j = 0 ∨ j ≠ 0 := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := j = 0))
   -- 3. cases, from 2
@@ -53,7 +53,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         calc ((∅ : Set α).ncard : ℤ) = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
           _ = j := by parley_set_side
       -- 3.3. def:part-builder u := ∅, from D1, 3.1, 3.2
-      have s3_3 : ∅ ∈ F := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := ∅))).mpr ⟨s3_1, by parley_set_side⟩
+      have s3_3 : ∅ ∈ F := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := ∅))).mpr ⟨s3_1, s3_2⟩
       -- 3.4. proof
       have s3_4 : ∀ R ∈ F, R ∈ ({∅} : Set (Set α)) := by
         intro R hK1
@@ -61,7 +61,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         have s3_4_1 : R ⊆ X := by
           try simp only [hD1] at ⊢
           try push_cast at ⊢
-          exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp (by parley_set_side)).1
+          exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).1
         -- 3.4.2. substitute X = ∅ (line 1) into line 3.4.1
         have s3_4_2 : R ⊆ ∅ := by parley_subst_at s1 s3_4_1
         -- 3.4.3. mun:subset-empty, from 3.4.2
@@ -71,7 +71,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
       -- 3.5. def:subset, from 3.4
       have s3_5 : F ⊆ ({∅} : Set (Set α)) := ((Parley.Items.Stdlib.Sets.def_subset (X := F) (Y := ({∅} : Set (Set α))))).mpr s3_4
       -- 3.6. mun:singleton-subset, from 3.3
-      have s3_6 : ({∅} : Set (Set α)) ⊆ F := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) (by parley_set_side))
+      have s3_6 : ({∅} : Set (Set α)) ⊆ F := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := F) (a := (∅ : Set α)) s3_3)
       -- 3.7. mun:subset-antisymmetric, from 3.5, 3.6
       have s3_7 : F = ({∅} : Set (Set α)) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := F) (Y := ({∅} : Set (Set α))) s3_5 s3_6)
       -- 3.8. calculation
@@ -97,7 +97,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         have s3_9_4 : j ≠ 0 := by exact hC2
         exact s3_9_4 s3_9_3
       -- 3.10. mun:part-builder-empty, from D1, 3.9
-      have s3_10 : F = ∅ := ((Parley.Items.Stdlib.Sets.mun_part_builder_empty (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X))).mpr (by parley_set_side)
+      have s3_10 : F = ∅ := ((Parley.Items.Stdlib.Sets.mun_part_builder_empty (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X))).mpr s3_9
       -- 3.11. contradiction
       have s3_11 : ¬ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ) := by
         intro hS2

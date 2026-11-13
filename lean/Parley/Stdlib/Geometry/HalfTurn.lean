@@ -5,6 +5,7 @@ public import SetTactics
 public import Tactics
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.LinearCombination
@@ -34,6 +35,6 @@ theorem half_turn (x : ℝ) (hH2 : x ∈ ({-Real.pi, Real.pi} : Set ℝ)) :
     -- 2.3. algebra, from C2
     have s2_3 : x = (2 * 0 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC2
     -- 2.4. exhibit, from 2.3
-    exact ⟨(0 : ℤ), by exact_mod_cast s2_3⟩
+    exact ⟨(0 : ℤ), by simpa only [Int.cast_zero] using s2_3⟩
 
 end Parley.Stdlib.Geometry.HalfTurn

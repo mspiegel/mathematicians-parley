@@ -59,6 +59,6 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
     -- 1.7. algebra, from 1.3, 1.4, 1.6
     linear_combination (norm := parley_field) (-((1 / 2 : ℝ) * s * t) + (1 / 2 : ℝ) * s + (1 / 2 : ℝ) * t - (1 / 2 : ℝ)) * s1_6
   -- 2. def:one-to-one, from H1, 1
-  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) (by parley_set_side))).mpr ⟨hH1, s1⟩
+  exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) hH1)).mpr ⟨hH1, s1⟩
 
 end Parley.Proofs.Hammack.CubeRootInjective.CubedMobiusOneToOne

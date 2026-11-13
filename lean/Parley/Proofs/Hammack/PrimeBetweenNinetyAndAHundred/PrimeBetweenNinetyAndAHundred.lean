@@ -24,6 +24,6 @@ theorem prime_between_ninety_and_a_hundred :
   -- 3. arithmetic
   have s3 : (97 : ℤ) < 100 := by parley_arith
   -- 4. exhibit, from 1, 2, 3
-  exact ⟨(97 : ℤ), by norm_num, ⟨⟨s1, s2⟩, s3⟩⟩
+  exact ⟨(97 : ℤ), by norm_num, ⟨⟨s1, by norm_num⟩, by norm_num⟩⟩
 
 end Parley.Proofs.Hammack.PrimeBetweenNinetyAndAHundred.PrimeBetweenNinetyAndAHundred

@@ -70,7 +70,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.8. inequalities
   have s3_8 : p ^ a.toNat ≠ 0 := ne_of_gt (by linarith only [s3_7])
   -- 3.9. mun:multiply-cancel a := m, b := p^(a′ − a)·m′, c := p^a, from 3.6, 3.8
-  have s3_9 : (m : ℚ) = (p : ℚ) ^ (a' - a) * (m' : ℚ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (m : ℚ)) (b := (p : ℚ) ^ (a' - a) * (m' : ℚ)) (c := (p : ℚ) ^ a.toNat) (by parley_side) (by exact_mod_cast s3_8))
+  have s3_9 : (m : ℚ) = (p : ℚ) ^ (a' - a) * (m' : ℚ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (m : ℚ)) (b := (p : ℚ) ^ (a' - a) * (m' : ℚ)) (c := (p : ℚ) ^ a.toNat) s3_6 (by exact_mod_cast s3_8))
   -- 3.10. mun:divides-self n := p
   have s3_10 : p ∣ p := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := p))
   -- 3.11. thm:prime-divides-power a := p, n := a′ − a, from H2, 3.2, 3.10

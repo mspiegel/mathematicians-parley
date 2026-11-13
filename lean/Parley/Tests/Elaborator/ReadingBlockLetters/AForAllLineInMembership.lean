@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineInMembership
 
-theorem a_for_all_line_in_membership (hH1 : True) :
+theorem a_for_all_line_in_membership :
     True := by
   -- 1. proof
   -- what this block shows, Lean's types give

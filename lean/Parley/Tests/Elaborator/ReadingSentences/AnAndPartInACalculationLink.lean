@@ -16,7 +16,7 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartInACalculationLink
 theorem an_and_part_in_a_calculation_link (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ b = 2) :
     b = 1 + 1 := by
   -- 1. calculation
-  calc b = 2 := by parley_side
+  calc b = 2 := by exact hH3.2
     _ = 1 + 1 := by norm_num
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartInACalculationLink

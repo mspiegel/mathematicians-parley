@@ -16,6 +16,7 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -90,7 +91,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         -- 1.8.4.2. inequalities
         have s1_8_4_2 : m ≤ K := by linarith only [s1_8_4_1]
         -- 1.8.4.3. def:range n := K, k := m, from 1.8.4.2
-        have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr ⟨by parley_side, s1_8_4_2⟩
+        have s1_8_4_3 : m ∈ Finset.Icc (1 : ℤ) K := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K))).mpr ⟨lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp hK2).1, s1_8_4_2⟩
         -- 1.8.4.4. instantiate i := m in line 1.4, from 1.8.4.3
         have s1_8_4_4 : abs (x m) ≤ C := by exact (s1_4 m s1_8_4_3)
         -- 1.8.4.5. transitivity, from 1.8.4.4, 1.6

@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Finset.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Int.Order.Basic
@@ -42,7 +43,7 @@ namespace Parley.Proofs.Hammack.FibonacciOddSum.FibonacciOddSum
 theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     (∑ k ∈ Finset.Icc (1 : ℤ) n, (F (2 * k - 1) : ℤ)) = F (2 * n) := by
   -- 1. thm:fibonacci-natural
-  have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) (by parley_side))
+  have s1 : ∀ k : ℤ, 0 ≤ k → 0 ≤ F k ∧ 0 ≤ G k := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural.fibonacci_natural (F := F) (G := G) hD1)
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. proof
@@ -54,7 +55,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
     exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 2 * k - 1) s3_1)
   set q : ℤ → ℤ := fun k : ℤ => F (2 * k - 1) with hD2
   -- 4. thm:fibonacci-recurrence
-  have s4 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) (by parley_side))
+  have s4 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by exact (Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence.fibonacci_recurrence (F := F) (G := G) hD1)
   -- 5. induction on m starting at 1
   have s5 : ∀ m : ℤ, 0 < m → (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) = F (2 * m) := by
     intro m h_m
@@ -74,7 +75,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
         calc F 1 = G 0 := by exact s5_2
           _ = 1 := by exact s5_3
       -- 5.6. instantiate k := 0 in line 4
-      have s5_6 : F 2 = F 0 + F 1 := by simpa only [zero_add] using (s4 (0 : ℤ) (by norm_num))
+      have s5_6 : F 2 = F 0 + F 1 := by simpa only [zero_add, Int.cast_zero] using (s4 (0 : ℤ) (by norm_num))
       -- 5.7. calculation
       have s5_7 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num

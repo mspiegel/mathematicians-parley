@@ -31,6 +31,18 @@ pub enum LeanType {
 }
 
 impl LeanType {
+    /// Whether it is made of a type an item leaves for its citation to
+    /// give, a type variable `α` or the general number type `K`: `Set α`
+    /// is, `Set ℤ` is not.
+    pub fn open(&self) -> bool {
+        match self {
+            LeanType::Things(_) | LeanType::General => true,
+            LeanType::Set(inner) => inner.open(),
+            LeanType::Fun { from, to } => from.open() || to.open(),
+            _ => false,
+        }
+    }
+
     /// Whether it is `ty`, or is made of it, as `Set (Set α)` is of `Set
     /// α`.
     pub fn contains(&self, ty: &LeanType) -> bool {

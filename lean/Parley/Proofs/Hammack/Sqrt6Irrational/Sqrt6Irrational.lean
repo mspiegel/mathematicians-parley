@@ -22,6 +22,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
@@ -45,7 +46,7 @@ theorem sqrt6_irrational :
     Irrational (Real.sqrt (6 : ℝ)) := by
   -- 1. def:sqrt x := 6
   have r14_1 : (6 : ℤ) ≥ 0 := by parley_arith
-  have s1 : Real.sqrt (6 : ℝ) ^ 2 = 6 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (6 : ℝ)) (by parley_side))
+  have s1 : Real.sqrt (6 : ℝ) ^ 2 = 6 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (6 : ℝ)) (by norm_num))
   -- 2. contradiction
   have s2 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ)) := by
     intro hS
@@ -83,9 +84,9 @@ theorem sqrt6_irrational :
     have s2_15 : (2 : ℤ) ∣ q := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := q))).mpr ⟨s, s2_13⟩
     -- 2.16. exhibit, from 2.14, 2.15
     have r69_1 : (2 : ℤ) > 1 := by parley_arith
-    have s2_16 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨r69_1, s2_14⟩, s2_15⟩⟩
+    have s2_16 : ∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q := ⟨(2 : ℤ), ⟨⟨by norm_num, s2_14⟩, s2_15⟩⟩
     exact s2_1c s2_16
   -- 3. def:irrational x := √6, from 2
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ)))).mpr ⟨by parley_side, s2⟩
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (6 : ℝ)))).mpr ⟨by trivial, s2⟩
 
 end Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational

@@ -5,7 +5,6 @@ public import ArithTactics
 public import InstanceTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -22,6 +21,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
@@ -95,15 +95,15 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   have r485_2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), 1 + x ^ 2 > 0 := by intro x h_x; (linarith only [r485_1 x h_x])
   have s7 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; parley_set_side
   -- 8. mun:function-into, from 5
-  have s8 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s8 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 9. mun:function-into, from 6
-  have s9 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s9 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 10. mun:function-into, from 7
-  have s10 : Set.MapsTo h (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))
+  have s10 : Set.MapsTo h (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ)) (by intro x _; exact Set.mem_univ _))
   -- 11. thm:continuous-power D := [0, 1], n := 2n, from 2, 4, 8
   have s11 : ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.thm_continuous_power (g := f) (D := (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ)) s4 (n := 2 * n) (mul_nonneg (by norm_num) (hH1)) s2)
   -- 12. thm:integrand-continuous, from 3, 9
-  have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (by parley_set_side) s3)
+  have s12 : ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous.integrand_continuous (n := n) hH1 (g := g) (Set.mapsTo_univ _ _) s3)
   -- 13. arithmetic
   have s13 : (0 : ℤ) < 1 := by parley_arith
   -- 14. D1
@@ -120,7 +120,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   have s17 : (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (g t : ℝ)) := by simp (disch := omega) only [hD2]
   -- 18. calculation
   calc (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (h t : ℝ)) := by exact s16
-    _ = (∫ t in 0..1, (f t : ℝ)) - (∫ t in 0..1, (g t : ℝ)) := by exact (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by parley_set_side) s1 s11 s12)
+    _ = (∫ t in 0..1, (f t : ℝ)) - (∫ t in 0..1, (g t : ℝ)) := by exact (Parley.Items.Stdlib.Calculus.thm_integral_difference (f := f) (g := g) (h := h) (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) s1 s11 s12)
     _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (g t : ℝ)) := by (have h := congrArg (fun u : ℝ => u - (∫ t in 0..1, (g t : ℝ))) s15; push_cast at h ⊢; all_goals exact_mod_cast h)
     _ = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n).toNat / (1 + t ^ 2) : ℝ)) := by (have h := congrArg (fun u : ℝ => 1 / (2 * (n : ℝ) + 1) - u) s17.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
 

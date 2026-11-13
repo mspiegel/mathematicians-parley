@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import Batteries.Util.ExtendedBinder
@@ -17,6 +16,7 @@ public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -38,17 +38,11 @@ theorem three_divisors (m : ℤ) (hH1 : 0 < m) (e : ℤ) (hH2 : 0 < e) (hH3 : e 
   -- 2. mun:divides-self n := m
   have s2 : m ∣ m := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := m))
   -- 3. def:set-builder u := 1, from 1
-  have s3 : (1 : ℤ) ∈ {d : ℤ | 0 < d ∧ d ∣ m} := by
-    have hI : (1 : ℤ) ∈ {t : ℤ | 0 < t ∧ t ∣ m} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := (1 : ℤ)))).mpr ⟨by parley_set_side, s1⟩)
-    exact hI
+  have s3 : (1 : ℤ) ∈ {d : ℤ | 0 < d ∧ d ∣ m} := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := (1 : ℤ)))).mpr ⟨by norm_num, s1⟩
   -- 4. def:set-builder u := e, from H3
-  have s4 : e ∈ {d : ℤ | 0 < d ∧ d ∣ m} := by
-    have hI : e ∈ {t : ℤ | 0 < t ∧ t ∣ m} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := e))).mpr ⟨by parley_set_side, hH3⟩)
-    exact hI
+  have s4 : e ∈ {d : ℤ | 0 < d ∧ d ∣ m} := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := e))).mpr ⟨hH2, hH3⟩
   -- 5. def:set-builder u := m, from 2
-  have s5 : m ∈ {d : ℤ | 0 < d ∧ d ∣ m} := by
-    have hI : m ∈ {t : ℤ | 0 < t ∧ t ∣ m} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := m))).mpr ⟨by parley_set_side, s2⟩)
-    exact hI
+  have s5 : m ∈ {d : ℤ | 0 < d ∧ d ∣ m} := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun d : ℤ => d ∣ m)) (X := {n : ℤ | 0 < n}) (u := m))).mpr ⟨hH1, s2⟩
   -- 6. mun:triple-subset, from 3, 4, 5
   have s6 : ({(1 : ℤ), e, m} : Set ℤ) ⊆ {d : ℤ | 0 < d ∧ d ∣ m} := by exact (Parley.Items.Stdlib.Sets.mun_triple_subset (X := {d : ℤ | 0 < d ∧ d ∣ m}) (a := (1 : ℤ)) (b := e) (c := m) s3 s4 s5)
   -- 7. transitivity, from H4, H5

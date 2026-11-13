@@ -3,12 +3,12 @@ module
 public import AlgebraTactics
 public import SetTactics
 public import Tactics
-public import WholeTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -37,7 +37,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
   have s1 : ∀ u ∈ (Set.univ : Set ℝ) ∩ f ⁻¹' (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ), u ∈ (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) ∪ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ) := by
     intro u hK1
     -- 1.1. def:preimage Z := [12, 19], from K1
-    have s1_1 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mp hK1).2
+    have s1_1 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := by exact (((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (Set.mapsTo_univ _ _))).mp hK1).2
     -- 1.2. def:interval a := 12, b := 19, x := f(u), from 1.1
     have s1_2a : 12 ≤ f u := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mp s1_1).1.2
     have s1_2b : f u ≤ 19 := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mp s1_1).2
@@ -60,7 +60,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s1_7_1a : 3 ≤ u := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := u) hC1 s1_4 s1_5).1
       have s1_7_1b : u ≤ 4 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut.square_window_out (t := u) hC1 s1_4 s1_5).2
       -- 1.7.2. def:interval a := 3, b := 4, x := u, from 1.1, 1.7.1
-      have s1_7_2 : u ∈ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (3 : ℝ)) (b := (4 : ℝ)))).mpr ⟨⟨by parley_set_side, s1_7_1a⟩, s1_7_1b⟩
+      have s1_7_2 : u ∈ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (3 : ℝ)) (b := (4 : ℝ)))).mpr ⟨⟨by trivial, s1_7_1a⟩, s1_7_1b⟩
       -- 1.7.3. mun:in-union-right Y := [−4, −3], Z := [3, 4], from 1.7.2
       exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ)) (Z := (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ)) (u := u) s1_7_2)
     · skip
@@ -84,7 +84,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       -- 1.7.10. inequalities
       have s1_7_10 : u ≤ -3 := by linarith only [s1_7_8a]
       -- 1.7.11. def:interval a := −4, b := −3, x := u, from 1.1, 1.7.9, 1.7.10
-      have s1_7_11 : u ∈ (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (-4 : ℝ)) (b := (-3 : ℝ)))).mpr ⟨⟨by parley_set_side, s1_7_9⟩, s1_7_10⟩
+      have s1_7_11 : u ∈ (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (-4 : ℝ)) (b := (-3 : ℝ)))).mpr ⟨⟨by trivial, s1_7_9⟩, s1_7_10⟩
       -- 1.7.12. mun:in-union-left Y := [−4, −3], Z := [3, 4], from 1.7.11
       exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ)) (Z := (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ)) (u := u) s1_7_11)
   -- 2. def:subset, from 1
@@ -123,9 +123,9 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
           _ ≤ 19 := by exact s3_2_4b
       -- 3.2.9. membership, from 3.2.1, 3.2.6
       -- 3.2.10. def:interval a := 12, b := 19, x := f(u), from 3.2.7, 3.2.8, 3.2.9
-      have s3_2_10 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mpr ⟨⟨by parley_set_side, s3_2_7⟩, s3_2_8⟩
+      have s3_2_10 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mpr ⟨⟨by trivial, s3_2_7⟩, s3_2_8⟩
       -- 3.2.11. def:preimage Z := [12, 19], from 3.2.1, 3.2.10
-      exact ((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
+      exact ((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (Set.mapsTo_univ _ _))).mpr ⟨Set.mem_univ _, s3_2_10⟩
     · skip
       -- 3.2.12. def:interval a := 3, b := 4, x := u, from C4
       have s3_2_12a : 3 ≤ u := by exact (((Parley.Items.Stdlib.Calculus.def_interval (x := u) (a := (3 : ℝ)) (b := (4 : ℝ)))).mp hC4).1.2
@@ -145,9 +145,9 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
           _ ≤ 19 := by exact s3_2_13b
       -- 3.2.17. membership, from 3.2.12, 3.2.14
       -- 3.2.18. def:interval a := 12, b := 19, x := f(u), from 3.2.15, 3.2.16, 3.2.17
-      have s3_2_18 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mpr ⟨⟨by parley_set_side, s3_2_15⟩, s3_2_16⟩
+      have s3_2_18 : f u ∈ (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := f u) (a := (12 : ℝ)) (b := (19 : ℝ)))).mpr ⟨⟨by trivial, s3_2_15⟩, s3_2_16⟩
       -- 3.2.19. def:preimage Z := [12, 19], from 3.2.12, 3.2.18
-      exact ((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (by parley_whole_side))).mpr ⟨by parley_set_side, by parley_set_side⟩
+      exact ((Parley.Items.Stdlib.Functions.def_preimage (X := (Set.univ : Set ℝ)) (Z := (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)) (f := f) (u := u) (W := Set.univ) (Set.mapsTo_univ _ _))).mpr ⟨Set.mem_univ _, s3_2_18⟩
   -- 4. def:subset, from 3
   have s4 : (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) ∪ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ) ⊆ (Set.univ : Set ℝ) ∩ f ⁻¹' (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) := ((Parley.Items.Stdlib.Sets.def_subset (X := (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) ∪ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ)) (Y := (Set.univ : Set ℝ) ∩ f ⁻¹' (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ)))).mpr s3
   -- 5. mun:subset-antisymmetric, from 2, 4

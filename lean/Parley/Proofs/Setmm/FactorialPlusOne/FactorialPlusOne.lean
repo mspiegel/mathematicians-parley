@@ -15,6 +15,7 @@ public import Mathlib.Tactic.NormNum.DivMod
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Qify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -40,7 +41,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- 5. algebra
   have s5 : (LeanBridges.Counting.factorial M : ℚ) + 1 = (N : ℚ) * (((LeanBridges.Counting.factorial M : ℚ) + 1) / (N : ℚ)) := by parley_ring
   -- 6. exhibit, from S, 5
-  have s6 : ∃ k : ℤ, (LeanBridges.Counting.factorial M : ℤ) + 1 = N * k := ⟨Classical.choose hS, by have := Classical.choose_spec hS; parley_side⟩
+  have s6 : ∃ k : ℤ, (LeanBridges.Counting.factorial M : ℤ) + 1 = N * k := ⟨Classical.choose hS, by have := Classical.choose_spec hS; qify; rw [this]; linarith only [s5]⟩
   -- 7. def:divides d := N, n := M! + 1, from 6
   have s7 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := (LeanBridges.Counting.factorial M : ℤ) + 1))).mpr s6
   -- 8. mun:divides-difference d := N, a := M! + 1, b := M!, from 4, 7

@@ -7,6 +7,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -60,6 +61,6 @@ theorem identity_plus_two_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x + 
     exact ⟨ε, ⟨hA1, s1_1⟩⟩
   -- 2. def:limit-at D := ℝ, c := 0, L := 2, from 1
   have r55_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r55_1 (c := (0 : ℝ)) (L := (2 : ℝ)))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r55_1 (c := (0 : ℝ)) (L := (2 : ℝ)))).mpr (by simpa only [gt_iff_lt, Set.mem_univ, forall_const, sub_zero] using s1)
 
 end Parley.Proofs.Hammack.IdentityPlusTwoLimit.IdentityPlusTwoLimit

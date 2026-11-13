@@ -25,6 +25,7 @@ public import Mathlib.Order.Interval.Set.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -48,7 +49,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 3. inequalities
   have s3 : 0 ≤ x := by linarith only [s2]
   -- 4. def:interval, from H3, 3
-  have s4 : x ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by parley_set_side, s3⟩, hH3⟩
+  have s4 : x ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by trivial, s3⟩, hH3⟩
   -- 5. mun:sin-nonneg a := x, from 4
   have s5 : 0 ≤ Real.sin x := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_nonneg (a := x) s4)
   -- 6. inequalities
@@ -58,7 +59,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 8. inequalities, from H3, 7
   have s8 : x - Real.pi / 2 ≤ Real.pi := by linarith only [hH3, s7]
   -- 9. def:interval, from 6, 8
-  have s9 : x - Real.pi / 2 ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x - Real.pi / 2) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by parley_set_side, s6⟩, s8⟩
+  have s9 : x - Real.pi / 2 ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ) := ((Parley.Items.Stdlib.Calculus.def_interval (x := x - Real.pi / 2) (a := (0 : ℝ)) (b := Real.pi))).mpr ⟨⟨by trivial, s6⟩, s8⟩
   -- 10. mun:sin-nonneg a := x − π/2, from 9
   have s10 : 0 ≤ Real.sin (x - Real.pi / 2) := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_nonneg (a := x - Real.pi / 2) s9)
   -- 11. thm:cos-add a := x − π/2, b := π/2
@@ -98,7 +99,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   have s25 : 1 ^ 2 ≤ (Real.sin x - Real.cos x) ^ 2 := by exact LE.le.trans_eq s24 s23.symm.symm
   -- 26. mun:square-le x := 1, y := sin(x) − cos(x), from 20, 25
   have r104_1 : (0 : ℤ) ≤ 1 := by parley_arith
-  have s26 : 1 ≤ Real.sin x - Real.cos x := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by parley_set_side) s20)).mpr s25
+  have s26 : 1 ≤ Real.sin x - Real.cos x := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := (1 : ℝ)) (y := Real.sin x - Real.cos x) (by norm_num) s20)).mpr s25
   exact s26
 
 end Parley.Tests.Elaborator.ASineLessACosineInTheSecondQuadrant.ASineLessACosineInTheSecondQuadrant

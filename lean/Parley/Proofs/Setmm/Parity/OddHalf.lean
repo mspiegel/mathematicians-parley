@@ -8,11 +8,13 @@ public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Qify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/parity.proof by parley build lean. -/
@@ -40,6 +42,6 @@ theorem odd_half (N : ℤ) :
     -- 4. algebra
     have s4 : (N : ℚ) = 2 * (((N : ℚ) - 1) / 2) + 1 := by parley_ring
     -- 5. def:odd n := N, from D2, 4
-    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; parley_side⟩
+    exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; qify; rw [this]; linarith only [s4]⟩
 
 end Parley.Proofs.Setmm.Parity.OddHalf

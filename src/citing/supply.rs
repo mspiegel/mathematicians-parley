@@ -566,9 +566,9 @@ pub fn set_within(inner: &Node, outer: &Node) -> bool {
         } else {
             None
         };
-        return rules::RANGE_WITHIN.iter().any(|(system, first, _)| {
-            (first.is_none() || *first == begins)
-                && rules::System::maybe_within(rules::System::of_label(system), big)
+        return rules::RANGE_WITHIN.iter().any(|row| {
+            (row.first.is_none() || row.first == begins)
+                && rules::System::maybe_within(rules::System::of_label(row.system), big)
         });
     }
     false

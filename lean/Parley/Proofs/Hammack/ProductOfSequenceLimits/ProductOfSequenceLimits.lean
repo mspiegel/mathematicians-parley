@@ -19,6 +19,7 @@ public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -82,7 +83,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have hD3_kind : True := by trivial
     -- 9.8. mun:lt-min z := 0, x := 1, y := ε/(2·t), from 9.6, 9.7
     have r148_1 : (0 : ℤ) < 1 := by parley_arith
-    have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr ⟨by parley_side, s9_6⟩
+    have s9_8 : 0 < min 1 (ε / (2 * t)) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr ⟨by norm_num, s9_6⟩
     -- 9.9. inequalities, from D3, 9.8
     have s9_9 : m > 0 := by linarith only [s9_8, hD3]
     -- 9.10. def:tends-to x := a, from H5

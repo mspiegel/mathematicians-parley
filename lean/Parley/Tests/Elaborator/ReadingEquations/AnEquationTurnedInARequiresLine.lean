@@ -21,6 +21,6 @@ theorem an_equation_turned_in_a_requires_line (x : ℝ) (hH2 : 0 = x ^ 2) :
     x = 0 := by
   -- 1. mun:square-zero
   have r168_1 : x ^ 2 = 0 := by parley_side
-  exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := x) (by parley_side))
+  exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := x) r168_1)
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInARequiresLine

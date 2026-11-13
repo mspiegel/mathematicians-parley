@@ -28,7 +28,7 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
   -- 2. mun:mod-less a := c, b := d
   have s2 : c % d < d := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) hH4)
   -- 3. obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 1, 2
-  obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) hH4 (r := c % d) s1 s2)).mp (by parley_side)
+  obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) hH4 (r := c % d) s1 s2)).mp rfl
   -- 4. algebra, from H9, H10, 3
   have s4 : c % d = a * (u - q * x₀) + b * (v - q * y₀) := by linear_combination (norm := parley_norm) hH9 + (-q) * hH10 + s3
   -- 5. contradiction

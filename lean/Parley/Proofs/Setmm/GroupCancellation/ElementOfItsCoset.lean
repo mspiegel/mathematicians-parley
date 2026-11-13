@@ -18,11 +18,11 @@ public section
 
 namespace Parley.Proofs.Setmm.GroupCancellation.ElementOfItsCoset
 
-theorem element_of_its_coset {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (g : G) (hH3 : g ∈ (Set.univ : Set G)) (h : G) (hH4 : h ∈ (H : Set G)) :
+theorem element_of_its_coset {G : Type*} [Group G] (H : Subgroup G) (g : G) (hH3 : g ∈ (Set.univ : Set G)) (h : G) (hH4 : h ∈ (H : Set G)) :
     g * h ∈ (g * ·) '' (H : Set G) := by
   -- 1. exhibit, from H4
-  have s1 : ∃ k ∈ (H : Set G), g * h = g * k := ⟨h, hH4, by parley_set_side⟩
+  have s1 : ∃ k ∈ (H : Set G), g * h = g * k := ⟨h, hH4, rfl⟩
   -- 2. def:coset u := g·h, from H2, H3, 1
-  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g * h) (H := H) hH2 hH3)).mpr s1
+  exact ((Parley.Items.Stdlib.Groups.def_coset (G := G) (g := g) (u := g * h) (H := H) (Set.mem_univ _))).mpr s1
 
 end Parley.Proofs.Setmm.GroupCancellation.ElementOfItsCoset

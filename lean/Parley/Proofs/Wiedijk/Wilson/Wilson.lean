@@ -10,7 +10,6 @@ public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
-public import WholeTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -126,7 +125,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         have whole1 : ∃ m : ℤ, (m : ℝ) = (a : ℝ) ^ (p - 2) := by obtain ⟨m, hm⟩ := s5_5_1; exact ⟨m, by have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h⟩
         refine ⟨((Classical.choose whole1 : ℤ) % p), ?_, by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))⟩
         (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := p) hH1))
-      have s5_5_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (p - 1) := by rw [← (Classical.choose_spec r351_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r351_1).1; (try rw [← (Classical.choose_spec r351_1).2] at s5_5_2; norm_cast at s5_5_2); (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (Classical.choose r351_1)) (by parley_set_side) (by parley_set_side))⟩)
+      have s5_5_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (p - 1) := by rw [← (Classical.choose_spec r351_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r351_1).1; (try rw [← (Classical.choose_spec r351_1).2] at s5_5_2; norm_cast at s5_5_2); (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := p) hH1 (x := (Classical.choose r351_1)) (Classical.choose_spec r351_1).1 (by exact_mod_cast s5_5_2))⟩)
       -- 5.5.4. D1, from K2
       have s5_5_4 : (f a : ℝ) = LeanBridges.Divisibility.mod ((a : ℝ) ^ (p - 2)) (p : ℝ) := by simp (disch := omega) only [hD1]
       -- 5.5.5. substitute f(a) = (a^(p − 2)) mod p (line 5.5.4) into line 5.5.3
@@ -247,7 +246,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.12. mun:range-inside
     have r455_1 : (0 : ℤ) ≤ 2 := by parley_arith
     have r455_2 : p - 2 ≤ p - 1 := by linarith
-    have s5_12 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) ⊆ (Set.Icc (0 : ℤ) (p - 1) : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_inside (a := (2 : ℤ)) (b := p - 2) (c := (0 : ℤ)) (d := p - 1) r455_1 r455_2)
+    have s5_12 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) ⊆ (Set.Icc (0 : ℤ) (p - 1) : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_inside (a := (2 : ℤ)) (b := p - 2) (c := (0 : ℤ)) (d := p - 1) (by norm_num) r455_2)
     -- 5.13. proof
     have s5_13 : ∀ a : ℤ, a ∈ Finset.Icc 2 (p - 2) → f a ∈ Finset.Icc (2 : ℤ) (p - 2) := by
       intro a hK7
@@ -370,7 +369,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       -- 5.15.8. mun:congruent-in-range, from 5.15.1, 5.15.6, 5.15.7
       exact (Parley.Items.Stdlib.Divisibility.mun_congruent_in_range (n := p) hH1 (x := f (f a)) s5_15_1 (y := a) s5_15_7 s5_15_6)
     -- 5.16. mun:function-into, from D1, 5.13
-    have s5_16 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (by parley_set_side) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_13))
+    have s5_16 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := f) (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (Y := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_13))
     -- 5.17. mun:range-finite
     have s5_17 : (Set.Icc (2 : ℤ) (p - 2) : Set ℤ).Finite := by exact (Parley.Items.Stdlib.Sums.mun_range_finite (a := (2 : ℤ)) (b := p - 2))
     -- 5.18. mun:range-in-integers
@@ -378,7 +377,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     -- 5.19. thm:paired-product, from 5.7, 5.14, 5.15, 5.17, 5.18
     have r628_1 : Set.MapsTo f (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) (Set.Icc (2 : ℤ) (p - 2) : Set ℤ) := by exact s5_16
     have s5_19 : (∏ a ∈ Finset.Icc (2 : ℤ) (p - 2), (a : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by
-      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by parley_instance ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) s5_18 s5_17 (n := p) hH1 (f := f) (by parley_whole_side) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_15) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_14) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_7)))
+      have hI : (∏ x ∈ Finset.Icc (2 : ℤ) (p - 2), (x : ℤ)) ≡ (1 : ℤ) [ZMOD p] := by parley_instance ((Parley.Proofs.Wiedijk.Wilson.PairedProduct.paired_product (X := (Set.Icc (2 : ℤ) (p - 2) : Set ℤ)) s5_18 s5_17 (n := p) hH1 (f := f) r628_1 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_15) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_14) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_7)))
       exact hI
     -- 5.20. mun:nat-minus-one n := p
     have s5_20 : 0 ≤ p - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := p) hH1)

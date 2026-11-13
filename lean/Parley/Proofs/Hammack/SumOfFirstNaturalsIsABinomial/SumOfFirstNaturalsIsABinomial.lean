@@ -47,7 +47,7 @@ theorem sum_of_first_naturals_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) < 2 := by parley_arith
       -- 1.2. def:C n := 1, k := 2, from 1.1
-      have s1_2 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ))) s1_1
+      have s1_2 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)
       -- 1.3. thm:pascal n := 1, k := 2
       have s1_3 : (LeanBridges.Counting.choose (1 : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (1 : ℤ) (2 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 + 1 : ℤ) (2 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := (1 : ℤ)) (by norm_num) (k := (2 : ℤ)))
       -- 1.4. substitute 2 − 1 = 1 (arithmetic) into line 1.3

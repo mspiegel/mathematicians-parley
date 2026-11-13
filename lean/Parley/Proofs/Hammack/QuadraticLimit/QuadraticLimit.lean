@@ -14,12 +14,14 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
@@ -52,7 +54,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
     have r36_1 : (0 : ℤ) < 1 := by parley_arith
     have r36_2 : 0 < ε / 12 := by exact s1_1
-    have s1_2 : 0 < min 1 (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr ⟨by parley_set_side, r36_2⟩
+    have s1_2 : 0 < min 1 (ε / 12) := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr ⟨by norm_num, r36_2⟩
     -- 1.3. inequalities, from D1, 1.2
     have s1_3 : m > 0 := by linarith only [s1_2, hD1]
     -- 1.4. proof
@@ -72,7 +74,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
       have s1_4_4 : 4 * x + 4 > 0 := by linarith only [s1_4_3]
       -- 1.4.5. def:abs x := 4·x + 4
       have r64_1 : 4 * x + 4 ≥ 0 := by linarith only [s1_4_4]
-      have s1_4_5 : abs (4 * x + 4) = 4 * x + 4 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 4 * x + 4)) (by parley_set_side)
+      have s1_4_5 : abs (4 * x + 4) = 4 * x + 4 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 4 * x + 4)) r64_1
       -- 1.4.6. inequalities
       have s1_4_6 : 4 * x + 4 < 12 := by linarith only [s1_4_2.2]
       -- 1.4.7. transitivity, from 1.4.4, 1.4.5
@@ -103,6 +105,6 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     exact ⟨m, ⟨s1_3, s1_4⟩⟩
   -- 2. def:limit-at D := ℝ, c := 1, L := 5, from 1
   have r111_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r111_1 (c := (1 : ℝ)) (L := (5 : ℝ)))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r111_1 (c := (1 : ℝ)) (L := (5 : ℝ)))).mpr (by simpa only [gt_iff_lt, Set.mem_univ, forall_const] using s1)
 
 end Parley.Proofs.Hammack.QuadraticLimit.QuadraticLimit

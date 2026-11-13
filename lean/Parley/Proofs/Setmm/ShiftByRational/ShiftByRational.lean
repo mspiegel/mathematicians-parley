@@ -27,7 +27,7 @@ namespace Parley.Proofs.Setmm.ShiftByRational.ShiftByRational
 theorem shift_by_rational (A : ℂ) (B : ℚ) :
     (True ∧ (∃ m : ℚ, (m : ℂ) = A + (B : ℂ)) ↔ (∃ m : ℚ, (m : ℂ) = A)) := by
   -- 1. obtain r, s: def:rational x := B
-  obtain ⟨r, s, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp (by parley_side)
+  obtain ⟨r, s, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp ⟨_, rfl⟩
   -- 2. both directions
   constructor
   · skip

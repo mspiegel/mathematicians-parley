@@ -44,7 +44,7 @@ theorem inclusion_exclusion_two {α : Type*} (A : Set α) (B : Set α) (hH3 : A.
   -- 8. mun:disjoint-difference Y := A, Z := B
   have s8 : A ∩ (B \ A) = ∅ := by exact (Parley.Items.Stdlib.Sets.mun_disjoint_difference (Y := A) (Z := B))
   -- 9. mun:card-disjoint-union X := A, Y := B ∖ A, m := |A|, n := |B ∖ A|, from 5, 6, 8
-  have s9 : ((A ∪ B \ A).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s8)
+  have s9 : ((A ∪ B \ A).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B \ A) (m := (A.ncard : ℤ)) s5 (n := ((B \ A).ncard : ℤ)) s6 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((hH3 : (A : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s2 : (B \ A : Set α).Finite))]) s8)
   -- 10. mun:union-difference Y := A, Z := B
   have s10 : A ∪ B \ A = A ∪ B := by exact (Parley.Items.Stdlib.Sets.mun_union_difference (Y := A) (Z := B))
   -- 11. substitute A ∪ (B ∖ A) = A ∪ B (line 10) into line 9
@@ -60,7 +60,7 @@ theorem inclusion_exclusion_two {α : Type*} (A : Set α) (B : Set α) (hH3 : A.
   -- 16. substitute B ∩ A = A ∩ B (line 12) into line 15
   have s16 : A ∩ B ∪ B \ A = B := by parley_subst_at s12 s15
   -- 17. mun:card-disjoint-union X := A ∩ B, Y := B ∖ A, m := |A ∩ B|, n := |B ∖ A|, from 6, 7, 14
-  have s17 : ((A ∩ B ∪ B \ A).ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A ∩ B) (Y := B \ A) (m := ((A ∩ B).ncard : ℤ)) (by parley_set_side) (n := ((B \ A).ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s14)
+  have s17 : ((A ∩ B ∪ B \ A).ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A ∩ B) (Y := B \ A) (m := ((A ∩ B).ncard : ℤ)) s7 (n := ((B \ A).ncard : ℤ)) s6 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s4 : (A ∩ B : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s2 : (B \ A : Set α).Finite))]) s14)
   -- 18. substitute (A ∩ B) ∪ (B ∖ A) = B (line 16) into line 17
   have s18 : (B.ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := by parley_subst_at s16 s17
   -- 19. algebra, from 5, 6, 7, 11, 18

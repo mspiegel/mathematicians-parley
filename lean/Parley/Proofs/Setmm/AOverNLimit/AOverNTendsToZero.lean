@@ -70,7 +70,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       -- 5.4.1. mun:reciprocal-order x := N, y := n, from A2
       have r57_1 : N > 0 := by linarith only [s5_3a]
       have r57_2 : n > 0 := by linarith only [hK3]
-      have s5_4_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_2))).mp (by parley_side)
+      have s5_4_1 : 1 / (n : ℚ) ≤ 1 / (N : ℚ) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (N : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_1) (y := (n : ℚ)) (by exact_mod_cast gt_iff_lt.mp r57_2))).mp (by exact_mod_cast ge_iff_le.mp hA2)
       -- 5.4.2. transitivity, from 5.4.1, 5.3
       have r62_1 : 2 * (abs A + 1) ≠ 0 := ne_of_gt (by linarith only [s3])
       have s5_4_2 : 1 / (n : ℝ) < ε / (2 * (abs A + 1)) := by exact lt_of_le_of_lt (show 1 / (n : ℝ) ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s5_4_1; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s5_3b

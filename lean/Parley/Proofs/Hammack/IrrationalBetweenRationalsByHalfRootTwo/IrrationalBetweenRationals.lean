@@ -8,6 +8,9 @@ public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Rat.Cast.CharZero
+public import Mathlib.Data.Rat.Cast.Defs
+public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
@@ -45,9 +48,9 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 6. real arithmetic
   have s6 : Real.sqrt (2 : ℝ) < 2 := by parley_real
   -- 7. mun:product-positive x := √2, y := (s − r)/2, from 1, 5
-  have s7 : Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.sqrt (2 : ℝ)) (y := ((s : ℝ) - (r : ℝ)) / 2) s5 (by parley_side))
+  have s7 : Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.sqrt (2 : ℝ)) (y := ((s : ℝ) - (r : ℝ)) / 2) s5 (show 0 < ((s : ℝ) - (r : ℝ)) / 2 by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s1); simp only [Rat.cast_sub, Rat.cast_div, Rat.cast_zero, Rat.cast_ofNat] at h; exact h))
   -- 8. mun:less-scaled x := √2, y := 2, c := (s − r)/2, from 1, 6
-  have s8 : ((s : ℝ) - (r : ℝ)) / 2 * Real.sqrt (2 : ℝ) < ((s : ℝ) - (r : ℝ)) / 2 * 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := ((s : ℝ) - (r : ℝ)) / 2) (by parley_side))).mp s6
+  have s8 : ((s : ℝ) - (r : ℝ)) / 2 * Real.sqrt (2 : ℝ) < ((s : ℝ) - (r : ℝ)) / 2 * 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := Real.sqrt (2 : ℝ)) (y := (2 : ℝ)) (c := ((s : ℝ) - (r : ℝ)) / 2) (show 0 < ((s : ℝ) - (r : ℝ)) / 2 by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s1); simp only [Rat.cast_sub, Rat.cast_div, Rat.cast_zero, Rat.cast_ofNat] at h; exact h))).mp s6
   -- 9. inequalities
   have s9 : (r : ℝ) < Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ) := by linarith only [s7]
   -- 10. inequalities

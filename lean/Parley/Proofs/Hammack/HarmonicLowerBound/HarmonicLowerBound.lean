@@ -59,7 +59,7 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ 1 : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + 1 / 2 := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ 1 : ℤ), (1 / (j : ℚ) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (j : ℚ) : ℚ)) := by norm_num
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / (1 + 1) := by
-              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / (1 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ)) (n := (1 : ℤ)) r135_1))
+              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / (1 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ)) (n := (1 : ℤ)) (by norm_num)))
               exact hI
           _ = 1 / 1 + 1 / (1 + 1) := by (have h := congrArg (fun t : ℚ => t + 1 / (1 + 1)) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
           _ ≥ 1 + 1 / 2 := by norm_num

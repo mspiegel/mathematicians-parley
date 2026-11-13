@@ -2,6 +2,7 @@ module
 
 public import Tactics
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -21,6 +22,6 @@ namespace Parley.Tests.Elaborator.AnIdentityALinkDrops.AnIdentityALinkDrops
 theorem an_identity_a_link_drops (b : ℤ → ℝ) (k : ℤ) (hH3 : b k * 1 ^ k = b k * 1) :
     b k * 1 ^ k = b k := by
   -- 1. calculation
-  parley_side
+  simpa only [mul_one] using hH3
 
 end Parley.Tests.Elaborator.AnIdentityALinkDrops.AnIdentityALinkDrops

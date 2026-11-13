@@ -19,9 +19,9 @@ namespace Parley.Proofs.Setmm.ConstantMapIsNotOneToOne.ConstantMapIsNotOneToOne
 theorem constant_map_is_not_one_to_one {α : Type*} (A : Set α) (C : Set α) (B : α) (F : α → α) (hH4 : Set.MapsTo F A ({B} : Set α)) (X : α) (hH5 : X ∈ A) (Y : α) (hH6 : Y ∈ A) (hH7 : ¬ X = Y) :
     ¬ (Set.MapsTo F A C ∧ Set.InjOn F A) := by
   -- 1. mun:function-value f := F, x := X, from H5
-  have s1 : F X ∈ ({B} : Set α) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set α)) (f := F) (x := X) hH5 (by parley_set_side))
+  have s1 : F X ∈ ({B} : Set α) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set α)) (f := F) (x := X) hH5 hH4)
   -- 2. mun:function-value f := F, x := Y, from H6
-  have s2 : F Y ∈ ({B} : Set α) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set α)) (f := F) (x := Y) hH6 (by parley_set_side))
+  have s2 : F Y ∈ ({B} : Set α) := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := A) (E := ({B} : Set α)) (f := F) (x := Y) hH6 hH4)
   -- 3. calculation
   have s3 : F X = F Y := by
     calc F X = B := by exact ((Parley.Items.Stdlib.Sets.def_singleton (a := B) (x := F X))).mp s1
@@ -29,8 +29,8 @@ theorem constant_map_is_not_one_to_one {α : Type*} (A : Set α) (C : Set α) (B
   -- 4. contradiction
   intro hS
   -- 4.1. def:one-to-one f := F, X := A, Y := C, from S
-  have s4_1a : Set.MapsTo F A C := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) (by parley_set_side))).mp hS).1
-  have s4_1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) (by parley_set_side))).mp hS).2
+  have s4_1a : Set.MapsTo F A C := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) hS.1)).mp hS).1
+  have s4_1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := C) (f := F) hS.1)).mp hS).2
   -- 4.2. instantiate s := X, t := Y in line 4.1, from H5, H6, 3
   have s4_2 : X = Y := by exact (s4_1b X hH5 Y hH6 s3)
   -- 4.3. restate H7

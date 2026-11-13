@@ -109,8 +109,8 @@ pub fn range_system(range: &Node) -> Option<System> {
         .flatten();
     rules::RANGE_WITHIN
         .iter()
-        .find(|(_, first, _)| first.is_none() || *first == begins)
-        .and_then(|(system, _, _)| System::of_label(system))
+        .find(|row| row.first.is_none() || row.first == begins)
+        .and_then(|row| System::of_label(row.system))
 }
 
 /// The memberships the page says once of the terms `parts` names, in every
@@ -973,8 +973,8 @@ pub fn index_system(start: &Node) -> Option<System> {
         .flatten();
     rules::RANGE_WITHIN
         .iter()
-        .find(|(_, first, _)| first.is_none() || *first == begins)
-        .and_then(|(system, _, _)| System::of_label(system))
+        .find(|row| row.first.is_none() || row.first == begins)
+        .and_then(|row| System::of_label(row.system))
 }
 
 /// Whether a divisor is not zero by `said`, or by its parts: a product, a

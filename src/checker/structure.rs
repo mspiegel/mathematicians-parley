@@ -105,10 +105,10 @@ pub fn labels_in_scope(
     }
     // A define the file writes above the theorem is cited by its label too,
     // and so is one it imports, by the label on the import.
-    for (_n, d, src) in visible(scopes, thm.scope, thm.line) {
-        if src == thm.scope {
-            out.entry(d.label.clone())
-                .or_insert(Declared::Define(d.line));
+    for v in visible(scopes, thm.scope, thm.line) {
+        if v.scope == thm.scope {
+            out.entry(v.define.label.clone())
+                .or_insert(Declared::Define(v.define.line));
         }
     }
     for i in &scopes[thm.scope].imports {
@@ -1992,7 +1992,7 @@ pub fn check_file_defines(report: &mut Report, env: crate::sorts::Env) {
             given.extend(
                 visible(env.scopes, src, d.line)
                     .into_iter()
-                    .map(|(n, _, _)| n),
+                    .map(|v| v.name.clone()),
             );
             let written: Vec<&Node> = match &defined {
                 crate::matching::Defined::Term(body) => vec![body],
@@ -2321,12 +2321,11 @@ pub fn check_definitions(
         }
         for thm in thms {
             let shown = visible(scopes, scope_id, thm.line);
-            let seen: IndexSet<&str> =
-                shown.iter().map(|(n, _, _)| n.as_str()).collect();
+            let seen: IndexSet<&str> = shown.iter().map(|v| v.name.as_str()).collect();
             let mut labels: IndexSet<&str> = shown
                 .iter()
-                .filter(|(_, _, src)| *src == scope_id)
-                .map(|(_, d, _)| d.label.as_str())
+                .filter(|v| v.scope == scope_id)
+                .map(|v| v.define.label.as_str())
                 .collect();
             labels.extend(scope.imports.iter().filter_map(|i| i.label.as_deref()));
             for d in &thm.defines {
@@ -2760,7 +2759,7 @@ pub fn letters_in_scope(
     out.extend(
         visible(known.env.scopes, thm.scope, thm.line)
             .into_iter()
-            .map(|(n, _, _)| n),
+            .map(|v| v.name.clone()),
     );
     out.extend(known.sorts.imported.iter().cloned());
     for (i, d) in thm.defines.iter().enumerate() {
@@ -2861,7 +2860,7 @@ pub fn defined_below(
 ) -> Vec<(String, usize)> {
     let mut seen: BTreeSet<String> = visible(scopes, thm.scope, thm.line)
         .into_iter()
-        .map(|(n, _, _)| n)
+        .map(|v| v.name.clone())
         .collect();
     seen.extend(own.iter().cloned());
     seen.extend(bound_written(tokens));

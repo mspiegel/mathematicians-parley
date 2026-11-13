@@ -12,6 +12,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -52,7 +53,7 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
         _ < ε := by parley_set_side
     -- 1.1.2. exhibit, from 1.1.1
     have r45_1 : (1 : ℤ) > 0 := by parley_arith
-    exact ⟨(1 : ℝ), ⟨by parley_set_side, s1_1_1⟩⟩
+    exact ⟨(1 : ℝ), ⟨by norm_num, s1_1_1⟩⟩
   -- 2. def:continuous-on, from H1, 1
   exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr s1
 

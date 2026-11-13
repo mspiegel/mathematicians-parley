@@ -6,6 +6,7 @@ public import Tactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Tactic.Linarith.Frontend
@@ -109,6 +110,6 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
     exact ⟨n, ⟨s1_11, s1_12⟩⟩
   -- 2. def:limit-at D := ℝ, from 1
   have r129_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r129_1 (c := c) (L := L))).mpr (by parley_set_side)
+  exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r129_1 (c := c) (L := L))).mpr (by simpa only [gt_iff_lt, Set.mem_univ, forall_const] using s1)
 
 end Parley.Proofs.Hammack.SqueezeForLimits.SqueezeForLimits

@@ -56,12 +56,12 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
       intro Y hK1
       intro hK2
       -- 4.6.1. thm:two-point-parts, from K1, K2, 4.2
-      have s4_6_1 : Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α)) := by exact (Parley.Proofs.Wiedijk.Ramsey.TwoPointParts.two_point_parts (W := W) (v := v) s4_2 (Y := Y) hK1 (by parley_set_side))
+      have s4_6_1 : Y ⊆ W ∨ (∃ w ∈ W, Y = ({v, w} : Set α)) := by exact (Parley.Proofs.Wiedijk.Ramsey.TwoPointParts.two_point_parts (W := W) (v := v) s4_2 (Y := Y) hK1 hK2)
       -- 4.6.2. cases, from 4.6.1
       rcases s4_6_1 with hC2 | hC3
       · skip
         -- 4.6.2.1. instantiate Y := Y in line 4.1, from C2, K2
-        exact (s4_1.2 Y hC2 (by parley_set_side))
+        exact (s4_1.2 Y hC2 hK2)
       · skip
         -- 4.6.2.2. obtain w from C3
         obtain ⟨w, s4_6_2_2a, s4_6_2_2b⟩ := hC3
@@ -78,13 +78,13 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 4.9. D1, from 4.5, 4.6
     have s4_9 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E) := by parley_set_side
     -- 4.10. mun:or-left, from 4.9
-    have s4_10 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F)) (by parley_set_side))
+    have s4_10 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ F)) s4_9)
     -- 4.11. exhibit, from 4.8, 4.10
-    exact ⟨W ∪ ({v} : Set α), s4_8, by parley_set_side⟩
+    exact ⟨W ∪ ({v} : Set α), s4_8, s4_10⟩
   · skip
     -- 4.12. mun:or-right, from C4
-    have s4_12 : k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) (by parley_set_side))
+    have s4_12 : k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) hC4)
     -- 4.13. exhibit, from 3, 4.12
-    exact ⟨W, s3, by parley_set_side⟩
+    exact ⟨W, s3, s4_12⟩
 
 end Parley.Proofs.Wiedijk.Ramsey.GrowByOne

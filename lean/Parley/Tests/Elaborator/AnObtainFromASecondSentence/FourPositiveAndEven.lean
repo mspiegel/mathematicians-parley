@@ -4,6 +4,7 @@ public import ArithTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 
@@ -18,7 +19,7 @@ theorem four_positive_and_even :
   -- 1. arithmetic
   have s1 : (4 : ℤ) = 2 * 2 := by parley_arith
   -- 2. exhibit, from 1
-  have s2 : ∃ k : ℤ, 4 = 2 * k := ⟨(2 : ℤ), s1⟩
+  have s2 : ∃ k : ℤ, 4 = 2 * k := ⟨(2 : ℤ), by norm_num⟩
   -- 3. arithmetic
   have s3 : (4 : ℤ) > 0 := by parley_arith
   -- 4. join 3, 2

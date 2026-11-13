@@ -1,6 +1,6 @@
 theorem proofs/setmm/limit-unique/limit-unique
-step 1 cites proofs/setmm/limit-unique/limit-at-most group 0; A := A, B := B, x := x, bound n := n; concludes 0 AsWritten; from no line; supplied by 2.1 once H2 sentence 0, 3.1 once H3 sentence 0, 4.1 H4 sentence 0, 5.1 H5 sentence 0; letters A cr from cr, B cr from cr, x none from none; facing none; met as written
-step 2 cites proofs/setmm/limit-unique/limit-at-most group 0; A := B, B := A, x := x, bound n := n; concludes 0 AsWritten; from no line; supplied by 2.1 once H3 sentence 0, 3.1 once H2 sentence 0, 4.1 H5 sentence 0, 5.1 H4 sentence 0; letters A cr from cr, B cr from cr, x none from none; facing none; met as written
+step 1 cites proofs/setmm/limit-unique/limit-at-most group 0; A := A, B := B, x := x, bound n := n; concludes 0 AsWritten; from no line; supplied by 2.1 once H2 sentence 0, 3.1 once H3 sentence 0, 4.1 H4 sentence 0, 5.1 H5 sentence 0, 1.1 once H1 sentence 0; letters A cr from cr, B cr from cr, x none from none; facing none; met as written
+step 2 cites proofs/setmm/limit-unique/limit-at-most group 0; A := B, B := A, x := x, bound n := n; concludes 0 AsWritten; from no line; supplied by 2.1 once H3 sentence 0, 3.1 once H2 sentence 0, 4.1 H5 sentence 0, 5.1 H4 sentence 0, 1.1 once H1 sentence 0; letters A cr from cr, B cr from cr, x none from none; facing none; met as written
 step 3 antisymmetric from 1 sentence 0 and 2 sentence 0
 read 105: A = B  as  equality:=(name:A, name:B)  a statement
 read 108: x : ℕ → ℝ  as  function-type::→(name:x, number-systems:ℕ, number-systems:ℝ)  a statement

@@ -19,6 +19,7 @@ public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Abs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
@@ -48,7 +49,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by simpa only [sub_zero] using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) r24_1 (c := (0 : ℝ)) (L := L))).mp s1
   -- 3. instantiate ε := 1 in line 2
   have r28_1 : (0 : ℤ) < 1 := by parley_arith
-  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by parley_set_side))
+  have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by exact (s2 (1 : ℝ) (by norm_num))
   -- 4. obtain p from line 3
   obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
   -- 5. inequalities
@@ -56,16 +57,16 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 6. inequalities
   have s6 : p / 2 ≠ 0 := ne_of_gt (by linarith only [s5])
   -- 7. mun:remove-member u := p/2, from 6
-  have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr ⟨by parley_set_side, s6⟩
+  have s7 : p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := p / 2))).mpr ⟨Set.mem_univ _, s6⟩
   -- 8. def:abs x := p/2
   have r48_1 : p / 2 ≥ 0 := by linarith only [s5]
-  have s8 : abs (p / 2) = p / 2 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := p / 2)) (by parley_set_side)
+  have s8 : abs (p / 2) = p / 2 := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := p / 2)) r48_1
   -- 9. inequalities
   have s9 : p / 2 < p := by linarith only [s5]
   -- 10. transitivity, from 8, 9
   have s10 : abs (p / 2) < p := by exact Eq.trans_lt s8 s9
   -- 11. instantiate x := p/2 in line 4, from 6, 7, 10
-  have s11 : abs (f (p / 2) - L) < 1 := by exact (s4b (p / 2) s7 (by parley_set_side))
+  have s11 : abs (f (p / 2) - L) < 1 := by exact (s4b (p / 2) s7 ⟨s6, s10⟩)
   -- 12. calculation
   have r65_1 : p / 2 ≠ 0 := by exact s6
   have s12 : f (p / 2) = 1 := by
@@ -80,7 +81,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 16. inequalities
   have s16 : -p / 2 ≠ 0 := ne_of_lt (by linarith only [s5])
   -- 17. mun:remove-member u := (−p)/2, from 16
-  have s17 : -p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr ⟨by parley_set_side, s16⟩
+  have s17 : -p / 2 ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (0 : ℝ)) (u := -p / 2))).mpr ⟨Set.mem_univ _, s16⟩
   -- 18. mun:abs-negative x := p/2
   have s18 : abs (-(p / 2)) = abs (p / 2) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := p / 2))
   -- 19. substitute
@@ -91,7 +92,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 20. transitivity, from 19, 8, 9
   have s20 : abs (-p / 2) < p := by exact Eq.trans_lt (Eq.trans s19 s8) s9
   -- 21. instantiate x := (−p)/2 in line 4, from 16, 17, 20
-  have s21 : abs (f (-p / 2) - L) < 1 := by exact (s4b (-p / 2) s17 (by parley_set_side))
+  have s21 : abs (f (-p / 2) - L) < 1 := by exact (s4b (-p / 2) s17 ⟨s16, s20⟩)
   -- 22. calculation
   have r106_1 : -p / 2 ≠ 0 := by exact s16
   have s22 : f (-p / 2) = -1 := by

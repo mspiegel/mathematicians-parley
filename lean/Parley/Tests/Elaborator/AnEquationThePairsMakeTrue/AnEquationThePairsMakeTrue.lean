@@ -27,6 +27,6 @@ theorem an_equation_the_pairs_make_true {α : Type*} (A : Set α) (B : Set α) (
   -- 2. mun:card-nat0 X := B, from H4
   have s2 : 0 ≤ (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) hH4)
   -- 3. mun:card-disjoint-union X := A, Y := B, m := |A|, n := |B|, from H5, 1, 2
-  exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B) (m := (A.ncard : ℤ)) (by parley_set_side) (n := (B.ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) hH5)
+  exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := A) (Y := B) (m := (A.ncard : ℤ)) s1 (n := (B.ncard : ℤ)) s2 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((hH3 : (A : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((hH4 : (B : Set α).Finite))]) hH5)
 
 end Parley.Tests.Elaborator.AnEquationThePairsMakeTrue.AnEquationThePairsMakeTrue

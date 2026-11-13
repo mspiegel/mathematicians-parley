@@ -5,6 +5,7 @@ public import Tactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 
@@ -21,6 +22,6 @@ theorem two_witnesses_beside_an_equation :
   -- 2. arithmetic
   have s2 : (0 : ℤ) ≠ 2 := by parley_arith
   -- 3. exhibit, from 1, 2
-  exact ⟨(0 : ℝ), (2 : ℝ), ⟨by parley_side, by parley_side⟩⟩
+  exact ⟨(0 : ℝ), (2 : ℝ), ⟨by norm_num, by norm_num⟩⟩
 
 end Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesBesideAnEquation

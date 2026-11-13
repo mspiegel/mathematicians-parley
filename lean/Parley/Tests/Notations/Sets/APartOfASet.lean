@@ -1,12 +1,12 @@
 module
 
 public import ArithTactics
-public import InstanceTactics
 public import SetTactics
 public import Tactics
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.SetNotationForOrder
@@ -24,13 +24,12 @@ theorem a_part_of_a_set :
   -- 1. arithmetic
   have s1 : (1 : ℤ) = 1 := by parley_arith
   -- 2. mun:or-left, from 1
-  have s2 : (1 : ℤ) = 1 ∨ (1 : ℤ) = 2 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) s1)
+  have s2 : (1 : ℤ) = 1 ∨ (1 : ℤ) = 2 := by exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (1 : ℤ) = 1) (Q := (1 : ℤ) = 2) (by norm_num))
   -- 3. def:pair x := 1, u := 1, w := 2, from 2
   have s3 : (1 : ℤ) ∈ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := ((Parley.Items.Stdlib.Sets.def_pair (u := (1 : ℤ)) (w := (2 : ℤ)) (x := (1 : ℤ)))).mpr s2
   -- 4. mun:singleton-subset a := 1, X := {1, 2}, from 3
   have s4 : ({(1 : ℤ)} : Set ℤ) ⊆ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (a := (1 : ℤ)) s3)
   -- 5. def:powerset, from 4
-  have hI : ({(1 : ℤ)} : Set ℤ) ⊆ ({(1 : ℤ), (2 : ℤ)} : Set ℤ) := by parley_instance (((Parley.Items.Stdlib.Sets.def_powerset (A := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (S := ({(1 : ℤ)} : Set ℤ)))).mpr s4)
-  exact hI
+  exact ((Parley.Items.Stdlib.Sets.def_powerset (A := ({(1 : ℤ), (2 : ℤ)} : Set ℤ)) (S := ({(1 : ℤ)} : Set ℤ)))).mpr s4
 
 end Parley.Tests.Notations.Sets.APartOfASet

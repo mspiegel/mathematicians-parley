@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Order.Ring
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.LinearCombination
@@ -79,7 +80,7 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   have s14 : s ∣ (Int.gcd ((Int.gcd s w : ℤ) * s) ((Int.gcd s w : ℤ) * w) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := s) (a := (Int.gcd s w : ℤ) * s) (b := (Int.gcd s w : ℤ) * w) s7 s13)
   -- 15. substitute
   have s15 : s ∣ (Int.gcd s w : ℤ) * (Int.gcd s w : ℤ) := by
-    have c1 : (Int.gcd ((Int.gcd s w : ℤ) * s) ((Int.gcd s w : ℤ) * w) : ℤ) = (Int.gcd s w : ℤ) * (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := (Int.gcd s w : ℤ)) (by parley_side) (a := s) (b := w))
+    have c1 : (Int.gcd ((Int.gcd s w : ℤ) * s) ((Int.gcd s w : ℤ) * w) : ℤ) = (Int.gcd s w : ℤ) * (Int.gcd s w : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_scaled (c := (Int.gcd s w : ℤ)) (Nat.cast_nonneg _) (a := s) (b := w))
     have row1 : s ∣ (Int.gcd s w : ℤ) * (Int.gcd s w : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s14; push_cast at h ⊢; all_goals exact_mod_cast h)
     exact row1
   -- 16. substitute

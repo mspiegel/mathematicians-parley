@@ -6,9 +6,11 @@ public import Functions
 public import Tactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
+public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -42,7 +44,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) ≥ 1 := by parley_arith
       -- 1.2. exhibit, from 1.1
-      exact ⟨(1 : ℤ), by norm_num, ⟨by parley_side, s1_1⟩⟩
+      exact ⟨(1 : ℤ), by norm_num, ⟨by simp only [mul_one], by norm_num⟩⟩
     | succ j hK hIH =>
       -- 1.3. obtain q from IH
       obtain ⟨q, s1_3a, ⟨s1_3b, s1_3c⟩⟩ := hIH
@@ -78,7 +80,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.15. inequalities
       have s1_15 : 2 ^ d.toNat * q + 1 ≥ j + 1 := by linarith only [s1_14]
       -- 1.16. exhibit, from 1.6, 1.15
-      exact ⟨2 ^ d.toNat * q + 1, by parley_side, ⟨s1_6, s1_15⟩⟩
+      exact ⟨2 ^ d.toNat * q + 1, add_pos (mul_pos (pow_pos (by norm_num) _) (s1_3a)) (by norm_num), ⟨s1_6, s1_15⟩⟩
   -- 2. instantiate j := m in line 1
   exact (s1 m hH2)
 

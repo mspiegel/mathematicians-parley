@@ -39,7 +39,7 @@ theorem choose_one_less (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose (N + 1) N : ℤ) = N + 1 := by
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by
-    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp (by parley_side))
+    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
     exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2

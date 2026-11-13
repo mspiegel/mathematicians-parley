@@ -3,16 +3,21 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Defs
+public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.Tauto
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Reasoning
@@ -35,16 +40,16 @@ theorem two_elements {α : Type*} (V : Set α) :
       calc (V.ncard : ℤ) = 2 := by parley_set_side
         _ = 1 + 1 := by norm_num)
     -- 2. obtain b: mun:card-nonempty X := V, k := 1, from 1
-    obtain ⟨b, s2, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V) (k := (1 : ℤ)) (by norm_num) (by parley_set_side))
+    obtain ⟨b, s2, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V) (k := (1 : ℤ)) (by norm_num) s1)
     -- 3. mun:card-remove X := V, a := b, k := 1, from 1, 2
-    have s3 : ((V \ ({b} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V) (a := b) s2 (k := (1 : ℤ)) (by norm_num) (by parley_set_side))
+    have s3 : ((V \ ({b} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V) (a := b) s2 (k := (1 : ℤ)) (by norm_num) s1)
     -- 4. obtain a: mun:card-nonempty X := V ∖ {b}, k := 0, from 3
-    obtain ⟨a, s4, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V \ ({b} : Set α)) (k := (0 : ℤ)) (by norm_num) (by parley_set_side))
+    obtain ⟨a, s4, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V \ ({b} : Set α)) (k := (0 : ℤ)) (by norm_num) (by simpa only [zero_add, Int.cast_zero] using s3))
     -- 5. mun:remove-member u := a, Y := V, a := b, from 4
     have s5a : a ∈ V := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).1
     have s5b : ¬ a = b := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V) (a := b) (u := a))).mp s4).2
     -- 6. mun:card-remove X := V ∖ {b}, k := 0, from 3, 4
-    have s6 : (((V \ ({b} : Set α)) \ ({a} : Set α)).ncard : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V \ ({b} : Set α)) (a := a) s4 (k := (0 : ℤ)) (by norm_num) (by parley_set_side))
+    have s6 : (((V \ ({b} : Set α)) \ ({a} : Set α)).ncard : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := V \ ({b} : Set α)) (a := a) s4 (k := (0 : ℤ)) (by norm_num) (by simpa only [zero_add, Int.cast_zero] using s3))
     -- 7. proof
     have s7 : ∀ t ∈ V, t ∈ ({a, b} : Set α) := by
       intro t hK1
@@ -74,7 +79,7 @@ theorem two_elements {α : Type*} (V : Set α) :
           have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr ⟨s7_2_3, hC5⟩
           -- 7.2.5.4. substitute
           have s7_2_5_4 : t ∈ (∅ : Set α) := by parley_count_after (by
-            have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by parley_set_side))
+            have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by (have h := s6; rw [← Set.Finite.cast_ncard_eq (((Set.finite_of_ncard_ne_zero (by omega)).subset (fun _ h => h.1) : ((V \ ({b} : Set α)) \ ({a} : Set α) : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
             have row1 : t ∈ (∅ : Set α) := by parley_subst_at c1 s7_2_5_3
             exact row1)
           -- 7.2.5.5. inspection
@@ -87,7 +92,7 @@ theorem two_elements {α : Type*} (V : Set α) :
     -- 10. mun:subset-antisymmetric X := V, Y := {a, b}, from 8, 9
     have s10 : V = ({a, b} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := V) (Y := ({a, b} : Set α)) s8 s9)
     -- 11. exhibit, from 2, 5, 10
-    exact ⟨b, s2, a, s5a, ⟨Ne.symm s5b, by parley_set_side⟩⟩
+    exact ⟨b, s2, a, s5a, ⟨Ne.symm s5b, by (have h := s10; ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)⟩⟩
   · skip
     intro hC6
     -- 12. obtain c, d from C6

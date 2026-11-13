@@ -15,6 +15,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Tactic.NormNum.Basic
+public import Mathlib.Tactic.NormNum.Core
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
@@ -38,7 +39,7 @@ theorem sqrt_two_plus_sqrt_three :
   -- 2. thm:irrational-product A := √6, B := 2, from 1
   have r16_1 : (2 : ℤ) ≠ 0 := by parley_arith
   have s2 : Irrational (Real.sqrt (6 : ℝ) * 2) := by
-    have hI : Irrational (Real.sqrt (6 : ℝ) * 2) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (6 : ℝ)) (B := (2 : ℚ)) (by parley_side) s1))
+    have hI : Irrational (Real.sqrt (6 : ℝ) * 2) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (6 : ℝ)) (B := (2 : ℚ)) (by norm_num) s1))
     exact hI
   -- 3. thm:irrational-sum A := √6·2, B := 5, from 2
   have s3 : Irrational (Real.sqrt (6 : ℝ) * 2 + 5) := by
@@ -65,6 +66,6 @@ theorem sqrt_two_plus_sqrt_three :
     have s4_5 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (6 : ℝ) * 2 + 5) := by exact s4_4
     exact s4_5 s4_3
   -- 5. def:irrational x := √2 + √3, from 4
-  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr ⟨by parley_side, s4⟩
+  exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)))).mpr ⟨by trivial, s4⟩
 
 end Parley.Proofs.Identities.SqrtTwoPlusSqrtThree.SqrtTwoPlusSqrtThree

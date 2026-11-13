@@ -60,7 +60,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have r323_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
   have s7 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [s6])
   -- 8. mun:card-positive, from 7
-  have s8 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by parley_set_side))
+  have s8 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s7; rw [← Set.Finite.cast_ncard_eq ((s1 : (X : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
   -- 9. obtain v: mun:nonempty-member, from 8
   obtain ⟨v, s9, _⟩ := (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := X) s8)
   set R : Set α := {w ∈ X \ ({v} : Set α) | ({v, w} : Set α) ∈ E} with hD2
@@ -100,7 +100,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 19. mun:card-nat0, from 17
   have s19 : 0 ≤ (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B) s17)
   -- 20. mun:card-disjoint-union X := R, Y := B, m := |R|, n := |B|, from 11, 18, 19
-  have s20 : ((R ∪ B).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := R) (Y := B) (m := (R.ncard : ℤ)) (by parley_set_side) (n := (B.ncard : ℤ)) (by parley_set_side) (by parley_set_side) (by parley_set_side) s11)
+  have s20 : ((R ∪ B).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := R) (Y := B) (m := (R.ncard : ℤ)) s18 (n := (B.ncard : ℤ)) s19 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((hD2_finite : (R : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((hD3_finite : (B : Set α).Finite))]) s11)
   -- 21. substitute X ∖ {v} = R ∪ B (line 10) into line 20
   have s21 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by parley_subst_at s10 s20
   -- 22. mun:card-add-one, from 13
@@ -134,12 +134,12 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     rcases s29 with hC1 | hC2
     · skip
       -- 30.1. mun:or-left, from C1
-      exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) (by parley_set_side))
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) hC1)
     · skip
       -- 30.2. inequalities, from C2, 18, 25
       have s30_2 : (R.ncard : ℤ) < (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by linarith only [hC2]
       -- 30.3. mun:integer-step, from 18, 25, 30.2
-      have s30_3 : (R.ncard : ℤ) + 1 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (R.ncard : ℤ)) (n := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ)) (by parley_set_side))
+      have s30_3 : (R.ncard : ℤ) + 1 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (R.ncard : ℤ)) (n := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ)) s30_2)
       -- 30.4. inequalities
       have r426_1 : 0 ≤ (R.ncard : ℤ) := by exact s18
       have r426_2 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) := by exact s25
@@ -157,7 +157,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have r441_3 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) := by exact s26
       have s30_6 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ) := by linarith only [s30_5]
       -- 30.7. mun:or-right, from 30.6
-      exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) (by parley_set_side))
+      exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)) (Q := (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (B.ncard : ℤ)) s30_6)
   -- 31. mun:subset-transitive, from H8, 12
   have s31 : X \ ({v} : Set α) ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := X \ ({v} : Set α)) (Y := X) (Z := V) s12 hH8)
   -- 32. cases, from 30
@@ -166,7 +166,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 32.1. mun:subset-transitive, from 14, 31
     have s32_1 : R ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := R) (Y := X \ ({v} : Set α)) (Z := V) s14 s31)
     -- 32.2. instantiate Z := R in H10, from C3, 32.1
-    have s32_2 : ∃ W ∈ 𝒫 R, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (hH10 R s32_1 (by parley_set_side))
+    have s32_2 : ∃ W ∈ 𝒫 R, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (hH10 R s32_1 hC3)
     -- 32.3. obtain W from line 32.2
     obtain ⟨W, s32_3a, s32_3b⟩ := s32_2
     -- 32.4. def:set-builder, from D2
@@ -174,19 +174,19 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       intro w h_w
       try simp only [hD2] at ⊢
       try push_cast at ⊢
-      have hI : ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp (by parley_set_side)).2)
+      have hI : ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp h_w).2)
       exact hI
     -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
-    exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) hH1 (j := j + 1) (add_pos (hH2) (by norm_num)) (v := v) s9 (N := R) (by parley_set_side) s32_4 (W := W) (by parley_set_side) (by parley_set_side))
+    exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) hH1 (j := j + 1) (add_pos (hH2) (by norm_num)) (v := v) s9 (N := R) s14 s32_4 (W := W) s32_3a s32_3b)
   · skip
     -- 32.6. mun:subset-transitive, from 15, 31
     have s32_6 : B ⊆ V := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := B) (Y := X \ ({v} : Set α)) (Z := V) s15 s31)
     -- 32.7. instantiate Z := B in H11, from C4, 32.6
-    have s32_7 : ∃ W ∈ 𝒫 B, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (hH11 B s32_6 (by parley_set_side))
+    have s32_7 : ∃ W ∈ 𝒫 B, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (hH11 B s32_6 hC4)
     -- 32.8. obtain W from line 32.7
     obtain ⟨W, s32_8a, s32_8b⟩ := s32_7
     -- 32.9. mun:or-swap, from 32.8
-    have s32_9 : j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) ∨ k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) (by parley_set_side))
+    have s32_9 : j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F) ∨ k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E)) (Q := j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) s32_8b)
     -- 32.10. proof
     have s32_10 : ∀ w ∈ B, ({v, w} : Set α) ∈ F := by
       intro w hK1
@@ -210,14 +210,14 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       -- 32.10.5. mun:card-pair-distinct u := v, from 32.10.2
       have s32_10_5 : (({v, w} : Set α).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := v) (w := w))).mp (Ne.symm s32_10_2b)
       -- 32.10.6. instantiate Y := {v, w} in H7, from 32.10.4, 32.10.5
-      have s32_10_6 : ({v, w} : Set α) ∈ E ∨ ({v, w} : Set α) ∈ F := by exact (hH7 ({v, w} : Set α) s32_10_4 (by parley_set_side))
+      have s32_10_6 : ({v, w} : Set α) ∈ E ∨ ({v, w} : Set α) ∈ F := by exact (hH7 ({v, w} : Set α) s32_10_4 s32_10_5)
       -- 32.10.7. mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6
       exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := ({v, w} : Set α) ∈ E) (Q := ({v, w} : Set α) ∈ F) s32_10_6 s32_10_1b)
     -- 32.11. obtain U: thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
-    obtain ⟨U, s32_11a, s32_11b⟩ := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := F) (F := E) s1 (k := j) hH2 (j := k + 1) (add_pos (hH1) (by norm_num)) (v := v) s9 (N := B) (by parley_set_side) s32_10 (W := W) (by parley_set_side) (by parley_set_side))
+    obtain ⟨U, s32_11a, s32_11b⟩ := (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := F) (F := E) s1 (k := j) hH2 (j := k + 1) (add_pos (hH1) (by norm_num)) (v := v) s9 (N := B) s15 s32_10 (W := W) s32_8a s32_9)
     -- 32.12. mun:or-swap, from 32.11
-    have s32_12 : k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F)) (Q := k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E)) (by parley_set_side))
+    have s32_12 : k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F) := by exact (Parley.Items.Stdlib.Reasoning.mun_or_swap (P := j + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ F)) (Q := k + 1 ≤ (U.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 U, (Y.ncard : ℤ) = 2 → Y ∈ E)) s32_11b)
     -- 32.13. exhibit, from 32.11, 32.12
-    exact ⟨U, s32_11a, by parley_set_side⟩
+    exact ⟨U, s32_11a, s32_12⟩
 
 end Parley.Proofs.Wiedijk.Ramsey.RamseyStep

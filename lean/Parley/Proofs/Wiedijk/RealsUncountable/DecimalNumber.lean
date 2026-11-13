@@ -28,7 +28,9 @@ public import Mathlib.Data.Rat.Cast.Defs
 public import Mathlib.Data.Rat.Cast.Lemmas
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Data.Rat.Init
+public import Mathlib.Data.Set.Basic
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
@@ -201,7 +203,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.1. mun:nat0-as-int
       have r405_1 : 0 ≤ k - j := by linarith only [hC5]
       have s6_4_1 : 0 ≤ k - j := by
-        have hI : 0 ≤ k - j := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k - j))).mpr ⟨by parley_set_side, r405_1⟩)
+        have hI : 0 ≤ k - j := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k - j))).mpr ⟨⟨_, rfl⟩, r405_1⟩)
         exact hI
       -- 6.4.2. instantiate g := k − j, p := j in line 5, from 6.4.1
       have s6_4_2 : L j ≤ L (j + (k - j)) ∧ U (j + (k - j)) ≤ U j := by exact (s5 (k - j) s6_4_1 j hJ1)
@@ -222,7 +224,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.8. mun:nat0-as-int
       have r436_1 : 0 ≤ j - k := by exact s6_4_7
       have s6_4_8 : 0 ≤ j - k := by
-        have hI : 0 ≤ j - k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - k))).mpr ⟨by parley_set_side, r436_1⟩)
+        have hI : 0 ≤ j - k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - k))).mpr ⟨⟨_, rfl⟩, r436_1⟩)
         exact hI
       -- 6.4.9. instantiate g := j − k, p := k in line 5, from 6.4.8
       have s6_4_9 : L k ≤ L (k + (j - k)) ∧ U (k + (j - k)) ≤ U k := by exact (s5 (j - k) s6_4_8 k hK3)
@@ -247,7 +249,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 8.1. D5
     have s8_1 : L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
     -- 8.2. def:set-builder u := L(k), from D4, 8.1
-    have hI : (L k : ℝ) ∈ {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := (L k : ℝ)))).mpr ⟨by parley_set_side, k, hK8, by parley_set_side⟩)
+    have hI : (L k : ℝ) ∈ {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := (L k : ℝ)))).mpr ⟨Set.mem_univ _, k, hK8, (show (L k : ℝ) = (N k : ℝ) / 10 ^ k.toNat by have h := (Rat.cast_inj (α := ℝ)).mpr s8_1; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)⟩)
     exact hI
   -- 9. instantiate k := 0 in line 8
   have s9 : (L 0 : ℝ) ∈ S := by exact (s8 (0 : ℤ) (by norm_num))
@@ -258,7 +260,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have s10_1 : ∀ y ∈ S, y ≤ (U k : ℝ) := by
       intro y hY
       -- 10.1.1. obtain j: def:set-builder u := y, from D4, Y
-      obtain ⟨_, j, s10_1_1a, s10_1_1b⟩ := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := y))).mp (by parley_set_side)
+      obtain ⟨_, j, s10_1_1a, s10_1_1b⟩ := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := y))).mp (by simpa only [hD4, Set.mem_ofPred_eq, Set.sep_univ] using hY)
       -- 10.1.2. instantiate j := j, k := k in line 6
       have s10_1_2 : L j ≤ U k := by exact (s6 j s10_1_1a k hK4)
       -- 10.1.3. calculation
@@ -270,9 +272,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 10.2. def:upper-bound, from 10.1
     parley_set_side
   -- 11. instantiate k := 0 in line 10
-  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; exact (s10 (0 : ℤ) (by norm_num) s (by parley_set_side))
+  have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; exact (s10 (0 : ℤ) (by norm_num) s h_s)
   -- 12. obtain c: axi:completeness, from 7, 9, 11
-  obtain ⟨c, s12⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s7 (by parley_set_side) (by parley_set_side))
+  obtain ⟨c, s12⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s7 ⟨L 0, by (have h := s9; push_cast at h ⊢; all_goals exact_mod_cast h), trivial⟩ ⟨(U 0 : ℝ), s11⟩)
   -- 13. def:least-upper-bound, from 12
   have s13a : ∀ s ∈ S, s ≤ c := by parley_set_side
   have s13b : ∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u := by parley_set_side
@@ -343,7 +345,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.21. mun:nat0-as-int
     have r607_2 : 0 ≤ d n := by exact (hH2 n hK6).1
     have s16_21 : 0 ≤ d n := by
-      have hI : 0 ≤ d n := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := d n))).mpr ⟨by parley_set_side, r607_2⟩)
+      have hI : 0 ≤ d n := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := d n))).mpr ⟨⟨_, rfl⟩, r607_2⟩)
       exact hI
     -- 16.22. membership, from 16.21
     -- 16.23. axi:excluded-middle P := ⌊10^n·c⌋ ≤ N(n)

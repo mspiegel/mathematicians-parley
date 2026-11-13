@@ -8,12 +8,15 @@ public import Tactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
+public import Mathlib.Algebra.Order.GroupWithZero.Basic
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
@@ -57,9 +60,7 @@ theorem rational_squares_sum_not_three :
   -- 7. exhibit, from 6
   have s7 : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (b * d) ^ 2 := ⟨a * d, c * b, s6⟩
   -- 8. def:set-builder u := b·d, from D1, 7
-  have s8 : b * d ∈ T := by
-    have hI : b * d ∈ {t : ℤ | 0 < t ∧ (∃ a : ℤ, ∃ c : ℤ, a ^ 2 + c ^ 2 = 3 * t ^ 2)} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := b * d))).mpr ⟨by parley_set_side, s7⟩)
-    exact hI
+  have s8 : b * d ∈ T := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := b * d))).mpr ⟨mul_pos (s2a) (s3a), s7⟩
   -- 9. mun:set-builder-subset, from D1
   have s9 : T ⊆ {n : ℤ | 0 < n} := by
     try simp only [hD1] at ⊢
@@ -67,17 +68,17 @@ theorem rational_squares_sum_not_three :
     have hI : {t : ℤ | 0 < t ∧ (∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * t ^ 2)} ⊆ {n : ℤ | 0 < n} := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n})))
     exact hI
   -- 10. obtain m: axi:well-ordering, from 8, 9
-  obtain ⟨m, s10a, s10b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := T) s9 (by parley_set_side))
+  obtain ⟨m, s10a, s10b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := T) s9 ⟨b * d, s8, trivial⟩)
   -- 11. def:set-builder u := m, from D1, 10
   have s11a : 0 < m := by
     try simp only [hD1] at ⊢
     try push_cast at ⊢
-    have hI : 0 < m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1)
+    have hI : 0 < m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp s10a).1)
     exact hI
   have s11b : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * m ^ 2 := by
     try simp only [hD1] at ⊢
     try push_cast at ⊢
-    have hI : ∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * m ^ 2 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).2)
+    have hI : ∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * m ^ 2 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp s10a).2)
     exact hI
   -- 12. obtain p, q from line 11
   obtain ⟨p, q, s12⟩ := s11b
@@ -123,9 +124,7 @@ theorem rational_squares_sum_not_three :
   -- 31. exhibit, from 26
   have s31 : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * u ^ 2 := ⟨s, t, s26⟩
   -- 32. def:set-builder, from D1, 30, 31
-  have s32 : u ∈ T := by
-    have hI : u ∈ {t : ℤ | 0 < t ∧ (∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * t ^ 2)} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := u))).mpr ⟨by parley_set_side, s31⟩)
-    exact hI
+  have s32 : u ∈ T := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := u))).mpr ⟨s30, s31⟩
   -- 33. instantiate t := u in line 10, from 32
   have s33 : m ≤ u := by exact (s10b u s32)
   -- 34. inequalities

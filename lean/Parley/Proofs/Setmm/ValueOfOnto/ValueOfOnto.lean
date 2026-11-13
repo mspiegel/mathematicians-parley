@@ -4,6 +4,7 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -24,7 +25,7 @@ theorem value_of_onto {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
   have s1 : y ∈ F '' (A ∩ A) := by parley_subst_at hH4 hH5
   -- 2. obtain x: def:image u := y, Y := A, from 1
   have r16_1 : A ⊆ A := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A))
-  obtain ⟨x, s2a, s2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A) (f := F) (u := y) (W := Set.univ) r16_1 (by parley_set_side))).mp s1
+  obtain ⟨x, s2a, s2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A) (f := F) (u := y) (W := Set.univ) r16_1 (Set.mapsTo_univ _ _))).mp s1
   -- 3. exhibit, from 2
   exact ⟨x, s2a, s2b⟩
 

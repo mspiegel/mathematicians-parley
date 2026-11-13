@@ -51,20 +51,36 @@ line's own. A list holds one entry for each step, in the proof's order.
   it implies (`Requires`); the `let` or `obtain` line that introduces a
   letter, for a membership said once (`SaidOnce`); a membership said once
   of a term no `let` line writes, `k + 1 ∈ ℕ₀` of a k in ℕ₀, with the
-  reason the said-once walk gives (`Walked`); or no line, for a fact the
-  citation's values make true (`Unstated`).
+  reason the said-once walk gives (`Walked`); a membership a function's
+  type, a subset or a "for all" line carries, each of the two on its line,
+  `k ∈ {1, …, n}` from `{1, …, m} ⊆ {1, …, n}` and the `let` line saying
+  `k ∈ {1, …, m}` (`Through`); the membership the claim's own "for all"
+  gives its letter (`Bound`); an equation the same on both sides once
+  identity elements are dropped (`Identity`); an "and" whose parts stand
+  apart, each placed (`Parts`); or no line, for a fact the citation's
+  values make true (`Unstated`).
   A hypothesis the citation's values make true is still placed where a line
   states it. Lean names that line as the item's argument. Each entry also
   says where the item writes the hypothesis (`Supplied::at`): its
   hypothesis line and the sentence of that line, each counted from 0. A
   backend that states the item names its hypotheses by the same place, and
-  finds each one's entry by it.
+  finds each one's entry by it. Each entry also says how the line met the
+  hypothesis at the citation's values (`Supplied::meeting`), as
+  `Cited::meetings` says it for a conclusion: a listed set's members in
+  another order, identity elements dropped, the sides turned. None where
+  no line writes the fact, or one implies it. Lean proves the hypothesis
+  from the line by it. Where the line says a "for all" over a wider set
+  than asked, the entry says over which set it is read
+  (`Supplied::narrowed`).
 - `Cited::unfolded`: for each conclusion a citation reads backwards, what
   the right side of its `↔` asks at the citation's values (`Unfolded`), its
   parts joined by "and" in order. A "there is" whose letter the citation
   gives a witness is the witness, that it is in the letter's domain, and the
   parts of its body at it; any other part is a fact. Each fact carries where
-  it stands, placed as a hypothesis is (`SuppliedBy`). For `def:set-builder
+  it stands, placed as a hypothesis is (`SuppliedBy`). The right side is
+  read at the define's name where the citation's value is a define's rule,
+  g of g(x) = f(x) for x ∈ L, and each fact is sought as the step's lines
+  are read, with the defines the step cites written out. For `def:set-builder
   u := L(k)` with P "there is a ∈ ℕ₀ with y = N(a)/10^a" and witness k:
   L(k) ∈ ℝ, unstated; then k, with k ∈ ℕ₀ by the `let` line, and L(k) =
   N(k)/10^k by line 8.1. Lean builds `.mpr ⟨…⟩` from it.
@@ -88,10 +104,13 @@ line's own. A list holds one entry for each step, in the proof's order.
   property applied taken as its body, which part of that "and". `P(u)` at
   P := S ↦ N ∈ S and for all p ∈ S, p ≤ N gives "for all p ∈ T, p ≤ N" as
   part 1. Lean projects to it.
-- `Cited::firsts`: the line, or the sentence of one, a reading of a
-  definition starts from, with the fact as the page writes it
-  (`FirstAt::written`). Metamath unfolds the definition from it; Lean gives
-  it to `.mp`, and to `.mpr` for the witnesses' facts.
+- `Cited::firsts`: where each fact a reading of a definition starts from
+  stands, found as a hypothesis the citation needs is (`Cited::supplied`):
+  the cited line, or the sentence of one, with the fact as the page writes
+  it (`FirstAt::written`); else a requires line, or the `let` line that
+  says a membership once. Metamath unfolds the definition from a cited line
+  among them; Lean gives each to `.mp`, and to `.mpr` for the witnesses'
+  facts.
 - `FirstAt`: where a fact stands in a line. Its sentence is counted by its
   place among the sentences the line writes, from 0. Past those come the
   line's "for all" sentences read at a block's letter, in order. Its part is

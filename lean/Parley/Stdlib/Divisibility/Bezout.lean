@@ -34,9 +34,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   -- 1. algebra
   have s1 : b = a * 0 + b * 1 := by parley_ring
   -- 2. def:set-builder u := b, from D1, 1
-  have s2 : b ∈ S := by
-    have hI : b ∈ {c : ℤ | 0 < c ∧ (∃ d : ℤ, ∃ e : ℤ, c = a * d + b * e)} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := b))).mpr ⟨by parley_set_side, (0 : ℤ), (1 : ℤ), s1⟩)
-    exact hI
+  have s2 : b ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := b))).mpr ⟨hH2, (0 : ℤ), (1 : ℤ), s1⟩
   -- 3. mun:set-builder-subset, from D1
   have s3 : S ⊆ {n : ℤ | 0 < n} := by
     try simp only [hD1] at ⊢
@@ -44,24 +42,20 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     have hI : {c : ℤ | 0 < c ∧ (∃ d : ℤ, ∃ e : ℤ, c = a * d + b * e)} ⊆ {n : ℤ | 0 < n} := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n})))
     exact hI
   -- 4. obtain d: axi:well-ordering, from 2, 3
-  obtain ⟨d, s4a, s4b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := S) s3 (by parley_set_side))
+  obtain ⟨d, s4a, s4b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := S) s3 ⟨b, s2, trivial⟩)
   -- 5. def:subset, from 3
-  have s5 : ∀ t ∈ S, 0 < t := by
-    have hI : ∀ t ∈ S, 0 < t := by parley_instance (((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3)
-    exact hI
+  have s5 : ∀ t ∈ S, 0 < t := by exact ((Parley.Items.Stdlib.Sets.def_subset (X := S) (Y := {n : ℤ | 0 < n}))).mp s3
   -- 6. instantiate t := d in line 5, from 4
   have s6 : 0 < d := by exact (s5 d s4a)
   -- 7. obtain x₀, y₀: def:set-builder u := d, from D1, 4
-  obtain ⟨_, x₀, y₀, s7⟩ := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := d))).mp (by parley_set_side)
+  obtain ⟨_, x₀, y₀, s7⟩ := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := d))).mp s4a
   -- 8. proof
   have s8 : ∀ x : ℤ, ∀ y : ℤ, 0 < a * x + b * y → d ≤ a * x + b * y := by
     intro x
     intro y
     intro hK3
     -- 8.1. def:set-builder u := a·x + b·y, from D1, K3
-    have s8_1 : a * x + b * y ∈ S := by
-      have hI : a * x + b * y ∈ {c : ℤ | 0 < c ∧ (∃ d : ℤ, ∃ e : ℤ, c = a * d + b * e)} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr ⟨by parley_set_side, x, y, by parley_set_side⟩)
-      exact hI
+    have s8_1 : a * x + b * y ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a * x + b * y))).mpr ⟨hK3, x, y, rfl⟩
     -- 8.2. instantiate s := a·x + b·y in line 4, from 8.1
     exact (s4b (a * x + b * y) s8_1)
   -- 9. algebra
