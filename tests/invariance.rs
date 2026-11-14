@@ -79,10 +79,24 @@ enum Rewrite {
 /// text)`.
 type EveryFile = fn(&Context, &[(String, String)]) -> Vec<(String, Rewritten)>;
 
+/// The change that turns a fact a requires line says round, `a = b` as
+/// `b = a`, and so the way an order step restating the fact reads it.
+const EQUATION_TURNED: &str = "an equation in a requires line turned around";
+
 /// One rewriting that keeps what a proof says.
 struct Change {
     name: &'static str,
     rewrite: Rewrite,
+}
+
+impl Change {
+    /// Whether the change turns round which way a fact a requires line cites
+    /// faces the line, which the checker records for an order step that
+    /// restates it (`OrderRestated::turned`): that record is then the old
+    /// one with the facing turned, not the old one.
+    fn turns_facing(&self) -> bool {
+        self.name == EQUATION_TURNED
+    }
 }
 
 fn changes() -> Vec<Change> {
@@ -96,7 +110,7 @@ fn changes() -> Vec<Change> {
             rewrite: Rewrite::Line(order_turned),
         },
         Change {
-            name: "an equation in a requires line turned around",
+            name: EQUATION_TURNED,
             rewrite: Rewrite::Line(equation_turned),
         },
         Change {
@@ -457,9 +471,26 @@ fn a_line_spelt_otherwise_leaves_the_record_as_it_was() {
             let name = thm.qualified();
             let rewritten = rewritten_requires(&before, thm);
             let omitted = |at: &str| rewritten.contains(at);
+            // What the rewrite turns round, the record before it must read
+            // the other way round to be what the record after it reads.
+            let flipped = |at: &str| change.turns_facing() && rewritten.contains(at);
             let (was, now) = (
-                record::printed_but(&before, &name, &omitted),
-                record::printed_but(&after, &name, &omitted),
+                record::printed_but(
+                    &before,
+                    &name,
+                    &record::RequiresRewrite {
+                        omitted: &omitted,
+                        flipped: &flipped,
+                    },
+                ),
+                record::printed_but(
+                    &after,
+                    &name,
+                    &record::RequiresRewrite {
+                        omitted: &omitted,
+                        flipped: &|_| false,
+                    },
+                ),
             );
             compared += 1;
             if was != now {

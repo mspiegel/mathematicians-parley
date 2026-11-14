@@ -135,7 +135,11 @@ fn the_record_the_build_is_handed_is_the_one_kept() {
     let write = std::env::var("PARLEY_RECORD_WRITE").is_ok();
     let mut differ = Vec::new();
     for name in KEPT {
-        let now = record::printed_but(&read, name, &|_| false)
+        let untouched = record::RequiresRewrite {
+            omitted: &|_| false,
+            flipped: &|_| false,
+        };
+        let now = record::printed_but(&read, name, &untouched)
             + &page_printed(&read, name)
             + &meetings_printed(&read, name);
         let at = kept_at(root, name);

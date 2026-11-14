@@ -13,13 +13,28 @@ use parley::checker::CheckedCorpus;
 use parley::corpus::Theorem;
 use parley::formula::Grammar;
 
-/// The record of the theorem `name` in `read`, leaving out the citation of
-/// each requires line `omitted` names, `requires line 1 of step 2`.
+/// What a rewrite of requires lines changes in the record, by the place of
+/// each requires line, `requires line 1 of step 2`.
+pub struct RequiresRewrite<'a> {
+    /// The requires lines whose own citation the record leaves out: the line
+    /// may be read under another binding that fits it as well.
+    pub omitted: &'a dyn Fn(&str) -> bool,
+    /// The requires lines turned round, so that an order step restating the
+    /// fact a line cites is recorded as reading it the other way round
+    /// (`OrderRestated::turned`).
+    pub flipped: &'a dyn Fn(&str) -> bool,
+}
+
+/// The record of the theorem `name` in `read`, as `rewrite` leaves it: with
+/// the citation of each requires line it `omitted` left out, and the facing
+/// of each fact an order step restates read the other way round where the
+/// requires line was `flipped`.
 pub fn printed_but(
     read: &CheckedCorpus,
     name: &str,
-    omitted: &dyn Fn(&str) -> bool,
+    rewrite: &RequiresRewrite<'_>,
 ) -> String {
+    let RequiresRewrite { omitted, flipped } = *rewrite;
     let thm = read
         .corpus
         .theorems
@@ -189,7 +204,7 @@ pub fn printed_but(
                     out,
                     "{} sentence {k} part {j} {}",
                     reason_at(*line),
-                    order_part(part)
+                    order_part(part, flipped(&reason_at(*line)))
                 )
                 .unwrap();
             }
@@ -454,7 +469,7 @@ pub fn place(f: &parley::checker::record::FirstAt) -> String {
 }
 
 /// What one part of an order step rests on (`record::OrderPart`).
-fn order_part(part: &parley::checker::record::OrderPart) -> String {
+fn order_part(part: &parley::checker::record::OrderPart, flipped: bool) -> String {
     let facts = |of: &[parley::checker::record::OrderFact]| -> String {
         of.iter().map(order_fact).collect::<Vec<_>>().join(", ")
     };
@@ -462,7 +477,7 @@ fn order_part(part: &parley::checker::record::OrderPart) -> String {
         Some(r) => format!(
             "restates {}{}",
             order_fact(&r.by),
-            if r.turned { ", turned" } else { "" }
+            if r.turned != flipped { ", turned" } else { "" }
         ),
         None => format!("adds [{}]", facts(&part.uses)),
     };
