@@ -896,11 +896,11 @@ impl<'a> Proof<'a> {
         in_general: bool,
     ) -> Route<Printed> {
         let InstanceAsked {
-            sentence,
             binding,
             claim,
             things,
             general,
+            ..
         } = *asked;
         let things_at = |var: &usize| {
             let least = self
@@ -910,37 +910,7 @@ impl<'a> Proof<'a> {
             things.at.get(var).map_or(least, |n| least.max(*n))
         };
         let Some(value) = binding.get(&crate::formula::symbol::Symbol::of(page)) else {
-            // A set the citation gives no value: a map's domain,
-            // the X of `f : X → W`, is the domain of what f is
-            // given, within which its images are taken; the Z a
-            // map goes into is all of its type, which every map
-            // goes into; anything else is left to Lean.
-            let fill = match (ty, self.given_domain(sentence, name, binding)) {
-                (LetterType::Set(_), Some(Route::Built(d))) => d,
-                (LetterType::Set(_), Some(Route::Declined(d))) => {
-                    return Route::Declined(d)
-                }
-                (LetterType::Set(_), None) => super::super::expr::Printed::head(
-                    "Set.univ",
-                    super::super::doc::Source::Mathlib,
-                ),
-                // A function of a recursion the file lets, F of
-                // D1, is the citing theorem's F, which the same
-                // define lets.
-                (LetterType::Function { .. }, _)
-                    if self.writer.letters.get(page) == Some(ty) =>
-                {
-                    super::super::expr::Printed::letter(
-                        super::super::names::letter(page),
-                        ty.lean_type(),
-                    )
-                }
-                _ => super::super::expr::Printed::of(
-                    super::super::doc::TermKind::Elided,
-                    ty.lean_type(),
-                ),
-            };
-            return Route::Built(fill);
+            return self.letter_unvalued(asked, name, page, ty);
         };
         // The value of a define that names its number, m/p of
         // `let r = m/p, a positive integer`, is that number, r.
@@ -1087,6 +1057,47 @@ impl<'a> Proof<'a> {
                 self.given_to_things(ty, general.filter(|_| in_general), value, things)
             }
         }
+    }
+
+    /// What a cited item's letter is given where the citation gives it no
+    /// value. A set: a map's domain, the X of `f : X → W`, is the domain of
+    /// what f is given, within which its images are taken; the Z a map goes
+    /// into is all of its type, which every map goes into; anything else is
+    /// left to Lean.
+    fn letter_unvalued(
+        &self,
+        asked: &InstanceAsked<'_>,
+        name: &str,
+        page: &str,
+        ty: &LetterType,
+    ) -> Route<Printed> {
+        Route::Built(
+            match (ty, self.given_domain(asked.sentence, name, asked.binding)) {
+                (LetterType::Set(_), Some(Route::Built(d))) => d,
+                (LetterType::Set(_), Some(Route::Declined(d))) => {
+                    return Route::Declined(d)
+                }
+                (LetterType::Set(_), None) => super::super::expr::Printed::head(
+                    "Set.univ",
+                    super::super::doc::Source::Mathlib,
+                ),
+                // A function of a recursion the file lets, F of
+                // D1, is the citing theorem's F, which the same
+                // define lets.
+                (LetterType::Function { .. }, _)
+                    if self.writer.letters.get(page) == Some(ty) =>
+                {
+                    super::super::expr::Printed::letter(
+                        super::super::names::letter(page),
+                        ty.lean_type(),
+                    )
+                }
+                _ => super::super::expr::Printed::of(
+                    super::super::doc::TermKind::Elided,
+                    ty.lean_type(),
+                ),
+            },
+        )
     }
 
     /// What a citation gives a cited item's letter of things, a set of
