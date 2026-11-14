@@ -15427,7 +15427,7 @@ impl<'a> Proof<'a> {
                 })
                 .and_then(|(stated, proof, says)| {
                     let row = calc_row(
-                        &relation,
+                        relation,
                         modulus.as_ref(),
                         &printed[k],
                         &printed[k + 1],

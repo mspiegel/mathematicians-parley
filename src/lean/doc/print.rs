@@ -413,7 +413,6 @@ impl Proof {
 
 #[cfg(test)]
 mod tests {
-    use super::super::tactic::TacticRef;
     use super::super::term::{ConstRef, Op, Source};
     use super::*;
     use crate::lean::templates::Num;
