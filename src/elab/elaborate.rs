@@ -517,55 +517,7 @@ impl<'a> Elaborator<'a> {
         // set.mm states.
         self.from_outside = self.checked.statement_definitions.clone();
         let nodes = self.hypotheses()?;
-        // A sort is stated once, like a declared type, and a step may rest on
-        // it without naming it. A define is not one: a step that uses what it
-        // says cites it, as it cites any line it uses.
-        let mut sorts: BTreeSet<String> = BTreeSet::new();
-        let path = &self.thm.path;
-        let mut lets: Vec<(Intro, Written, String)> = self
-            .thm
-            .hypotheses
-            .iter()
-            .map(|h| (h.kind, h.body(path), h.label.clone().unwrap_or_default()))
-            .collect();
-        for s in &self.thm.steps {
-            // An induction hypothesis assumes its claim's statement, and is
-            // no sort.
-            for o in s.openers.iter().filter(|o| !o.is_hypothesis) {
-                lets.push((o.kind, o.body(path), o.label.clone()));
-            }
-        }
-        // A sort is what a set, a point, a polynomial, a function, a group or
-        // a graph is introduced as; and a subgroup an `assume` says there is.
-        for (kind, body, label) in &lets {
-            if label.is_empty() {
-                continue;
-            }
-            let sort = match kind {
-                Intro::Let => matches!(
-                    Introduction::read(body.clone()).form,
-                    Form::Set(_)
-                        | Form::Point(_)
-                        | Form::Polynomial(_)
-                        | Form::Function
-                        | Form::FunctionBeing { .. }
-                        | Form::Group { .. }
-                        | Form::Graph(_)
-                        | Form::GraphListed(_)
-                ),
-                // A line that does not read is reported where it is opened.
-                _ => self.read_one(body).is_ok_and(|n| is_subgroup(&n)),
-            };
-            if sort {
-                sorts.insert(label.clone());
-            }
-        }
-        self.sorts = sorts;
-        self.let_lines = lets
-            .iter()
-            .filter(|(kind, _, label)| *kind == Intro::Let && !label.is_empty())
-            .map(|(_, _, label)| label.clone())
-            .collect();
+        self.read_sorts();
         // A define by recursion in the statement is stated written out, as a
         // definition from outside is, in the hypotheses below it as in the
         // conclusion. Its rules may name a letter a `let` gives, which
@@ -766,124 +718,15 @@ impl<'a> Elaborator<'a> {
             // A step contradicting a line closes a contradiction block on the
             // two of them, as its last pair.
             self.contradicted_at(&step, &scope, &facts)?;
-            // A step that says its claim is impossible is its own opposite:
-            // the claim is worked out, by `real arithmetic` where it holds a
-            // square root, π, e, a logarithm or an exponential and by
-            // `arithmetic` otherwise; one not found false is refused, and the
-            // denial is proved, which stands as the line it contradicts.
-            let denied = if step.impossible {
-                let last = self.last.clone().expect("a step's number");
-                let held = self
-                    .line_written(&last, &self.lines)
-                    .expect("the step's line");
-                let negated = t!(held.claim, "wn");
-                let what = format!(
-                    "step {} says {} is impossible",
-                    step.number,
-                    step.claim_text()
-                );
-                let goal = self.to_term(&negated);
-                let real = reals::beyond_arithmetic(&goal);
-                let why = if real {
-                    match reals::decide_closed(&goal) {
-                        Built(surds::Verdict::Holds(true)) => None,
-                        Built(surds::Verdict::Holds(false)) => {
-                            Some("which is true".to_string())
-                        }
-                        Built(surds::Verdict::Unworked(why)) => {
-                            Some(format!("which {why}"))
-                        }
-                        Built(surds::Verdict::Undecided(why)) => {
-                            Some(format!("which {why}{}", reals::NOT_DECIDED_HERE))
-                        }
-                        Declined(_) => Some(format!("which {}", reals::UNREAD)),
-                    }
-                } else {
-                    match field::decide_closed(&goal) {
-                        Built(Verdict::Holds(true)) => None,
-                        Built(Verdict::Holds(false)) => Some("which is true".to_string()),
-                        Built(Verdict::Unworked(why)) => Some(format!("which {why}")),
-                        Declined(_) => Some(
-                            "which is not a fact about numerals alone that arithmetic decides"
-                                .into(),
-                        ),
-                    }
-                };
-                if let Some(why) = why {
-                    return Err(self.defect(step.line, format!("{what}, {why}")));
-                }
-                let proof = if real {
-                    self.real_fact(&negated, &scope, &facts, &what)?
-                } else {
-                    self.closed_fact(&negated, &scope, &facts, &what, None)?
-                };
-                self.know(&facts, negated.clone(), proof.clone());
-                if self.in_contradiction {
-                    self.contradicted = Some(Contradicted {
-                        claim: negated.clone(),
-                        proof: proof.clone(),
-                        reordered: None,
-                        says: Vec::new(),
-                    });
-                }
-                Some(proof)
-            } else {
-                None
+            let denied = match step.impossible {
+                true => Some(self.denial_of(&step, &scope, &facts)?),
+                false => None,
             };
             // A part a `by` line opened a block in ends where that block
             // closes (`Elaborator::hand_up`).
             let in_part = blocks.last_mut().filter(|b| b.by_part.is_none());
             if let (Some(part), Some(block)) = (step.part, in_part) {
-                let last = self.last.clone().expect("a step's number");
-                let held = self
-                    .line_written(&last, &self.lines)
-                    .expect("the step's line");
-                let (term, proof) = match (&step.just.contradicting, denied.clone()) {
-                    // A case that cannot occur gives the block's claim from
-                    // its line and the line it contradicts.
-                    (Some(other), _) => {
-                        let claim = self.claim_of(&block.owner.claim)?;
-                        let made = self.by_opposites(
-                            &step, &held, other, &claim, &scope, &facts,
-                        )?;
-                        (claim, made)
-                    }
-                    // Or from its line and that line shown false.
-                    (None, Some(not)) => {
-                        let claim = self.claim_of(&block.owner.claim)?;
-                        let made = pf!(self.b; scope, held.claim, claim, held.proof, not, "pm2.21dd");
-                        (claim, made)
-                    }
-                    (None, None) => (held.claim, held.proof),
-                };
-                // What the part's end asks that its last step's requires
-                // lines say is in hand where the block closes on it.
-                let ended = if step.requires.is_empty() {
-                    facts.clone()
-                } else {
-                    self.supplied(Some(&step), &scope, &facts)?
-                };
-                let mut end = PartEnd {
-                    claim: term,
-                    proof,
-                    scope: scope.clone(),
-                    facts: ended,
-                };
-                // A case ending on the claim written another way, |OP|² for
-                // |PO|², is carried to the claim here, while the case's
-                // letters and facts are in hand: at the block's close only
-                // the block's are, and what a carrying lemma asks of its terms
-                // would be proved there, under the narrower scope.
-                if block.owner.just.head.is(Method::Cases) {
-                    let claim = self.claim_of(&block.owner.claim)?;
-                    if end.claim != claim {
-                        if let Some(carried) = self.direction_reached(&end, &claim)? {
-                            end.claim = claim;
-                            end.proof = carried;
-                        }
-                    }
-                }
-                block.parts.insert(part, end);
+                self.end_part(block, part, &step, denied.clone(), &scope, &facts)?;
             }
             // A `proof` block whose assumption cannot hold ends on the step that
             // reaches the opposite of an earlier line, or on a closed claim
@@ -918,6 +761,31 @@ impl<'a> Elaborator<'a> {
                 self.lines.set(&last, line.restated(body, made));
             }
         }
+        self.finish_proof(Finishing {
+            blocks,
+            closers,
+            scope,
+            facts,
+            goal,
+            terms,
+        })
+    }
+
+    /// The theorem's proof once its last step is taken: the blocks still
+    /// open closed, the last line carried to the statement, and each closer
+    /// applied from the inside out.
+    fn finish_proof(
+        &mut self,
+        finishing: Finishing,
+    ) -> Checked<(Rpn, Vec<Rpn>, Proof)> {
+        let Finishing {
+            mut blocks,
+            mut closers,
+            mut scope,
+            mut facts,
+            goal,
+            terms,
+        } = finishing;
         while let Some(mut done) = blocks.pop() {
             closers = self.settle_claimed(&mut done, closers, None)?;
             (scope, facts, closers) =
@@ -976,6 +844,183 @@ impl<'a> Elaborator<'a> {
         }
         self.built_as_stated(self.thm.line, &proof)?;
         Ok((goal, terms, proof))
+    }
+
+    /// The letters the theorem introduces that are sorts, and its `let`
+    /// lines. A sort is stated once, like a declared type, and a step may
+    /// rest on it without naming it. A define is not one: a step that uses
+    /// what it says cites it, as it cites any line it uses.
+    fn read_sorts(&mut self) {
+        let mut sorts: BTreeSet<String> = BTreeSet::new();
+        let path = &self.thm.path;
+        let mut lets: Vec<(Intro, Written, String)> = self
+            .thm
+            .hypotheses
+            .iter()
+            .map(|h| (h.kind, h.body(path), h.label.clone().unwrap_or_default()))
+            .collect();
+        for s in &self.thm.steps {
+            // An induction hypothesis assumes its claim's statement, and is
+            // no sort.
+            for o in s.openers.iter().filter(|o| !o.is_hypothesis) {
+                lets.push((o.kind, o.body(path), o.label.clone()));
+            }
+        }
+        // A sort is what a set, a point, a polynomial, a function, a group or
+        // a graph is introduced as; and a subgroup an `assume` says there is.
+        for (kind, body, label) in &lets {
+            if label.is_empty() {
+                continue;
+            }
+            let sort = match kind {
+                Intro::Let => matches!(
+                    Introduction::read(body.clone()).form,
+                    Form::Set(_)
+                        | Form::Point(_)
+                        | Form::Polynomial(_)
+                        | Form::Function
+                        | Form::FunctionBeing { .. }
+                        | Form::Group { .. }
+                        | Form::Graph(_)
+                        | Form::GraphListed(_)
+                ),
+                // A line that does not read is reported where it is opened.
+                _ => self.read_one(body).is_ok_and(|n| is_subgroup(&n)),
+            };
+            if sort {
+                sorts.insert(label.clone());
+            }
+        }
+        self.sorts = sorts;
+        self.let_lines = lets
+            .iter()
+            .filter(|(kind, _, label)| *kind == Intro::Let && !label.is_empty())
+            .map(|(_, _, label)| label.clone())
+            .collect();
+    }
+
+    /// A block's part `part` ended by `step`, its last: the claim and proof
+    /// the part ends on. A case that cannot occur gives the block's claim
+    /// from its line and the line it contradicts, or from its line and that
+    /// line shown false (`denied`).
+    fn end_part(
+        &mut self,
+        block: &mut Block,
+        part: usize,
+        step: &Step,
+        denied: Option<Proof>,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<()> {
+        let last = self.last.clone().expect("a step's number");
+        let held = self
+            .line_written(&last, &self.lines)
+            .expect("the step's line");
+        let (term, proof) = match (&step.just.contradicting, denied) {
+            (Some(other), _) => {
+                let claim = self.claim_of(&block.owner.claim)?;
+                let made =
+                    self.by_opposites(step, &held, other, &claim, scope, facts)?;
+                (claim, made)
+            }
+            (None, Some(not)) => {
+                let claim = self.claim_of(&block.owner.claim)?;
+                let made =
+                    pf!(self.b; scope, held.claim, claim, held.proof, not, "pm2.21dd");
+                (claim, made)
+            }
+            (None, None) => (held.claim, held.proof),
+        };
+        // What the part's end asks that its last step's requires
+        // lines say is in hand where the block closes on it.
+        let ended = if step.requires.is_empty() {
+            facts.clone()
+        } else {
+            self.supplied(Some(step), scope, facts)?
+        };
+        let mut end = PartEnd {
+            claim: term,
+            proof,
+            scope: scope.clone(),
+            facts: ended,
+        };
+        // A case ending on the claim written another way, |OP|² for
+        // |PO|², is carried to the claim here, while the case's
+        // letters and facts are in hand: at the block's close only
+        // the block's are, and what a carrying lemma asks of its terms
+        // would be proved there, under the narrower scope.
+        if block.owner.just.head.is(Method::Cases) {
+            let claim = self.claim_of(&block.owner.claim)?;
+            if end.claim != claim {
+                if let Some(carried) = self.direction_reached(&end, &claim)? {
+                    end.claim = claim;
+                    end.proof = carried;
+                }
+            }
+        }
+        block.parts.insert(part, end);
+        Ok(())
+    }
+
+    /// The denial a step that says its claim is impossible proves: it is its
+    /// own opposite. The claim is worked out, by `real arithmetic` where it
+    /// holds a square root, π, e, a logarithm or an exponential and by
+    /// `arithmetic` otherwise; one not found false is refused, and the denial
+    /// is proved, which stands as the line it contradicts.
+    fn denial_of(&mut self, step: &Step, scope: &Rpn, facts: &Facts) -> Checked<Proof> {
+        let last = self.last.clone().expect("a step's number");
+        let held = self
+            .line_written(&last, &self.lines)
+            .expect("the step's line");
+        let negated = t!(held.claim, "wn");
+        let what = format!(
+            "step {} says {} is impossible",
+            step.number,
+            step.claim_text()
+        );
+        let goal = self.to_term(&negated);
+        let real = reals::beyond_arithmetic(&goal);
+        let why = if real {
+            match reals::decide_closed(&goal) {
+                Built(surds::Verdict::Holds(true)) => None,
+                Built(surds::Verdict::Holds(false)) => {
+                    Some("which is true".to_string())
+                }
+                Built(surds::Verdict::Unworked(why)) => Some(format!("which {why}")),
+                Built(surds::Verdict::Undecided(why)) => {
+                    Some(format!("which {why}{}", reals::NOT_DECIDED_HERE))
+                }
+                Declined(_) => Some(format!("which {}", reals::UNREAD)),
+            }
+        } else {
+            match field::decide_closed(&goal) {
+                Built(Verdict::Holds(true)) => None,
+                Built(Verdict::Holds(false)) => Some("which is true".to_string()),
+                Built(Verdict::Unworked(why)) => Some(format!("which {why}")),
+                Declined(_) => Some(
+                    "which is not a fact about numerals alone that arithmetic decides"
+                        .into(),
+                ),
+            }
+        };
+        if let Some(why) = why {
+            return Err(self.defect(step.line, format!("{what}, {why}")));
+        }
+        let proof = if real {
+            self.real_fact(&negated, scope, facts, &what)?
+        } else {
+            self.closed_fact(&negated, scope, facts, &what, None)?
+        };
+        self.know(facts, negated.clone(), proof.clone());
+        if self.in_contradiction {
+            self.contradicted = Some(Contradicted {
+                claim: negated.clone(),
+                proof: proof.clone(),
+                reordered: None,
+                says: Vec::new(),
+            });
+        }
+        Ok(proof)
     }
 
     /// Every label in the proof of the line last kept is applied as its
@@ -7521,6 +7566,23 @@ pub fn elaborate(
         statement: format!("|- {says}"),
         said_back: work.said_back.take().unwrap_or_default(),
     })
+}
+
+/// Where a theorem's elaboration stands when its last step is taken
+/// (`Elaborator::finish_proof`).
+struct Finishing {
+    /// The blocks still open.
+    blocks: Vec<Block>,
+    /// What is still to be applied to the proof, outermost first.
+    closers: Vec<Closer>,
+    /// The scope the last step sits in.
+    scope: Rpn,
+    /// What the proof may rest on there.
+    facts: Facts,
+    /// The theorem's conclusion.
+    goal: Rpn,
+    /// The theorem's hypotheses.
+    terms: Vec<Rpn>,
 }
 
 /// A run of a transitivity step's chain, or one of its links: `left`
