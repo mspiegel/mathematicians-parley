@@ -7550,7 +7550,7 @@ impl<'a> Elaborator<'a> {
         // statement is not the claim even where the claim is an "if": ph is
         // the scope, and what the claim says is ch.
         let mut under_context = self.in_deduction_form(&sig, &whole);
-        let mut binding = loop {
+        let binding = loop {
             if !std::mem::take(&mut under_context) {
                 if let Some(b) = fit(&reads, goal, &start, &variables) {
                     break b;
@@ -7661,18 +7661,99 @@ impl<'a> Elaborator<'a> {
         };
         let _ = &reads;
 
+        let fitted = self.fit_variables(VariablesAsked {
+            label,
+            sig: &sig,
+            goal,
+            scope,
+            facts,
+            step,
+            crossing,
+            seed,
+            variables: &variables,
+            binding,
+        })?;
+        let Fitted { binding, fresh } = match fitted {
+            Staged::Onward(fitted) => fitted,
+            Staged::Settled(route) => return Ok(route),
+        };
+        let scoped = self.scope_of(ScopeAsked {
+            label,
+            sig: &sig,
+            goal,
+            scope,
+            facts,
+            step,
+            crossing,
+            seed,
+            antecedents: &antecedents,
+            variables: &variables,
+            fresh: &fresh,
+            binding,
+        })?;
+        let Scope {
+            binding,
+            where_,
+            frame,
+            known,
+        } = match scoped {
+            Scoped::In(scope) => scope,
+            Scoped::Settled(route) => return Ok(route),
+        };
+        let binding = self.fit_open_antecedents(OpenAntecedents {
+            antecedents: &antecedents,
+            binding,
+            variables: &variables,
+            fresh: &fresh,
+            where_: &where_,
+            known: &known,
+        });
+        self.proof_from_lemma(Reached {
+            label,
+            sig: &sig,
+            goal,
+            binding,
+            antecedents,
+            joins,
+            where_,
+            frame,
+            known,
+            scope,
+            step,
+            facts,
+        })
+    }
+
+    /// What each of a lemma's variables stands for once the lemma's own
+    /// hypotheses, the lines the step cites and the letters the claim leaves
+    /// free have said what they can; or, where the claim is not what the
+    /// lemma concludes at those values, the claim reached some other way.
+    fn fit_variables(&mut self, asked: VariablesAsked<'_>) -> Checked<Staged<Fitted>> {
+        let VariablesAsked {
+            label,
+            sig,
+            goal,
+            scope,
+            facts,
+            step,
+            crossing,
+            seed,
+            variables,
+            mut binding,
+        } = asked;
         // A lemma whose hypothesis says what one of its variables is has
         // already decided it. Where the two disagree the claim is not what
         // the lemma concludes, so the lemma is proved at its own value
         // instead.
-        binding = self.read_off(&sig, binding, &variables);
+        binding = self.read_off(sig, binding, variables);
         let settled = self.instanced(&sig, binding.clone());
         if binding
             .iter()
             .any(|(name, stood)| self.rpn(&settled[name]) != self.rpn(stood))
         {
             return self
-                .at_its_own_value(label, &sig, goal, scope, facts, step, &settled);
+                .at_its_own_value(label, sig, goal, scope, facts, step, &settled)
+                .map(Staged::Settled);
         }
         binding = settled;
         // Two letters the lemma binds and keeps apart, which the claim spells
@@ -7689,7 +7770,9 @@ impl<'a> Elaborator<'a> {
                 && binding.contains_key(b)
                 && self.rpn(&binding[a]) == self.rpn(&binding[b])
         }) {
-            return self.letters_apart(label, goal, scope, facts, step, crossing, seed);
+            return self
+                .letters_apart(label, goal, scope, facts, step, crossing, seed)
+                .map(Staged::Settled);
         }
         // A letter the lemma binds and keeps apart from its scope, which the
         // claim never fixes, is given one nothing holds before anything else
@@ -7770,16 +7853,37 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        Ok(Staged::Onward(Fitted { binding, fresh }))
+    }
+
+    /// The scope a lemma is used in, and what the proof being built may rest
+    /// on there; or, where no scope is allowed or an outer frame is the only
+    /// one, the claim reached some other way.
+    fn scope_of(&mut self, asked: ScopeAsked<'_>) -> Checked<Scoped> {
+        let ScopeAsked {
+            label,
+            sig,
+            goal,
+            scope,
+            facts,
+            step,
+            crossing,
+            seed,
+            antecedents,
+            variables,
+            fresh,
+            mut binding,
+        } = asked;
         // The scope is where a lemma's disjointness conditions can forbid it,
         // so it is chosen before anything is built.
-        let (mut where_, mut frame) = self.allowed(&sig, &binding);
+        let (mut where_, mut frame) = self.allowed(sig, &binding);
         if where_.is_declined() {
             // Which scope is allowed depends on what the variables stand
             // for, so what the facts decide is read and the question asked
             // again — only here, because binding early changes which fact
             // answers an antecedent.
             let keys = facts.keys();
-            for slot in &antecedents {
+            for slot in antecedents {
                 if slot.variable().is_some()
                     || slot.names().iter().all(|n| binding.contains_key(&**n))
                 {
@@ -7790,8 +7894,8 @@ impl<'a> Elaborator<'a> {
                         slot,
                         &self.to_term(held),
                         &binding,
-                        &variables,
-                        &fresh,
+                        variables,
+                        fresh,
                     ) {
                         binding = filled;
                         break;
@@ -7802,9 +7906,11 @@ impl<'a> Elaborator<'a> {
             if let Declined(why) = where_ {
                 // The claim's own bound letter may be what every frame
                 // spells.
-                return self.over_other_letters(
-                    label, goal, scope, facts, step, crossing, seed, why,
-                );
+                return self
+                    .over_other_letters(
+                        label, goal, scope, facts, step, crossing, seed, why,
+                    )
+                    .map(Scoped::Settled);
             }
         }
         // An outer frame knows less than the step does: lines written inside
@@ -7818,7 +7924,7 @@ impl<'a> Elaborator<'a> {
                 label, goal, scope, facts, step, crossing, seed, why,
             )?;
             if !moved.is_declined() {
-                return Ok(moved);
+                return Ok(Scoped::Settled(moved));
             }
         }
         let Built(where_) = where_ else {
@@ -7827,6 +7933,26 @@ impl<'a> Elaborator<'a> {
         let frame = frame.expect("the frame of an allowed scope");
         let at_frame = self.frames_facts(frame, facts);
         let known = self.known_implied(step, &where_, &at_frame)?;
+        Ok(Scoped::In(Scope {
+            binding,
+            where_,
+            frame,
+            known,
+        }))
+    }
+
+    /// The binding once each antecedent the claim leaves open is matched
+    /// against what the proof being built may rest on, the one whose letters
+    /// are most fixed first.
+    fn fit_open_antecedents(&mut self, asked: OpenAntecedents<'_>) -> Binding {
+        let OpenAntecedents {
+            antecedents,
+            mut binding,
+            variables,
+            fresh,
+            where_,
+            known,
+        } = asked;
         // A bare `Z e. B` with Z open is answered by any line putting
         // anything in B, so every such conjunct is matched after the rest.
         let loose: Vec<Term> = antecedents
@@ -7968,6 +8094,27 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        binding
+    }
+
+    /// The proof of a claim from a lemma whose antecedents are fitted: each
+    /// essential hypothesis proved, the lemma applied at the binding, and
+    /// each antecedent discharged in turn from the claim outward.
+    fn proof_from_lemma(&mut self, reached: Reached<'_>) -> Checked<Route<Proof>> {
+        let Reached {
+            label,
+            sig,
+            goal,
+            binding,
+            antecedents,
+            joins,
+            where_,
+            frame,
+            known,
+            scope,
+            step,
+            facts,
+        } = reached;
         let mut asked_all = Vec::new();
         for e in &sig.essentials {
             let asked = self.essential(e).substitute(&binding);
@@ -8398,6 +8545,145 @@ fn join_token(join: Join) -> &'static str {
 /// The two lemmas that carry a claim about three points in no order from
 /// one order of them to another (`held_reordered`). Each is ( the points are
 /// numbers -> ( the claim of A, B, C -> the claim of the new order ) ).
+/// Where a stage of applying a lemma leaves it: carried on, or the claim
+/// reached some other way and nothing left to do.
+enum Staged<T> {
+    /// The next stage is given this.
+    Onward(T),
+    /// The claim is reached.
+    Settled(Route<Proof>),
+}
+
+/// What a lemma is used with, for fitting its variables
+/// (`Elaborator::fit_variables`).
+struct VariablesAsked<'l> {
+    /// The lemma.
+    label: &'l str,
+    /// The lemma's signature.
+    sig: &'l Signature,
+    /// The claim the lemma reaches.
+    goal: &'l Term,
+    /// The scope the step sits in.
+    scope: &'l Rpn,
+    /// What the step's lines say.
+    facts: &'l Facts,
+    /// The step, where the claim is a step's.
+    step: Option<&'l Step>,
+    /// Whether the lemma may be reached across what it says another way.
+    crossing: bool,
+    /// What a `with` target said the lemma's variables stand for.
+    seed: Option<&'l Binding>,
+    /// The lemma's variables.
+    variables: &'l Vars,
+    /// What each of the lemma's variables stands for so far.
+    binding: Binding,
+}
+
+/// What a lemma's variables stand for once fitted
+/// (`Elaborator::fit_variables`).
+struct Fitted {
+    /// What each of the lemma's variables stands for.
+    binding: Binding,
+    /// What the binding gained since the claim was fitted.
+    fresh: Binding,
+}
+
+/// What a lemma is used with, for choosing the scope it is used in
+/// (`Elaborator::scope_of`).
+struct ScopeAsked<'l> {
+    /// The lemma.
+    label: &'l str,
+    /// The lemma's signature.
+    sig: &'l Signature,
+    /// The claim the lemma reaches.
+    goal: &'l Term,
+    /// The scope the step sits in.
+    scope: &'l Rpn,
+    /// What the step's lines say.
+    facts: &'l Facts,
+    /// The step, where the claim is a step's.
+    step: Option<&'l Step>,
+    /// Whether the lemma may be reached across what it says another way.
+    crossing: bool,
+    /// What a `with` target said the lemma's variables stand for.
+    seed: Option<&'l Binding>,
+    /// What the lemma states before the claim, outermost first.
+    antecedents: &'l [Term],
+    /// The lemma's variables.
+    variables: &'l Vars,
+    /// What the binding gained since the claim was fitted.
+    fresh: &'l Binding,
+    /// What each of the lemma's variables stands for so far.
+    binding: Binding,
+}
+
+/// The scope a lemma is used in (`Elaborator::scope_of`).
+struct Scope {
+    /// What each of the lemma's variables stands for, the facts of the scope
+    /// having filled what the claim left open.
+    binding: Binding,
+    /// The scope.
+    where_: Rpn,
+    /// The frame that scope is the scope of.
+    frame: usize,
+    /// What the proof being built may rest on there.
+    known: Facts,
+}
+
+/// How a lemma's scope is chosen (`Elaborator::scope_of`).
+enum Scoped {
+    /// The lemma is used in this scope.
+    In(Scope),
+    /// The claim is reached some other way, over another letter.
+    Settled(Route<Proof>),
+}
+
+/// The antecedents of a lemma, and what is known when they are matched
+/// (`Elaborator::fit_open_antecedents`).
+struct OpenAntecedents<'l> {
+    /// What the lemma states before the claim, outermost first.
+    antecedents: &'l [Term],
+    /// What each of the lemma's variables stands for so far.
+    binding: Binding,
+    /// The lemma's variables.
+    variables: &'l Vars,
+    /// What the binding gained since the claim was fitted.
+    fresh: &'l Binding,
+    /// The scope the lemma is used in.
+    where_: &'l Rpn,
+    /// What the proof being built may rest on at that scope.
+    known: &'l Facts,
+}
+
+/// A lemma fitted to a claim, with what its antecedents ask
+/// (`Elaborator::apply_lemma`).
+struct Reached<'l> {
+    /// The lemma.
+    label: &'l str,
+    /// The lemma's signature.
+    sig: &'l Signature,
+    /// The claim the lemma reaches.
+    goal: &'l Term,
+    /// What each of the lemma's variables stands for.
+    binding: Binding,
+    /// What the lemma states before the claim, outermost first.
+    antecedents: Vec<Term>,
+    /// How each antecedent is joined to what follows it.
+    joins: Vec<Join>,
+    /// The scope the lemma is used in.
+    where_: Rpn,
+    /// The frame that scope is the scope of.
+    frame: usize,
+    /// What the proof being built may rest on at that scope.
+    known: Facts,
+    /// The scope the step sits in.
+    scope: &'l Rpn,
+    /// The step, where the claim is a step's.
+    step: Option<&'l Step>,
+    /// What the step's lines say.
+    facts: &'l Facts,
+}
+
 struct Reorder {
     /// A, C, B from A, B, C.
     swap: &'static str,
