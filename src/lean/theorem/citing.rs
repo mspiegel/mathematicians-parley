@@ -103,93 +103,21 @@ impl<'a> Proof<'a> {
         let mut links: Vec<super::super::doc::tactic::CalcLink> = Vec::new();
         let single = chain.lines.len() == 1;
         for (k, line) in chain.lines.iter().enumerate() {
-            let (relation, modulus) = match line.relation.as_str() {
-                r @ ("=" | "<" | ">" | "≤" | "≥") => (r.to_string(), None),
-                "≡" => {
-                    let Some(modulus) = &line.modulus else {
-                        return Route::no("a congruence with no modulus");
-                    };
-                    let modulus = match self.tree(modulus) {
-                        Route::Built(m) => m,
-                        Route::Declined(d) => return Route::Declined(d),
-                    };
-                    match writer
-                        .number_fixed(&modulus, super::super::templates::Num::Int)
-                    {
-                        Route::Built(m) => ("≡".to_string(), Some(m)),
-                        Route::Declined(d) => return Route::Declined(d),
-                    }
-                }
-                other => return Route::no(format!("a calculation joined by {other}")),
+            let (relation, modulus) = match self.link_relation(line, writer) {
+                Route::Built(joined) => joined,
+                Route::Declined(d) => return Route::Declined(d),
             };
-            let proof = match &line.reason {
-                Some(r) => {
-                    let Ok(by) = &r.by else {
-                        return Route::no(
-                            "a calculation line whose reason does not read",
-                        );
-                    };
-                    let fact = match self.tree(&r.fact) {
-                        Route::Built(n) => n,
-                        Route::Declined(d) => return Route::Declined(d),
-                    };
-                    let reason = Reason {
-                        just: by,
-                        cited: self.rec.cited_requires.get(&r.line),
-                    };
-                    self.worked_in.set(Some(at));
-                    *self.row_stated.borrow_mut() =
-                        super::super::doc::Op::of(relation.as_str()).map(|op| {
-                            Printed::infix(
-                                op,
-                                printed[k].clone(),
-                                printed[k + 1].clone(),
-                                super::super::doc::LeanType::Prop,
-                            )
-                        });
-                    let proof = self.proof_of(reason, 0, &fact);
-                    self.worked_in.set(None);
-                    *self.row_stated.borrow_mut() = None;
-                    match proof {
-                        Route::Built(p) => p,
-                        Route::Declined(d) => return Route::Declined(d),
-                    }
-                }
-                // A row citing a define, S(1) = Σ(j = 1 to 1) j(j + 1) by
-                // D1, unfolds it and pushes in the casts that leaves; a
-                // header's function, its equation guarded by its domain, at
-                // an argument linear arithmetic shows is in it.
-                None if let Some(cite) = line.cited() => {
-                    let row = CalcRow {
-                        index: k,
-                        line,
-                        relation: &relation,
-                        modulus: &modulus,
-                        terms: &terms,
-                        printed: &printed,
-                    };
-                    match self.row_citing(row, cite) {
-                        Route::Built(p) => p,
-                        Route::Declined(d) => return Route::Declined(d),
-                    }
-                }
-                // A row the page works out by real arithmetic, = 3·ln(2).
-                None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
-                    match super::super::reals::real_link(
-                        &self.writer,
-                        self.sources.targets,
-                        &terms[k],
-                        &terms[k + 1],
-                        at,
-                    ) {
-                        Route::Built(p) => p,
-                        Route::Declined(d) => return Route::Declined(d),
-                    }
-                }
-                None => super::super::doc::Proof::By(super::super::tactics::call(
-                    "norm_num",
-                    vec![],
-                )),
+            let row = CalcRow {
+                index: k,
+                line,
+                relation: &relation,
+                modulus: &modulus,
+                terms: &terms,
+                printed: &printed,
+            };
+            let proof = match self.row_proof(row, at) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
             };
             // A chain of one link is that link, and its proof the step's:
             // Lean's calc would read the line after a lone link as another.
@@ -217,6 +145,245 @@ impl<'a> Proof<'a> {
         Route::Built(super::super::doc::Proof::Block(block))
     }
 
+    /// A calculation's row that is what the cited line says where the
+    /// checker found it (`link_places`), that sentence or part as the line
+    /// states it, met with the row as Lean writes it as a cited item's
+    /// hypothesis is met with its line (`said_proof`): as it stands, turned
+    /// round, or across casts, a line in ℤ read in the chain's ℚ, one in ℚ in
+    /// the chain's ℝ. A count Lean may hold in ℕ∞ where the chain takes it in
+    /// ℤ, `V.encard = 2` of an assumption, is met only from a line whose
+    /// statement the writer wrote (`store`).
+    fn row_placed(&self, row: CalcRow<'_>) -> Option<Printed> {
+        let CalcRow {
+            index: k,
+            line,
+            relation,
+            modulus,
+            terms,
+            printed,
+        } = row;
+        let at = self.rec.link_places.get(&line.line)?;
+        let stated = self.line_part(at).built()?.says.is_some();
+        let (proof, says) = self.line_says(at).built()?;
+        let row = calc_row(relation, modulus.as_ref(), &printed[k], &printed[k + 1])?;
+        if !stated && (item_counts(&says) || item_counts(&row)) {
+            return None;
+        }
+        // A count in ℕ∞ on one side, in ℤ on the other.
+        if let Some(p) =
+            self.counted_between(&proof, &says, &row, &[&terms[k], &terms[k + 1]])
+        {
+            return Some(p);
+        }
+        let meeting = self.rec.link_meetings.get(&line.line);
+        self.said_proof(proof, says, &row, meeting).built()
+    }
+
+    /// A calculation's row that writes a power as the integer power where the
+    /// line has it to its exponent's `toNat`, or the other way: converted as
+    /// a citation's is, from the sentence the checker found the row in
+    /// (`link_places`).
+    fn row_converted(&self, row: CalcRow<'_>) -> Option<super::super::doc::Proof> {
+        let CalcRow {
+            index: k,
+            line,
+            relation,
+            terms,
+            printed,
+            ..
+        } = row;
+        let at = self.rec.link_places.get(&line.line)?;
+        let found = self.line_part(at).built()?;
+        let (proof, says) = self.line_says(at).built()?;
+        let op = super::super::doc::Op::of(relation)?;
+        let row = Printed::infix(
+            op,
+            printed[k].clone(),
+            printed[k + 1].clone(),
+            super::super::doc::LeanType::Prop,
+        );
+        self.powers_converted_at(
+            &[&terms[k], &terms[k + 1], &found.node],
+            &says,
+            &row,
+            &proof,
+            false,
+        )
+    }
+
+    /// A calculation's row that cites a define `define` names, proved by
+    /// unfolding it alone, or with the casts that leaves pushed; None where
+    /// the define is not the whole of the row's proof.
+    fn row_by_define(
+        &self,
+        row: CalcRow<'_>,
+        cite: &str,
+        define: Option<&String>,
+    ) -> Option<super::super::doc::Proof> {
+        let CalcRow {
+            index: k,
+            line,
+            printed,
+            ..
+        } = row;
+        // Whether the row, or the line it cites, takes an integer
+        // to ℕ, an item's 2^(d·e).toNat: a define is then not put
+        // in alone.
+        let line_to_nat = self
+            .trees
+            .get(cite)
+            .and_then(|t| t.first())
+            .and_then(|s| self.line_statement(&s.cited()).built())
+            .is_some_and(|p| p.has_to_nat());
+        let to_nat = [&printed[k], &printed[k + 1]]
+            .iter()
+            .any(|p| p.has_to_nat())
+            || line_to_nat;
+        // A row the define makes true, as the checker met its two
+        // sides with the define written out (`define_links`): the
+        // define's equation, and then the work its meeting leaves,
+        // or the casts Lean writes on the row.
+        let met = self.rec.define_links.get(&line.line);
+        // Two sides Lean writes alike once each `set` letter is
+        // read as its value: `simp only [hD]` puts the values in
+        // and closes the `x = x` left, whatever `toNat` or names
+        // the row writes.
+        let values = self.set_values();
+        let alike_set = super::super::doc::forms::alike_once_set(
+            &printed[k],
+            &printed[k + 1],
+            &values,
+        );
+        match (define, met, self.named_specs.is_empty(), to_nat) {
+            (Some(h), _, _, _) if alike_set => Some(super::super::doc::Proof::By(
+                unfolded_by(std::slice::from_ref(h), true, false),
+            )),
+            // A row writing `toNat`, or citing a line that
+            // does, whose sides differ only in casts once the
+            // `set` letters are read as their values: Lean's
+            // casts, which `push_cast` moves once the
+            // define is put in.
+            (Some(h), Some(met), true, to_nat)
+                if !to_nat
+                    || super::super::doc::forms::casts_differ(
+                        &printed[k],
+                        &printed[k + 1],
+                        &values,
+                    )
+                    .is_some() =>
+            {
+                let cast = self.unfolds_to_casts(&printed[k], &printed[k + 1]);
+                Some(super::super::doc::Proof::By(unfolded_by(
+                    std::slice::from_ref(h),
+                    met.as_ref().is_some_and(unfolds_alone) && !cast,
+                    false,
+                )))
+            }
+            _ => None,
+        }
+    }
+
+    /// What a chain line joins its term to the one before by: the relation,
+    /// and for a congruence the modulus as Lean writes it.
+    fn link_relation(
+        &self,
+        line: &crate::corpus::proof::ChainLine,
+        writer: &Writer,
+    ) -> Route<(String, Option<Printed>)> {
+        Route::Built(match line.relation.as_str() {
+            r @ ("=" | "<" | ">" | "≤" | "≥") => (r.to_string(), None),
+            "≡" => {
+                let Some(modulus) = &line.modulus else {
+                    return Route::no("a congruence with no modulus");
+                };
+                let modulus = match self.tree(modulus) {
+                    Route::Built(m) => m,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                match writer.number_fixed(&modulus, super::super::templates::Num::Int) {
+                    Route::Built(m) => ("≡".to_string(), Some(m)),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            other => return Route::no(format!("a calculation joined by {other}")),
+        })
+    }
+
+    /// The proof of one row of a calculation, worked in the type `at`: by
+    /// the reason the row gives, by the line or define it cites, by real
+    /// arithmetic, or by arithmetic.
+    fn row_proof(
+        &self,
+        row: CalcRow<'_>,
+        at: super::super::templates::Num,
+    ) -> Route<super::super::doc::Proof> {
+        let CalcRow {
+            index: k,
+            line,
+            relation,
+            terms,
+            printed,
+            ..
+        } = row;
+        Route::Built(match &line.reason {
+            Some(r) => {
+                let Ok(by) = &r.by else {
+                    return Route::no("a calculation line whose reason does not read");
+                };
+                let fact = match self.tree(&r.fact) {
+                    Route::Built(n) => n,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                let reason = Reason {
+                    just: by,
+                    cited: self.rec.cited_requires.get(&r.line),
+                };
+                self.worked_in.set(Some(at));
+                *self.row_stated.borrow_mut() = super::super::doc::Op::of(relation)
+                    .map(|op| {
+                        Printed::infix(
+                            op,
+                            printed[k].clone(),
+                            printed[k + 1].clone(),
+                            super::super::doc::LeanType::Prop,
+                        )
+                    });
+                let proof = self.proof_of(reason, 0, &fact);
+                self.worked_in.set(None);
+                *self.row_stated.borrow_mut() = None;
+                match proof {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            // A row citing a define, S(1) = Σ(j = 1 to 1) j(j + 1) by
+            // D1, unfolds it and pushes in the casts that leaves; a
+            // header's function, its equation guarded by its domain, at
+            // an argument linear arithmetic shows is in it.
+            None if let Some(cite) = line.cited() => match self.row_citing(row, cite) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
+            },
+            // A row the page works out by real arithmetic, = 3·ln(2).
+            None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
+                match super::super::reals::real_link(
+                    &self.writer,
+                    self.sources.targets,
+                    &terms[k],
+                    &terms[k + 1],
+                    at,
+                ) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            None => super::super::doc::Proof::By(super::super::tactics::call(
+                "norm_num",
+                vec![],
+            )),
+        })
+    }
+
     /// The proof of a calculation's row that cites a line or a label: the
     /// define it unfolds, the line it is read from, or the cited line used
     /// across the casts the chain's type puts on it.
@@ -229,9 +396,9 @@ impl<'a> Proof<'a> {
             index: k,
             line,
             relation,
-            modulus,
             terms,
             printed,
+            ..
         } = row;
         Route::Built({
             let define = self
@@ -257,61 +424,7 @@ impl<'a> Proof<'a> {
                 },
                 _ => None,
             };
-            // Whether the row, or the line it cites, takes an integer
-            // to ℕ, an item's 2^(d·e).toNat: a define is then not put
-            // in alone (`by_define`).
-            let line_to_nat = self
-                .trees
-                .get(cite)
-                .and_then(|t| t.first())
-                .and_then(|s| self.line_statement(&s.cited()).built())
-                .is_some_and(|p| p.has_to_nat());
-            let to_nat = [&printed[k], &printed[k + 1]]
-                .iter()
-                .any(|p| p.has_to_nat())
-                || line_to_nat;
-            // A row the define makes true, as the checker met its two
-            // sides with the define written out (`define_links`): the
-            // define's equation, and then the work its meeting leaves,
-            // or the casts Lean writes on the row.
-            let met = self.rec.define_links.get(&line.line);
-            // Two sides Lean writes alike once each `set` letter is
-            // read as its value: `simp only [hD]` puts the values in
-            // and closes the `x = x` left, whatever `toNat` or names
-            // the row writes.
-            let values = self.set_values();
-            let alike_set = super::super::doc::forms::alike_once_set(
-                &printed[k],
-                &printed[k + 1],
-                &values,
-            );
-            let by_define = match (define, met, self.named_specs.is_empty(), to_nat) {
-                (Some(h), _, _, _) if alike_set => Some(super::super::doc::Proof::By(
-                    unfolded_by(std::slice::from_ref(h), true, false),
-                )),
-                // A row writing `toNat`, or citing a line that
-                // does, whose sides differ only in casts once the
-                // `set` letters are read as their values: Lean's
-                // casts, which `push_cast` moves once the
-                // define is put in.
-                (Some(h), Some(met), true, to_nat)
-                    if !to_nat
-                        || super::super::doc::forms::casts_differ(
-                            &printed[k],
-                            &printed[k + 1],
-                            &values,
-                        )
-                        .is_some() =>
-                {
-                    let cast = self.unfolds_to_casts(&printed[k], &printed[k + 1]);
-                    Some(super::super::doc::Proof::By(unfolded_by(
-                        std::slice::from_ref(h),
-                        met.as_ref().is_some_and(unfolds_alone) && !cast,
-                        false,
-                    )))
-                }
-                _ => None,
-            };
+            let by_define = self.row_by_define(row, cite, define);
             let mut ways: Vec<Tactic> = match define {
                 Some(h) => unfolded(std::slice::from_ref(h)),
                 None => Vec::new(),
@@ -363,60 +476,7 @@ impl<'a> Proof<'a> {
             // A count Lean may hold in ℕ∞ where the chain takes it
             // in ℤ, `V.encard = 2` of an assumption: met only from a
             // line whose statement the writer wrote (`store`).
-            let placed = self
-                .rec
-                .link_places
-                .get(&line.line)
-                .and_then(|at| {
-                    let stated = self.line_part(at).built()?.says.is_some();
-                    let (proof, says) = self.line_says(at).built()?;
-                    Some((stated, proof, says))
-                })
-                .and_then(|(stated, proof, says)| {
-                    let row = calc_row(
-                        relation,
-                        modulus.as_ref(),
-                        &printed[k],
-                        &printed[k + 1],
-                    )?;
-                    if !stated && (item_counts(&says) || item_counts(&row)) {
-                        return None;
-                    }
-                    // A count in ℕ∞ on one side, in ℤ on the other.
-                    if let Some(p) = self.counted_between(
-                        &proof,
-                        &says,
-                        &row,
-                        &[&terms[k], &terms[k + 1]],
-                    ) {
-                        return Some(p);
-                    }
-                    let meeting = self.rec.link_meetings.get(&line.line);
-                    self.said_proof(proof, says, &row, meeting).built()
-                });
-            // A row that writes a power as the integer power where
-            // the line has it to its exponent's `toNat`, or the other
-            // way: converted as a citation's is, from the sentence the
-            // checker found the row in (`link_places`).
-            let converted = || {
-                let at = self.rec.link_places.get(&line.line)?;
-                let found = self.line_part(at).built()?;
-                let (proof, says) = self.line_says(at).built()?;
-                let op = super::super::doc::Op::of(relation)?;
-                let row = Printed::infix(
-                    op,
-                    printed[k].clone(),
-                    printed[k + 1].clone(),
-                    super::super::doc::LeanType::Prop,
-                );
-                self.powers_converted_at(
-                    &[&terms[k], &terms[k + 1], &found.node],
-                    &says,
-                    &row,
-                    &proof,
-                    false,
-                )
-            };
+            let placed = self.row_placed(row);
             // An equation whose two sides Lean writes alike once a
             // define is written out in both, `T(1) = 1(1 + 1)/2`:
             // `rfl`. Not a row of numerals worked out, which in a
@@ -435,15 +495,19 @@ impl<'a> Proof<'a> {
                 (Some(truth), _, _) => super::super::doc::Proof::Term(truth),
                 (None, Some(proof), _) => proof,
                 (None, None, Some(proved)) => super::super::doc::Proof::Term(proved),
-                (None, None, None) => match (converted(), at_letter, named_decided) {
-                    (Some(proof), _, _)
-                    | (None, Some(proof), _)
-                    | (None, None, Some(proof)) => proof,
-                    (None, None, None) => match ways_proof(ListReason::RowRead, ways) {
-                        Route::Built(p) => p,
-                        Route::Declined(d) => return Route::Declined(d),
-                    },
-                },
+                (None, None, None) => {
+                    match (self.row_converted(row), at_letter, named_decided) {
+                        (Some(proof), _, _)
+                        | (None, Some(proof), _)
+                        | (None, None, Some(proof)) => proof,
+                        (None, None, None) => {
+                            match ways_proof(ListReason::RowRead, ways) {
+                                Route::Built(p) => p,
+                                Route::Declined(d) => return Route::Declined(d),
+                            }
+                        }
+                    }
+                }
             }
         })
     }
@@ -885,7 +949,7 @@ impl<'a> Proof<'a> {
             .iter()
             .find(|w| crate::matching::alike_top(&w.value, value, self.sources.ctx))
             .map_or(value, |w| &w.letter);
-        let printed = match (ty, general.filter(|_| in_general)) {
+        match (ty, general.filter(|_| in_general)) {
             (LetterType::Number(_), Some(at)) => self.writer.number_fixed(value, at),
             // A value of a wider type that a line says is in the
             // letter's, A + B ∈ ℚ of reals: the number that line
@@ -1019,6 +1083,40 @@ impl<'a> Proof<'a> {
             {
                 self.writer.numbers_at(value, things_at(var))
             }
+            _ => {
+                self.given_to_things(ty, general.filter(|_| in_general), value, things)
+            }
+        }
+    }
+
+    /// What a citation gives a cited item's letter of things, a set of
+    /// things or a map of things, the kinds `letter_given` has no rule for:
+    /// the value written as Lean writes a letter of that kind, at the types
+    /// the things are taken at here.
+    fn given_to_things(
+        &self,
+        ty: &LetterType,
+        given: Option<super::super::templates::Num>,
+        value: &Node,
+        things: &ThingsGiven,
+    ) -> Route<Printed> {
+        let things_at = |var: &usize| {
+            let least = self
+                .worked_in
+                .get()
+                .unwrap_or(super::super::templates::Num::Nat);
+            things.at.get(var).map_or(least, |n| least.max(*n))
+        };
+        let printed = match (ty, given) {
+            // `letter_given` has a rule for each of these, whatever the
+            // value, before it comes here.
+            (
+                LetterType::Number(_)
+                | LetterType::Property(_)
+                | LetterType::Function { .. }
+                | LetterType::Statement,
+                _,
+            ) => unreachable!("a letter `letter_given` has a rule for"),
             // A map of things given by its values on numbers,
             // n ↦ 9ⁿ: `fun n : ℤ => 9 ^ n`, taking and giving
             // numbers at the types its two sides' things are
@@ -1287,6 +1385,155 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// The term a citation gives, taken to the part of the item's sentence
+    /// the claim is, with what it says. A claim that is itself the "and",
+    /// read as its parts, is the whole; a sentence of the claim that one part
+    /// of the "and" the reading gives met, "for all d …" of "p > 1 and for
+    /// all d …", is that part as the checker's matcher met it
+    /// (`Concluded::part`), its projection; and a claim that is one part of
+    /// what that part gives read at the values, a property applied taken as
+    /// its body (`Cited::within`), is the part of the "and" its body is.
+    fn projected_reading(
+        &self,
+        asked: Projection<'_>,
+        term: Printed,
+        says: Option<Printed>,
+    ) -> Route<ProjectedReading> {
+        let Projection {
+            node,
+            iff,
+            sentence,
+            part,
+            cited,
+            k,
+        } = asked;
+        let whole = self.writer.is_and(node);
+        // What the reading gives: a definition's right side, a theorem's
+        // sentence; its "and" is taken apart as its tree nests it.
+        let read = match (iff, sentence.says.children.as_slice()) {
+            (true, [_, right]) => right,
+            _ => &sentence.says,
+        };
+        let mut says = says;
+        let path = match (whole, part) {
+            (false, Some(at)) => match leaf_path(read, at, &self.writer) {
+                Some(path) => Some(path),
+                None => {
+                    return Route::no(
+                        "a reading whose \"and\" has fewer parts than the part the claim met",
+                    )
+                }
+            },
+            _ => None,
+        };
+        let term = match &path {
+            Some(path) => {
+                says = says.and_then(|s| along(&s, path));
+                projected(term, path)
+            }
+            None => term,
+        };
+        let term = match (cited.within.get(k).copied().flatten(), &says) {
+            (Some(j), Some(s)) => {
+                // The part read at the values, its property applied as its
+                // body (`at_values`), and the path to its part j there.
+                let part = match &path {
+                    Some(path) => node_along(read, path, &self.writer),
+                    None => Some(read),
+                };
+                let inner = part
+                    .map(|p| self.at_values(p, &cited.binding))
+                    .and_then(|at| leaf_path(&at, j, &self.writer));
+                let Some(inner) = inner else {
+                    return Route::no(
+                        "a property's body whose \"and\" has fewer parts than the part the claim met",
+                    );
+                };
+                says = along(&super::super::doc::forms::beta_reduced(s), &inner);
+                projected(term, &inner)
+            }
+            _ => term,
+        };
+        Route::Built(ProjectedReading { term, says, path })
+    }
+
+    /// The differences between a cited item and the claim that are an integer
+    /// power on one side and the natural power to its exponent's `toNat` on
+    /// the other: each integer power whose exponent the record shows at least
+    /// 0 (`nonneg_proof`) rewritten as the natural one, as `forms_converted`
+    /// rewrites it, and what is left compared. An integer power of a natural
+    /// number cast up, `a ^ (k : ℤ)`, is the natural power `a ^ k` with no
+    /// fact asked (`zpow_natCast`). `found` is what differs before this.
+    fn compare_powers(
+        &self,
+        found: Vec<super::super::doc::forms::FormDifference>,
+        (compared, claim_read): (&Printed, &Printed),
+        counted: &[Printed],
+        (cited, sentence, node): (&crate::checker::record::Cited, &Sentence, &Node),
+    ) -> PowerForms {
+        use super::super::doc::forms;
+        let templates = self.writer.templates;
+        let widen = |head: &str, at| templates.same_function_at(head, at);
+        let mut found = found;
+        let mut powered: Vec<NonNegative> = Vec::new();
+        let mut cast_powers = false;
+        let mut bound: Vec<forms::BoundPower> = Vec::new();
+        let natural_casts = forms::casts_natural_exponent(compared)
+            || forms::casts_natural_exponent(claim_read);
+        let apart = |d: &forms::FormDifference| match d {
+            forms::FormDifference::ToNat { .. } => true,
+            forms::FormDifference::Cast { .. } => natural_casts,
+            _ => false,
+        };
+        if found.iter().any(apart) {
+            cast_powers = natural_casts;
+            let mut zpow = forms::integer_exponents(compared);
+            zpow.extend(forms::integer_exponents(claim_read));
+            powered = self
+                .exponents_shown_whole(cited, sentence, node)
+                .into_iter()
+                .filter(|w| zpow.iter().any(|e| forms::alike(e, &w.exponent)))
+                .collect();
+            // A power under a sum whose exponent names its letter,
+            // at least 0 only for each letter in the sum's range
+            // (`bound_rewrite`), where the other side takes that
+            // exponent to ℕ.
+            let apart_at: Vec<&Printed> = found
+                .iter()
+                .filter_map(|d| match d {
+                    forms::FormDifference::ToNat { term, .. } => Some(term),
+                    _ => None,
+                })
+                .collect();
+            bound = forms::bound_integer_powers(compared)
+                .into_iter()
+                .chain(forms::bound_integer_powers(claim_read))
+                .filter(|b| range_lower(&b.over).is_some())
+                .filter(|b| apart_at.iter().any(|t| forms::alike(t, &b.exponent)))
+                .collect();
+            if !powered.is_empty() || cast_powers || !bound.is_empty() {
+                let exponents: Vec<Printed> = powered
+                    .iter()
+                    .map(|w| w.exponent.clone())
+                    .chain(bound.iter().map(|b| b.exponent.clone()))
+                    .collect();
+                let read = |t: &Printed| {
+                    forms::with_natural_powers(
+                        &forms::with_natural_counts(t, counted),
+                        &exponents,
+                    )
+                };
+                found = forms::differences(&read(compared), &read(claim_read), &widen);
+            }
+        }
+        PowerForms {
+            found,
+            powered,
+            cast_powers,
+            bound,
+        }
+    }
+
     /// How the item a citation gives, its letters given their values, says
     /// what the claim says. `way` is how the citation reads the item's
     /// sentence, and `instance` the item applied to what the citation gives.
@@ -1413,67 +1660,17 @@ impl<'a> Proof<'a> {
                         &widen,
                     );
                 }
-                // An integer power on one side and the natural power to its
-                // exponent's `toNat` on the other: each integer power whose
-                // exponent the record shows at least 0 (`nonneg_proof`)
-                // rewritten as the natural one, as `forms_converted`
-                // rewrites it, and what is left compared. An integer power
-                // of a natural number cast up, `a ^ (k : ℤ)`, is the natural
-                // power `a ^ k` with no fact asked (`zpow_natCast`).
-                let natural_casts = forms::casts_natural_exponent(&compared)
-                    || forms::casts_natural_exponent(&claim_read);
-                let apart = |d: &forms::FormDifference| match d {
-                    forms::FormDifference::ToNat { .. } => true,
-                    forms::FormDifference::Cast { .. } => natural_casts,
-                    _ => false,
-                };
-                if found.iter().any(apart) {
-                    cast_powers = natural_casts;
-                    let mut zpow = forms::integer_exponents(&compared);
-                    zpow.extend(forms::integer_exponents(&claim_read));
-                    powered = self
-                        .exponents_shown_whole(cited, sentence, node)
-                        .into_iter()
-                        .filter(|w| zpow.iter().any(|e| forms::alike(e, &w.exponent)))
-                        .collect();
-                    // A power under a sum whose exponent names its letter,
-                    // at least 0 only for each letter in the sum's range
-                    // (`bound_rewrite`), where the other side takes that
-                    // exponent to ℕ.
-                    let apart_at: Vec<&Printed> = found
-                        .iter()
-                        .filter_map(|d| match d {
-                            forms::FormDifference::ToNat { term, .. } => Some(term),
-                            _ => None,
-                        })
-                        .collect();
-                    bound = forms::bound_integer_powers(&compared)
-                        .into_iter()
-                        .chain(forms::bound_integer_powers(&claim_read))
-                        .filter(|b| range_lower(&b.over).is_some())
-                        .filter(|b| {
-                            apart_at.iter().any(|t| forms::alike(t, &b.exponent))
-                        })
-                        .collect();
-                    if !powered.is_empty() || cast_powers || !bound.is_empty() {
-                        let exponents: Vec<Printed> = powered
-                            .iter()
-                            .map(|w| w.exponent.clone())
-                            .chain(bound.iter().map(|b| b.exponent.clone()))
-                            .collect();
-                        let read = |t: &Printed| {
-                            forms::with_natural_powers(
-                                &forms::with_natural_counts(t, &counted),
-                                &exponents,
-                            )
-                        };
-                        found = forms::differences(
-                            &read(&compared),
-                            &read(&claim_read),
-                            &widen,
-                        );
-                    }
-                }
+                PowerForms {
+                    found,
+                    powered,
+                    cast_powers,
+                    bound,
+                } = self.compare_powers(
+                    found,
+                    (&compared, &claim_read),
+                    &counted,
+                    (cited, sentence, node),
+                );
                 // `exact` takes the two as written: not stated in two known
                 // types, which the comparison, reading a count's relation in
                 // ℕ, does not ask. An item's type variable is Lean's to fill.
@@ -1596,7 +1793,7 @@ impl<'a> Proof<'a> {
         let implication = matches!(sentence.says.notation(), CONDITIONAL | IMPLICATION);
         // What the term the reading gives says, as Lean has it: the sentence,
         // or the side a forward reading reaches.
-        let mut says = match concluded.way {
+        let says = match concluded.way {
             Way::AsWritten => Some(statement.clone()),
             Way::Forward => consequent(&statement),
             Way::Backward => None,
@@ -1636,58 +1833,20 @@ impl<'a> Proof<'a> {
                 });
             }
         };
-        // A claim that is itself the "and", read as its parts, is the whole.
-        let whole = self.writer.is_and(node);
-        // What the reading gives: a definition's right side, a theorem's
-        // sentence; its "and" is taken apart as its tree nests it.
-        let read = match (iff, sentence.says.children.as_slice()) {
-            (true, [_, right]) => right,
-            _ => &sentence.says,
-        };
-        // A sentence of the claim that one part of the "and" the reading
-        // gives met, "for all d …" of "p > 1 and for all d …": that part, as
-        // the checker's matcher met it (`Concluded::part`), its projection.
-        let path = match (whole, concluded.part) {
-            (false, Some(at)) => match leaf_path(read, at, &self.writer) {
-                Some(path) => Some(path),
-                None => {
-                    return Route::no(
-                        "a reading whose \"and\" has fewer parts than the part the claim met",
-                    )
-                }
+        let ProjectedReading { term, says, path } = match self.projected_reading(
+            Projection {
+                node,
+                iff,
+                sentence,
+                part: concluded.part,
+                cited,
+                k,
             },
-            _ => None,
-        };
-        let term = match &path {
-            Some(path) => {
-                says = says.and_then(|s| along(&s, path));
-                projected(term, path)
-            }
-            None => term,
-        };
-        // A claim that is one part of what that part gives read at the
-        // values, a property applied taken as its body (`Cited::within`):
-        // the part of the "and" its body is, its projection.
-        let term = match (cited.within.get(k).copied().flatten(), &says) {
-            (Some(j), Some(s)) => {
-                // The part read at the values, its property applied as its
-                // body (`at_values`), and the path to its part j there.
-                let part = match &path {
-                    Some(path) => node_along(read, path, &self.writer),
-                    None => Some(read),
-                };
-                let inner = part
-                    .map(|p| self.at_values(p, &cited.binding))
-                    .and_then(|at| leaf_path(&at, j, &self.writer));
-                let Some(inner) = inner else {
-                    return Route::no(
-                        "a property's body whose \"and\" has fewer parts than the part the claim met",
-                    );
-                };
-                says = along(&super::super::doc::forms::beta_reduced(s), &inner);
-                projected(term, &inner)
-            }
-            _ => term,
+            term,
+            says,
+        ) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
         };
         // A define the step cites is written out first, as for algebra.
         let defines = self.cited_defines(&reason.just.refs);

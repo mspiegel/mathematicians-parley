@@ -253,6 +253,50 @@ pub(super) fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
     Some(WholeNumberDenied { letter, bounded })
 }
 
+/// Which part of a cited item's sentence a claim is
+/// (`Proof::projected_reading`).
+pub(super) struct Projection<'p> {
+    /// The claim.
+    pub(super) node: &'p Node,
+    /// Whether the item's sentence is a biconditional.
+    pub(super) iff: bool,
+    /// The item's sentence.
+    pub(super) sentence: &'p Sentence,
+    /// The part of the "and" the reading gives that the checker met the
+    /// claim with.
+    pub(super) part: Option<usize>,
+    /// What the checker met the citation with.
+    pub(super) cited: &'p crate::checker::record::Cited,
+    /// The claim's sentence the citation proves.
+    pub(super) k: usize,
+}
+
+/// A citation's term taken to the part of the item's sentence the claim is
+/// (`Proof::projected_reading`).
+pub(super) struct ProjectedReading {
+    /// The term, projected.
+    pub(super) term: Printed,
+    /// What the term says, as Lean has it.
+    pub(super) says: Option<Printed>,
+    /// The path to the part of the "and", where the claim is one.
+    pub(super) path: Option<Vec<&'static str>>,
+}
+
+/// What a cited item and its claim differ in as integer and natural powers
+/// (`Proof::compare_powers`).
+pub(super) struct PowerForms {
+    /// What still differs once the powers are read alike.
+    pub(super) found: Vec<super::super::doc::forms::FormDifference>,
+    /// The exponents whose powers differ only in form, each with why it is
+    /// at least 0.
+    pub(super) powered: Vec<NonNegative>,
+    /// Whether an integer power of a natural number cast up is converted to
+    /// the natural power alike.
+    pub(super) cast_powers: bool,
+    /// The powers under a sum whose exponent names its letter.
+    pub(super) bound: Vec<super::super::doc::forms::BoundPower>,
+}
+
 /// What a definition's sentence read backwards is asked for
 /// (`Proof::definition_backwards`).
 pub(super) struct Backwards<'b> {
