@@ -16318,46 +16318,17 @@ impl<'a> Proof<'a> {
         })
     }
 
-    /// Sentence `k` of a claim, by the item its reason cites.
-    fn citation(
+    /// How the item a citation gives, its letters given their values, says
+    /// what the claim says. `way` is how the citation reads the item's
+    /// sentence, and `instance` the item applied to what the citation gives.
+    fn compare_forms(
         &self,
         reason: Reason,
-        k: usize,
-        node: &Node,
-    ) -> Route<super::doc::Proof> {
-        use super::doc::Proof;
-        use super::tactics as t;
-        let (item, cited) = match self.cited_item(reason) {
-            Route::Built(x) => x,
-            Route::Declined(d) => return Route::Declined(d),
-        };
-        // A phrase's define cited, `D1 n := 6, from 2`: the phrase is
-        // written out as its meaning in the claim and in the lines alike, so
-        // the claim is what the lines it cites say, in the claim's own
-        // words, and the definition, whose two sides are one, adds nothing.
-        let phrase = super::items::record_of(self.sources.checked, &cited.item)
-            .is_some_and(|r| {
-                r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
-            });
-        if phrase {
-            return match self.phrase_proof(cited, &reason.just.refs, k, node) {
-                Some(p) => Route::Built(Proof::Term(p)),
-                None => {
-                    Route::no("a phrase's define cited where no line says the claim")
-                }
-            };
-        }
-        let Some(concluded) = cited.concluded.get(k) else {
-            return Route::no("a claim sentence no conclusion of the item gives");
-        };
-        let Some(sentence) = item.sentences.get(concluded.sentence) else {
-            return Route::no("a conclusion the item does not have in Lean");
-        };
-        let instance =
-            match self.instance_of(sentence, &cited.binding, Some(node), cited) {
-                Route::Built(i) => i,
-                Route::Declined(d) => return Route::Declined(d),
-            };
+        (k, node): (usize, &Node),
+        cited: &crate::checker::record::Cited,
+        sentence: &Sentence,
+        (way, instance): (Way, &Instance),
+    ) -> FormComparison {
         // An item read as written says what the claim says: where the two
         // write one term in different forms, the build reports it. The
         // sets whose counts differ only in form are converted.
@@ -16395,7 +16366,7 @@ impl<'a> Proof<'a> {
         let mut by_identities = false;
         // What the reading gives, as Lean states it at the citation's values:
         // the sentence as written, or the side a forward reading reaches.
-        let compared = match concluded.way {
+        let compared = match way {
             Way::AsWritten => Some(instance.statement.clone()),
             Way::Forward => consequent(&instance.statement),
             Way::Backward => None,
@@ -16579,6 +16550,77 @@ impl<'a> Proof<'a> {
                 }
             }
         }
+        FormComparison {
+            counted,
+            finite,
+            powered,
+            cast_powers,
+            bound,
+            identities,
+            numeral_to_nat,
+            turned,
+            agrees,
+            by_identities,
+        }
+    }
+
+    /// Sentence `k` of a claim, by the item its reason cites.
+    fn citation(
+        &self,
+        reason: Reason,
+        k: usize,
+        node: &Node,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        let (item, cited) = match self.cited_item(reason) {
+            Route::Built(x) => x,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // A phrase's define cited, `D1 n := 6, from 2`: the phrase is
+        // written out as its meaning in the claim and in the lines alike, so
+        // the claim is what the lines it cites say, in the claim's own
+        // words, and the definition, whose two sides are one, adds nothing.
+        let phrase = super::items::record_of(self.sources.checked, &cited.item)
+            .is_some_and(|r| {
+                r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
+            });
+        if phrase {
+            return match self.phrase_proof(cited, &reason.just.refs, k, node) {
+                Some(p) => Route::Built(Proof::Term(p)),
+                None => {
+                    Route::no("a phrase's define cited where no line says the claim")
+                }
+            };
+        }
+        let Some(concluded) = cited.concluded.get(k) else {
+            return Route::no("a claim sentence no conclusion of the item gives");
+        };
+        let Some(sentence) = item.sentences.get(concluded.sentence) else {
+            return Route::no("a conclusion the item does not have in Lean");
+        };
+        let instance =
+            match self.instance_of(sentence, &cited.binding, Some(node), cited) {
+                Route::Built(i) => i,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+        let FormComparison {
+            counted,
+            finite,
+            powered,
+            cast_powers,
+            bound,
+            identities,
+            numeral_to_nat,
+            turned,
+            agrees,
+            by_identities,
+        } = self.compare_forms(
+            reason,
+            (k, node),
+            cited,
+            sentence,
+            (concluded.way, &instance),
+        );
         let statement = instance.statement.clone();
         let inst = instance.term;
         let iff = sentence.says.notation() == BICONDITIONAL;
@@ -16612,100 +16654,17 @@ impl<'a> Proof<'a> {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
             }
             Way::Backward => {
-                let witness =
-                    match self.witnesses(&statement, cited, k, &reason.just.refs) {
-                        Route::Built(w) => w,
-                        Route::Declined(d) => return Route::Declined(d),
-                    };
-                // A claim a requires line above already states, "0 ≤ b − c"
-                // for "b − c ∈ ℕ₀", is that line: tried first, as it is
-                // quick and the others may search long.
-                // A natural given as an integer's `toNat`, put back by `▸`,
-                // which the goal guides in an `exact`; where the claim is in
-                // a wider type than the item, the term stated by a `have`
-                // and cast to it.
-                let by_to_nat = inst.names("Int.toNat_of_nonneg");
-                let mpr = Printed {
-                    kind: super::doc::TermKind::App {
-                        head: Box::new(Printed {
-                            kind: super::doc::TermKind::Field {
-                                inner: Box::new(t::bracket(inst)),
-                                field: "mpr".to_string(),
-                            },
-                            ty: None,
-                        }),
-                        args: vec![super::doc::Arg::Explicit(witness)],
-                        explicit: false,
-                    },
-                    ty: None,
-                };
-                // The definition's left side as Lean states it at the
-                // citation's values, where it is the claim up to what Lean
-                // takes as the same term: a function applied worked out,
-                // `(fun n => x n + C) n` as `x n + C`, a bound letter
-                // renamed, a `set` letter read as its value
-                // (`forms::alike_once_set`), the `toNat` of a natural number
-                // cast up that number (`forms::one_term_once_set`). The
-                // reading proves the claim as it stands, which the term's
-                // type checks by definitional equality.
-                let left = left_side(&statement);
-                let values = self.set_values();
-                let as_claimed = match (&left, &claim_lean) {
-                    (Some(left), Some(claim)) => {
-                        super::doc::forms::one_term_once_set(left, claim, &values)
-                    }
-                    _ => false,
-                };
-                if as_claimed && !by_to_nat {
-                    return Route::Built(Proof::Term(mpr));
-                }
-                // The definition's left side at the citation's values, as the
-                // step's lines write it, read from the reading and met with
-                // the claim, as a sentence read forwards is.
-                let written = node_antecedent(&sentence.says)
-                    .and_then(|part| self.written_at_values(part, &cited.binding));
-                let read = match (&written, &left, &claim_lean) {
-                    (Some(written), Some(left), Some(claim)) if !by_to_nat => {
-                        let said = match one_statement(written, left) {
-                            true => written,
-                            false => left,
-                        };
-                        let claim = StepClaim {
-                            printed: claim,
-                            stated: stated.is_some(),
-                        };
-                        self.read_in_spelling(Some(cited), &mpr, said, written, claim)
-                    }
-                    _ => None,
-                };
-                if let Some(read) = read {
-                    return Route::Built(read);
-                }
-                // An item over any ring or any set, taken at ℤ or ℕ, states
-                // a membership in its general terms, where the claim of an
-                // integer states its own fact: the Lean facts the record
-                // gives (`cited_bridge`).
-                let at = Cites::of(node, left.as_ref(), claim_lean.as_ref(), &values);
-                match (cited_bridge(cited, sentence, &at), by_to_nat) {
-                    (Some(CitedBridge::Rules(rules)), false) => {
-                        return Route::Built(Proof::By(t::simpa_only(rules, mpr)))
-                    }
-                    (Some(CitedBridge::Cast), false) => {
-                        return Route::Built(Proof::By(t::exact_mod_cast(mpr)))
-                    }
-                    _ => {}
-                }
-                let mut ways = vec![
-                    t::steps(vec![
-                        t::call("assumption", vec![]),
-                        t::call("done", vec![]),
-                    ]),
-                    Tactic::Exact(mpr.clone()),
-                ];
-                if by_to_nat {
-                    ways.push(t::on_h(&mpr, vec![t::exact_mod_cast(t::hyp("h"))]));
-                }
-                return ways_proof(ListReason::DefinitionBackwards, ways);
+                return self.definition_backwards(Backwards {
+                    reason,
+                    k,
+                    node,
+                    cited,
+                    sentence,
+                    statement: &statement,
+                    inst,
+                    claim_lean: &claim_lean,
+                    stated: stated.is_some(),
+                });
             }
         };
         // A claim that is itself the "and", read as its parts, is the whole.
@@ -16874,6 +16833,115 @@ impl<'a> Proof<'a> {
             written_out(&defines, &[goal], &self.writer),
             closed,
         ))
+    }
+
+    /// The claim a definition's sentence is read backwards for: the
+    /// definition's left side, which its right side gives by the sentence's
+    /// `mpr`, given the witness the checker found.
+    fn definition_backwards(&self, asked: Backwards<'_>) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        use super::tactics as t;
+        let Backwards {
+            reason,
+            k,
+            node,
+            cited,
+            sentence,
+            statement,
+            inst,
+            claim_lean,
+            stated,
+        } = asked;
+        let witness = match self.witnesses(statement, cited, k, &reason.just.refs) {
+            Route::Built(w) => w,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // A claim a requires line above already states, "0 ≤ b − c"
+        // for "b − c ∈ ℕ₀", is that line: tried first, as it is
+        // quick and the others may search long.
+        // A natural given as an integer's `toNat`, put back by `▸`,
+        // which the goal guides in an `exact`; where the claim is in
+        // a wider type than the item, the term stated by a `have`
+        // and cast to it.
+        let by_to_nat = inst.names("Int.toNat_of_nonneg");
+        let mpr = Printed {
+            kind: super::doc::TermKind::App {
+                head: Box::new(Printed {
+                    kind: super::doc::TermKind::Field {
+                        inner: Box::new(t::bracket(inst)),
+                        field: "mpr".to_string(),
+                    },
+                    ty: None,
+                }),
+                args: vec![super::doc::Arg::Explicit(witness)],
+                explicit: false,
+            },
+            ty: None,
+        };
+        // The definition's left side as Lean states it at the
+        // citation's values, where it is the claim up to what Lean
+        // takes as the same term: a function applied worked out,
+        // `(fun n => x n + C) n` as `x n + C`, a bound letter
+        // renamed, a `set` letter read as its value
+        // (`forms::alike_once_set`), the `toNat` of a natural number
+        // cast up that number (`forms::one_term_once_set`). The
+        // reading proves the claim as it stands, which the term's
+        // type checks by definitional equality.
+        let left = left_side(statement);
+        let values = self.set_values();
+        let as_claimed = match (&left, claim_lean) {
+            (Some(left), Some(claim)) => {
+                super::doc::forms::one_term_once_set(left, claim, &values)
+            }
+            _ => false,
+        };
+        if as_claimed && !by_to_nat {
+            return Route::Built(Proof::Term(mpr));
+        }
+        // The definition's left side at the citation's values, as the
+        // step's lines write it, read from the reading and met with
+        // the claim, as a sentence read forwards is.
+        let written = node_antecedent(&sentence.says)
+            .and_then(|part| self.written_at_values(part, &cited.binding));
+        let read = match (&written, &left, claim_lean) {
+            (Some(written), Some(left), Some(claim)) if !by_to_nat => {
+                let said = match one_statement(written, left) {
+                    true => written,
+                    false => left,
+                };
+                let claim = StepClaim {
+                    printed: claim,
+                    stated,
+                };
+                self.read_in_spelling(Some(cited), &mpr, said, written, claim)
+            }
+            _ => None,
+        };
+        if let Some(read) = read {
+            return Route::Built(read);
+        }
+        // An item over any ring or any set, taken at ℤ or ℕ, states
+        // a membership in its general terms, where the claim of an
+        // integer states its own fact: the Lean facts the record
+        // gives (`cited_bridge`).
+        let at = Cites::of(node, left.as_ref(), claim_lean.as_ref(), &values);
+        match (cited_bridge(cited, sentence, &at), by_to_nat) {
+            (Some(CitedBridge::Rules(rules)), false) => {
+                return Route::Built(Proof::By(t::simpa_only(rules, mpr)))
+            }
+            (Some(CitedBridge::Cast), false) => {
+                return Route::Built(Proof::By(t::exact_mod_cast(mpr)))
+            }
+            _ => {}
+        }
+        let mut ways = vec![
+            t::steps(vec![t::call("assumption", vec![]), t::call("done", vec![])]),
+            Tactic::Exact(mpr.clone()),
+        ];
+        if by_to_nat {
+            ways.push(t::on_h(&mpr, vec![t::exact_mod_cast(t::hyp("h"))]));
+        }
+        ways_proof(ListReason::DefinitionBackwards, ways)
     }
 
     /// The proof of the right side of a definition a step folds, the `k`th
@@ -19162,6 +19230,66 @@ fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
     let bounded = guard.is_some()
         || matches!(&bare(&body).kind, TermKind::Infix { op, .. } if *op == Op::AND);
     Some(WholeNumberDenied { letter, bounded })
+}
+
+/// What a definition's sentence read backwards is asked for
+/// (`Proof::definition_backwards`).
+struct Backwards<'b> {
+    /// The step's reason, which names the lines the witness is found in.
+    reason: Reason<'b>,
+    /// The claim's sentence the citation proves.
+    k: usize,
+    /// The claim.
+    node: &'b Node,
+    /// What the checker met the citation with.
+    cited: &'b crate::checker::record::Cited,
+    /// The item's sentence the definition is read from.
+    sentence: &'b Sentence,
+    /// What the item's sentence says at the citation's values.
+    statement: &'b Printed,
+    /// The item applied to what the citation gives it.
+    inst: Printed,
+    /// The claim as Lean states it.
+    claim_lean: &'b Option<Printed>,
+    /// Whether a line states the claim as Lean does (`stated_form`).
+    stated: bool,
+}
+
+/// How a cited item says what the claim says (`Proof::compare_forms`): the
+/// ways the two write one term in different forms, which a citation's proof
+/// converts.
+struct FormComparison {
+    /// The sets whose counts differ only in form, to be converted.
+    counted: Vec<Printed>,
+    /// The sets the two count, each with why it is finite.
+    finite: Vec<ShownFinite>,
+    /// The exponents whose powers differ only in form, each with why it is at
+    /// least 0, converted alike.
+    powered: Vec<NonNegative>,
+    /// Whether an integer power of a natural number cast up is converted to
+    /// the natural power alike.
+    cast_powers: bool,
+    /// The powers under a sum whose exponent names its letter, converted for
+    /// each letter in its range.
+    bound: Vec<super::doc::forms::BoundPower>,
+    /// The rewrites of the identity elements the checker dropped meeting the
+    /// reading with the claim (`Cited::meetings`).
+    identities: Vec<&'static str>,
+    /// Whether a numeral's `toNat` is left once a reading is worked out.
+    numeral_to_nat: bool,
+    /// Whether the line is the item's equation turned round, compared turned
+    /// back and closed by the equation's `symm`.
+    turned: bool,
+    /// Whether the item's statement, its letters given, is the line as Lean
+    /// writes it, up to what Lean takes as one term, so that `exact` alone
+    /// closes the line. Two that are alike but for casts are not enough: an
+    /// item over any ring given ℤ writes `n ^ (2 : ℤ)`, which ℤ has no power
+    /// for, and the comparison keeps casts.
+    agrees: bool,
+    /// Whether the item is the line once the identity elements the checker
+    /// dropped are dropped from both, with nothing else apart: closed by
+    /// those rewrites, as a conversion of them alone.
+    by_identities: bool,
 }
 
 /// What a citation gives a cited item (`Proof::instance_of`).
