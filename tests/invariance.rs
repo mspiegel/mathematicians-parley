@@ -37,7 +37,7 @@ use parley::threads::in_order_slots;
 use parley::tools::build::{checked_in, library, verified, Libraries, Loaded};
 use parley::tools::{path_of, verify};
 
-#[path = "invariance/rewrites.rs"]
+#[path = "invariance/rewrites/mod.rs"]
 mod rewrites;
 
 #[path = "invariance/sampled.rs"]
