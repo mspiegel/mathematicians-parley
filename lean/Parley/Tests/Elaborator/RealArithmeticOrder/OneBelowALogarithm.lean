@@ -1,6 +1,6 @@
 module
 
-public import Roots
+public import Logarithms
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -27,8 +27,8 @@ namespace Parley.Tests.Elaborator.RealArithmeticOrder.OneBelowALogarithm
 theorem one_below_a_logarithm :
     1 < Real.log (3 : ℝ) := by
   -- 1. real arithmetic
-  have hf1 : (1 / 1 : ℝ) < Real.log (3 : ℝ) := by exact_mod_cast Roots.log_above (p := 3) (a := 1) (b := 1) (by norm_num) (by norm_num) (by norm_num)
-  have hf2 : Real.log (3 : ℝ) < (8 / 5 : ℝ) := by exact_mod_cast Roots.log_below (p := 3) (a := 8) (b := 5) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+  have hf1 : (1 / 1 : ℝ) < Real.log (3 : ℝ) := by exact_mod_cast LeanBridges.Logarithms.log_above (p := 3) (a := 1) (b := 1) (by norm_num) (by norm_num) (by norm_num)
+  have hf2 : Real.log (3 : ℝ) < (8 / 5 : ℝ) := by exact_mod_cast LeanBridges.Logarithms.log_below (p := 3) (a := 8) (b := 5) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
   linarith only [hf1, hf2]
 
 end Parley.Tests.Elaborator.RealArithmeticOrder.OneBelowALogarithm

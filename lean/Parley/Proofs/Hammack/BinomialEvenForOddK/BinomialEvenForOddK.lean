@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity

@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Field.Rat
 public import Mathlib.Algebra.Group.Basic

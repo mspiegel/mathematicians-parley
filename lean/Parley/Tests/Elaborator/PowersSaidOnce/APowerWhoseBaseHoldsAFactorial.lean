@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Complex.Order

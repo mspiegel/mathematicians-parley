@@ -691,7 +691,7 @@ impl<'a> Work<'a> {
     /// The bounds of each part of a value, from its factors' at
     /// `precision` (`reals::factor_bracket`): √p's by its square
     /// (`Real.lt_sqrt`, `Real.sqrt_lt'`), π's and e's as Mathlib states
-    /// them, and ln p's by e's (`Roots.log_above`, `Roots.log_below`); a
+    /// them, and ln p's by e's (`Logarithms.log_above`, `log_below`); a
     /// product's and a power's from its factors' (`mul_lt_mul''`,
     /// `pow_lt_pow_left₀`).
     fn bracket_facts(&mut self, value: &Real, precision: u32) -> Route<Vec<Printed>> {
@@ -743,7 +743,7 @@ impl<'a> Work<'a> {
         };
         let b = reals::factor_bracket(factor, precision);
         let said = base_term(base);
-        // A logarithm's bounds as `Roots.log_above` and `Roots.log_below`
+        // A logarithm's bounds as `Logarithms.log_above` and `log_below`
         // state them, a / b, which their casts come down to.
         let (lo, hi) = match base {
             Base::Log(_) => (fraction(&b.below), fraction(&b.above)),
@@ -812,7 +812,7 @@ impl<'a> Work<'a> {
                         TermKind::App {
                             head: Box::new(t::bridge_lemma(
                                 name,
-                                super::doc::bridges::BridgeModule::Roots,
+                                super::doc::bridges::BridgeModule::Logarithms,
                             )),
                             args: out,
                             explicit: false,
@@ -821,7 +821,7 @@ impl<'a> Work<'a> {
                     )
                 };
                 let above_lemma = named(
-                    "Roots.log_above",
+                    "LeanBridges.Logarithms.log_above",
                     vec![
                         ("p", whole(p, Num::Nat)),
                         ("a", nat(b.below.numer())),
@@ -830,7 +830,7 @@ impl<'a> Work<'a> {
                     3,
                 );
                 let below_lemma = named(
-                    "Roots.log_below",
+                    "LeanBridges.Logarithms.log_below",
                     vec![
                         ("p", whole(p, Num::Nat)),
                         ("a", nat(b.above.numer())),

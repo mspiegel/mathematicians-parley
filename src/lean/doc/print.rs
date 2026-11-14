@@ -296,16 +296,11 @@ impl Tactic {
             }
             Tactic::Name { name, term } => format!("have {name} := {}", term.text()),
             Tactic::Fact(term) => format!("have := {}", term.text()),
-            Tactic::First { ways, .. } => {
-                let alternatives: Vec<String> = ways.iter().map(Tactic::text).collect();
-                format!("first | {}", alternatives.join(" | "))
-            }
             Tactic::Seq(ts) => {
                 let steps: Vec<String> = ts.iter().map(Tactic::text).collect();
                 steps.join("; ")
             }
             Tactic::Group(t) => format!("({})", t.text()),
-            Tactic::Try(t) => format!("try {}", t.text()),
             Tactic::Have { name, says, proof } => {
                 format!("have {name} : {} := {}", says.text(), proof.text())
             }
@@ -515,7 +510,7 @@ mod tests {
     }
 
     #[test]
-    fn named_arguments_and_alternatives_print_on_one_line() {
+    fn named_arguments_print_on_one_line() {
         let item = Term::of(
             TermKind::Const(ConstRef {
                 name: "Parley.Items.Stdlib.Counting.mun_card_singleton".to_string(),
@@ -541,32 +536,10 @@ mod tests {
             },
             LeanType::Prop,
         );
-        let side = Tactic::Call {
-            tactic: TacticRef::Bridge(super::super::bridges::BridgeTactic::Norm),
-            args: Vec::new(),
-        };
-        let proof = Proof::By(Tactic::First {
-            why: super::super::tactic::ListReason::CitedOtherShape,
-            ways: vec![
-                Tactic::Exact(applied.clone()),
-                Tactic::Group(Box::new(Tactic::Seq(vec![
-                    Tactic::Name {
-                        name: "h".to_string(),
-                        term: Term::of(
-                            TermKind::Paren(Box::new(Term::letter(
-                                "x",
-                                LeanType::Prop,
-                            ))),
-                            LeanType::Prop,
-                        ),
-                    },
-                    side,
-                ]))),
-            ],
-        });
+        let proof = Proof::By(Tactic::Exact(applied.clone()));
         assert_eq!(
             proof.text(),
-            "by first | exact Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)) | (have h := (x); parley_norm)"
+            "by exact Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α))"
         );
         let names: Vec<&str> = applied
             .constants()

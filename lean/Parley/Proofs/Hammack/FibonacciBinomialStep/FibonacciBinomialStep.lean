@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs

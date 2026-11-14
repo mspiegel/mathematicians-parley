@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation

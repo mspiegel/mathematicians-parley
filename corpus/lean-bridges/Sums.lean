@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Order.Star.Int
 public import Mathlib.Computability.Reduce
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Tactic.Ring.RingNF
+public import Mathlib.Algebra.BigOperators.Finprod
 
 /-!
 # Sums over a range of integers
@@ -31,6 +32,18 @@ theorem sum_extended {M : Type*} [AddCommMonoid M] (t : ℤ → M) (a n : ℤ) (
     simp only [Finset.mem_Icc, Finset.mem_insert]
     omega
   rw [split, Finset.sum_insert (by simp), add_comm]
+
+/-- A product over a range written as a set, as an item over any set
+writes it, is the product over the range as a finite set, as the step
+writes it. -/
+theorem finprod_Icc {M : Type*} [CommMonoid M] (a b : ℤ) (f : ℤ → M) :
+    (∏ᶠ x ∈ (Set.Icc a b : Set ℤ), f x) = ∏ x ∈ Finset.Icc a b, f x := by
+  rw [← Finset.coe_Icc, finprod_mem_coe_finset]
+
+/-- The same of a sum. -/
+theorem finsum_Icc {M : Type*} [AddCommMonoid M] (a b : ℤ) (f : ℤ → M) :
+    (∑ᶠ x ∈ (Set.Icc a b : Set ℤ), f x) = ∑ x ∈ Finset.Icc a b, f x := by
+  rw [← Finset.coe_Icc, finsum_mem_coe_finset]
 
 end LeanBridges.Sums
 

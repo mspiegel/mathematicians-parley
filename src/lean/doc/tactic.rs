@@ -1,13 +1,12 @@
 //! Lean proofs as values: a term, or tactics.
 
-use super::bridges::BridgeTactic;
 use super::term::{LeanType, Source, Term};
 
-/// A tactic a proof calls: one the bridges define, or one of Lean's or
-/// Mathlib's, by its name.
+/// A tactic a proof calls: one of Lean's or Mathlib's, by its name. The
+/// bridges define lemmas and no tactic, so a generated proof calls nothing
+/// that decides its way at proof time beyond Lean's own tactics.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TacticRef {
-    Bridge(BridgeTactic),
     Mathlib(&'static str),
 }
 
@@ -15,7 +14,6 @@ impl TacticRef {
     /// Its name in Lean.
     pub fn name(self) -> &'static str {
         match self {
-            TacticRef::Bridge(t) => t.name(),
             TacticRef::Mathlib(name) => name,
         }
     }
@@ -23,15 +21,13 @@ impl TacticRef {
     /// Where it comes from, which a file calling it imports.
     pub fn source(self) -> Source {
         match self {
-            TacticRef::Bridge(t) => Source::Bridge(t.module()),
             TacticRef::Mathlib(_) => Source::Mathlib,
         }
     }
 }
 
-/// Why a step is closed by a `first` list: what no rule decides of it, so
-/// that the step tries its ways in order. The register of lists keeps each
-/// by its reason (`tests/first_lists.rs`).
+/// Why a step the writer could close several ways is declined: what no
+/// rule decides of it, as a generated proof tries no ways in turn.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ListReason {
     /// A cited item's statement and the claim, Lean states in different
@@ -121,15 +117,10 @@ pub enum Tactic {
     Name { name: String, term: Term },
     /// `have := t`: a term's statement put among the facts, unnamed.
     Fact(Term),
-    /// `first | a | b`: the first that closes the goal, tried because of
-    /// `why`.
-    First { why: ListReason, ways: Vec<Tactic> },
     /// `a; b`: one after the other.
     Seq(Vec<Tactic>),
     /// `(a)`.
     Group(Box<Tactic>),
-    /// `try a`.
-    Try(Box<Tactic>),
     /// `have name : says := proof`: a line of the page proved, its proof
     /// on one line or several.
     Have {
@@ -196,7 +187,7 @@ pub enum Pattern {
 pub enum TacticArg {
     /// A term, as the writer gives it.
     Term(Term),
-    /// A setting, `(norm := parley_norm)` or `(disch := omega)`.
+    /// A setting, `(norm := ring1)` or `(disch := omega)`.
     Setting {
         key: &'static str,
         value: Box<Tactic>,
@@ -283,10 +274,8 @@ impl Tactic {
         while i < out.len() {
             let node = out[i];
             match node {
-                Tactic::First { ways: ts, .. } | Tactic::Seq(ts) => {
-                    out.extend(ts.iter())
-                }
-                Tactic::Group(t) | Tactic::Try(t) | Tactic::Bullet(t) => out.push(t),
+                Tactic::Seq(ts) => out.extend(ts.iter()),
+                Tactic::Group(t) | Tactic::Bullet(t) => out.push(t),
                 Tactic::Call { args, .. } => {
                     out.extend(args.iter().filter_map(|a| match a {
                         TacticArg::Setting { value, .. } => Some(&**value),

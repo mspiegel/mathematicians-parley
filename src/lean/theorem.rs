@@ -10,7 +10,7 @@
 
 use indexmap::IndexMap;
 
-use super::doc::bridges::{BridgeModule, BridgeTactic};
+use super::doc::bridges::BridgeModule;
 use super::doc::{ListReason, Tactic, TacticArg};
 use super::expr::{LetterType, Printed, Writer};
 use super::items::{Item, Sentence};
@@ -397,7 +397,7 @@ fn same_ring_atoms(
     other: &Printed,
     values: &super::doc::forms::Values,
 ) -> bool {
-    // Each read with its `toNat`s as `parley_norm` reads them.
+    // Each read with its `toNat`s taken apart (`to_nat_read`).
     let (mut a, mut b) = (Vec::new(), Vec::new());
     ring_atoms(&to_nat_read(one), &mut a);
     ring_atoms(&to_nat_read(other), &mut b);
@@ -678,8 +678,8 @@ fn integer_powers_under_binders(term: &Printed) -> usize {
     }
 }
 
-/// The statement with each `toNat` read as `parley_norm` reads it, by the
-/// table of Lean facts it takes them apart by:
+/// The statement with each `toNat` read as `ring_combination`'s `simp
+/// only` reads it, by the Lean facts it takes them apart by:
 /// - of numerals alone, the numeral it works out to (`Int.reduceToNat`),
 ///   `(2 : ℤ).toNat` as `2`;
 /// - of a sum, the sum of the parts' (`Int.toNat_add`), and of a product,
@@ -689,8 +689,8 @@ fn integer_powers_under_binders(term: &Printed) -> usize {
 ///
 /// The writer writes `(t).toNat` only of a term the said-once rule puts in
 /// ℕ₀ (`Writer::said_whole`), which puts a sum or a product there by its
-/// parts: the facts 0 ≤ a and 0 ≤ b these two ask hold, and `omega` reads
-/// them in `parley_norm`. A difference's `toNat` stays whole: subtraction in
+/// parts: the facts 0 ≤ a and 0 ≤ b these two ask hold, and `omega`, the
+/// `simp`'s discharger, reads them. A difference's `toNat` stays whole: subtraction in
 /// ℕ stops at 0.
 fn to_nat_read(term: &Printed) -> Printed {
     use super::doc::{LeanType, TermKind};
@@ -786,7 +786,7 @@ fn naturals_read(term: &Printed) -> Printed {
 }
 
 /// The `toNat`s a statement as Lean writes it takes, each by its text, in
-/// order, read as `parley_norm` reads them (`to_nat_read`), with no
+/// order, taken apart (`to_nat_read`), with no
 /// ascription of a term to its own type and its bound letters renamed in
 /// order (`forms::bound_renamed`).
 fn to_nat_texts(term: &Printed) -> Vec<String> {
@@ -804,11 +804,10 @@ fn to_nat_texts(term: &Printed) -> Vec<String> {
         .collect()
 }
 
-/// The proof of `claim` from `term`, whose statement `says` is worked in a
-/// wider field than the claim's, taken down to it, the widest it names
-/// beyond the claim's: of ℂ, each complex operation read as the real one
-/// (`spelling::read_from_complex`); of ℝ for a claim in ℚ,
-/// `parley_rat_of_real`. None where it names no wider field.
+/// The proof of `claim` from `term`, whose statement `says` is worked in ℂ
+/// beyond the claim's fields, taken down to it: each complex operation
+/// read as the real one (`spelling::read_from_complex`). None where it
+/// names no wider field, or only ℝ, which the step meets by its other ways.
 fn read_down(term: &Printed, says: &Printed, claim: &Printed) -> Option<Tactic> {
     use super::templates::Num;
     let claimed = fields_of(claim);
@@ -818,13 +817,6 @@ fn read_down(term: &Printed, says: &Printed, claim: &Printed) -> Option<Tactic> 
         .max();
     match wider {
         Some(Num::Complex) => Some(super::spelling::read_from_complex(term, says)),
-        Some(Num::Real) => Some(super::tactics::on_h(
-            term,
-            vec![super::tactics::bridge(
-                BridgeTactic::RatOfReal,
-                vec![TacticArg::Term(super::tactics::hyp("h"))],
-            )],
-        )),
         _ => None,
     }
 }
@@ -6344,7 +6336,7 @@ impl<'a> Proof<'a> {
                             true => ListReason::DefineByCases,
                             false => ListReason::DefineSides,
                         };
-                        Route::Built(ways_proof(why, unfolded(&unfold)))
+                        ways_proof(why, unfolded(&unfold))
                     }
                 },
             },
@@ -6585,10 +6577,9 @@ impl<'a> Proof<'a> {
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
-            // Arithmetic of real numbers, √8 = 2√2 or ln(2) ≠ 0: its own
-            // tactic, which tries `parley_arith` first (`RealTactics`).
-            // Each special value put as its value by its law, and the
-            // sides compared, as Metamath proves it (`reals`).
+            // Arithmetic of real numbers, √8 = 2√2 or ln(2) ≠ 0: each
+            // special value put as its value by its law, and the sides
+            // compared, as Metamath proves it (`reals`).
             Method::RealArithmetic => {
                 match super::reals::real_arithmetic(writer, self.sources.targets, node)
                 {
@@ -7509,8 +7500,8 @@ impl<'a> Proof<'a> {
 
     /// The proof of a substitution's own equation where no line says it
     /// (`Substituted::from` None), by the source the step names: worked out
-    /// by arithmetic or real arithmetic, a `have` proved by `parley_arith`
-    /// or `parley_real`; or a define of a name, its hypothesis, turned where
+    /// by arithmetic or real arithmetic, a `have` proved as the method table
+    /// says (`worked_out`, `reals`); or a define of a name, its hypothesis, turned where
     /// the step writes the name on the right. None of any other source.
     fn equation_given(
         &self,
@@ -8283,7 +8274,7 @@ impl<'a> Proof<'a> {
         says: Option<&Printed>,
         met: HowMet<'_>,
         bridge: Option<CitedBridge>,
-    ) -> super::doc::Proof {
+    ) -> Route<super::doc::Proof> {
         let HowMet { facing, meeting } = met;
         let claim_stated = claim.is_some_and(|c| c.stated);
         let claim = claim.map(|c| c.printed);
@@ -8314,9 +8305,13 @@ impl<'a> Proof<'a> {
                 && super::casts::norm_cast_moves_all(says)
                 && super::casts::norm_cast_moves_all(claim);
             match self.proof_meeting(term.clone(), says, claim) {
-                Some(Proved::Term(t)) if agree => return super::doc::Proof::Term(t),
+                Some(Proved::Term(t)) if agree => {
+                    return Route::Built(super::doc::Proof::Term(t))
+                }
                 Some(Proved::Term(_) | Proved::Cast { .. }) if by_norm_cast => {
-                    return super::doc::Proof::By(super::tactics::exact_mod_cast(term))
+                    return Route::Built(super::doc::Proof::By(
+                        super::tactics::exact_mod_cast(term),
+                    ))
                 }
                 // Identity elements dropped, or a cast `norm_cast` does not
                 // move, are no fact a tactic is known to take the one to the
@@ -8339,7 +8334,9 @@ impl<'a> Proof<'a> {
                 &values,
             );
             if by_norm_cast && formed {
-                return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
+                return Route::Built(super::doc::Proof::By(
+                    super::tactics::exact_mod_cast(term),
+                ));
             }
             // Two stated in different types that the checker met as they
             // stand (`Cited::meetings`: no identity dropped, nothing spelt
@@ -8362,7 +8359,9 @@ impl<'a> Proof<'a> {
                 && super::casts::norm_cast_moves_all(says)
                 && super::casts::norm_cast_moves_all(claim)
             {
-                return super::doc::Proof::By(super::tactics::exact_mod_cast(term));
+                return Route::Built(super::doc::Proof::By(
+                    super::tactics::exact_mod_cast(term),
+                ));
             }
             // The checker paired the parts of a notation whose parts stand in
             // any order out of their places, and took nothing else to meet
@@ -8382,23 +8381,23 @@ impl<'a> Proof<'a> {
                 m.permuted && m.identities.is_empty() && !m.respelled && !m.turned
             });
             if listed && only_permuted {
-                return super::doc::Proof::By(reordered(
+                return Route::Built(super::doc::Proof::By(reordered(
                     &term,
                     node.notation() == EQUALITY,
-                ));
+                )));
             }
             // An item worked in a wider field than the claim's, ℂ for a claim
             // in ℝ, taken down to it by the writer's own conversion, as an
             // instance is (`instance_closed`).
             if let Some(down) = read_down(&term, says, claim) {
-                return super::doc::Proof::By(down);
+                return Route::Built(super::doc::Proof::By(down));
             }
             // The checker met the item's conclusion at its values with the
             // claim, so in one type the two differ only in spelling and
             // casts: an equation of numbers whose casts `push_cast` all moves
             // is the item's once pushed in and put by the ring's laws,
-            // `linear_combination`, whose `parley_norm` checks
-            // `push_cast; ring1`; an order with the item's casts is it over
+            // `linear_combination`, its casts pushed in first; an order
+            // with the item's casts is it over
             // the same atoms, `linarith`. `linear_combination e` checks that
             // the claim's left side less its right, less e's, is 0, so an e
             // Lean states turned round is given as `e.symm`. A `toNat` the
@@ -8407,8 +8406,7 @@ impl<'a> Proof<'a> {
             // and no cast moves it.
             // The item's statement as `simp` reads it, its functions given
             // as rules applied, `(fun k => 1 / k) 1` as `1 / 1`
-            // (`forms::beta_reduced`): `push_cast` and the `norm_num` of
-            // `parley_norm` both read it so.
+            // (`forms::beta_reduced`): `push_cast` reads it so.
             let reduced = super::doc::forms::beta_reduced(says);
             let of_numbers = node.children.iter().all(|c| c.sort.is("number"));
             let pushed = super::casts::push_cast_moves_all_in_sides(&reduced)
@@ -8421,26 +8419,19 @@ impl<'a> Proof<'a> {
                 {
                     // Which way the item faces the claim, as the checker met
                     // them (`Cited::facings`); where it records none, the
-                    // step keeps its ways.
+                    // step is declined.
                     let turned = matches!(facing, Some(Facing::Turned));
                     let facing = match facing {
                         Some(facing) => faced(term, facing),
-                        None => {
-                            return close(
-                                ListReason::CitedFacingUnknown,
-                                &self.writer,
-                                node,
-                                term,
-                            )
-                        }
+                        None => return several_ways(ListReason::CitedFacingUnknown),
                     };
                     let says = match turned {
                         false => reduced.clone(),
                         true => super::doc::forms::turned_statement(&reduced),
                     };
-                    return super::doc::Proof::By(ring_combination(
+                    return Route::Built(super::doc::Proof::By(ring_combination(
                         &facing, &says, claim,
-                    ));
+                    )));
                 }
                 ORDER
                     if one_type
@@ -8448,10 +8439,10 @@ impl<'a> Proof<'a> {
                         && atoms
                         && cast_texts(&reduced) == cast_texts(claim) =>
                 {
-                    return super::doc::Proof::By(super::tactics::call(
+                    return Route::Built(super::doc::Proof::By(super::tactics::call(
                         "linarith",
                         vec![super::tactics::rules(vec![term])],
-                    ))
+                    )))
                 }
                 _ => {}
             }
@@ -8463,14 +8454,13 @@ impl<'a> Proof<'a> {
             };
             match bridge {
                 Some(CitedBridge::Rules(rules)) => {
-                    return super::doc::Proof::By(super::tactics::simpa_only(
-                        rules,
-                        turned_term(),
+                    return Route::Built(super::doc::Proof::By(
+                        super::tactics::simpa_only(rules, turned_term()),
                     ))
                 }
                 Some(CitedBridge::Cast) => {
-                    return super::doc::Proof::By(super::tactics::exact_mod_cast(
-                        turned_term(),
+                    return Route::Built(super::doc::Proof::By(
+                        super::tactics::exact_mod_cast(turned_term()),
                     ))
                 }
                 None => {}
@@ -8502,9 +8492,9 @@ impl<'a> Proof<'a> {
                             (_, None) => None,
                         };
                         if let Some(t) = faced_term {
-                            return super::doc::Proof::By(
+                            return Route::Built(super::doc::Proof::By(
                                 super::tactics::exact_mod_cast(t),
-                            );
+                            ));
                         }
                     }
                     // A range member Lean writes as the integer that is it
@@ -8516,28 +8506,30 @@ impl<'a> Proof<'a> {
                             super::doc::Source::Core,
                             super::doc::LeanType::Prop,
                         );
-                        return super::doc::Proof::By(Tactic::Exact(
+                        return Route::Built(super::doc::Proof::By(Tactic::Exact(
                             range_member_made(rfl, term.clone()),
-                        ));
+                        )));
                     }
                     // A claim joined by "and": part by part (`parts_closed`).
                     _ => {
                         if let Some(proof) =
                             parts_closed(node, claim, says, &term, &self.writer)
                         {
-                            return proof;
+                            return Route::Built(proof);
                         }
                     }
                 }
             }
-            let why = apart(node, &reduced, claim, &values, facing);
-            return close(why, &self.writer, node, term);
+            return several_ways(apart(node, &reduced, claim, &values, facing));
         }
         // A claim Lean's types make true, `True`, is closed as it stands.
         if unstated == ListReason::CitedClaimTruth {
-            return super::doc::Proof::By(super::tactics::call("trivial", vec![]));
+            return Route::Built(super::doc::Proof::By(super::tactics::call(
+                "trivial",
+                vec![],
+            )));
         }
-        close(unstated, &self.writer, node, term)
+        several_ways(unstated)
     }
 
     /// The proof of the side a forward reading of `statement`, an item's
@@ -12257,7 +12249,7 @@ impl<'a> Proof<'a> {
         if at_letter && just.values.is_empty() {
             let instance = self.line_statement(&part);
             let page = part.node.clone();
-            return Route::Built(self.instance_closed(
+            return self.instance_closed(
                 node,
                 claim,
                 part.proof,
@@ -12265,7 +12257,7 @@ impl<'a> Proof<'a> {
                 None,
                 Some(&page),
                 recorded,
-            ));
+            );
         }
         let part = &part;
         let (line, name) = (&part.node, &part.proof);
@@ -12440,7 +12432,7 @@ impl<'a> Proof<'a> {
             },
             ty: Some(super::doc::LeanType::Prop),
         };
-        Route::Built(self.instance_closed(
+        self.instance_closed(
             node,
             claim,
             super::tactics::bracket(applied),
@@ -12448,7 +12440,7 @@ impl<'a> Proof<'a> {
             written,
             page.as_ref(),
             recorded,
-        ))
+        )
     }
 
     /// The proof of the claim `node`, which Lean states as `claim`, from
@@ -12456,12 +12448,11 @@ impl<'a> Proof<'a> {
     /// Lean states as `instance`, by how the checker met the instance with
     /// the claim (`Instantiated::meeting`). Where Lean's statements of the
     /// two differ otherwise, the instance, turned where the checker turned
-    /// it, is taken down to the claim's field where it is in a wider one,
-    /// `parley_rat_of_real` of ℝ for a claim in ℚ, and of ℂ each complex
-    /// operation read as the real one cast (`spelling::read_from_complex`);
-    /// and otherwise reaches the claim by the closer
-    /// whose Lean fact holds of the two, the ways tried in order where none
-    /// does (`close`). Before those rows, the instance as the step's lines
+    /// it, is taken down to the claim's field where it is in ℂ, each
+    /// complex operation read as the real one cast
+    /// (`spelling::read_from_complex`); and otherwise reaches the claim by
+    /// the closer whose Lean fact holds of the two, and is declined where
+    /// none does. Before those rows, the instance as the step's lines
     /// write it at the values, `written`, read from the line and met with
     /// the claim, as a citation's is (`read_in_spelling`). Before that, a
     /// power the one writes as an integer power and the other to its
@@ -12478,7 +12469,7 @@ impl<'a> Proof<'a> {
         written: Option<Printed>,
         page: Option<&Node>,
         recorded: &crate::checker::record::Instantiated,
-    ) -> super::doc::Proof {
+    ) -> Route<super::doc::Proof> {
         use super::doc::forms;
         let lean = match (&instance, claim.clone()) {
             (Route::Built(says), Route::Built(wanted)) => Some((says.clone(), wanted)),
@@ -12495,10 +12486,10 @@ impl<'a> Proof<'a> {
                 false => says.clone(),
             };
             if forms::one_term_once_set(&facing, wanted, &self.set_values()) {
-                return super::doc::Proof::By(Tactic::Exact(faced(
+                return Route::Built(super::doc::Proof::By(Tactic::Exact(faced(
                     proof,
                     facing_of_turned(turned),
-                )));
+                ))));
             }
         }
         let met = match (instance, claim) {
@@ -12529,7 +12520,7 @@ impl<'a> Proof<'a> {
             _ => None,
         };
         if let Some(proved) = met {
-            return super::doc::Proof::By(proved.closer());
+            return Route::Built(super::doc::Proof::By(proved.closer()));
         }
         if let (Some((says, wanted)), Some(page)) = (&lean, page) {
             if let Some(converted) = self.powers_converted_at(
@@ -12539,7 +12530,7 @@ impl<'a> Proof<'a> {
                 &proof,
                 recorded.meeting.turned,
             ) {
-                return converted;
+                return Route::Built(converted);
             }
         }
         let read = match (&written, &lean) {
@@ -12557,7 +12548,7 @@ impl<'a> Proof<'a> {
             _ => None,
         };
         if let Some(read) = read {
-            return read;
+            return Route::Built(read);
         }
         use super::tactics as t;
         // The instance turned round where the checker turned it.
@@ -12568,18 +12559,17 @@ impl<'a> Proof<'a> {
             .as_ref()
             .and_then(|(says, wanted)| read_down(&proof, says, wanted));
         if let Some(down) = down {
-            return super::doc::Proof::By(down);
+            return Route::Built(super::doc::Proof::By(down));
         }
         // The two in one type, met by the checker: each closer where its
         // Lean fact holds of Lean's statements of them. An equation of
         // numbers whose casts `push_cast` all moves (the cast table) is the
         // instance once pushed in and put by the ring's laws,
-        // `linear_combination`, whose `parley_norm` checks
-        // `push_cast; ring1`; an order with the same casts as the instance
-        // is it over the same atoms, `linarith`. Any other keeps the ways it
-        // tries.
+        // `linear_combination`; an order with the same casts as the
+        // instance is it over the same atoms, `linarith`. Any other is
+        // declined.
         let Some((says, wanted)) = lean else {
-            return close(ListReason::CitedUnstated, &self.writer, node, proof);
+            return several_ways(ListReason::CitedUnstated);
         };
         let says = match recorded.meeting.turned {
             true => super::doc::forms::turned_statement(&says),
@@ -12590,7 +12580,7 @@ impl<'a> Proof<'a> {
             && super::casts::push_cast_moves_all_in_sides(&wanted);
         let same_casts = cast_texts(&says) == cast_texts(&wanted);
         let atoms = same_ring_atoms(&says, &wanted, &self.set_values());
-        super::doc::Proof::By(match node.notation() {
+        Route::Built(super::doc::Proof::By(match node.notation() {
             EQUALITY if of_numbers && pushed && atoms => {
                 ring_combination(&proof, &says, &wanted)
             }
@@ -12598,16 +12588,15 @@ impl<'a> Proof<'a> {
                 t::call("linarith", vec![t::rules(vec![proof])])
             }
             _ => {
-                let why = apart(
+                return several_ways(apart(
                     node,
                     &says,
                     &wanted,
                     &self.set_values(),
                     Some(Facing::Straight),
-                );
-                return close(why, &self.writer, node, proof);
+                ))
             }
-        })
+        }))
     }
 
     /// The defines among the lines a step cites, each as its equation says
@@ -14207,7 +14196,7 @@ impl<'a> Proof<'a> {
         if ways.is_empty() {
             return Route::no("a substitution the record gives no way of");
         }
-        Route::Built(haves_then(haves, ways_proof(ListReason::Substituted, ways)))
+        ways_proof(ListReason::Substituted, ways).map(|p| haves_then(haves, p))
     }
 
     /// A cited "for all" of one letter written at the block's letter the
@@ -15208,12 +15197,15 @@ impl<'a> Proof<'a> {
                     // put as its term, and the line used.
                     let named = self.named.get(cite).and_then(|n| n.first());
                     let in_named = match (named, self.named_specs.is_empty()) {
-                        (Some(name), false) => Some(in_named_forms(
+                        (Some(name), false) => match in_named_forms(
                             &self.named_specs,
                             name,
                             self.rec.link_facings.get(&line.line).copied(),
                             relation == "≡",
-                        )),
+                        ) {
+                            Route::Built(t) => Some(t),
+                            Route::Declined(d) => return Route::Declined(d),
+                        },
                         _ => None,
                     };
                     // Whether the row, or the line it cites, takes an integer
@@ -15408,7 +15400,12 @@ impl<'a> Proof<'a> {
                                 | (None, Some(proof), _)
                                 | (None, None, Some(proof)) => proof,
                                 (None, None, None) => {
-                                    ways_proof(ListReason::RowRead, ways)
+                                    match ways_proof(ListReason::RowRead, ways) {
+                                        Route::Built(p) => p,
+                                        Route::Declined(d) => {
+                                            return Route::Declined(d)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -16687,7 +16684,7 @@ impl<'a> Proof<'a> {
                 if by_to_nat {
                     ways.push(t::on_h(&mpr, vec![t::exact_mod_cast(t::hyp("h"))]));
                 }
-                return Route::Built(ways_proof(ListReason::DefinitionBackwards, ways));
+                return ways_proof(ListReason::DefinitionBackwards, ways);
             }
         };
         // A claim that is itself the "and", read as its parts, is the whole.
@@ -16818,7 +16815,7 @@ impl<'a> Proof<'a> {
             // neither holds.
             Some(read) => read,
             None if by_identities => forms_converted(&term, &conversion, turned),
-            None => self.closer(
+            None => match self.closer(
                 node,
                 claim_lean.as_ref().map(|printed| StepClaim {
                     printed,
@@ -16840,7 +16837,10 @@ impl<'a> Proof<'a> {
                         &self.set_values(),
                     ),
                 ),
-            ),
+            ) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
+            },
         };
         // The goal alone: each line the item is given puts the defines in
         // itself, where it is passed (`supplied_proof`).
@@ -18375,14 +18375,10 @@ impl<'a> Proof<'a> {
             .insert(letter.text.to_string(), LetterType::Set(members));
         let open =
             || Printed::of(super::doc::TermKind::Open, super::doc::LeanType::Prop);
-        // X's finiteness from why the checker says it is (`finite_proof`);
-        // `parley_finite` where the reason names nothing to write it from.
-        let finite = self.finite_proof(whole).unwrap_or_else(|| {
-            t::by_term(super::doc::Proof::By(t::bridge(
-                BridgeTactic::Finite,
-                vec![],
-            )))
-        });
+        // X's finiteness from why the checker says it is (`finite_proof`).
+        let Some(finite) = self.finite_proof(whole) else {
+            return Route::no("an induction on the parts of a set not shown finite");
+        };
         let induction = Printed::applied(
             "LeanBridges.Sets.subset_induction",
             super::doc::Source::Bridge(BridgeModule::Sets),
@@ -19913,25 +19909,24 @@ fn tactic_of(proof: &super::doc::Proof) -> Tactic {
     }
 }
 
-/// The proof `by t` of one way, `by first | a | b` of several: the ways a
-/// step is closed, tried in order because of `why`.
-fn ways_proof(why: ListReason, ways: Vec<Tactic>) -> super::doc::Proof {
-    let tactic = match <[Tactic; 1]>::try_from(ways) {
-        Ok([one]) => one,
-        Err(ways) => super::tactics::first(why, ways),
-    };
-    super::doc::Proof::By(tactic)
+/// The proof `by t` of the one way a step is closed; declined, for `why`,
+/// where the writer has several and nothing to choose among them by, as a
+/// generated proof tries no ways in turn.
+fn ways_proof(why: ListReason, ways: Vec<Tactic>) -> Route<super::doc::Proof> {
+    match <[Tactic; 1]>::try_from(ways) {
+        Ok([one]) => Route::Built(super::doc::Proof::By(one)),
+        Err(_) => several_ways(why),
+    }
 }
 
-/// The ways a claim is closed from `term` (`closers`), tried because of
-/// `why`.
-fn close(
-    why: ListReason,
-    writer: &Writer,
-    claim: &Node,
-    term: Printed,
-) -> super::doc::Proof {
-    super::doc::Proof::By(super::tactics::first(why, closers(writer, claim, term)))
+/// A step the writer could close several ways, for `why`, with nothing
+/// to choose among them by: declined, as a generated proof tries no ways
+/// in turn.
+fn several_ways<T>(why: ListReason) -> Route<T> {
+    Route::no(format!(
+        "a step with several ways to close it and no fact to choose one by: {}",
+        why.text()
+    ))
 }
 
 /// Why a cited statement `says` and the claim, both as Lean states them,
@@ -20465,7 +20460,7 @@ fn unfolded(defines: &[String]) -> Vec<Tactic> {
 /// `qify; push_cast; simp only [specs]; linear_combination line`: a row and
 /// the line it cites taken to ℚ, each named number put as its term, and the
 /// line used the way the row faces it (`link_facings`), `-line` where
-/// turned; both ways where the record has no facing. A congruence row is
+/// turned; declined where the record has no facing. A congruence row is
 /// the line itself, which states it in the named numbers' forms already:
 /// `exact line`, or `line.symm` where turned.
 fn in_named_forms(
@@ -20473,29 +20468,23 @@ fn in_named_forms(
     line: &str,
     facing: Option<Facing>,
     congruence: bool,
-) -> Tactic {
+) -> Route<Tactic> {
     use super::tactics as t;
     if let (true, Some(facing)) = (congruence, facing) {
-        return Tactic::Exact(faced(t::hyp(line), facing));
+        return Route::Built(Tactic::Exact(faced(t::hyp(line), facing)));
     }
     let rules = specs.iter().cloned().map(t::forwards).collect();
-    let by_line = |by: Printed| {
-        t::steps(vec![t::linear_combination(by), t::call("done", vec![])])
-    };
     let used = match facing {
         Some(Facing::Straight) => t::linear_combination(t::hyp(line)),
         Some(Facing::Turned) => t::linear_combination(negated(t::hyp(line))),
-        None => t::first(
-            ListReason::NamedNumbers,
-            vec![by_line(t::hyp(line)), by_line(negated(t::hyp(line)))],
-        ),
+        None => return several_ways(ListReason::NamedNumbers),
     };
-    t::steps(vec![
+    Route::Built(t::steps(vec![
         t::call("qify", vec![]),
         t::push_cast(None),
         t::simp_only(false, None, rules, None),
         used,
-    ])
+    ]))
 }
 
 /// That a term is at least 0, from the line that puts it in ℕ₀, `h`, or
@@ -20808,270 +20797,4 @@ fn specs_then(rules: &[super::doc::Rule]) -> Tactic {
         t::push_cast(None),
         t::simp_only(false, None, rules.to_vec(), None),
     ])
-}
-
-/// `(have h := t; (try push_cast at h); (try push_cast); linear_combination
-/// (norm := parley_norm) e)`: the citation with its casts pushed in on both
-/// sides, then the claim as a combination of it.
-fn pushed_then(cited: &Printed, by: Printed) -> Tactic {
-    use super::tactics as t;
-    t::on_h(
-        cited,
-        vec![
-            t::try_(t::push_cast(Some(t::at_h(false)))),
-            t::try_(t::push_cast(None)),
-            t::linear_combination(by),
-        ],
-    )
-}
-
-/// The ways a claim is closed from a term that proves it, or something
-/// near it, tried in order (`close`).
-fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
-    use super::tactics as t;
-    let complex = super::doc::LeanType::Num(super::templates::Num::Complex);
-    let real = super::doc::LeanType::Num(super::templates::Num::Real);
-    let to_nat_put_back = cited.names("Int.toNat_of_nonneg");
-    let h = || t::hyp("h");
-    // An equation or order between sets, members or counts is closed as
-    // any other claim: the closers for numbers work in a field or a ring.
-    let of_numbers = claim
-        .children
-        .iter()
-        .all(|c| c.sort.is("number") && !writer.counts(c));
-    match claim.notation() {
-        // An instance whose casts sit otherwise than the claim's, ↑(0 : ℕ)
-        // for 0, is taken with them pushed in, and one whose equation the
-        // claim turns round, as a cited rule written a + b = c claimed as
-        // c = a + b, is taken negated. A corpus theorem stated in a
-        // wider type than the claim, ℝ for a claim in ℚ, has the claim moved
-        // up to it.
-        EQUALITY if of_numbers => {
-            // A remainder of integers written with `%`, beside an item of
-            // set.mm's mod of real numbers: the item's put as `%` first.
-            let of_mod = claim.walk().iter().any(|n| &*n.notation_name() == "mod");
-            let as_remainder = of_mod.then(|| {
-                let mod_lemma = |name| {
-                    t::forwards(t::bridge_lemma(name, BridgeModule::Divisibility))
-                };
-                t::steps(vec![
-                    t::name_h(&cited),
-                    t::simp_only(
-                        false,
-                        Some(t::call("positivity", vec![])),
-                        vec![
-                            mod_lemma("LeanBridges.Divisibility.mod_natCast"),
-                            mod_lemma("LeanBridges.Divisibility.mod_intCast"),
-                        ],
-                        Some(t::at_h(true)),
-                    ),
-                    t::exact_mod_cast(t::hyp("h")),
-                ])
-            });
-            // A term given a natural as an integer's `toNat`, rewritten back
-            // by `▸` (`instance`): an error elaborating it against the goal,
-            // as `exact_mod_cast` does, is logged and does not fail the
-            // alternative, so it is cast from a `have`, which fails.
-            // An item stated over ℂ, given the claim's real numbers cast up,
-            // `(P : ℂ)`, where the claim is in ℝ: the item read back in ℝ.
-            let below_complex = claim
-                .children
-                .iter()
-                .filter_map(|c| writer.carrier(c).built())
-                .all(|n| n < super::templates::Num::Complex);
-            let of_complex =
-                (cited.has_cast_to(&complex) && below_complex).then(|| {
-                    t::on_h(
-                        &cited,
-                        vec![t::bridge(
-                            BridgeTactic::OfComplex,
-                            vec![TacticArg::Term(h())],
-                        )],
-                    )
-                });
-            // An item over ℝ given rationals, the geometric sum at a := 2,
-            // where the claim is written in its own type, ℚ: cast down.
-            let of_real: Vec<Tactic> = cited
-                .has_cast_to(&real)
-                .then(|| {
-                    t::on_h(
-                        &cited,
-                        vec![t::bridge(
-                            BridgeTactic::RatOfReal,
-                            vec![TacticArg::Term(h())],
-                        )],
-                    )
-                })
-                .into_iter()
-                .collect();
-            // An item that counts in ℕ∞, |∅| = 0, met in ℤ: the goal's
-            // counts of finite sets said in ℕ∞ (`parley_count_ext`), where
-            // the item meets it as it stands, before the `exact_mod_cast`
-            // below, whose error is logged as above.
-            let counted = claim
-                .walk()
-                .iter()
-                .any(|n| &*n.notation_name() == "cardinality");
-            let counted = counted.then(|| {
-                t::steps(vec![
-                    t::bridge(BridgeTactic::CountExt, vec![]),
-                    t::exact_mod_cast(cited.clone()),
-                ])
-            });
-            let by_to_nat = to_nat_put_back;
-            // The term itself, given to `linear_combination`: not one with a
-            // `toNat` put back by `▸`, whose error is logged as above; the
-            // `have` after it takes that one.
-            let direct = (!by_to_nat).then(|| t::linear_combination(cited.clone()));
-            let cast = match by_to_nat {
-                true => vec![
-                    t::on_h(&cited, vec![t::exact_mod_cast(h())]),
-                    t::on_h(&cited, vec![t::exact_mod_cast(t::symm(h()))]),
-                ],
-                false => vec![
-                    t::exact_mod_cast(cited.clone()),
-                    t::exact_mod_cast(t::symm(t::bracket(cited.clone()))),
-                ],
-            };
-            let negated = Printed {
-                kind: super::doc::TermKind::Neg(Box::new(h())),
-                ty: None,
-            };
-            let mut out: Vec<Tactic> = direct.into_iter().collect();
-            out.push(pushed_then(&cited, h()));
-            out.push(pushed_then(&cited, negated));
-            out.extend(counted);
-            out.extend(cast);
-            out.push(t::on_h(
-                &cited,
-                vec![t::call("rify", vec![]), t::linear_combination(h())],
-            ));
-            out.push(t::on_h(
-                &cited,
-                vec![t::call("qify", vec![]), t::linear_combination(h())],
-            ));
-            out.extend(as_remainder);
-            out.extend(of_complex);
-            out.extend(of_real);
-            out
-        }
-        // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
-        // which linarith reads only once the cast is pushed in.
-        // An item over ℝ cited for a claim the page computes in ℚ gives
-        // the claim cast up, which exact_mod_cast brings down.
-        ORDER if of_numbers => {
-            vec![
-                t::call("linarith", vec![t::rules(vec![cited.clone()])]),
-                t::on_h(
-                    &cited,
-                    vec![
-                        t::push_cast(Some(t::at_h(false))),
-                        t::call("linarith", vec![]),
-                    ],
-                ),
-                t::exact_mod_cast(cited.clone()),
-            ]
-        }
-        // A relation said either way round, a congruence or a ↔, as the
-        // claim writes it. Here and above, the last way takes the
-        // citation's "and" apart: a definition unfolded to "p > 1 and for
-        // all d …" gives either half. A claim with a listed set in it, which
-        // may be in another order than the item's, {w, u} for {u, w}, is put
-        // in one order on both sides.
-        _ => {
-            let listed = claim.walk().iter().any(|n| {
-                matches!(
-                    &*n.notation_name(),
-                    "listed-two" | "listed-three" | "listed-four"
-                )
-            });
-            let reorder =
-                listed.then(|| reordered(&cited, claim.notation() == EQUALITY));
-            // A natural given as an integer's `toNat`, put back by `▸`: an
-            // error elaborating that against the goal is logged and does not
-            // fail the alternative, so the term is stated by a `have`, which
-            // fails.
-            match to_nat_put_back {
-                true => {
-                    let mut out = vec![
-                        t::on_h(&cited, vec![Tactic::Exact(h())]),
-                        t::on_h(&cited, vec![Tactic::Exact(t::symm(h()))]),
-                        t::on_h(
-                            &cited,
-                            vec![t::call("simpa", vec![TacticArg::Using(h())])],
-                        ),
-                        t::on_h(&cited, vec![t::exact_mod_cast(h())]),
-                    ];
-                    out.extend(reorder);
-                    out
-                }
-                false => {
-                    // A line in ℝ taken at a value, ε := 1/2, whose claim of
-                    // rationals is written in its own type, ℚ: cast down.
-                    let of_real = cited.has_cast_to(&real).then(|| {
-                        t::on_h(
-                            &cited,
-                            vec![t::bridge(
-                                BridgeTactic::RatOfReal,
-                                vec![TacticArg::Term(h())],
-                            )],
-                        )
-                    });
-                    let mut out = vec![
-                        Tactic::Exact(cited.clone()),
-                        Tactic::Exact(t::symm(t::bracket(cited.clone()))),
-                        t::call("simpa", vec![TacticArg::Using(cited.clone())]),
-                        t::exact_mod_cast(cited.clone()),
-                    ];
-                    // A range member Lean computes wider is said as the
-                    // integer that is it, `∃ m : ℤ, ↑m = t ∧ m ∈ Finset.Icc a
-                    // b` (`Writer::formula`), and the claim's t is the
-                    // integer the item puts in the range once the step
-                    // rewrites it so: that integer, its own equation, and the
-                    // item.
-                    // A product or sum over a range, which the claim writes
-                    // over `Finset.Icc`, of an item over a set of numbers
-                    // that writes `∏ᶠ x ∈ Set.Icc a b`: the item's put over
-                    // the finset the set is.
-                    let ranged = super::expr::RangedOperators::of(claim);
-                    for (on, lemma) in [
-                        (ranged.product, "finprod_mem_coe_finset"),
-                        (ranged.sum, "finsum_mem_coe_finset"),
-                    ] {
-                        if on {
-                            out.push(t::on_h(
-                                &cited,
-                                vec![
-                                    t::call(
-                                        "rw",
-                                        vec![
-                                            TacticArg::Rules(vec![
-                                                t::backwards(t::lemma(
-                                                    "Finset.coe_Icc",
-                                                )),
-                                                t::forwards(t::lemma(lemma)),
-                                            ]),
-                                            t::at_h(false),
-                                        ],
-                                    ),
-                                    Tactic::Exact(h()),
-                                ],
-                            ));
-                        }
-                    }
-                    if wide_range_member(writer, claim) {
-                        let rfl = Printed::constant(
-                            "rfl",
-                            super::doc::Source::Core,
-                            super::doc::LeanType::Prop,
-                        );
-                        out.push(Tactic::Exact(range_member_made(rfl, cited.clone())));
-                    }
-                    out.extend(reorder);
-                    out.extend(of_real);
-                    out
-                }
-            }
-        }
-    }
 }

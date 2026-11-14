@@ -943,9 +943,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Tests/Elaborator/RealArithmeticOrder/OneBelowALogarithm.lean",
         step: "1",
-        holds: "exact_mod_cast Roots.log_above (p := 3) (a := 1) (b := 1)",
+        holds: "exact_mod_cast LeanBridges.Logarithms.log_above (p := 3) (a := 1) (b := 1)",
         list: false,
-        why: "a logarithm's bound from e's, as `reals::ln_bracket` takes it (`Roots.log_above`)",
+        why: "a logarithm's bound from e's, as `reals::ln_bracket` takes it (`Logarithms.log_above`)",
     },
     Site {
         file: "lean/Parley/Tests/Elaborator/RealArithmetic/ANegativePower.lean",

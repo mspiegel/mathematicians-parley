@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Functions
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne

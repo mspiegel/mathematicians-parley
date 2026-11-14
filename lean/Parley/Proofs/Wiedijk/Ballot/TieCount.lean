@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.Interval

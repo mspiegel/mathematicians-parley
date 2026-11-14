@@ -1,7 +1,6 @@
 module
 
 public import Counting
-public import FactorialTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic

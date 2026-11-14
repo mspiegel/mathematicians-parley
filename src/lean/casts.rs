@@ -542,8 +542,8 @@ pub fn norm_cast_lifts_relation(relation: &Term, to: &super::doc::LeanType) -> b
 /// Whether `push_cast` moves every cast in `term` to the letters and
 /// numerals, as `norm_cast_moves_all` asks of `norm_cast`: the casts of two
 /// statements alike but for them are then pushed in alike, and what is left
-/// between them is the ring's, which `parley_norm`'s `push_cast; ring1`
-/// checks. Of a relation, within each side: `push_cast` moves the casts
+/// between them is the ring's, which `push_cast` then `ring1` checks. Of a
+/// relation, within each side: `push_cast` moves the casts
 /// inside each side and never through the relation, which the table says it
 /// does not, and the closers it serves compare the sides so pushed:
 /// `linear_combination` takes their difference, `a - b - (c - d) = 0`, and

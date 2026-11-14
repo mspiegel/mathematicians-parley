@@ -12,8 +12,6 @@ public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.Rify
-public import ParleySimp
-public import NormTactics
 
 /-!
 # Natural numbers given as an integer's `toNat`

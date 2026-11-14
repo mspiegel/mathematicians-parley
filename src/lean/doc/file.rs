@@ -64,21 +64,6 @@ pub enum Binder {
     Fact { name: String, says: Term },
 }
 
-/// Where a list above every step's comment stands (`Declaration::lists`).
-pub const STATEMENT: &str = "the statement";
-
-/// The step a comment above a step's Lean names: its number and the first
-/// word of its reason, `3.2` and `mun:x` of `3.2. mun:x, …`; None for a
-/// comment that names no step.
-pub fn step_of_comment(text: &str) -> Option<(String, String)> {
-    let (number, rest) = text.split_once(". ")?;
-    if number.is_empty() || !number.chars().all(|c| c.is_ascii_digit() || c == '.') {
-        return None;
-    }
-    let method = rest.split([' ', ',']).next()?;
-    Some((number.to_string(), method.to_string()))
-}
-
 /// One line of a proof by tactics, at the depth of its blocks.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Step {
@@ -160,26 +145,6 @@ impl Declaration {
             DeclProof::Verbatim { text, .. } => {
                 out.push_str("\n  ");
                 out.push_str(text);
-            }
-        }
-        out
-    }
-
-    /// Each `first` list it writes, with the step it stands in, by the
-    /// number of the comment above the step (`step_of_comment`), and why
-    /// it is a list. A list above every comment stands in the statement.
-    pub fn lists(&self) -> Vec<(String, super::tactic::ListReason)> {
-        let mut step = STATEMENT.to_string();
-        let mut out = Vec::new();
-        for t in self.parts().tactics {
-            match t {
-                Tactic::Comment(text) => {
-                    if let Some((number, _)) = step_of_comment(text) {
-                        step = number;
-                    }
-                }
-                Tactic::First { why, .. } => out.push((step.clone(), *why)),
-                _ => {}
             }
         }
         out
@@ -291,12 +256,12 @@ impl<'a> Parts<'a> {
                     self.arg(a);
                 }
             }
-            Tactic::First { ways: ts, .. } | Tactic::Seq(ts) => {
+            Tactic::Seq(ts) => {
                 for t in ts {
                     self.tactic(t);
                 }
             }
-            Tactic::Group(t) | Tactic::Try(t) | Tactic::Bullet(t) => self.tactic(t),
+            Tactic::Group(t) | Tactic::Bullet(t) => self.tactic(t),
             Tactic::Have { says, proof, .. } | Tactic::Replace { says, proof, .. } => {
                 self.term(says);
                 self.proof(proof);

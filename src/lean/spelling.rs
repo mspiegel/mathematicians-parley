@@ -111,7 +111,8 @@ impl Spelling {
 /// - an integer said as some `(m : K)` at K := ℤ, `∃ m, P m ∧ (m : ℤ) = t`,
 ///   read as `P t` (`Int.cast_id`, `exists_eq_right`);
 /// - a product or sum over a range as a set, which the step takes over the
-///   range as a finite set (`parley_finprod_Icc`, `parley_finsum_Icc`);
+///   range as a finite set (`LeanBridges.Sums.finprod_Icc`,
+///   `finsum_Icc`);
 /// - a membership of a range as a set beside the step's of a range as a
 ///   finite set, the step's read as its two bounds (`Finset.mem_Icc`);
 /// - the reals' `mod` of integers cast up, read as their `%`
@@ -174,8 +175,8 @@ fn spelling(said: &Printed, written: &Printed) -> Spelling {
                 add_facts(
                     &mut bridged,
                     &[match product {
-                        true => "parley_finprod_Icc",
-                        false => "parley_finsum_Icc",
+                        true => "LeanBridges.Sums.finprod_Icc",
+                        false => "LeanBridges.Sums.finsum_Icc",
                     }],
                 )
             }
@@ -210,7 +211,7 @@ fn spelling(said: &Printed, written: &Printed) -> Spelling {
     let side_by_omega = !divided.is_empty();
     let mut item_facts: Vec<Printed> = bridged
         .into_iter()
-        .map(|l| t::bridge_lemma(l, BridgeModule::InstanceTactics))
+        .map(|l| t::bridge_lemma(l, BridgeModule::Sums))
         .collect();
     item_facts.extend(
         divided

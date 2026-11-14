@@ -2,7 +2,7 @@
 //! each names the tactic and the lemmas it uses with where they come from,
 //! so that a file imports what its proofs call.
 
-use super::doc::bridges::{BridgeModule, BridgeTactic};
+use super::doc::bridges::BridgeModule;
 use super::doc::{
     Location, Rule, Source, Tactic, TacticArg, TacticRef, Term, TermKind,
 };
@@ -11,14 +11,6 @@ use super::doc::{
 pub fn call(name: &'static str, args: Vec<TacticArg>) -> Tactic {
     Tactic::Call {
         tactic: TacticRef::Mathlib(name),
-        args,
-    }
-}
-
-/// A tactic of the bridges, called with these.
-pub fn bridge(tactic: BridgeTactic, args: Vec<TacticArg>) -> Tactic {
-    Tactic::Call {
-        tactic: TacticRef::Bridge(tactic),
         args,
     }
 }
@@ -126,11 +118,6 @@ pub fn push_cast(at: Option<TacticArg>) -> Tactic {
     call("push_cast", at.into_iter().collect())
 }
 
-/// `(try t)`.
-pub fn try_(tactic: Tactic) -> Tactic {
-    Tactic::Group(Box::new(Tactic::Try(Box::new(tactic))))
-}
-
 /// `simp (disch := d) only [rules] at …`, the discharger and location where
 /// given; `+contextual` before the discharger where asked.
 pub fn simp_only(
@@ -166,11 +153,6 @@ pub fn simpa_only(rules: Vec<&'static str>, using: Term) -> Tactic {
             TacticArg::Using(using),
         ],
     )
-}
-
-/// `first | a | b`: the ways tried in order, for the reason `why`.
-pub fn first(why: super::doc::ListReason, ways: Vec<Tactic>) -> Tactic {
-    Tactic::First { why, ways }
 }
 
 /// A rule used forwards.

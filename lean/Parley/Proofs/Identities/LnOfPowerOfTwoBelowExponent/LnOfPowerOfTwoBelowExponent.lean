@@ -1,7 +1,7 @@
 module
 
+public import Logarithms
 public import PowerTactics
-public import Roots
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -39,8 +39,8 @@ theorem ln_of_power_of_two_below_exponent (n : ℤ) (hH1 : 0 < n) :
     Real.log (2 ^ n.toNat : ℝ) < (n : ℝ) := by
   -- 1. real arithmetic
   have s1 : Real.log (2 : ℝ) < 1 := by
-    have hf1 : (5 / 8 : ℝ) < Real.log (2 : ℝ) := by exact_mod_cast Roots.log_above (p := 2) (a := 5) (b := 8) (by norm_num) (by norm_num) (by norm_num)
-    have hf2 : Real.log (2 : ℝ) < (1 / 1 : ℝ) := by exact_mod_cast Roots.log_below (p := 2) (a := 1) (b := 1) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+    have hf1 : (5 / 8 : ℝ) < Real.log (2 : ℝ) := by exact_mod_cast LeanBridges.Logarithms.log_above (p := 2) (a := 5) (b := 8) (by norm_num) (by norm_num) (by norm_num)
+    have hf2 : Real.log (2 : ℝ) < (1 / 1 : ℝ) := by exact_mod_cast LeanBridges.Logarithms.log_below (p := 2) (a := 1) (b := 1) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
     linarith only [hf1, hf2]
   -- 2. inequalities, from H1
   have s2 : n > 0 := by linarith only [hH1]
