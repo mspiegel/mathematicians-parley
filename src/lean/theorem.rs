@@ -12784,6 +12784,176 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// What closes a recorded putting: the identity elements it leaves and
+    /// the claim drops, and the casts back the step names. A putting that
+    /// makes the claim only turned round, or with a listed set's members in
+    /// another order (`Substituted::meeting`), is no motive's: the claim is
+    /// not the line with the equation put in. Another spelling of the same
+    /// notation, `0 < x` of `x > 0`, is one Lean writes alike or unfolds
+    /// (`Meeting::respelled`). `natural_put_whole` is whether a natural
+    /// number is put for a letter written by its `toNat`.
+    fn put_closing(
+        &self,
+        rec: &crate::checker::record::Substituted,
+        [was, now]: [&Node; 2],
+        (line, claim): (usize, &Node),
+        cast_to_nat: bool,
+        natural_put_whole: bool,
+    ) -> Route<PutClosing> {
+        let m = &rec.meeting;
+        if m.permuted || m.renamed {
+            return Route::no("a putting that meets the claim other than as written");
+        }
+        // The identity elements the putting leaves and the claim drops, as
+        // the record names them, `1·x` as `x` by `one_mul`.
+        let dropped: Option<Vec<&'static str>> =
+            m.identities.iter().map(identity_lemma).collect();
+        let Some(mut dropped) = dropped else {
+            return Route::no("an identity element dropped that no lemma names");
+        };
+        // A natural number put for a letter written by its `toNat` leaves
+        // the `toNat` of its cast, which is it.
+        if natural_put_whole {
+            dropped.push("Int.toNat_natCast");
+        }
+        // Dropped with the casts pushed, as rewrites `push_cast` takes beside
+        // its own: a numeral put where the claim has it in a wider type is
+        // cast, `((1 : ℤ) : ℝ) * x`, which `one_mul` meets only as `1 * x`,
+        // and `push_cast` may drop the identity itself.
+        // Where a side holds a cast of a `toNat`, the casts back of the
+        // whole numbers the step names (`Writer::whole_back`), which take
+        // `((2^p − 1).toNat : ℤ)` in the goal to the integer the line says.
+        let backs: Vec<Printed> = [was, now]
+            .iter()
+            .filter_map(|n| self.writer.whole_back(n))
+            .collect();
+        Route::Built(PutClosing {
+            cast_to_nat,
+            dropped,
+            backs,
+            wanted: self.claim_as_stated(line, claim),
+        })
+    }
+
+    /// How the places a recorded putting is made at are written: which of
+    /// the exponents stay natural numbers, which are said whole, which are
+    /// integers. `writer` is the step's, which knows how the lines and the
+    /// claim write the terms where a natural number is wanted; `knowing` adds
+    /// what the step's lines bound.
+    fn put_exponents(
+        &self,
+        rec: &crate::checker::record::Substituted,
+        [left, right]: [&Node; 2],
+        [was, now]: [&Node; 2],
+        writer: &Writer,
+        knowing: &Writer,
+    ) -> PutExponents {
+        use super::expr::NaturalForm;
+        // A side holding a cast of a `toNat`, `((2^p − 1).toNat : ℤ)`, which
+        // `push_cast` moves only knowing the term is not negative: what the
+        // motive makes is the claim as it stands, closed with no cast moved.
+        // A `toNat` with no cast over it, an exponent's `2 ^ m.toNat`, is a
+        // term like any other.
+        let cast_to_nat = [left, right].iter().any(|side| {
+            self.writer
+                .formula(side)
+                .built()
+                .or_else(|| {
+                    self.writer.number(side, super::templates::Num::Int).built()
+                })
+                .is_some_and(|p| casts_a_to_nat(&p))
+        });
+        // A place that is an exponent is written by what the page says of
+        // its term, `(−1)^m.toNat` of m said a whole number. Where the page
+        // says so of the term put for and of the term put, and neither is a
+        // natural-number letter written as it stands, the motive's letter is
+        // said whole as well (`Writer::wholes`), and its exponent is written
+        // as theirs are; any other exponent declines.
+        let exponent = rec
+            .put
+            .places
+            .iter()
+            .any(|p| place_is_exponent(&rec.start, p));
+        let form = |n: &Node| writer.natural_form(n);
+        // An equation of natural numbers put at exponents, φ(n) = |S| put in
+        // a^φ(n), or at a count of a finite set, |{a}| = 1 put in |{a}| ≤
+        // |A|: Lean writes either as a natural number, so the equation is put
+        // there in ℕ, stated so first (`e_nat`), and the motive's letter is
+        // of ℕ.
+        let natural_place = |p: &Vec<usize>| {
+            place_is_exponent(&rec.start, p)
+                || at_path(&rec.start, p)
+                    .is_some_and(|n| self.writer.finite_count(n).is_some())
+        };
+        let natural_exponent = !rec.put.places.is_empty()
+            && rec.put.places.iter().all(natural_place)
+            && form(was) == NaturalForm::AsItIs
+            && natural_form_named(knowing, now) != NaturalForm::Integer;
+        // Else the motive's letter is written as Lean writes the exponents
+        // at both its values (`Writer::natural_form`): as its `toNat` where
+        // both are, a numeral put counting so, since its `toNat` works out
+        // (`Int.reduceToNat`), and a natural number put, the `toNat` of its
+        // cast, which is it (`Int.toNat_natCast`); else an integer, its power
+        // an integer one, converted to the claim's after (`int_exponent`,
+        // `powers_converted_at`), each exponent's fact from the record. A
+        // difference put for a whole letter, p − 1 for k, leaves it an
+        // integer.
+        let natural_put = form(now) == NaturalForm::AsItIs
+            && now.notation() != crate::notations::NUMERAL;
+        let now_to_nat = form(now) == NaturalForm::ToNat
+            || now.notation() == crate::notations::NUMERAL
+            || natural_put;
+        let whole_was = exponent
+            && !natural_exponent
+            && form(was) == NaturalForm::ToNat
+            && now_to_nat;
+        PutExponents {
+            cast_to_nat,
+            natural_exponent,
+            natural_put,
+            whole_was,
+            int_exponent: exponent && !natural_exponent && !whole_was,
+        }
+    }
+
+    /// The equation a recorded putting uses, facing as the record puts it:
+    /// the line's part the record names, turned where the line says it the
+    /// other way round; a row's change, which its reason proves as the record
+    /// writes it.
+    fn putting_equation(
+        &self,
+        rec: &crate::checker::record::Substituted,
+        row: Option<&GivenEquation>,
+    ) -> Route<PuttingEquation> {
+        // Which way the equation's proof is used: as the record puts it, the
+        // side put for on the left.
+        let put_facing = |as_said: bool| match as_said != rec.put.turned {
+            true => Facing::Straight,
+            false => Facing::Turned,
+        };
+        match (&rec.from, row) {
+            (Some(from), _) => {
+                let part = match self.line_part(from) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                // Which way round the line says the recorded equation
+                // (`Substituted::line_facing`).
+                let as_said = rec.line_facing != Some(Facing::Turned);
+                let equation = faced(part.proof.clone(), put_facing(as_said));
+                Route::Built(PuttingEquation { part, equation })
+            }
+            (None, Some(row)) => {
+                let equation = faced(row.change.proof.clone(), put_facing(true));
+                Route::Built(PuttingEquation {
+                    part: row.change.clone(),
+                    equation,
+                })
+            }
+            (None, None) => Route::no("an equation the record takes from no line"),
+        }
+    }
+
     /// `substituted_by_record` of a putting that makes the claim as written,
     /// or turned round where the goal is turned already. `writer` is the
     /// step's, which knows what the step's lines say of its terms.
@@ -12833,34 +13003,9 @@ impl<'a> Proof<'a> {
             false => (left, right),
             true => (right, left),
         };
-        // Which way the equation's proof is used: as the record puts it, the
-        // side put for on the left.
-        let put_facing = |as_said: bool| match as_said != rec.put.turned {
-            true => Facing::Straight,
-            false => Facing::Turned,
-        };
-        // The equation's proof: the line's part the record names, turned
-        // where the line says it the other way round; a row's change, which
-        // its reason proves as the record writes it.
-        let (part, equation) = match (&rec.from, row) {
-            (Some(from), _) => {
-                let part = match self.line_part(from) {
-                    Route::Built(p) => p,
-                    Route::Declined(d) => return Route::Declined(d),
-                };
-                // Which way round the line says the recorded equation
-                // (`Substituted::line_facing`).
-                let as_said = rec.line_facing != Some(Facing::Turned);
-                let equation = faced(part.proof.clone(), put_facing(as_said));
-                (part, equation)
-            }
-            (None, Some(row)) => {
-                let equation = faced(row.change.proof.clone(), put_facing(true));
-                (row.change.clone(), equation)
-            }
-            (None, None) => {
-                return Route::no("an equation the record takes from no line")
-            }
+        let PuttingEquation { part, equation } = match self.putting_equation(rec, row) {
+            Route::Built(found) => found,
+            Route::Declined(d) => return Route::Declined(d),
         };
         // A term put for that is no number, a set or a group's element: the
         // motive's letter is of its type, and there are no casts to move.
@@ -12869,76 +13014,22 @@ impl<'a> Proof<'a> {
             return self
                 .substituted_members(rec, letter_ty, put, equation, row, line, claim);
         }
-        // A side holding a cast of a `toNat`, `((2^p − 1).toNat : ℤ)`, which
-        // `push_cast` moves only knowing the term is not negative: what the
-        // motive makes is the claim as it stands, closed with no cast moved.
-        // A `toNat` with no cast over it, an exponent's `2 ^ m.toNat`, is a
-        // term like any other.
-        let cast_to_nat = [left, right].iter().any(|side| {
-            self.writer
-                .formula(side)
-                .built()
-                .or_else(|| {
-                    self.writer.number(side, super::templates::Num::Int).built()
-                })
-                .is_some_and(|p| casts_a_to_nat(&p))
-        });
-        // A place that is an exponent is written by what the page says of
-        // its term, `(−1)^m.toNat` of m said a whole number. Where the page
-        // says so of the term put for and of the term put, and neither is a
-        // natural-number letter written as it stands, the motive's letter is
-        // said whole as well (`Writer::wholes`), and its exponent is written
-        // as theirs are; any other exponent declines.
-        let exponent = rec
-            .put
-            .places
-            .iter()
-            .any(|p| place_is_exponent(&rec.start, p));
-        use super::expr::NaturalForm;
-        // How the lines and the claim write the terms where a natural number
-        // is wanted; and the step's writer knowing what its lines bound, its
-        // requires lines among them, which an equation stated in ℕ may use,
-        // φ(p) = (p − 1).toNat of the requires line p − 1 ∈ ℕ₀.
-        let form = |n: &Node| writer.natural_form(n);
+        // The step's writer knowing what its lines bound, its requires lines
+        // among them, which an equation stated in ℕ may use, φ(p) = (p − 1).toNat
+        // of the requires line p − 1 ∈ ℕ₀.
         let lines: Vec<Node> = self
             .step_now
             .get()
             .map(|i| self.step_facts(i).into_iter().map(|c| c.node).collect())
             .unwrap_or_default();
         let knowing = writer.knowing(&lines);
-        // An equation of natural numbers put at exponents, φ(n) = |S| put in
-        // a^φ(n), or at a count of a finite set, |{a}| = 1 put in |{a}| ≤
-        // |A|: Lean writes either as a natural number, so the equation is put
-        // there in ℕ, stated so first (`e_nat`), and the motive's letter is
-        // of ℕ.
-        let natural_place = |p: &Vec<usize>| {
-            place_is_exponent(&rec.start, p)
-                || at_path(&rec.start, p)
-                    .is_some_and(|n| self.writer.finite_count(n).is_some())
-        };
-        let natural_exponent = !rec.put.places.is_empty()
-            && rec.put.places.iter().all(natural_place)
-            && form(was) == NaturalForm::AsItIs
-            && natural_form_named(&knowing, now) != NaturalForm::Integer;
-        // Else the motive's letter is written as Lean writes the exponents
-        // at both its values (`Writer::natural_form`): as its `toNat` where
-        // both are, a numeral put counting so, since its `toNat` works out
-        // (`Int.reduceToNat`), and a natural number put, the `toNat` of its
-        // cast, which is it (`Int.toNat_natCast`); else an integer, its power
-        // an integer one, converted to the claim's after (`int_exponent`,
-        // `powers_converted_at`), each exponent's fact from the record. A
-        // difference put for a whole letter, p − 1 for k, leaves it an
-        // integer.
-        let natural_put = form(now) == NaturalForm::AsItIs
-            && now.notation() != crate::notations::NUMERAL;
-        let now_to_nat = form(now) == NaturalForm::ToNat
-            || now.notation() == crate::notations::NUMERAL
-            || natural_put;
-        let whole_was = exponent
-            && !natural_exponent
-            && form(was) == NaturalForm::ToNat
-            && now_to_nat;
-        let int_exponent = exponent && !natural_exponent && !whole_was;
+        let PutExponents {
+            cast_to_nat,
+            natural_exponent,
+            natural_put,
+            whole_was,
+            int_exponent,
+        } = self.put_exponents(rec, [left, right], [was, now], writer, &knowing);
         let whole_letter = |w: &mut Writer, letter: &str| {
             if whole_was {
                 w.wholes
@@ -13000,50 +13091,15 @@ impl<'a> Proof<'a> {
             true => super::templates::Num::Int,
             false => ty,
         };
-        // Stated by a `have` first: `exact_mod_cast` elaborates its term
-        // with no type for a numeral exponent to default to, `t ^ 3` as an
-        // integer power. The casts of both are pushed down to the letters
-        // first, where the motive's `(a : ℚ) * (t : ℚ)` and the line's
-        // `↑(a * b)` meet; lifted instead, a division of casts is read one
-        // way on one side and another on the other. A claim that pushing
-        // alone works out, `True`, is closed on the way.
-        // A putting that makes the claim only turned round, or with a listed
-        // set's members in another order (`Substituted::meeting`), is no
-        // motive's: the claim is not the line with the equation put in.
-        // Another spelling of the same notation, `0 < x` of `x > 0`, is one
-        // Lean writes alike or unfolds (`Meeting::respelled`).
-        let m = &rec.meeting;
-        if m.permuted || m.renamed {
-            return Route::no("a putting that meets the claim other than as written");
-        }
-        // The identity elements the putting leaves and the claim drops, as
-        // the record names them, `1·x` as `x` by `one_mul`.
-        let dropped: Option<Vec<&'static str>> =
-            m.identities.iter().map(identity_lemma).collect();
-        let Some(mut dropped) = dropped else {
-            return Route::no("an identity element dropped that no lemma names");
-        };
-        // A natural number put for a letter written by its `toNat` leaves
-        // the `toNat` of its cast, which is it.
-        if whole_was && natural_put {
-            dropped.push("Int.toNat_natCast");
-        }
-        // Dropped with the casts pushed, as rewrites `push_cast` takes beside
-        // its own: a numeral put where the claim has it in a wider type is
-        // cast, `((1 : ℤ) : ℝ) * x`, which `one_mul` meets only as `1 * x`,
-        // and `push_cast` may drop the identity itself.
-        // Where a side holds a cast of a `toNat`, the casts back of the
-        // whole numbers the step names (`Writer::whole_back`), which take
-        // `((2^p − 1).toNat : ℤ)` in the goal to the integer the line says.
-        let backs: Vec<Printed> = [was, now]
-            .iter()
-            .filter_map(|n| self.writer.whole_back(n))
-            .collect();
-        let closing = PutClosing {
+        let closing = match self.put_closing(
+            rec,
+            [was, now],
+            (line, claim),
             cast_to_nat,
-            dropped,
-            backs,
-            wanted: self.claim_as_stated(line, claim),
+            whole_was && natural_put,
+        ) {
+            Route::Built(closing) => closing,
+            Route::Declined(d) => return Route::Declined(d),
         };
         let putting = Putting {
             rec,
@@ -19163,6 +19219,32 @@ fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
     Some(WholeNumberDenied { letter, bounded })
 }
 
+/// How the places of a recorded putting are written
+/// (`Proof::put_exponents`).
+struct PutExponents {
+    /// Whether a side holds a cast of a `toNat`.
+    cast_to_nat: bool,
+    /// Whether the equation is put in ℕ, at exponents or at the count of a
+    /// finite set.
+    natural_exponent: bool,
+    /// Whether the term put is a natural number written as it stands, and
+    /// not a numeral.
+    natural_put: bool,
+    /// Whether the motive's letter is said whole, as the exponents are.
+    whole_was: bool,
+    /// Whether the exponents are integers, converted to the claim's natural
+    /// powers after.
+    int_exponent: bool,
+}
+
+/// The equation a recorded putting uses (`Proof::putting_equation`).
+struct PuttingEquation {
+    /// The line's part the equation is taken from, or the row's change.
+    part: super::algebra::Cited,
+    /// The part's proof, facing as the putting uses it.
+    equation: Printed,
+}
+
 /// A recorded substitution read for writing: the equation put at the places
 /// of a line or of a claim side, with the motive's letter and the types the
 /// places are written in (`Proof::substituted_as_written`).
@@ -19194,7 +19276,8 @@ struct Putting<'r, 'w> {
     inner: Writer<'w>,
     /// The whole number a place in a slot of whole numbers is written as.
     slot: Option<super::templates::Num>,
-    /// Whether a place is an exponent the page says nothing whole of.
+    /// Whether the exponents are integers, converted to the claim's natural
+    /// powers after (`PutExponents::int_exponent`).
     int_exponent: bool,
     /// Whether the motive's letter is said whole, as the exponents are.
     whole_was: bool,
