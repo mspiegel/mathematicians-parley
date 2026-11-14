@@ -69,8 +69,7 @@ theorem harmonic_doubling (j : ℤ) (hH1 : 0 ≤ j) :
   -- 9. proof
   have s9 : ∀ k : ℤ, k ∈ Finset.Icc (2 ^ j.toNat + 1) (2 ^ (j + 1).toNat) → 1 / 2 ^ (j + 1).toNat ≤ 1 / (k : ℚ) := by
     intro k hK2
-    try push_cast at hK2
-    try have hK2_bounds := Finset.mem_Icc.mp hK2
+    have hK2_bounds := Finset.mem_Icc.mp hK2
     -- 9.1. mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K2
     have s9_1a : 2 ^ j.toNat + 1 ≤ k := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) (k := k) hK2)
     have s9_1b : k ≤ 2 ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) (k := k) hK2)
@@ -97,7 +96,7 @@ theorem harmonic_doubling (j : ℤ) (hH1 : 0 ≤ j) :
   have s15 : ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = 1 / 2 := by
     calc ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = (2 ^ j.toNat * 2 - (2 ^ j.toNat + 1) + 1) * (1 / (2 ^ j.toNat * 2)) := by
           have e_w : (2 ^ (j + 1).toNat : ℚ) = 2 ^ j.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => (t - (2 ^ j.toNat + 1) + 1) * (1 / t)) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          (have h := congrArg (fun t : ℚ => (t - (2 ^ j.toNat + 1) + 1) * (1 / t)) e_w; push_cast at h ⊢; exact_mod_cast h)
       _ = 1 / 2 := by parley_ring
   -- 16. transitivity, from 15, 14, 11
   have s16 : 1 / 2 ≤ (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact Eq.trans_le (Eq.trans s15.symm s14.symm) s11

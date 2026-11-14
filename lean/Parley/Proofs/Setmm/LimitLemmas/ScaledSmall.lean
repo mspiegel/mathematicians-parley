@@ -53,8 +53,7 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   have s8 : d * (ε / (2 * d)) = ε / 2 := by parley_ring
   -- 9. algebra, from D1
   have s9 : d * abs u = abs C * abs u + abs u := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
     parley_ring
   -- 10. thm:abs-nonneg x := u
   have s10 : abs u ≥ 0 := by exact (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u))

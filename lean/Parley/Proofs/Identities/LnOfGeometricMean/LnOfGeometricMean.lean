@@ -46,7 +46,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
   -- 3. substitute
   have s3 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by
     have c1 : x * y = Real.sqrt (x * y) * Real.sqrt (x * y) := by linear_combination (norm := parley_norm) (-1) * s2b
-    have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1
     exact row1
   -- 4. mun:factor-positive a := √(x·y), b := √(x·y), from 2, 3
   have s4 : Real.sqrt (x * y) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_factor_positive (a := Real.sqrt (x * y)) (b := Real.sqrt (x * y)) s2a s3)
@@ -57,7 +57,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by
           have hI : Real.log (Real.sqrt (x * y) ^ 2) = 2 * Real.log (Real.sqrt (x * y)) := by parley_instance ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4))
           exact hI.symm
-      _ = Real.log (x * y) := by (have h := congrArg (fun t : ℝ => Real.log t) s5; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = Real.log (x * y) := congrArg (fun t : ℝ => Real.log t) s5
       _ = Real.log x + Real.log y := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) hH3 hH4)
   -- 7. algebra, from 6
   linear_combination (norm := parley_norm) ((1) / ((2))) * s6

@@ -43,14 +43,14 @@ theorem sine_of_half_pi_minus (x : ℝ) :
     have hI : Real.sin (-x) = -Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := (x : ℂ))))
     exact hI
   -- 4. calculation
-  calc Real.sin (Real.pi / 2 - x) = Real.sin (Real.pi / 2 + -x) := by (have h := congrArg (fun t : ℝ => Real.sin t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  calc Real.sin (Real.pi / 2 - x) = Real.sin (Real.pi / 2 + -x) := congrArg (fun t : ℝ => Real.sin t) s1
     _ = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by
         have hI : Real.sin (Real.pi / 2 + -x) = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))))
         exact hI
     _ = 1 * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by parley_real
     _ = 1 * Real.cos (-x) + 0 * Real.sin (-x) := by parley_real
-    _ = 1 * Real.cos x + 0 * Real.sin (-x) := by (have h := congrArg (fun t : ℝ => 1 * t + 0 * Real.sin (-x)) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = 1 * Real.cos x + 0 * -Real.sin x := by (have h := congrArg (fun t : ℝ => 1 * Real.cos x + 0 * t) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = 1 * Real.cos x + 0 * Real.sin (-x) := congrArg (fun t : ℝ => 1 * t + 0 * Real.sin (-x)) s2
+    _ = 1 * Real.cos x + 0 * -Real.sin x := congrArg (fun t : ℝ => 1 * Real.cos x + 0 * t) s3
     _ = Real.cos x := by parley_ring
 
 end Parley.Proofs.Identities.SineOfHalfPiMinus.SineOfHalfPiMinus

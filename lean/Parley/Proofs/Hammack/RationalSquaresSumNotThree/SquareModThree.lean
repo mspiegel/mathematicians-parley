@@ -48,7 +48,7 @@ theorem square_mod_three (n : ℤ) :
   rcases s3 with (hC1 | hC2) | hC3
   · skip
     -- 5.1. substitute n mod 3 = 0 (C1) into line 4
-    have s5_1 : q * 3 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC1 s4; push_cast [add_zero] at h ⊢; all_goals exact_mod_cast h)
+    have s5_1 : q * 3 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC1 s4; push_cast [add_zero] at h ⊢; exact_mod_cast h)
     -- 5.2. algebra, from 5.1
     have s5_2 : n ^ 2 = 3 * (3 * q ^ 2) := by linear_combination (norm := parley_norm) (-n - 3 * q) * s5_1
     -- 5.3. def:divides d := 3, n := n², from 5.2
@@ -57,7 +57,7 @@ theorem square_mod_three (n : ℤ) :
     exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (3 : ℤ) ∣ n ^ 2) (Q := (3 : ℤ) ∣ n ^ 2 - 1) s5_3)
   · skip
     -- 5.5. substitute n mod 3 = 1 (C2) into line 4
-    have s5_5 : q * 3 + 1 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC2 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s5_5 : q * 3 + 1 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC2 s4
     -- 5.6. algebra, from 5.5
     have s5_6 : n ^ 2 - 1 = 3 * (3 * q ^ 2 + 2 * q) := by linear_combination (norm := parley_norm) (-n - 3 * q - 1) * s5_5
     -- 5.7. def:divides d := 3, n := n² − 1, from 5.6
@@ -66,7 +66,7 @@ theorem square_mod_three (n : ℤ) :
     exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (3 : ℤ) ∣ n ^ 2) (Q := (3 : ℤ) ∣ n ^ 2 - 1) s5_7)
   · skip
     -- 5.9. substitute n mod 3 = 2 (C3) into line 4
-    have s5_9 : q * 3 + 2 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC3 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s5_9 : q * 3 + 2 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC3 s4
     -- 5.10. algebra, from 5.9
     have s5_10 : n ^ 2 - 1 = 3 * (3 * q ^ 2 + 4 * q + 1) := by linear_combination (norm := parley_norm) (-n - 3 * q - 2) * s5_9
     -- 5.11. def:divides d := 3, n := n² − 1, from 5.10

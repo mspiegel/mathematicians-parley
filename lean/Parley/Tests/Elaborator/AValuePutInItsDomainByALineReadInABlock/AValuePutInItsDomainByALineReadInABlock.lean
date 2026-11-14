@@ -30,8 +30,7 @@ theorem a_value_put_in_its_domain_by_a_line_read_in_a_block (hH1 : ∀ x : ℤ, 
     (∀ x : ℤ, x ∈ Finset.Icc 1 9 → 10 - x ≤ 9) := by
   -- 1. proof
   intro x hK1
-  try push_cast at hK1
-  try have hK1_bounds := Finset.mem_Icc.mp hK1
+  have hK1_bounds := Finset.mem_Icc.mp hK1
   -- 1.1. instantiate y := 10 − x in H2, from H1
   exact (hH2 (10 - x) (hH1 x hK1))
 

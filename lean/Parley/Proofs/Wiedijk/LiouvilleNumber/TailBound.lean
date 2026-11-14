@@ -90,7 +90,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.6. algebra
       have s3_6 : n + j + 1 = n + (j + 1) := by parley_ring
       -- 3.7. substitute n + j + 1 = n + (j + 1) (line 3.6)
-      have s3_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + (j + 1)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by (have h := congrArg (fun t : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) s3_6.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s3_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + (j + 1)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := congrArg (fun t : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) s3_6.symm
       -- 3.8. thm:terms-real m := n + j + 1, from 3.4
       -- 3.9. mun:sum-extended a := 1, n := n + j, from 3.8
       have r155_1 : n + j ≥ 1 := by linarith only [s3_3]
@@ -102,7 +102,7 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.12. substitute
       have s3_12 : A + j ≤ (LeanBridges.Counting.factorial (n + j + 1) : ℤ) := by
         have c1 : n + 1 + j = n + j + 1 := by parley_ring
-        have row1 : A + j ≤ (LeanBridges.Counting.factorial (n + j + 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => A + j ≤ (LeanBridges.Counting.factorial t : ℤ))) c1 s3_11; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : A + j ≤ (LeanBridges.Counting.factorial (n + j + 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => A + j ≤ (LeanBridges.Counting.factorial t : ℤ))) c1 s3_11
         exact row1
       -- 3.13. mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.12
       have r170_1 : (1 : ℤ) ≤ 2 := by parley_arith
@@ -117,13 +117,13 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
       -- 3.17. calculation
       have s3_17 : (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + (j + 1)).toNat := by
         calc (2 ^ (A + j).toNat * 2 : ℤ) = 2 ^ (A + j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := A + j) (add_nonneg (le_of_lt hD1_pos) (hK))).symm
-          _ = 2 ^ (A + (j + 1)).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s3_16; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = 2 ^ (A + (j + 1)).toNat := congrArg (fun t : ℤ => 2 ^ t.toNat) s3_16
       -- 3.18. algebra
       have s3_18 : (2 / (2 ^ (A + j).toNat * 2) : ℚ) = 1 / 2 ^ (A + j).toNat := by parley_ring
       -- 3.19. substitute 2^(A + j)·2 = 2^(A + (j + 1)) (line 3.17) into line 3.18
       have s3_19 : (2 / 2 ^ (A + (j + 1)).toNat : ℚ) = 1 / 2 ^ (A + j).toNat := by
         have e_w : (2 ^ (A + j).toNat * 2 : ℚ) = 2 ^ (A + (j + 1)).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_17; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := Eq.subst (motive := (fun t : ℚ => 2 / t = 1 / 2 ^ (A + j).toNat)) e_w s3_18; push_cast at h ⊢; all_goals exact_mod_cast h)
+        (have h := Eq.subst (motive := (fun t : ℚ => 2 / t = 1 / 2 ^ (A + j).toNat)) e_w s3_18; push_cast at h ⊢; exact_mod_cast h)
       -- 3.20. inequalities, from IH, 3.15
       have s3_20 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := by linarith only [hIH, s3_15, div_eq_mul_one_div (2 : ℚ) (2 ^ (A + j).toNat)]
       -- 3.21. calculation
@@ -131,6 +131,6 @@ theorem tail_bound (n : ℤ) (hH1 : 0 < n) :
         _ ≤ 2 / 2 ^ A.toNat - 2 / 2 ^ (A + j).toNat + 1 / 2 ^ (A + j).toNat := s3_20
         _ = 2 / 2 ^ A.toNat - 2 / 2 ^ (A + (j + 1)).toNat := by linear_combination (norm := parley_field) s3_19
   -- 4. substitute A = (n + 1)! (D1) into line 3
-  (have h := Eq.subst (motive := (fun t : ℤ => ∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ t.toNat - 2 / 2 ^ (t + j).toNat)) hD1 s3; push_cast [Int.toNat_natCast] at h ⊢; all_goals exact_mod_cast h)
+  (have h := Eq.subst (motive := (fun t : ℤ => ∀ j : ℤ, 0 ≤ j → (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ t.toNat - 2 / 2 ^ (t + j).toNat)) hD1 s3; push_cast [Int.toNat_natCast] at h ⊢; exact_mod_cast h)
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.TailBound

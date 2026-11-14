@@ -27,10 +27,9 @@ theorem a_define_read_in_an_algebra_step (a : ℝ) (b : ℝ) (hH3 : a + 1 = 2 * 
     a = 2 * b - 1 := by
   set e : ℝ := a + 1 with hD1
   -- 1. substitute e = a + 1 (D1) into H3
-  have s1 : e = 2 * b := by (have h := Eq.subst (motive := (fun t : ℝ => t = 2 * b)) hD1.symm hH3; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s1 : e = 2 * b := Eq.subst (motive := (fun t : ℝ => t = 2 * b)) hD1.symm hH3
   -- 2. algebra, from D1, 1
-  try simp only [hD1] at s1 ⊢
-  try push_cast at s1 ⊢
+  simp only [hD1] at s1
   linear_combination (norm := parley_norm) s1
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnAlgebraStep

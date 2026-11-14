@@ -425,7 +425,7 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Setmm/WholeNumberBySize/WholeNumberBySize.lean",
         step: "1",
-        holds: "abs_nonneg _, by push_cast",
+        holds: "abs_nonneg _, by (push_cast; simp only",
         list: false,
         why: "|A| ∈ ℕ₀ of an A a line names an integer: its order by the said-once walk's reason (`said_nonneg`)",
     },
@@ -733,9 +733,37 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Tests/Elaborator/ListedSetsInAnyOrder/FiveSubstituted.lean",
         step: "1",
-        holds: "Set.insert_subset_iff, Set.singleton_subset_iff] at h ⊢; all_goals tauto",
+        holds: "Set.insert_subset_iff, Set.singleton_subset_iff] at h ⊢; tauto",
         list: false,
         why: "a listed set the putting leaves in another order (`Meeting::permuted`, `reordered`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean",
+        step: "10",
+        holds: "simp only [hD1] at s6",
+        list: false,
+        why: "each define written out only where a line the step uses names it, or a define written out there brings it (`written_out`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Cubic/Cubic.lean",
+        step: "9",
+        holds: "simp only [hD3] at ⊢",
+        list: false,
+        why: "no cast pushed where neither the place nor the define's value holds one (`written_out`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/BinomialBasics/ChooseTwo.lean",
+        step: "2.3.7",
+        holds: "e_arith s2_3_6; revert h; norm_num",
+        list: false,
+        why: "a putting into a claim of numerals alone, worked out (`no_letter`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Wilson/Wilson.lean",
+        step: "5.5.2",
+        holds: "; rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)];",
+        list: false,
+        why: "a remainder of named numbers and integer letters taken as the integers' `%` (`remainder_of_integers`)",
     },
     Site {
         file: "lean/Parley/Proofs/Setmm/SizeAtLeastOne/SizeAtLeastOne.lean",

@@ -98,9 +98,9 @@ theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Se
   -- 4.15. D1, from 4.8, 4.11
   have s4_15 : f x₁ = 0 := by simp (disch := omega) only [hD1 _ s4_11, if_pos s4_8]
   -- 4.16. substitute f(x₁) = 0 (line 4.15) into line 4.14
-  have s4_16 : abs (0 - f (1 / 2)) < 1 / 2 := by (have h := Eq.subst (motive := (fun t : ℝ => abs (t - f (1 / 2)) < 1 / 2)) s4_15 s4_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s4_16 : abs (0 - f (1 / 2)) < 1 / 2 := Eq.subst (motive := (fun t : ℝ => abs (t - f (1 / 2)) < 1 / 2)) s4_15 s4_14
   -- 4.17. substitute f(1/2) = 1 (line 3) into line 4.16
-  have s4_17 : (abs (0 - 1) : ℝ) < 1 / 2 := by (have h := Eq.subst (motive := (fun t : ℝ => abs (0 - t) < 1 / 2)) s3 s4_16; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s4_17 : (abs (0 - 1) : ℝ) < 1 / 2 := by (have h := Eq.subst (motive := (fun t : ℝ => abs (0 - t) < 1 / 2)) s3 s4_16; revert h; norm_num)
   -- 4.18. arithmetic
   have s4_18 : (0 - 1 : ℤ) < 0 := by parley_arith
   -- 4.19. def:abs x := 0 − 1, from 4.18

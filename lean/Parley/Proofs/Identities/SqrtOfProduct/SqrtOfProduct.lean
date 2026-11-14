@@ -47,8 +47,8 @@ theorem sqrt_of_product (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
   -- 6. calculation
   have s6 : (Real.sqrt a * Real.sqrt b) ^ 2 = a * b := by
     calc (Real.sqrt a * Real.sqrt b) ^ 2 = Real.sqrt a ^ 2 * Real.sqrt b ^ 2 := by linear_combination (norm := parley_norm) 0
-      _ = a * Real.sqrt b ^ 2 := by (have h := congrArg (fun t : ℝ => t * Real.sqrt b ^ 2) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = a * b := by (have h := congrArg (fun t : ℝ => a * t) s2b; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = a * Real.sqrt b ^ 2 := congrArg (fun t : ℝ => t * Real.sqrt b ^ 2) s1b
+      _ = a * b := congrArg (fun t : ℝ => a * t) s2b
   -- 7. calculation
   have s7 : Real.sqrt (a * b) ^ 2 = (Real.sqrt a * Real.sqrt b) ^ 2 := by
     calc Real.sqrt (a * b) ^ 2 = a * b := s4b

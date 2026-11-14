@@ -33,7 +33,7 @@ theorem whole_plus_small (A : ℤ) (hH1 : 0 ≤ A) (M : ℤ) (hH2 : 0 < M) (hH3 
   -- 1. algebra
   have s1 : M + A = A + M := by parley_ring
   -- 2. calculation
-  calc (M + A) % M = (A + M) % M := by (have h := congrArg (fun t : ℤ => t % M) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  calc (M + A) % M = (A + M) % M := congrArg (fun t : ℤ => t % M) s1
     _ = A % M := by
         have hI : (A + M * 1) % M = A % M := by parley_instance_cast ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := (A : ℝ)) (M := (M : ℝ)) (by exact_mod_cast hH2) (K := (1 : ℤ))))
         simpa only [mul_one] using hI

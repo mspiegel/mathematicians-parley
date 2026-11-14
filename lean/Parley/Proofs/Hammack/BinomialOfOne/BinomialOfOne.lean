@@ -48,11 +48,11 @@ theorem binomial_of_one (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.5. substitute 1 − 1 = 0 (arithmetic) into line 1.3
       have s1_5 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) := by
         have e_arith : (1 - 1 : ℤ) = 0 := by parley_arith
-        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ))) e_arith s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ))) e_arith s1_3; push_cast at h ⊢; exact_mod_cast h)
       -- 1.6. calculation
       calc (LeanBridges.Counting.choose (j + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := s1_5.symm
-        _ = j + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = j + 1 := by (have h := congrArg (fun t : ℤ => j + t) s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = j + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ) := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose j (0 : ℤ) : ℤ)) hIH
+        _ = j + 1 := congrArg (fun t : ℤ => j + t) s1_4
   -- 2. instantiate j := m in line 1
   exact (s1 m hH1)
 

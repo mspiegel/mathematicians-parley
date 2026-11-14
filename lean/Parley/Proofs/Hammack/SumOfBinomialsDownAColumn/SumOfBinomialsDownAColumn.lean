@@ -72,11 +72,11 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
       -- 1.6. substitute
       have s1_6 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by
         have c1 : r + 1 - 1 = r := by parley_ring
-        have row1 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) t : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ))) c1 s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) t : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ))) c1 s1_5
         exact row1
       -- 1.7. calculation
       calc S (m + 1) = S m + (LeanBridges.Counting.choose (m + 1) r : ℤ) := s1_4
-        _ = (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (m + 1) r : ℤ)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (m + 1) r : ℤ)) hIH
         _ = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := s1_6
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose k r : ℤ) : ℤ)) = S n := by simp (disch := omega) only [hD1]

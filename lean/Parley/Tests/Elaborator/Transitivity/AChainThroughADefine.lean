@@ -30,6 +30,6 @@ theorem a_chain_through_a_define (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a + 1 ≤ 
   -- 1. transitivity, from D1, H4, H5
   have s1 : e < c := by exact lt_of_le_of_lt (Eq.trans_le hD1 hH4) hH5
   -- 2. substitute e = a + 1 (D1) into line 1
-  (have h := Eq.subst (motive := (fun t : ℝ => t < c)) hD1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  exact Eq.subst (motive := (fun t : ℝ => t < c)) hD1 s1
 
 end Parley.Tests.Elaborator.Transitivity.AChainThroughADefine

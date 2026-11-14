@@ -70,14 +70,14 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
   set L : ℤ → ℚ := fun k : ℤ => (N k : ℚ) / 10 ^ k.toNat with hD5
   set U : ℤ → ℚ := fun k : ℤ => ((N k : ℚ) + 1) / 10 ^ k.toNat with hD6
   -- 1. D3
-  have s1 : N 0 = 0 := by have h := hD3.1; (try ring_nf at h ⊢); linarith
+  have s1 : N 0 = 0 := by have h := hD3.1; ring_nf at h ⊢; linarith
   -- 2. induction on k starting at 0
   -- what this block shows, Lean's types give
   -- 3. proof
   have s3 : ∀ k : ℤ, 0 ≤ k → L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := by
     intro k hK1
     -- 3.1. D3
-    have s3_1 : N (k + 1) = 10 * N k + d (k + 1) := by have h := (hD3.2 ((k + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+    have s3_1 : N (k + 1) = 10 * N k + d (k + 1) := by have h := (hD3.2 ((k + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
     -- 3.2. mun:pos-int-nat
     have r194_1 : 0 < k + 1 := by linarith only [hK1]
     have s3_2 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k + 1) r194_1)
@@ -104,13 +104,13 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 3.13. substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.12
     have s3_13 : (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / 10 ^ (k + 1).toNat := by
       have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_11.symm; push_cast at h; linear_combination (norm := parley_norm) h
-      (have h := Eq.subst (motive := (fun t : ℚ => (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / t)) e_w s3_12; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℚ => (N k : ℚ) / 10 ^ k.toNat = 10 * (N k : ℚ) / t)) e_w s3_12
     -- 3.14. algebra
     have s3_14 : ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / (10 ^ k.toNat * 10) := by parley_ring
     -- 3.15. substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.14
     have s3_15 : ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by
       have e_w : (10 ^ k.toNat * 10 : ℚ) = 10 ^ (k + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_11.symm; push_cast at h; linear_combination (norm := parley_norm) h
-      (have h := Eq.subst (motive := (fun t : ℚ => ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / t)) e_w s3_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℚ => ((N k : ℚ) + 1) / 10 ^ k.toNat = 10 * ((N k : ℚ) + 1) / t)) e_w s3_14
     -- 3.16. mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.9
     have r256_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by linarith only [s3_10]
     have s3_16 : 10 * (N k : ℚ) / 10 ^ (k + 1).toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := 10 * (N k : ℚ)) (y := (N (k + 1) : ℚ)) (c := (10 ^ (k + 1).toNat : ℚ)) (by exact_mod_cast s3_9.1) (by exact_mod_cast gt_iff_lt.mp r256_3))
@@ -118,9 +118,9 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have r262_3 : (10 ^ (k + 1).toNat : ℤ) > 0 := by linarith only [s3_10]
     have s3_17 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ 10 * ((N k : ℚ) + 1) / 10 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (N (k + 1) : ℚ) + 1) (y := 10 * ((N k : ℚ) + 1)) (c := (10 ^ (k + 1).toNat : ℚ)) (by exact_mod_cast s3_9.2) (by exact_mod_cast gt_iff_lt.mp r262_3))
     -- 3.18. substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.13) into line 3.16
-    have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := by (have h := Eq.subst (motive := (fun t : ℚ => t ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat)) s3_13.symm s3_16; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s3_18 : (N k : ℚ) / 10 ^ k.toNat ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat := Eq.subst (motive := (fun t : ℚ => t ≤ (N (k + 1) : ℚ) / 10 ^ (k + 1).toNat)) s3_13.symm s3_16
     -- 3.19. substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.15) into line 3.17
-    have s3_19 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := by (have h := Eq.subst (motive := (fun t : ℚ => ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ t)) s3_15.symm s3_17; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s3_19 : ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ ((N k : ℚ) + 1) / 10 ^ k.toNat := Eq.subst (motive := (fun t : ℚ => ((N (k + 1) : ℚ) + 1) / 10 ^ (k + 1).toNat ≤ t)) s3_15.symm s3_17
     -- 3.20. calculation
     have s3_20 : L k ≤ L (k + 1) := by
       calc L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
@@ -191,7 +191,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 5.14. algebra
       have s5_14 : p + g + 1 = p + (g + 1) := by parley_ring
       -- 5.15. substitute (p + g) + 1 = p + (g + 1) (line 5.14) into line 5.13
-      have s5_15 : L p ≤ L (p + (g + 1)) ∧ U (p + (g + 1)) ≤ U p := by (have h := Eq.subst (motive := (fun t : ℤ => L p ≤ L t ∧ U t ≤ U p)) s5_14 s5_13; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s5_15 : L p ≤ L (p + (g + 1)) ∧ U (p + (g + 1)) ≤ U p := Eq.subst (motive := (fun t : ℤ => L p ≤ L t ∧ U t ≤ U p)) s5_14 s5_13
       exact ⟨(s5_15).1, (s5_15).2⟩
   -- 6. proof
   have s6 : ∀ j : ℤ, 0 ≤ j → (∀ k : ℤ, 0 ≤ k → L j ≤ U k) := by
@@ -216,7 +216,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.3. substitute
       have s6_4_3 : L j ≤ L k ∧ U k ≤ U j := by
         have c1 : j + (k - j) = k := by parley_ring
-        have row1 : L j ≤ L k ∧ U k ≤ U j := by (have h := Eq.subst (motive := (fun t : ℤ => L j ≤ L t ∧ U t ≤ U j)) c1 s6_4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : L j ≤ L k ∧ U k ≤ U j := Eq.subst (motive := (fun t : ℤ => L j ≤ L t ∧ U t ≤ U j)) c1 s6_4_2
         exact row1
       -- 6.4.4. inequalities, from 6.1, 6.2, 6.4.3
       have s6_4_4 : L j ≤ L k := by linarith only [s6_4_3.1]
@@ -237,7 +237,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.10. substitute
       have s6_4_10 : L k ≤ L j ∧ U j ≤ U k := by
         have c1 : k + (j - k) = j := by parley_ring
-        have row1 : L k ≤ L j ∧ U j ≤ U k := by (have h := Eq.subst (motive := (fun t : ℤ => L k ≤ L t ∧ U t ≤ U k)) c1 s6_4_9; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : L k ≤ L j ∧ U j ≤ U k := Eq.subst (motive := (fun t : ℤ => L k ≤ L t ∧ U t ≤ U k)) c1 s6_4_9
         exact row1
       -- 6.4.11. inequalities, from 6.1, 6.2, 6.4.10
       have s6_4_11 : U j ≤ U k := by linarith only [s6_4_10.2]
@@ -245,8 +245,8 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       exact le_trans s6_1 s6_4_11
   -- 7. mun:set-builder-subset, from D4
   have s7 : S ⊆ (Set.univ : Set ℝ) := by
-    try simp only [hD4] at ⊢
-    try push_cast at ⊢
+    simp only [hD4] at ⊢
+    push_cast at ⊢
     have hI : {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} ⊆ (Set.univ : Set ℝ) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))))
     exact hI
   -- 8. proof
@@ -275,13 +275,13 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
           _ = (L j : ℝ) := by simp (disch := omega) only [hD5]; push_cast; norm_num
       -- 10.1.4. substitute y = L(j) (line 10.1.3) into line 10.1.2
       have s10_1_2_w : (L j : ℝ) ≤ (U k : ℝ) := (Rat.cast_le (K := ℝ)).mpr s10_1_2
-      (have h := Eq.subst (motive := (fun t : ℝ => t ≤ (U k : ℝ))) s10_1_3.symm s10_1_2_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℝ => t ≤ (U k : ℝ))) s10_1_3.symm s10_1_2_w
     -- 10.2. def:upper-bound, from 10.1
     exact s10_1
   -- 11. instantiate k := 0 in line 10
   have s11 : ∀ s ∈ S, s ≤ (U 0 : ℝ) := by intro s h_s; exact (s10 (0 : ℤ) (by norm_num) s h_s)
   -- 12. obtain c: axi:completeness, from 7, 9, 11
-  obtain ⟨c, s12⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s7 ⟨L 0, by (have h := s9; push_cast at h ⊢; all_goals exact_mod_cast h), trivial⟩ ⟨(U 0 : ℝ), s11⟩)
+  obtain ⟨c, s12⟩ := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) s7 ⟨L 0, by (have h := s9; push_cast at h ⊢; exact_mod_cast h), trivial⟩ ⟨(U 0 : ℝ), s11⟩)
   -- 13. def:least-upper-bound, from 12
   have s13a : ∀ s ∈ S, s ≤ c := s12.1
   have s13b : ∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u := s12.2
@@ -304,11 +304,11 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have s16_1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) hK6)
     -- 16.2. D3
     have r533_1 : 0 ≤ n - 1 := by exact s16_1
-    have s16_2 : N (n - 1 + 1) = 10 * N (n - 1) + d (n - 1 + 1) := by have h := (hD3.2 ((n - 1 + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+    have s16_2 : N (n - 1 + 1) = 10 * N (n - 1) + d (n - 1 + 1) := by have h := (hD3.2 ((n - 1 + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
     -- 16.3. substitute
     have s16_3 : N n = 10 * N (n - 1) + d n := by
       have c1 : n - 1 + 1 = n := by parley_ring
-      have row1 : N n = 10 * N (n - 1) + d n := by (have h := Eq.subst (motive := (fun t : ℤ => N t = 10 * N (n - 1) + d t)) c1 s16_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : N n = 10 * N (n - 1) + d n := Eq.subst (motive := (fun t : ℤ => N t = 10 * N (n - 1) + d t)) c1 s16_2
       exact row1
     -- 16.4. instantiate k := n − 1 in line 2, from 16.1
     -- 16.5. membership, from 16.3, 16.4
@@ -319,15 +319,13 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.8. mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from D5, 16.7
     have r555_2 : (10 ^ n.toNat : ℤ) > 0 := by linarith only [s16_6]
     have s16_8 : 10 ^ n.toNat * ((N n : ℝ) / 10 ^ n.toNat) ≤ 10 ^ n.toNat * c := by
-      try simp only [hD5] at ⊢
-      try push_cast at ⊢
-      exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (N n : ℝ) / 10 ^ n.toNat) (y := c) (c := (10 ^ n.toNat : ℝ)) (by (have h := s16_7.1; rw [hD5] at h; push_cast at h ⊢; all_goals exact h)) (by exact_mod_cast gt_iff_lt.mp r555_2))
+      push_cast at ⊢
+      exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (N n : ℝ) / 10 ^ n.toNat) (y := c) (c := (10 ^ n.toNat : ℝ)) (by (have h := s16_7.1; rw [hD5] at h; push_cast at h ⊢; exact h)) (by exact_mod_cast gt_iff_lt.mp r555_2))
     -- 16.9. mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from D6, 16.7
     have r560_2 : (10 ^ n.toNat : ℤ) > 0 := by linarith only [s16_6]
     have s16_9 : 10 ^ n.toNat * c ≤ 10 ^ n.toNat * (((N n : ℝ) + 1) / 10 ^ n.toNat) := by
-      try simp only [hD6] at ⊢
-      try push_cast at ⊢
-      exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := c) (y := ((N n : ℝ) + 1) / 10 ^ n.toNat) (c := (10 ^ n.toNat : ℝ)) (by (have h := s16_7.2; rw [hD6] at h; push_cast at h ⊢; all_goals exact h)) (by exact_mod_cast gt_iff_lt.mp r560_2))
+      push_cast at ⊢
+      exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := c) (y := ((N n : ℝ) + 1) / 10 ^ n.toNat) (c := (10 ^ n.toNat : ℝ)) (by (have h := s16_7.2; rw [hD6] at h; push_cast at h ⊢; exact h)) (by exact_mod_cast gt_iff_lt.mp r560_2))
     -- 16.10. algebra
     have s16_10 : 10 ^ n.toNat * ((N n : ℚ) / 10 ^ n.toNat) = (N n : ℚ) := by parley_ring
     -- 16.11. algebra
@@ -386,7 +384,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 16.24.10. substitute
       have s16_24_10 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by
         have c1 : ⌊10 ^ n.toNat * c⌋ = N (n - 1) * 10 + (d n + 1) := by linear_combination (norm := parley_norm) s16_3 + s16_24_9
-        have row1 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = t % (10 : ℤ))) c1 s16_20; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = (N (n - 1) * 10 + (d n + 1)) % (10 : ℤ) := Eq.subst (motive := (fun t : ℤ => ⌊10 ^ n.toNat * c⌋ % (10 : ℤ) = t % (10 : ℤ))) c1 s16_20
         exact row1
       -- 16.24.11. D2
       have s16_24_11 : (d n + 1) % (10 : ℤ) = (d n + 1) % (10 : ℤ) := rfl

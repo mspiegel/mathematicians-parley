@@ -36,7 +36,7 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
     -- 2.1. substitute p = 0 (S) into line 1
     have s2_1 : A = 0 / (q : ℚ) := by
       have e_w : (p : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hS; push_cast at h; linear_combination (norm := parley_norm) h
-      (have h := Eq.subst (motive := (fun t : ℚ => A = t / (q : ℚ))) e_w s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℚ => A = t / (q : ℚ))) e_w s1b
     -- 2.2. calculation
     have s2_2 : A = 0 := by
       calc A = 0 / (q : ℚ) := s2_1

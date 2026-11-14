@@ -36,11 +36,11 @@ theorem rational_product (A : ℚ) (B : ℚ) :
   obtain ⟨r, s, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp ⟨_, rfl⟩
   -- 3. calculation
   have s3 : A * B = (p : ℚ) * (r : ℚ) / ((q : ℚ) * (s : ℚ)) := by
-    calc A * B = (p : ℚ) / (q : ℚ) * B := by (have h := congrArg (fun t : ℚ => t * B) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = (p : ℚ) / (q : ℚ) * ((r : ℚ) / (s : ℚ)) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) * t) s2b; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc A * B = (p : ℚ) / (q : ℚ) * B := congrArg (fun t : ℚ => t * B) s1b
+      _ = (p : ℚ) / (q : ℚ) * ((r : ℚ) / (s : ℚ)) := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) * t) s2b
       _ = (p : ℚ) * (r : ℚ) / ((q : ℚ) * (s : ℚ)) := by parley_ring
   -- 4. exhibit, from 3
-  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A * B = (a : ℚ) / (b : ℚ) := ⟨p * r, q * s, mul_pos (s1a) (s2a), by (have h := s3; push_cast at h ⊢; all_goals exact h)⟩
+  have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A * B = (a : ℚ) / (b : ℚ) := ⟨p * r, q * s, mul_pos (s1a) (s2a), by (have h := s3; push_cast at h ⊢; exact h)⟩
   -- 5. def:rational x := A·B, from 4
   exact trivial
 

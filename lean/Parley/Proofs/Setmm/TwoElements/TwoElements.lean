@@ -45,7 +45,7 @@ theorem two_elements {α : Type*} (V : Set α) :
     intro hC1
     -- 1. calculation
     have s1 : (V.ncard : ℤ) = 1 + 1 := by parley_count_after (by
-      calc (V.ncard : ℤ) = 2 := by (have h := hC1; simp only [← Set.Finite.cast_ncard_eq ((Set.finite_of_encard_eq_coe hC1 : (V : Set α).Finite))] at h ⊢; norm_cast at h ⊢; all_goals omega)
+      calc (V.ncard : ℤ) = 2 := by (have h := hC1; simp only [← Set.Finite.cast_ncard_eq ((Set.finite_of_encard_eq_coe hC1 : (V : Set α).Finite))] at h ⊢; exact_mod_cast h)
         _ = 1 + 1 := by norm_num)
     -- 2. obtain b: mun:card-nonempty X := V, k := 1, from 1
     obtain ⟨b, s2, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V) (k := (1 : ℤ)) (by norm_num) s1)
@@ -87,7 +87,7 @@ theorem two_elements {α : Type*} (V : Set α) :
           have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr ⟨s7_2_3, hC5⟩
           -- 7.2.5.4. substitute
           have s7_2_5_4 : t ∈ (∅ : Set α) := by parley_count_after (by
-            have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by (have h := s6; rw [← Set.Finite.cast_ncard_eq (((Set.finite_of_ncard_ne_zero (by omega)).subset (fun _ h => h.1) : ((V \ ({b} : Set α)) \ ({a} : Set α) : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
+            have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) (by (have h := s6; rw [← Set.Finite.cast_ncard_eq (((Set.finite_of_ncard_ne_zero (by omega)).subset (fun _ h => h.1) : ((V \ ({b} : Set α)) \ ({a} : Set α) : Set α).Finite))]; exact_mod_cast h)))
             have row1 : t ∈ (∅ : Set α) := Eq.subst (motive := (fun u : Set α => t ∈ u)) c1 s7_2_5_3
             exact row1)
           -- 7.2.5.5. inspection
@@ -107,7 +107,7 @@ theorem two_elements {α : Type*} (V : Set α) :
     obtain ⟨c, s12a, d, s12b, ⟨s12c, s12d⟩⟩ := hC6
     -- 13. calculation
     parley_count_after (by
-      calc V.encard = ((({c, d} : Set α).ncard : ℕ) : ℕ∞) := by (have h := congrArg (fun t : Set α => t.encard) s12d; simp only [← Set.Finite.cast_ncard_eq ((Set.toFinite _ : (({c, d} : Set α) : Set α).Finite))] at h ⊢; norm_cast at h ⊢; all_goals exact h)
+      calc V.encard = ((({c, d} : Set α).ncard : ℕ) : ℕ∞) := by (have h := congrArg (fun t : Set α => t.encard) s12d; simp only [← Set.Finite.cast_ncard_eq ((Set.toFinite _ : (({c, d} : Set α) : Set α).Finite))] at h ⊢; exact_mod_cast h)
         _ = ((2 : ℕ) : ℕ∞) := by exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp s12c)
 
 end Parley.Proofs.Setmm.TwoElements.TwoElements

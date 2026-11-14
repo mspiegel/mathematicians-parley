@@ -164,8 +164,10 @@ peeled. A row's change goes in as stated where every recorded place is
 written in its own type.
 The equation's line is turned with `.symm` where the record puts its left
 side for its right, read from the line as the page writes it, with its
-defines kept (`FirstAt::written`). The result is stated by a `have`, so that
-a numeral exponent defaults to ℕ, and closed by `push_cast at h ⊢` and
+defines kept (`FirstAt::written`). The result is the proof itself where the
+motive states the claim as the step states it. Otherwise it is stated by a
+`have`, so that a numeral exponent defaults to ℕ, and closed by `revert h;
+norm_num` where the claim names no letter, else by `push_cast at h ⊢` and
 `exact_mod_cast h`. At a place that is an exponent, the motive's letter is
 written as Lean writes the exponents at both its values
 (`Writer::natural_form`): as its `toNat` where both are written so, a
@@ -247,7 +249,11 @@ claim (`Cited::meetings`, `Cited::facings`):
   each side cast up as a whole, `exact_mod_cast` of the item where the cast
   table says `norm_cast` moves a cast through that relation
   (`casts::norm_cast_lifts_relation`); a range member Lean writes as the
-  integer that is it, `⟨_, rfl, item⟩`;
+  integer that is it, `⟨_, rfl, item⟩`. A step that goes through named
+  numbers puts each into the goal, and into each line it cites where Lean
+  writes the number's term at the type the rewrite states it in, `rw [← …]
+  at s3; norm_cast at s3`. A remainder whose parts are then named numbers
+  or integer letters is taken as the integers' `%` (`mod_intCast`);
 - where the claim is an "and" the checker met as written, part by part, the
   item named once, `have h := …`: "and" stands in no other order, so part j
   of the item is part j of the claim. A membership of ℕ or ℕ₀ Lean writes as
@@ -297,7 +303,9 @@ Lean's ℕ starts at 0 where the page's starts at 1.
   is `(k : ℤ) (hH1 : k ∈ Finset.Icc 1 n)`. A letter a
   library item puts in a range without letting it, the k of `range`'s "k ∈
   {1, …, n} ↔ k ∈ ℕ and k ≤ n", is `(k : ℤ)` too: of any other k both sides
-  are false.
+  are false. Inside a proof, where the goal's "for all" puts the letter in a
+  range, its bounds are named beside it, `have hK1_bounds :=
+  Finset.mem_Icc.mp hK1`, for linear arithmetic.
 - Each formula is computed in the least of ℤ, ℚ, ℝ and ℂ that holds every
   letter and operation in it, never in ℕ. The two sides of a relation share
   one type, and a narrower letter is cast up. `7 divides 4a` is `7 ∣ 4 * a`;
@@ -507,7 +515,7 @@ No proof is left to a general search tactic.
 | obtain | `obtain ⟨k, …⟩ :=` the item's or the line's "there is"; a part the checker met otherwise than as written, or that Lean casts otherwise, is obtained under a name of its own and stated after as the page says it |
 | exhibit | `⟨w, h⟩`, each fact of the values by the line the checker found it stated by (`Exhibit::shown`) |
 | instantiate | the sentence the checker instantiated, at the values given, a letter given none at the block's letter, each guard and condition by the line the checker found it supplied by (`Instantiated::guards`, `Instantiated::conditions`); closed by the instance's meeting with the claim, or, where Lean states the two otherwise, by `linear_combination`, `linarith` or `exact` |
-| algebra | `ring`; from cited lines, `linear_combination` with the multipliers the method's decision finds, the defines written out only at the lines it cites and at its goal (`Proof::rewritten_at`), so a line it does not cite keeps its letters |
+| algebra | `ring`; from cited lines, `linear_combination` with the multipliers the method's decision finds, the defines written out only at the lines it cites and at its goal (`Proof::rewritten_at`), so a line it does not cite keeps its letters; at each place, only the defines its statement names or a define written out there brings in, then `push_cast` at each place that holds a cast or is given one by a define's value |
 | arithmetic, real arithmetic | `parley_arith` |
 | transitivity | the links the checker placed (`CheckedTheorem::links`), each read the way the chain goes and from the side Lean states it, `.symm` of an equation it reads turned, joined by the lemma for each pair of relations (`le_trans`, `lt_of_le_of_lt`, `Eq.trans_le`, …), a chain going down taken up from its last link, a chain of equations the claim turns taken `.symm`; a chain of equations of things other than numbers, sets `A = B = C`, composed as it stands; a link in a narrower type taken up by `show … by exact_mod_cast`; `exact`, or `exact_mod_cast` where the claim is in another type; `linarith only` over the links where the checker met them only with identities dropped; a link of ℚ taken to ℝ as an order step's fact is |
 | inequalities, rows | `linarith only` over the facts recorded in `orders`, or plain `linarith` where they are none; a disequality taken both ways split first by `Ne.lt_or_gt`; a `≠` a fact says, that fact (or `fun h => fact (by linarith only [h])` where Lean writes the two otherwise); one a `weakening` makes, `ne_of_lt`/`ne_of_gt`; a fact in a narrower type taken up by `show … by exact_mod_cast`, a claim in a narrower one proved in the wider and taken down; from ℚ to ℝ by the relation's lemma (`Rat.cast_le`, `Rat.cast_lt`, `Rat.cast_inj`) and `simp only` with ℚ's cast lemmas, which never goes through ℕ as `exact_mod_cast` does with a power of a numeral; `div_eq_mul_one_div` beside quotients the checker reads as one atom; a line stated under the claim's binders is read at them, `r1 x h_x`, and a bound the member implies is its guard; a define's equation in a wider type than every other fact is left out |
@@ -517,7 +525,7 @@ No proof is left to a general search tactic.
 | membership | a membership Lean's types give, `trivial`; one of ℕ₀ or ℕ, its bound by the said-once walk's reason, or beside a cited equation, the other side's bound carried along it (`le_of_le_of_eq`); a define's value, `rw [hD1]` and the value's bound; a function's value, its type applied to the point's membership; the other side of an equation put in ℕ₀ by the closure table, `Int.emod_nonneg` or `Nat.cast_nonneg`; an integer the cited lines give, as a witness |
 | inspection | by the case recorded (`inspected`): one of a range, its bounds worked out (`norm_num … at h; norm_cast at h; omega`); one of a listed set, its members' equations and `tauto`; nothing in ∅, `Set.notMem_empty`; a listed set's membership or size, `simp`; a set taken by a property from a listed set, `ext x; simp only […]; omega`, and its size, `rw [Set.ncard_eq_toFinset_card']; decide`; a prime, `norm_num` |
 | substitute | `Eq.subst` along the motive the checker's record gives, or `congrArg` of it for a side of the claim (**A substitution**); `exact` of the line where the record puts the equation at no place; rows one at a time |
-| calculation | `calc`, each link by its reason; a link citing a line met as a cited hypothesis is (`said_proof`): turned, across casts, a congruence with its modulus; sides Lean writes alike, `rfl`; numerals alone, the line put in the goal and worked out |
+| calculation | `calc`, each link by its reason; a link citing a line met as a cited hypothesis is (`said_proof`): turned, across casts, a congruence with its modulus; sides Lean writes alike, `rfl`; numerals alone, the line put in the goal and worked out; a chain worked in a wider type than its claim moves the goal there first, `qify` or `rify`, unless the claim is stated there already or the chain's counts are taken to integers after it |
 | proof | `intro` |
 | contradiction | `by_contra hS` where the supposition is the claim negated, `intro hS` where the claim is the supposition negated, the supposition ascribed or turned where Lean writes it otherwise |
 | cases | `rcases` on the line that says "or" |

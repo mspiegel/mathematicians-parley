@@ -61,8 +61,8 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
   set D : Set ℝ := {y : ℝ | y > 0} with hD1
   -- 1. mun:set-builder-subset, from D1
   have s1 : D ⊆ (Set.univ : Set ℝ) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     have hI : {t : ℝ | 0 < t} ⊆ (Set.univ : Set ℝ) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => 0 < y)) (X := (Set.univ : Set ℝ))))
     exact hI
   -- 2. proof
@@ -70,8 +70,6 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
     intro x hK1
     -- 2.1. def:set-builder, from D1, K1
     have s2_1 : x > 0 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
       have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => 0 < y)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK1)).2)
       exact hI
     -- 2.2. inequalities
@@ -92,8 +90,6 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
     intro hA1
     -- 4.1. def:set-builder, from D1, K2
     have s4_1 : c > 0 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
       have hI : 0 < c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => 0 < y)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK2)).2)
       exact hI
     -- 4.2. inequalities
@@ -111,7 +107,7 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       -- 4.4.3. antisymmetry, from 4.4.1, 4.4.2
       have s4_4_3 : Real.sqrt c = 0 := le_antisymm s4_4_1 s4_4_2
       -- 4.4.4. substitute √c = 0 (line 4.4.3)
-      have s4_4_4 : Real.sqrt c ^ 2 = 0 ^ 2 := by (have h := congrArg (fun t : ℝ => t ^ 2) s4_4_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s4_4_4 : Real.sqrt c ^ 2 = 0 ^ 2 := congrArg (fun t : ℝ => t ^ 2) s4_4_3
       -- 4.4.5. arithmetic
       have s4_4_5 : (0 ^ 2 : ℤ) = 0 := by parley_arith
       -- 4.4.6. calculation
@@ -135,8 +131,6 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       intro hA2
       -- 4.8.1. def:set-builder, from D1, K4
       have s4_8_1 : x > 0 := by
-        try simp only [hD1] at ⊢
-        try push_cast at ⊢
         have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => 0 < y)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK4)).2)
         exact hI
       -- 4.8.2. inequalities
@@ -163,11 +157,11 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       -- 4.8.13. def:abs x := √x + √c, from 4.8.11
       have s4_8_13 : abs (Real.sqrt x + Real.sqrt c) = Real.sqrt x + Real.sqrt c := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := Real.sqrt x + Real.sqrt c)) s4_8_11
       -- 4.8.14. substitute (√x − √c)·(√x + √c) = x − c (line 4.8.10)
-      have s4_8_14 : abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := by (have h := congrArg (fun t : ℝ => abs t) s4_8_10.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s4_8_14 : abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := congrArg (fun t : ℝ => abs t) s4_8_10.symm
       -- 4.8.15. mun:abs-product x := √x − √c, y := √x + √c, from 4.8.6
       have s4_8_15 : abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) = abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := Real.sqrt x - Real.sqrt c) (y := Real.sqrt x + Real.sqrt c))
       -- 4.8.16. substitute |√x + √c| = √x + √c (line 4.8.13)
-      have s4_8_16 : abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by (have h := congrArg (fun t : ℝ => abs (Real.sqrt x - Real.sqrt c) * t) s4_8_13; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s4_8_16 : abs (Real.sqrt x - Real.sqrt c) * abs (Real.sqrt x + Real.sqrt c) = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := congrArg (fun t : ℝ => abs (Real.sqrt x - Real.sqrt c) * t) s4_8_13
       -- 4.8.17. calculation
       have s4_8_17 : abs (x - c) = abs (Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c) := by
         calc abs (x - c) = abs ((Real.sqrt x - Real.sqrt c) * (Real.sqrt x + Real.sqrt c)) := s4_8_14
@@ -188,9 +182,9 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
       -- 4.8.24. mun:less-scaled x := |√x − √c|, y := ε, c := √c, from 4.3, 4.4, 4.8.7, 4.8.23
       have s4_8_24 : abs (Real.sqrt x - Real.sqrt c) < ε := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (Real.sqrt x - Real.sqrt c)) (y := ε) (c := Real.sqrt c) s4_4)).mpr s4_8_23
       -- 4.8.25. substitute g(x) = √x (line 4.8.8) into line 4.8.24
-      have s4_8_25 : abs (g x - Real.sqrt c) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs (t - Real.sqrt c) < ε)) s4_8_8.symm s4_8_24; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s4_8_25 : abs (g x - Real.sqrt c) < ε := Eq.subst (motive := (fun t : ℝ => abs (t - Real.sqrt c) < ε)) s4_8_8.symm s4_8_24
       -- 4.8.26. substitute g(c) = √c (line 4.8.9) into line 4.8.25
-      (have h := Eq.subst (motive := (fun t : ℝ => abs (g x - t) < ε)) s4_8_9.symm s4_8_25; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℝ => abs (g x - t) < ε)) s4_8_9.symm s4_8_25
     -- 4.9. exhibit, from 4.6, 4.7, 4.8
     exact ⟨ε * Real.sqrt c, ⟨s4_7, s4_8⟩⟩
   -- 5. def:continuous-on, from 1, 4

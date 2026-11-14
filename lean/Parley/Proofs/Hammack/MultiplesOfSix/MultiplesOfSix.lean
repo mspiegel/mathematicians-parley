@@ -69,12 +69,12 @@ theorem multiples_of_six :
     -- 3.6. substitute
     have s3_6 : t = 6 * a - 2 * t := by
       have c1 : 3 * t = 6 * a := by linear_combination (norm := parley_norm) (3) * s3_3
-      have row1 : t = 6 * a - 2 * t := by (have h := Eq.subst (motive := (fun u : ℤ => t = u - 2 * t)) c1 s3_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : t = 6 * a - 2 * t := Eq.subst (motive := (fun u : ℤ => t = u - 2 * t)) c1 s3_5
       exact row1
     -- 3.7. substitute
     have s3_7 : t = 6 * a - 6 * b := by
       have c1 : 2 * t = 6 * b := by linear_combination (norm := parley_norm) (2) * s3_4
-      have row1 : t = 6 * a - 6 * b := by (have h := Eq.subst (motive := (fun u : ℤ => t = 6 * a - u)) c1 s3_6; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : t = 6 * a - 6 * b := Eq.subst (motive := (fun u : ℤ => t = 6 * a - u)) c1 s3_6
       exact row1
     -- 3.8. calculation
     have s3_8 : t = 6 * (a - b) := by

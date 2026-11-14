@@ -43,15 +43,15 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   set q : ℤ := ⌊A / B⌋ with hD1
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
   -- 3. both directions
   constructor
   · skip
     intro hC1
     -- 3.1. substitute A mod B = A − B·q (line 2) into C1
-    have s3_1 : A - B * (q : ℝ) = 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t = 0)) s2 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s3_1 : A - B * (q : ℝ) = 0 := Eq.subst (motive := (fun t : ℝ => t = 0)) s2 hC1
     -- 3.2. algebra, from 3.1
     have r33_1 : B ≠ 0 := by exact s1
     have s3_2 : A / B = (q : ℝ) := by linear_combination (norm := parley_field) ((1) / ((B))) * s3_1

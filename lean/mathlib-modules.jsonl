@@ -1194,7 +1194,6 @@
 {"key":"refine a","kind":"tactic","modules":[]}
 {"key":"revert a","kind":"tactic","modules":[]}
 {"key":"rify","kind":"tactic","modules":["Mathlib.Tactic.Rify"]}
-{"key":"ring","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
 {"key":"ring_nf at h","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
 {"key":"rw [a]","kind":"tactic","modules":[]}
 {"key":"rw [a] at h","kind":"tactic","modules":[]}

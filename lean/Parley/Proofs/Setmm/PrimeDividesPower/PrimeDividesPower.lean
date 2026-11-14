@@ -52,7 +52,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       -- 3.1. algebra
       have s3_1 : Q ^ 0 = 1 := by parley_ring
       -- 3.2. substitute Q^0 = 1 (line 3.1) into C1
-      have s3_2 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s3_1 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s3_2 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s3_1 hC1; push_cast at h ⊢; exact_mod_cast h)
       -- 3.3. mun:divides-one d := P, from 3.2
       have s3_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) hH1 s3_2)
       -- 3.4. inequalities
@@ -63,7 +63,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
       -- 3.5. mun:exponent-step a := Q
       have s3_5 : Q ^ (m + 1).toNat = Q ^ m.toNat * Q := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := Q) (m := m) hK)
       -- 3.6. substitute Q^(m + 1) = Q^m·Q (line 3.5) into C2
-      have s3_6 : P ∣ Q ^ m.toNat * Q := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s3_5 hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s3_6 : P ∣ Q ^ m.toNat * Q := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s3_5 hC2
       -- 3.7. thm:prime-divides-product m := Q^m, n := Q, from H2, 3.6
       have s3_7 : P ∣ Q ^ m.toNat ∨ P ∣ Q := by exact ((Parley.Items.Stdlib.Divisibility.thm_prime_divides_product (p := P) hH1 hH2 (m := Q ^ m.toNat) (n := Q))).mp s3_6
       -- 3.8. cases, from 3.7

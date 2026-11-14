@@ -56,7 +56,7 @@ theorem five_power_minus_one (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_3 : 2 * (m + 1) = 2 * m + 2 := by parley_ring
       -- 1.4. calculation
       have s1_4 : (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m).toNat * 5 ^ 2 := by
-        calc (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m + 2).toNat := by (have h := congrArg (fun t : ℤ => 5 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m + 2).toNat := by (have h := congrArg (fun t : ℤ => 5 ^ t.toNat) s1_3; push_cast at h ⊢; exact_mod_cast h)
           _ = 5 ^ (2 * m).toNat * 5 ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (mul_nonneg (by norm_num) (hK)) (n := (2 : ℤ)) (by norm_num))
       -- 1.5. mun:divides-multiple e := 3, a := 5^(2m) − 1, x := 25, from IH
       have s1_5 : (3 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (5 ^ (2 * m).toNat - 1 : ℤ)) (x := (25 : ℤ)) hIH)
@@ -67,7 +67,7 @@ theorem five_power_minus_one (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_7 : (3 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := ((5 ^ (2 * m).toNat - 1) * 25 : ℤ)) (b := (24 : ℤ)) s1_5 s1_6)
       -- 1.8. substitute
       have c1 : ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) = 5 ^ (2 * (m + 1)).toNat - 1 := by linear_combination (norm := parley_norm) (-1) * s1_4
-      have row1 : (3 : ℤ) ∣ (5 ^ (2 * (m + 1)).toNat - 1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : (3 : ℤ) ∣ (5 ^ (2 * (m + 1)).toNat - 1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s1_7; push_cast at h ⊢; exact_mod_cast h)
       exact row1
   -- 2. instantiate m := n in line 1
   exact (s1 n hH1)

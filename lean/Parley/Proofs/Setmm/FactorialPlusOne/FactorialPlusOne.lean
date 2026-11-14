@@ -56,7 +56,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- 9. substitute
   have s9 : N ∣ (1 : ℤ) := by
     have c1 : (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) = 1 := by parley_ring
-    have row1 : N ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => N ∣ t)) c1 s8; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : N ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => N ∣ t)) c1 s8; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 10. mun:divides-one d := N, from 9
   have s10 : N = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := N) hH2 s9)

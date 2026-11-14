@@ -73,9 +73,9 @@ theorem powers_of_two_sum (n : ℤ) (hH1 : 0 < n) :
       have s1_3 : (2 ^ (k + 1 + 1).toNat : ℤ) = 2 ^ (k + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
       -- 1.4. calculation
       calc S (k + 1) = S k + 2 ^ (k + 1).toNat := s1_2
-        _ = 2 ^ (k + 1).toNat - 2 + 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => t + 2 ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 2 ^ (k + 1).toNat - 2 + 2 ^ (k + 1).toNat := congrArg (fun t : ℤ => t + 2 ^ (k + 1).toNat) hIH
         _ = 2 ^ (k + 1).toNat * 2 - 2 := by parley_ring
-        _ = 2 ^ (k + 1 + 1).toNat - 2 := by (have h := congrArg (fun t : ℤ => t - 2) s1_3.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 2 ^ (k + 1 + 1).toNat - 2 := congrArg (fun t : ℤ => t - 2) s1_3.symm
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 ^ k.toNat : ℤ)) = S n := by simp (disch := omega) only [hD1]
     _ = 2 ^ (n + 1).toNat - 2 := by exact (s1 n hH1)

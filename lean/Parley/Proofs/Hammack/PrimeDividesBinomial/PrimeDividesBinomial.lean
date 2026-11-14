@@ -54,7 +54,7 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
   -- 7. substitute
   have s7 : k * (LeanBridges.Counting.choose p k : ℤ) = p * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by
     have c1 : p - 1 + 1 = p := by parley_ring
-    have row1 : k * (LeanBridges.Counting.choose p k : ℤ) = p * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => k * (LeanBridges.Counting.choose t k : ℤ) = t * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ))) c1 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : k * (LeanBridges.Counting.choose p k : ℤ) = p * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => k * (LeanBridges.Counting.choose t k : ℤ) = t * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ))) c1 s6
     exact row1
   -- 8. mun:binomial-nat0 n := p − 1, k := k − 1, from 2
   have s8 : 0 ≤ (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := p - 1) s2 (k := k - 1))
@@ -63,11 +63,11 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
   -- 10. mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 9
   have s10 : p ∣ p * (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := p) (x := (LeanBridges.Counting.choose (p - 1) (k - 1) : ℤ)) s9)
   -- 11. substitute k·C(p, k) = p·C(p − 1, k − 1) (line 7) into line 10
-  have s11 : p ∣ k * (LeanBridges.Counting.choose p k : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) s7.symm s10; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s11 : p ∣ k * (LeanBridges.Counting.choose p k : ℤ) := Eq.subst (motive := (fun t : ℤ => p ∣ t)) s7.symm s10
   -- 12. substitute
   have s12 : p ∣ (LeanBridges.Counting.choose p k : ℤ) * k := by
     have c1 : k * (LeanBridges.Counting.choose p k : ℤ) = (LeanBridges.Counting.choose p k : ℤ) * k := by parley_ring
-    have row1 : p ∣ (LeanBridges.Counting.choose p k : ℤ) * k := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s11; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : p ∣ (LeanBridges.Counting.choose p k : ℤ) * k := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s11
     exact row1
   -- 13. contradiction
   have s13 : ¬ p ∣ k := by
@@ -82,7 +82,7 @@ theorem prime_divides_binomial (p : ℤ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
   -- 15. substitute
   have s15 : (Int.gcd k p : ℤ) = 1 := by
     have c1 : (Int.gcd p k : ℤ) = (Int.gcd k p : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := p) (b := k))
-    have row1 : (Int.gcd k p : ℤ) = 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t = 1)) c1 s14; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (Int.gcd k p : ℤ) = 1 := Eq.subst (motive := (fun t : ℤ => t = 1)) c1 s14
     exact row1
   -- 16. thm:coprime-divides x := C(p, k), c := k, n := p, from 12, 15
   exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose p k : ℤ)) (c := k) (n := p) hH1 s12 s15)

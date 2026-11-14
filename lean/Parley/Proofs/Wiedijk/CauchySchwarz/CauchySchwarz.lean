@@ -56,7 +56,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have s1_2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((a k * t + b k) ^ 2 : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := (fun k : ℤ => (a k * t + b k) ^ 2)) (a := (1 : ℤ)) (b := n) s1_1)
     -- 1.3. substitute
     have c1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((a k * t + b k) ^ 2 : ℝ)) = t ^ 2 * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) + 2 * t * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) + (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) := by parley_ring
-    have row1 : t ^ 2 * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) + 2 * t * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) + (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) ≥ 0 := by (have h := Eq.subst (motive := (fun u : ℝ => u ≥ 0)) c1 s1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : t ^ 2 * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k ^ 2 : ℝ)) + 2 * t * (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) + (∑ k ∈ Finset.Icc (1 : ℤ) n, (b k ^ 2 : ℝ)) ≥ 0 := Eq.subst (motive := (fun u : ℝ => u ≥ 0)) c1 s1_2
     exact row1
   -- 2. mun:square-nonneg x := a(k), from H2
   have s2 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k ^ 2 ≥ 0 := by intro k h_k; (exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a k)))
@@ -76,8 +76,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     -- 5.3. proof
     have s5_3 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → a k * b k = 0 := by
       intro k hK4
-      try push_cast at hK4
-      try have hK4_bounds := Finset.mem_Icc.mp hK4
+      have hK4_bounds := Finset.mem_Icc.mp hK4
       -- 5.3.1. mun:square-zero x := a(k), from H2, K4, 5.2
       have s5_3_1 : a k = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_zero (x := a k) (s5_2 k hK4))
       -- 5.3.2. algebra, from 5.3.1
@@ -123,7 +122,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have r135_1 : A ≠ 0 := ne_of_gt (by linarith only [s5_9])
     have s5_15 : B ^ 2 ≤ A * C := by
       have c1 : A * (B ^ 2 / A) = B ^ 2 := by parley_ring
-      have row1 : B ^ 2 ≤ A * C := by (have h := Eq.subst (motive := (fun t : ℝ => t ≤ A * C)) c1 s5_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : B ^ 2 ≤ A * C := Eq.subst (motive := (fun t : ℝ => t ≤ A * C)) c1 s5_14
       exact row1
     -- 5.16. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) ^ 2 = B ^ 2 := by simp (disch := omega) only [hD2]

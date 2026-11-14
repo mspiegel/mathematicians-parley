@@ -63,7 +63,7 @@ theorem sum_of_eight_i_minus_five (n : ℤ) (hH1 : 0 < n) :
           _ = S k + (8 * (k + 1) - 5) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
       calc S (k + 1) = S k + (8 * (k + 1) - 5) := s1_2
-        _ = 4 * k ^ 2 - k + (8 * (k + 1) - 5) := by (have h := congrArg (fun t : ℤ => t + (8 * (k + 1) - 5)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 4 * k ^ 2 - k + (8 * (k + 1) - 5) := congrArg (fun t : ℤ => t + (8 * (k + 1) - 5)) hIH
         _ = 4 * (k + 1) ^ 2 - (k + 1) := by parley_ring
   -- 2. calculation
   calc (∑ i ∈ Finset.Icc (1 : ℤ) n, (8 * i - 5 : ℤ)) = S n := by simp (disch := omega) only [hD1]

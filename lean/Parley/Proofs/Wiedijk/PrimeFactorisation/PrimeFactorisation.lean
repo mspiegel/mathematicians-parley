@@ -61,8 +61,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
     induction N, h_N using LeanBridges.Functions.le_induction with
     | base =>
       intro m hK1
-      try push_cast at hK1
-      try have hK1_bounds := Finset.mem_Icc.mp hK1
+      have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.1. mun:range-bounds a := 2, b := 1, k := m, from K1
       have s1_1 : 2 ≤ m := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 : ℤ)) (b := (1 : ℤ)) (k := m) hK1)
       -- 1.2. mun:range-bounds a := 2, b := 1, k := m, from K1
@@ -72,8 +71,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       exact absurd s1_2 s1_3
     | succ N hK2 hIH =>
       intro m hK3
-      try push_cast at hK3
-      try have hK3_bounds := Finset.mem_Icc.mp hK3
+      have hK3_bounds := Finset.mem_Icc.mp hK3
       -- 1.4. mun:range-bounds a := 2, b := N + 1, k := m, from K3
       have s1_4 : m ≤ N + 1 := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 : ℤ)) (b := N + 1) (k := m) hK3)
       -- 1.5. mun:range-bounds a := 2, b := N + 1, k := m, from K3
@@ -97,7 +95,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.12. substitute
       have s1_12 : m - r > 0 := by
         have c1 : (p - 1) * r = m - r := by linear_combination (norm := parley_norm) (-1) * s1_9
-        have row1 : m - r > 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s1_11; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : m - r > 0 := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s1_11
         exact row1
       -- 1.13. inequalities
       have s1_13 : r < m := by linarith only [s1_12]
@@ -122,18 +120,17 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         -- 1.18.4. thm:prime-times-product, from D2, 1.7, 1.18.3
         have s1_18_4 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := by exact (Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct.prime_times_product (p := p) s1_7a s1_7b (r := r) hD2_pos s1_18_3)
         -- 1.18.5. substitute m = p·r (line 1.9) into line 1.18.4
-        (have h := Eq.subst (motive := (fun t : ℤ => ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (t = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))))) s1_9.symm s1_18_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact Eq.subst (motive := (fun t : ℤ => ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (t = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))))) s1_9.symm s1_18_4
       · skip
         set e : ℤ → ℤ := fun i : ℤ => p with hD3
         -- 1.18.6. proof
         have s1_18_6 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → Nat.Prime (e i).toNat := by
           intro i hK4
-          try push_cast at hK4
-          try have hK4_bounds := Finset.mem_Icc.mp hK4
+          have hK4_bounds := Finset.mem_Icc.mp hK4
           -- 1.18.6.1. D3, from K4
           have s1_18_6_1 : e i = p := by simp (disch := omega) only [hD3]
           -- 1.18.6.2. substitute e(i) = p (line 1.18.6.1) into line 1.7
-          (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s1_18_6_1.symm s1_7b; push_cast at h ⊢; all_goals exact_mod_cast h)
+          exact Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s1_18_6_1.symm s1_7b
         -- 1.18.7. membership, from D3
         have s1_18_7 : ∀ i : ℤ, i ∈ Finset.Icc 1 1 → 0 < e i := by intro i h_i; exact by rw [hD3]; exact s1_7a
         -- 1.18.8. mun:function-into, from 1.18.7
@@ -142,7 +139,7 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
         have r295_1 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (1 : ℤ) := by simp
         have s1_18_9 : e 1 = p := by simp (disch := omega) only [hD3]
         -- 1.18.10. substitute r = 1 (C2) into line 1.9
-        have s1_18_10 : m = p := by (have h := Eq.subst (motive := (fun t : ℤ => m = p * t)) hC2.symm s1_9; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
+        have s1_18_10 : m = p := by (have h := Eq.subst (motive := (fun t : ℤ => m = p * t)) hC2.symm s1_9; push_cast [mul_one] at h ⊢; exact_mod_cast h)
         -- 1.18.11. calculation
         have s1_18_11 : m = (∏ i ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (e i : ℤ)) := by
           calc m = p := s1_18_10

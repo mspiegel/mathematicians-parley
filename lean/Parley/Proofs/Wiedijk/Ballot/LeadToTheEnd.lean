@@ -45,8 +45,7 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
   -- 2. proof
   have s2 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by
     intro i hK1
-    try push_cast at hK1
-    try have hK1_bounds := Finset.mem_Icc.mp hK1
+    have hK1_bounds := Finset.mem_Icc.mp hK1
     -- 2.1. axi:excluded-middle P := i = m + n
     have s2_1 : i = m + n ∨ i ≠ m + n := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := i = m + n))
     -- 2.2. cases, from 2.1
@@ -61,7 +60,7 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
           _ < m := hH4
           _ = (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := s2_2_1b.symm)
       -- 2.2.3. substitute i = m + n (C1) into line 2.2.2
-      (have h := Eq.subst (motive := (fun t : ℤ => (((Set.Icc (1 : ℤ) t : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) t : Set ℤ) ∩ c).ncard : ℤ))) hC1.symm s2_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => (((Set.Icc (1 : ℤ) t : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) t : Set ℤ) ∩ c).ncard : ℤ))) hC1.symm s2_2_2
     · skip
       -- 2.2.4. mun:range-bounds a := 1, b := m + n, k := i, from K1
       have s2_2_4a : 1 ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := m + n) (k := i) hK1)

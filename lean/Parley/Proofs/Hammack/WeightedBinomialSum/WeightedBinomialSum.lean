@@ -51,7 +51,7 @@ theorem weighted_binomial_sum (n : ℤ) (hH1 : 0 < n) :
   have c1 : n - 1 + 1 = n := by parley_ring
   have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = (n : ℚ) * 2 ^ (n - 1) := by
     have e_w : (n : ℚ) - 1 + 1 = (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
-    (have h := Eq.subst (motive := (fun t : ℚ => (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = t * 2 ^ (n - 1))) e_w (Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, ((k : ℚ) * (LeanBridges.Counting.choose t k : ℚ) : ℚ)) = ((n : ℚ) - 1 + 1) * 2 ^ (n - 1))) c1 s1); push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℚ => (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = t * 2 ^ (n - 1))) e_w (Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, ((k : ℚ) * (LeanBridges.Counting.choose t k : ℚ) : ℚ)) = ((n : ℚ) - 1 + 1) * 2 ^ (n - 1))) c1 s1); push_cast at h ⊢; exact_mod_cast h)
   exact row1
 
 end Parley.Proofs.Hammack.WeightedBinomialSum.WeightedBinomialSum

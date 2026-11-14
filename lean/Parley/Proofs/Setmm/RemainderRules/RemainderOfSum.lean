@@ -44,13 +44,13 @@ theorem remainder_of_sum (A : ℝ) (B : ℝ) (M : ℝ) (hH4 : M > 0) :
   set q : ℤ := ⌊A / M⌋ with hD1
   -- 2. mun:mod-value a := A, b := M, from D1, H4
   have s2 : LeanBridges.Divisibility.mod A M = A - M * (q : ℝ) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := M) hH4)
   -- 3. algebra, from 2
   have s3 : LeanBridges.Divisibility.mod A M + B = A + B + M * -(q : ℝ) := by linear_combination (norm := parley_norm) s2
   -- 4. calculation
-  calc LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M + B) M = LeanBridges.Divisibility.mod (A + B + M * -(q : ℝ)) M := by (have h := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+  calc LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M + B) M = LeanBridges.Divisibility.mod (A + B + M * -(q : ℝ)) M := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s3
     _ = LeanBridges.Divisibility.mod (A + B) M := by
         have hI : LeanBridges.Divisibility.mod (A + B + M * -(q : ℝ)) M = LeanBridges.Divisibility.mod (A + B) M := by parley_instance ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A + B) (M := M) hH4 (K := -q)))
         exact hI

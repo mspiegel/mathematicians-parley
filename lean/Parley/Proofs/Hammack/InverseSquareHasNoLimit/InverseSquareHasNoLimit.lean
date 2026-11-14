@@ -110,8 +110,8 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     set t : ℝ := 1 / (j : ℝ) with hD1
     -- 10.8. mun:reciprocal-positive x := j, from D1, 10.1
     have s10_8 : t > 0 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      simp only [hD1] at ⊢
+      push_cast at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := (j : ℝ)) (by exact_mod_cast gt_iff_lt.mp s10_1))
     -- 10.9. inequalities
     have s10_9 : t ≠ 0 := ne_of_gt (by linarith only [s10_8])
@@ -130,29 +130,28 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s10_15 : f t = 1 / t ^ 2 := by exact (hH2 t s10_10)
     -- 10.16. algebra, from D1
     have s10_16 : t * (j : ℝ) = 1 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      simp only [hD1] at ⊢
+      push_cast at ⊢
       parley_ring
     set T : ℝ := t ^ 2 with hD2
     -- 10.17. mun:square-positive x := t, from D2, 10.9
     have s10_17 : T > 0 := by
-      try simp only [hD2] at ⊢
-      try push_cast at ⊢
+      simp only [hD2] at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := t) s10_9)
     -- 10.18. algebra, from D2, 10.16
     have s10_18 : (j : ℝ) ^ 2 * T = 1 := by
-      try simp only [hD2] at s10_16 ⊢
-      try push_cast at s10_16 ⊢
+      simp only [hD2] at ⊢
+      push_cast at s10_16 ⊢
       linear_combination (norm := parley_norm) ((j : ℝ) * t + 1) * s10_16
     -- 10.19. algebra, from 10.18
     have r141_1 : T ≠ 0 := ne_of_gt (by linarith only [s10_17])
     have s10_19 : 1 / T = (j : ℝ) ^ 2 := by linear_combination (norm := parley_field) ((-1) / ((T))) * s10_18
     -- 10.20. substitute t² = T (D2) into line 10.15
-    have s10_20 : f t = 1 / T := by (have h := Eq.subst (motive := (fun u : ℝ => f t = 1 / u)) hD2.symm s10_15; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s10_20 : f t = 1 / T := Eq.subst (motive := (fun u : ℝ => f t = 1 / u)) hD2.symm s10_15
     -- 10.21. transitivity, from 10.20, 10.19
     have s10_21 : f t = (j : ℝ) ^ 2 := by exact Eq.trans s10_20 s10_19
     -- 10.22. substitute f(t) = j² (line 10.21) into line 10.14
-    (have h := Eq.subst (motive := (fun u : ℝ => abs (u - L) < 1)) s10_21 s10_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun u : ℝ => abs (u - L) < 1)) s10_21 s10_14
   -- 11. instantiate j := m in line 10
   have r154_1 : m ≥ m := by linarith
   have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by exact (s10 m s7a r154_1)

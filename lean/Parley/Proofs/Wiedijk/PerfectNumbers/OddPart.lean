@@ -59,8 +59,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
     induction N, h_N using LeanBridges.Functions.le_induction with
     | base =>
       intro j hK1
-      try push_cast at hK1
-      try have hK1_bounds := Finset.mem_Icc.mp hK1
+      have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
       have s1_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.2. mun:range-bounds a := 1, b := 0, k := j, from K1
@@ -70,8 +69,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
       exact absurd s1_2 s1_3
     | succ N hK2 hIH =>
       intro j hK3
-      try push_cast at hK3
-      try have hK3_bounds := Finset.mem_Icc.mp hK3
+      have hK3_bounds := Finset.mem_Icc.mp hK3
       -- 1.4. mun:range-bounds a := 1, b := N + 1, k := j, from K3
       have s1_4 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.5. mun:range-bounds a := 1, b := N + 1, k := j, from K3
@@ -85,7 +83,7 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.1. obtain i: def:even n := j, from C1
           obtain ⟨i, s1_7_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := j))).mp hC1
           -- 1.7.2. substitute j = 2i (line 1.7.1) into line 1.4
-          have s1_7_2 : 1 ≤ 2 * i := by (have h := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1_7_1 s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+          have s1_7_2 : 1 ≤ 2 * i := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1_7_1 s1_4
           -- 1.7.3. mun:factor-positive a := 2, b := i
           have r197_1 : (2 : ℤ) ≥ 0 := by parley_arith
           have r197_2 : 2 * i > 0 := by linarith only [s1_7_2]

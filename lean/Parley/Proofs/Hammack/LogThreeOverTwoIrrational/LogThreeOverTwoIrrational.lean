@@ -42,7 +42,6 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Logarithms
 public import Parley.Items.Stdlib.Numbers
@@ -73,7 +72,7 @@ theorem log_three_over_two_irrational :
     have r106_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_3 : p > 0 := by
       have c1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) = (p : ℝ) := by linear_combination (norm := parley_field) ((q : ℝ)) * s2_1b
-      have row1 : p > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : p > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s2_2; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 2.4. mun:pos-int-nat m := p, from 2.3
     have s2_4 : 0 < p := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) s2_3)
@@ -93,16 +92,16 @@ theorem log_three_over_two_irrational :
     have s2_7 : (2 ^ p : ℚ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (2 : ℚ)) (m := p) (by norm_num))
     -- 2.8. calculation
     have s2_8 : (3 ^ q.toNat : ℚ) = 2 ^ p := by
-      try rify
+      rify
       calc (3 ^ q.toNat : ℝ) = Real.exp (Real.log (3 ^ q.toNat : ℝ)) := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (3 ^ q.toNat : ℝ)) (by exact_mod_cast gt_iff_lt.mp s2_6)).symm
-        _ = Real.exp (Real.log (2 ^ p : ℝ)) := by (have h := congrArg (fun t : ℝ => Real.exp t) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = Real.exp (Real.log (2 ^ p : ℝ)) := congrArg (fun t : ℝ => Real.exp t) s2_5
         _ = 2 ^ p := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := (2 ^ p : ℝ)) (show 0 < (2 ^ p : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_7); simp only [Rat.cast_zpow, Rat.cast_zero, Rat.cast_ofNat] at h; exact h))
     -- 2.9. thm:power-of-three-odd n := q
     have s2_9 : Odd (3 ^ q.toNat : ℤ) := by exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd.power_of_three_odd (n := q) (le_of_lt s2_1a))
     -- 2.10. thm:power-of-two-even n := p, from 2.4
     have s2_10 : ∃ m : ℤ, (m : ℚ) = (2 ^ p : ℚ) ∧ Even m := by
       have whole1 : ((2 : ℚ) : ℚ) ^ (p).toNat = (2 ^ p : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s2_4)]
-      refine ⟨(((2 : ℤ) ^ (p).toNat) : ℤ), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
+      refine ⟨(((2 : ℤ) ^ (p).toNat) : ℤ), by (push_cast; simp only [whole1]), ?_⟩
       (exact (Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven.power_of_two_even (n := p) s2_4))
     -- 2.11. substitute 2^p = 3^q (line 2.8) into line 2.10
     have s2_11 : Even (3 ^ q.toNat : ℤ) := by exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ Even m)) s2_8.symm s2_10) (3 ^ q.toNat : ℤ) (by norm_cast)

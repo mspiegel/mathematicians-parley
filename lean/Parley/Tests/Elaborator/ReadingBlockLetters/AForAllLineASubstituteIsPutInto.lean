@@ -30,6 +30,6 @@ theorem a_for_all_line_a_substitute_is_put_into (b : ℝ) (hH2 : ∀ x : ℝ, x 
   intro y
   intro hA1
   -- 1.1. substitute y = b (A1) into H2
-  (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 ≥ 0)) hA1 (hH2 y); push_cast at h ⊢; all_goals exact_mod_cast h)
+  exact Eq.subst (motive := (fun t : ℝ => t ^ 2 ≥ 0)) hA1 (hH2 y)
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineASubstituteIsPutInto

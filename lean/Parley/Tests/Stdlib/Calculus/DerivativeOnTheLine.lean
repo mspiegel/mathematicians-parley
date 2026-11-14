@@ -59,7 +59,7 @@ theorem derivative_on_the_line (f : ℝ → ℝ) (hH2 : ∀ x ∈ (Set.univ : Se
   have s6_1 : (deriv F) x = (deriv f) x + (deriv g) x := by exact (s5 x)
   -- 6.2. substitute
   have c1 : (deriv g) x = 3 := by exact (s4 x)
-  have row1 : (deriv F) x = (deriv f) x + 3 := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv F) x = (deriv f) x + t)) c1 s6_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have row1 : (deriv F) x = (deriv f) x + 3 := Eq.subst (motive := (fun t : ℝ => (deriv F) x = (deriv f) x + t)) c1 s6_1
   exact row1
 
 end Parley.Tests.Stdlib.Calculus.DerivativeOnTheLine

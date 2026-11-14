@@ -38,8 +38,7 @@ theorem first_terms (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
   -- 3. proof
   have s3 : ∀ k : ℤ, k ∈ Finset.Icc 1 m → a k ≥ 0 := by
     intro k hK2
-    try push_cast at hK2
-    try have hK2_bounds := Finset.mem_Icc.mp hK2
+    have hK2_bounds := Finset.mem_Icc.mp hK2
     -- 3.1. instantiate k := k in H3, from 1
     exact (hH3 k (Finset.mem_Icc.mpr (s1 (Finset.mem_Icc.mp hK2))))
   -- 4. join 2, 3

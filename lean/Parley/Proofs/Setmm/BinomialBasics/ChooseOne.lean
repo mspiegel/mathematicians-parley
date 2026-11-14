@@ -63,20 +63,20 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     -- 2.6. mun:factorial-nat n := N − 1, from 2.1
     have s2_6 : 0 < (LeanBridges.Counting.factorial (N - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - 1) s2_1)
     -- 2.7. calculation
-    try qify
+    qify
     calc (LeanBridges.Counting.choose N (1 : ℤ) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * (LeanBridges.Counting.factorial (1 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := (1 : ℤ))) s2_3
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
           have e_w : (LeanBridges.Counting.factorial (1 : ℤ) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * t)) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          exact congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * t)) e_w
       _ = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
           have e_w : (LeanBridges.Counting.factorial N : ℚ) = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => t / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1)) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          exact congrArg (fun t : ℚ => t / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1)) e_w
       _ = (N : ℚ) := by parley_ring
   · skip
     -- 2.8. arithmetic
     have s2_8 : (0 : ℤ) < 1 := by parley_arith
     -- 2.9. substitute N = 0 (C2) into line 2.8
-    have s2_9 : N < 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t < 1)) hC2.symm s2_8; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_9 : N < 1 := Eq.subst (motive := (fun t : ℤ => t < 1)) hC2.symm s2_8
     -- 2.10. calculation
     calc (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := N) hH1 (k := (1 : ℤ))) s2_9
       _ = N := hC2.symm

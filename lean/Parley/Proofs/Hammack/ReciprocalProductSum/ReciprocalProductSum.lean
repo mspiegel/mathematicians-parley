@@ -55,7 +55,7 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
               have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / ((k : ℚ) * ((k : ℚ) + 1)) : ℚ)) = 1 / (1 * (1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ))))
               exact hI
           _ = 1 - 1 / (1 + 1) := by norm_num
-      (have h := s2_1; push_cast at h ⊢; all_goals exact h)
+      (have h := s2_1; push_cast at h ⊢; exact h)
     | succ k hK hIH =>
       -- 2.2. calculation
       have r43_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
@@ -63,11 +63,11 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by
               have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ)) (n := k) r43_1))
               exact hI
-          _ = 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by (have h := congrArg (fun t : ℚ => t + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1))) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := congrArg (fun t : ℚ => t + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1))) hIH
           _ = 1 - 1 / ((k : ℚ) + 1 + 1) := by
               have hI : 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by parley_instance ((Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep.reciprocal_step (m := k + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK) (by norm_num))))
               exact hI
-      (have h := s2_2; push_cast at h ⊢; all_goals exact h)
+      (have h := s2_2; push_cast at h ⊢; exact h)
   -- 3. instantiate k := n in line 2
   exact (s2 n hH1)
 

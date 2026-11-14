@@ -35,11 +35,11 @@ theorem choose_two_pairs (n : ℤ) (hH1 : 0 ≤ n) :
   -- 2. substitute 2 − 1 = 1 (arithmetic) into line 1
   have s2 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by
     have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
-    (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n t : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ))) e_arith s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose n t : ℤ) = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ))) e_arith s1; push_cast at h ⊢; exact_mod_cast h)
   -- 3. substitute
   have s3 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by
     have c1 : (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) = n := by exact (Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne.choose_one (n := n) hH1)
-    have row1 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + t = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ))) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + t = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ))) c1 s2
     exact row1
   -- 4. calculation
   calc n + (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n := by parley_ring

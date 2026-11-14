@@ -64,11 +64,11 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       -- 4.1. proof
       -- what this block shows, Lean's types give
       -- 4.2. D1
-      have s4_2 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_2 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
       -- 4.3. D1
-      have s4_3 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
+      have s4_3 : G 0 = 1 := by have h := hD1.2.1; ring_nf at h ⊢; linarith
       -- 4.4. D1
-      have s4_4 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+      have s4_4 : F 0 = 0 := by have h := hD1.1; ring_nf at h ⊢; linarith
       -- 4.5. calculation
       have s4_5 : F 1 = 1 := by
         calc F 1 = G 0 := s4_2
@@ -91,7 +91,7 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
         _ = F (1 + 1) := by norm_num
         _ = 1 := s4_7
         _ = 2 - 1 := by norm_num
-        _ = F (2 * 1 + 1) - 1 := by (have h := congrArg (fun t : ℤ => t - 1) s4_9.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = F (2 * 1 + 1) - 1 := congrArg (fun t : ℤ => t - 1) s4_9.symm
     | succ m hK3 hIH2 =>
       -- 4.11. proof
       -- what this block shows, Lean's types give
@@ -102,20 +102,20 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       -- 4.14. substitute
       have s4_14 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := by
         have c1 : 2 * m + 1 + 2 = 2 * (m + 1) + 1 := by parley_ring
-        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => F t = F (2 * m + 1) + F (2 * m + 1 + 1))) c1 s4_13; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := Eq.subst (motive := (fun t : ℤ => F t = F (2 * m + 1) + F (2 * m + 1 + 1))) c1 s4_13
         exact row1
       -- 4.15. substitute
       have s4_15 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := by
         have c1 : 2 * m + 1 + 1 = 2 * (m + 1) := by parley_ring
-        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := by (have h := Eq.subst (motive := (fun t : ℤ => F (2 * (m + 1) + 1) = F (2 * m + 1) + F t)) c1 s4_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := Eq.subst (motive := (fun t : ℤ => F (2 * (m + 1) + 1) = F (2 * m + 1) + F t)) c1 s4_14
         exact row1
       -- 4.16. instantiate k := 2m + 1 in line 2
       -- 4.17. instantiate k := 2(m + 1) in line 2
       -- 4.18. calculation
       have r122_1 : m ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK3
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r122_1)
-        _ = F (2 * m + 1) - 1 + q (m + 1) := by (have h := congrArg (fun t : ℤ => t + q (m + 1)) hIH2; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = F (2 * m + 1) - 1 + F (2 * (m + 1)) := by (have h := congrArg (fun t : ℤ => F (2 * m + 1) - 1 + t) s4_12; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = F (2 * m + 1) - 1 + q (m + 1) := congrArg (fun t : ℤ => t + q (m + 1)) hIH2
+        _ = F (2 * m + 1) - 1 + F (2 * (m + 1)) := congrArg (fun t : ℤ => F (2 * m + 1) - 1 + t) s4_12
         _ = F (2 * (m + 1) + 1) - 1 := by linear_combination (norm := parley_norm) (-1) * s4_15
   -- 5. instantiate m := n in line 4, from D2
   exact (s4 n hH1)

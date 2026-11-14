@@ -61,6 +61,6 @@ theorem weighted_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
   -- 7. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (k * (LeanBridges.Counting.choose (m + 1) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ) : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + 1) k : ℤ))) (u := (fun k : ℤ => (m + 1) * (LeanBridges.Counting.choose m (k - 1) : ℤ))) (a := (1 : ℤ)) (b := m + 1) s1)
     _ = (m + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose m (k - 1) : ℤ) : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_scaled (t := (fun k : ℤ => (LeanBridges.Counting.choose m (k - 1) : ℤ))) (a := (1 : ℤ)) (b := m + 1) (c := m + 1)).symm
-    _ = (m + 1) * 2 ^ m.toNat := by (have h := congrArg (fun t : ℤ => (m + 1) * t) s6; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = (m + 1) * 2 ^ m.toNat := congrArg (fun t : ℤ => (m + 1) * t) s6
 
 end Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum

@@ -43,7 +43,7 @@ theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
     -- 2. arithmetic
     have s2 : ¬ (0 : ℤ) < 0 := by parley_arith
     -- 3. substitute |A| = 0 (line 1) into line 2
-    have s3 : ¬ 0 < (A.ncard : ℤ) := by parley_count_int; ((have h := Eq.subst (motive := (fun t : ℤ => ¬ 0 < t)) s1.symm s2; push_cast at h ⊢; all_goals exact_mod_cast h))
+    have s3 : ¬ 0 < (A.ncard : ℤ) := by parley_count_int; exact (Eq.subst (motive := (fun t : ℤ => ¬ 0 < t)) s1.symm s2)
     exact s3 hC1
   · skip
     intro hC2
@@ -53,7 +53,7 @@ theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
     have s5 : (A.ncard : ℤ) ≠ 0 := by
       intro hS2
       -- 5.1. mun:card-zero X := A, from S2
-      have s5_1 : A = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := A) (by (have h := hS2; rw [← Set.Finite.cast_ncard_eq ((hH2 : (A : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
+      have s5_1 : A = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := A) (by (have h := hS2; rw [← Set.Finite.cast_ncard_eq ((hH2 : (A : Set α).Finite))]; exact_mod_cast h)))
       -- 5.2. restate C2
       have s5_2 : ¬ A = ∅ := by exact hC2
       exact s5_2 s5_1

@@ -31,7 +31,7 @@ theorem five_divides_half (b : ℤ) (hH2 : (5 : ℤ) ∣ 2 * b) :
   have s2 : (5 : ℤ) ∣ 2 * b * -2 + 5 * b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (5 : ℤ)) (a := 2 * b) (b := (5 : ℤ)) (x := (-2 : ℤ)) (y := b) hH2 s1)
   -- 3. substitute
   have c1 : 2 * b * -2 + 5 * b = b := by parley_ring
-  have row1 : (5 : ℤ) ∣ b := by (have h := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have row1 : (5 : ℤ) ∣ b := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t)) c1 s2
   exact row1
 
 end Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf

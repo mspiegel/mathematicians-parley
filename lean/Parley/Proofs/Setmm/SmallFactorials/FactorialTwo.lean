@@ -33,12 +33,12 @@ theorem factorial_two :
   -- 2. substitute
   have s2 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = 1 * (1 + 1) := by
     have c1 : (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 := by exact Parley.Items.Stdlib.Counting.def_factorial_2
-    have row1 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = 1 * (1 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = t * (1 + 1))) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = 1 * (1 + 1) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial (1 + 1 : ℤ) : ℤ) = t * (1 + 1))) c1 s1
     exact row1
   -- 3. substitute
   have s3 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by
     have c1 : (1 + 1 : ℤ) = 2 := by parley_arith
-    have row1 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1 * t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = 1 * t)) c1 s2; revert h; norm_num)
     exact row1
   -- 4. calculation
   calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := s3

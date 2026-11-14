@@ -98,14 +98,14 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have r94_1 : p ≠ 0 := by exact s5
   have s19 : 1 / (N : ℝ) < p := by
     have c1 : 1 / (1 / p) = p := by parley_ring
-    have row1 : 1 / (N : ℝ) < p := by (have h := Eq.subst (motive := (fun t : ℝ => 1 / (N : ℝ) < t)) c1 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : 1 / (N : ℝ) < p := Eq.subst (motive := (fun t : ℝ => 1 / (N : ℝ) < t)) c1 s18
     exact row1
   -- 20. algebra
   have s20 : 1 + 1 / (N : ℚ) - 1 = 1 / (N : ℚ) := by parley_ring
   -- 21. calculation
   have r103_1 : 1 / (N : ℚ) ≥ 0 := by linarith only [s15]
   have s21 : abs (1 + 1 / (N : ℝ) - 1) < p := by
-    calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by (have h := congrArg (fun t : ℚ => abs t) s20; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc abs (1 + 1 / (N : ℝ) - 1) = abs (1 / (N : ℝ)) := by (have h := congrArg (fun t : ℚ => abs t) s20; push_cast at h ⊢; exact_mod_cast h)
       _ = 1 / (N : ℝ) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (N : ℝ))) (show 0 ≤ 1 / (N : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr (ge_iff_le.mp r103_1); simp only [Rat.cast_div, Rat.cast_zero, Rat.cast_one, Rat.cast_intCast] at h; exact h)
       _ < p := s19
   -- 22. join 16, 21
@@ -119,7 +119,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 26. substitute
   have s26 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by
     have c1 : (1 / (N : ℚ)) ^ 2 = (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 := by parley_ring
-    have row1 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by (have h := Eq.subst (motive := (fun t : ℚ => t > 0)) c1 s25; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := Eq.subst (motive := (fun t : ℚ => t > 0)) c1 s25
     exact row1
   -- 27. inequalities
   have s27 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 ≠ 0 := ne_of_gt (by linarith only [s26])
@@ -130,7 +130,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 29. mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 23
   have s29 : L - 1 < f (1 + 1 / (N : ℝ)) ∧ f (1 + 1 / (N : ℝ)) < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (1 + 1 / (N : ℝ))) (c := L) (δ := (1 : ℝ)))).mp s23
   -- 30. substitute f(1 + 1/N) = N² (line 28) into line 29
-  have s30 : (N : ℝ) ^ 2 < L + 1 := by (have h := Eq.subst (motive := (fun t : ℝ => t < L + 1)) s28 s29.2; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s30 : (N : ℝ) ^ 2 < L + 1 := Eq.subst (motive := (fun t : ℝ => t < L + 1)) s28 s29.2
   -- 31. mun:multiply-le x := 1, y := N, c := N, from 9
   have s31 : N * 1 ≤ N * N := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := N) (c := N) s9a s9a)
   -- 32. inequalities

@@ -41,7 +41,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
     -- 2.2. substitute
     have s2_2 : x ∣ y * z := by
       have c1 : z * y = y * z := by parley_ring
-      have row1 : x ∣ y * z := by (have h := Eq.subst (motive := (fun t : ℤ => x ∣ t)) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : x ∣ y * z := Eq.subst (motive := (fun t : ℤ => x ∣ t)) c1 s2_1
       exact row1
     -- 2.3. restate H5
     have s2_3 : ¬ x ∣ y * z := by exact hH5

@@ -47,7 +47,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k
   -- 5. substitute
   have s5 : b ∣ b ^ 2 := by
     have c1 : b * b = b ^ 2 := by parley_ring
-    have row1 : b ∣ b ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => b ∣ t)) c1 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : b ∣ b ^ 2 := Eq.subst (motive := (fun t : ℤ => b ∣ t)) c1 s4
     exact row1
   -- 6. instantiate k := b² in H2, from 2
   have s6 : ¬ b ∣ b ^ 2 := by exact (hH2 (b ^ 2) s2)

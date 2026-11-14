@@ -38,8 +38,7 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
     | base =>
       -- 1.1. proof
       intro j hK1
-      try push_cast at hK1
-      try have hK1_bounds := Finset.mem_Icc.mp hK1
+      have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
       have s1_1_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)
       -- 1.1.2. inequalities, from 1.1.1
@@ -47,8 +46,7 @@ theorem an_induction_over_a_range_it_ends (n : ℤ) (hH1 : 0 ≤ n) :
     | succ N hK2 hIH =>
       -- 1.2. proof
       intro j hK3
-      try push_cast at hK3
-      try have hK3_bounds := Finset.mem_Icc.mp hK3
+      have hK3_bounds := Finset.mem_Icc.mp hK3
       -- 1.2.1. mun:range-bounds a := 1, b := N + 1, k := j, from K3
       have s1_2_1 : 1 ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := N + 1) (k := j) hK3)
       -- 1.2.2. inequalities, from 1.2.1

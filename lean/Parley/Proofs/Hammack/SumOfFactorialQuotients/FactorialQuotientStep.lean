@@ -40,11 +40,11 @@ theorem factorial_quotient_step (c : ℤ) (hH1 : 0 < c) (F : ℝ) (hH3 : F ≠ 0
   have s3 : 1 / (F * ((c : ℝ) + 1)) = 1 / F * (1 / ((c : ℝ) + 1)) := by parley_ring
   -- 4. calculation
   have r82_1 : F ≠ 0 := by exact hH3
-  calc 1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / F + 1 / F * ((c : ℝ) / ((c : ℝ) + 1)) := by (have h := congrArg (fun t : ℝ => 1 - 1 / F + t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  calc 1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / F + 1 / F * ((c : ℝ) / ((c : ℝ) + 1)) := congrArg (fun t : ℝ => 1 - 1 / F + t) s1
     _ = 1 - 1 / F + 1 / F * (1 - 1 / ((c : ℝ) + 1)) := by
         have e_w : (c : ℝ) / ((c : ℝ) + 1) = 1 - 1 / ((c : ℝ) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := congrArg (fun t : ℝ => 1 - 1 / F + 1 / F * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact congrArg (fun t : ℝ => 1 - 1 / F + 1 / F * t) e_w
     _ = 1 - 1 / F * (1 / ((c : ℝ) + 1)) := by parley_ring
-    _ = 1 - 1 / (F * ((c : ℝ) + 1)) := by (have h := congrArg (fun t : ℝ => 1 - t) s3.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = 1 - 1 / (F * ((c : ℝ) + 1)) := congrArg (fun t : ℝ => 1 - t) s3.symm
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep

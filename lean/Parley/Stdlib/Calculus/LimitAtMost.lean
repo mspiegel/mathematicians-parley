@@ -66,7 +66,7 @@ theorem limit_at_most (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n :
   -- 13. substitute
   have s13 : B < x (M + N) := by
     have c1 : L - (L - B) = B := by parley_ring
-    have row1 : B < x (M + N) := by (have h := Eq.subst (motive := (fun t : ℝ => t < x (M + N))) c1 s12; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : B < x (M + N) := Eq.subst (motive := (fun t : ℝ => t < x (M + N))) c1 s12
     exact row1
   -- 14. inequalities, from 10, 13
   have s14 : ¬ x (M + N) ≤ B := by linarith only [s13]

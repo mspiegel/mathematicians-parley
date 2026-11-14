@@ -48,7 +48,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       -- 1.1. arithmetic
       have s1_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
       -- 1.2. substitute 2^0 = 1 (line 1.1) into A
-      have s1_2 : (5 : ℤ) ∣ 1 * c := by (have h := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t * c)) s1_1 hA; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s1_2 : (5 : ℤ) ∣ 1 * c := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t * c)) s1_1 hA
       -- 1.3. restate 1.2
       simpa only [one_mul] using s1_2
     | succ k hK hIH =>
@@ -59,7 +59,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℤ) (hH2 : 0 < n) (hH
       -- 1.5. algebra, from 1.4
       have s1_5 : 2 ^ (k + 1).toNat * c = 2 ^ k.toNat * (2 * c) := by linear_combination (norm := parley_norm) (c) * s1_4
       -- 1.6. substitute 2^(k + 1)·c = 2^k·(2·c) (line 1.5) into A
-      have s1_6 : (5 : ℤ) ∣ 2 ^ k.toNat * (2 * c) := by (have h := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t)) s1_5 hA; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s1_6 : (5 : ℤ) ∣ 2 ^ k.toNat * (2 * c) := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t)) s1_5 hA
       -- 1.7. instantiate c := 2·c in IH, from 1.6
       have s1_7 : (5 : ℤ) ∣ 2 * c := by exact (hIH (2 * c) s1_6)
       -- 1.8. thm:five-divides-half b := c, from 1.7

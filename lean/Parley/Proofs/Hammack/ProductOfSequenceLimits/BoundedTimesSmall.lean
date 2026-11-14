@@ -43,7 +43,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   -- 5. substitute
   have s5 : K * abs u - abs C * abs u ≥ 0 := by
     have c1 : (K - abs C) * abs u = K * abs u - abs C * abs u := by parley_ring
-    have row1 : K * abs u - abs C * abs u ≥ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≥ 0)) c1 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : K * abs u - abs C * abs u ≥ 0 := Eq.subst (motive := (fun t : ℝ => t ≥ 0)) c1 s4
     exact row1
   -- 6. inequalities
   have s6 : abs C * abs u ≤ K * abs u := by linarith only [s5]

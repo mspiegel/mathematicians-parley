@@ -37,7 +37,7 @@ theorem log_two_of_three_between :
   have r42_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
   have s2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 > 0 := by
     have c1 : (Real.log (3 : ℝ) - Real.log (2 : ℝ)) / Real.log (2 : ℝ) = Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 := by parley_ring
-    have row1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) - 1 > 0 := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1
     exact row1
   -- 3. inequalities, from 2
   have r48_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
@@ -50,7 +50,7 @@ theorem log_two_of_three_between :
   have r57_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
   have s5 : 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := by
     have c1 : (2 * Real.log (2 : ℝ) - Real.log (3 : ℝ)) / Real.log (2 : ℝ) = 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) := by parley_ring
-    have row1 : 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : 2 - Real.log (3 : ℝ) / Real.log (2 : ℝ) > 0 := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s4
     exact row1
   -- 6. inequalities
   have r63_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real

@@ -58,6 +58,6 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
       _ ≤ (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le_nonneg (x := (2 : ℤ)) (y := n + 1 + j + 1) (c := (LeanBridges.Counting.factorial (n + 1 + j) : ℤ)) r66_1 r66_2)
       _ = (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) := s4.symm
       _ = (LeanBridges.Counting.factorial (n + 1 + j + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := n + 1 + j) (add_nonneg (add_nonneg (le_of_lt hH1) (by norm_num)) (hK))).symm
-      _ = (LeanBridges.Counting.factorial (n + 1 + (j + 1)) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (LeanBridges.Counting.factorial (n + 1 + (j + 1)) : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.FactorialGap

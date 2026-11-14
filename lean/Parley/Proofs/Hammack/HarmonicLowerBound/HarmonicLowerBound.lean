@@ -67,7 +67,7 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / (1 + 1) := by
               have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / (1 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ)) (n := (1 : ℤ)) (by norm_num)))
               exact hI
-          _ = 1 / 1 + 1 / (1 + 1) := by (have h := congrArg (fun t : ℚ => t + 1 / (1 + 1)) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = 1 / 1 + 1 / (1 + 1) := congrArg (fun t : ℚ => t + 1 / (1 + 1)) s2_1
           _ ≥ 1 + 1 / 2 := by norm_num
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_2
     | succ m hK hIH =>
@@ -77,7 +77,7 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
       have s2_4 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / 2 ≥ 1 + ((m : ℚ) + 1) / 2 := by linarith only [hIH]
       -- 2.5. transitivity, from 2.3, 2.4
       have s2_5 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + ((m : ℚ) + 1) / 2 := by exact le_trans s2_4 s2_3
-      (have h := s2_5; push_cast at h ⊢; all_goals exact h)
+      (have h := s2_5; push_cast at h ⊢; exact h)
   -- 3. instantiate m := n in line 2
   exact (s2 n hH1)
 

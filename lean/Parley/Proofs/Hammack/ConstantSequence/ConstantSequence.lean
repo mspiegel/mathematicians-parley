@@ -49,7 +49,7 @@ theorem constant_sequence (c : ℝ) (a : ℤ → ℝ) (hH3 : ∀ n : ℤ, 0 < n 
       have s1_1_1 : a n - c = 0 := by linear_combination (norm := parley_norm) (hH3 n hK2)
       -- 1.1.2. calculation
       have s1_1_2 : abs (a n - c) = 0 := by
-        calc abs (a n - c) = abs 0 := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc abs (a n - c) = abs 0 := congrArg (fun t : ℝ => abs t) s1_1_1
           _ = 0 := by exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero
       -- 1.1.3. transitivity, from 1.1.2, A1
       exact Eq.trans_lt s1_1_2 hA1

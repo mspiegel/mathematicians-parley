@@ -32,7 +32,6 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -58,7 +57,7 @@ theorem power_of_two_even (n : ℤ) (hH1 : 0 < n) :
   -- 5. mun:power-integer a := 2, m := n − 1, from 1
   have s5 : ∃ m : ℤ, (m : ℚ) = 2 ^ (n - 1) := by
     have whole1 : ((2 : ℚ) : ℚ) ^ (n - 1).toNat = (2 ^ (n - 1) : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]
-    exact ⟨(((2 : ℤ) ^ (n - 1).toNat) : ℤ), by (push_cast; simp only [whole1]; all_goals ring)⟩
+    exact ⟨(((2 : ℤ) ^ (n - 1).toNat) : ℤ), by (push_cast; simp only [whole1])⟩
   -- 6. def:even n := 2^n, from 4, 5
   exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (2 ^ n.toNat : ℤ)))).mpr ⟨Classical.choose s5, by have := Classical.choose_spec s5; qify; rw [this]; linarith only [s4]⟩
 

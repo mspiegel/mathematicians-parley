@@ -32,10 +32,10 @@ theorem cosine_of_difference (A : ℂ) (B : ℂ) :
   -- 3. algebra
   have s3 : A - B = A + -B := by parley_ring
   -- 4. calculation
-  calc Complex.cos (A - B) = Complex.cos (A + -B) := by (have h := congrArg (fun t : ℂ => Complex.cos t) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+  calc Complex.cos (A - B) = Complex.cos (A + -B) := congrArg (fun t : ℂ => Complex.cos t) s3
     _ = Complex.cos A * Complex.cos (-B) - Complex.sin A * Complex.sin (-B) := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -B))
-    _ = Complex.cos A * Complex.cos B - Complex.sin A * Complex.sin (-B) := by (have h := congrArg (fun t : ℂ => Complex.cos A * t - Complex.sin A * Complex.sin (-B)) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = Complex.cos A * Complex.cos B - Complex.sin A * -Complex.sin B := by (have h := congrArg (fun t : ℂ => Complex.cos A * Complex.cos B - Complex.sin A * t) s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = Complex.cos A * Complex.cos B - Complex.sin A * Complex.sin (-B) := congrArg (fun t : ℂ => Complex.cos A * t - Complex.sin A * Complex.sin (-B)) s1
+    _ = Complex.cos A * Complex.cos B - Complex.sin A * -Complex.sin B := congrArg (fun t : ℂ => Complex.cos A * Complex.cos B - Complex.sin A * t) s2
     _ = Complex.cos A * Complex.cos B + Complex.sin A * Complex.sin B := by parley_ring
 
 end Parley.Proofs.Setmm.DifferenceFormulas.CosineOfDifference

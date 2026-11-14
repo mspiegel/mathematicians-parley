@@ -69,7 +69,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     have s1_6 : e ≠ 1 := by
       intro hS2
       -- 1.6.1. substitute e = 1 (S2) into line 1.1
-      have s1_6_1 : p = d := by (have h := Eq.subst (motive := (fun t : ℤ => p = d * t)) hS2 s1_1; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
+      have s1_6_1 : p = d := by (have h := Eq.subst (motive := (fun t : ℤ => p = d * t)) hS2 s1_1; push_cast [mul_one] at h ⊢; exact_mod_cast h)
       exact s1_2b s1_6_1.symm
     -- 1.7. inequalities, from D1, 1.6
     have s1_7 : 1 < e := Or.elim (Ne.lt_or_gt s1_6) (fun h1 => by linarith only [hD1_pos, h1]) (fun h1 => by linarith only [hD1_pos, h1])

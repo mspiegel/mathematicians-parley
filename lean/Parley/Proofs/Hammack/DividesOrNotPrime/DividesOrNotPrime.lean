@@ -60,7 +60,7 @@ theorem divides_or_not_prime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (hH
       exact absurd hC1 s8_1
     · skip
       -- 8.2. substitute gcd(a, b) = b (C2) into line 7
-      (have h := Eq.subst (motive := (fun t : ℤ => t ∣ a)) hC2 s7; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => t ∣ a)) hC2 s7
   exact s1a s8
 
 end Parley.Proofs.Hammack.DividesOrNotPrime.DividesOrNotPrime

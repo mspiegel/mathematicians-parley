@@ -68,11 +68,11 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
       -- 4.2. mun:sum-single a := 1
       have s4_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
       -- 4.3. D1
-      have s4_3 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_3 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
       -- 4.4. D1
-      have s4_4 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
+      have s4_4 : G 0 = 1 := by have h := hD1.2.1; ring_nf at h ⊢; linarith
       -- 4.5. D1
-      have s4_5 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+      have s4_5 : F 0 = 0 := by have h := hD1.1; ring_nf at h ⊢; linarith
       -- 4.6. calculation
       have s4_6 : F 1 = 1 := by
         calc F 1 = G 0 := s4_3
@@ -84,8 +84,8 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
         calc F (1 + 1) = F 2 := by norm_num
           _ = 1 := by linear_combination (norm := parley_norm) s4_5 + s4_6 + s4_7
       -- 4.9. algebra, from D2, 4.2, 4.6, 4.8
-      try simp only [hD2] at s4_2 s4_6 s4_8 ⊢
-      try push_cast at s4_2 s4_6 s4_8 ⊢
+      simp only [hD2] at s4_2 ⊢
+      push_cast at s4_2 ⊢
       linear_combination (norm := parley_norm) s4_2 + (-F (1 + 1) + F 1 + 1) * s4_6 + (-1) * s4_8
     | succ m hK3 hIH2 =>
       -- 4.10. proof
@@ -99,12 +99,12 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
       -- 4.14. instantiate k := m + 1 in line 2
       -- 4.15. algebra, from D2, IH2, 4.11, 4.12
       have s4_15 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 2) := by
-        try simp only [hD2] at s4_11 s4_12 hIH2 ⊢
-        try push_cast at s4_11 s4_12 hIH2 ⊢
+        simp only [hD2] at s4_11 hIH2 ⊢
+        push_cast at s4_11 hIH2 ⊢
         linear_combination (norm := parley_norm) hIH2 + s4_11 + (-F (m + 1)) * s4_12
       -- 4.16. substitute
       have c1 : m + 2 = m + 1 + 1 := by parley_ring
-      have row1 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 1 + 1) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F t)) c1 s4_15; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 1 + 1) := Eq.subst (motive := (fun t : ℤ => (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F t)) c1 s4_15
       exact row1
   -- 5. instantiate m := n in line 4, from D2
   exact (s4 n hH1)

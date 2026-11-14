@@ -109,9 +109,9 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   have s17 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv H) x = 0 := by
     intro x hK1
     -- 17.1. substitute G′(x) = f(x) (line 13) into line 16
-    have s17_1 : (deriv H) x = f x - (deriv F) x := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv H) x = t - (deriv F) x)) (s13 x hK1) (s16 x hK1); push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s17_1 : (deriv H) x = f x - (deriv F) x := Eq.subst (motive := (fun t : ℝ => (deriv H) x = t - (deriv F) x)) (s13 x hK1) (s16 x hK1)
     -- 17.2. substitute F′(x) = f(x) (H9) into line 17.1
-    have s17_2 : (deriv H) x = f x - f x := by (have h := Eq.subst (motive := (fun t : ℝ => (deriv H) x = f x - t)) (hH9 x hK1) s17_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s17_2 : (deriv H) x = f x - f x := Eq.subst (motive := (fun t : ℝ => (deriv H) x = f x - t)) (hH9 x hK1) s17_1
     -- 17.3. mun:in-subset, from K1, 4
     have s17_3 : x ∈ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Icc a b : Set ℝ)) (u := x) s4 hK1)
     -- 17.4. algebra, from 17.2
@@ -135,7 +135,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
     calc G a = (∫ t in a..a, (f t : ℝ)) := s20
       _ = 0 := by exact (Parley.Items.Stdlib.Calculus.mun_integral_point (f := f) (X := (Set.Icc a b : Set ℝ)) (a := a))
   -- 24. substitute G(a) = 0 (line 23) into line 22
-  have s24 : G b - F b = 0 - F a := by (have h := Eq.subst (motive := (fun t : ℝ => G b - F b = t - F a)) s23 s22; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s24 : G b - F b = 0 - F a := Eq.subst (motive := (fun t : ℝ => G b - F b = t - F a)) s23 s22
   -- 25. calculation
   calc (∫ t in a..b, (f t : ℝ)) = G b := s21.symm
     _ = F b - F a := by linear_combination (norm := parley_norm) s24

@@ -58,8 +58,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 3. proof
   have s3 : ∀ i : ℤ, i ∈ Finset.Icc 1 j → h i = g i := by
     intro i hK1
-    try push_cast at hK1
-    try have hK1_bounds := Finset.mem_Icc.mp hK1
+    have hK1_bounds := Finset.mem_Icc.mp hK1
     -- 3.1. mun:range-bounds a := 1, b := j, k := i, from K1
     have s3_1 : i ≤ j := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := j) (k := i) hK1)
     -- 3.2. D2, from 3.1
@@ -68,8 +67,7 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 4. proof
   have s4 : ∀ i : ℤ, i ∈ Finset.Icc 1 (j + 1) → Nat.Prime (h i).toNat := by
     intro i hK2
-    try push_cast at hK2
-    try have hK2_bounds := Finset.mem_Icc.mp hK2
+    have hK2_bounds := Finset.mem_Icc.mp hK2
     -- 4.1. axi:excluded-middle P := i ≤ j
     have s4_1 : i ≤ j ∨ ¬ i ≤ j := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := i ≤ j))
     -- 4.2. cases, from 4.1
@@ -84,17 +82,16 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       have s4_2_3 : Nat.Prime (g i).toNat := by exact (s2d i s4_2_2)
       -- 4.2.4. substitute h(i) = g(i) (line 4.2.1) into line 4.2.3
       have r76_1 : 0 < g i := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s4_2_2) s2b)
-      (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s4_2_1.symm s4_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s4_2_1.symm s4_2_3
     · skip
       -- 4.2.5. D2, from C2, K2
       have s4_2_5 : h i = p := by simp (disch := omega) only [hD2, if_neg hC2]
       -- 4.2.6. substitute h(i) = p (line 4.2.5) into H2
-      (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s4_2_5.symm hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s4_2_5.symm hH2
   -- 5. proof
   have s5 : ∀ i : ℤ, i ∈ Finset.Icc 1 (j + 1) → 0 < h i := by
     intro i hK3
-    try push_cast at hK3
-    try have hK3_bounds := Finset.mem_Icc.mp hK3
+    have hK3_bounds := Finset.mem_Icc.mp hK3
     -- 5.1. axi:excluded-middle P := i ≤ j
     have s5_1 : i ≤ j ∨ ¬ i ≤ j := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := i ≤ j))
     -- 5.2. cases, from 5.1
@@ -108,12 +105,12 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
       -- 5.2.3. mun:function-value f := g, from 5.2.2
       have s5_2_3 : 0 < g i := by exact (Parley.Items.Stdlib.Functions.mun_function_value (D := (Set.Icc (1 : ℤ) j : Set ℤ)) (E := {n : ℤ | 0 < n}) (f := g) (x := i) (by simpa only [Finset.mem_Icc, Set.mem_Icc] using s5_2_2) s2b)
       -- 5.2.4. substitute h(i) = g(i) (line 5.2.1) into line 5.2.3
-      (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s5_2_1.symm s5_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => 0 < t)) s5_2_1.symm s5_2_3
     · skip
       -- 5.2.5. D2, from C4, K3
       have s5_2_5 : h i = p := by simp (disch := omega) only [hD2, if_neg hC4]
       -- 5.2.6. substitute h(i) = p (line 5.2.5) into H1
-      (have h := Eq.subst (motive := (fun t : ℤ => 0 < t)) s5_2_5.symm hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => 0 < t)) s5_2_5.symm hH1
   -- 6. mun:function-into, from 5
   have s6 : Set.MapsTo h (Set.Icc (1 : ℤ) (j + 1) : Set ℤ) {n : ℤ | 0 < n} := by exact (Parley.Items.Stdlib.Functions.mun_function_into (E := h) (X := (Set.Icc (1 : ℤ) (j + 1) : Set ℤ)) (Y := {n : ℤ | 0 < n}) (by simpa only [Finset.mem_Icc, Set.mem_Icc, Set.mem_ofPred_eq] using s5))
   -- 7. mun:product-termwise a := 1, b := j, t := h, u := g, from 3
@@ -128,14 +125,14 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 10. D2, from 8, 9
   have s10 : h (j + 1) = p := by simp (disch := omega) only [hD2, if_neg s8]
   -- 11. substitute r = ∏(i ∈ {1, …, j}) g(i) (line 2)
-  have s11 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) = r * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) s2c.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s11 : (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) = r * h (j + 1) := congrArg (fun t : ℤ => t * h (j + 1)) s2c.symm
   -- 12. calculation
   have r146_1 : j ≥ 1 := by exact s2a
   have s12 : p * r = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by
     calc p * r = r * p := by parley_ring
-      _ = r * h (j + 1) := by (have h := congrArg (fun t : ℤ => r * t) s10.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = r * h (j + 1) := congrArg (fun t : ℤ => r * t) s10.symm
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) := s11.symm
-      _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := by (have h := congrArg (fun t : ℤ => t * h (j + 1)) s7.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := congrArg (fun t : ℤ => t * h (j + 1)) s7.symm
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1).symm
   -- 13. exhibit, from 4, 6, 12
   have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, add_pos (s2a) (by norm_num), h, s6, ⟨s12, s4⟩⟩

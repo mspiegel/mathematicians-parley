@@ -52,7 +52,7 @@ theorem square_not_prime (A : ℤ) :
   have s4 : abs A ≠ 0 := by
     intro hS2
     -- 4.1. substitute |A| = 0 (S2) into line 3
-    have s4_1 : 0 ^ 2 = A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) hS2 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s4_1 : 0 ^ 2 = A ^ 2 := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) hS2 s3
     -- 4.2. inequalities
     have s4_2 : 0 ^ 2 ≥ A ^ 2 := by linarith only [s4_1]
     -- 4.3. inequalities, from 4.2
@@ -81,7 +81,7 @@ theorem square_not_prime (A : ℤ) :
       -- 11.2. mun:multiply-cancel a := |A|, b := 1, c := |A|, from 4, 11.1
       exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := abs A) (b := (1 : ℤ)) (c := abs A) s11_1 s4)
   -- 12. substitute |A| = 1 (line 11) into line 3
-  have s12 : 1 ^ 2 = A ^ 2 := by (have h := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) s11 s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s12 : 1 ^ 2 = A ^ 2 := Eq.subst (motive := (fun t : ℤ => t ^ 2 = A ^ 2)) s11 s3
   -- 13. inequalities
   have s13 : 1 ^ 2 ≥ A ^ 2 := by linarith only [s12]
   -- 14. inequalities, from 13

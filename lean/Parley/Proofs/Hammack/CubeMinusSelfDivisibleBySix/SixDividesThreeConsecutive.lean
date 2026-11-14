@@ -39,7 +39,7 @@ theorem six_divides_three_consecutive (k : ℤ) (hH1 : 0 ≤ k) :
     obtain ⟨m, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := k))).mp hC1
     -- 2.2. calculation
     have s2_2 : 3 * k * (k + 1) = 6 * (m * (2 * m + 1)) := by
-      calc 3 * k * (k + 1) = 3 * (2 * m) * (2 * m + 1) := by (have h := congrArg (fun t : ℤ => 3 * t * (t + 1)) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      calc 3 * k * (k + 1) = 3 * (2 * m) * (2 * m + 1) := congrArg (fun t : ℤ => 3 * t * (t + 1)) s2_1
         _ = 6 * (m * (2 * m + 1)) := by parley_ring
     -- 2.3. def:divides d := 6, n := 3·k·(k + 1), from 2.2
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨m * (2 * m + 1), s2_2⟩
@@ -48,7 +48,7 @@ theorem six_divides_three_consecutive (k : ℤ) (hH1 : 0 ≤ k) :
     obtain ⟨m, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := k))).mp hC2
     -- 2.5. calculation
     have s2_5 : 3 * k * (k + 1) = 6 * ((2 * m + 1) * (m + 1)) := by
-      calc 3 * k * (k + 1) = 3 * (2 * m + 1) * (2 * m + 1 + 1) := by (have h := congrArg (fun t : ℤ => 3 * t * (t + 1)) s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+      calc 3 * k * (k + 1) = 3 * (2 * m + 1) * (2 * m + 1 + 1) := congrArg (fun t : ℤ => 3 * t * (t + 1)) s2_4
         _ = 6 * ((2 * m + 1) * (m + 1)) := by parley_ring
     -- 2.6. def:divides d := 6, n := 3·k·(k + 1), from 2.5
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨(2 * m + 1) * (m + 1), s2_5⟩

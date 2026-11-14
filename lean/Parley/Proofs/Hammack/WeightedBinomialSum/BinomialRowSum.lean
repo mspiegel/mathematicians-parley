@@ -56,23 +56,22 @@ theorem binomial_row_sum (m : ℤ) (hH1 : 0 ≤ m) :
   -- 2. proof
   have s2 : ∀ k : ℤ, k ∈ Finset.Icc 0 m → (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) := by
     intro k hJ
-    try push_cast at hJ
-    try have hJ_bounds := Finset.mem_Icc.mp hJ
+    have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 2.1. mun:one-power m := m − k
     have s2_1 : (1 ^ (m - k) : ℚ) = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := m - k))
     -- 2.2. mun:one-power m := k
     have s2_2 : (1 ^ k.toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); simp only [parley_zpow_toNat (n := k) (h := le_trans (by norm_num) (Finset.mem_Icc.mp hJ).1)] at h ⊢; exact_mod_cast h)
     -- 2.3. calculation
-    calc (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) * 1 ^ k.toNat := by (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.choose m k : ℚ) * t * 1 ^ k.toNat) s2_1; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
-      _ = (LeanBridges.Counting.choose m k : ℚ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose m k : ℤ) * t) s2_2; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
+    calc (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose m k : ℚ) * 1 ^ k.toNat := by (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.choose m k : ℚ) * t * 1 ^ k.toNat) s2_1; push_cast [mul_one] at h ⊢; exact_mod_cast h)
+      _ = (LeanBridges.Counting.choose m k : ℚ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose m k : ℤ) * t) s2_2; push_cast [mul_one] at h ⊢; exact_mod_cast h)
   -- 3. arithmetic
   have s3 : (1 + 1 : ℤ) = 2 := by parley_arith
   -- 4. calculation
-  try qify
+  qify
   calc (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℚ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat)) (a := (0 : ℤ)) (b := m) (fun k h_k => (s2 k h_k).symm))
     _ = (1 + 1) ^ m.toNat := by
         have hI : (1 + 1) ^ m.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℚ) * 1 ^ (m - k) * 1 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := m) hH1))
         exact hI.symm
-    _ = 2 ^ m.toNat := by (have h := congrArg (fun t : ℤ => t ^ m.toNat) s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = 2 ^ m.toNat := by (have h := congrArg (fun t : ℤ => t ^ m.toNat) s3; push_cast at h ⊢; exact_mod_cast h)
 
 end Parley.Proofs.Hammack.WeightedBinomialSum.BinomialRowSum

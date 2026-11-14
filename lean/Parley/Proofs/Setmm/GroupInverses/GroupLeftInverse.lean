@@ -35,13 +35,13 @@ theorem group_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ 
   set c : G := b⁻¹ with hD2
   -- 2. axi:group-inverse-closed, from D1, H2
   have s2 : b ∈ (Set.univ : Set G) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := a) (Set.mem_univ _))
   -- 3. axi:group-inverse-closed a := b, from D2, 2
   have s3 : c ∈ (Set.univ : Set G) := by
-    try simp only [hD2] at ⊢
-    try push_cast at ⊢
+    simp only [hD2] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Groups.axi_group_inverse_closed (G := G) (a := b) (Set.mem_univ _))
   -- 4. axi:group-closed a := b, b := a, from H2, 2
   have s4 : b * a ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b) (b := a) (Set.mem_univ _) (Set.mem_univ _))
@@ -49,13 +49,13 @@ theorem group_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ 
   have s5 : b * c ∈ (Set.univ : Set G) := by exact (Parley.Items.Stdlib.Groups.axi_group_closed (G := G) (a := b) (b := c) (Set.mem_univ _) (Set.mem_univ _))
   -- 6. axi:group-inverse a := b, from D2, 2
   have s6 : b * c = (1 : G) := by
-    try simp only [hD2] at ⊢
-    try push_cast at ⊢
+    simp only [hD2] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := b) (Set.mem_univ _))
   -- 7. axi:group-inverse, from D1, H2
   have s7 : a * b = (1 : G) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Groups.axi_group_inverse (G := G) (a := a) (Set.mem_univ _))
   -- 8. calculation
   have s8 : a * (b * c) = (1 : G) * c := by

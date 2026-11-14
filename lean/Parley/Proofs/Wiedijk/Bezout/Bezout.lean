@@ -44,8 +44,8 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   have s2 : a ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := a))).mpr ⟨hH1, (1 : ℤ), (0 : ℤ), s1⟩
   -- 3. mun:set-builder-subset, from D1
   have s3 : S ⊆ {n : ℤ | 0 < n} := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     have hI : {c : ℤ | 0 < c ∧ (∃ d : ℤ, ∃ e : ℤ, c = a * d + b * e)} ⊆ {n : ℤ | 0 < n} := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n})))
     exact hI
   -- 4. obtain d: axi:well-ordering, from 2, 3
@@ -83,7 +83,7 @@ theorem bezout (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) :
   -- 15. mun:divides-combination e := gcd(a, b), x := x₀, y := y₀, from 13
   have s15 : (Int.gcd a b : ℤ) ∣ a * x₀ + b * y₀ := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd a b : ℤ)) (a := a) (b := b) (x := x₀) (y := y₀) s13b s13c)
   -- 16. substitute d = a·x₀ + b·y₀ (line 7) into line 15
-  have s16 : (Int.gcd a b : ℤ) ∣ d := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd a b : ℤ) ∣ t)) s7.symm s15; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s16 : (Int.gcd a b : ℤ) ∣ d := Eq.subst (motive := (fun t : ℤ => (Int.gcd a b : ℤ) ∣ t)) s7.symm s15
   -- 17. mun:divides-le e := gcd(a, b), m := d, from 6, 13, 16
   have s17 : (Int.gcd a b : ℤ) ≤ d := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := (Int.gcd a b : ℤ)) s13a (m := d) s6 s16)
   -- 18. antisymmetry, from 14, 17

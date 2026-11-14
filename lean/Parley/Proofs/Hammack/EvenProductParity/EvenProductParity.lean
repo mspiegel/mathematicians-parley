@@ -54,8 +54,8 @@ theorem even_product_parity (x : ℤ) (y : ℤ) (hH3 : Even (x ^ 2 * (y + 3))) :
       obtain ⟨b, s2_3_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := y))).mp hC3
       -- 2.3.3. calculation
       have s2_3_3 : x ^ 2 * (y + 3) = 2 * (4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1) + 1 := by
-        calc x ^ 2 * (y + 3) = (2 * a + 1) ^ 2 * (y + 3) := by (have h := congrArg (fun t : ℤ => t ^ 2 * (y + 3)) s2_3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = (2 * a + 1) ^ 2 * (2 * b + 3) := by (have h := congrArg (fun t : ℤ => (2 * a + 1) ^ 2 * (t + 3)) s2_3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc x ^ 2 * (y + 3) = (2 * a + 1) ^ 2 * (y + 3) := congrArg (fun t : ℤ => t ^ 2 * (y + 3)) s2_3_1
+          _ = (2 * a + 1) ^ 2 * (2 * b + 3) := congrArg (fun t : ℤ => (2 * a + 1) ^ 2 * (t + 3)) s2_3_2
           _ = 2 * (4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1) + 1 := by parley_ring
       -- 2.3.4. def:odd n := x²·(y + 3), from 2.3.3
       have s2_3_4 : Odd (x ^ 2 * (y + 3)) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 2 * (y + 3)))).mpr ⟨4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1, s2_3_3⟩

@@ -147,6 +147,9 @@ enum Proved {
     Unsettled {
         line: Printed,
         apart: super::doc::forms::CastsApart,
+        /// Whether the claim names no letter (`no_letter`): pushing the
+        /// casts would work it out by itself, so it is worked out whole.
+        numerals: bool,
     },
 }
 
@@ -184,7 +187,11 @@ fn cast_proved(
     {
         CastsBy::PushCast
     } else {
-        return Some(Proved::Unsettled { line, apart });
+        return Some(Proved::Unsettled {
+            line,
+            apart,
+            numerals: no_letter(wanted),
+        });
     };
     Some(Proved::Cast { apart, by, line })
 }
@@ -202,9 +209,14 @@ impl Proved {
             // to the letters, where in one type they are one statement; a
             // line in a narrower type is then lifted to the goal's. Lifting
             // where neither is narrower would read a division of casts one
-            // way on one side and another on the other. A claim the pushing
-            // works out is closed on the way.
-            Proved::Unsettled { line, apart } => {
+            // way on one side and another on the other. A claim of numerals
+            // alone, which the pushing would work out by itself, is worked
+            // out whole with the line put in the goal.
+            Proved::Unsettled {
+                line,
+                apart,
+                numerals,
+            } => {
                 let rewrite = |by: &[String], at: super::doc::Location| {
                     t::call(
                         "rw",
@@ -224,12 +236,17 @@ impl Proved {
                 if !apart.at_line.is_empty() {
                     steps.push(rewrite(&apart.at_line, super::doc::Location::Goal));
                 }
+                if *numerals {
+                    steps.push(t::call("revert", vec![TacticArg::Term(t::hyp("h"))]));
+                    steps.push(t::call("norm_num", vec![]));
+                    return t::on_h(line, steps);
+                }
                 let last = match apart.lift {
                     true => t::exact_mod_cast(t::hyp("h")),
                     false => Tactic::Exact(t::hyp("h")),
                 };
                 steps.push(t::push_cast(Some(t::at_h(true))));
-                steps.push(Tactic::AllGoals(Box::new(last)));
+                steps.push(last);
                 t::on_h(line, steps)
             }
             // Each side rewritten by the `set` equations its letters name, and
@@ -3835,6 +3852,17 @@ struct SaidUsed {
     term: String,
 }
 
+/// A rewrite that puts a named number for its term, `← Classical.choose_spec
+/// h`, with the term as the page prints it and as Lean writes it where the
+/// rewrite finds it.
+struct NumberRule {
+    term: String,
+    /// None where the writer cannot write the term, and the rewrite is put
+    /// in the goal alone.
+    lean: Option<Printed>,
+    rule: super::doc::Rule,
+}
+
 /// A line saying a term is a whole number, `∃ m : ℤ, ↑m = t`; of ℕ and ℕ₀
 /// with its order, `∃ m : ℤ, 0 ≤ m ∧ ↑m = t`; or of a range, `∃ m : ℤ, ↑m
 /// = t ∧ m ∈ Finset.Icc a b` (`integer_line`).
@@ -4909,34 +4937,19 @@ impl<'a> Proof<'a> {
                 beside: Beside::Nothing,
             };
             if let Some(rule) = self.spec_at_real(&line, line.equation(), term) {
-                rules.push(super::tactics::backwards(rule));
+                rules.push(NumberRule {
+                    term: a.said.term.clone(),
+                    lean: self
+                        .writer
+                        .number_fixed(term, super::templates::Num::Real)
+                        .built(),
+                    rule: super::tactics::backwards(rule),
+                });
             }
         }
-        let witnesses: Vec<&str> = cited.iter().map(|c| c.name.as_str()).collect();
-        let others: Vec<String> = self.thm.steps[i]
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| self.named.get(r))
-            .flatten()
-            .filter(|n| !witnesses.contains(&n.as_str()))
-            .cloned()
-            .collect();
-        if !rules.is_empty() {
-            use super::doc::Location;
-            use super::tactics as t;
-            for name in others {
-                let at = || TacticArg::At(vec![Location::Hypothesis(name.clone())]);
-                haves.push(t::try_(Tactic::Seq(vec![
-                    t::call("rw", vec![TacticArg::Rules(rules.clone()), at()]),
-                    t::try_(t::call(
-                        "rw",
-                        vec![TacticArg::Rules(vec![t::forwards(mod_int_cast())]), at()],
-                    )),
-                    t::call("norm_cast", vec![at()]),
-                ])));
-            }
-        }
+        let witnesses: Vec<String> = cited.iter().map(|c| c.name.clone()).collect();
+        let refs: Vec<&String> = self.thm.steps[i].just.refs.iter().collect();
+        haves.extend(self.put_numbers_in_lines(&refs, &witnesses, &rules));
         let int = match &claimed {
             Some((term, whole)) => match inner.number_fixed(term, *whole) {
                 Route::Built(p) => Some(whole_term(p)),
@@ -5682,20 +5695,22 @@ impl<'a> Proof<'a> {
         // ℤ`, meets a goal that has the line's term, ⌊A/B⌋: the goal is put
         // in terms of the number first.
         let used = std::mem::take(&mut *self.said_used.borrow_mut());
-        let specs = self.specs_in(node, &used);
-        if specs.is_empty() {
+        let by_term = self.number_rules(node, &used);
+        if by_term.is_empty() {
             return Route::Built(proof);
         }
-        use super::doc::Location;
+        let specs: Vec<super::doc::Rule> =
+            by_term.iter().map(|r| r.rule.clone()).collect();
+        let terms: Vec<String> = by_term.iter().map(|r| r.term.clone()).collect();
         use super::tactics as t;
-        let mut steps = vec![t::call("rw", vec![TacticArg::Rules(specs.clone())])];
+        let mut steps = vec![t::call("rw", vec![TacticArg::Rules(specs)])];
         // A remainder of the named numbers, now of integers cast to ℝ, is
         // put as their `%`, which a cited item of integers states.
-        if takes_remainder(node) {
-            steps.push(t::try_(t::call(
+        if self.remainder_of_integers(node, &terms) {
+            steps.push(t::call(
                 "rw",
                 vec![TacticArg::Rules(vec![t::forwards(mod_int_cast())])],
-            )));
+            ));
         }
         // What the citation asks of a named number is said of it: the order
         // a line of ℕ or ℕ₀ gives beside its equation, or the range a line
@@ -5710,22 +5725,8 @@ impl<'a> Proof<'a> {
         // A line that gives a number is left as it is: the number is chosen
         // from it, and a rewritten copy would be another line.
         let giving: Vec<String> = used.iter().map(|u| u.line.proof.text()).collect();
-        let cited: Vec<String> = reason
-            .just
-            .refs
-            .iter()
-            .filter_map(|r| self.named.get(r))
-            .flatten()
-            .filter(|name| !giving.contains(name))
-            .cloned()
-            .collect();
-        for name in cited {
-            let at = || TacticArg::At(vec![Location::Hypothesis(name.clone())]);
-            steps.push(t::try_(Tactic::Seq(vec![
-                t::call("rw", vec![TacticArg::Rules(specs.clone()), at()]),
-                t::call("norm_cast", vec![at()]),
-            ])));
-        }
+        let refs: Vec<&String> = reason.just.refs.iter().collect();
+        steps.extend(self.put_numbers_in_lines(&refs, &giving, &by_term));
         steps.push(tactic_of(&proof));
         Route::Built(Proof::By(Tactic::Seq(steps)))
     }
@@ -5876,7 +5877,7 @@ impl<'a> Proof<'a> {
         let steps = projection_path(n, n + 1);
         let step = projection_path(at, n);
         let closed = t::call("linarith", vec![]);
-        let worked = t::try_(t::call("ring_nf", vec![t::at_h(true)]));
+        let worked = t::call("ring_nf", vec![t::at_h(true)]);
         if arg.notation() == crate::notations::NUMERAL && &*arg.text == "0" {
             return Route::Built(Proof::By(Tactic::Seq(vec![
                 t::name_h(&fields(t::hyp(hyp), &start)),
@@ -5983,7 +5984,7 @@ impl<'a> Proof<'a> {
         }
         use super::tactics as t;
         let witness = writer.number_fixed(term, ty).built()?;
-        let rules = lines
+        let rules: Vec<super::doc::Rule> = lines
             .iter()
             .map(|line| {
                 t::forwards(Printed::applied(
@@ -5994,13 +5995,9 @@ impl<'a> Proof<'a> {
                 ))
             })
             .collect();
-        // The named numbers' equations put in leave the claim closed, or
-        // arithmetic for `parley_ring`.
-        let equal = super::tactics::by_term(super::doc::Proof::By(Tactic::Seq(vec![
-            t::push_cast(None),
-            t::try_(t::simp_only(false, None, rules, None)),
-            Tactic::AllGoals(Box::new(t::bridge(BridgeTactic::Ring, vec![]))),
-        ])));
+        // The witness is the term written with the named integers, so their
+        // equations put in leave the two sides one.
+        let equal = super::tactics::by_term(super::doc::Proof::By(specs_then(&rules)));
         let parts = match claimed {
             // In ℕ₀: the integer, beside its being at least 0, by the
             // said-once walk's reason for the term (`nonneg_by`).
@@ -6524,7 +6521,7 @@ impl<'a> Proof<'a> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let mut lines: Vec<Tactic> =
-                    written_out(&defines, &self.rewritten_at());
+                    written_out(&defines, &self.rewritten_at(node), writer);
                 lines.extend(haves);
                 return Route::Built(haves_then(lines, proof));
             }
@@ -7265,6 +7262,29 @@ impl<'a> Proof<'a> {
             })
             .sum();
         let goal = goal_after_intros(&open.goal, introduced)?;
+        match &bare_term(&goal).kind {
+            super::doc::TermKind::Infix { op, lhs, .. } if op.symbol == "→" => {
+                Some((**lhs).clone())
+            }
+            _ => None,
+        }
+    }
+
+    /// The guard of the "for all" the next `intro` opens, `k ∈ Finset.Icc 1
+    /// ↑(N + 1)` of `∀ k, k ∈ Finset.Icc 1 ↑(N + 1) → P k`, as Lean states
+    /// it in the part's goal (`opening_goal`). None where no goal is known
+    /// or the next binder has no guard.
+    fn next_guard(&self) -> Option<Printed> {
+        let open = self.opening_goal.as_ref()?;
+        let introduced: usize = self.lines[open.from..]
+            .iter()
+            .filter(|l| l.depth == open.depth)
+            .map(|l| match &l.tactic {
+                Tactic::Intro(names) => names.len(),
+                _ => 0,
+            })
+            .sum();
+        let goal = goal_after_intros(&open.goal, introduced + 1)?;
         match &bare_term(&goal).kind {
             super::doc::TermKind::Infix { op, lhs, .. } if op.symbol == "→" => {
                 Some((**lhs).clone())
@@ -8855,11 +8875,6 @@ impl<'a> Proof<'a> {
         // contradiction, false. Only where Lean meets the two no other way
         // (`forms::meets`): a line it reads as the statement, turned, or
         // across a cast is cited so.
-        let no_letter = |t: &Printed| {
-            !t.walk()
-                .iter()
-                .any(|n| matches!(n.kind, super::doc::TermKind::Letter(_)))
-        };
         let met = super::doc::forms::meets(&says, wanted, &self.set_values()).is_some();
         if no_letter(&says) && no_letter(wanted) && !met {
             use super::tactics as t;
@@ -10509,9 +10524,9 @@ impl<'a> Proof<'a> {
     /// : ℕ∞)`, from `proof` of a line that counts the same sets in ℤ,
     /// `(X.ncard : ℤ) = 0`, each set `at_values` counts that `wanted` counts
     /// in ℕ∞ finite by why the record says it is: each such count taken to
-    /// its count in ℕ (`Set.Finite.cast_ncard_eq`), the casts taken off, and
-    /// the two met as `omega` meets a count and its `toNat`. None where such
-    /// a set is not shown finite.
+    /// its count in ℕ (`Set.Finite.cast_ncard_eq`), and the two then met
+    /// across their casts (`exact_mod_cast`). None where such a set is not
+    /// shown finite.
     fn counted_across(
         &self,
         proof: Printed,
@@ -10541,11 +10556,8 @@ impl<'a> Proof<'a> {
             &proof,
             vec![
                 t::call("rw", vec![TacticArg::Rules(rules)]),
-                // At both, so that each set it rewrites is rewritten alike
-                // in the line and the goal; where that leaves the two one,
-                // it closes the goal, and `omega` has none to meet.
-                t::call("norm_cast", vec![t::at_h(true)]),
-                Tactic::AllGoals(Box::new(t::call("omega", vec![]))),
+                // The goal's counts now the line's, apart only in casts.
+                t::exact_mod_cast(t::hyp("h")),
             ],
         ))))
     }
@@ -10555,10 +10567,9 @@ impl<'a> Proof<'a> {
     /// `V.encard = 2` for a row `(V.ncard : ℤ) = 2`: each set the terms
     /// `nodes` count that either counts in ℕ∞, shown finite as the record
     /// says, taken to its count in ℕ in the line and the goal alike
-    /// (`Set.Finite.cast_ncard_eq`), the casts taken off, and the two met
-    /// as `omega` meets them; a set not shown finite keeps its count in ℕ∞,
-    /// and the line is then the goal as it stands. None where no set counted
-    /// in ℕ∞ is shown finite.
+    /// (`Set.Finite.cast_ncard_eq`), and the two then met across their
+    /// casts (`exact_mod_cast`); a set not shown finite keeps its count in
+    /// ℕ∞ in both. None where no set counted in ℕ∞ is shown finite.
     fn counted_between(
         &self,
         proof: &Printed,
@@ -10577,35 +10588,27 @@ impl<'a> Proof<'a> {
             })
         };
         let mut rules = Vec::new();
-        let mut kept_extended = false;
         for set in self.counted_sets(nodes) {
             let Route::Built(written) = self.writer.set_term(&set) else {
                 continue;
             };
-            if !in_extended(&written) {
-                continue;
-            }
             // A set not shown finite keeps its count in ℕ∞ in both.
-            match self.shown_finite(&set) {
-                Some(finite) => rules.push(t::backwards(cast_ncard_eq(&finite))),
-                None => kept_extended = true,
+            if let (true, Some(finite)) =
+                (in_extended(&written), self.shown_finite(&set))
+            {
+                rules.push(t::backwards(cast_ncard_eq(&finite)));
             }
         }
         if rules.is_empty() {
             return None;
         }
-        // Counts all in ℕ, met by `omega`; one left in ℕ∞, the line then as
-        // the goal is.
-        let met = match kept_extended {
-            false => t::call("omega", vec![]),
-            true => Tactic::Exact(t::hyp("h")),
-        };
+        // Each count rewritten alike in the line and the goal, the two then
+        // apart only in casts.
         Some(t::by_term(super::doc::Proof::By(t::on_h(
             proof,
             vec![
                 t::simp_only(false, None, rules, Some(t::at_h(true))),
-                t::call("norm_cast", vec![t::at_h(true)]),
-                Tactic::AllGoals(Box::new(met)),
+                t::exact_mod_cast(t::hyp("h")),
             ],
         ))))
     }
@@ -12969,6 +12972,7 @@ impl<'a> Proof<'a> {
             .iter()
             .filter_map(|n| self.writer.whole_back(n))
             .collect();
+        let wanted = self.claim_as_stated(line, claim);
         let close = |term: Printed| {
             if cast_to_nat && dropped.is_empty() {
                 return match backs.is_empty() {
@@ -12994,13 +12998,34 @@ impl<'a> Proof<'a> {
                     ],
                 ),
             };
-            Proof::By(t::on_h(
-                &term,
-                vec![
-                    pushed,
-                    Tactic::AllGoals(Box::new(t::exact_mod_cast(t::hyp("h")))),
-                ],
-            ))
+            // A claim of numerals alone, `3 ∣ 1` in a contradiction, which
+            // pushing the casts would work out by itself: the line put in the
+            // goal and the whole worked out, true or false.
+            if wanted.as_ref().is_some_and(no_letter) {
+                return Proof::By(t::on_h(
+                    &term,
+                    vec![
+                        t::call("revert", vec![TacticArg::Term(t::hyp("h"))]),
+                        t::call("norm_num", vec![]),
+                    ],
+                ));
+            }
+            Proof::By(t::on_h(&term, vec![pushed, t::exact_mod_cast(t::hyp("h"))]))
+        };
+        // What the motive makes, `says`, written as Lean writes the claim:
+        // the claim itself, the term with nothing to push.
+        let close_as = |term: Printed, says: Option<Printed>| {
+            let as_written = dropped.is_empty()
+                && !cast_to_nat
+                && says.zip(wanted.as_ref()).is_some_and(|(s, w)| {
+                    s.text() == w.text()
+                        && super::doc::forms::relation_type(&s)
+                            == super::doc::forms::relation_type(w)
+                });
+            match as_written {
+                true => Proof::Term(term),
+                false => close(term),
+            }
         };
         let in_arithmetic =
             |path: &Vec<usize>| self.place_in_formula_type(&rec.start, path);
@@ -13306,7 +13331,13 @@ impl<'a> Proof<'a> {
                     ));
                 }
                 let closed = match int_exponent {
-                    false => close(put_in),
+                    false => {
+                        let says = inner
+                            .number(now, place_type)
+                            .built()
+                            .map(|n| super::doc::forms::substituted(&body, letter, &n));
+                        close_as(put_in, says)
+                    }
                     // The motive at the new term, its power an integer one,
                     // converted to the claim's natural power, the exponent's
                     // fact from the record.
@@ -13469,6 +13500,28 @@ impl<'a> Proof<'a> {
                     Route::Built(b) => b,
                     Route::Declined(d) => return Route::Declined(d),
                 };
+                // What `congrArg` makes: the body at each term, the side the
+                // equation is put into first.
+                let at = |n: &Node| {
+                    wide.number(n, letter_ty)
+                        .built()
+                        .map(|v| super::doc::forms::substituted(&body, letter, &v))
+                };
+                let says = match (at(was), at(now)) {
+                    (Some(a), Some(b)) => {
+                        let (l, r) = match side {
+                            0 => (a, b),
+                            _ => (b, a),
+                        };
+                        Some(Printed::infix(
+                            super::doc::Op::EQUALS,
+                            l,
+                            r,
+                            LeanType::Prop,
+                        ))
+                    }
+                    _ => None,
+                };
                 let motive = lambda(letter, LeanType::Num(letter_ty), body);
                 let made = applied(
                     "congrArg",
@@ -13477,10 +13530,13 @@ impl<'a> Proof<'a> {
                         super::doc::Arg::Explicit(equation),
                     ],
                 );
-                let closed = close(match side {
-                    0 => made,
-                    _ => t::symm(t::bracket(made)),
-                });
+                let closed = close_as(
+                    match side {
+                        0 => made,
+                        _ => t::symm(t::bracket(made)),
+                    },
+                    says,
+                );
                 Route::Built(haves_then(haves, closed))
             }
         }
@@ -13721,12 +13777,12 @@ impl<'a> Proof<'a> {
             if let Some(hyp) = self.header_function_named(place.named()) {
                 let everywhere = TacticArg::At(vec![super::doc::Location::Everywhere]);
                 return Route::Built(Proof::By(Tactic::Seq(vec![
-                    t::try_(t::simp_only(
+                    t::simp_only(
                         false,
                         None,
                         vec![t::forwards(t::hyp(&hyp))],
                         Some(everywhere),
-                    )),
+                    ),
                     t::call("done", vec![]),
                 ])));
             }
@@ -13960,13 +14016,16 @@ impl<'a> Proof<'a> {
                 _ => "parley_witness_at",
             };
             // The named number is its term by its own equation, which the
-            // step names beside the one it puts in (`named_specs`).
-            let specs: Vec<super::doc::Rule> =
-                self.named_specs.iter().cloned().map(t::forwards).collect();
+            // step names beside the one it puts in (`named_specs`), where
+            // the witness is a named number.
+            let specs: Vec<super::doc::Rule> = match chosen_witnesses(&w).is_empty() {
+                true => Vec::new(),
+                false => self.named_specs.iter().cloned().map(t::forwards).collect(),
+            };
             for by in [equation.clone(), negated(equation.clone())] {
                 let mut steps = vec![t::push_cast(None)];
                 if !specs.is_empty() {
-                    steps.push(t::try_(t::simp_only(false, None, specs.clone(), None)));
+                    steps.push(t::simp_only(false, None, specs.clone(), None));
                 }
                 steps.push(t::linear_combination(by));
                 let shows = Proof::By(Tactic::Seq(steps));
@@ -14630,10 +14689,103 @@ impl<'a> Proof<'a> {
     }
 
     /// Where a step's defines are written out (`written_out`): each line the
-    /// step names, by the hypothesis that proves it, and the goal. Not every
-    /// line in scope, which would rewrite lines the step does not use, a
-    /// define's own equation among them, to `True`.
-    fn rewritten_at(&self) -> Vec<super::doc::Location> {
+    /// step names, by the hypothesis that proves it, and the goal, `goal`,
+    /// each with what it says. Not every line in scope, which would rewrite
+    /// lines the step does not use, a define's own equation among them, to
+    /// `True`.
+    fn rewritten_at(&self, goal: &Node) -> Vec<RewriteAt> {
+        let named = self.named_now.borrow();
+        let refs: Vec<&String> = named
+            .iter()
+            .flatten()
+            .filter(|r| !self.thm.defines.iter().any(|d| d.label == **r))
+            .collect();
+        let mut out = self.hypotheses_of(&refs);
+        out.push(RewriteAt {
+            at: super::doc::Location::Goal,
+            said: vec![goal.clone()],
+            stated: self.writer.formula(goal).built().into_iter().collect(),
+        });
+        out
+    }
+
+    /// Whether `node` takes a remainder of two integers once each named
+    /// number's term, `terms`, is put as its number: each part of the `mod`
+    /// is such a term or an integer letter, so that the bridge's `mod` is
+    /// the integers' `%` (`mod_int_cast`). A remainder inside a term put as
+    /// its number is gone.
+    fn remainder_of_integers(&self, node: &Node, terms: &[String]) -> bool {
+        let print = |n: &Node| self.writer.grammar.print(n);
+        if terms.contains(&print(node)) {
+            return false;
+        }
+        let integer = |c: &Node| {
+            terms.contains(&print(c))
+                || (c.children.is_empty()
+                    && self.writer.letters.contains_key(&*c.text)
+                    && matches!(
+                        self.writer.carrier(c),
+                        Route::Built(super::templates::Num::Int)
+                    ))
+        };
+        if &*node.notation_name() == "mod" && node.children.iter().all(integer) {
+            return true;
+        }
+        node.children
+            .iter()
+            .any(|c| self.remainder_of_integers(c, terms))
+    }
+
+    /// The tactic lines that put each line `refs` names, but those `giving`
+    /// a number, in terms of the named numbers `rules` give, `rw [← spec] at
+    /// s3; norm_cast at s3`: only where Lean writes the number's term in the
+    /// line as the rewrite has it, and the remainder taken as the integers'
+    /// `%` only where the line then has one of integers.
+    fn put_numbers_in_lines(
+        &self,
+        refs: &[&String],
+        giving: &[String],
+        rules: &[NumberRule],
+    ) -> Vec<Tactic> {
+        use super::doc::Location;
+        use super::tactics as t;
+        let terms: Vec<String> = rules.iter().map(|r| r.term.clone()).collect();
+        let mut out = Vec::new();
+        for place in self.hypotheses_of(refs) {
+            let Location::Hypothesis(name) = &place.at else {
+                continue;
+            };
+            if giving.contains(name) {
+                continue;
+            }
+            let here: Vec<super::doc::Rule> = rules
+                .iter()
+                .filter(|r| r.lean.as_ref().is_some_and(|l| place.writes(l)))
+                .map(|r| r.rule.clone())
+                .collect();
+            if here.is_empty() {
+                continue;
+            }
+            let at = || TacticArg::At(vec![place.at.clone()]);
+            out.push(t::call("rw", vec![TacticArg::Rules(here), at()]));
+            if place
+                .said
+                .iter()
+                .any(|n| self.remainder_of_integers(n, &terms))
+            {
+                out.push(t::call(
+                    "rw",
+                    vec![TacticArg::Rules(vec![t::forwards(mod_int_cast())]), at()],
+                ));
+            }
+            out.push(t::call("norm_cast", vec![at()]));
+        }
+        out
+    }
+
+    /// The hypotheses that prove the lines `refs`, each with what its lines
+    /// say: `s1` once for the `s1.1` and `s1.2` of a line of two sentences.
+    fn hypotheses_of(&self, refs: &[&String]) -> Vec<RewriteAt> {
         use super::doc::{Location, TermKind};
         // The hypothesis a line's proof is, or projects from, `s1` of `s1.2`.
         fn root(p: &Printed) -> Option<&str> {
@@ -14643,22 +14795,26 @@ impl<'a> Proof<'a> {
                 _ => None,
             }
         }
-        let named = self.named_now.borrow();
-        let mut out: Vec<Location> = Vec::new();
-        for r in named.iter().flatten() {
-            if self.thm.defines.iter().any(|d| d.label == *r) {
-                continue;
-            }
-            for s in self.trees.get(r).into_iter().flatten() {
+        let mut out: Vec<RewriteAt> = Vec::new();
+        for r in refs {
+            for s in self.trees.get(*r).into_iter().flatten() {
                 if let Some(name) = root(&s.proof) {
                     let at = Location::Hypothesis(name.to_string());
-                    if !out.contains(&at) {
-                        out.push(at);
+                    let stated = self.line_statement(&s.cited()).built();
+                    match out.iter_mut().find(|o| o.at == at) {
+                        Some(o) => {
+                            o.said.push(s.node.clone());
+                            o.stated.extend(stated);
+                        }
+                        None => out.push(RewriteAt {
+                            at,
+                            said: vec![s.node.clone()],
+                            stated: stated.into_iter().collect(),
+                        }),
                     }
                 }
             }
         }
-        out.push(Location::Goal);
         out
     }
 
@@ -14858,15 +15014,31 @@ impl<'a> Proof<'a> {
         // The chain is worked in `at`, its first term told the type where
         // nothing in it fixes one; a claim in a narrower type, 3^q = 2^p in
         // ℤ beside ln and exp in ℝ, is moved up to it first.
-        // A claim of numerals alone may be written in the chain's type
-        // already, from the line it is reached from (`claimed`), and then
-        // has nowhere to move.
-        let mut block: Vec<Tactic> = match (of_numbers && own < at, at) {
+        // A claim of numerals alone stated in the chain's type already, from
+        // the line it is reached from, has nowhere to move; nor has a chain
+        // whose counts are taken to integers after it (`count_conversion`),
+        // which states no goal of its own.
+        let claim_now = self.claim_now.borrow().clone();
+        let after = claim_now.as_ref().is_some_and(|c| {
+            matches!(
+                self.count_conversion(Method::Calculation, c, just),
+                CountConversion::After
+            )
+        });
+        let stated_at = claim_now
+            .and_then(|c| self.claim_as_stated(just.line, &c))
+            .as_ref()
+            .and_then(super::doc::forms::relation_type);
+        let moved = of_numbers
+            && own < at
+            && !after
+            && stated_at != Some(super::doc::LeanType::Num(at));
+        let mut block: Vec<Tactic> = match (moved, at) {
             (true, super::templates::Num::Rat) => {
-                vec![Tactic::Try(Box::new(super::tactics::call("qify", vec![])))]
+                vec![super::tactics::call("qify", vec![])]
             }
             (true, super::templates::Num::Real) => {
-                vec![Tactic::Try(Box::new(super::tactics::call("rify", vec![])))]
+                vec![super::tactics::call("rify", vec![])]
             }
             _ => Vec::new(),
         };
@@ -16562,8 +16734,13 @@ impl<'a> Proof<'a> {
         };
         // The goal alone: each line the item is given puts the defines in
         // itself, where it is passed (`supplied_proof`).
+        let goal = RewriteAt {
+            at: super::doc::Location::Goal,
+            said: vec![node.clone()],
+            stated: self.writer.formula(node).built().into_iter().collect(),
+        };
         Route::Built(haves_then(
-            written_out(&defines, &[super::doc::Location::Goal]),
+            written_out(&defines, &[goal], &self.writer),
             closed,
         ))
     }
@@ -17390,6 +17567,14 @@ impl<'a> Proof<'a> {
     /// `← Classical.choose_spec hS` for each line used whose term the claim
     /// has, to rewrite by; none where it has none.
     fn specs_in(&self, claim: &Node, used: &[SaidUsed]) -> Vec<super::doc::Rule> {
+        self.number_rules(claim, used)
+            .into_iter()
+            .map(|r| r.rule)
+            .collect()
+    }
+
+    /// `specs_in`, each rewrite with the term it puts the number for.
+    fn number_rules(&self, claim: &Node, used: &[SaidUsed]) -> Vec<NumberRule> {
         let parts: Vec<String> = claim
             .walk()
             .iter()
@@ -17426,8 +17611,32 @@ impl<'a> Proof<'a> {
             let at_real = real
                 .iter()
                 .find(|(printed, _)| *printed == u.term)
-                .and_then(|(_, node)| self.spec_at_real(&u.line, spec.clone(), node));
-            out.push(super::tactics::backwards(at_real.unwrap_or(spec)));
+                .and_then(|(_, node)| {
+                    let rule = self.spec_at_real(&u.line, spec.clone(), node)?;
+                    let lean =
+                        self.writer.number_fixed(node, super::templates::Num::Real);
+                    Some((rule, lean.built()))
+                });
+            // The term in its own type, as the line naming it states it.
+            let (rule, lean) = match at_real {
+                Some(found) => found,
+                None => {
+                    let own = claim
+                        .walk()
+                        .into_iter()
+                        .find(|n| self.writer.grammar.print(n) == u.term)
+                        .and_then(|n| {
+                            let at = self.writer.carrier(&n).built()?;
+                            self.writer.number(&n, at).built()
+                        });
+                    (spec, own)
+                }
+            };
+            out.push(NumberRule {
+                term: u.term.clone(),
+                lean,
+                rule: super::tactics::backwards(rule),
+            });
         }
         out
     }
@@ -18280,6 +18489,14 @@ impl<'a> Proof<'a> {
                             };
                             self.writer.introduce(&letter, system);
                             let letter = super::names::letter(&letter);
+                            // The range the goal's "for all" puts the letter
+                            // in, as Lean states it.
+                            let in_range = self.next_guard().is_some_and(|g| {
+                                g.walk().iter().any(|c| {
+                                    matches!(&c.kind, super::doc::TermKind::Const(k)
+                                        if k.name == "Finset.Icc")
+                                })
+                            });
                             self.store(
                                 o.label.clone(),
                                 vec![LineSentence::only(node.clone(), label.clone())],
@@ -18290,40 +18507,27 @@ impl<'a> Proof<'a> {
                                 o.line,
                                 &spot,
                             );
-                            // The range as the page writes it: an
-                            // induction's step leaves its end `↑(N + 1)`,
-                            // which the page writes N + 1 and an item is
-                            // given so, and Lean matching the one with the
-                            // other unfolds the range past its limit.
-                            self.push_at(
-                                depth,
-                                Tactic::Try(Box::new(super::tactics::push_cast(Some(
-                                    TacticArg::At(vec![
-                                        super::doc::Location::Hypothesis(label.clone()),
-                                    ]),
-                                )))),
-                                o.line,
-                                spot.clone(),
-                            );
                             // The range's bounds beside it, which linear
                             // arithmetic reads, the membership kept for the
-                            // items given it; a claim may state the bounds
-                            // already.
-                            let bounds = Printed::applied(
-                                "Finset.mem_Icc.mp",
-                                super::doc::Source::Mathlib,
-                                vec![super::tactics::hyp(&label)],
-                                super::doc::LeanType::Prop,
-                            );
-                            self.push_at(
-                                depth,
-                                Tactic::Try(Box::new(Tactic::Name {
-                                    name: format!("{label}_bounds"),
-                                    term: bounds,
-                                })),
-                                o.line,
-                                spot.clone(),
-                            );
+                            // items given it: where the goal puts the letter
+                            // in a range, not where it states the bounds.
+                            if in_range {
+                                let bounds = Printed::applied(
+                                    "Finset.mem_Icc.mp",
+                                    super::doc::Source::Mathlib,
+                                    vec![super::tactics::hyp(&label)],
+                                    super::doc::LeanType::Prop,
+                                );
+                                self.push_at(
+                                    depth,
+                                    Tactic::Name {
+                                        name: format!("{label}_bounds"),
+                                        term: bounds,
+                                    },
+                                    o.line,
+                                    spot.clone(),
+                                );
+                            }
                             continue;
                         }
                         if let Some((letter, ty)) =
@@ -18651,6 +18855,21 @@ fn natural_form_named(writer: &Writer, node: &Node) -> super::expr::NaturalForm 
     }
 }
 
+/// Whether a statement as Lean writes it holds a cast.
+fn holds_cast(p: &Printed) -> bool {
+    p.walk()
+        .iter()
+        .any(|c| matches!(c.kind, super::doc::TermKind::Cast { .. }))
+}
+
+/// Whether a statement as Lean writes it names no letter: numerals and
+/// functions of them alone, which `norm_num` works out whole.
+fn no_letter(t: &Printed) -> bool {
+    !t.walk()
+        .iter()
+        .any(|n| matches!(n.kind, super::doc::TermKind::Letter(_)))
+}
+
 /// Whether the place at `path` in `start` is a power's exponent, the second
 /// child of a `POWER`.
 fn place_is_exponent(start: &Node, path: &[usize]) -> bool {
@@ -18794,23 +19013,110 @@ struct CitedDefine {
     param: Option<String>,
 }
 
+/// A place a step's defines are written out at, a line the step uses or the
+/// goal, with what it says there.
+struct RewriteAt {
+    at: super::doc::Location,
+    said: Vec<Node>,
+    /// What it says as Lean states it, where the writer has it.
+    stated: Vec<Printed>,
+}
+
+impl RewriteAt {
+    /// Whether what Lean states there holds a cast, which is pushed in with
+    /// the defines' (`push_cast` changes nothing where none moves).
+    fn cast(&self) -> bool {
+        self.stated.iter().any(holds_cast)
+    }
+
+    /// Whether Lean writes `term` in what it states there.
+    fn writes(&self, term: &Printed) -> bool {
+        let want = term.untyped();
+        self.stated
+            .iter()
+            .any(|s| s.walk().iter().any(|p| p.untyped() == want))
+    }
+}
+
 /// The tactic lines that write the defines out at `at`, the lines the step
-/// uses and the goal (`Proof::rewritten_at`), and push in the casts that
-/// leaves; none where no define is cited.
-fn written_out(defines: &[CitedDefine], at: &[super::doc::Location]) -> Vec<Tactic> {
+/// uses and the goal (`Proof::rewritten_at`): at each place, the defines
+/// whose names it writes, `simp only [hD1] at s3`; then the casts pushed in
+/// at each place whose statement holds one, or to which a define's value
+/// brings one as Lean writes it (`writer`). None where no define is cited.
+fn written_out(
+    defines: &[CitedDefine],
+    at: &[RewriteAt],
+    writer: &Writer,
+) -> Vec<Tactic> {
     use super::tactics as t;
     if defines.is_empty() {
         return Vec::new();
     }
-    let there = || TacticArg::At(at.to_vec());
-    let rewrites = defines
-        .iter()
-        .map(|d| t::forwards(t::hyp(&d.proof)))
-        .collect();
-    vec![
-        Tactic::Try(Box::new(t::simp_only(false, None, rewrites, Some(there())))),
-        Tactic::Try(Box::new(t::push_cast(Some(there())))),
-    ]
+    let cast_in = |d: &CitedDefine| match writer.carrier(&d.value) {
+        Route::Built(n) => writer.number(&d.value, n).built().is_none_or(|p| {
+            p.walk()
+                .iter()
+                .any(|c| matches!(c.kind, super::doc::TermKind::Cast { .. }))
+        }),
+        Route::Declined(_) => true,
+    };
+    // Places by the defines they name, so that places naming the same take
+    // one line; and the places casts are pushed in at.
+    let mut groups: Vec<(Vec<usize>, Vec<super::doc::Location>)> = Vec::new();
+    let mut pushed: Vec<super::doc::Location> = Vec::new();
+    for place in at {
+        // The defines the place names, and those their values name in turn,
+        // which writing them out brings in: v of y + ω₁·T brings ω₁.
+        let mut names: Vec<String> =
+            place.said.iter().flat_map(|n| n.names()).collect();
+        let mut named: Vec<usize> = Vec::new();
+        loop {
+            let more: Vec<usize> = defines
+                .iter()
+                .enumerate()
+                .filter(|(i, d)| {
+                    !named.contains(i)
+                        && names.iter().any(|x| x.as_str() == &*d.name.text)
+                })
+                .map(|(i, _)| i)
+                .collect();
+            if more.is_empty() {
+                break;
+            }
+            for &i in &more {
+                names.extend(defines[i].value.names());
+            }
+            named.extend(more);
+        }
+        named.sort();
+        if place.cast() || named.iter().any(|&i| cast_in(&defines[i])) {
+            pushed.push(place.at.clone());
+        }
+        if named.is_empty() {
+            continue;
+        }
+        match groups.iter_mut().find(|(g, _)| *g == named) {
+            Some((_, locs)) => locs.push(place.at.clone()),
+            None => groups.push((named, vec![place.at.clone()])),
+        }
+    }
+    let mut out = Vec::new();
+    for (named, locs) in groups {
+        let rewrites = named
+            .iter()
+            .map(|&i| t::forwards(t::hyp(&defines[i].proof)))
+            .collect();
+        out.push(t::simp_only(
+            false,
+            None,
+            rewrites,
+            Some(TacticArg::At(locs)),
+        ));
+    }
+    if !pushed.is_empty() {
+        out.push(t::push_cast(Some(TacticArg::At(pushed))));
+    }
+    out
 }
 
 /// `node` with `to` put for each part that is `from`, the two compared as
@@ -19296,8 +19602,7 @@ fn apart(
 /// equation of sets member by member, which takes a listed set in any order
 /// and of any size; another relation, a membership or subset of a listed
 /// set, read in both as the members' equations it says, which `tauto` takes
-/// in any order. Where the claim reads as nothing left to show,
-/// `all_goals` runs `tauto` on no goal.
+/// in any order.
 fn reordered(cited: &Printed, equation: bool) -> Tactic {
     use super::tactics as t;
     let h = || t::hyp("h");
@@ -19316,7 +19621,7 @@ fn reordered(cited: &Printed, equation: bool) -> Tactic {
                     ],
                     Some(t::at_h(true)),
                 ),
-                Tactic::AllGoals(Box::new(t::call("tauto", vec![]))),
+                t::call("tauto", vec![]),
             ],
         );
     }
@@ -19744,12 +20049,7 @@ fn unfolded_by(defines: &[String], alone: bool, for_all: bool) -> Tactic {
 fn header_ways(hyp: &str) -> super::doc::Proof {
     use super::tactics as t;
     super::doc::Proof::By(Tactic::Seq(vec![
-        t::try_(t::simp_only(
-            false,
-            None,
-            vec![t::forwards(t::hyp(hyp))],
-            None,
-        )),
+        t::simp_only(false, None, vec![t::forwards(t::hyp(hyp))], None),
         t::call("done", vec![]),
     ]))
 }
@@ -19890,18 +20190,13 @@ fn spec_of(said: &super::expr::SaidInteger) -> Printed {
     }
 }
 
-/// `by push_cast; simp only [specs]; all_goals ring`: a claim made true by
-/// the named numbers' equations. Put in, they leave the claim closed where
-/// its terms are theirs as written, or arithmetic, which is `ring`'s.
+/// `by push_cast; simp only [specs]`: a witness's equation, the witness
+/// built from the named numbers' values as the term is from theirs, so
+/// their equations put in leave the two sides one.
 fn specs_equal(specs: &[Printed]) -> Printed {
     use super::tactics as t;
     let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
-    super::tactics::by_term(super::doc::Proof::By(specs_then(&rules, ring_left())))
-}
-
-/// `all_goals ring`: the arithmetic a rewriting leaves, where it leaves any.
-fn ring_left() -> Tactic {
-    Tactic::AllGoals(Box::new(super::tactics::call("ring", vec![])))
+    super::tactics::by_term(super::doc::Proof::By(specs_then(&rules)))
 }
 
 /// `specs_equal` of a named number for `term`. Where the term takes a
@@ -19916,18 +20211,18 @@ fn specs_equal_of(term: &Node, specs: &[Printed]) -> Printed {
         return specs_equal(specs);
     }
     let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
-    t::by_term(super::doc::Proof::By(unmod_then(&rules, ring_left())))
+    t::by_term(super::doc::Proof::By(unmod_then(&rules)))
 }
 
 /// One way of `specs_equal_of`: the integers' `%` put as the bridge's
-/// `mod` of their casts, then the named numbers' equations and `last`.
-fn unmod_then(rules: &[super::doc::Rule], last: Tactic) -> Tactic {
+/// `mod` of their casts, then the named numbers' equations.
+fn unmod_then(rules: &[super::doc::Rule]) -> Tactic {
     use super::tactics as t;
     let unmod = t::call(
         "rw",
         vec![TacticArg::Rules(vec![t::backwards(mod_int_cast())])],
     );
-    Tactic::Group(Box::new(Tactic::Seq(vec![unmod, specs_then(rules, last)])))
+    Tactic::Group(Box::new(Tactic::Seq(vec![unmod, specs_then(rules)])))
 }
 
 /// A term where it stands as one whole, bracketed unless it already is:
@@ -20138,13 +20433,12 @@ fn refine(parts: Vec<Printed>) -> Tactic {
     )
 }
 
-/// `(push_cast; simp only [specs]; last)`.
-fn specs_then(rules: &[super::doc::Rule], last: Tactic) -> Tactic {
+/// `(push_cast; simp only [specs])`.
+fn specs_then(rules: &[super::doc::Rule]) -> Tactic {
     use super::tactics as t;
     t::steps(vec![
         t::push_cast(None),
         t::simp_only(false, None, rules.to_vec(), None),
-        last,
     ])
 }
 

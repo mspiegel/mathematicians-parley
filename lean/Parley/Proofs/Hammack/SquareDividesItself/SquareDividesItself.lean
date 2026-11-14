@@ -47,7 +47,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
     -- 3.1. inspection
     have s3_1 : (0 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by simp
     -- 3.2. substitute a = 0 (C1) into line 3.1
-    (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) hC1.symm s3_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) hC1.symm s3_1
   · skip
     -- 3.3. algebra, from 1
     have s3_3 : a * k * a = 1 * a := by linear_combination (norm := parley_norm) (-1) * s1
@@ -70,7 +70,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       have s3_6_5 : (1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by simp
       -- 3.6.6. substitute
       have c1 : 1 = a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := a) s3_6_2 s3_6_4).symm
-      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_5
       exact row1
     · skip
       -- 3.6.7. inequalities
@@ -87,7 +87,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       have s3_6_12 : (-1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by simp
       -- 3.6.13. substitute
       have c1 : -1 = a := by linear_combination (norm := parley_norm) s3_6_11
-      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_12; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_12
       exact row1
 
 end Parley.Proofs.Hammack.SquareDividesItself.SquareDividesItself

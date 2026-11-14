@@ -60,8 +60,8 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   have s2 : (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) ⊆ (Set.univ : Set ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_range_in_integers (a := (0 : ℤ)) (b := n - 1))
   -- 3. mun:set-builder-subset, from D1
   have s3 : S ⊆ (Set.Icc (0 : ℤ) (n - 1) : Set ℤ) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)))
   -- 4. mun:finite-part, from 1, 3
   have s4 : S.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (Y := S) s1 s3)
@@ -72,13 +72,11 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     intro r hK1
     -- 6.1. def:set-builder u := r, from D1, K1
     have s6_1a : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK1).1)
       exact hI
     have s6_1b : (Int.gcd r n : ℤ) = 1 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK1).2)
       exact hI
     -- 6.2. calculation
@@ -95,7 +93,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 6.6. D2, from K1
     have s6_6 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 6.7. substitute f(r) = (r·a) mod n (line 6.6) into line 6.5
-    (have h := Eq.subst (motive := (fun t : ℤ => t ∈ S)) s6_6.symm s6_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun t : ℤ => t ∈ S)) s6_6.symm s6_5
   -- 7. proof
   have s7 : ∀ s ∈ S, ∀ t ∈ S, f s = f t → s = t := by
     intro s hK2
@@ -103,24 +101,20 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     intro hK4
     -- 7.1. def:set-builder u := s, from D1, K2
     have s7_1a : s ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : s ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := s))).mp hK2).1)
       exact hI
     have s7_1b : (Int.gcd s n : ℤ) = 1 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : (Int.gcd s n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := s))).mp hK2).2)
       exact hI
     -- 7.2. def:set-builder u := t, from D1, K3
     have s7_2a : t ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : t ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).1)
       exact hI
     have s7_2b : (Int.gcd t n : ℤ) = 1 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : (Int.gcd t n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2)
       exact hI
     -- 7.3. D2, from K2
@@ -149,13 +143,11 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     intro r hK5
     -- 11.1. def:set-builder u := r, from D1, K5
     have s11_1a : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK5).1)
       exact hI
     have s11_1b : (Int.gcd r n : ℤ) = 1 := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK5).2)
       exact hI
     -- 11.2. mun:mod-congruent
@@ -163,31 +155,30 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     -- 11.3. D2, from K5
     have s11_3 : f r = r * a % n := by simp (disch := omega) only [hD2]
     -- 11.4. substitute f(r) = (r·a) mod n (line 11.3) into line 11.2
-    (have h := Eq.subst (motive := (fun t : ℤ => r * a ≡ t [ZMOD n])) s11_3.symm s11_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun t : ℤ => r * a ≡ t [ZMOD n])) s11_3.symm s11_2
   -- 12. thm:product-congruent X := S, from 4, 5, 11
   have r160_1 : Set.MapsTo f S S := by exact s8
   have s12 : (∏ᶠ r ∈ S, (r * a : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.thm_product_congruent (f := f) (X := S) s5 s4 (c := a) (n := n) hH1 s11 r160_1)
   -- 13. def:φ, from D1
   have s13 : (Nat.totient n.toNat : ℤ) = (S.ncard : ℤ) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.def_phi (n := n) hH1)
   -- 14. substitute
   have s14 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by
     have c1 : (∏ᶠ r ∈ S, (r * a : ℤ)) = a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) := by exact (Parley.Items.Stdlib.Sums.thm_product_factor (X := S) s5 s4 (c := a))
-    have row1 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => t ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n])) c1 s12; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n] := Eq.subst (motive := (fun t : ℤ => t ≡ (∏ᶠ r ∈ S, (f r : ℤ)) [ZMOD n])) c1 s12
     exact row1
   -- 15. substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 10) into line 14
-  have s15 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by (have h := Eq.subst (motive := (fun t : ℤ => a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ t [ZMOD n])) s10 s14; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s15 : a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := Eq.subst (motive := (fun t : ℤ => a ^ S.ncard * (∏ᶠ r ∈ S, (r : ℤ)) ≡ t [ZMOD n])) s10 s14
   -- 16. substitute φ(n) = |S| (line 13) into line 15
   have s16 : a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n] := by
     have e_nat : S.ncard = Nat.totient n.toNat := by exact_mod_cast s13.symm
-    (have h := Eq.subst (motive := (fun t : ℕ => a ^ t * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n])) e_nat s15; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun t : ℕ => a ^ t * (∏ᶠ r ∈ S, (r : ℤ)) ≡ (∏ᶠ r ∈ S, (r : ℤ)) [ZMOD n])) e_nat s15
   -- 17. def:set-builder u := r, from D1
   have s17 : ∀ r ∈ S, (Int.gcd r n : ℤ) = 1 := by
     intro r h_r
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    push_cast at ⊢
     have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp h_r).2)
     exact hI
   -- 18. thm:product-coprime, from 4, 5, 17
@@ -199,7 +190,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   have r189_1 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)
   have s20 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by
     have c1 : a ^ Nat.totient n.toNat * (∏ᶠ r ∈ S, (r : ℤ)) - (∏ᶠ r ∈ S, (r : ℤ)) = (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by parley_ring
-    have row1 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s19; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : n ∣ (a ^ Nat.totient n.toNat - 1) * (∏ᶠ r ∈ S, (r : ℤ)) := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s19
     exact row1
   -- 21. thm:coprime-divides c := ∏(r ∈ S) r, from 18, 20
   have r196_2 : 0 < (Nat.totient n.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_phi_natural (n := n) hH1)

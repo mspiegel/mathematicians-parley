@@ -38,7 +38,7 @@ theorem prime_divides_predecessor (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toN
   -- 2.2. substitute
   have s2_2 : P ∣ (1 : ℤ) := by
     have c1 : A - (A - 1) = 1 := by parley_ring
-    have row1 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) c1 s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) c1 s2_1; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 2.3. mun:divides-one d := P, from 2.2
   have s2_3 : P = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := P) hH1 s2_2)

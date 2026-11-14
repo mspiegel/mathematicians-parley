@@ -78,13 +78,13 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s2 : k ≠ 0 := by
     intro hS1
     -- 2.1. substitute k = 0 (S1) into line 1
-    have s2_1 : n = 2 ^ 0 * m := by (have h := Eq.subst (motive := (fun t : ℤ => n = 2 ^ t.toNat * m)) hS1 s1d; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_1 : n = 2 ^ 0 * m := by (have h := Eq.subst (motive := (fun t : ℤ => n = 2 ^ t.toNat * m)) hS1 s1d; push_cast at h ⊢; exact_mod_cast h)
     -- 2.2. calculation
     have s2_2 : n = m := by
       calc n = 2 ^ 0 * m := s2_1
         _ = m := by parley_ring
     -- 2.3. substitute n = m (line 2.2) into line 1
-    have s2_3 : Odd n := by (have h := Eq.subst (motive := (fun t : ℤ => Odd t)) s2_2.symm s1c; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_3 : Odd n := Eq.subst (motive := (fun t : ℤ => Odd t)) s2_2.symm s1c
     -- 2.4. mun:not-both, from H2
     have s2_4 : ¬ Odd n := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := n) hH2)
     exact s2_4 s2_3
@@ -105,8 +105,8 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s7 : (0 : ℤ) < 2 ^ p.toNat - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := (2 ^ p.toNat - 1 : ℤ)) r359_1)
   -- 8. mun:exponent-step a := 2, m := k, from D2
   have s8 : (2 ^ p.toNat : ℤ) = 2 ^ k.toNat * 2 := by
-    try simp only [hD2] at ⊢
-    try push_cast at ⊢
+    simp only [hD2] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) s1a)
   -- 9. contradiction
   have s9 : ¬ (2 : ℤ) ∣ (2 ^ p.toNat - 1 : ℤ) := by
@@ -118,14 +118,14 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 9.3. substitute
     have s9_3 : (2 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by
       have c1 : (2 * 2 ^ k.toNat : ℤ) = 2 ^ p.toNat := by linear_combination (norm := parley_norm) (-1) * s8
-      have row1 : (2 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 : ℤ) ∣ t)) c1 s9_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : (2 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 : ℤ) ∣ t)) c1 s9_2; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 9.4. mun:divides-difference d := 2, a := 2^p, b := 2^p − 1, from S2, 9.3
     have s9_4 : (2 : ℤ) ∣ (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (2 : ℤ)) (a := (2 ^ p.toNat : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) s9_3 hS2)
     -- 9.5. substitute
     have s9_5 : (2 : ℤ) ∣ (1 : ℤ) := by
       have c1 : (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) = 1 := by parley_ring
-      have row1 : (2 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 : ℤ) ∣ t)) c1 s9_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : (2 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 : ℤ) ∣ t)) c1 s9_4; revert h; norm_num)
       exact row1
     -- 9.6. mun:divides-one d := 2, from 9.5
     have s9_6 : (2 : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (2 : ℤ)) (by norm_num) s9_5)
@@ -145,7 +145,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have r407_1 : Nat.Prime (2 : ℤ).toNat := by exact Parley.Items.Stdlib.Divisibility.mun_two_prime
   have r407_2 : (2 : ℤ) ≠ 1 := by parley_arith
   have s14 : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) = 2 ^ p.toNat - 1 := by
-    try qify
+    qify
     calc (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by
           have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by parley_instance_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by norm_num) r407_1 (k := k) s1a))
           exact hI
@@ -153,16 +153,16 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
           have hI : (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by parley_instance_real ((Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by norm_num) (n := k) s1a))
           exact hI
       _ = 2 ^ p.toNat - 1 := by
-          try simp only [hD2] at r407_1 r407_2 ⊢
-          try push_cast at r407_1 r407_2 ⊢
+          simp only [hD2] at ⊢
+          push_cast at r407_1 r407_2 ⊢
           parley_ring
   -- 15. calculation
   have s15 : (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = 2 ^ p.toNat * m := by
-    calc (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by (have h := congrArg (fun t : ℤ => t * (ArithmeticFunction.sigma 1 m.toNat : ℤ)) s14.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := congrArg (fun t : ℤ => t * (ArithmeticFunction.sigma 1 m.toNat : ℤ)) s14.symm
       _ = (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) := by
           have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by parley_instance ((Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (pow_pos (by norm_num) _) (n := m) s1b s13))
           exact hI.symm
-      _ = (ArithmeticFunction.sigma 1 n.toNat : ℤ) := by (have h := congrArg (fun t : ℤ => (ArithmeticFunction.sigma 1 t.toNat : ℤ)) s1d.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (ArithmeticFunction.sigma 1 n.toNat : ℤ) := congrArg (fun t : ℤ => (ArithmeticFunction.sigma 1 t.toNat : ℤ)) s1d.symm
       _ = 2 * n := by exact ((Parley.Items.Stdlib.Divisibility.def_perfect (n := n) hH1)).mp hH3
       _ = 2 ^ p.toNat * m := by linear_combination (norm := parley_norm) (2) * s1d + (-m) * s8
   -- 16. mun:sigma-nat n := m
@@ -197,7 +197,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 23.3. substitute
     have s23_3 : m - c > 0 := by
       have c1 : (2 ^ p.toNat - 1 - 1) * c = m - c := by linear_combination (norm := parley_norm) (-1) * s20
-      have row1 : m - c > 0 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s23_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : m - c > 0 := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s23_2
       exact row1
     -- 23.4. inequalities
     have s23_4 : c < m := by linarith only [s23_3]
@@ -216,9 +216,9 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have s23_10 : (1 : ℤ) ≤ 0 := by linarith only [s23_9]
     exact absurd s23_10 (by norm_num)
   -- 24. substitute c = 1 (line 23) into line 20
-  have s24 : m = 2 ^ p.toNat - 1 := by (have h := Eq.subst (motive := (fun t : ℤ => m = (2 ^ p.toNat - 1) * t)) s23 s20; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
+  have s24 : m = 2 ^ p.toNat - 1 := by (have h := Eq.subst (motive := (fun t : ℤ => m = (2 ^ p.toNat - 1) * t)) s23 s20; push_cast [mul_one] at h ⊢; exact_mod_cast h)
   -- 25. substitute c = 1 (line 23) into line 22
-  have s25 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + t)) s23 s22; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s25 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + 1 := Eq.subst (motive := (fun t : ℤ => (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + t)) s23 s22
   -- 26. proof
   have s26 : ∀ d : ℤ, 0 < d → d ∣ m → d = 1 ∨ d = m := by
     intro d hK1
@@ -247,15 +247,14 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have s26_8 : ¬ 1 < d := by linarith only [s26_7]
     exact s26_8 s26_3
   -- 27. substitute m = 2^p − 1 (line 24) into line 6
-  have s27 : m > 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 1)) s24.symm s6; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s27 : m > 1 := Eq.subst (motive := (fun t : ℤ => t > 1)) s24.symm s6
   -- 28. def:prime p := m, from 26, 27
   have s28 : Nat.Prime m.toNat := ((Parley.Items.Stdlib.Divisibility.def_prime (p := m) s1b)).mpr ⟨s27, s26⟩
   -- 29. substitute m = 2^p − 1 (line 24) into line 28
-  have s29 : Nat.Prime (2 ^ p.toNat - 1 : ℤ).toNat := by (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s24 s28; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s29 : Nat.Prime (2 ^ p.toNat - 1 : ℤ).toNat := by (have h := Eq.subst (motive := (fun t : ℤ => Nat.Prime t.toNat)) s24 s28; push_cast at h ⊢; exact_mod_cast h)
   -- 30. algebra, from D2
   have s30 : p - 1 = k := by
-    try simp only [hD2] at ⊢
-    try push_cast at ⊢
+    simp only [hD2] at ⊢
     parley_ring
   -- 31. calculation
   have s31 : (n : ℚ) = 2 ^ (p - 1) * (2 ^ p.toNat - 1) := by
@@ -263,7 +262,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
       _ = 2 ^ (p - 1) * (m : ℚ) := by (have h := congrArg (fun t : ℤ => 2 ^ t * (m : ℚ)) s30.symm; simp only [parley_zpow_toNat (n := k) (h := s1a)] at h ⊢; exact_mod_cast h)
       _ = 2 ^ (p - 1) * (2 ^ p.toNat - 1) := by
           have e_w : (m : ℚ) = 2 ^ p.toNat - 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => 2 ^ (p - 1) * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          exact congrArg (fun t : ℚ => 2 ^ (p - 1) * t) e_w
   -- 32. exhibit, from 29, 31
   exact ⟨p, hD2_pos, ⟨s29, s31⟩⟩
 

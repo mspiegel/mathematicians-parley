@@ -60,7 +60,7 @@ theorem sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
               have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((k : ℚ) ^ 3 : ℚ)) = 1 ^ 3 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) ^ 3)) (a := (1 : ℤ))))
               exact hI
           _ = 1 ^ 2 * (1 + 1) ^ 2 / 4 := by norm_num
-      (have h := s1_1; push_cast at h ⊢; all_goals exact h)
+      (have h := s1_1; push_cast at h ⊢; exact h)
     | succ k hK hIH =>
       -- 1.2. calculation
       have r27_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
@@ -71,9 +71,9 @@ theorem sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. calculation
       have s1_3 : (S (k + 1) : ℚ) = ((k : ℚ) + 1) ^ 2 * ((k : ℚ) + 1 + 1) ^ 2 / 4 := by
         calc (S (k + 1) : ℚ) = (S k : ℚ) + ((k : ℚ) + 1) ^ 3 := by exact_mod_cast s1_2
-          _ = (k : ℚ) ^ 2 * ((k : ℚ) + 1) ^ 2 / 4 + ((k : ℚ) + 1) ^ 3 := by (have h := congrArg (fun t : ℚ => t + ((k : ℚ) + 1) ^ 3) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = (k : ℚ) ^ 2 * ((k : ℚ) + 1) ^ 2 / 4 + ((k : ℚ) + 1) ^ 3 := congrArg (fun t : ℚ => t + ((k : ℚ) + 1) ^ 3) hIH
           _ = ((k : ℚ) + 1) ^ 2 * ((k : ℚ) + 1 + 1) ^ 2 / 4 := by parley_ring
-      (have h := s1_3; push_cast at h ⊢; all_goals exact h)
+      (have h := s1_3; push_cast at h ⊢; exact h)
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) ^ 3 : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num
     _ = (n : ℚ) ^ 2 * ((n : ℚ) + 1) ^ 2 / 4 := by exact (s1 n hH1)

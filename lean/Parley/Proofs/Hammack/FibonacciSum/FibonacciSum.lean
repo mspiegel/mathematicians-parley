@@ -63,11 +63,11 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.2. mun:sum-single a := 1
       have s4_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (F j : ℤ)) = F 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := F) (a := (1 : ℤ)))
       -- 4.3. D1
-      have s4_3 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_3 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
       -- 4.4. D1
-      have s4_4 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
+      have s4_4 : G 0 = 1 := by have h := hD1.2.1; ring_nf at h ⊢; linarith
       -- 4.5. D1
-      have s4_5 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+      have s4_5 : F 0 = 0 := by have h := hD1.1; ring_nf at h ⊢; linarith
       -- 4.6. calculation
       have s4_6 : F 1 = 1 := by
         calc F 1 = G 0 := s4_3
@@ -95,7 +95,7 @@ theorem fibonacci_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.15. substitute
       have s4_15 : F (m + 1 + 2) = F (m + 1) + F (m + 2) := by
         have c1 : m + 1 + 1 = m + 2 := by parley_ring
-        have row1 : F (m + 1 + 2) = F (m + 1) + F (m + 2) := by (have h := Eq.subst (motive := (fun t : ℤ => F (m + 1 + 2) = F (m + 1) + F t)) c1 s4_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : F (m + 1 + 2) = F (m + 1) + F (m + 2) := Eq.subst (motive := (fun t : ℤ => F (m + 1 + 2) = F (m + 1) + F t)) c1 s4_14
         exact row1
       -- 4.16. instantiate k := m + 2 in line 2
       -- 4.17. instantiate k := m + 1 in line 2

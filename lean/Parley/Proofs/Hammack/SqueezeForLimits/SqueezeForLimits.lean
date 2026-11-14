@@ -77,15 +77,9 @@ theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ)
       intro x
       intro hA2
       -- 1.12.1. mun:lt-min z := |x − c|, x := m, y := r, from A2, D2
-      have s1_12_1 : abs (x - c) < m ∧ abs (x - c) < r := by
-        try simp only [hD2] at ⊢
-        try push_cast at ⊢
-        exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - c)) (x := m) (y := r))).mp hA2.2
+      have s1_12_1 : abs (x - c) < m ∧ abs (x - c) < r := by exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - c)) (x := m) (y := r))).mp hA2.2
       -- 1.12.2. mun:lt-min z := |x − c|, x := p, y := q, from D1, 1.12.1
-      have s1_12_2 : abs (x - c) < p ∧ abs (x - c) < q := by
-        try simp only [hD1] at ⊢
-        try push_cast at ⊢
-        exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - c)) (x := p) (y := q))).mp s1_12_1.1
+      have s1_12_2 : abs (x - c) < p ∧ abs (x - c) < q := by exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - c)) (x := p) (y := q))).mp s1_12_1.1
       -- 1.12.3. join A2, 1.12.2
       have s1_12_3 : x ≠ c ∧ abs (x - c) < p := ⟨hA2.1, s1_12_2.1⟩
       -- 1.12.4. join A2, 1.12.2

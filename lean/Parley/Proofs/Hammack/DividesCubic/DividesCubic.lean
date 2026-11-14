@@ -35,7 +35,7 @@ theorem divides_cubic (a : ℤ) (b : ℤ) (hH3 : a ∣ b) :
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := b))).mp hH3
   -- 2. calculation
   have s2 : 3 * b ^ 3 - b ^ 2 + 5 * b = a * (3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k) := by
-    calc 3 * b ^ 3 - b ^ 2 + 5 * b = 3 * (a * k) ^ 3 - (a * k) ^ 2 + 5 * (a * k) := by (have h := congrArg (fun t : ℤ => 3 * t ^ 3 - t ^ 2 + 5 * t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc 3 * b ^ 3 - b ^ 2 + 5 * b = 3 * (a * k) ^ 3 - (a * k) ^ 2 + 5 * (a * k) := congrArg (fun t : ℤ => 3 * t ^ 3 - t ^ 2 + 5 * t) s1
       _ = a * (3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k) := by parley_ring
   -- 3. def:divides d := a, n := 3b³ − b² + 5b, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := 3 * b ^ 3 - b ^ 2 + 5 * b))).mpr ⟨3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k, s2⟩

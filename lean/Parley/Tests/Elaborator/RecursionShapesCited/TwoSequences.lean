@@ -27,9 +27,9 @@ namespace Parley.Tests.Elaborator.RecursionShapesCited.TwoSequences
 theorem two_sequences (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k)) :
     F 1 = 1 := by
   -- 1. D1
-  have s1 : F (0 + 1) = G 0 := by have h := (hD1.2.2 ((0 + 1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+  have s1 : F (0 + 1) = G 0 := by have h := (hD1.2.2 ((0 + 1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
   -- 2. D1
-  have s2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
+  have s2 : G 0 = 1 := by have h := hD1.2.1; ring_nf at h ⊢; linarith
   -- 3. calculation
   calc F 1 = F (0 + 1) := by norm_num
     _ = G 0 := s1

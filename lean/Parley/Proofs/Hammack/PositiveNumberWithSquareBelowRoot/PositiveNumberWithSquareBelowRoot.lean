@@ -50,7 +50,7 @@ theorem positive_number_with_square_below_root :
   -- 3. substitute (√(1/4))² = 1/4 (line 1) into line 2
   have s3 : (1 / 16) ^ 2 < Real.sqrt (1 / 4 : ℝ) ^ 2 := by
     have s2_w : ((1 / 16) ^ 2 : ℝ) < 1 / 4 := (show ((1 / 16) ^ 2 : ℝ) < 1 / 4 by have h := (Rat.cast_lt (K := ℝ)).mpr s2; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h)
-    (have h := Eq.subst (motive := (fun t : ℝ => (1 / 16) ^ 2 < t)) s1b.symm s2_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun t : ℝ => (1 / 16) ^ 2 < t)) s1b.symm s2_w
   -- 4. mun:square-less x := 1/16, y := √(1/4), from 1, 3
   have r20_1 : (1 / 16 : ℚ) ≥ 0 := by parley_arith
   have s4 : 1 / 16 < Real.sqrt (1 / 4 : ℝ) := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 / 16 : ℝ)) (y := Real.sqrt (1 / 4 : ℝ)) (by norm_num) s1a)).mpr s3
@@ -58,7 +58,7 @@ theorem positive_number_with_square_below_root :
   have s5 : (1 / 4) ^ 2 < Real.sqrt (1 / 4 : ℝ) := by
     have e_arith : (1 / 16 : ℚ) = (1 / 4) ^ 2 := by parley_arith
     have e_w : (1 / 16 : ℝ) = (1 / 4) ^ 2 := by have h := congrArg (fun x : ℚ => (x : ℝ)) e_arith; push_cast at h; linear_combination (norm := parley_norm) h
-    (have h := Eq.subst (motive := (fun t : ℝ => t < Real.sqrt (1 / 4 : ℝ))) e_w s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun t : ℝ => t < Real.sqrt (1 / 4 : ℝ))) e_w s4
   -- 6. arithmetic
   have s6 : (1 / 4 : ℚ) > 0 := by parley_arith
   -- 7. exhibit, from 5, 6

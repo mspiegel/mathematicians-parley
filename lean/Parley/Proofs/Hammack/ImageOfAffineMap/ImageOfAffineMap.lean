@@ -59,7 +59,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     have s4_3 : f (m - 1) ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (s := m - 1) (W := Set.univ) s1 (Set.mem_univ _) (Set.mapsTo_univ _ _))
     -- 4.4. substitute
     have c1 : f (m - 1) = y := by linear_combination (norm := parley_norm) (-1) * s4_1 + s4_2
-    have row1 : y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => t ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)))) c1 s4_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := Eq.subst (motive := (fun t : ℤ => t ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)))) c1 s4_3
     exact row1
   -- 5. def:subset, from 4
   have s5 : (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ) ⊆ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun k : ℤ => 4 * k + 1) '' (Set.univ : Set ℤ)) (Y := f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ))))).mpr s4

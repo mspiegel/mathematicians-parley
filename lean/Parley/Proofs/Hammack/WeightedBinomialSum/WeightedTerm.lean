@@ -61,7 +61,7 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
   -- 7. algebra
   have s7 : m - (k - 1) = m + 1 - k := by parley_ring
   -- 8. substitute m − (k − 1) = (m + 1) − k (line 7)
-  have s8 : (LeanBridges.Counting.factorial (m - (k - 1)) : ℤ) = (LeanBridges.Counting.factorial (m + 1 - k) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s7; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s8 : (LeanBridges.Counting.factorial (m - (k - 1)) : ℤ) = (LeanBridges.Counting.factorial (m + 1 - k) : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s7
   -- 9. def:factorial n := m
   have s9 : (LeanBridges.Counting.factorial (m + 1) : ℤ) = (LeanBridges.Counting.factorial m : ℤ) * (m + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := m) hH1)
   -- 10. def:factorial n := k − 1
@@ -70,7 +70,7 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
   -- 11. substitute
   have s11 : (LeanBridges.Counting.factorial k : ℤ) = (LeanBridges.Counting.factorial (k - 1) : ℤ) * k := by
     have c1 : k - 1 + 1 = k := by parley_ring
-    have row1 : (LeanBridges.Counting.factorial k : ℤ) = (LeanBridges.Counting.factorial (k - 1) : ℤ) * k := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = (LeanBridges.Counting.factorial (k - 1) : ℤ) * t)) c1 s10; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (LeanBridges.Counting.factorial k : ℤ) = (LeanBridges.Counting.factorial (k - 1) : ℤ) * k := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ) = (LeanBridges.Counting.factorial (k - 1) : ℤ) * t)) c1 s10
     exact row1
   -- 12. mun:range-difference a := 1, n := m + 1, from H2
   have s12 : 0 ≤ m + 1 - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (1 : ℤ)) (n := m + 1) (k := k) hH2)
@@ -84,17 +84,17 @@ theorem weighted_term (m : ℤ) (hH1 : 0 ≤ m) (k : ℤ) (hH2 : k ∈ Finset.Ic
     calc (LeanBridges.Counting.choose m (k - 1) : ℚ) = (LeanBridges.Counting.factorial m : ℚ) / ((LeanBridges.Counting.factorial (m - (k - 1)) : ℚ) * (LeanBridges.Counting.factorial (k - 1) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := m) hH1 (k := k - 1)) s6
       _ = (LeanBridges.Counting.factorial m : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial (k - 1) : ℚ)) := by
           have e_w : (LeanBridges.Counting.factorial (m - (k - 1)) : ℚ) = (LeanBridges.Counting.factorial (m + 1 - k) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s8; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial m : ℚ) / (t * (LeanBridges.Counting.factorial (k - 1) : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          exact congrArg (fun t : ℚ => (LeanBridges.Counting.factorial m : ℚ) / (t * (LeanBridges.Counting.factorial (k - 1) : ℚ))) e_w
   -- 16. calculation
-  try qify
-  calc (k : ℚ) * (LeanBridges.Counting.choose (m + 1) k : ℚ) = (k : ℚ) * ((LeanBridges.Counting.factorial (m + 1) : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ))) := by (have h := congrArg (fun t : ℚ => (k : ℚ) * t) s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+  qify
+  calc (k : ℚ) * (LeanBridges.Counting.choose (m + 1) k : ℚ) = (k : ℚ) * ((LeanBridges.Counting.factorial (m + 1) : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ))) := congrArg (fun t : ℚ => (k : ℚ) * t) s4
     _ = (k : ℚ) * ((LeanBridges.Counting.factorial m : ℚ) * ((m : ℚ) + 1) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ))) := by
         have e_w : (LeanBridges.Counting.factorial (m + 1) : ℚ) = (LeanBridges.Counting.factorial m : ℚ) * ((m : ℚ) + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s9; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := congrArg (fun t : ℚ => (k : ℚ) * (t / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact congrArg (fun t : ℚ => (k : ℚ) * (t / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)))) e_w
     _ = (k : ℚ) * ((LeanBridges.Counting.factorial m : ℚ) * ((m : ℚ) + 1) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * ((LeanBridges.Counting.factorial (k - 1) : ℚ) * (k : ℚ)))) := by
         have e_w : (LeanBridges.Counting.factorial k : ℚ) = (LeanBridges.Counting.factorial (k - 1) : ℚ) * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s11; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := congrArg (fun t : ℚ => (k : ℚ) * ((LeanBridges.Counting.factorial m : ℚ) * ((m : ℚ) + 1) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * t))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact congrArg (fun t : ℚ => (k : ℚ) * ((LeanBridges.Counting.factorial m : ℚ) * ((m : ℚ) + 1) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * t))) e_w
     _ = ((m : ℚ) + 1) * ((LeanBridges.Counting.factorial m : ℚ) / ((LeanBridges.Counting.factorial (m + 1 - k) : ℚ) * (LeanBridges.Counting.factorial (k - 1) : ℚ))) := by parley_ring
-    _ = ((m : ℚ) + 1) * (LeanBridges.Counting.choose m (k - 1) : ℚ) := by (have h := congrArg (fun t : ℚ => ((m : ℚ) + 1) * t) s15.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = ((m : ℚ) + 1) * (LeanBridges.Counting.choose m (k - 1) : ℚ) := congrArg (fun t : ℚ => ((m : ℚ) + 1) * t) s15.symm
 
 end Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm

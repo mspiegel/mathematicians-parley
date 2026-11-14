@@ -116,7 +116,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     have s4_10 : f (Real.sqrt (y - 3)) ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (s := Real.sqrt (y - 3)) (W := Set.univ) s1 s4_8 (Set.mapsTo_univ _ _))
     -- 4.11. substitute
     have c1 : f (Real.sqrt (y - 3)) = y := by linear_combination (norm := parley_norm) s4_3b + s4_9
-    have row1 : y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by (have h := Eq.subst (motive := (fun t : ℝ => t ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)))) c1 s4_10; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := Eq.subst (motive := (fun t : ℝ => t ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)))) c1 s4_10
     exact row1
   -- 5. def:subset, from 4
   have s5 : (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) ⊆ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := ((Parley.Items.Stdlib.Sets.def_subset (X := (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ)) (Y := f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ))))).mpr s4

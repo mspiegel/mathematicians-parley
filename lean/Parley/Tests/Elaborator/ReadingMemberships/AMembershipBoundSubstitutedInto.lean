@@ -23,6 +23,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundSubstituted
 theorem a_membership_bound_substituted_into (k : ℤ) (hH1 : 0 < k) (m : ℤ) (hH3 : k = m) :
     m > 0 := by
   -- 1. substitute k = m (H3) into H1
-  (have h := Eq.subst (motive := (fun t : ℤ => t > 0)) hH3 hH1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  exact Eq.subst (motive := (fun t : ℤ => t > 0)) hH3 hH1
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundSubstitutedInto

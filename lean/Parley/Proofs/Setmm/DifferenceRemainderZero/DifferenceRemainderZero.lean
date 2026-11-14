@@ -42,7 +42,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) hH3 (q := q))
     -- 3. substitute
     have c1 : q * N + B = A := by linear_combination (norm := parley_norm) s1
-    have row1 : A % N = B % N := by (have h := Eq.subst (motive := (fun t : ℤ => t % N = B % N)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : A % N = B % N := Eq.subst (motive := (fun t : ℤ => t % N = B % N)) c1 s2
     exact row1
   · skip
     intro hC2

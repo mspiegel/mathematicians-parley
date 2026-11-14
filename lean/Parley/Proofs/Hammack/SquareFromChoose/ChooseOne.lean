@@ -47,7 +47,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       -- 1.2. substitute
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by
         have c1 : (1 - 1 : ℤ) = 0 := by parley_arith
-        have row1 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) t : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ))) c1 s1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (0 : ℤ) t : ℤ) = (LeanBridges.Counting.choose (1 : ℤ) (1 : ℤ) : ℤ))) c1 s1_1; revert h; norm_num)
         exact row1
       -- 1.3. arithmetic
       have s1_3 : (0 : ℤ) < 1 := by parley_arith
@@ -63,7 +63,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       -- 1.8. substitute 1 − 1 = 0 (arithmetic) into line 1.7
       have s1_8 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
         have e_arith : (1 - 1 : ℤ) = 0 := by parley_arith
-        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k t : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) e_arith s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k t : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ))) e_arith s1_7; push_cast at h ⊢; exact_mod_cast h)
       -- 1.9. mun:binomial-zero-index n := k
       have s1_9 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.10. algebra, from IH, 1.8, 1.9

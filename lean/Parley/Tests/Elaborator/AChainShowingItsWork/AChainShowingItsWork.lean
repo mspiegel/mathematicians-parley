@@ -37,7 +37,7 @@ theorem a_chain_showing_its_work (n : ℤ) (hH2 : Odd n) :
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hH2
   -- 2. calculation
   have s2 : n ^ 2 = 2 * (2 * k ^ 2 + 2 * k) + 1 := by
-    calc n ^ 2 = (2 * k + 1) ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc n ^ 2 = (2 * k + 1) ^ 2 := congrArg (fun t : ℤ => t ^ 2) s1
       _ = 4 * k ^ 2 + 4 * k + 1 := by parley_ring
       _ = 2 * (2 * k ^ 2 + 2 * k) + 1 := by parley_ring
   -- 3. def:odd n := n², from 2

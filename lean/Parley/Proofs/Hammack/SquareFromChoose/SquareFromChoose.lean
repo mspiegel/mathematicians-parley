@@ -61,7 +61,7 @@ theorem square_from_choose (n : ℤ) (hH1 : 0 < n) :
       -- 1.6. substitute 2 − 1 = 1 (arithmetic) into line 1.5
       have s1_6 : (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ) := by
         have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
-        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m t : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ))) e_arith s1_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose m (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose m t : ℤ) = (LeanBridges.Counting.choose (m + 1) (2 : ℤ) : ℤ))) e_arith s1_5; push_cast at h ⊢; exact_mod_cast h)
       -- 1.7. thm:choose-one n := m
       have s1_7 : (LeanBridges.Counting.choose m (1 : ℤ) : ℤ) = m := by exact (Parley.Proofs.Hammack.SquareFromChoose.ChooseOne.choose_one (n := m) (lt_of_lt_of_le zero_lt_one hK))
       -- 1.8. thm:choose-one n := m + 1

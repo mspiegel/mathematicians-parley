@@ -30,7 +30,7 @@ theorem log_ten_of_thousand :
   -- 1. substitute ln(1000) = 3·ln(10) (real arithmetic)
   have s1 : Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := by
     have e_real : Real.log (1000 : ℝ) = 3 * Real.log (10 : ℝ) := by parley_real
-    (have h := congrArg (fun t : ℝ => t / Real.log (10 : ℝ)) e_real; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact congrArg (fun t : ℝ => t / Real.log (10 : ℝ)) e_real
   -- 2. calculation
   have r25_1 : Real.log (10 : ℝ) ≠ 0 := by parley_real
   calc Real.log (1000 : ℝ) / Real.log (10 : ℝ) = 3 * Real.log (10 : ℝ) / Real.log (10 : ℝ) := s1

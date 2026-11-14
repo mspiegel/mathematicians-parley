@@ -27,6 +27,6 @@ theorem a_substitution_from_real_arithmetic (a : ℝ) (hH2 : a = Real.sqrt (8 : 
     a = 2 * Real.sqrt (2 : ℝ) := by
   -- 1. substitute √8 = 2·√2 (real arithmetic) into H2
   have e_real : Real.sqrt (8 : ℝ) = 2 * Real.sqrt (2 : ℝ) := by parley_real
-  (have h := Eq.subst (motive := (fun t : ℝ => a = t)) e_real hH2; push_cast at h ⊢; all_goals exact_mod_cast h)
+  exact Eq.subst (motive := (fun t : ℝ => a = t)) e_real hH2
 
 end Parley.Tests.Elaborator.RealArithmeticInPlace.ASubstitutionFromRealArithmetic

@@ -53,13 +53,9 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
   have s1 : ∀ R ∈ F, R ∈ U ∪ W := by
     intro R hK1
     -- 1.1. def:part-builder u := R, from D1, K1
-    have s1_1a : R ⊆ X := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
-      exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).1
+    have s1_1a : R ⊆ X := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).1
     have s1_1b : (R.ncard : ℤ) = j := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : (R.ncard : ℤ) = j := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).2)
       exact hI
     -- 1.2. axi:excluded-middle P := a ∈ R
@@ -72,7 +68,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.2. mun:card-at-least-one, from 1.3.1
       have s1_3_2 : (R.ncard : ℤ) ≥ 1 := by (have h := (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1); simp only [← Set.Finite.cast_ncard_eq (((hH4).subset s1_1a : (R : Set α).Finite))] at h ⊢; exact_mod_cast h)
       -- 1.3.3. substitute |R| = j (line 1.1) into line 1.3.2
-      have s1_3_3 : j ≥ 1 := by parley_count_int; ((have h := Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1_1b s1_3_2; push_cast at h ⊢; all_goals exact_mod_cast h))
+      have s1_3_3 : j ≥ 1 := by parley_count_int; exact (Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1_1b s1_3_2)
       -- 1.3.4. inequalities, from 1.3.3
       have s1_3_4 : 0 ≤ j - 1 := by linarith only [s1_3_3]
       -- 1.3.5. mun:nat0-as-int n := j − 1, from 1.3.4
@@ -89,8 +85,8 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       have s1_3_9 : R \ ({a} : Set α) ∈ V := ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := R \ ({a} : Set α)))).mpr ⟨s1_3_8, s1_3_7⟩
       -- 1.3.10. mun:added-element-in-image Y := V, s := R ∖ {a}, from D4, 1.3.9
       have s1_3_10 : R \ ({a} : Set α) ∪ ({a} : Set α) ∈ W := by
-        try simp only [hD4] at ⊢
-        try push_cast at ⊢
+        simp only [hD4] at ⊢
+        push_cast at ⊢
         exact (Parley.Items.Stdlib.Functions.mun_added_element_in_image (Y := V) (s := R \ ({a} : Set α)) (a := a) s1_3_9)
       -- 1.3.11. substitute
       have s1_3_11 : R ∈ W := by
@@ -115,12 +111,10 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     intro R hK2
     -- 4.1. def:part-builder u := R, X := X ∖ {a}, from D2, K2
     have s4_1a : R ⊆ X \ ({a} : Set α) := by
-      try simp only [hD2] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp hK2).1
     have s4_1b : (R.ncard : ℤ) = j := by
-      try simp only [hD2] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : (R.ncard : ℤ) = j := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp hK2).2)
       exact hI
     -- 4.2. mun:subset-transitive, from 3, 4.1
@@ -134,12 +128,10 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     intro T hK3
     -- 6.1. def:part-builder u := T, X := X ∖ {a}, from D3, K3
     have s6_1a : T ⊆ X \ ({a} : Set α) := by
-      try simp only [hD3] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp hK3).1
     have s6_1b : (T.ncard : ℤ) = j - 1 := by
-      try simp only [hD3] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : (T.ncard : ℤ) = j - 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp hK3).2)
       exact hI
     -- 6.2. mun:subset-transitive, from 3, 6.1
@@ -160,14 +152,13 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     exact ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := T ∪ ({a} : Set α)))).mpr ⟨s6_4, s6_8⟩
   -- 7. mun:added-elements-stay-inside Y := V, Z := F, from D4, 6
   have s7 : W ⊆ F := by
-    try simp only [hD4] at ⊢
-    try push_cast at ⊢
+    simp only [hD4] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := V) (Z := F) (a := a) s6)
   -- 8. mun:union-subset, from 5, 7
   have s8 : U ∪ W ⊆ F := by exact (Parley.Items.Stdlib.Sets.mun_union_subset (X := U) (Y := W) (Z := F) s5 s7)
   -- 9. mun:subset-antisymmetric, from D1, D2, D3, D4, 2, 8
-  try simp only [hD1, hD2, hD3, hD4] at ⊢
-  try push_cast at ⊢
+  push_cast at ⊢
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := {S ∈ 𝒫 X | (S.ncard : ℤ) = j}) (Y := {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j} ∪ (fun T : Set α => T ∪ ({a} : Set α)) '' {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j - 1}) s2 s8)
 
 end Parley.Proofs.Wiedijk.Combinations.ChooseSplit

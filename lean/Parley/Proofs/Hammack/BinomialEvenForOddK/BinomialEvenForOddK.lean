@@ -62,7 +62,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     -- 2.5. substitute
     have s2_5 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by
       have c1 : n - 1 + 1 = n := by parley_ring
-      have row1 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => k * (LeanBridges.Counting.choose t k : ℤ) = t * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ))) c1 s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => k * (LeanBridges.Counting.choose t k : ℤ) = t * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ))) c1 s2_4
       exact row1
     -- 2.6. mun:binomial-nat0 n := n − 1, k := k − 1
     have r87_1 : 0 ≤ n - 1 := by exact s2_1
@@ -70,7 +70,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     -- 2.7. thm:even-times A := n, B := C(n − 1, k − 1), from H3
     have s2_7 : Even (n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ)) := by exact (Parley.Proofs.Hammack.BinomialEvenForOddK.EvenTimes.even_times (A := n) (B := (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ)) hH3)
     -- 2.8. substitute k·C(n, k) = n·C(n − 1, k − 1) (line 2.5) into line 2.7
-    have s2_8 : Even (k * (LeanBridges.Counting.choose n k : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => Even t)) s2_5.symm s2_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_8 : Even (k * (LeanBridges.Counting.choose n k : ℤ)) := Eq.subst (motive := (fun t : ℤ => Even t)) s2_5.symm s2_7
     -- 2.9. thm:odd-factor A := k, B := C(n, k), from H4, 2.8
     exact (Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor.odd_factor (A := k) (B := (LeanBridges.Counting.choose n k : ℤ)) hH4 s2_8)
   · skip

@@ -36,6 +36,6 @@ theorem an_inverse_value (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.univ : Set �
     calc f 3 = 2 * 3 + 1 := s2
       _ = 7 := by norm_num
   -- 4. substitute f(3) = 7 (line 3) into line 1
-  (have h := Eq.subst (motive := (fun t : ℝ => (LeanBridges.Functions.inverse f (Set.univ : Set ℝ)) t = 3)) s3 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  exact Eq.subst (motive := (fun t : ℝ => (LeanBridges.Functions.inverse f (Set.univ : Set ℝ)) t = 3)) s3 s1
 
 end Parley.Tests.Notations.Functions.AnInverseValue

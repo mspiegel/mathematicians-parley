@@ -43,7 +43,7 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
   -- 3. substitute
   have s3 : (Int.gcd b c : ℤ) ∣ a * a := by
     have c1 : c * c + b * -b = a * a := by linear_combination (norm := parley_norm) (-1) * hH4
-    have row1 : (Int.gcd b c : ℤ) ∣ a * a := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd b c : ℤ) ∣ t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (Int.gcd b c : ℤ) ∣ a * a := Eq.subst (motive := (fun t : ℤ => (Int.gcd b c : ℤ) ∣ t)) c1 s2
     exact row1
   -- 4. def:gcd a := gcd(b, c), b := a, from 1
   have s4a : 0 < (Int.gcd (Int.gcd b c : ℤ) a : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.def_gcd_1 (a := (Int.gcd b c : ℤ)) s1a (b := a) hH1)
@@ -54,7 +54,7 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
   -- 6. thm:divides-gcd d := gcd(gcd(b, c), a), from 4, 5
   have s6 : (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := (Int.gcd (Int.gcd b c : ℤ) a : ℤ)) (a := a) (b := b) s4c s5)
   -- 7. substitute gcd(a, b) = 1 (H5) into line 6
-  have s7 : (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ t)) hH5 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s7 : (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd (Int.gcd b c : ℤ) a : ℤ) ∣ t)) hH5 s6; push_cast at h ⊢; exact_mod_cast h)
   -- 8. calculation
   have s8 : (Int.gcd a (Int.gcd b c : ℤ) : ℤ) = 1 := by
     calc (Int.gcd a (Int.gcd b c : ℤ) : ℤ) = (Int.gcd (Int.gcd b c : ℤ) a : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := a) (b := (Int.gcd b c : ℤ)))
@@ -66,7 +66,7 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
   -- 11. substitute
   have s11 : (Int.gcd b c : ℤ) ∣ (1 : ℤ) := by
     have c1 : (Int.gcd (a * a) (Int.gcd b c : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_coprime_product (x := a) (y := a) (n := (Int.gcd b c : ℤ)) s1a s8 s8)
-    have row1 : (Int.gcd b c : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd b c : ℤ) ∣ t)) c1 s10; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (Int.gcd b c : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd b c : ℤ) ∣ t)) c1 s10; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 12. mun:divides-one d := gcd(b, c), from 1, 11
   exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := (Int.gcd b c : ℤ)) s1a s11)

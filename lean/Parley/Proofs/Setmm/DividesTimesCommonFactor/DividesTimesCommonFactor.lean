@@ -29,7 +29,7 @@ theorem divides_times_common_factor (M : ℤ) (N : ℤ) (K : ℤ) (hH4 : M ∣ N
   obtain ⟨j, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := M) (n := N))).mp hH4
   -- 2. calculation
   have s2 : N * K = M * K * j := by
-    calc N * K = M * j * K := by (have h := congrArg (fun t : ℤ => t * K) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc N * K = M * j * K := congrArg (fun t : ℤ => t * K) s1
       _ = M * K * j := by parley_ring
   -- 3. def:divides d := M·K, n := N·K, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := M * K) (n := N * K))).mpr ⟨j, s2⟩

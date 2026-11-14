@@ -47,16 +47,16 @@ theorem choose_two_formula (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℚ) = 0 * (0 - 1) / 2 := by
         calc (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℚ) = 0 := by exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)
           _ = 0 * (0 - 1) / 2 := by norm_num
-      (have h := s1_2; push_cast at h ⊢; all_goals exact h)
+      (have h := s1_2; revert h; norm_num)
     | succ k hK hIH =>
       -- 1.3. calculation
       have s1_3 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by
         calc (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) = (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by
               have hI : (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) := by parley_instance_cast ((Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs.choose_two_pairs (n := k) hK))
               exact hI.symm
-          _ = (k : ℚ) + (k : ℚ) * ((k : ℚ) - 1) / 2 := by (have h := congrArg (fun t : ℚ => (k : ℚ) + t) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = (k : ℚ) + (k : ℚ) * ((k : ℚ) - 1) / 2 := congrArg (fun t : ℚ => (k : ℚ) + t) hIH
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by parley_ring
-      (have h := s1_3; push_cast at h ⊢; all_goals exact h)
+      (have h := s1_3; push_cast at h ⊢; exact h)
   -- 2. instantiate k := n in line 1
   exact (s1 n hH1)
 

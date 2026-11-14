@@ -65,9 +65,9 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
     induction j, h_j using LeanBridges.Functions.le_induction with
     | base =>
       -- 4.1. D1
-      have s4_1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+      have s4_1 : F 0 = 0 := by have h := hD1.1; ring_nf at h ⊢; linarith
       -- 4.2. D1
-      have s4_2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
+      have s4_2 : G 0 = 1 := by have h := hD1.2.1; ring_nf at h ⊢; linarith
       -- 4.3. calculation
       have s4_3 : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by
         calc (F 0 : ℝ) = 0 := by exact_mod_cast s4_1
@@ -84,13 +84,13 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       exact ⟨by simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s4_5a, by simpa only [Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s4_5b⟩
     | succ j hK hIH =>
       -- 4.6. D1
-      have s4_6 : F (j + 1) = G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_6 : F (j + 1) = G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
       -- 4.7. D1
-      have s4_7 : G (j + 1) = F j + G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_7 : G (j + 1) = F j + G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
       -- 4.8. substitute G(j) = (φ^(j + 1) − ψ^(j + 1))/√5 (IH) into line 4.6
       have s4_8 : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by
         have s4_6_w : (F (j + 1) : ℝ) = (G j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := Eq.subst (motive := (fun t : ℝ => (F (j + 1) : ℝ) = t)) hIH.2 s4_6_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact Eq.subst (motive := (fun t : ℝ => (F (j + 1) : ℝ) = t)) hIH.2 s4_6_w
       -- 4.9. thm:power-recurrence x := φ, k := j, from 2
       have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) s2 (k := j) hK)
       -- 4.10. thm:power-recurrence x := ψ, k := j, from 3
@@ -99,8 +99,8 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have r101_1 : Real.sqrt (5 : ℝ) ≠ 0 := by exact s1
       have s4_11 : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by
         calc (G (j + 1) : ℝ) = (F j : ℝ) + (G j : ℝ) := by exact_mod_cast s4_7
-          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (G j : ℝ) := by (have h := congrArg (fun t : ℝ => t + (G j : ℝ)) hIH.1; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by (have h := congrArg (fun t : ℝ => (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + t) hIH.2; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (G j : ℝ) := congrArg (fun t : ℝ => t + (G j : ℝ)) hIH.1
+          _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := congrArg (fun t : ℝ => (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + t) hIH.2
           _ = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by linear_combination (norm := parley_field) ((-1) / ((Real.sqrt (5 : ℝ)))) * s4_9 + ((1) / ((Real.sqrt (5 : ℝ)))) * s4_10
       -- 4.12. join 4.8, 4.11
       have s4_12a : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := s4_8

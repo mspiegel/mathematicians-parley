@@ -111,12 +111,11 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have r121_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s1])
   have s21 : F a = F b := by
     calc F a = f a + g a := s17
-      _ = f a + m * a := by (have h := congrArg (fun t : ℝ => f a + t) s18; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = f a + m * a := congrArg (fun t : ℝ => f a + t) s18
       _ = f b + m * b := by
-          try simp only [hD1] at s17 s18 s19 s20 r121_1 ⊢
-          try push_cast at s17 s18 s19 s20 r121_1 ⊢
+          simp only [hD1] at s18 s20 ⊢
           parley_ring
-      _ = f b + g b := by (have h := congrArg (fun t : ℝ => f b + t) s20.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = f b + g b := congrArg (fun t : ℝ => f b + t) s20.symm
       _ = F b := s19.symm
   -- 22. obtain c: thm:rolle f := F, from H3, 12, 15, 21
   have r132_1 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by exact s10
@@ -125,14 +124,13 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have s23 : (deriv g) c = m := by exact (s14 c s22a)
   -- 24. calculation
   have s24 : (deriv f) c + m = 0 := by
-    calc (deriv f) c + m = (deriv f) c + (deriv g) c := by (have h := congrArg (fun t : ℝ => (deriv f) c + t) s23.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc (deriv f) c + m = (deriv f) c + (deriv g) c := congrArg (fun t : ℝ => (deriv f) c + t) s23.symm
       _ = (deriv F) c := by exact (s16 c s22a).symm
       _ = 0 := s22b
   -- 25. algebra, from D1, 24
   have r145_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s1])
   have s25 : (deriv f) c = (f b - f a) / (b - a) := by
-    try simp only [hD1] at s24 r145_1 ⊢
-    try push_cast at s24 r145_1 ⊢
+    simp only [hD1] at s24
     linear_combination (norm := parley_field) s24
   -- 26. exhibit, from 22, 25
   exact ⟨c, s22a, s25⟩

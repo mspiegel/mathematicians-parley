@@ -59,8 +59,8 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
   set ω₂ : ℂ := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 with hD2
   -- 5. algebra, from D1, D2, 1, 4
   have s5 : ω₁ * ω₂ = 1 := by
-    try simp only [hD1, hD2] at s4 ⊢
-    try push_cast at s4 ⊢
+    simp only [hD1, hD2] at ⊢
+    push_cast at s4 ⊢
     linear_combination (norm := parley_norm) ((-1) / ((4))) * s4
   -- 6. contradiction
   have s6 : ω₁ ≠ 0 := by
@@ -82,21 +82,21 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
   set w : ℂ := y + ω₂ * T + M / (ω₂ * T) with hD6
   -- 9. algebra, from D3, H6, H8, H10
   have s9 : a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := by
-    try simp only [hD3] at hH10 hH6 hH8 ⊢
-    try push_cast at hH10 hH6 hH8 ⊢
+    simp only [hD3] at ⊢
     linear_combination (norm := parley_field) ((9 * a * x + 3 * b) / ((27 * a ^ 2))) * hH8 + ((-1) / ((27 * a ^ 2))) * hH10
   -- 10. algebra, from D1, D2, D5, D6, H15, 1, 4, 6, 7
   have s10 : v * w = y ^ 2 - (T + M / T) * y + T ^ 2 - M + M ^ 2 / T ^ 2 := by
-    try simp only [hD1, hD2, hD5, hD6] at s4 s6 s7 hH15 ⊢
-    try push_cast at s4 s6 s7 hH15 ⊢
+    simp only [hD1] at s6
+    simp only [hD2] at s7
+    simp only [hD1, hD2, hD5, hD6] at ⊢
+    push_cast at s4 s6 s7 ⊢
     linear_combination (norm := parley_field) (((Real.sqrt (3 : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 * T ^ 4 - T ^ 4 - 4 * M * T * y + 4 * M * T ^ 2 + 4 * M ^ 2) / ((-(4 * (Real.sqrt (3 : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 * T ^ 2) + 4 * T ^ 2))) * s4
   -- 11. calculation
   have s11 : y ^ 3 - 3 * M * y + N = u * (v * w) := by
     calc y ^ 3 - 3 * M * y + N = u * (y ^ 2 - (T + M / T) * y + T ^ 2 - M + M ^ 2 / T ^ 2) := by
-          try simp only [hD4] at s10 s8 hH15 ⊢
-          try push_cast at s10 s8 hH15 ⊢
+          simp only [hD4] at ⊢
           linear_combination (norm := parley_field) (-1) * s8
-      _ = u * (v * w) := by (have h := congrArg (fun t : ℂ => u * t) s10.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = u * (v * w) := congrArg (fun t : ℂ => u * t) s10.symm
   -- 12. both directions
   constructor
   · skip
@@ -112,8 +112,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
     · skip
       -- 12.3.1. algebra, from C1, D3, D4, H6, H15
       have s12_3_1 : x = -((b + T + M / T) / (3 * a)) := by
-        try simp only [hD3, hD4] at hC1 hH15 hH6 ⊢
-        try push_cast at hC1 hH15 hH6 ⊢
+        simp only [hD3, hD4] at hC1
         linear_combination (norm := parley_field) ((T) / ((3 * T * a))) * hC1
       -- 12.3.2. mun:triple-members
       have s12_3_2 : (1 : ℂ) ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by exact (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (1 : ℂ)) (v := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2))
@@ -127,21 +126,23 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
       · skip
         -- 12.3.5.1. algebra, from C3, D1, D3, D5, H6, H15, 1, 6
         have s12_3_5_1 : x = -((b + (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by
-          try simp only [hD1, hD3, hD5] at s6 hC3 hH15 hH6 ⊢
-          try push_cast at s6 hC3 hH15 hH6 ⊢
+          simp only [hD1] at s6
+          simp only [hD1, hD3, hD5] at hC3
+          push_cast at s6 hC3 ⊢
           linear_combination (norm := parley_field) ((4 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T - 4 * T) / ((6 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T * a - 6 * T * a) * (2))) * hC3
         -- 12.3.5.2. mun:triple-members
-        have s12_3_5_2 : (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.insert_subset_iff, Set.singleton_subset_iff] at h ⊢; all_goals tauto)
+        have s12_3_5_2 : (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.insert_subset_iff, Set.singleton_subset_iff] at h ⊢; tauto)
         -- 12.3.5.3. exhibit, from 12.3.5.1, 12.3.5.2
         exact ⟨(-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, s12_3_5_2, s12_3_5_1⟩
       · skip
         -- 12.3.5.4. algebra, from C4, D2, D3, D6, H6, H15, 1, 7
         have s12_3_5_4 : x = -((b + (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by
-          try simp only [hD2, hD3, hD6] at s7 hC4 hH15 hH6 ⊢
-          try push_cast at s7 hC4 hH15 hH6 ⊢
+          simp only [hD2] at s7
+          simp only [hD2, hD3, hD6] at hC4
+          push_cast at s7 hC4 ⊢
           linear_combination (norm := parley_field) ((-(4 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T) - 4 * T) / ((-(6 * (Real.sqrt (3 : ℝ) : ℂ) * Complex.I * T * a) - 6 * T * a) * (2))) * hC4
         -- 12.3.5.5. mun:triple-members
-        have s12_3_5_5 : (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.insert_subset_iff, Set.singleton_subset_iff] at h ⊢; all_goals tauto)
+        have s12_3_5_5 : (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 ∈ ({(1 : ℂ), (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2} : Set ℂ) := by (have h := (Parley.Items.Stdlib.Sets.mun_triple_members_1 (u := (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2) (v := (1 : ℂ)) (w := (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2)); simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.insert_subset_iff, Set.singleton_subset_iff] at h ⊢; tauto)
         -- 12.3.5.6. exhibit, from 12.3.5.4, 12.3.5.5
         exact ⟨(-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2, s12_3_5_5, s12_3_5_4⟩
   · skip
@@ -155,31 +156,32 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
       rcases s12_5 with (hC6 | hC7) | hC8
       · skip
         -- 12.6.1. substitute r = 1 (C6) into line 12.4
-        have s12_6_1 : x = -((b + 1 * T + M / (1 * T)) / (3 * a)) := by (have h := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC6 s12_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s12_6_1 : x = -((b + 1 * T + M / (1 * T)) / (3 * a)) := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC6 s12_4b
         -- 12.6.2. algebra, from D3, D4, H6, H15, 12.6.1
         have s12_6_2 : u = 0 := by
-          try simp only [hD3, hD4] at s12_6_1 hH15 hH6 ⊢
-          try push_cast at s12_6_1 hH15 hH6 ⊢
+          simp only [hD3, hD4] at ⊢
           linear_combination (norm := parley_field) (3 * a) * s12_6_1
         -- 12.6.3. algebra, from 12.6.2
         linear_combination (norm := parley_norm) (v * w) * s12_6_2
       · skip
         -- 12.6.4. substitute r = (−1 + i·√3)/2 (C7) into line 12.4
-        have s12_6_4 : x = -((b + (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by (have h := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC7 s12_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s12_6_4 : x = -((b + (-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 + Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC7 s12_4b
         -- 12.6.5. algebra, from D1, D3, D5, H6, H15, 1, 6, 12.6.4
         have s12_6_5 : v = 0 := by
-          try simp only [hD1, hD3, hD5] at s12_6_4 s6 hH15 hH6 ⊢
-          try push_cast at s12_6_4 s6 hH15 hH6 ⊢
+          simp only [hD1] at s6
+          simp only [hD1, hD3, hD5] at ⊢
+          push_cast at s12_6_4 s6 ⊢
           linear_combination (norm := parley_field) ((6 * a) / ((2))) * s12_6_4
         -- 12.6.6. algebra, from 12.6.5
         linear_combination (norm := parley_norm) (u * w) * s12_6_5
       · skip
         -- 12.6.7. substitute r = (−1 − i·√3)/2 (C8) into line 12.4
-        have s12_6_7 : x = -((b + (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := by (have h := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC8 s12_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s12_6_7 : x = -((b + (-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T + M / ((-1 - Complex.I * (Real.sqrt (3 : ℝ) : ℂ)) / 2 * T)) / (3 * a)) := Eq.subst (motive := (fun t : ℂ => x = -((b + t * T + M / (t * T)) / (3 * a)))) hC8 s12_4b
         -- 12.6.8. algebra, from D2, D3, D6, H6, H15, 1, 7, 12.6.7
         have s12_6_8 : w = 0 := by
-          try simp only [hD2, hD3, hD6] at s12_6_7 s7 hH15 hH6 ⊢
-          try push_cast at s12_6_7 s7 hH15 hH6 ⊢
+          simp only [hD2] at s7
+          simp only [hD2, hD3, hD6] at ⊢
+          push_cast at s12_6_7 s7 ⊢
           linear_combination (norm := parley_field) ((6 * a) / ((2))) * s12_6_7
         -- 12.6.9. algebra, from 12.6.8
         linear_combination (norm := parley_norm) (u * v) * s12_6_8
@@ -189,7 +191,7 @@ theorem cubic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (hH6 : a ≠ 0) 
         _ = 0 := s12_6
     -- 12.8. calculation
     calc a * x ^ 3 + b * x ^ 2 + c * x + d = (y ^ 3 - 3 * M * y + N) / (27 * a ^ 2) := s9
-      _ = 0 / (27 * a ^ 2) := by (have h := congrArg (fun t : ℂ => t / (27 * a ^ 2)) s12_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 0 / (27 * a ^ 2) := congrArg (fun t : ℂ => t / (27 * a ^ 2)) s12_7
       _ = 0 := by parley_ring
 
 end Parley.Proofs.Wiedijk.Cubic.Cubic

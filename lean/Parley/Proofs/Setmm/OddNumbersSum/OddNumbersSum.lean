@@ -68,7 +68,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
           _ = S k + (2 * (k + 1) - 1) := by simp (disch := omega) only [hD1]
       -- 1.3. calculation
       calc S (k + 1) = S k + (2 * (k + 1) - 1) := s1_2
-        _ = k ^ 2 + (2 * (k + 1) - 1) := by (have h := congrArg (fun t : ℤ => t + (2 * (k + 1) - 1)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = k ^ 2 + (2 * (k + 1) - 1) := congrArg (fun t : ℤ => t + (2 * (k + 1) - 1)) hIH
         _ = (k + 1) ^ 2 := by parley_ring
   -- 2. def:nat0 n := N
   have s2 : 0 < N ∨ N = 0 := by
@@ -96,6 +96,6 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := s3_5
         _ = 0 ^ 2 := by norm_num
     -- 3.7. substitute N = 0 (C2) into line 3.6
-    (have h := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (2 * k - 1 : ℤ)) = t ^ 2)) hC2.symm s3_6; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (2 * k - 1 : ℤ)) = t ^ 2)) hC2.symm s3_6
 
 end Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum

@@ -64,8 +64,7 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.2. proof
       have s1_2 : ∀ i : ℤ, i ∈ Finset.Icc 1 (j + 1) → i * (j + 1 - i + 1) = i * (j - i + 1) + i := by
         intro i hL
-        try push_cast at hL
-        try have hL_bounds := Finset.mem_Icc.mp hL
+        have hL_bounds := Finset.mem_Icc.mp hL
         -- 1.2.1. algebra
         parley_ring
       -- 1.3. membership
@@ -82,21 +81,21 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       -- 1.10. substitute 3 − 1 = 2 (arithmetic) into line 1.9
       have s1_10 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ) := by
         have e_arith : (3 - 1 : ℤ) = 2 := by parley_arith
-        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) t : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ))) e_arith s1_9; push_cast at h ⊢; all_goals exact_mod_cast h)
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) t : ℤ) = (LeanBridges.Counting.choose (j + 2 + 1) (3 : ℤ) : ℤ))) e_arith s1_9; push_cast at h ⊢; exact_mod_cast h)
       -- 1.11. substitute
       have s1_11 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := by
         have c1 : j + 2 + 1 = j + 1 + 2 := by parley_ring
-        have row1 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose t (3 : ℤ) : ℤ))) c1 s1_10; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose t (3 : ℤ) : ℤ))) c1 s1_10
         exact row1
       -- 1.12. substitute
       have s1_12 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by
         have c1 : j + 1 + 1 = j + 2 := by parley_ring
-        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose t (2 : ℤ) : ℤ))) c1 s1_8; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := Eq.subst (motive := (fun t : ℤ => (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) = (LeanBridges.Counting.choose t (2 : ℤ) : ℤ))) c1 s1_8
         exact row1
       -- 1.13. substitute
       have s1_13 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := by
         have c1 : (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) + (j + 1) * (j - (j + 1) + 1) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := by parley_ring
-        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := by (have h := Eq.subst (motive := (fun t : ℤ => (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = t)) c1 s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = (∑ i ∈ Finset.Icc (1 : ℤ) j, (i * (j - i + 1) : ℤ)) := Eq.subst (motive := (fun t : ℤ => (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = t)) c1 s1_7
         exact row1
       -- 1.14. calculation
       have s1_14 : (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) = T j := by
@@ -106,9 +105,9 @@ theorem weighted_sum_is_a_binomial (n : ℤ) (hH1 : 0 < n) :
       calc T (j + 1) = (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j + 1 - i + 1) : ℤ)) := by simp (disch := omega) only [hD1]
         _ = (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) + i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun i : ℤ => i * (j + 1 - i + 1))) (u := (fun i : ℤ => i * (j - i + 1) + i)) (a := (1 : ℤ)) (b := j + 1) s1_2)
         _ = (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i * (j - i + 1) : ℤ)) + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_add (t := (fun i : ℤ => i * (j - i + 1))) (u := (fun i : ℤ => i)) (a := (1 : ℤ)) (b := j + 1))
-        _ = T j + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) := by (have h := congrArg (fun t : ℤ => t + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ))) s1_14; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = T j + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => T j + t) s1_12; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = T j + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ)) := congrArg (fun t : ℤ => t + (∑ i ∈ Finset.Icc (1 : ℤ) (j + 1), (i : ℤ))) s1_14
+        _ = T j + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := congrArg (fun t : ℤ => T j + t) s1_12
+        _ = (LeanBridges.Counting.choose (j + 2) (3 : ℤ) : ℤ) + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ) := congrArg (fun t : ℤ => t + (LeanBridges.Counting.choose (j + 2) (2 : ℤ) : ℤ)) hIH
         _ = (LeanBridges.Counting.choose (j + 1 + 2) (3 : ℤ) : ℤ) := s1_11
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (k * (n - k + 1) : ℤ)) = T n := by simp (disch := omega) only [hD1]

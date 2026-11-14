@@ -48,10 +48,10 @@ theorem identity_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       have s1_1_1_2 : f a = a := by exact (hH3 a hK1)
       -- 1.1.1.3. calculation
       have s1_1_1_3 : f x - f a = x - a := by
-        calc f x - f a = x - f a := by (have h := congrArg (fun t : ℝ => t - f a) s1_1_1_1; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = x - a := by (have h := congrArg (fun t : ℝ => x - t) s1_1_1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc f x - f a = x - f a := congrArg (fun t : ℝ => t - f a) s1_1_1_1
+          _ = x - a := congrArg (fun t : ℝ => x - t) s1_1_1_2
       -- 1.1.1.4. calculation
-      calc abs (f x - f a) = abs (x - a) := by (have h := congrArg (fun t : ℝ => abs t) s1_1_1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+      calc abs (f x - f a) = abs (x - a) := congrArg (fun t : ℝ => abs t) s1_1_1_3
         _ < ε := hA2
     -- 1.1.2. exhibit, from A1, 1.1.1
     exact ⟨ε, ⟨hA1, s1_1_1⟩⟩

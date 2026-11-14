@@ -38,8 +38,7 @@ theorem termwise_under_a_hypothesis_over_its_letter (n : ℤ) (hH1 : 0 < n) (hH2
   -- 1. proof
   have s1 : ∀ k : ℤ, k ∈ Finset.Icc 1 n → k + 0 = k := by
     intro k hJ
-    try push_cast at hJ
-    try have hJ_bounds := Finset.mem_Icc.mp hJ
+    have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 1.1. algebra
     parley_ring
   -- 2. mun:sum-termwise a := 1, b := n, from 1

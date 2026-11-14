@@ -47,8 +47,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
     -- 1.2. proof
     have s1_2 : ∀ m : ℤ, m ∈ Finset.Icc 1 1 → abs (x m) ≤ abs (x 1) := by
       intro m hK1
-      try push_cast at hK1
-      try have hK1_bounds := Finset.mem_Icc.mp hK1
+      have hK1_bounds := Finset.mem_Icc.mp hK1
       -- 1.2.1. def:range n := 1, k := m, from K1
       have s1_2_1 : 0 < m ∧ m ≤ 1 := by exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp hK1
       -- 1.2.2. inequalities, from 1.2.1
@@ -58,7 +57,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
       -- 1.2.4. antisymmetry, from 1.2.2, 1.2.3
       have s1_2_4 : m = 1 := le_antisymm s1_2_2 s1_2_3
       -- 1.2.5. substitute m = 1 (line 1.2.4)
-      have s1_2_5 : abs (x m) = abs (x 1) := by (have h := congrArg (fun t : ℤ => abs (x t)) s1_2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s1_2_5 : abs (x m) = abs (x 1) := congrArg (fun t : ℤ => abs (x t)) s1_2_4
       -- 1.2.6. inequalities
       linarith only [s1_2_5]
     -- 1.3. exhibit, from 1.1, 1.2
@@ -70,19 +69,16 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
     set E : ℝ := max C (abs (x (K + 1))) with hD
     -- 1.6. mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
     have s1_6 : C ≤ E := by
-      try simp only [hD] at ⊢
-      try push_cast at ⊢
+      simp only [hD] at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs (x (K + 1))))
     -- 1.7. mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
     have s1_7 : abs (x (K + 1)) ≤ E := by
-      try simp only [hD] at ⊢
-      try push_cast at ⊢
+      simp only [hD] at ⊢
       exact (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs (x (K + 1))))
     -- 1.8. proof
     have s1_8 : ∀ m : ℤ, m ∈ Finset.Icc 1 (K + 1) → abs (x m) ≤ E := by
       intro m hK2
-      try push_cast at hK2
-      try have hK2_bounds := Finset.mem_Icc.mp hK2
+      have hK2_bounds := Finset.mem_Icc.mp hK2
       -- 1.8.1. def:range n := K + 1, k := m, from K2
       have s1_8_1 : 0 < m ∧ m ≤ K + 1 := by exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := K + 1))).mp hK2
       -- 1.8.2. mun:le-cases x := m, y := K + 1, from 1.8.1
@@ -103,7 +99,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
         exact le_trans s1_8_4_4 s1_6
       · skip
         -- 1.8.4.6. substitute m = K + 1 (C2)
-        have s1_8_4_6 : abs (x m) = abs (x (K + 1)) := by (have h := congrArg (fun t : ℤ => abs (x t)) hC2; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s1_8_4_6 : abs (x m) = abs (x (K + 1)) := congrArg (fun t : ℤ => abs (x t)) hC2
         -- 1.8.4.7. transitivity, from 1.8.4.6, 1.7
         exact Eq.trans_le s1_8_4_6 s1_7
     -- 1.9. exhibit, from 1.8

@@ -35,10 +35,10 @@ theorem gcd_add_multiple (K : ℤ) (M : ℤ) (hH2 : 0 < M) (N : ℤ) :
   -- 3. substitute
   have s3 : (N + K * M) % M = N % M := by
     have c1 : K * M + N = N + K * M := by parley_ring
-    have row1 : (N + K * M) % M = N % M := by (have h := Eq.subst (motive := (fun t : ℤ => t % M = N % M)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (N + K * M) % M = N % M := Eq.subst (motive := (fun t : ℤ => t % M = N % M)) c1 s2
     exact row1
   -- 4. substitute (N + K·M) mod M = N mod M (line 3) into line 1
-  have s4 : (Int.gcd (N % M) M : ℤ) = (Int.gcd (N + K * M) M : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd t M : ℤ) = (Int.gcd (N + K * M) M : ℤ))) s3 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s4 : (Int.gcd (N % M) M : ℤ) = (Int.gcd (N + K * M) M : ℤ) := Eq.subst (motive := (fun t : ℤ => (Int.gcd t M : ℤ) = (Int.gcd (N + K * M) M : ℤ))) s3 s1
   -- 5. calculation
   calc (Int.gcd M N : ℤ) = (Int.gcd N M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := M)).symm
     _ = (Int.gcd (N % M) M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) hH2).symm

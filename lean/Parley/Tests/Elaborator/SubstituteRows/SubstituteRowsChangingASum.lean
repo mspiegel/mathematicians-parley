@@ -26,7 +26,7 @@ theorem substitute_rows_changing_a_sum (a : ℝ) (b : ℝ) (hH3 : a * 2 + b * 2 
     2 * a + 2 * b < 1 := by
   -- 1. substitute
   have c1 : a * 2 + b * 2 = 2 * a + 2 * b := by parley_ring
-  have row1 : 2 * a + 2 * b < 1 := by (have h := Eq.subst (motive := (fun t : ℝ => t < 1)) c1 hH3; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have row1 : 2 * a + 2 * b < 1 := Eq.subst (motive := (fun t : ℝ => t < 1)) c1 hH3
   exact row1
 
 end Parley.Tests.Elaborator.SubstituteRows.SubstituteRowsChangingASum

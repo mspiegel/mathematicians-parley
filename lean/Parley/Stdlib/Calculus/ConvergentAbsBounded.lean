@@ -60,13 +60,11 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
   set B : ℝ := max C (abs L + 1) with hD1
   -- 8. mun:le-max x := C, y := |L| + 1, from D1
   have s8 : C ≤ B := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := C) (y := abs L + 1))
   -- 9. mun:le-max x := C, y := |L| + 1, from D1
   have s9 : abs L + 1 ≤ B := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_le_max_2 (x := C) (y := abs L + 1))
   -- 10. proof
   have s10 : ∀ m : ℤ, 0 < m → abs (x m) ≤ B := by
@@ -95,7 +93,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
       -- 10.3.8. substitute
       have s10_3_8 : abs (x m) ≤ abs (x m - L) + abs L := by
         have c1 : x m - L + L = x m := by parley_ring
-        have row1 : abs (x m) ≤ abs (x m - L) + abs L := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (x m - L) + abs L)) c1 s10_3_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : abs (x m) ≤ abs (x m - L) + abs L := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (x m - L) + abs L)) c1 s10_3_7
         exact row1
       -- 10.3.9. inequalities
       have s10_3_9 : abs (x m - L) + abs L < abs L + 1 := by linarith only [s10_3_6]

@@ -33,7 +33,7 @@ theorem rational_negative (A : ℚ) :
   -- 2. algebra, from 1
   have s2 : -A = -(p : ℚ) / (q : ℚ) := by linear_combination (norm := parley_field) (-1) * s1b
   -- 3. exhibit, from 2
-  have s3 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ -A = (a : ℚ) / (b : ℚ) := ⟨-p, q, s1a, by (have h := s2; push_cast at h ⊢; all_goals exact h)⟩
+  have s3 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ -A = (a : ℚ) / (b : ℚ) := ⟨-p, q, s1a, by (have h := s2; push_cast at h ⊢; exact h)⟩
   -- 4. def:rational x := −A, from 3
   exact trivial
 

@@ -55,7 +55,7 @@ theorem product_factor (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   -- 3. substitute
   have s3 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * c ^ X.ncard := by
     have c1 : (∏ᶠ x ∈ X, (c : ℤ)) = c ^ X.ncard := by exact (Parley.Items.Stdlib.Sums.mun_product_constant (X := X) hH2 (c := c))
-    have row1 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * c ^ X.ncard := by (have h := Eq.subst (motive := (fun t : ℤ => (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * t)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * c ^ X.ncard := Eq.subst (motive := (fun t : ℤ => (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * t)) c1 s2
     exact row1
   -- 4. mun:product-integer, from H1, H2
   -- 5. mun:card-nat0, from H2

@@ -57,7 +57,7 @@ theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH
   calc LeanBridges.Divisibility.mod A B = A - B * (⌊A / B⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
     _ = A - B * 0 := by
         have e_w : (⌊A / B⌋ : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s5; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := congrArg (fun t : ℝ => A - B * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact congrArg (fun t : ℝ => A - B * t) e_w
     _ = A := by parley_ring
 
 end Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall

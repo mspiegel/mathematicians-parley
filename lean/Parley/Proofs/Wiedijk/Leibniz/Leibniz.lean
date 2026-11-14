@@ -102,7 +102,7 @@ theorem leibniz :
       -- 3.2.4. calculation
       have s3_2_4 : (abs ((-1) ^ (n + 1).toNat) : ℤ) = 1 := by
         calc (abs ((-1) ^ (n + 1).toNat) : ℤ) = abs (-1) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_abs_power (x := (-1 : ℤ)) (n := n + 1) (add_nonneg (le_of_lt hK2) (by norm_num)))
-          _ = 1 ^ (n + 1).toNat := by (have h := congrArg (fun t : ℤ => t ^ (n + 1).toNat) s3_2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+          _ = 1 ^ (n + 1).toNat := congrArg (fun t : ℤ => t ^ (n + 1).toNat) s3_2_3
           _ = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := n + 1)); simp only [parley_zpow_toNat (n := n + 1) (h := add_nonneg (le_of_lt hK2) (by norm_num))] at h ⊢; exact_mod_cast h)
       -- 3.2.5. thm:integral-bounds n := n + 1
       have s3_2_5a : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (add_nonneg (le_of_lt hK2) (by norm_num))).2.1
@@ -115,13 +115,13 @@ theorem leibniz :
       have s3_2_7 : 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_ring
       -- 3.2.8. calculation
       have s3_2_8 : abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
-        calc abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = abs (-((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))) := by (have h := congrArg (fun t : ℝ => abs t) s3_2_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = abs (-((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))) := congrArg (fun t : ℝ => abs t) s3_2_2
           _ = abs ((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))))
           _ = abs ((-1) ^ (n + 1).toNat) * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := ((-1) ^ (n + 1).toNat : ℝ)) (y := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))
           _ = 1 * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
               have e_w : (abs ((-1) ^ (n + 1).toNat) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3_2_4; push_cast at h; linear_combination (norm := parley_norm) h
-              (have h := congrArg (fun u : ℝ => u * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
-          _ = 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by (have h := congrArg (fun u : ℝ => 1 * u) s3_2_6; push_cast at h ⊢; all_goals exact_mod_cast h)
+              exact congrArg (fun u : ℝ => u * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) e_w
+          _ = 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := congrArg (fun u : ℝ => 1 * u) s3_2_6
           _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := s3_2_7
       -- 3.2.9. inequalities, from A2, K2
       have s3_2_9 : N ≤ 2 * (n + 1) + 1 := by linarith only [hA2, hK2]

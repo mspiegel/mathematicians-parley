@@ -93,7 +93,7 @@ theorem sign_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
   -- 19. substitute
   have s19 : abs (-p / 2) = abs (p / 2) := by
     have c1 : -(p / 2) = -p / 2 := by parley_ring
-    have row1 : abs (-p / 2) = abs (p / 2) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (p / 2))) c1 s18; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : abs (-p / 2) = abs (p / 2) := Eq.subst (motive := (fun t : ℝ => abs t = abs (p / 2))) c1 s18
     exact row1
   -- 20. transitivity, from 19, 8, 9
   have s20 : abs (-p / 2) < p := by exact Eq.trans_lt (Eq.trans s19 s8) s9

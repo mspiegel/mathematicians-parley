@@ -55,7 +55,7 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
         have c1 : 0 = ((∅ : Set α).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_empty (α := α)).symm
         have row1 : c ^ (∅ : Set α).ncard = 1 := by
           have e_nat : 0 = (∅ : Set α).ncard := by exact_mod_cast c1
-          (have h := Eq.subst (motive := (fun t : ℕ => c ^ t = 1)) e_nat s1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+          exact Eq.subst (motive := (fun t : ℕ => c ^ t = 1)) e_nat s1_2
         exact row1
       -- 1.4. transitivity, from 1.1, 1.3
       exact Eq.trans s1_1 s1_3.symm
@@ -72,14 +72,14 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       -- 1.9. mun:exponent-step a := c, m := |Y|, from 1.8
       have s1_9 : c ^ (Y.ncard + 1) = c ^ Y.ncard * c := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := c) (m := (Y.ncard : ℤ)) s1_8)
       -- 1.10. substitute ∏(x ∈ Y) c = c^|Y| (IH) into line 1.7
-      have s1_10 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ Y.ncard * c := by (have h := Eq.subst (motive := (fun t : ℝ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = t * c)) hIH s1_7; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s1_10 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ Y.ncard * c := Eq.subst (motive := (fun t : ℝ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = t * c)) hIH s1_7
       -- 1.11. transitivity, from 1.10, 1.9
       have s1_11 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ (Y.ncard + 1) := by exact Eq.trans s1_10 s1_9.symm
       -- 1.12. substitute
       have c1 : (Y.ncard : ℤ) + 1 = ((Y ∪ ({a} : Set α)).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := Y) (a := a) s1_6 s1_5.2).symm
       have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ (Y ∪ ({a} : Set α)).ncard := by
         have e_nat : Y.ncard + 1 = (Y ∪ ({a} : Set α)).ncard := by exact_mod_cast c1
-        (have h := Eq.subst (motive := (fun t : ℕ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ t)) e_nat s1_11; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact Eq.subst (motive := (fun t : ℕ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (c : ℝ)) = c ^ t)) e_nat s1_11
       exact row1
   -- 2. instantiate Y := X in line 1
   have r124_1 : X ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := X))

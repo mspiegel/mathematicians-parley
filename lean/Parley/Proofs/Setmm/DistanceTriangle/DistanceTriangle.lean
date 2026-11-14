@@ -31,7 +31,7 @@ theorem distance_triangle (A : ℝ) (B : ℝ) (C : ℝ) :
   have s1 : abs (A - C + (C - B)) ≤ abs (A - C) + abs (C - B) := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - C) (b := C - B))
   -- 2. substitute
   have c1 : A - C + (C - B) = A - B := by parley_ring
-  have row1 : abs (A - B) ≤ abs (A - C) + abs (C - B) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (A - C) + abs (C - B))) c1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have row1 : abs (A - B) ≤ abs (A - C) + abs (C - B) := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (A - C) + abs (C - B))) c1 s1
   exact row1
 
 end Parley.Proofs.Setmm.DistanceTriangle.DistanceTriangle

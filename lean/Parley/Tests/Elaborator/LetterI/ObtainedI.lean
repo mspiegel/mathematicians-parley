@@ -36,7 +36,7 @@ theorem obtained_i (n : ℤ) (hH2 : Odd n) :
   -- 1. obtain i: def:odd, from H2
   obtain ⟨i, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hH2
   -- 2. substitute n = 2i + 1 (line 1)
-  have s2 : n ^ 2 = (2 * i + 1) ^ 2 := by (have h := congrArg (fun t : ℤ => t ^ 2) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s2 : n ^ 2 = (2 * i + 1) ^ 2 := congrArg (fun t : ℤ => t ^ 2) s1
   -- 3. algebra
   have s3 : (2 * i + 1) ^ 2 = 2 * (2 * i ^ 2 + 2 * i) + 1 := by parley_ring
   -- 4. calculation

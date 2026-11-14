@@ -67,10 +67,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       intro x
       intro hA2
       -- 1.4.1. mun:lt-min z := |x − 3|, x := 1, y := ε/7, from A2, D1
-      have s1_4_1 : abs (x - 3) < 1 ∧ abs (x - 3) < ε / 7 := by
-        try simp only [hD1] at ⊢
-        try push_cast at ⊢
-        exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 3)) (x := (1 : ℝ)) (y := ε / 7))).mp hA2.2
+      have s1_4_1 : abs (x - 3) < 1 ∧ abs (x - 3) < ε / 7 := by exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 3)) (x := (1 : ℝ)) (y := ε / 7))).mp hA2.2
       -- 1.4.2. mun:abs-difference-lt c := 3, δ := 1, from 1.4.1
       have s1_4_2 : 3 - 1 < x ∧ x < 3 + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (3 : ℝ)) (δ := (1 : ℝ)))).mp s1_4_1.1
       -- 1.4.3. inequalities, from 1.4.2
@@ -96,7 +93,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       -- 1.4.13. substitute
       have s1_4_13 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := by
         have c1 : (x + 3) * (x - 3) = f x - 7 := by linear_combination (norm := parley_norm) (-1) * s1_4_11
-        have row1 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := by (have h := Eq.subst (motive := (fun t : ℝ => abs t = abs (x + 3) * abs (x - 3))) c1 s1_4_12; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have row1 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := Eq.subst (motive := (fun t : ℝ => abs t = abs (x + 3) * abs (x - 3))) c1 s1_4_12
         exact row1
       -- 1.4.14. calculation
       have r94_1 : ε / 7 > 0 := by linarith only [hA1]

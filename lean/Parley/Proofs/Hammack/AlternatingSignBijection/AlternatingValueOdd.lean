@@ -43,7 +43,7 @@ theorem alternating_value_odd (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
   calc (f m : ℚ) = ((-1) ^ m.toNat * (2 * (m : ℚ) - 1) + 1) / 4 := by exact (hH2 m hH3)
     _ = (-1 * (2 * (m : ℚ) - 1) + 1) / 4 := by
         have e_w : ((-1) ^ m.toNat : ℚ) = -1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := congrArg (fun t : ℚ => (t * (2 * (m : ℚ) - 1) + 1) / 4) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact congrArg (fun t : ℚ => (t * (2 * (m : ℚ) - 1) + 1) / 4) e_w
     _ = (1 - (m : ℚ)) / 2 := by parley_ring
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd

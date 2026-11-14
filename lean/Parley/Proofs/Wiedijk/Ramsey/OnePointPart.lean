@@ -39,7 +39,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
   have r61_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
   have s1 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [hH3])
   -- 2. mun:card-positive, from 1
-  have s2 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s1; rw [← Set.Finite.cast_ncard_eq ((hH2 : (X : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
+  have s2 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s1; rw [← Set.Finite.cast_ncard_eq ((hH2 : (X : Set α).Finite))]; exact_mod_cast h)))
   -- 3. obtain v: mun:nonempty-member, from 2
   obtain ⟨v, s3, _⟩ := (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := X) s2)
   -- 4. mun:singleton-subset, from 3
@@ -56,12 +56,12 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     have s6_2 : (Y.ncard : ℤ) ≤ 1 := by
       have e_nat : ({v} : Set α).ncard = 1 := by exact_mod_cast s5
       have e_w : (({v} : Set α).ncard : ℤ) = 1 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
-      (have h := Eq.subst (motive := (fun t : ℤ => (Y.ncard : ℤ) ≤ t)) e_w s6_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => (Y.ncard : ℤ) ≤ t)) e_w s6_1
     -- 6.3. substitute |Y| = 2 (K2) into line 6.2
     have s6_3 : (2 : ℤ) ≤ 1 := by
       have e_nat : Y.ncard = 2 := by exact_mod_cast hK2
       have e_w : (Y.ncard : ℤ) = 2 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
-      (have h := Eq.subst (motive := (fun t : ℤ => t ≤ 1)) e_w s6_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      (have h := Eq.subst (motive := (fun t : ℤ => t ≤ 1)) e_w s6_2; revert h; norm_num)
     exact absurd s6_3 (by norm_num)
   -- 7. inequalities
   have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (linarith only [s5])

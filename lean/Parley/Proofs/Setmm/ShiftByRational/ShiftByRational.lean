@@ -45,10 +45,10 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     -- 2.2. calculation
     have s2_2 : A = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by
       calc A = (p : ℂ) / (q : ℂ) - (B : ℂ) := by linear_combination (norm := parley_field) s2_1b
-        _ = (p : ℂ) / (q : ℂ) - (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) - t) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (p : ℂ) / (q : ℂ) - (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) - t) s1b; push_cast at h ⊢; exact_mod_cast h)
         _ = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
     -- 2.3. def:rational x := A, from 2.2
-    exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr ⟨p * s - r * q, q * s, mul_pos (s2_1a) (s1a), by (have h := s2_2; push_cast at h ⊢; all_goals exact h)⟩
+    exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr ⟨p * s - r * q, q * s, mul_pos (s2_1a) (s1a), by (have h := s2_2; push_cast at h ⊢; exact h)⟩
   · skip
     intro hD2
     -- 2.4. obtain p, q: def:rational x := A, from D2
@@ -56,11 +56,11 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     -- 2.5. membership, from D2
     -- 2.6. calculation
     have s2_6 : A + (B : ℂ) = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by
-      calc A + (B : ℂ) = (p : ℂ) / (q : ℂ) + (B : ℂ) := by (have h := congrArg (fun t : ℂ => t + (B : ℂ)) s2_4b; push_cast at h ⊢; all_goals exact_mod_cast h)
-        _ = (p : ℂ) / (q : ℂ) + (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) + t) s1b; push_cast at h ⊢; all_goals exact_mod_cast h)
+      calc A + (B : ℂ) = (p : ℂ) / (q : ℂ) + (B : ℂ) := congrArg (fun t : ℂ => t + (B : ℂ)) s2_4b
+        _ = (p : ℂ) / (q : ℂ) + (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) + t) s1b; push_cast at h ⊢; exact_mod_cast h)
         _ = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
     -- 2.7. def:rational x := A + B, from 2.6
-    have s2_7 : ∃ m : ℚ, (m : ℂ) = A + (B : ℂ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, mul_pos (s2_4a) (s1a), by (have h := s2_6; push_cast at h ⊢; all_goals exact h)⟩
+    have s2_7 : ∃ m : ℚ, (m : ℂ) = A + (B : ℂ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, mul_pos (s2_4a) (s1a), by (have h := s2_6; push_cast at h ⊢; exact h)⟩
     -- 2.8. join 2.5, 2.7
     have s2_8 : True ∧ (∃ m : ℚ, (m : ℂ) = A + (B : ℂ)) := ⟨trivial, s2_7⟩
     exact ⟨trivial, (s2_8).2⟩

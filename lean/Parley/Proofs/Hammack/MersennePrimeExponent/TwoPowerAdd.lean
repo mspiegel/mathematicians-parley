@@ -44,7 +44,7 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
       -- 1.1. arithmetic
       have s1_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
       -- 1.2. substitute 2^0 = 1 (line 1.1)
-      have s1_2 : (2 ^ a.toNat : ℤ) = 2 ^ a.toNat * 2 ^ 0 := by (have h := (congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_1).symm; push_cast [mul_one] at h ⊢; all_goals exact_mod_cast h)
+      have s1_2 : (2 ^ a.toNat : ℤ) = 2 ^ a.toNat * 2 ^ 0 := by (have h := (congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_1).symm; push_cast [mul_one] at h ⊢; exact_mod_cast h)
       simpa only [add_zero, Int.reduceToNat] using s1_2
     | succ k hK hIH =>
       -- 1.3. algebra
@@ -52,11 +52,11 @@ theorem two_power_add (a : ℤ) (hH1 : 0 ≤ a) (b : ℤ) (hH2 : 0 ≤ b) :
       -- 1.4. mun:exponent-step a := 2, m := k
       have s1_4 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) hK)
       -- 1.5. calculation
-      calc (2 ^ (a + (k + 1)).toNat : ℤ) = 2 ^ (a + k + 1).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s1_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+      calc (2 ^ (a + (k + 1)).toNat : ℤ) = 2 ^ (a + k + 1).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s1_3; push_cast at h ⊢; exact_mod_cast h)
         _ = 2 ^ (a + k).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := a + k) (add_nonneg (hH1) (hK)))
-        _ = 2 ^ a.toNat * 2 ^ k.toNat * 2 := by (have h := congrArg (fun t : ℤ => t * 2) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 2 ^ a.toNat * 2 ^ k.toNat * 2 := congrArg (fun t : ℤ => t * 2) hIH
         _ = 2 ^ a.toNat * (2 ^ k.toNat * 2) := by parley_ring
-        _ = 2 ^ a.toNat * 2 ^ (k + 1).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = 2 ^ a.toNat * 2 ^ (k + 1).toNat := congrArg (fun t : ℤ => 2 ^ a.toNat * t) s1_4.symm
   -- 2. instantiate k := b in line 1
   exact (s1 b hH2)
 

@@ -56,8 +56,7 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
   -- 1. proof
   have s1 : ∀ n : ℤ, n ∈ Finset.Icc 0 m → Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat := by
     intro n hK1
-    try push_cast at hK1
-    try have hK1_bounds := Finset.mem_Icc.mp hK1
+    have hK1_bounds := Finset.mem_Icc.mp hK1
     -- 1.1. thm:bernoulli-difference n := k + 1, x := n
     have r20_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) hH1)
     have s1_1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by

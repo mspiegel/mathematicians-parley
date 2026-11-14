@@ -58,7 +58,7 @@ theorem five_consecutive_divisible (n : ℤ) :
     have s2_4 : (120 : ℤ) ∣ (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) s2_3)
     -- 2.5. substitute
     have c1 : (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by parley_ring
-    have row1 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by (have h := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) c1 s2_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) c1 s2_4
     exact row1
   · skip
     -- 2.6. mun:nonneg-or-neg x := n + 4
@@ -118,17 +118,16 @@ theorem five_consecutive_divisible (n : ℤ) :
       set P : ℤ := (k - 1 + 1) * (k - 1 + 2) * (k - 1 + 3) * (k - 1 + 4) * (k - 1 + 5) with hD2
       -- 2.7.11. thm:five-consecutive-natural m := k − 1, from D2, 2.7.10
       have s2_7_11 : (120 : ℤ) ∣ P := by
-        try simp only [hD2] at ⊢
-        try push_cast at ⊢
+        simp only [hD2] at ⊢
+        push_cast at ⊢
         exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := k - 1) s2_7_10)
       -- 2.7.12. mun:divides-multiple e := 120, a := P, x := −1, from 2.7.11
       have s2_7_12 : (120 : ℤ) ∣ P * -1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11)
       -- 2.7.13. algebra, from D1, D2
       have s2_7_13 : P * -1 = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
-        try simp only [hD1, hD2] at ⊢
-        try push_cast at ⊢
+        simp only [hD1, hD2] at ⊢
         parley_ring
       -- 2.7.14. substitute P·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.7.13) into line 2.7.12
-      (have h := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) s2_7_13 s2_7_12; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) s2_7_13 s2_7_12
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveDivisible

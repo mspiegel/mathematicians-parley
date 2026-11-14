@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.SpecialFunctions.Pow.Complex
@@ -29,6 +28,6 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartByMembership
 theorem an_and_part_by_membership (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ (∃ m : ℝ, (m : ℂ) = (b : ℂ) ^ (1 / 2 : ℂ))) :
     (∃ m : ℝ, (m : ℂ) = (b : ℂ) ^ (1 / 2 : ℂ) + 1) := by
   -- 1. membership, from H3
-  (exact ⟨(Classical.choose hH3.2 : ℝ) + 1, by push_cast; (try simp only [Classical.choose_spec hH3.2]); all_goals parley_ring⟩)
+  (exact ⟨(Classical.choose hH3.2 : ℝ) + 1, by (push_cast; simp only [Classical.choose_spec hH3.2])⟩)
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartByMembership

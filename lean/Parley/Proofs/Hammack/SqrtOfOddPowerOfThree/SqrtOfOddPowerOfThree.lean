@@ -42,7 +42,6 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational
@@ -61,7 +60,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 2. inequalities, from H1
   have s2 : 1 ≤ k := by linarith only [hH1]
   -- 3. substitute k = 2m + 1 (line 1) into line 2
-  have s3 : 1 ≤ 2 * m + 1 := by (have h := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s3 : 1 ≤ 2 * m + 1 := Eq.subst (motive := (fun t : ℤ => 1 ≤ t)) s1 s2
   -- 4. inequalities
   have s4 : 0 ≤ m := by linarith only [s3]
   -- 5. mun:nat0-as-int n := m, from 4
@@ -71,7 +70,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 6. mun:power-nat a := 3, from 5
   have s6 : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = 3 ^ m := by
     have whole1 : ((3 : ℚ) : ℚ) ^ (m).toNat = (3 ^ m : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg s5]
-    refine ⟨(((3 : ℤ) ^ (m).toNat) : ℤ), ?_, by (push_cast; simp only [whole1]; all_goals ring)⟩
+    refine ⟨(((3 : ℤ) ^ (m).toNat) : ℤ), ?_, by (push_cast; simp only [whole1])⟩
     (exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by norm_num) (m := m) s5))
   -- 7. mun:power-nat a := 3, m := k
   have s7 : (0 : ℤ) < 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by norm_num) (m := k) (le_of_lt hH1))
@@ -84,7 +83,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s10 : (3 ^ k.toNat : ℚ) = 3 ^ m * 3 ^ m * 3 := by
     calc (3 ^ k.toNat : ℚ) = 3 ^ (m + m + 1) := by (have h := congrArg (fun t : ℤ => ((3 ^ t) : ℚ)) s8; simp only [parley_zpow_toNat (n := k) (h := le_trans (by norm_num) s2), parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num))] at h ⊢; exact_mod_cast h)
       _ = 3 ^ (m + m) * 3 := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℚ)) (m := m + m) r50_1); simp only [parley_zpow_toNat (n := m + m + 1) (h := add_nonneg (r50_1) (by norm_num)), parley_zpow_toNat (n := m + m) (h := r50_1)] at h ⊢; exact_mod_cast h)
-      _ = 3 ^ m * 3 ^ m * 3 := by (have h := congrArg (fun t : ℚ => t * 3) s9; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 3 ^ m * 3 ^ m * 3 := congrArg (fun t : ℚ => t * 3) s9
   -- 11. def:sqrt x := 3
   have r57_1 : (3 : ℤ) ≥ 0 := by parley_arith
   have s11a : Real.sqrt (3 : ℝ) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (3 : ℝ)) (by norm_num))
@@ -109,7 +108,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
     exact hI
   -- 17. substitute
   have c1 : Real.sqrt (3 : ℝ) * 3 ^ m = Real.sqrt (3 ^ k.toNat : ℝ) := by exact (((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (3 ^ k.toNat : ℝ)) (y := Real.sqrt (3 : ℝ) * 3 ^ m) s12a s13)).mp s14).symm
-  have row1 : Irrational (Real.sqrt (3 ^ k.toNat : ℝ)) := by (have h := Eq.subst (motive := (fun t : ℝ => Irrational t)) c1 s16; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have row1 : Irrational (Real.sqrt (3 ^ k.toNat : ℝ)) := Eq.subst (motive := (fun t : ℝ => Irrational t)) c1 s16
   exact row1
 
 end Parley.Proofs.Hammack.SqrtOfOddPowerOfThree.SqrtOfOddPowerOfThree

@@ -43,7 +43,7 @@ theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
     -- 2.3. inequalities
     have s2_3 : a = b := by linarith only [hC2]
     -- 2.4. substitute a = b (line 2.3)
-    have s2_4 : a ^ 2 = b ^ 2 := by (have h := congrArg (fun t : ℝ => t ^ 2) s2_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_4 : a ^ 2 = b ^ 2 := congrArg (fun t : ℝ => t ^ 2) s2_3
     -- 2.5. inequalities
     linarith only [s2_4]
   · skip

@@ -27,11 +27,11 @@ namespace Parley.Tests.Elaborator.Recursion.RuleNamesIndex
 theorem rule_names_index (s : ℤ → ℤ) (hD1 : s 0 = (0 : ℤ) ∧ (∀ k : ℤ, 0 ≤ k → s (k + 1) = s k + k)) :
     (s 0 = 0 ∧ s (1 + 1) = s 1 + 1) := by
   -- 1. D1
-  have s1 : s 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+  have s1 : s 0 = 0 := by have h := hD1.1; ring_nf at h ⊢; linarith
   -- 2. membership
   have s2 : (0 : ℤ) ≤ 1 := by norm_num
   -- 3. D1, from 2
-  have s3 : s (1 + 1) = s 1 + 1 := by have h := (hD1.2 ((1 + 1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+  have s3 : s (1 + 1) = s 1 + 1 := by have h := (hD1.2 ((1 + 1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
   -- 4. join 1, 3
   have s4 : s 0 = 0 ∧ s (1 + 1) = s 1 + 1 := ⟨s1, s3⟩
   exact ⟨(s4).1, (s4).2⟩

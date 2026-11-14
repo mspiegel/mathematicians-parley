@@ -70,7 +70,7 @@ theorem harmonic_unbounded (M : ℝ) :
       have s2_1 : (2 ^ 0 : ℤ) = 1 := by parley_arith
       -- 2.2. calculation
       have s2_2 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) = 1 := by
-        calc (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) := by (have h := congrArg (fun t : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / (k : ℚ) : ℚ)) s2_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) := by (have h := congrArg (fun t : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / (k : ℚ) : ℚ)) s2_1; push_cast at h ⊢; exact_mod_cast h)
           _ = 1 := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 1 / (k : ℚ))) (a := (1 : ℤ))); simp only [Int.cast_one, div_one] at h ⊢; exact_mod_cast h)
       -- 2.3. arithmetic
       have s2_3 : (1 : ℚ) ≥ 0 / 2 := by parley_arith
@@ -84,7 +84,7 @@ theorem harmonic_unbounded (M : ℝ) :
       have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m.toNat : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by linarith only [hIH]
       -- 2.7. transitivity, from 2.5, 2.6
       have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) ≥ ((m : ℚ) + 1) / 2 := by exact le_trans s2_6 s2_5
-      (have h := s2_7; push_cast at h ⊢; all_goals exact h)
+      (have h := s2_7; push_cast at h ⊢; exact h)
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))
   -- 4. instantiate m := N in line 2

@@ -124,7 +124,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
     -- 21.1. restate 20
     have s21_1 : (deriv G) t = (deriv g) t := by exact (s20 t hK5)
     -- 21.2. substitute G′(t) = g′(t) (line 21.1) into H10
-    (have h := Eq.subst (motive := (fun u : ℝ => u ≠ 0)) s21_1.symm (hH10 t hK5); push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact Eq.subst (motive := (fun u : ℝ => u ≠ 0)) s21_1.symm (hH10 t hK5)
   -- 22. mun:remove-member, from H11
   have s22 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp hH11
   -- 23. thm:quotient-two-points u := c, v := x, from H3, 11, 13, 14, 15, 17, 19, 21, 22
@@ -133,7 +133,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 24. restate 23
   have s24 : G c ≠ G x := by exact s23a
   -- 25. substitute G(c) = 0 (line 7) into line 24
-  have s25 : 0 ≠ G x := by (have h := Eq.subst (motive := (fun t : ℝ => t ≠ G x)) s7 s24; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s25 : 0 ≠ G x := Eq.subst (motive := (fun t : ℝ => t ≠ G x)) s7 s24
   -- 26. inequalities
   have s26 : G x ≠ 0 := Ne.symm s25
   -- 27. obtain ξ from line 23
@@ -142,10 +142,10 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   have s28 : (F x - F c) / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by exact s27b.2
   -- 29. substitute
   have s29 : F x / G x = (deriv F) ξ / (deriv G) ξ := by
-    have c1 : F x - F c = F x := by (have h := congrArg (fun t : ℝ => F x - t) s6; push_cast [sub_zero] at h ⊢; all_goals exact_mod_cast h)
-    have row1 : F x / (G x - G c) = (deriv F) ξ / (deriv G) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => t / (G x - G c) = (deriv F) ξ / (deriv G) ξ)) c1 s28; push_cast at h ⊢; all_goals exact_mod_cast h)
-    have c2 : G x - G c = G x := by (have h := congrArg (fun t : ℝ => G x - t) s7; push_cast [sub_zero] at h ⊢; all_goals exact_mod_cast h)
-    have row2 : F x / G x = (deriv F) ξ / (deriv G) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => F x / t = (deriv F) ξ / (deriv G) ξ)) c2 row1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have c1 : F x - F c = F x := by (have h := congrArg (fun t : ℝ => F x - t) s6; push_cast [sub_zero] at h ⊢; exact_mod_cast h)
+    have row1 : F x / (G x - G c) = (deriv F) ξ / (deriv G) ξ := Eq.subst (motive := (fun t : ℝ => t / (G x - G c) = (deriv F) ξ / (deriv G) ξ)) c1 s28
+    have c2 : G x - G c = G x := by (have h := congrArg (fun t : ℝ => G x - t) s7; push_cast [sub_zero] at h ⊢; exact_mod_cast h)
+    have row2 : F x / G x = (deriv F) ξ / (deriv G) ξ := Eq.subst (motive := (fun t : ℝ => F x / t = (deriv F) ξ / (deriv G) ξ)) c2 row1
     exact row2
   -- 30. instantiate t := x in line 8, from H11
   have s30 : F x = f x := by exact (s8 x hH11)
@@ -156,19 +156,19 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 33. instantiate t := ξ in line 20, from 27
   have s33 : (deriv G) ξ = (deriv g) ξ := by exact (s20 ξ s27a)
   -- 34. substitute F(x) = f(x) (line 30) into line 29
-  have s34 : f x / G x = (deriv F) ξ / (deriv G) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => t / G x = (deriv F) ξ / (deriv G) ξ)) s30 s29; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s34 : f x / G x = (deriv F) ξ / (deriv G) ξ := Eq.subst (motive := (fun t : ℝ => t / G x = (deriv F) ξ / (deriv G) ξ)) s30 s29
   -- 35. substitute G(x) = g(x) (line 31) into line 34
-  have s35 : f x / g x = (deriv F) ξ / (deriv G) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => f x / t = (deriv F) ξ / (deriv G) ξ)) s31 s34; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s35 : f x / g x = (deriv F) ξ / (deriv G) ξ := Eq.subst (motive := (fun t : ℝ => f x / t = (deriv F) ξ / (deriv G) ξ)) s31 s34
   -- 36. substitute F′(ξ) = f′(ξ) (line 32) into line 35
-  have s36 : f x / g x = (deriv f) ξ / (deriv G) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => f x / g x = t / (deriv G) ξ)) s32 s35; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s36 : f x / g x = (deriv f) ξ / (deriv G) ξ := Eq.subst (motive := (fun t : ℝ => f x / g x = t / (deriv G) ξ)) s32 s35
   -- 37. substitute G′(ξ) = g′(ξ) (line 33) into line 36
-  have s37 : f x / g x = (deriv f) ξ / (deriv g) ξ := by (have h := Eq.subst (motive := (fun t : ℝ => f x / g x = (deriv f) ξ / t)) s33 s36; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s37 : f x / g x = (deriv f) ξ / (deriv g) ξ := Eq.subst (motive := (fun t : ℝ => f x / g x = (deriv f) ξ / t)) s33 s36
   -- 38. restate 27
   have s38 : abs (ξ - c) < abs (x - c) := by exact s27b.1
   -- 39. exhibit, from 27, 37, 38
   have s39 : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ := ⟨ξ, s27a, ⟨s27b.1, s37⟩⟩
   -- 40. substitute G(x) = g(x) (line 31) into line 26
-  have s40 : g x ≠ 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) s31 s26; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s40 : g x ≠ 0 := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) s31 s26
   -- 41. join 39, 40
   have s41a : g x ≠ 0 := s40
   have s41b : ∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ := s39

@@ -35,7 +35,6 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -52,24 +51,23 @@ theorem a_function_saying_its_kind (n : ℤ) (hH1 : 0 < n) :
   have s1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) hH1)
   have hD1_kind : ∀ k : ℤ, k ∈ Finset.Icc 1 n → (∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ)) := by intro k h_k; exact (by
     have whole1 : ((k : ℝ) : ℝ) ^ (n - 1).toNat = (k : ℝ) ^ (n - 1) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]
-    exact ⟨((k ^ (n - 1).toNat) % n), by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [whole1]; all_goals ring))⟩)
+    exact ⟨((k ^ (n - 1).toNat) % n), by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [whole1]))⟩)
   obtain ⟨f, hD1⟩ : ∃ g : ℤ → ℤ, ∀ k : ℤ, k ∈ Finset.Icc 1 n → (g k : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := ⟨fun k => if h : k ∈ Finset.Icc 1 n then (hD1_kind k h).choose else 0, fun k h => by simp only [h, ↓reduceDIte]; exact (hD1_kind k h).choose_spec⟩
   -- 2. proof
   intro k hK1
-  try push_cast at hK1
-  try have hK1_bounds := Finset.mem_Icc.mp hK1
+  have hK1_bounds := Finset.mem_Icc.mp hK1
   -- 2.1. mun:power-integer m := n − 1, from 1
   have s2_1 : ∃ m : ℤ, (m : ℚ) = (k : ℚ) ^ (n - 1) := by
     have whole1 : ((k : ℚ) : ℚ) ^ (n - 1).toNat = (k : ℚ) ^ (n - 1) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]
-    exact ⟨(k ^ (n - 1).toNat), by (push_cast; simp only [whole1]; all_goals ring)⟩
+    exact ⟨(k ^ (n - 1).toNat), by (push_cast; simp only [whole1])⟩
   -- 2.2. mun:mod-less, from 2.1
-  have s2_2 : LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) < (n : ℝ) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s2_1); push_cast at h; exact h : ((Classical.choose s2_1 : ℤ) : ℝ) = (k : ℝ) ^ (n - 1))]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); (exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) hH1))
+  have s2_2 : LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) < (n : ℝ) := by rw [← (by have h := congrArg (fun x => ((x : ℚ) : ℝ)) (Classical.choose_spec s2_1); push_cast at h; exact h : ((Classical.choose s2_1 : ℤ) : ℝ) = (k : ℝ) ^ (n - 1))]; rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (Classical.choose s2_1)) (b := n) hH1))
   -- 2.3. mun:range-from-bounds, from 2.2
   have r29_1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by
     have whole1 : ∃ m : ℤ, (m : ℝ) = (k : ℝ) ^ (n - 1) := by obtain ⟨m, hm⟩ := s2_1; exact ⟨m, by have h := congrArg (fun x => ((x : ℚ) : ℝ)) hm; push_cast at h; exact h⟩
-    refine ⟨((Classical.choose whole1 : ℤ) % n), ?_, by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))⟩
+    refine ⟨((Classical.choose whole1 : ℤ) % n), ?_, by (rw [← LeanBridges.Divisibility.mod_intCast _ _ (by omega)]; (push_cast; simp only [Classical.choose_spec whole1]))⟩
     (exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := (Classical.choose whole1 : ℤ)) (b := n) hH1))
-  have s2_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1) := by rw [← (Classical.choose_spec r29_1).2]; (try rw [LeanBridges.Divisibility.mod_intCast _ _ (by omega)]); have := (Classical.choose_spec r29_1).1; (try rw [← (Classical.choose_spec r29_1).2] at s2_2; norm_cast at s2_2); (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := (Classical.choose r29_1)) (Classical.choose_spec r29_1).1 (by exact_mod_cast s2_2))⟩)
+  have s2_3 : ∃ m : ℤ, (m : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) ∧ m ∈ Finset.Icc (0 : ℤ) (n - 1) := by rw [← (Classical.choose_spec r29_1).2]; have := (Classical.choose_spec r29_1).1; rw [← (Classical.choose_spec r29_1).2] at s2_2; norm_cast at s2_2; (exact ⟨_, rfl, (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := n) hH1 (x := (Classical.choose r29_1)) (Classical.choose_spec r29_1).1 (by exact_mod_cast s2_2))⟩)
   -- 2.4. D1, from K1
   have s2_4 : (f k : ℝ) = LeanBridges.Divisibility.mod ((k : ℝ) ^ (n - 1)) (n : ℝ) := by simp (disch := omega) only [hD1]
   -- 2.5. substitute f(k) = (k^(n − 1)) mod n (line 2.4) into line 2.3

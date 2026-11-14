@@ -66,13 +66,13 @@ theorem binomial (x : ℝ) (y : ℝ) (n : ℤ) (hH3 : 0 ≤ n) :
           _ = x ^ 0 * y ^ 0 := by parley_ring
           _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℝ) * x ^ 0 * y ^ 0 := by
               have e_w : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_1; push_cast at h; linear_combination (norm := parley_norm) h
-              (have h := (congrArg (fun t : ℝ => t * x ^ 0 * y ^ 0) e_w).symm; push_cast [one_mul] at h ⊢; all_goals exact_mod_cast h)
+              (have h := (congrArg (fun t : ℝ => t * x ^ 0 * y ^ 0) e_w).symm; push_cast [one_mul] at h ⊢; exact_mod_cast h)
           _ = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k.toNat : ℝ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k.toNat)) (a := (0 : ℤ))); simp only [Int.cast_zero, sub_zero, Int.reduceToNat] at h ⊢; exact_mod_cast h.symm)
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
     | succ m hK hIH =>
       -- 1.3. calculation
       calc (x + y) ^ (m + 1).toNat = (x + y) ^ m.toNat * (x + y) := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m) hK)
-        _ = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat : ℝ)) * (x + y) := by (have h := congrArg (fun t : ℝ => t * (x + y)) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (∑ k ∈ Finset.Icc (0 : ℤ) m, ((LeanBridges.Counting.choose m k : ℝ) * x ^ (m - k) * y ^ k.toNat : ℝ)) * (x + y) := congrArg (fun t : ℝ => t * (x + y)) hIH
         _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1) k : ℝ) * x ^ (m + 1 - k) * y ^ k.toNat : ℝ)) := by exact (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m) hK)
   -- 2. instantiate m := n in line 1
   exact (s1 n hH3)

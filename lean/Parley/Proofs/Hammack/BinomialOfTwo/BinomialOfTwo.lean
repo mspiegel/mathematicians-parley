@@ -44,7 +44,7 @@ theorem binomial_of_two (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.2. def:C n := 0, k := 2, from 1.1
       have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by norm_num) (k := (2 : ℤ))) (by norm_num)
       -- 1.3. calculation
-      calc 2 * (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℤ) = 2 * 0 := by (have h := congrArg (fun t : ℤ => 2 * t) s1_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+      calc 2 * (LeanBridges.Counting.choose (0 : ℤ) (2 : ℤ) : ℤ) = 2 * 0 := congrArg (fun t : ℤ => 2 * t) s1_2
         _ = 0 * (0 - 1) := by norm_num
     | succ j hK hIH =>
       -- 1.4. thm:pascal n := j, k := 2
@@ -52,7 +52,7 @@ theorem binomial_of_two (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.5. substitute 2 − 1 = 1 (arithmetic) into line 1.4
       have s1_5 : (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ) := by
         have e_arith : (2 - 1 : ℤ) = 1 := by parley_arith
-        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ))) e_arith s1_4; push_cast at h ⊢; all_goals exact_mod_cast h)
+        (have h := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (2 : ℤ) : ℤ))) e_arith s1_4; push_cast at h ⊢; exact_mod_cast h)
       -- 1.6. thm:binomial-of-one m := j
       have s1_6 : (LeanBridges.Counting.choose j (1 : ℤ) : ℤ) = j := by exact (Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne.binomial_of_one (m := j) hK)
       -- 1.7. algebra, from IH, 1.5, 1.6

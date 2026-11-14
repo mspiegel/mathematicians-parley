@@ -55,10 +55,10 @@ theorem limit_negative (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n 
       have s1_4_3 : -x n - -L = -(x n - L) := by parley_ring
       -- 1.4.4. calculation
       have s1_4_4 : abs (-x n - -L) = abs (x n - L) := by
-        calc abs (-x n - -L) = abs (-(x n - L)) := by (have h := congrArg (fun t : ℝ => abs t) s1_4_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+        calc abs (-x n - -L) = abs (-(x n - L)) := congrArg (fun t : ℝ => abs t) s1_4_3
           _ = abs (x n - L) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := x n - L))
       -- 1.4.5. substitute |−x(n) − −L| = |x(n) − L| (line 1.4.4) into line 1.4.1
-      (have h := Eq.subst (motive := (fun t : ℝ => t < ε)) s1_4_4.symm s1_4_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℝ => t < ε)) s1_4_4.symm s1_4_1
     -- 1.5. exhibit, from 1.4
     exact ⟨N, s1_3a, s1_4⟩
   -- 2. def:tends-to L := −L, from 1

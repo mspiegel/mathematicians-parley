@@ -41,7 +41,7 @@ theorem divides_difference_with_divisor (M : ℤ) (N : ℤ) :
     have s4 : M ∣ M - (M - N) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M) (b := M - N) s3 hD2)
     -- 5. substitute
     have c1 : M - (M - N) = N := by parley_ring
-    have row1 : M ∣ N := by (have h := Eq.subst (motive := (fun t : ℤ => M ∣ t)) c1 s4; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : M ∣ N := Eq.subst (motive := (fun t : ℤ => M ∣ t)) c1 s4
     exact row1
 
 end Parley.Proofs.Setmm.DividesDifferenceWithDivisor.DividesDifferenceWithDivisor

@@ -55,8 +55,8 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       set X : ℝ := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1) with hD1
       -- 1.5. thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
       have s1_5 : 0 ≤ A * X := by
-        try simp only [hD1] at ⊢
-        try push_cast at ⊢
+        simp only [hD1] at ⊢
+        push_cast at ⊢
         exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k.toNat - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4)
       -- 1.6. mun:square-nonneg x := A − 1
       have s1_6 : 0 ≤ (A - 1) ^ 2 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))
@@ -64,8 +64,8 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by exact (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by exact_mod_cast ge_iff_le.mp hK))
       -- 1.8. algebra, from D1
       have s1_8 : A ^ k.toNat * A - ((A - 1) * ((k : ℝ) + 1) + 1) = A * X + (A - 1) ^ 2 * (k : ℝ) := by
-        try simp only [hD1] at ⊢
-        try push_cast at ⊢
+        simp only [hD1] at ⊢
+        push_cast at ⊢
         parley_ring
       -- 1.9. inequalities, from 1.5, 1.7
       have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by linarith only [s1_5, s1_7]

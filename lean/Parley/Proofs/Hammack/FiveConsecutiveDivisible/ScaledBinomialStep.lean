@@ -49,10 +49,10 @@ theorem scaled_binomial_step (m : ℤ) (hH1 : 0 ≤ m) (i : ℤ) (hH2 : 0 ≤ i)
   -- 5. thm:weighted-term m := m + i, k := j, from 4
   have s5 : j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) (j - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := m + i) (add_nonneg (hH1) (hH2)) (k := j) s4)
   -- 6. substitute j − 1 = i (H4) into line 5
-  have s6 : j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) i : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) t : ℤ))) hH4 s5; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s6 : j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) i : ℤ) := Eq.subst (motive := (fun t : ℤ => j * (LeanBridges.Counting.choose (m + i + 1) j : ℤ) = (m + i + 1) * (LeanBridges.Counting.choose (m + i) t : ℤ))) hH4 s5
   -- 7. algebra, from 1
   have s7 : m + i + 1 = m + j := by linear_combination (norm := parley_norm) (-1) * s1
   -- 8. substitute (m + i) + 1 = m + j (line 7) into line 6
-  (have h := Eq.subst (motive := (fun t : ℤ => j * (LeanBridges.Counting.choose t j : ℤ) = t * (LeanBridges.Counting.choose (m + i) i : ℤ))) s7 s6; push_cast at h ⊢; all_goals exact_mod_cast h)
+  exact Eq.subst (motive := (fun t : ℤ => j * (LeanBridges.Counting.choose t j : ℤ) = t * (LeanBridges.Counting.choose (m + i) i : ℤ))) s7 s6
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep

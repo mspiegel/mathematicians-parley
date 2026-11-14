@@ -35,8 +35,8 @@ theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
   · skip
     intro hD1
     -- 1. calculation
-    calc A ^ 2 + B ^ 2 = 0 ^ 2 + B ^ 2 := by (have h := congrArg (fun t : ℝ => t ^ 2 + B ^ 2) hD1.1; push_cast at h ⊢; all_goals exact_mod_cast h)
-      _ = 0 ^ 2 + 0 ^ 2 := by (have h := congrArg (fun t : ℝ => 0 ^ 2 + t ^ 2) hD1.2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    calc A ^ 2 + B ^ 2 = 0 ^ 2 + B ^ 2 := congrArg (fun t : ℝ => t ^ 2 + B ^ 2) hD1.1
+      _ = 0 ^ 2 + 0 ^ 2 := congrArg (fun t : ℝ => 0 ^ 2 + t ^ 2) hD1.2
       _ = 0 := by norm_num
   · skip
     intro hD2

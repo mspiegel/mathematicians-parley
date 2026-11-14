@@ -75,9 +75,9 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
       -- 1.5. calculation
       have r45_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) (-1) * h)
       calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := s1_3
-        _ = (1 - a ^ (k + 1).toNat) / (1 - a) + a ^ (k + 1).toNat := by (have h := congrArg (fun t : ℝ => t + a ^ (k + 1).toNat) hIH; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (1 - a ^ (k + 1).toNat) / (1 - a) + a ^ (k + 1).toNat := congrArg (fun t : ℝ => t + a ^ (k + 1).toNat) hIH
         _ = (1 - a ^ (k + 1).toNat * a) / (1 - a) := by parley_ring
-        _ = (1 - a ^ (k + 1 + 1).toNat) / (1 - a) := by (have h := congrArg (fun t : ℝ => (1 - t) / (1 - a)) s1_4.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+        _ = (1 - a ^ (k + 1 + 1).toNat) / (1 - a) := congrArg (fun t : ℝ => (1 - t) / (1 - a)) s1_4.symm
   -- 2. instantiate k := n in line 1
   exact (s1 n hH3)
 

@@ -59,7 +59,7 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   -- 5.6. substitute
   have s5_6 : (a + b) ^ 2 < 4 * (a * b) := by
     have c1 : (2 * Real.sqrt (a * b)) ^ 2 = 4 * (a * b) := by linear_combination (norm := parley_norm) (4) * s4b
-    have row1 : (a + b) ^ 2 < 4 * (a * b) := by (have h := Eq.subst (motive := (fun t : ℝ => (a + b) ^ 2 < t)) c1 s5_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (a + b) ^ 2 < 4 * (a * b) := Eq.subst (motive := (fun t : ℝ => (a + b) ^ 2 < t)) c1 s5_5
     exact row1
   -- 5.7. algebra
   have s5_7 : (a - b) ^ 2 = (a + b) ^ 2 - 4 * (a * b) := by parley_ring

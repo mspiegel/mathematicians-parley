@@ -51,7 +51,7 @@ theorem limit_add_constant (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Filter.T
       have s1_4_1 : abs (x n - L) < ε := by exact (s1_3b n hK2 hA2)
       -- 1.4.2. substitute
       have c1 : x n - L = x n + C - (L + C) := by parley_ring
-      have row1 : abs (x n + C - (L + C)) < ε := by (have h := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s1_4_1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : abs (x n + C - (L + C)) < ε := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s1_4_1
       exact row1
     -- 1.5. exhibit, from 1.4
     exact ⟨N, s1_3a, s1_4⟩

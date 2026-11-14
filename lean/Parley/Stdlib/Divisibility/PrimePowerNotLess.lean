@@ -33,7 +33,6 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
-public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -58,7 +57,7 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.3. mun:power-nat a := p, m := a′ − a, from 3.2
   have s3_3 : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) ^ (a' - a) := by
     have whole1 : ((p : ℚ) : ℚ) ^ (a' - a).toNat = (p : ℚ) ^ (a' - a) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s3_2)]
-    refine ⟨(p ^ (a' - a).toNat), ?_, by (push_cast; simp only [whole1]; all_goals ring)⟩
+    refine ⟨(p ^ (a' - a).toNat), ?_, by (push_cast; simp only [whole1])⟩
     (exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := p) hH1 (m := a' - a) (le_of_lt s3_2)))
   -- 3.4. mun:exponent-sum a := p, m := a, n := a′ − a, from 3.2
   have s3_4 : (p : ℚ) ^ (a + (a' - a)) = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (p : ℚ)) (m := a) hH3 (n := a' - a) (le_of_lt s3_2)); simp only [parley_zpow_toNat (n := a + (a' - a)) (h := add_nonneg (hH3) (le_of_lt s3_2)), parley_zpow_toNat (n := a' - a) (h := le_of_lt s3_2)] at h ⊢; exact_mod_cast h)
@@ -83,27 +82,27 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   -- 3.11. thm:prime-divides-power a := p, n := a′ − a, from H2, 3.2, 3.10
   have s3_11 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) ∧ p ∣ m := by
     have whole1 : ((p : ℚ) : ℚ) ^ (a' - a).toNat = (p : ℚ) ^ (a' - a) := by rw [← zpow_natCast, Int.toNat_of_nonneg (le_of_lt s3_2)]
-    refine ⟨(p ^ (a' - a).toNat), by (push_cast; simp only [whole1]; all_goals ring), ?_⟩
+    refine ⟨(p ^ (a' - a).toNat), by (push_cast; simp only [whole1]), ?_⟩
     exact (((Parley.Items.Stdlib.Divisibility.thm_prime_divides_power (p := p) hH1 hH2 (a := p) (n := a' - a) s3_2)).mpr s3_10)
   -- 3.12. mun:divides-multiple e := p, a := p^(a′ − a), x := m′, from 3.11
   have r443_1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by
     have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, _, hm⟩ := s3_3; exact ⟨m, by exact_mod_cast hm⟩
-    exact ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring)⟩
+    exact ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1])⟩
   have s3_12 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) * (m' : ℚ) ∧ p ∣ m := by
     have whole1 : ∃ m : ℤ, (m : ℚ) = (p : ℚ) ^ (a' - a) := by obtain ⟨m, hm⟩ := r443_1; exact ⟨m, by exact_mod_cast hm⟩
-    have s3_11 := parley_witness_at s3_11 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring))
-    refine ⟨((Classical.choose whole1 : ℤ) * m'), by (push_cast; simp only [Classical.choose_spec whole1]; all_goals ring), ?_⟩
+    have s3_11 := parley_witness_at s3_11 (Classical.choose whole1 : ℤ) (by (push_cast; simp only [Classical.choose_spec whole1]))
+    refine ⟨((Classical.choose whole1 : ℤ) * m'), by (push_cast; simp only [Classical.choose_spec whole1]), ?_⟩
     (exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := p) (a := (Classical.choose whole1 : ℤ)) (x := m') s3_11))
   -- 3.13. substitute m = p^(a′ − a)·m′ (line 3.9) into line 3.12
   have s3_13 : p ∣ m := by exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ p ∣ m)) s3_9.symm s3_12) m (by norm_cast)
   -- 3.14. thm:divides-gcd d := p, a := m, b := p, from 3.10, 3.13
   have s3_14 : p ∣ (Int.gcd m p : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.thm_divides_gcd (d := p) (a := m) (b := p) s3_13 s3_10)
   -- 3.15. substitute gcd(m, p) = 1 (H7) into line 3.14
-  have s3_15 : p ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) hH7 s3_14; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s3_15 : p ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) hH7 s3_14; push_cast at h ⊢; exact_mod_cast h)
   -- 3.16. substitute
   have s3_16 : (1 : ℤ) > 1 := by
     have c1 : p = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := p) hH1 s3_15)
-    have row1 : (1 : ℤ) > 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 1)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (1 : ℤ) > 1 := by (have h := Eq.subst (motive := (fun t : ℤ => t > 1)) c1 s2; revert h; norm_num)
     exact row1
   exact absurd s3_16 (by norm_num)
 

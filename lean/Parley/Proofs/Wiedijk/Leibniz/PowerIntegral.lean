@@ -131,7 +131,7 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
     -- 19.3. calculation
     have r142_1 : m + 1 ≠ 0 := s1.ne'
     calc (deriv F) x = 1 / ((m : ℝ) + 1) * (deriv q) x := (s18 x hK1)
-      _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) (s16 x hK1); push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 1 / ((m : ℝ) + 1) * (((m : ℝ) + 1) * x ^ m.toNat) := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) (s16 x hK1)
       _ = x ^ m.toNat := by parley_ring
       _ = p x := s19_2.symm
   -- 20. arithmetic
@@ -159,23 +159,23 @@ theorem power_integral (m : ℤ) (hH1 : 0 ≤ m) :
   -- 29. calculation
   have s29 : F 1 = 1 / ((m : ℝ) + 1) * 1 := by
     calc F 1 = 1 / ((m : ℝ) + 1) * q 1 := s27
-      _ = 1 / ((m : ℝ) + 1) * 1 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s23; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 1 / ((m : ℝ) + 1) * 1 ^ (m + 1).toNat := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s23
       _ = 1 / ((m : ℝ) + 1) * 1 := by
           have e_w : (1 ^ (m + 1).toNat : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => 1 / ((m : ℚ) + 1) * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          (have h := congrArg (fun t : ℚ => 1 / ((m : ℚ) + 1) * t) e_w; push_cast at h ⊢; exact_mod_cast h)
   -- 30. calculation
   have s30 : F 0 = 1 / ((m : ℝ) + 1) * 0 := by
     calc F 0 = 1 / ((m : ℝ) + 1) * q 0 := s28
-      _ = 1 / ((m : ℝ) + 1) * 0 ^ (m + 1).toNat := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s25; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = 1 / ((m : ℝ) + 1) * 0 ^ (m + 1).toNat := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * t) s25
       _ = 1 / ((m : ℝ) + 1) * 0 := by
           have e_w : (0 ^ (m + 1).toNat : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s26; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => 1 / ((m : ℚ) + 1) * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          (have h := congrArg (fun t : ℚ => 1 / ((m : ℚ) + 1) * t) e_w; push_cast at h ⊢; exact_mod_cast h)
   -- 31. calculation
   have r193_1 : m + 1 ≠ 0 := s1.ne'
   calc (∫ t in 0..1, (t ^ m.toNat : ℝ)) = (∫ t in 0..1, (p t : ℝ)) := by simp (disch := omega) only [hD1]
     _ = F 1 - F 0 := by exact (Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus.fundamental_calculus (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) (f := p) (Set.mapsTo_univ _ _) s12 (F := F) (Set.mapsTo_univ _ _) s14 s17 s19)
-    _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := by (have h := congrArg (fun t : ℝ => t - F 0) s29; push_cast at h ⊢; all_goals exact_mod_cast h)
-    _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := by (have h := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * 1 - t) s30; push_cast at h ⊢; all_goals exact_mod_cast h)
+    _ = 1 / ((m : ℝ) + 1) * 1 - F 0 := congrArg (fun t : ℝ => t - F 0) s29
+    _ = 1 / ((m : ℝ) + 1) * 1 - 1 / ((m : ℝ) + 1) * 0 := congrArg (fun t : ℝ => 1 / ((m : ℝ) + 1) * 1 - t) s30
     _ = 1 / ((m : ℝ) + 1) := by parley_ring
 
 end Parley.Proofs.Wiedijk.Leibniz.PowerIntegral

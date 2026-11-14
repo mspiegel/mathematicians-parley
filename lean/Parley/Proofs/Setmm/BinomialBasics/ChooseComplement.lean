@@ -55,18 +55,18 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     -- 2.5. algebra
     have s2_5 : N - (N - K) = K := by parley_ring
     -- 2.6. substitute N − (N − K) = K (line 2.5)
-    have s2_6 : (LeanBridges.Counting.factorial (N - (N - K)) : ℤ) = (LeanBridges.Counting.factorial K : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2_5; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_6 : (LeanBridges.Counting.factorial (N - (N - K)) : ℤ) = (LeanBridges.Counting.factorial K : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2_5
     -- 2.7. mun:factorial-nat n := N − K, from 2.2
     have s2_7 : 0 < (LeanBridges.Counting.factorial (N - K) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := N - K) s2_2)
     -- 2.8. mun:factorial-nat n := K, from 2.1
     have s2_8 : 0 < (LeanBridges.Counting.factorial K : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K) s2_1)
     -- 2.9. calculation
-    try qify
+    qify
     calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := K)) hC1
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial K : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by parley_ring
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - (N - K)) : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by
           have e_w : (LeanBridges.Counting.factorial K : ℚ) = (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_6.symm; push_cast at h; linear_combination (norm := parley_norm) h
-          (have h := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial (N - K) : ℚ))) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+          exact congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial (N - K) : ℚ))) e_w
       _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := by exact ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := N - K)) s2_4).symm
   · skip
     -- 2.10. contradiction

@@ -67,7 +67,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have r323_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
   have s7 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [s6])
   -- 8. mun:card-positive, from 7
-  have s8 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s7; rw [← Set.Finite.cast_ncard_eq ((s1 : (X : Set α).Finite))]; norm_cast at h ⊢; all_goals omega)))
+  have s8 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s7; rw [← Set.Finite.cast_ncard_eq ((s1 : (X : Set α).Finite))]; exact_mod_cast h)))
   -- 9. obtain v: mun:nonempty-member, from 8
   obtain ⟨v, s9, _⟩ := (Parley.Items.Stdlib.Sets.mun_nonempty_member (Y := X) s8)
   set R : Set α := {w ∈ X \ ({v} : Set α) | ({v, w} : Set α) ∈ E} with hD2
@@ -76,13 +76,13 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have hD3_finite : B.Finite := by rw [hD3]; exact ((s1).subset (fun _ h => h.1)).subset (fun _ h => h.1)
   -- 10. mun:set-builder-split, from D2, D3
   have s10 : X \ ({v} : Set α) = R ∪ B := by
-    try simp only [hD2, hD3] at ⊢
-    try push_cast at ⊢
+    simp only [hD2, hD3] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_split (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 11. mun:set-builder-split-disjoint, from D2, D3
   have s11 : R ∩ B = ∅ := by
-    try simp only [hD2, hD3] at ⊢
-    try push_cast at ⊢
+    simp only [hD2, hD3] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_split_disjoint (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 12. mun:difference-subset
   have s12 : X \ ({v} : Set α) ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := X) (Y := ({v} : Set α)))
@@ -90,13 +90,13 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s13 : (X \ ({v} : Set α)).Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := X \ ({v} : Set α)) s1 s12)
   -- 14. mun:set-builder-subset, from D2
   have s14 : R ⊆ X \ ({v} : Set α) := by
-    try simp only [hD2] at ⊢
-    try push_cast at ⊢
+    simp only [hD2] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 15. mun:set-builder-subset, from D3
   have s15 : B ⊆ X \ ({v} : Set α) := by
-    try simp only [hD3] at ⊢
-    try push_cast at ⊢
+    simp only [hD3] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)))
   -- 16. mun:finite-part, from 13, 14
   have s16 : R.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X \ ({v} : Set α)) (Y := R) s13 s14)
@@ -120,11 +120,11 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by
       have e_nat : (X \ ({v} : Set α)).ncard = R.ncard + B.ncard := by exact_mod_cast s21
       have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
-      (have h := congrArg (fun t : ℤ => t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact congrArg (fun t : ℤ => t) e_w
     have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by
       have e_nat : (X \ ({v} : Set α)).ncard = R.ncard + B.ncard := by exact_mod_cast c2
       have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
-      (have h := Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) e_w row1; push_cast at h ⊢; all_goals exact_mod_cast h)
+      exact Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) e_w row1
     exact row2)
   -- 24. mun:nat-minus-one n := k + j
   have s24 : 0 ≤ k + j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k + j) (add_pos (hH1) (hH2)))
@@ -137,7 +137,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 28. calculation
   have s28 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
     calc (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) = (LeanBridges.Counting.choose (k + j - 1 + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k + j - 1) s24 (k := k))
-      _ = (LeanBridges.Counting.choose (k + j) k : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) s27; push_cast at h ⊢; all_goals exact_mod_cast h)
+      _ = (LeanBridges.Counting.choose (k + j) k : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) s27
       _ ≤ (X.ncard : ℤ) := hH9
       _ = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := s23)
   -- 29. axi:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|
@@ -185,8 +185,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 32.4. def:set-builder, from D2
     have s32_4 : ∀ w ∈ R, ({v, w} : Set α) ∈ E := by
       intro w h_w
-      try simp only [hD2] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       have hI : ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp h_w).2)
       exact hI
     -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
@@ -205,12 +204,10 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       intro w hK1
       -- 32.10.1. def:set-builder u := w, from D3, K1
       have s32_10_1a : w ∈ X \ ({v} : Set α) := by
-        try simp only [hD3] at ⊢
-        try push_cast at ⊢
+        push_cast at ⊢
         exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).1
       have s32_10_1b : ¬ ({v, w} : Set α) ∈ E := by
-        try simp only [hD3] at ⊢
-        try push_cast at ⊢
+        push_cast at ⊢
         have hI : ¬ ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2)
         exact hI
       -- 32.10.2. mun:remove-member u := w, Y := X, a := v, from 32.10.1

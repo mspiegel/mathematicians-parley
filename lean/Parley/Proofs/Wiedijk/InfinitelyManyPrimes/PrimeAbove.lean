@@ -56,7 +56,7 @@ theorem prime_above (n : ℤ) (hH1 : 0 < n) :
     -- 5.4. substitute
     have s5_4 : p ∣ (1 : ℤ) := by
       have c1 : (LeanBridges.Counting.factorial n : ℤ) + 1 - (LeanBridges.Counting.factorial n : ℤ) = 1 := by parley_ring
-      have row1 : p ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s5_3; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have row1 : p ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s5_3; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 5.5. mun:divides-one d := p, from 5.4
     have s5_5 : p = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := p) s3a s5_4)

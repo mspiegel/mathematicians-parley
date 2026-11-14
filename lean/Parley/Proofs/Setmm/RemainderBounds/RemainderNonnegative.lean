@@ -41,13 +41,13 @@ theorem remainder_nonnegative (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   set q : ℤ := ⌊A / B⌋ with hD1
   -- 2. mun:mod-value a := A, b := B, from D1, H3
   have s2 : LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
   -- 3. mun:floor-below x := A/B, from D1, 1
   have s3 : (q : ℝ) ≤ A / B := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Numbers.mun_floor_below (x := A / B))
   -- 4. calculation
   have s4 : B * (q : ℝ) ≤ A := by
@@ -56,6 +56,6 @@ theorem remainder_nonnegative (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 5. inequalities
   have s5 : 0 ≤ A - B * (q : ℝ) := by linarith only [s4]
   -- 6. substitute A mod B = A − B·q (line 2) into line 5
-  (have h := Eq.subst (motive := (fun t : ℝ => 0 ≤ t)) s2.symm s5; push_cast at h ⊢; all_goals exact_mod_cast h)
+  exact Eq.subst (motive := (fun t : ℝ => 0 ≤ t)) s2.symm s5
 
 end Parley.Proofs.Setmm.RemainderBounds.RemainderNonnegative

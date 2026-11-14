@@ -72,12 +72,9 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     intro c hK1
     -- 6.1. def:set-builder u := c, from D3, K1
     have s6_1a : c ∈ {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} := by
-      try simp only [hD3] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (u := c))).mp hK1).1
     have s6_1b : m + n ∈ c := by
-      try simp only [hD3] at ⊢
-      try push_cast at ⊢
       have hI : m + n ∈ c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (u := c))).mp hK1).2)
       exact hI
     -- 6.2. def:set-builder u := c, from D2, 6.1
@@ -105,8 +102,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 6.10. proof
     have s6_10 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (c \ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (c \ ({m + n} : Set ℤ))).ncard : ℤ) := by
       intro i hK2
-      try push_cast at hK2
-      try have hK2_bounds := Finset.mem_Icc.mp hK2
+      have hK2_bounds := Finset.mem_Icc.mp hK2
       -- 6.10.1. mun:range-bounds a := 1, b := (m − 1) + n, k := i, from K2
       have s6_10_1 : i ≤ m - 1 + n := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := m - 1 + n) (k := i) hK2)
       -- 6.10.2. inequalities, from 6.10.1
@@ -176,8 +172,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.13. proof
     have s8_13 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := by
       intro i hK4
-      try push_cast at hK4
-      try have hK4_bounds := Finset.mem_Icc.mp hK4
+      have hK4_bounds := Finset.mem_Icc.mp hK4
       -- 8.13.1. D1, from 8.1
       have s8_13_1 : ∀ j : ℤ, j ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) j : Set ℤ) \ T).ncard : ℤ) < (((Set.Icc (1 : ℤ) j : Set ℤ) ∩ T).ncard : ℤ) := s8_1b
       -- 8.13.2. mun:range-bounds a := 1, b := (m + n) − 1, k := i, from K4
@@ -185,7 +180,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       -- 8.13.3. inequalities, from 8.13.2
       have s8_13_3 : i < m + n := by linarith only [s8_13_2]
       -- 8.13.4. substitute (m + n) − 1 = (m − 1) + n (line 5) into K4
-      have s8_13_4 : i ∈ Finset.Icc (1 : ℤ) (m - 1 + n) := by (have h := Eq.subst (motive := (fun t : ℤ => i ∈ Finset.Icc (1 : ℤ) t)) s5 hK4; push_cast at h ⊢; all_goals exact_mod_cast h)
+      have s8_13_4 : i ∈ Finset.Icc (1 : ℤ) (m - 1 + n) := Eq.subst (motive := (fun t : ℤ => i ∈ Finset.Icc (1 : ℤ) t)) s5 hK4
       -- 8.13.5. instantiate j := i in line 8.13.1, from 8.13.4
       have s8_13_5 : (((Set.Icc (1 : ℤ) i : Set ℤ) \ T).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ T).ncard : ℤ) := by exact (s8_13_1 i s8_13_4)
       -- 8.13.6. thm:prefix-unchanged p := m + n, from 8.13.3
@@ -210,8 +205,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
   -- 9. mun:added-elements-stay-inside Y := G(m − 1, n), a := m + n, Z := F, from 8
   have s9 : (fun T : Set ℤ => T ∪ ({m + n} : Set ℤ)) '' {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} ⊆ F := by exact (Parley.Items.Stdlib.Functions.mun_added_elements_stay_inside (Y := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (Z := F) (a := m + n) s8)
   -- 10. mun:subset-antisymmetric, from D3, 7, 9
-  try simp only [hD3] at ⊢
-  try push_cast at ⊢
+  push_cast at ⊢
   exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := {c ∈ {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} | m + n ∈ c}) (Y := (fun T : Set ℤ => T ∪ ({m + n} : Set ℤ)) '' {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) s7 s9)
 
 end Parley.Proofs.Wiedijk.Ballot.LastVoteForA

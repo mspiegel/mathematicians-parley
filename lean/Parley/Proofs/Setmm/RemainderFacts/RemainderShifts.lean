@@ -47,13 +47,13 @@ theorem remainder_shifts (X : ℝ) (M : ℝ) (hH3 : M > 0) (K : ℤ) :
   have r24_1 : M ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s3 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by
     have c1 : X / M + (K : ℝ) = (X + M * (K : ℝ)) / M := by parley_ring
-    have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by (have h := Eq.subst (motive := (fun t : ℝ => ⌊t⌋ = ⌊X / M⌋ + K)) c1 s2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := Eq.subst (motive := (fun t : ℝ => ⌊t⌋ = ⌊X / M⌋ + K)) c1 s2
     exact row1
   -- 4. calculation
   calc LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = X + M * (K : ℝ) - M * (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) hH3)
     _ = X + M * (K : ℝ) - M * ((⌊X / M⌋ : ℝ) + (K : ℝ)) := by
         have e_w : (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) = (⌊X / M⌋ : ℝ) + (K : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3; push_cast at h; linear_combination (norm := parley_norm) h
-        (have h := congrArg (fun t : ℝ => X + M * (K : ℝ) - M * t) e_w; push_cast at h ⊢; all_goals exact_mod_cast h)
+        exact congrArg (fun t : ℝ => X + M * (K : ℝ) - M * t) e_w
     _ = X - M * (⌊X / M⌋ : ℝ) := by parley_ring
     _ = LeanBridges.Divisibility.mod X M := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) hH3).symm
 

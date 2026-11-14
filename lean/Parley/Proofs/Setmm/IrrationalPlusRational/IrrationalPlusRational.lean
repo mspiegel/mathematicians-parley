@@ -53,13 +53,13 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     -- 3.2. algebra, from 1, 3.1
     have s3_2 : A = (r : ℝ) / (s : ℝ) - B := by linear_combination (norm := parley_field) s3_1b
     -- 3.3. substitute B = p/q (line 2) into line 3.2
-    have s3_3 : A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := by (have h := Eq.subst (motive := (fun t : ℝ => A = (r : ℝ) / (s : ℝ) - t)) s2b s3_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s3_3 : A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := Eq.subst (motive := (fun t : ℝ => A = (r : ℝ) / (s : ℝ) - t)) s2b s3_2
     -- 3.4. calculation
     have s3_4 : A = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by
       calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := s3_3
         _ = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by parley_ring
     -- 3.5. exhibit, from 3.4
-    have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, mul_pos (s3_1a) (s2a), by (have h := s3_4; push_cast at h ⊢; all_goals exact h)⟩
+    have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, mul_pos (s3_1a) (s2a), by (have h := s3_4; push_cast at h ⊢; exact h)⟩
     -- 3.6. def:rational x := A, from 3.5
     have s3_6 : ∃ m : ℚ, (m : ℝ) = A := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr s3_5
     exact s1 s3_6

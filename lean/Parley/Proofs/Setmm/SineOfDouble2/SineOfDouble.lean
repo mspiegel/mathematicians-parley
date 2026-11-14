@@ -28,7 +28,7 @@ theorem sine_of_double (A : ℂ) :
   -- 1. algebra
   have s1 : 2 * A = A + A := by parley_ring
   -- 2. calculation
-  calc Complex.sin (2 * A) = Complex.sin (A + A) := by (have h := congrArg (fun t : ℂ => Complex.sin t) s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+  calc Complex.sin (2 * A) = Complex.sin (A + A) := congrArg (fun t : ℂ => Complex.sin t) s1
     _ = Complex.sin A * Complex.cos A + Complex.cos A * Complex.sin A := by exact (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A))
     _ = 2 * Complex.sin A * Complex.cos A := by parley_ring
 

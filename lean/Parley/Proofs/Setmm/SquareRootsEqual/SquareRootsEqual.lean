@@ -38,7 +38,7 @@ theorem square_roots_equal (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : 0 ≤ b) :
   · skip
     intro hD1
     -- 2.1. substitute √a = √b (D1) into line 1
-    have s2_1 : Real.sqrt b ^ 2 = a := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 = a)) hD1 s1; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have s2_1 : Real.sqrt b ^ 2 = a := Eq.subst (motive := (fun t : ℝ => t ^ 2 = a)) hD1 s1
     -- 2.2. calculation
     have r25_1 : b ≥ 0 := by exact hH4
     calc a = Real.sqrt b ^ 2 := s2_1.symm
@@ -46,6 +46,6 @@ theorem square_roots_equal (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : 0 ≤ b) :
   · skip
     intro hD2
     -- 2.3. substitute a = b (D2)
-    (have h := congrArg (fun t : ℝ => Real.sqrt t) hD2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    exact congrArg (fun t : ℝ => Real.sqrt t) hD2
 
 end Parley.Proofs.Setmm.SquareRootsEqual.SquareRootsEqual

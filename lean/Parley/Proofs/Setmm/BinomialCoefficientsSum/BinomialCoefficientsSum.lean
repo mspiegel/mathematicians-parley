@@ -56,8 +56,7 @@ theorem binomial_coefficients_sum (N : ℤ) (hH1 : 0 ≤ N) :
   -- 1. proof
   have s1 : ∀ k : ℤ, k ∈ Finset.Icc 0 N → (LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose N k : ℚ) := by
     intro k hJ
-    try push_cast at hJ
-    try have hJ_bounds := Finset.mem_Icc.mp hJ
+    have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 1.1. mun:one-power m := N − k
     have s1_1 : (1 ^ (N - k) : ℚ) = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := N - k))
     -- 1.2. mun:one-power m := k
@@ -70,8 +69,8 @@ theorem binomial_coefficients_sum (N : ℤ) (hH1 : 0 ≤ N) :
   -- 2. arithmetic
   have s2 : (1 + 1 : ℤ) = 2 := by parley_arith
   -- 3. calculation
-  try qify
-  calc (2 ^ N.toNat : ℚ) = (1 + 1) ^ N.toNat := by (have h := congrArg (fun t : ℤ => t ^ N.toNat) s2.symm; push_cast at h ⊢; all_goals exact_mod_cast h)
+  qify
+  calc (2 ^ N.toNat : ℚ) = (1 + 1) ^ N.toNat := by (have h := congrArg (fun t : ℤ => t ^ N.toNat) s2.symm; push_cast at h ⊢; exact_mod_cast h)
     _ = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by
         have hI : (1 + 1) ^ N.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) N, ((LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (1 : ℝ)) (n := N) hH1))
         exact hI

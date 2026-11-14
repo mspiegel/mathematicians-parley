@@ -76,7 +76,7 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
   have r222_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
   have s13 : ((X \ f '' (X ∩ X)).ncard : ℤ) = 0 := by parley_count_int; (linear_combination (norm := parley_norm) s10 + s12)
   -- 14. mun:card-zero X := X ∖ f[X], from 13
-  have s14 : X \ f '' (X ∩ X) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X \ f '' (X ∩ X)) (by (have h := s13; rw [← Set.Finite.cast_ncard_eq (((hH2).subset (fun _ h => h.1) : (X \ f '' (X ∩ X) : Set ℤ).Finite))]; norm_cast at h ⊢; all_goals omega)))
+  have s14 : X \ f '' (X ∩ X) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X \ f '' (X ∩ X)) (by (have h := s13; rw [← Set.Finite.cast_ncard_eq (((hH2).subset (fun _ h => h.1) : (X \ f '' (X ∩ X) : Set ℤ).Finite))]; exact_mod_cast h)))
   -- 15. mun:nothing-left-outside Y := X, X := f[X], from 14
   have s15 : X ⊆ f '' (X ∩ X) := ((Parley.Items.Stdlib.Sets.mun_nothing_left_outside (X := f '' (X ∩ X)) (Y := X))).mpr s14
   -- 16. proof

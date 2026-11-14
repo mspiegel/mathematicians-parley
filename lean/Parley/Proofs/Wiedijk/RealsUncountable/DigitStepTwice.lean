@@ -35,13 +35,13 @@ theorem digit_step_twice (t : ℤ) :
   -- 4. contradiction
   intro hS
   -- 4.1. substitute s(s(t)) = t (S) into line 3
-  have s4_1 : (10 : ℤ) ∣ (t + 1) % (10 : ℤ) + 1 - t := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ (t + 1) % (10 : ℤ) + 1 - u)) hS s3; push_cast at h ⊢; all_goals exact_mod_cast h)
+  have s4_1 : (10 : ℤ) ∣ (t + 1) % (10 : ℤ) + 1 - t := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ (t + 1) % (10 : ℤ) + 1 - u)) hS s3
   -- 4.2. mun:divides-sum d := 10, a := (t + 1) − s(t), b := (s(t) + 1) − t, from 2, 4.1
   have s4_2 : (10 : ℤ) ∣ t + 1 - (t + 1) % (10 : ℤ) + ((t + 1) % (10 : ℤ) + 1 - t) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (10 : ℤ)) (a := t + 1 - (t + 1) % (10 : ℤ)) (b := (t + 1) % (10 : ℤ) + 1 - t) s2 s4_1)
   -- 4.3. substitute
   have s4_3 : (10 : ℤ) ∣ (2 : ℤ) := by
     have c1 : t + 1 - (t + 1) % (10 : ℤ) + ((t + 1) % (10 : ℤ) + 1 - t) = 2 := by parley_ring
-    have row1 : (10 : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ u)) c1 s4_2; push_cast at h ⊢; all_goals exact_mod_cast h)
+    have row1 : (10 : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ u)) c1 s4_2; revert h; norm_num)
     exact row1
   exact absurd s4_3 (by norm_num)
 

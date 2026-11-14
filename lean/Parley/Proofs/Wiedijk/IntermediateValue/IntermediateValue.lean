@@ -53,8 +53,8 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have s2 : a ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := a))).mpr ⟨s1, hH6⟩
   -- 3. mun:set-builder-subset, from D1
   have s3 : S ⊆ (Set.Icc a b : Set ℝ) := by
-    try simp only [hD1] at ⊢
-    try push_cast at ⊢
+    simp only [hD1] at ⊢
+    push_cast at ⊢
     exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)))
   -- 4. mun:interval-real
   have s4 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))
@@ -65,8 +65,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
     intro s hK1
     -- 6.1. def:set-builder, from D1, K1
     have s6_1 : s ∈ (Set.Icc a b : Set ℝ) := by
-      try simp only [hD1] at ⊢
-      try push_cast at ⊢
+      push_cast at ⊢
       exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK1).1
     -- 6.2. def:interval, from 6.1
     exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp s6_1).2
@@ -98,7 +97,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       have s16_1 : c ≠ b := by
         intro hS1
         -- 16.1.1. substitute c = b (S1) into C1
-        have s16_1_1 : f b < 0 := by (have h := Eq.subst (motive := (fun t : ℝ => f t < 0)) hS1 hC1; push_cast at h ⊢; all_goals exact_mod_cast h)
+        have s16_1_1 : f b < 0 := Eq.subst (motive := (fun t : ℝ => f t < 0)) hS1 hC1
         -- 16.1.2. def:interval x := b
         have r108_1 : a ≤ b := by linarith only [hH3]
         have r108_2 : b ≤ b := by linarith
@@ -125,12 +124,10 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       have s16_8 : c < x₁ := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := c) (x := b) (y := c + δ / 2))).mpr ⟨s16_2, s16_7⟩
       -- 16.9. mun:min-le x := b, y := c + δ/2, from D2
       have s16_9a : x₁ ≤ b := by
-        try simp only [hD2] at ⊢
-        try push_cast at ⊢
+        simp only [hD2] at ⊢
         exact (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := b) (y := c + δ / 2))
       have s16_9b : x₁ ≤ c + δ / 2 := by
-        try simp only [hD2] at ⊢
-        try push_cast at ⊢
+        simp only [hD2] at ⊢
         exact (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := b) (y := c + δ / 2))
       -- 16.10. inequalities
       have s16_10 : x₁ - c ≤ δ / 2 := by linarith only [s16_9b]
@@ -180,13 +177,10 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         by_contra hS2
         -- 16.29.1. def:set-builder, from D1, K2
         have s16_29_1 : s ∈ (Set.Icc a b : Set ℝ) := by
-          try simp only [hD1] at ⊢
-          try push_cast at ⊢
+          push_cast at ⊢
           exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).1
         -- 16.29.2. def:set-builder, from D1, K2
         have s16_29_2 : f s < 0 := by
-          try simp only [hD1] at ⊢
-          try push_cast at ⊢
           have hI : f s < 0 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).2)
           exact hI
         -- 16.29.3. inequalities, from S2
