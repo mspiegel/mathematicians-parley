@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/letter-i.proof by parley build lean. -/
@@ -38,7 +38,7 @@ theorem obtained_i (n : ℤ) (hH2 : Odd n) :
   -- 2. substitute n = 2i + 1 (line 1)
   have s2 : n ^ 2 = (2 * i + 1) ^ 2 := congrArg (fun t : ℤ => t ^ 2) s1
   -- 3. algebra
-  have s3 : (2 * i + 1) ^ 2 = 2 * (2 * i ^ 2 + 2 * i) + 1 := by parley_ring
+  have s3 : (2 * i + 1) ^ 2 = 2 * (2 * i ^ 2 + 2 * i) + 1 := by ring1
   -- 4. calculation
   have s4 : n ^ 2 = 2 * (2 * i ^ 2 + 2 * i) + 1 := by
     calc n ^ 2 = (2 * i + 1) ^ 2 := s2

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Batteries.Tactic.Init
@@ -25,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 
@@ -55,7 +55,7 @@ theorem prime_above (n : ℤ) (hH1 : 0 < n) :
     have s5_3 : p ∣ (LeanBridges.Counting.factorial n : ℤ) + 1 - (LeanBridges.Counting.factorial n : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := p) (a := (LeanBridges.Counting.factorial n : ℤ) + 1) (b := (LeanBridges.Counting.factorial n : ℤ)) s3c s5_2)
     -- 5.4. substitute
     have s5_4 : p ∣ (1 : ℤ) := by
-      have c1 : (LeanBridges.Counting.factorial n : ℤ) + 1 - (LeanBridges.Counting.factorial n : ℤ) = 1 := by parley_ring
+      have c1 : (LeanBridges.Counting.factorial n : ℤ) + 1 - (LeanBridges.Counting.factorial n : ℤ) = 1 := by ring1
       have row1 : p ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s5_3; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 5.5. mun:divides-one d := p, from 5.4

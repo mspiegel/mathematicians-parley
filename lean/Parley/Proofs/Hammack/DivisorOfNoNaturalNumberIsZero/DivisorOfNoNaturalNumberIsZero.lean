@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -46,7 +46,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k
   have s4 : b ∣ b * b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := b) (a := b) (x := b) s3)
   -- 5. substitute
   have s5 : b ∣ b ^ 2 := by
-    have c1 : b * b = b ^ 2 := by parley_ring
+    have c1 : b * b = b ^ 2 := by ring1
     have row1 : b ∣ b ^ 2 := Eq.subst (motive := (fun t : ℤ => b ∣ t)) c1 s4
     exact row1
   -- 6. instantiate k := b² in H2, from 2

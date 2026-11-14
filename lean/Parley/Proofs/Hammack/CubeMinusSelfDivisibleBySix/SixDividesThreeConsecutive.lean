@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/cube-minus-self-divisible-by-six.proof by parley build lean. -/
@@ -40,7 +40,7 @@ theorem six_divides_three_consecutive (k : ℤ) (hH1 : 0 ≤ k) :
     -- 2.2. calculation
     have s2_2 : 3 * k * (k + 1) = 6 * (m * (2 * m + 1)) := by
       calc 3 * k * (k + 1) = 3 * (2 * m) * (2 * m + 1) := congrArg (fun t : ℤ => 3 * t * (t + 1)) s2_1
-        _ = 6 * (m * (2 * m + 1)) := by parley_ring
+        _ = 6 * (m * (2 * m + 1)) := by ring1
     -- 2.3. def:divides d := 6, n := 3·k·(k + 1), from 2.2
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨m * (2 * m + 1), s2_2⟩
   · skip
@@ -49,7 +49,7 @@ theorem six_divides_three_consecutive (k : ℤ) (hH1 : 0 ≤ k) :
     -- 2.5. calculation
     have s2_5 : 3 * k * (k + 1) = 6 * ((2 * m + 1) * (m + 1)) := by
       calc 3 * k * (k + 1) = 3 * (2 * m + 1) * (2 * m + 1 + 1) := congrArg (fun t : ℤ => 3 * t * (t + 1)) s2_4
-        _ = 6 * ((2 * m + 1) * (m + 1)) := by parley_ring
+        _ = 6 * ((2 * m + 1) * (m + 1)) := by ring1
     -- 2.6. def:divides d := 6, n := 3·k·(k + 1), from 2.5
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * k * (k + 1)))).mpr ⟨(2 * m + 1) * (m + 1), s2_5⟩
 

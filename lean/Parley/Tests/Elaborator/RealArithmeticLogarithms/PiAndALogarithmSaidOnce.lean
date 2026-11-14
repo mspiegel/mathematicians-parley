@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-logarithms.proof by parley build lean. -/
 
@@ -26,6 +26,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticLogarithms.PiAndALogarithmSaidOn
 theorem pi_and_a_logarithm_said_once (a : ℝ) :
     a * Real.pi + Real.log (2 : ℝ) * a = (Real.pi + Real.log (2 : ℝ)) * a := by
   -- 1. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.RealArithmeticLogarithms.PiAndALogarithmSaidOnce

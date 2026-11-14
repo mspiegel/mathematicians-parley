@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/substitute-rows.proof by parley build lean. -/
 
@@ -25,7 +25,7 @@ namespace Parley.Tests.Elaborator.SubstituteRows.SubstituteRowsChangingASum
 theorem substitute_rows_changing_a_sum (a : ℝ) (b : ℝ) (hH3 : a * 2 + b * 2 < 1) :
     2 * a + 2 * b < 1 := by
   -- 1. substitute
-  have c1 : a * 2 + b * 2 = 2 * a + 2 * b := by parley_ring
+  have c1 : a * 2 + b * 2 = 2 * a + 2 * b := by ring1
   have row1 : 2 * a + 2 * b < 1 := Eq.subst (motive := (fun t : ℝ => t < 1)) c1 hH3
   exact row1
 

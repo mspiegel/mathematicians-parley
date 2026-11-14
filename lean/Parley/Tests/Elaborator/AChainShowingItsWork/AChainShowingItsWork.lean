@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
@@ -38,8 +38,8 @@ theorem a_chain_showing_its_work (n : ℤ) (hH2 : Odd n) :
   -- 2. calculation
   have s2 : n ^ 2 = 2 * (2 * k ^ 2 + 2 * k) + 1 := by
     calc n ^ 2 = (2 * k + 1) ^ 2 := congrArg (fun t : ℤ => t ^ 2) s1
-      _ = 4 * k ^ 2 + 4 * k + 1 := by parley_ring
-      _ = 2 * (2 * k ^ 2 + 2 * k) + 1 := by parley_ring
+      _ = 4 * k ^ 2 + 4 * k + 1 := by ring1
+      _ = 2 * (2 * k ^ 2 + 2 * k) + 1 := by ring1
   -- 3. def:odd n := n², from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * k ^ 2 + 2 * k, s2⟩
 

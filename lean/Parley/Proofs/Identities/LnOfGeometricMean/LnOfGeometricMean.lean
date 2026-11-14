@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -45,7 +44,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
   have s2b : Real.sqrt (x * y) ^ 2 = x * y := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x * y) r21_1)
   -- 3. substitute
   have s3 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := by
-    have c1 : x * y = Real.sqrt (x * y) * Real.sqrt (x * y) := by linear_combination (norm := parley_norm) (-1) * s2b
+    have c1 : x * y = Real.sqrt (x * y) * Real.sqrt (x * y) := by linear_combination (-1) * s2b
     have row1 : Real.sqrt (x * y) * Real.sqrt (x * y) > 0 := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s1
     exact row1
   -- 4. mun:factor-positive a := √(x·y), b := √(x·y), from 2, 3
@@ -60,6 +59,6 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
       _ = Real.log (x * y) := congrArg (fun t : ℝ => Real.log t) s5
       _ = Real.log x + Real.log y := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) hH3 hH4)
   -- 7. algebra, from 6
-  linear_combination (norm := parley_norm) ((1) / ((2))) * s6
+  linear_combination ((1) / (((2 : ℝ)))) * s6
 
 end Parley.Proofs.Identities.LnOfGeometricMean.LnOfGeometricMean

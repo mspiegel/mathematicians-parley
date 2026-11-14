@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -9,6 +8,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -32,6 +32,6 @@ theorem a_divisor_sharing_a_factor (x : ℝ) (y : ℝ) (z : ℝ) (hH4 : y ^ 2 = 
     (x * y ^ 2 - 2 * y ^ 2 - z) / (y - 3) = (9 * x - z - 18) / (y - 3) := by
   -- 1. algebra, from H4
   have r83_1 : y - 3 ≠ 0 := by exact hH5
-  linear_combination (norm := parley_field) ((x - 2) / ((y - 3))) * hH4
+  have hz1 : y - 3 ≠ 0 := r83_1; linear_combination (norm := (field)) ((x - 2) / ((y - 3))) * hH4
 
 end Parley.Tests.Elaborator.Divisors.ADivisorSharingAFactor

@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -32,7 +31,7 @@ theorem substitute_rows_from_a_line (x : ℝ) (y : ℝ) (hH3 : x = 3) (hH4 : x *
   have row1 : 3 * 3 + 3 < y := Eq.subst (motive := (fun t : ℝ => t * t + t < y)) c1 hH4
   have c2 : (3 * 3 + 3 : ℤ) = 12 := by parley_arith
   have row2 : 12 < y := by
-    have e_w : (3 * 3 + 3 : ℝ) = 12 := by have h := congrArg (fun x : ℤ => (x : ℝ)) c2; push_cast at h; linear_combination (norm := parley_norm) h
+    have e_w : (3 * 3 + 3 : ℝ) = 12 := by have h := congrArg (fun x : ℤ => (x : ℝ)) c2; push_cast at h ⊢; linear_combination h
     exact Eq.subst (motive := (fun t : ℝ => t < y)) e_w row1
   exact row2
 

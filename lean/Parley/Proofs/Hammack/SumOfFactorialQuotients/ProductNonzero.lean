@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -28,7 +27,7 @@ theorem product_nonzero (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH4 : y ≠ 0) :
   -- the theorem. contradiction
   intro hS
   -- 1. algebra, from S
-  have s1 : x * y = 0 * y := by linear_combination (norm := parley_norm) hS
+  have s1 : x * y = 0 * y := by linear_combination hS
   -- 2. mun:multiply-cancel a := x, b := 0, c := y, from H4, 1
   have s2 : x = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) s1 hH4)
   exact hH3 s2

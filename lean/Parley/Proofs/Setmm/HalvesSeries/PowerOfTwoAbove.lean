@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
@@ -27,6 +26,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/halves-series.proof by parley build lean. -/
@@ -53,7 +53,7 @@ theorem power_of_two_above (n : ℤ) (hH1 : 0 < n) :
       have s1_3 : k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := by linarith only [hIH, s1_2]
       -- 1.4. calculation
       calc k + 1 ≤ 2 ^ k.toNat + 2 ^ k.toNat := s1_3
-        _ = 2 ^ k.toNat * 2 := by parley_ring
+        _ = 2 ^ k.toNat * 2 := by ring1
         _ = 2 ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK))).symm
   -- 2. instantiate k := n in line 1
   exact (s1 n hH1)

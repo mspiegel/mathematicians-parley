@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -22,6 +21,8 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from proofs/identities/sine-of-half-pi-minus.proof by parley build lean. -/
@@ -33,7 +34,7 @@ namespace Parley.Proofs.Identities.SineOfHalfPiMinus.SineOfHalfPiMinus
 theorem sine_of_half_pi_minus (x : ℝ) :
     Real.sin (Real.pi / 2 - x) = Real.cos x := by
   -- 1. algebra
-  have s1 : Real.pi / 2 - x = Real.pi / 2 + -x := by parley_ring
+  have s1 : Real.pi / 2 - x = Real.pi / 2 + -x := by ring1
   -- 2. mun:cos-negative a := x
   have s2 : Real.cos (-x) = Real.cos x := by
     have hI : Real.cos (-x) = Real.cos x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := (x : ℂ))))
@@ -51,6 +52,6 @@ theorem sine_of_half_pi_minus (x : ℝ) :
     _ = 1 * Real.cos (-x) + 0 * Real.sin (-x) := by parley_real
     _ = 1 * Real.cos x + 0 * Real.sin (-x) := congrArg (fun t : ℝ => 1 * t + 0 * Real.sin (-x)) s2
     _ = 1 * Real.cos x + 0 * -Real.sin x := congrArg (fun t : ℝ => 1 * Real.cos x + 0 * t) s3
-    _ = Real.cos x := by parley_ring
+    _ = Real.cos x := by ring_nf
 
 end Parley.Proofs.Identities.SineOfHalfPiMinus.SineOfHalfPiMinus

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Field.Rat
@@ -27,6 +26,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -39,6 +39,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -62,7 +63,7 @@ theorem triangular_reciprocals :
     intro k hK1
     -- 1.1. calculation
     calc 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) = 1 / ((k : ℚ) * ((k : ℚ) + 1) / 2) := rfl
-      _ = 2 / (k : ℚ) - 2 / ((k : ℚ) + 1) := by parley_ring
+      _ = 2 / (k : ℚ) - 2 / ((k : ℚ) + 1) := by have hz1 : (k : ℚ) ≠ 0 := (by positivity); have hz2 : (k : ℚ) + 1 ≠ 0 := (by positivity); field
   -- 2. proof
   -- what this block shows, Lean's types give
   -- 3. proof

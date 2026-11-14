@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import PowerTactics
@@ -34,6 +33,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -93,7 +93,7 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
       have s4_3_3 : n ≤ d * 0 := Eq.subst (motive := (fun t : ℤ => t ≤ d * 0)) s4_2.symm s4_3_2
       -- 4.3.4. substitute
       have s4_3_4 : n ≤ 0 := by
-        have c1 : d * 0 = 0 := by parley_ring
+        have c1 : d * 0 = 0 := by ring1
         have row1 : n ≤ 0 := Eq.subst (motive := (fun t : ℤ => n ≤ t)) c1 s4_3_3
         exact row1
       -- 4.3.5. inequalities, from H1

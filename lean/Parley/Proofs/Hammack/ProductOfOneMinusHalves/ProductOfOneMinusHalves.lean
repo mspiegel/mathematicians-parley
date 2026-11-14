@@ -1,10 +1,8 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -32,6 +30,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -45,6 +44,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -89,7 +89,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
       -- 2.8. mun:exponent-step a := 2, m := m + 1
       have s2_8 : (2 ^ (m + 1 + 1).toNat : ℤ) = 2 ^ (m + 1).toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK2)) (by norm_num)))
       -- 2.9. algebra
-      have s2_9 : (1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 : ℚ) = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := by parley_ring
+      have s2_9 : (1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 : ℚ) = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := by have hz1 : (2 ^ (m + 1).toNat : ℚ) ≠ 0 := (by positivity); field
       -- 2.10. calculation
       have r97_1 : m ≥ 1 := by linarith only [lt_of_lt_of_le zero_lt_one hK2]
       calc (∏ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 - 1 / 2 ^ k.toNat : ℚ)) = (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := (fun k : ℤ => (1 - 1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ)) (n := m) r97_1)
@@ -98,7 +98,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
             exact hI
         _ = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := s2_9
         _ = 1 / 4 + 1 / 2 ^ (m + 1 + 1).toNat := by
-            have e_w : (2 ^ (m + 1).toNat * 2 : ℚ) = 2 ^ (m + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_8.symm; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (2 ^ (m + 1).toNat * 2 : ℚ) = 2 ^ (m + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_8.symm; push_cast at h ⊢; linear_combination h
             exact congrArg (fun t : ℚ => 1 / 4 + 1 / t) e_w
   -- 3. instantiate m := n in line 2
   exact (s2 n hH1)

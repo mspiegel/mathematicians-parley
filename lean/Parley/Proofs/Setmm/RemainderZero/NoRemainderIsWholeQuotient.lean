@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Divisibility
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -13,6 +12,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -54,7 +54,7 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     have s3_1 : A - B * (q : ℝ) = 0 := Eq.subst (motive := (fun t : ℝ => t = 0)) s2 hC1
     -- 3.2. algebra, from 3.1
     have r33_1 : B ≠ 0 := by exact s1
-    have s3_2 : A / B = (q : ℝ) := by linear_combination (norm := parley_field) ((1) / ((B))) * s3_1
+    have s3_2 : A / B = (q : ℝ) := by have hz1 : B ≠ 0 := r33_1; linear_combination (norm := (field)) ((1) / ((B))) * s3_1
     -- 3.3. membership, from 3.2
     exact ⟨q, by exact_mod_cast (s3_2).symm⟩
   · skip
@@ -66,6 +66,6 @@ theorem no_remainder_is_whole_quotient (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     -- 3.5. calculation
     have r48_1 : B ≠ 0 := by exact s1
     calc LeanBridges.Divisibility.mod A B = A - B * (q : ℝ) := s2
-      _ = 0 := by linear_combination (norm := parley_field) (-B) * s3_4
+      _ = 0 := by have hz1 : B ≠ 0 := r48_1; linear_combination (norm := (field)) (-B) * s3_4
 
 end Parley.Proofs.Setmm.RemainderZero.NoRemainderIsWholeQuotient

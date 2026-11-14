@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.Complex.Trigonometric
@@ -24,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from proofs/identities/sine-of-triple.proof by parley build lean. -/
@@ -35,7 +34,7 @@ namespace Parley.Proofs.Identities.SineOfTriple.SineOfTriple
 theorem sine_of_triple (x : ℝ) :
     Real.sin (3 * x) = 3 * Real.sin x - 4 * Real.sin x ^ 3 := by
   -- 1. algebra
-  have s1 : 2 * x = x + x := by parley_ring
+  have s1 : 2 * x = x + x := by ring1
   -- 2. calculation
   have s2 : Real.sin (2 * x) = Real.sin x * Real.cos x + Real.cos x * Real.sin x := by
     calc Real.sin (2 * x) = Real.sin (x + x) := congrArg (fun t : ℝ => Real.sin t) s1
@@ -49,7 +48,7 @@ theorem sine_of_triple (x : ℝ) :
           have hI : Real.cos (x + x) = Real.cos x * Real.cos x - Real.sin x * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ)) (b := (x : ℂ))))
           exact hI
   -- 4. algebra
-  have s4 : 3 * x = 2 * x + x := by parley_ring
+  have s4 : 3 * x = 2 * x + x := by ring1
   -- 5. mun:sin-cos-squares a := x
   have s5 : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by
     have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
@@ -61,6 +60,6 @@ theorem sine_of_triple (x : ℝ) :
         exact hI
     _ = (Real.sin x * Real.cos x + Real.cos x * Real.sin x) * Real.cos x + Real.cos (2 * x) * Real.sin x := congrArg (fun t : ℝ => t * Real.cos x + Real.cos (2 * x) * Real.sin x) s2
     _ = (Real.sin x * Real.cos x + Real.cos x * Real.sin x) * Real.cos x + (Real.cos x * Real.cos x - Real.sin x * Real.sin x) * Real.sin x := congrArg (fun t : ℝ => (Real.sin x * Real.cos x + Real.cos x * Real.sin x) * Real.cos x + t * Real.sin x) s3
-    _ = 3 * Real.sin x - 4 * Real.sin x ^ 3 := by linear_combination (norm := parley_norm) (3 * Real.sin x) * s5
+    _ = 3 * Real.sin x - 4 * Real.sin x ^ 3 := by linear_combination (3 * Real.sin x) * s5
 
 end Parley.Proofs.Identities.SineOfTriple.SineOfTriple

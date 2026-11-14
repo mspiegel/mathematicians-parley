@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -32,6 +31,6 @@ theorem a_recursion_value_without_its_zero (F : ℤ → ℤ) (hD1 : F 0 = (0 : �
   -- 2. D1
   have s2 : F 1 = F 0 + 2 := by have h := (hD1.2 ((1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
   -- 3. algebra, from 1, 2
-  linear_combination (norm := parley_norm) s1 + s2
+  linear_combination (norm := ring_nf) s1 + s2
 
 end Parley.Tests.Elaborator.ARecursionValueWithoutItsZero.ARecursionValueWithoutItsZero

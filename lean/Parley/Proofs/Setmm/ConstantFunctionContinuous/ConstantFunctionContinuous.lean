@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -53,7 +52,7 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       -- 1.1.1.2. instantiate x := a in H4, from K1
       have s1_1_1_2 : f a = k := by exact (hH4 a hK1)
       -- 1.1.1.3. algebra, from 1.1.1.1, 1.1.1.2
-      have s1_1_1_3 : f x - f a = 0 := by linear_combination (norm := parley_norm) s1_1_1_1 + (-1) * s1_1_1_2
+      have s1_1_1_3 : f x - f a = 0 := by linear_combination s1_1_1_1 + (-1) * s1_1_1_2
       -- 1.1.1.4. calculation
       calc abs (f x - f a) = abs 0 := congrArg (fun t : ℝ => abs t) s1_1_1_3
         _ = 0 := by exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero

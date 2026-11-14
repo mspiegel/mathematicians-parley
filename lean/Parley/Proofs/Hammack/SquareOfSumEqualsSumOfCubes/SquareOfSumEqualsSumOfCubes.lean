@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -36,6 +35,7 @@ public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Wiedijk.SumFormula.SumFormula
@@ -74,7 +74,7 @@ theorem square_of_sum_equals_sum_of_cubes (n : ℤ) (hH1 : 0 < n) :
       have s1_3 : (C (k + 1) : ℚ) = (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2) ^ 2 := by
         calc (C (k + 1) : ℚ) = (C k : ℚ) + ((k : ℚ) + 1) ^ 3 := by exact_mod_cast s1_2
           _ = ((k : ℚ) * ((k : ℚ) + 1) / 2) ^ 2 + ((k : ℚ) + 1) ^ 3 := congrArg (fun t : ℚ => t + ((k : ℚ) + 1) ^ 3) hIH
-          _ = (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2) ^ 2 := by parley_ring
+          _ = (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2) ^ 2 := by ring1
       (have h := s1_3; push_cast at h ⊢; exact h)
   -- 2. thm:sum-formula
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by exact (Parley.Proofs.Wiedijk.SumFormula.SumFormula.sum_formula (n := n) hH1)

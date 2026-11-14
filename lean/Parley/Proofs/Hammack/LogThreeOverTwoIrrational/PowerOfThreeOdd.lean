@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
@@ -29,6 +28,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -58,7 +58,7 @@ theorem power_of_three_odd (n : ℤ) (hH1 : 0 ≤ n) :
       have s1_4 : 3 ^ (j + 1).toNat = 2 * (3 * k + 1) + 1 := by
         calc (3 ^ (j + 1).toNat : ℤ) = 3 ^ j.toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j) hK)
           _ = (2 * k + 1) * 3 := congrArg (fun t : ℤ => t * 3) s1_3
-          _ = 2 * (3 * k + 1) + 1 := by parley_ring
+          _ = 2 * (3 * k + 1) + 1 := by ring1
       -- 1.5. def:odd n := 3^(j + 1), from 1.4
       exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1).toNat : ℤ)))).mpr ⟨3 * k + 1, s1_4⟩
   -- 2. instantiate j := n in line 1

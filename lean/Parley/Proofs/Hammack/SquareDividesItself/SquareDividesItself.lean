@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -25,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -50,7 +50,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
     exact Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) hC1.symm s3_1
   · skip
     -- 3.3. algebra, from 1
-    have s3_3 : a * k * a = 1 * a := by linear_combination (norm := parley_norm) (-1) * s1
+    have s3_3 : a * k * a = 1 * a := by linear_combination (norm := ring_nf) (-1) * s1
     -- 3.4. mun:multiply-cancel a := a·k, b := 1, c := a, from C2, 3.3
     have s3_4 : a * k = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := a * k) (b := (1 : ℤ)) (c := a) s3_3 hC2)
     -- 3.5. mun:nonneg-or-neg x := a
@@ -78,7 +78,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       -- 3.6.8. mun:pos-int-nat m := −a, from 3.6.7
       have s3_6_8 : 0 < -a := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := -a) s3_6_7)
       -- 3.6.9. algebra, from 3.4
-      have s3_6_9 : 1 = -a * -k := by linear_combination (norm := parley_norm) (-1) * s3_4
+      have s3_6_9 : 1 = -a * -k := by linear_combination (-1) * s3_4
       -- 3.6.10. def:divides d := −a, n := 1, from 3.6.9
       have s3_6_10 : -a ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := -a) (n := (1 : ℤ)))).mpr ⟨-k, s3_6_9⟩
       -- 3.6.11. mun:divides-one d := −a, from 3.6.8, 3.6.10
@@ -86,7 +86,7 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
       -- 3.6.12. inspection
       have s3_6_12 : (-1 : ℤ) ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by simp
       -- 3.6.13. substitute
-      have c1 : -1 = a := by linear_combination (norm := parley_norm) s3_6_11
+      have c1 : -1 = a := by linear_combination s3_6_11
       have row1 : a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := Eq.subst (motive := (fun t : ℤ => t ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ))) c1 s3_6_12
       exact row1
 

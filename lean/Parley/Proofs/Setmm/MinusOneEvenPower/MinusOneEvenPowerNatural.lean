@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
@@ -28,6 +27,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/minus-one-even-power.proof by parley build lean. -/
@@ -48,7 +48,7 @@ theorem minus_one_even_power_natural (n : ℤ) (hH1 : 0 ≤ n) :
       parley_arith
     | succ k hK hIH =>
       -- 1.2. algebra
-      have s1_2 : 2 * (k + 1) = 2 * k + 1 + 1 := by parley_ring
+      have s1_2 : 2 * (k + 1) = 2 * k + 1 + 1 := by ring1
       -- 1.3. calculation
       have s1_3 : ((-1) ^ (2 * k + 1).toNat : ℤ) = -1 := by
         calc ((-1) ^ (2 * k + 1).toNat : ℤ) = (-1) ^ (2 * k).toNat * -1 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := 2 * k) (mul_nonneg (by norm_num) (hK)))

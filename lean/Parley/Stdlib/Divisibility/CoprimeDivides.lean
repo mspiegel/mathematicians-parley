@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -38,7 +37,7 @@ theorem coprime_divides (x : ℤ) (c : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : n ∣
   -- 4. mun:divides-combination e := n, a := x·c, b := n, x := u, y := x·v, from H4, 3
   have s4 : n ∣ x * c * u + n * (x * v) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := n) (a := x * c) (b := n) (x := u) (y := x * v) hH4 s3)
   -- 5. substitute
-  have c1 : x * c * u + n * (x * v) = x := by linear_combination (norm := parley_norm) (x) * s2
+  have c1 : x * c * u + n * (x * v) = x := by linear_combination (x) * s2
   have row1 : n ∣ x := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s4
   exact row1
 

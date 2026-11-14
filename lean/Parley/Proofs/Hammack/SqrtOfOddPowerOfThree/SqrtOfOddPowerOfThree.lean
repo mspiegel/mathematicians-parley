@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -75,7 +74,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   -- 7. mun:power-nat a := 3, m := k
   have s7 : (0 : ℤ) < 3 ^ k.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := (3 : ℤ)) (by norm_num) (m := k) (le_of_lt hH1))
   -- 8. algebra, from 1
-  have s8 : k = m + m + 1 := by linear_combination (norm := parley_norm) s1
+  have s8 : k = m + m + 1 := by linear_combination s1
   -- 9. mun:exponent-sum a := 3, n := m, from 5
   have s9 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (3 : ℚ)) (m := m) s5 (n := m) s5); simp only [parley_zpow_toNat (n := m + m) (h := add_nonneg (s5) (s5)), parley_zpow_toNat (n := m) (h := s5)] at h ⊢; exact_mod_cast h)
   -- 10. calculation
@@ -99,7 +98,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s14 : Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by
     calc Real.sqrt (3 ^ k.toNat : ℝ) ^ 2 = 3 ^ k.toNat := s12b
       _ = 3 ^ m * 3 ^ m * 3 := (show 3 ^ k.toNat = 3 ^ m * 3 ^ m * 3 by have h := (Rat.cast_inj (α := ℝ)).mpr s10; simp only [Rat.cast_mul, Rat.cast_pow, Rat.cast_zpow, Rat.cast_ofNat] at h; exact h)
-      _ = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by linear_combination (norm := parley_norm) (-((3 ^ m) ^ 2)) * s11b
+      _ = (Real.sqrt (3 : ℝ) * 3 ^ m) ^ 2 := by linear_combination (-((3 ^ m) ^ 2)) * s11b
   -- 15. thm:sqrt3-irrational
   have s15 : Irrational (Real.sqrt (3 : ℝ)) := by exact Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational.sqrt3_irrational
   -- 16. thm:irrational-product A := √3, B := 3^m, from 6, 15

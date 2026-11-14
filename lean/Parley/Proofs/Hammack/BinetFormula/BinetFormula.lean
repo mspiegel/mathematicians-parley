@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import Functions
-public import NormTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -18,6 +16,7 @@ public import Mathlib.Data.Nat.Cast.Defs
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -71,7 +70,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       -- 4.3. calculation
       have s4_3 : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by
         calc (F 0 : ℝ) = 0 := by exact_mod_cast s4_1
-          _ = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by parley_ring
+          _ = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by have hz1 : Real.sqrt (5 : ℝ) ≠ 0 := s1; field
       -- 4.4. calculation
       have s4_4 : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by
         calc (G 0 : ℝ) = 1 := by exact_mod_cast s4_2
@@ -89,7 +88,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have s4_7 : G (j + 1) = F j + G j := by have h := (hD1.2.2 ((j + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; ring_nf at h ⊢; linarith
       -- 4.8. substitute G(j) = (φ^(j + 1) − ψ^(j + 1))/√5 (IH) into line 4.6
       have s4_8 : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := by
-        have s4_6_w : (F (j + 1) : ℝ) = (G j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h; linear_combination (norm := parley_norm) h
+        have s4_6_w : (F (j + 1) : ℝ) = (G j : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h ⊢; linear_combination h
         exact Eq.subst (motive := (fun t : ℝ => (F (j + 1) : ℝ) = t)) hIH.2 s4_6_w
       -- 4.9. thm:power-recurrence x := φ, k := j, from 2
       have s4_9 : φ ^ (j + 1 + 1).toNat = φ ^ (j + 1).toNat + φ ^ j.toNat := by exact (Parley.Proofs.Hammack.BinetFormula.PowerRecurrence.power_recurrence (x := φ) s2 (k := j) hK)
@@ -101,7 +100,7 @@ theorem binet_formula (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
         calc (G (j + 1) : ℝ) = (F j : ℝ) + (G j : ℝ) := by exact_mod_cast s4_7
           _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (G j : ℝ) := congrArg (fun t : ℝ => t + (G j : ℝ)) hIH.1
           _ = (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := congrArg (fun t : ℝ => (φ ^ j.toNat - ψ ^ j.toNat) / Real.sqrt (5 : ℝ) + t) hIH.2
-          _ = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by linear_combination (norm := parley_field) ((-1) / ((Real.sqrt (5 : ℝ)))) * s4_9 + ((1) / ((Real.sqrt (5 : ℝ)))) * s4_10
+          _ = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := by have hz1 : Real.sqrt (5 : ℝ) ≠ 0 := r101_1; linear_combination (norm := (field)) ((-1) / ((Real.sqrt (5 : ℝ)))) * s4_9 + ((1) / ((Real.sqrt (5 : ℝ)))) * s4_10
       -- 4.12. join 4.8, 4.11
       have s4_12a : (F (j + 1) : ℝ) = (φ ^ (j + 1).toNat - ψ ^ (j + 1).toNat) / Real.sqrt (5 : ℝ) := s4_8
       have s4_12b : (G (j + 1) : ℝ) = (φ ^ (j + 1 + 1).toNat - ψ ^ (j + 1 + 1).toNat) / Real.sqrt (5 : ℝ) := s4_11

@@ -1,11 +1,9 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -15,6 +13,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -28,6 +27,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -65,7 +65,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
       -- 2.3.3. def:range-between k := 2, a := 0, b := N, from 2.3.2
       have s2_3_3 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := N))).mpr ⟨by norm_num, s2_3_2b⟩
       -- 2.3.4. algebra
-      have s2_3_4 : N - 2 = N - 1 - 1 := by parley_ring
+      have s2_3_4 : N - 2 = N - 1 - 1 := by ring1
       -- 2.3.5. substitute N − 2 = (N − 1) − 1 (line 2.3.4)
       have s2_3_5 : (LeanBridges.Counting.factorial (N - 2) : ℤ) = (LeanBridges.Counting.factorial (N - 1 - 1) : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2_3_4
       -- 2.3.6. def:factorial n := 1
@@ -95,21 +95,21 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
       -- 2.3.13. calculation
       calc (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := (2 : ℤ))) s2_3_3
         _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by
-            have e_w : (LeanBridges.Counting.factorial (N - 2) : ℚ) = (LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_3_5; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (LeanBridges.Counting.factorial (N - 2) : ℚ) = (LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_3_5; push_cast at h ⊢; linear_combination h
             exact congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ))) e_w
         _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * 2) := by
-            have e_w : (LeanBridges.Counting.factorial (2 : ℤ) : ℚ) = 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_3_9; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (LeanBridges.Counting.factorial (2 : ℤ) : ℚ) = 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_3_9; push_cast at h ⊢; linear_combination h
             exact congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * t)) e_w
         _ = (LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * ((N : ℚ) - 1) * (N : ℚ) / ((LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * 2) := by
-            have e_w : (LeanBridges.Counting.factorial N : ℚ) = (LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * ((N : ℚ) - 1) * (N : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_3_11; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (LeanBridges.Counting.factorial N : ℚ) = (LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * ((N : ℚ) - 1) * (N : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_3_11; push_cast at h ⊢; linear_combination h
             exact congrArg (fun t : ℚ => t / ((LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) * 2)) e_w
-        _ = (N : ℚ) * ((N : ℚ) - 1) / 2 := by parley_ring
+        _ = (N : ℚ) * ((N : ℚ) - 1) / 2 := by have hz1 : (LeanBridges.Counting.factorial (N - 1 - 1) : ℚ) ≠ 0 := (by exact_mod_cast s2_3_12.ne'); field
     · skip
       -- 2.3.14. arithmetic
       have s2_3_14 : (1 : ℤ) < 2 := by parley_arith
       -- 2.3.15. substitute
       have s2_3_15 : N < 2 := by
-        have c1 : 1 = N := by linear_combination (norm := parley_norm) (-1) * hC4
+        have c1 : 1 = N := by linear_combination (-1) * hC4
         have row1 : N < 2 := Eq.subst (motive := (fun t : ℤ => t < 2)) c1 s2_3_14
         exact row1
       -- 2.3.16. calculation
@@ -117,8 +117,8 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
             have hI : (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by parley_instance_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) hH1 (k := (2 : ℤ))) s2_3_15)
             exact hI
         _ = (N : ℚ) * ((N : ℚ) - 1) / 2 := by
-            have hC4_w : (N : ℚ) - 1 = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC4; push_cast at h; linear_combination (norm := parley_norm) h
-            linear_combination (norm := parley_norm) ((-(N : ℚ)) / ((2))) * hC4_w
+            have hC4_w : (N : ℚ) - 1 = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC4; push_cast at h; linear_combination h
+            linear_combination ((-(N : ℚ)) / (((2 : ℚ)))) * hC4_w
   · skip
     -- 2.4. arithmetic
     have s2_4 : (0 : ℤ) < 2 := by parley_arith
@@ -129,7 +129,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
           have hI : (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by parley_instance_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) hH1 (k := (2 : ℤ))) s2_5)
           exact hI
       _ = (N : ℚ) * ((N : ℚ) - 1) / 2 := by
-          have hC2_w : (N : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC2; push_cast at h; linear_combination (norm := parley_norm) h
-          linear_combination (norm := parley_norm) ((-(N : ℚ) + 1) / ((2))) * hC2_w
+          have hC2_w : (N : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC2; push_cast at h; linear_combination h
+          linear_combination ((-(N : ℚ) + 1) / (((2 : ℚ)))) * hC2_w
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseTwo

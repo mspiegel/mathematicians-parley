@@ -118,8 +118,7 @@ const STAGES: [(&str, Stage); 7] = [
 
 /// The Lean file the Lean cases edit, and a step of it with its proof.
 const RATIONAL_SUM: &str = "lean/Parley/Proofs/Setmm/RationalClosure/RationalSum.lean";
-const RATIONAL_SUM_STEP: &str =
-    ":= by linear_combination (norm := parley_field) s1b + s2b";
+const RATIONAL_SUM_STEP: &str = "linear_combination (norm := (field)) s1b + s2b";
 
 /// One planted defect: the stage that must catch it, the file, the text
 /// replaced (its first occurrence), what replaces it, and what the stage
@@ -274,7 +273,7 @@ fn cases() -> Vec<Case> {
             stage: lean_accepted_case,
             file: RATIONAL_SUM,
             old: RATIONAL_SUM_STEP,
-            new: ":= by linear_combination (norm := parley_field) s1b",
+            new: "linear_combination (norm := (field)) s1b",
             expect: "rational-sum step 3 (proofs/setmm/rational-closure.proof:",
         },
         Case {
@@ -282,7 +281,7 @@ fn cases() -> Vec<Case> {
             stage: lean_accepted_case,
             file: RATIONAL_SUM,
             old: RATIONAL_SUM_STEP,
-            new: ":= by sorry",
+            new: "sorry",
             expect: "declaration uses `sorry`",
         },
     ]

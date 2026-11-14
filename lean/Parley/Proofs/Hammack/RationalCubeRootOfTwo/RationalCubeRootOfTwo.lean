@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -14,6 +12,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -53,7 +52,7 @@ theorem rational_cube_root_of_two :
   have s3 : ((p : ℚ) / (q : ℚ)) ^ 3 = 2 := Eq.subst (motive := (fun t : ℚ => t ^ 3 = 2)) s2b s1
   -- 4. algebra, from 3
   have r75_1 : q ≠ 0 := ne_of_gt (by linarith only [s2a])
-  have s4 : p ^ 3 = 2 * q ^ 3 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s3
+  have s4 : p ^ 3 = 2 * q ^ 3 := by qify at *; have hz1 : (q : ℚ) ≠ 0 := (by exact_mod_cast r75_1); linear_combination (norm := (field)) ((q : ℚ) ^ 3) * s3
   -- 5. def:even n := p³, from 4
   have s5 : Even (p ^ 3) := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 3))).mpr ⟨q ^ 3, s4⟩
   -- 6. thm:even-cube n := p, from 5
@@ -63,7 +62,7 @@ theorem rational_cube_root_of_two :
   -- 8. substitute p = 2r (line 7) into line 4
   have s8 : (2 * r) ^ 3 = 2 * q ^ 3 := Eq.subst (motive := (fun t : ℤ => t ^ 3 = 2 * q ^ 3)) s7 s4
   -- 9. algebra, from 8
-  have s9 : q ^ 3 = 2 * (2 * r ^ 3) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s8
+  have s9 : q ^ 3 = 2 * (2 * r ^ 3) := by qify at *; linear_combination (-(1 / 2 : ℚ)) * s8
   -- 10. def:even n := q³, from 9
   have s10 : Even (q ^ 3) := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 3))).mpr ⟨2 * r ^ 3, s9⟩
   -- 11. thm:even-cube n := q, from 10

@@ -64,9 +64,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have s6 : ∀ s ∈ S, s ≤ b := by
     intro s hK1
     -- 6.1. def:set-builder, from D1, K1
-    have s6_1 : s ∈ (Set.Icc a b : Set ℝ) := by
-      push_cast at ⊢
-      exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK1).1
+    have s6_1 : s ∈ (Set.Icc a b : Set ℝ) := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK1).1
     -- 6.2. def:interval, from 6.1
     exact (((Parley.Items.Stdlib.Calculus.def_interval (x := s) (a := a) (b := b))).mp s6_1).2
   -- 7. def:upper-bound, from 6
@@ -176,9 +174,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         intro s hK2
         by_contra hS2
         -- 16.29.1. def:set-builder, from D1, K2
-        have s16_29_1 : s ∈ (Set.Icc a b : Set ℝ) := by
-          push_cast at ⊢
-          exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).1
+        have s16_29_1 : s ∈ (Set.Icc a b : Set ℝ) := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).1
         -- 16.29.2. def:set-builder, from D1, K2
         have s16_29_2 : f s < 0 := by
           have hI : f s < 0 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).2)

@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -26,6 +25,6 @@ namespace Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorSum
 theorem successor_sum (i : ℤ) (hH1 : 0 ≤ i) (j : ℤ) (hH2 : 0 < j) (hH3 : j = i + 1) :
     2 * j = 2 * i + 2 := by
   -- 1. algebra, from H3
-  linear_combination (norm := parley_norm) (2) * hH3
+  linear_combination (2) * hH3
 
 end Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorSum

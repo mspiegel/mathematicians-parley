@@ -3296,9 +3296,50 @@ fn algebra_holds(
     known: &Known,
     targets: &Targets,
 ) -> bool {
-    let Some(mut read) = at.read(known, targets, false) else {
+    let Some(AlgebraDecided {
+        read,
+        facts,
+        verdict,
+    }) = algebra_decided(at, known, targets)
+    else {
         return false;
     };
+    let labels = FloatLabels::new(IndexMap::new());
+    let shown: Vec<&Node> = std::iter::once(&read.claimed).chain(&read.lines).collect();
+    let render = |t: &Term| printed(t, &shown, known, targets, &labels);
+    let number = at.step.number.to_string();
+    if let Some(said) =
+        algebra::refusal(&verdict, &at.claim.to_string(), &number, &render)
+    {
+        report.say(&thm.path, at.line, at.said(said));
+        return true;
+    }
+    if let algebra::Verdict::Holds { combined } = &verdict {
+        if let Some(said) = algebra_unsaid(at, &read, &facts, combined, known, targets)
+        {
+            report.say(&thm.path, at.line, at.said(said));
+        }
+    }
+    !matches!(verdict, algebra::Verdict::Undecided)
+}
+
+/// An `algebra` claim as the method decides it: the claim and its lines
+/// read, the cited lines fact by fact, and the verdict.
+struct AlgebraDecided {
+    read: ClosureRead,
+    /// The cited lines' facts one by one, which the verdict's `combined`
+    /// counts among.
+    facts: Vec<Node>,
+    verdict: algebra::Verdict,
+}
+
+/// The `algebra` decision of one claim; None where the claim does not read.
+fn algebra_decided(
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> Option<AlgebraDecided> {
+    let mut read = at.read(known, targets, false)?;
     read.read_at_member(known);
     let labels = FloatLabels::new(IndexMap::new());
     // The cited lines fact by fact, so that a line saying several things,
@@ -3321,22 +3362,135 @@ fn algebra_holds(
     let verdict = crate::methods::field::reading_sums(linear, || {
         algebra::decide(&claimed, &cited, &labels)
     });
-    let shown: Vec<&Node> = std::iter::once(&read.claimed).chain(&read.lines).collect();
-    let render = |t: &Term| printed(t, &shown, known, targets, &labels);
-    let number = at.step.number.to_string();
-    if let Some(said) =
-        algebra::refusal(&verdict, &at.claim.to_string(), &number, &render)
-    {
-        report.say(&thm.path, at.line, at.said(said));
-        return true;
-    }
-    if let algebra::Verdict::Holds { combined } = &verdict {
-        if let Some(said) = algebra_unsaid(at, &read, &facts, combined, known, targets)
-        {
-            report.say(&thm.path, at.line, at.said(said));
+    Some(AlgebraDecided {
+        read,
+        facts,
+        verdict,
+    })
+}
+
+/// The parts each `algebra` reason divides by, with why each is not zero,
+/// by the line the reason is on (`CheckedTheorem::divided_by`): a step's,
+/// a requires line's, and a calculation row's, read as the requires line
+/// it is (`ChainLine::reason`). Of a claim that holds, the divisors of its
+/// claim and of the cited lines it combines, each taken apart as `nonzero`
+/// finds it not zero; a part nothing says is not zero is left out, as the
+/// check reports it.
+pub fn divided_by(
+    thm: &Theorem,
+    known: &Known,
+    targets: &Targets,
+) -> IndexMap<usize, Vec<super::record::NotZero>> {
+    let mut out = IndexMap::new();
+    for step in &thm.steps {
+        if step.just.head.is(Method::Algebra) {
+            let parts = divided_at(&ClosureClaim::step(step), known, targets);
+            if !parts.is_empty() {
+                out.insert(step.just.line, parts);
+            }
+        }
+        let rows: Vec<crate::corpus::proof::Requires> =
+            chain_links(&step.just, &thm.path)
+                .into_iter()
+                .filter_map(|link| link.line.reason)
+                .collect();
+        let claims = step
+            .requires
+            .iter()
+            .map(|req| (req, ClosureClaim::requires(step, req)))
+            .chain(rows.iter().map(|req| (req, ClosureClaim::row(step, req))));
+        for (req, at) in claims {
+            let (true, Ok(by)) = (req.is(Method::Algebra), &req.by) else {
+                continue;
+            };
+            let parts = divided_at(&at, known, targets);
+            if !parts.is_empty() {
+                out.insert(by.line, parts);
+            }
         }
     }
-    !matches!(verdict, algebra::Verdict::Undecided)
+    out
+}
+
+/// `divided_by` of one claim.
+fn divided_at(
+    at: &ClosureClaim,
+    known: &Known,
+    targets: &Targets,
+) -> Vec<super::record::NotZero> {
+    use super::record::{NonzeroBy, NotZero};
+    use methods_membership::NonzeroHow;
+    let Some(AlgebraDecided {
+        read,
+        facts,
+        verdict: algebra::Verdict::Holds { combined },
+    }) = algebra_decided(at, known, targets)
+    else {
+        return Vec::new();
+    };
+    // What says a divisor is not zero is read with the disequalities of the
+    // requires lines above kept, as `membership` reads a divisor's `≠ 0`
+    // (`ClosureClaim::read`).
+    let Some(mut with_unequal) = at.read(known, targets, true) else {
+        return Vec::new();
+    };
+    with_unequal.read_at_member(known);
+    let held = MembershipIn::of(at, &with_unequal, known);
+    let given = held.given(targets, known);
+    let mut relations = vec![read.claimed.clone()];
+    relations.extend(
+        combined
+            .iter()
+            .filter_map(|&i| facts.get(i))
+            .filter(|n| algebra_relation(n))
+            .cloned(),
+    );
+    let mut out: Vec<NotZero> = Vec::new();
+    for relation in &relations {
+        let sides = sides_of(relation)
+            .into_iter()
+            .flat_map(|side| coordinates_of(side, targets));
+        for side in sides {
+            for d in methods_membership::Parts::of(side).divisors {
+                for (term, how) in methods_membership::nonzero_how(&d, &given)
+                    .into_iter()
+                    .flatten()
+                {
+                    if out.iter().any(|o| known.alike(&o.term, &term)) {
+                        continue;
+                    }
+                    let by = match how {
+                        NonzeroHow::Stated(line) => {
+                            // The line it is read from: itself where a line
+                            // states it, or the fact implying it.
+                            let Some(from) = held
+                                .stated
+                                .iter()
+                                .find(|s| known.alike(s, line))
+                                .or_else(|| {
+                                    held.stated.iter().find(|s| {
+                                        implied_facts(s, known.env, &known.sorts)
+                                            .iter()
+                                            .any(|i| known.alike(i, line))
+                                    })
+                                })
+                            else {
+                                continue;
+                            };
+                            NonzeroBy::Stated {
+                                line: line.clone(),
+                                from: from.clone(),
+                            }
+                        }
+                        NonzeroHow::Numerals => NonzeroBy::Numerals,
+                        NonzeroHow::Positive => NonzeroBy::Positive,
+                    };
+                    out.push(NotZero { term, by });
+                }
+            }
+        }
+    }
+    out
 }
 
 /// What an `algebra` step that holds leaves unsaid of its hypotheses
@@ -6179,6 +6333,9 @@ fn membership_holds(
 /// and the function types in scope.
 struct MembershipIn {
     facts: Vec<Node>,
+    /// The facts the lines state, of which `facts` holds these and what
+    /// they imply, `x > 0` of `x ∈ ℕ` (`implied_facts`).
+    stated: Vec<Node>,
     letters: crate::citing::Introduced,
     ranged: IndexMap<String, methods_membership::Range>,
     typed: Vec<Node>,
@@ -6216,8 +6373,9 @@ impl MembershipIn {
                 }
             }
         }
-        let mut facts: Vec<Node> = lines.iter().flat_map(conjuncts).collect();
-        let implied: Vec<Node> = facts
+        let stated: Vec<Node> = lines.iter().flat_map(conjuncts).collect();
+        let mut facts = stated.clone();
+        let implied: Vec<Node> = stated
             .iter()
             .flat_map(|f| implied_facts(f, known.env, &known.sorts))
             .collect();
@@ -6240,6 +6398,7 @@ impl MembershipIn {
             .collect();
         MembershipIn {
             facts,
+            stated,
             letters,
             ranged,
             typed,
@@ -6380,6 +6539,20 @@ impl<'s> ClosureClaim<'s> {
             above: Vec::new(),
             line: step.just.line,
             requires: None,
+        }
+    }
+
+    /// A calculation row's reason, read as the requires line it is
+    /// (`ChainLine::reason`), with every requires line of its step: the
+    /// step's requires lines stand under its rows, and a row's reason is
+    /// read with them (`CHECKER.md`).
+    fn row(
+        step: &'s Step,
+        req: &'s crate::corpus::proof::Requires,
+    ) -> ClosureClaim<'s> {
+        ClosureClaim {
+            above: step.requires.iter().collect(),
+            ..ClosureClaim::requires(step, req)
         }
     }
 

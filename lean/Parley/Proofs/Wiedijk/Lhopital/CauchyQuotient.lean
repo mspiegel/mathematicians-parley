@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Module.Defs
@@ -16,6 +14,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -76,9 +75,9 @@ theorem cauchy_quotient (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (U : Se
   -- 10. mun:in-subset, from H6, 8
   have s10 : q ∈ E := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc p q : Set ℝ)) (Y := E) (u := q) hH6 s8)
   -- 11. algebra, from 4
-  have r92_5 : G q - G p ≠ 0 := by intro h; exact s3 (by linear_combination (norm := parley_norm) (-1) * h)
+  have r92_5 : G q - G p ≠ 0 := by intro h; exact s3 (by linear_combination (-1) * h)
   have r92_8 : (deriv G) ξ ≠ 0 := by exact s6
-  have s11 : (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ := by linear_combination (norm := parley_field) ((1) / ((-G p + G q) * ((deriv G) ξ))) * s4b
+  have s11 : (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ := by have hz1 : G q - G p ≠ 0 := r92_5; have hz2 : (deriv G) ξ ≠ 0 := r92_8; linear_combination (norm := (field)) ((1) / ((G q - G p) * ((deriv G) ξ))) * s4b
   -- 12. exhibit, from 4, 11
   have s12 : ∃ ξ ∈ (Set.Ioo p q : Set ℝ), (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ := ⟨ξ, s4a, s11⟩
   -- 13. join 3, 12

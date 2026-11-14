@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
@@ -37,7 +36,7 @@ theorem shifted_multiples_of_four :
     -- 1.1. obtain m: def:set-image u := t, from K1
     obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 5)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (Set.mapsTo_univ _ _))).mp hK1
     -- 1.2. algebra, from 1.1
-    have s1_2 : t = 4 * (m + 1) + 1 := by linear_combination (norm := parley_norm) s1_1
+    have s1_2 : t = 4 * (m + 1) + 1 := by linear_combination s1_1
     -- 1.3. exhibit, from 1.2
     have s1_3 : ∃ k : ℤ, t = 4 * k + 1 := ⟨m + 1, s1_2⟩
     -- 1.4. def:set-image u := t, from 1.3
@@ -50,7 +49,7 @@ theorem shifted_multiples_of_four :
     -- 3.1. obtain m: def:set-image u := t, from K2
     obtain ⟨m, _, s3_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun k : ℤ => 4 * k + 1)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (Set.mapsTo_univ _ _))).mp hK2
     -- 3.2. algebra, from 3.1
-    have s3_2 : t = 4 * (m - 1) + 5 := by linear_combination (norm := parley_norm) s3_1
+    have s3_2 : t = 4 * (m - 1) + 5 := by linear_combination s3_1
     -- 3.3. exhibit, from 3.2
     have s3_3 : ∃ k : ℤ, t = 4 * k + 5 := ⟨m - 1, s3_2⟩
     -- 3.4. def:set-image u := t, from 3.3

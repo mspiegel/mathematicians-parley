@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
@@ -36,6 +34,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -99,31 +98,31 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     -- 9.4. substitute c = 2r (line 9.3) into line 8
     have s9_4 : (2 * w) ^ 2 + (2 * q + 1) ^ 2 = (2 * r) ^ 2 := Eq.subst (motive := (fun t : ℤ => (2 * w) ^ 2 + (2 * q + 1) ^ 2 = t ^ 2)) s9_3 s8
     -- 9.5. algebra, from 9.4
-    have s9_5 : 1 = 2 * (2 * r ^ 2 - 2 * w ^ 2 - 2 * q ^ 2 - 2 * q) := by linear_combination (norm := parley_norm) s9_4
+    have s9_5 : 1 = 2 * (2 * r ^ 2 - 2 * w ^ 2 - 2 * q ^ 2 - 2 * q) := by linear_combination s9_4
     -- 9.6. def:divides d := 2, n := 1, from 9.5
     have s9_6 : (2 : ℤ) ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨2 * r ^ 2 - 2 * w ^ 2 - 2 * q ^ 2 - 2 * q, s9_5⟩
     exact absurd s9_6 (by norm_num)
   -- 10. obtain r: def:odd n := c, from 9
   obtain ⟨r, s10⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := c))).mp s9
   -- 11. algebra, from 7, 10
-  have s11 : c + b = 2 * (r + q + 1) := by linear_combination (norm := parley_norm) s7 + s10
+  have s11 : c + b = 2 * (r + q + 1) := by linear_combination s7 + s10
   -- 12. def:even n := c + b, from 11
   have s12 : Even (c + b) := ((Parley.Items.Stdlib.Divisibility.def_even (n := c + b))).mpr ⟨r + q + 1, s11⟩
   -- 13. obtain s: def:even n := c + b, from 12
   obtain ⟨s, s13⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := c + b))).mp s12
   -- 14. algebra, from 7, 10
-  have s14 : c - b = 2 * (r - q) := by linear_combination (norm := parley_norm) (-1) * s7 + s10
+  have s14 : c - b = 2 * (r - q) := by linear_combination (-1) * s7 + s10
   -- 15. def:even n := c − b, from 14
   have s15 : Even (c - b) := ((Parley.Items.Stdlib.Divisibility.def_even (n := c - b))).mpr ⟨r - q, s14⟩
   -- 16. obtain t: def:even n := c − b, from 15
   obtain ⟨t, s16⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := c - b))).mp s15
   -- 17. algebra, from 13, 16
-  have s17 : c * 2 = (s + t) * 2 := by linear_combination (norm := parley_norm) s13 + s16
+  have s17 : c * 2 = (s + t) * 2 := by linear_combination s13 + s16
   -- 18. mun:multiply-cancel a := c, b := s + t, c := 2, from 17
   have r269_1 : (2 : ℤ) ≠ 0 := by parley_arith
   have s18 : c = s + t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := c) (b := s + t) (c := (2 : ℤ)) s17 (by norm_num))
   -- 19. algebra
-  have s19 : (s - t) * 2 = 2 * s - 2 * t := by parley_ring
+  have s19 : (s - t) * 2 = 2 * s - 2 * t := by ring1
   -- 20. substitute
   have s20 : (s - t) * 2 = c + b - (c - b) := by
     have c1 : 2 * s = c + b := congrArg (fun u : ℤ => u) s13.symm
@@ -133,7 +132,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     exact row2
   -- 21. calculation
   have s21 : b * 2 = (s - t) * 2 := by
-    calc b * 2 = c + b - (c - b) := by parley_ring
+    calc b * 2 = c + b - (c - b) := by ring1
       _ = (s - t) * 2 := s20.symm
   -- 22. mun:multiply-cancel a := b, b := s − t, c := 2, from 21
   have r287_1 : (2 : ℤ) ≠ 0 := by parley_arith
@@ -163,7 +162,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have r326_1 : 0 < s := by linarith only [s31]
   have s32 : 0 < s := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := s) r326_1)
   -- 33. algebra
-  have s33 : (c + b) * (c - b) = c ^ 2 - b ^ 2 := by parley_ring
+  have s33 : (c + b) * (c - b) = c ^ 2 - b ^ 2 := by ring1
   -- 34. substitute
   have s34 : 2 * s * (2 * t) = c ^ 2 - b ^ 2 := by
     have c1 : c + b = 2 * s := congrArg (fun u : ℤ => u) s13
@@ -173,11 +172,11 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     exact row2
   -- 35. calculation
   have s35 : w ^ 2 * 4 = s * t * 4 := by
-    calc w ^ 2 * 4 = (2 * w) ^ 2 := by parley_ring
+    calc w ^ 2 * 4 = (2 * w) ^ 2 := by ring1
       _ = a ^ 2 := congrArg (fun u : ℤ => u ^ 2) s1.symm
-      _ = c ^ 2 - b ^ 2 := by linear_combination (norm := parley_norm) hH4
+      _ = c ^ 2 - b ^ 2 := by linear_combination hH4
       _ = 2 * s * (2 * t) := s34.symm
-      _ = s * t * 4 := by parley_ring
+      _ = s * t * 4 := by ring1
   -- 36. mun:multiply-cancel a := w², b := s·t, c := 4, from 35
   have r347_1 : (4 : ℤ) ≠ 0 := by parley_arith
   have s36 : w ^ 2 = s * t := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := w ^ 2) (b := s * t) (c := (4 : ℤ)) s35 (by norm_num))
@@ -229,7 +228,7 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   -- 49. membership
   have s49 : 0 < m * n := mul_pos (hD1_pos) (hD2_pos)
   -- 50. algebra, from 48
-  have s50 : w ^ 2 = (m * n) ^ 2 := by linear_combination (norm := parley_norm) s48
+  have s50 : w ^ 2 = (m * n) ^ 2 := by linear_combination s48
   -- 51. mun:square-equal x := w, y := m·n, from 50
   have r410_1 : w ≥ 0 := by linarith only [s4]
   have r410_2 : m * n ≥ 0 := by linarith only [s49]
@@ -268,14 +267,14 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s60 : (Int.gcd m n : ℤ) ∣ m * m := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (Int.gcd m n : ℤ)) (a := m) (x := m) s59b)
   -- 61. substitute
   have s61 : (Int.gcd m n : ℤ) ∣ s := by
-    have c1 : m * m = s := by linear_combination (norm := parley_norm) (-1) * s46
+    have c1 : m * m = s := by linear_combination (-1) * s46
     have row1 : (Int.gcd m n : ℤ) ∣ s := Eq.subst (motive := (fun u : ℤ => (Int.gcd m n : ℤ) ∣ u)) c1 s60
     exact row1
   -- 62. mun:divides-multiple e := gcd(m, n), a := n, x := n, from 59
   have s62 : (Int.gcd m n : ℤ) ∣ n * n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (Int.gcd m n : ℤ)) (a := n) (x := n) s59c)
   -- 63. substitute
   have s63 : (Int.gcd m n : ℤ) ∣ t := by
-    have c1 : n * n = t := by linear_combination (norm := parley_norm) (-1) * s47
+    have c1 : n * n = t := by linear_combination (-1) * s47
     have row1 : (Int.gcd m n : ℤ) ∣ t := Eq.subst (motive := (fun u : ℤ => (Int.gcd m n : ℤ) ∣ u)) c1 s62
     exact row1
   -- 64. thm:divides-gcd d := gcd(m, n), a := s, b := t, from 61, 63
@@ -294,21 +293,21 @@ theorem primitive_triple (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
     -- 67.3. obtain u: def:even n := m + n, from 67.2
     obtain ⟨u, s67_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := m + n))).mp s67_2
     -- 67.4. algebra
-    have s67_4 : m ^ 2 - n ^ 2 = (m + n) * (m - n) := by parley_ring
+    have s67_4 : m ^ 2 - n ^ 2 = (m + n) * (m - n) := by ring1
     -- 67.5. substitute m + n = 2u (line 67.3) into line 67.4
     have s67_5 : m ^ 2 - n ^ 2 = 2 * u * (m - n) := Eq.subst (motive := (fun v : ℤ => m ^ 2 - n ^ 2 = v * (m - n))) s67_3 s67_4
     -- 67.6. calculation
     have s67_6 : b = 2 * (u * (m - n)) := by
       calc b = m ^ 2 - n ^ 2 := s53
         _ = 2 * u * (m - n) := s67_5
-        _ = 2 * (u * (m - n)) := by parley_ring
+        _ = 2 * (u * (m - n)) := by ring1
     -- 67.7. def:even n := b, from 67.6
     have s67_7 : Even b := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mpr ⟨u * (m - n), s67_6⟩
     -- 67.8. mun:not-both n := b, from 67.7
     have s67_8 : ¬ Odd b := by exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := b) s67_7)
     exact s67_8 s6
   -- 68. exhibit, from 53, 54, 58, 66, 67
-  have r505_1 : a = 2 * m * n := by linear_combination (norm := parley_norm) s52
+  have r505_1 : a = 2 * m * n := by linear_combination s52
   exact ⟨m, hD1_pos, n, hD2_pos, ⟨⟨⟨⟨⟨s58, s66⟩, s67⟩, r505_1⟩, s53⟩, s54⟩⟩
 
 end Parley.Proofs.Wiedijk.PythagoreanTriples.PrimitiveTriple

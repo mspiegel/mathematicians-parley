@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/square-congruent-one-mod-five.proof by parley build lean. -/
@@ -38,7 +38,7 @@ theorem square_congruent_one_mod_five (a : ℤ) (hH2 : a ≡ (1 : ℤ) [ZMOD (5 
   have s2 : (5 : ℤ) ∣ (a - 1) * (a + 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) s1)
   -- 3. substitute
   have s3 : (5 : ℤ) ∣ a ^ 2 - 1 := by
-    have c1 : (a - 1) * (a + 1) = a ^ 2 - 1 := by parley_ring
+    have c1 : (a - 1) * (a + 1) = a ^ 2 - 1 := by ring1
     have row1 : (5 : ℤ) ∣ a ^ 2 - 1 := Eq.subst (motive := (fun t : ℤ => (5 : ℤ) ∣ t)) c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3

@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -17,6 +15,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -29,9 +28,11 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Divisibility
@@ -62,7 +63,7 @@ theorem rational_squares_sum_not_three :
   -- 5. substitute y = c/d (line 3) into line 4
   have s5 : ((a : ℚ) / (b : ℚ)) ^ 2 + ((c : ℚ) / (d : ℚ)) ^ 2 - 3 = 0 := Eq.subst (motive := (fun t : ℚ => ((a : ℚ) / (b : ℚ)) ^ 2 + t ^ 2 - 3 = 0)) s3b s4
   -- 6. algebra, from 5
-  have s6 : (a * d) ^ 2 + (c * b) ^ 2 = 3 * (b * d) ^ 2 := by qify at *; linear_combination (norm := parley_field) ((b : ℚ) ^ 2 * (d : ℚ) ^ 2) * s5
+  have s6 : (a * d) ^ 2 + (c * b) ^ 2 = 3 * (b * d) ^ 2 := by qify at *; have hz1 : (b : ℚ) ≠ 0 := (by positivity); have hz2 : (d : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) ((b : ℚ) ^ 2 * (d : ℚ) ^ 2) * s5
   -- 7. exhibit, from 6
   have s7 : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (b * d) ^ 2 := ⟨a * d, c * b, s6⟩
   -- 8. def:set-builder u := b·d, from D1, 7
@@ -90,7 +91,7 @@ theorem rational_squares_sum_not_three :
   have s14 : (3 : ℤ) ∣ p := by exact (Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesSumOfSquares.three_divides_sum_of_squares (p := p) (q := q) s13)
   -- 15. substitute
   have s15 : (3 : ℤ) ∣ q ^ 2 + p ^ 2 := by
-    have c1 : p ^ 2 + q ^ 2 = q ^ 2 + p ^ 2 := by parley_ring
+    have c1 : p ^ 2 + q ^ 2 = q ^ 2 + p ^ 2 := by ring1
     have row1 : (3 : ℤ) ∣ q ^ 2 + p ^ 2 := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s13
     exact row1
   -- 16. thm:three-divides-sum-of-squares p := q, q := p, from 15
@@ -104,7 +105,7 @@ theorem rational_squares_sum_not_three :
   -- 20. substitute q = 3t (line 18) into line 19
   have s20 : (3 * s) ^ 2 + (3 * t) ^ 2 = 3 * m ^ 2 := Eq.subst (motive := (fun u : ℤ => (3 * s) ^ 2 + u ^ 2 = 3 * m ^ 2)) s18 s19
   -- 21. algebra, from 11, 20
-  have s21 : m ^ 2 = 3 * (s ^ 2 + t ^ 2) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s20
+  have s21 : m ^ 2 = 3 * (s ^ 2 + t ^ 2) := by qify at *; linear_combination (-(1 / 3 : ℚ)) * s20
   -- 22. def:divides d := 3, n := m², from 11, 21
   have s22 : (3 : ℤ) ∣ m ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := m ^ 2))).mpr ⟨s ^ 2 + t ^ 2, s21⟩
   -- 23. thm:three-divides-square n := m, from 11, 22
@@ -114,7 +115,7 @@ theorem rational_squares_sum_not_three :
   -- 25. substitute m = 3u (line 24) into line 21
   have s25 : (3 * u) ^ 2 = 3 * (s ^ 2 + t ^ 2) := Eq.subst (motive := (fun w : ℤ => w ^ 2 = 3 * (s ^ 2 + t ^ 2))) s24 s21
   -- 26. algebra, from 25
-  have s26 : s ^ 2 + t ^ 2 = 3 * u ^ 2 := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s25
+  have s26 : s ^ 2 + t ^ 2 = 3 * u ^ 2 := by qify at *; linear_combination (-(1 / 3 : ℚ)) * s25
   -- 27. inequalities, from 11
   have s27 : m > 0 := by linarith only [s11a]
   -- 28. substitute m = 3u (line 24) into line 27

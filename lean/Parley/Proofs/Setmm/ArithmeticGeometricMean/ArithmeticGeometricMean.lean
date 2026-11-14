@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/arithmetic-geometric-mean.proof by parley build lean. -/
@@ -45,7 +45,7 @@ theorem arithmetic_geometric_mean (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B �
   -- 5. inequalities
   have s5 : (A + B) / 2 ≥ 0 := by linarith only [s4]
   -- 6. algebra
-  have s6 : ((A + B) / 2) ^ 2 = A * B + ((A - B) / 2) ^ 2 := by parley_ring
+  have s6 : ((A + B) / 2) ^ 2 = A * B + ((A - B) / 2) ^ 2 := by ring1
   -- 7. mun:square-nonneg x := (A − B)/2
   have s7 : ((A - B) / 2) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (A - B) / 2))
   -- 8. inequalities

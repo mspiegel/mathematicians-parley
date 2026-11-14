@@ -742,6 +742,50 @@ fn to_nat_read(term: &Printed) -> Printed {
     }
 }
 
+/// `linear_combination proof` of a claim stated `wanted` from a line stated
+/// `says`, each first brought to the atoms `ring1` reads alike
+/// (`same_ring_atoms`): its `toNat`s of sums, products and numerals taken
+/// apart where it has one (`to_nat_read`), by the facts 0 ≤ a in scope, and
+/// its casts pushed in where it casts a compound term (`casts_compound`).
+/// The line is named `h` where it is changed.
+fn ring_combination(proof: &Printed, says: &Printed, wanted: &Printed) -> Tactic {
+    use super::doc::Location;
+    use super::tactics as t;
+    let to_nat = |p: &Printed| to_nat_read(p).untyped() != p.untyped();
+    let places = |test: &dyn Fn(&Printed) -> bool| {
+        let mut at = Vec::new();
+        if test(says) {
+            at.push(Location::Hypothesis("h".to_string()));
+        }
+        if test(wanted) {
+            at.push(Location::Goal);
+        }
+        at
+    };
+    let mut steps = Vec::new();
+    let nat_at = places(&to_nat);
+    if !nat_at.is_empty() {
+        steps.push(t::simp_only(
+            false,
+            Some(t::call("omega", vec![])),
+            ["Int.toNat_add", "Int.toNat_mul", "Int.reduceToNat"]
+                .into_iter()
+                .map(|l| t::forwards(t::lemma(l)))
+                .collect(),
+            Some(TacticArg::At(nat_at)),
+        ));
+    }
+    let cast_at = places(&casts_compound);
+    if !cast_at.is_empty() {
+        steps.push(t::push_cast(Some(TacticArg::At(cast_at))));
+    }
+    if steps.is_empty() {
+        return t::linear_combination(proof.clone());
+    }
+    steps.push(t::linear_combination(t::hyp("h")));
+    t::on_h(proof, steps)
+}
+
 /// The statement with each `toNat` of a natural number written in ℤ read
 /// as that number (`casts::as_natural`), `((a : ℤ) * (b : ℤ)).toNat` as `a
 /// * b`, as `norm_cast` reads it by `Int.toNat_natCast`; every other
@@ -2998,19 +3042,14 @@ fn header_reading(
         .filter(|(key, _)| key.line == d.line)
         .map(|(_, node)| node)
         .collect();
-    let over = |n: &&&Node| {
-        matches!(
-            n.notation(),
-            crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
-        )
-    };
     // The domain: a number system or range written in the line, or a set,
     // a letter or a set the header itself defines, written out.
-    let domain = match read.iter().find(over) {
-        Some(n) => (**n).clone(),
+    let domain = match read.iter().copied().find(|n| system_or_range(n)) {
+        Some(n) => n.clone(),
         None => {
-            let sets: Vec<&&Node> = read
+            let sets: Vec<&Node> = read
                 .iter()
+                .copied()
                 .filter(|n| !(n.is_name() && *n.text == *param.name))
                 .filter(|n| {
                     let out = defined_out(n, rec, writer);
@@ -3027,9 +3066,10 @@ fn header_reading(
             }
         }
     };
-    let bodies: Vec<&&Node> = read
+    let bodies: Vec<&Node> = read
         .iter()
-        .filter(|n| !over(n))
+        .copied()
+        .filter(|n| !system_or_range(n))
         .filter(|n| !(n.is_name() && *n.text == *param.name))
         .filter(|n| writer.set_members(&defined_out(n, rec, writer)).is_none())
         .collect();
@@ -5194,6 +5234,83 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// The parts the reason on `line` divides by, with how Lean is shown
+    /// each is not zero (`CheckedTheorem::divided_by`). Of a part a line
+    /// says is not zero, the line it is read from, among those the step
+    /// names, with the step's `defines` written out in it as the checker
+    /// reads it, turned to say `d ≠ 0` by what its Lean statement says
+    /// (`nonzero_turned`): `d ∈ ℕ` is `0 < d` in Lean, so `h.ne'`.
+    /// Numerals are left to `field_simp`, which works them out.
+    fn divisors_at(
+        &self,
+        line: usize,
+        defines: &[CitedDefine],
+    ) -> Route<Vec<super::algebra::NotZero>> {
+        use super::algebra::{NotZero, NotZeroBy};
+        use crate::checker::record::NonzeroBy;
+        let ctx = self.sources.ctx;
+        let standard = |n: &Node| crate::matching::standard(n, ctx);
+        let named: Vec<String> =
+            self.named_now.borrow().iter().flatten().cloned().collect();
+        let mut facts = self.cited_parts(&named);
+        for f in &mut facts {
+            for d in defines {
+                f.node = self.put_define(&f.node, d);
+            }
+        }
+        let mut out = Vec::new();
+        for part in self.rec.divided_by.get(&line).into_iter().flatten() {
+            let by = match &part.by {
+                NonzeroBy::Numerals => continue,
+                NonzeroBy::Positive => NotZeroBy::Positive,
+                NonzeroBy::Stated { from, .. } => {
+                    let from = standard(from);
+                    let said = facts
+                        .iter()
+                        .find(|f| {
+                            crate::matching::alike_top(&standard(&f.node), &from, ctx)
+                        })
+                        .and_then(|f| {
+                            let says = f
+                                .says
+                                .clone()
+                                .or_else(|| self.writer.formula(&f.node).built())?;
+                            Some((f, says))
+                        });
+                    let Some((fact, says)) = said else {
+                        return Route::no(format!(
+                            "a divisor's ≠ 0 the checker read from {}, which no line the step names says in Lean",
+                            self.writer.grammar.print(&from)
+                        ));
+                    };
+                    let witnessed = || {
+                        natural_witnessed(&fact.node, &self.writer)
+                            .then(|| unwitnessed_nonzero(&fact.proof))
+                    };
+                    let Some(proof) =
+                        nonzero_turned(&fact.proof, &says).or_else(witnessed)
+                    else {
+                        return Route::no(format!(
+                            "a divisor's ≠ 0 read from {}, which Lean states as {}, no sign or ≠ 0",
+                            self.writer.grammar.print(&from),
+                            says.text()
+                        ));
+                    };
+                    let stated = match super::doc::forms::relation_type(&says) {
+                        Some(super::doc::LeanType::Num(n)) => Some(n),
+                        _ => None,
+                    };
+                    NotZeroBy::Line { proof, stated }
+                }
+            };
+            out.push(NotZero {
+                term: part.term.clone(),
+                by,
+            });
+        }
+        Route::Built(out)
+    }
+
     /// The record's parts held by the lines of the reason on `line`
     /// (`CheckedTheorem::held_by_lines`); none for a line it has none of.
     fn held_at(&self, line: usize) -> Vec<crate::checker::record::HeldByLines> {
@@ -6494,6 +6611,22 @@ impl<'a> Proof<'a> {
                         break;
                     }
                 }
+                // A claim whose two sides are one term once the defines are
+                // put in is closed by writing them out in it, which leaves
+                // `a = a`.
+                let same_sides = claim.notation() == EQUALITY
+                    && matches!(claim.children.as_slice(),
+                        [l, r] if grammar.print(l) == grammar.print(r));
+                if same_sides && grammar.print(&claim) != grammar.print(node) {
+                    let goal = [RewriteAt {
+                        at: super::doc::Location::Goal,
+                        said: vec![node.clone()],
+                        stated: writer.formula(node).built().into_iter().collect(),
+                    }];
+                    return Route::Built(Proof::By(Tactic::Seq(written_out(
+                        &defines, &goal, writer,
+                    ))));
+                }
                 let mut haves = Vec::new();
                 for c in &mut cited {
                     match self.widened(&c.node, &c.proof, &claim, writer) {
@@ -6505,17 +6638,35 @@ impl<'a> Proof<'a> {
                     }
                 }
                 // Each read with its identity elements dropped, as the
-                // checker decides it: F(0 + 1) and F(1) are one term.
+                // checker decides it: F(0 + 1) and F(1) are one term, and
+                // (d·1).toNat and d.toNat. Lean has them one where the
+                // check normalises inside each term (`algebra`'s
+                // `inside_terms`): where dropping changes a line, or a
+                // function's argument is numerals worked on, F(1 + 1).
                 let ctx = self.sources.ctx;
-                let claim = crate::matching::bare(&claim, ctx);
+                let print = |n: &Node| self.writer.grammar.print(n);
+                let mut inside_terms = numerals_in_an_argument(&claim)
+                    || cited.iter().any(|c| numerals_in_an_argument(&c.node));
+                let bared = crate::matching::bare(&claim, ctx);
+                inside_terms |= print(&bared) != print(&claim);
+                let claim = bared;
                 for c in &mut cited {
-                    c.node = crate::matching::bare(&c.node, ctx);
+                    let bared = crate::matching::bare(&c.node, ctx);
+                    inside_terms |= print(&bared) != print(&c.node);
+                    c.node = bared;
                 }
+                let divisors = match self.divisors_at(just.line, &defines) {
+                    Route::Built(d) => d,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
                 let proof = match super::algebra::algebra(
                     writer,
                     self.sources.targets,
                     &claim,
                     &cited,
+                    inside_terms,
+                    &divisors,
+                    self.worked_in.get(),
                 ) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
@@ -8351,6 +8502,7 @@ impl<'a> Proof<'a> {
                     // Which way the item faces the claim, as the checker met
                     // them (`Cited::facings`); where it records none, the
                     // step keeps its ways.
+                    let turned = matches!(facing, Some(Facing::Turned));
                     let facing = match facing {
                         Some(facing) => faced(term, facing),
                         None => {
@@ -8362,8 +8514,12 @@ impl<'a> Proof<'a> {
                             )
                         }
                     };
-                    return super::doc::Proof::By(super::tactics::linear_combination(
-                        facing,
+                    let says = match turned {
+                        false => reduced.clone(),
+                        true => super::doc::forms::turned_statement(&reduced),
+                    };
+                    return super::doc::Proof::By(ring_combination(
+                        &facing, &says, claim,
                     ));
                 }
                 ORDER
@@ -9939,51 +10095,12 @@ impl<'a> Proof<'a> {
         if set_valued(self.rec, &def.name) {
             return Route::left_out(SET_VALUED);
         }
-        // The checker reads the line's argument, the set it runs over and
-        // the value apart.
-        let read: Vec<&Node> = self
-            .rec
-            .page
-            .entries()
-            .filter(|(key, _)| key.line == line.line)
-            .map(|(_, node)| node)
-            .collect();
-        let over = |n: &&&Node| {
-            matches!(
-                n.notation(),
-                crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
-            )
-        };
-        // Over a number system, a range, or a set of numbers, X of X ⊆ ℤ.
-        let of_numbers = |n: &&&Node| {
-            !(n.is_name() && *n.text == *param.name)
-                && matches!(
-                    self.writer.set_members(n),
-                    Some(super::expr::Members::Numbers(_))
-                )
-        };
-        let Some(domain) = read
-            .iter()
-            .find(over)
-            .or_else(|| read.iter().find(of_numbers))
-        else {
-            return Route::left_out(
-                "a define of a function on other than a number system",
-            );
-        };
-        // The value is what the line reads besides the domain and the
-        // argument; a value that is itself a set of numbers, {|x| : x ∈
-        // 𝒫{1, …, k}}, is not the domain.
-        let bodies: Vec<&&Node> = read
-            .iter()
-            .filter(|n| !std::ptr::eq(**n, *domain))
-            .filter(|n| !(n.is_name() && *n.text == *param.name))
-            .collect();
-        let [body] = bodies.as_slice() else {
-            return Route::left_out(
-                "a define whose value the checker did not read as one term",
-            );
-        };
+        let FunctionRead { domain, body } =
+            match self.function_read(line.line, &param.name) {
+                Route::Built(read) => read,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+        let (domain, body) = (&domain, &body);
         // A function on ℕ, ℕ₀ or a range {0, …, m} takes integers, as the
         // writer's sequences do, so that q(j) of a sum's index is written
         // as it stands; its values off the range are none of the page's.
@@ -10052,7 +10169,7 @@ impl<'a> Proof<'a> {
         // A function whose kind says its values are whole, which Lean
         // computes wider: its values are the kind's witnesses.
         if def.kind.is_some() && to > super::templates::Num::Int {
-            let (domain, body) = ((*domain).clone(), (**body).clone());
+            let (domain, body) = (domain.clone(), body.clone());
             return self.kinded_function(d, def, from, domain, body, depth);
         }
         let name = super::names::letter(&def.name);
@@ -12558,7 +12675,9 @@ impl<'a> Proof<'a> {
         let same_casts = cast_texts(&says) == cast_texts(&wanted);
         let atoms = same_ring_atoms(&says, &wanted, &self.set_values());
         super::doc::Proof::By(match node.notation() {
-            EQUALITY if of_numbers && pushed && atoms => t::linear_combination(proof),
+            EQUALITY if of_numbers && pushed && atoms => {
+                ring_combination(&proof, &says, &wanted)
+            }
             ORDER if same_casts && atoms => {
                 t::call("linarith", vec![t::rules(vec![proof])])
             }
@@ -12599,6 +12718,60 @@ impl<'a> Proof<'a> {
         out
     }
 
+    /// A define of a function of one argument `param` on page line `line`,
+    /// as the checker reads it apart: the set the argument runs over and
+    /// the value. The set is a number system or a range, or else a set of
+    /// numbers, X of X ⊆ ℤ; the value is what the line reads besides the set
+    /// and the argument, a value that is itself a set of numbers, {|x| : x ∈
+    /// 𝒫{1, …, k}}, not taken for the set.
+    fn function_read(&self, line: usize, param: &str) -> Route<FunctionRead> {
+        let read: Vec<&Node> = self
+            .rec
+            .page
+            .entries()
+            .filter(|(key, _)| key.line == line)
+            .map(|(_, node)| node)
+            .collect();
+        let argument = |n: &Node| n.is_name() && *n.text == *param;
+        let Some(domain) =
+            read.iter()
+                .copied()
+                .find(|n| system_or_range(n))
+                .or_else(|| {
+                    read.iter()
+                        .copied()
+                        .find(|n| !argument(n) && self.numbers_set(n))
+                })
+        else {
+            return Route::left_out(
+                "a define of a function on other than a number system",
+            );
+        };
+        let bodies: Vec<&Node> = read
+            .iter()
+            .copied()
+            .filter(|n| !std::ptr::eq(*n, domain) && !argument(n))
+            .collect();
+        let [body] = bodies.as_slice() else {
+            return Route::left_out(
+                "a define whose value the checker did not read as one term",
+            );
+        };
+        Route::Built(FunctionRead {
+            domain: domain.clone(),
+            body: (*body).clone(),
+        })
+    }
+
+    /// Whether a term is a set of numbers as the writer writes it, X of X ⊆
+    /// ℤ.
+    fn numbers_set(&self, n: &Node) -> bool {
+        matches!(
+            self.writer.set_members(n),
+            Some(super::expr::Members::Numbers(_))
+        )
+    }
+
     /// A define of a function of one argument a step cites by its label,
     /// q(j) = F(j)²: its name, its body, its argument and the name of the
     /// line Lean's `set` gives it; None for any other reference.
@@ -12616,22 +12789,11 @@ impl<'a> Proof<'a> {
         let [param] = def.params.as_slice() else {
             return None;
         };
-        let bodies: Vec<&Node> = self
-            .rec
-            .page
-            .entries()
-            .filter(|(key, _)| key.line == line.line)
-            .map(|(_, node)| node)
-            .filter(|n| n.notation() != crate::notations::NUMBER_SYSTEMS)
-            .filter(|n| !(n.is_name() && *n.text == *param.name))
-            .collect();
-        let [body] = bodies.as_slice() else {
-            return None;
-        };
+        let body = self.function_read(line.line, &param.name).built()?.body;
         let proof = self.named.get(label)?.first()?.clone();
         Some(CitedDefine {
             name: Node::name(crate::formula::Sort::none(), &def.name),
-            value: (*body).clone(),
+            value: body,
             proof,
             param: Some(param.name.clone()),
         })
@@ -18880,9 +19042,35 @@ fn place_is_exponent(start: &Node, path: &[usize]) -> bool {
         && at_path(start, up).is_some_and(|n| n.notation() == crate::notations::POWER)
 }
 
+/// Whether a line as the page writes it applies a function to numerals
+/// worked on, F(0 + 1) or F(1 + 1), which Lean reads as another atom than
+/// F(1) or F(2) until the numerals are worked out.
+fn numerals_in_an_argument(node: &Node) -> bool {
+    node.walk().iter().any(|n| {
+        n.notation() == crate::notations::APPLICATION
+            && n.children.iter().skip(1).any(|a| {
+                !a.children.is_empty() && !a.walk().iter().any(|p| p.is_name())
+            })
+    })
+}
+
+/// Whether a statement as Lean writes it casts a term that is no letter or
+/// numeral, `(Real.cos 0 : ℂ)`, which `push_cast` moves into it.
+fn casts_compound(p: &Printed) -> bool {
+    use super::doc::TermKind;
+    p.walk().iter().any(|c| match &c.kind {
+        TermKind::Cast { inner, .. } => !matches!(
+            bare_term(inner).kind,
+            TermKind::Letter(_) | TermKind::Numeral(_)
+        ),
+        _ => false,
+    })
+}
+
 /// `have name : says := by have h := ↑proof; push_cast at h; linear_combination
 /// h`: an equation proved in `from` stated in the wider `to`, cast up and its
-/// casts pushed in. `norm_cast` does not take a sum of rationals to the
+/// casts pushed in, in the statement too where it casts a compound term
+/// (`casts_compound`). `norm_cast` does not take a sum of rationals to the
 /// reals, which this does.
 fn widening_have(
     writer: &Writer,
@@ -18893,12 +19081,13 @@ fn widening_have(
     proof: Printed,
 ) -> Tactic {
     use super::tactics as t;
+    let goal = casts_compound(&says);
     Tactic::Have {
         name: name.to_string(),
         says,
         proof: Box::new(super::doc::Proof::By(Tactic::Seq(vec![
             t::name_h(&cast_up(writer, from, to, proof)),
-            t::push_cast(Some(t::at_h(false))),
+            t::push_cast(Some(t::at_h(goal))),
             t::linear_combination(t::hyp("h")),
         ]))),
     }
@@ -19013,6 +19202,100 @@ struct CitedDefine {
     param: Option<String>,
 }
 
+/// The proof of `d ≠ 0` from a line `proof` stating, in Lean, `d ≠ 0`, `0 ≠
+/// d`, `0 < d`, `d < 0`, `d > 0` or `0 > d`: the line, its `symm`, `ne'` or
+/// `ne`. None of a statement of another form.
+fn nonzero_turned(proof: &Printed, says: &Printed) -> Option<Printed> {
+    use super::doc::TermKind;
+    fn zero(p: &Printed) -> bool {
+        match &bare_term(p).kind {
+            TermKind::Numeral(n) => n == "0",
+            TermKind::Cast { inner, .. } => zero(inner),
+            _ => false,
+        }
+    }
+    let TermKind::Infix { op, lhs, rhs } = &bare_term(says).kind else {
+        return None;
+    };
+    let field = match (op.symbol, zero(lhs), zero(rhs)) {
+        ("≠", false, true) => None,
+        ("≠", true, false) => Some("symm"),
+        ("<", true, false) | (">", false, true) => Some("ne'"),
+        ("<", false, true) | (">", true, false) => Some("ne"),
+        _ => return None,
+    };
+    Some(match field {
+        Some(f) => fields(proof.clone(), &[f]),
+        None => proof.clone(),
+    })
+}
+
+/// Whether a line puts a term of a type wider than ℤ in ℕ, x ∈ ℕ of a real
+/// x, which Lean states by its witness, `∃ m : ℤ, 0 < m ∧ (m : ℝ) = x`.
+fn natural_witnessed(line: &Node, writer: &Writer) -> bool {
+    let (crate::notations::MEMBERSHIP, [x, set]) =
+        (line.notation(), line.children.as_slice())
+    else {
+        return false;
+    };
+    matches!(
+        super::expr::system_of(set),
+        Some(super::expr::System::Positive)
+    ) && writer
+        .carrier(x)
+        .built()
+        .is_some_and(|c| c > super::templates::Num::Int)
+}
+
+/// The proof of `x ≠ 0` from a line `proof` saying x is a natural number by
+/// its witness (`natural_witnessed`): `by obtain ⟨m, hm, hx⟩ := proof; rw
+/// [← hx]; positivity`, the witness above 0 by `hm`.
+fn unwitnessed_nonzero(proof: &Printed) -> Printed {
+    use super::tactics as t;
+    let by = super::doc::Proof::By(Tactic::Seq(vec![
+        Tactic::Obtain {
+            names: vec!["m".to_string(), "hm".to_string(), "hx".to_string()],
+            says: None,
+            from: proof.clone(),
+        },
+        t::call(
+            "rw",
+            vec![TacticArg::Rules(vec![t::backwards(t::hyp("hx"))])],
+        ),
+        t::call("positivity", vec![]),
+    ]));
+    t::bracket(t::by_term(by))
+}
+
+/// Whether a term is a number system or a range of integers, which a
+/// function's define may run its argument over.
+fn system_or_range(n: &Node) -> bool {
+    matches!(
+        n.notation(),
+        crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
+    )
+}
+
+/// The functions a term applies, f of f(x).
+fn applied_names(node: &Node) -> Vec<String> {
+    node.walk()
+        .iter()
+        .filter(|n| n.notation() == crate::notations::APPLICATION)
+        .filter_map(|n| n.children.first())
+        .filter(|f| f.is_name())
+        .map(|f| f.text.to_string())
+        .collect()
+}
+
+/// A function's define as the checker reads its line apart
+/// (`Proof::function_read`).
+struct FunctionRead {
+    /// The set the argument runs over, [0, 1] of `for x ∈ [0, 1]`.
+    domain: Node,
+    /// The value at the argument, x^(2n) of f(x) = x^(2n).
+    body: Node,
+}
+
 /// A place a step's defines are written out at, a line the step uses or the
 /// goal, with what it says there.
 struct RewriteAt {
@@ -19027,6 +19310,18 @@ impl RewriteAt {
     /// the defines' (`push_cast` changes nothing where none moves).
     fn cast(&self) -> bool {
         self.stated.iter().any(holds_cast)
+    }
+
+    /// Whether Lean's statement there names `name`, a define's letter or
+    /// function; F(x) ∈ ℝ, stated `True`, does not. A place whose statement
+    /// the writer does not have is taken as the page writes it.
+    fn names(&self, name: &str) -> bool {
+        self.stated.is_empty()
+            || self.stated.iter().any(|s| {
+                s.walk().iter().any(
+                    |p| matches!(&p.kind, super::doc::TermKind::Letter(n) if n == name),
+                )
+            })
     }
 
     /// Whether Lean writes `term` in what it states there.
@@ -19067,16 +19362,34 @@ fn written_out(
     for place in at {
         // The defines the place names, and those their values name in turn,
         // which writing them out brings in: v of y + ω₁·T brings ω₁.
-        let mut names: Vec<String> =
-            place.said.iter().flat_map(|n| n.names()).collect();
+        // A function's define is written out only where the function is
+        // applied, f(x): its equation rewrites f(x), not f standing alone.
+        // The place's own names are those Lean's statement of it keeps
+        // (`RewriteAt::names`).
+        let mut names: Vec<String> = place
+            .said
+            .iter()
+            .flat_map(|n| n.names())
+            .filter(|x| place.names(x))
+            .collect();
+        let mut applied: Vec<String> = place
+            .said
+            .iter()
+            .flat_map(applied_names)
+            .filter(|x| place.names(x))
+            .collect();
         let mut named: Vec<usize> = Vec::new();
         loop {
             let more: Vec<usize> = defines
                 .iter()
                 .enumerate()
                 .filter(|(i, d)| {
+                    let written = match d.param {
+                        Some(_) => &applied,
+                        None => &names,
+                    };
                     !named.contains(i)
-                        && names.iter().any(|x| x.as_str() == &*d.name.text)
+                        && written.iter().any(|x| x.as_str() == &*d.name.text)
                 })
                 .map(|(i, _)| i)
                 .collect();
@@ -19085,15 +19398,16 @@ fn written_out(
             }
             for &i in &more {
                 names.extend(defines[i].value.names());
+                applied.extend(applied_names(&defines[i].value));
             }
             named.extend(more);
         }
         named.sort();
-        if place.cast() || named.iter().any(|&i| cast_in(&defines[i])) {
-            pushed.push(place.at.clone());
-        }
         if named.is_empty() {
             continue;
+        }
+        if place.cast() || named.iter().any(|&i| cast_in(&defines[i])) {
+            pushed.push(place.at.clone());
         }
         match groups.iter_mut().find(|(g, _)| *g == named) {
             Some((_, locs)) => locs.push(place.at.clone()),

@@ -1,12 +1,12 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -33,6 +33,6 @@ theorem log_of_a_product (x : ℝ) (y : ℝ) (b : ℝ) (hH4 : x > 0) (hH5 : y > 
   have s2 : Real.log b ≠ 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) hH6 hH7)
   -- 3. calculation
   calc Real.log (x * y) / Real.log b = (Real.log x + Real.log y) / Real.log b := congrArg (fun t : ℝ => t / Real.log b) s1
-    _ = Real.log x / Real.log b + Real.log y / Real.log b := by parley_ring
+    _ = Real.log x / Real.log b + Real.log y / Real.log b := by have hz1 : Real.log b ≠ 0 := s2; field
 
 end Parley.Proofs.Identities.LogBaseLaws.LogOfAProduct

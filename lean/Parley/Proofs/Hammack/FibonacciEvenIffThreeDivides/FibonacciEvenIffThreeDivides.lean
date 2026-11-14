@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Monoid
@@ -36,6 +34,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -95,7 +94,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 4.10. calculation
       have s4_10 : F (3 * 0 + 2) = 2 * 0 + 1 := by
         calc F (3 * 0 + 2) = F 2 := by norm_num
-          _ = 1 := by linear_combination (norm := parley_norm) s4_1 + s4_4 + s4_5
+          _ = 1 := by linear_combination s4_1 + s4_4 + s4_5
           _ = 2 * 0 + 1 := by norm_num
       -- 4.11. def:odd n := F(3·0 + 2), from 4.10
       have s4_11 : Odd (F (3 * 0 + 2)) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := F (3 * 0 + 2)))).mpr ⟨(0 : ℤ), s4_10⟩
@@ -109,12 +108,12 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       have s4_15 : F (3 * k + 1 + 2) = F (3 * k + 1) + F (3 * k + 1 + 1) := by exact (s3 (3 * k + 1) (add_nonneg (mul_nonneg (by norm_num) (hK3)) (by norm_num)))
       -- 4.16. substitute
       have s4_16 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 1 + 1) := by
-        have c1 : 3 * k + 1 + 2 = 3 * (k + 1) := by parley_ring
+        have c1 : 3 * k + 1 + 2 = 3 * (k + 1) := by ring1
         have row1 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 1 + 1) := Eq.subst (motive := (fun t : ℤ => F t = F (3 * k + 1) + F (3 * k + 1 + 1))) c1 s4_15
         exact row1
       -- 4.17. substitute
       have s4_17 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 2) := by
-        have c1 : 3 * k + 1 + 1 = 3 * k + 2 := by parley_ring
+        have c1 : 3 * k + 1 + 1 = 3 * k + 2 := by ring1
         have row1 : F (3 * (k + 1)) = F (3 * k + 1) + F (3 * k + 2) := Eq.subst (motive := (fun t : ℤ => F (3 * (k + 1)) = F (3 * k + 1) + F t)) c1 s4_16
         exact row1
       -- 4.18. thm:odd-plus-odd A := F(3k + 1), B := F(3k + 2), from IH2
@@ -125,12 +124,12 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       have s4_20 : F (3 * k + 2 + 2) = F (3 * k + 2) + F (3 * k + 2 + 1) := by exact (s3 (3 * k + 2) (add_nonneg (mul_nonneg (by norm_num) (hK3)) (by norm_num)))
       -- 4.21. substitute
       have s4_21 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * k + 2 + 1) := by
-        have c1 : 3 * k + 2 + 2 = 3 * (k + 1) + 1 := by parley_ring
+        have c1 : 3 * k + 2 + 2 = 3 * (k + 1) + 1 := by ring1
         have row1 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * k + 2 + 1) := Eq.subst (motive := (fun t : ℤ => F t = F (3 * k + 2) + F (3 * k + 2 + 1))) c1 s4_20
         exact row1
       -- 4.22. substitute
       have s4_22 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * (k + 1)) := by
-        have c1 : 3 * k + 2 + 1 = 3 * (k + 1) := by parley_ring
+        have c1 : 3 * k + 2 + 1 = 3 * (k + 1) := by ring1
         have row1 : F (3 * (k + 1) + 1) = F (3 * k + 2) + F (3 * (k + 1)) := Eq.subst (motive := (fun t : ℤ => F (3 * (k + 1) + 1) = F (3 * k + 2) + F t)) c1 s4_21
         exact row1
       -- 4.23. instantiate k := 3(k + 1) in line 2
@@ -162,7 +161,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
     -- 5.4. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 5.1, 5.2
     obtain ⟨q, s5_4⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := n) (m := (3 : ℤ)) (by norm_num) (r := n % (3 : ℤ)) s5_1 s5_2)).mp rfl
     -- 5.5. algebra, from 5.4
-    have s5_5 : q * 3 = n - n % (3 : ℤ) := by linear_combination (norm := parley_norm) s5_4
+    have s5_5 : q * 3 = n - n % (3 : ℤ) := by linear_combination s5_4
     -- 5.6. inequalities, from H1
     have s5_6 : n ≥ 1 := by linarith only [hH1]
     -- 5.7. inequalities
@@ -192,14 +191,14 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.14.1. substitute n mod 3 = 0 (C1) into line 5.4
       have s5_14_1 : q * 3 = n := by (have h := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC1 s5_4; push_cast [add_zero] at h ⊢; exact_mod_cast h)
       -- 5.14.2. algebra, from 5.14.1
-      have s5_14_2 : n = 3 * q := by linear_combination (norm := parley_norm) (-1) * s5_14_1
+      have s5_14_2 : n = 3 * q := by linear_combination (-1) * s5_14_1
       -- 5.14.3. def:divides d := 3, from 5.14.2
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := n))).mpr ⟨q, s5_14_2⟩
     · skip
       -- 5.14.4. substitute n mod 3 = 1 (C2) into line 5.4
       have s5_14_4 : q * 3 + 1 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC2 s5_4
       -- 5.14.5. algebra, from 5.14.4
-      have s5_14_5 : n = 3 * q + 1 := by linear_combination (norm := parley_norm) (-1) * s5_14_4
+      have s5_14_5 : n = 3 * q + 1 := by linear_combination (-1) * s5_14_4
       -- 5.14.6. instantiate k := q in line 4, from 5.13
       have s5_14_6 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
       -- 5.14.7. instantiate k := 3q + 1 in line 2
@@ -213,7 +212,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.14.10. substitute n mod 3 = 2 (C3) into line 5.4
       have s5_14_10 : q * 3 + 2 = n := Eq.subst (motive := (fun t : ℤ => q * 3 + t = n)) hC3 s5_4
       -- 5.14.11. algebra, from 5.14.10
-      have s5_14_11 : n = 3 * q + 2 := by linear_combination (norm := parley_norm) (-1) * s5_14_10
+      have s5_14_11 : n = 3 * q + 2 := by linear_combination (-1) * s5_14_10
       -- 5.14.12. instantiate k := q in line 4, from 5.13
       have s5_14_12 : (Even (F (3 * q)) ∧ Odd (F (3 * q + 1))) ∧ Odd (F (3 * q + 2)) := by exact (s4 q s5_13)
       -- 5.14.13. instantiate k := 3q + 2 in line 2

@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -61,7 +60,7 @@ theorem square_not_prime (A : ℤ) :
   -- 5. mun:nat0-nonzero m := |A|, from 4
   have s5 : 0 < abs A := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := abs A) (abs_nonneg _) s4)
   -- 6. algebra, from 3
-  have s6 : A ^ 2 = abs A * abs A := by linear_combination (norm := parley_norm) (-1) * s3
+  have s6 : A ^ 2 = abs A * abs A := by linear_combination (-1) * s3
   -- 7. def:divides d := |A|, n := A², from 6
   have s7 : abs A ∣ A ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := abs A) (n := A ^ 2))).mpr ⟨abs A, s6⟩
   -- 8. def:prime p := A², from S, 1

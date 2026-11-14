@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/cube-minus-one-even-gives-odd.proof by parley build lean. -/
@@ -44,7 +44,7 @@ theorem cube_minus_one_even_gives_odd (x : ℤ) (hH2 : Even (x ^ 3 - 1)) :
     -- 2.2. calculation
     have s2_2 : x ^ 3 - 1 = 2 * (4 * k ^ 3 - 1) + 1 := by
       calc x ^ 3 - 1 = (2 * k) ^ 3 - 1 := congrArg (fun t : ℤ => t ^ 3 - 1) s2_1
-        _ = 2 * (4 * k ^ 3 - 1) + 1 := by parley_ring
+        _ = 2 * (4 * k ^ 3 - 1) + 1 := by ring1
     -- 2.3. def:odd n := x³ − 1, from 2.2
     have s2_3 : Odd (x ^ 3 - 1) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, s2_2⟩
     -- 2.4. mun:not-both n := x³ − 1, from H2

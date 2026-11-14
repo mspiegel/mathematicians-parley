@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -33,6 +31,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -63,13 +62,13 @@ theorem prime_power_not_less (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (
   have s3_4 : (p : ℚ) ^ (a + (a' - a)) = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (p : ℚ)) (m := a) hH3 (n := a' - a) (le_of_lt s3_2)); simp only [parley_zpow_toNat (n := a + (a' - a)) (h := add_nonneg (hH3) (le_of_lt s3_2)), parley_zpow_toNat (n := a' - a) (h := le_of_lt s3_2)] at h ⊢; exact_mod_cast h)
   -- 3.5. substitute
   have s3_5 : (p : ℚ) ^ a'.toNat = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by
-    have c1 : a + (a' - a) = a' := by parley_ring
+    have c1 : a + (a' - a) = a' := by ring1
     have row1 : (p : ℚ) ^ a'.toNat = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a) := by (have h := Eq.subst (motive := (fun t : ℤ => (p : ℚ) ^ t = (p : ℚ) ^ a.toNat * (p : ℚ) ^ (a' - a))) c1 s3_4; simp only [parley_zpow_toNat (n := a') (h := hH4), parley_zpow_toNat (n := a' - a) (h := le_of_lt (lt_of_le_of_lt (by norm_num) s3_1))] at h ⊢; exact_mod_cast h)
     exact row1
   -- 3.6. algebra, from H8, 3.5
   have s3_6 : (m : ℚ) * (p : ℚ) ^ a.toNat = (p : ℚ) ^ (a' - a) * (m' : ℚ) * (p : ℚ) ^ a.toNat := by
-    have hH8_w : (p : ℚ) ^ a.toNat * (m : ℚ) = (p : ℚ) ^ a'.toNat * (m' : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) hH8; push_cast at h; linear_combination (norm := parley_norm) h
-    linear_combination (norm := parley_norm) hH8_w + ((m' : ℚ)) * s3_5
+    have hH8_w : (p : ℚ) ^ a.toNat * (m : ℚ) = (p : ℚ) ^ a'.toNat * (m' : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) hH8; push_cast at h; linear_combination h
+    linear_combination hH8_w + ((m' : ℚ)) * s3_5
   -- 3.7. mun:power-positive a := p, m := a
   have r423_1 : 0 < p := by exact hH1
   have s3_7 : p ^ a.toNat > 0 := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_positive (a := (p : ℚ)) (m := a) (by exact_mod_cast r423_1)); simp only [parley_zpow_toNat (n := a) (h := hH3)] at h ⊢; exact_mod_cast h)

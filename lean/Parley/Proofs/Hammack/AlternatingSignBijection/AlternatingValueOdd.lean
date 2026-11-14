@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -27,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Proofs.Hammack.AlternatingSignBijection.SignOfOdd
 
 /-! Written from proofs/hammack/alternating-sign-bijection.proof by parley build lean. -/
@@ -42,8 +41,8 @@ theorem alternating_value_odd (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
   -- 2. calculation
   calc (f m : ℚ) = ((-1) ^ m.toNat * (2 * (m : ℚ) - 1) + 1) / 4 := by exact (hH2 m hH3)
     _ = (-1 * (2 * (m : ℚ) - 1) + 1) / 4 := by
-        have e_w : ((-1) ^ m.toNat : ℚ) = -1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : ((-1) ^ m.toNat : ℚ) = -1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h ⊢; linear_combination h
         exact congrArg (fun t : ℚ => (t * (2 * (m : ℚ) - 1) + 1) / 4) e_w
-    _ = (1 - (m : ℚ)) / 2 := by parley_ring
+    _ = (1 - (m : ℚ)) / 2 := by ring1
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd

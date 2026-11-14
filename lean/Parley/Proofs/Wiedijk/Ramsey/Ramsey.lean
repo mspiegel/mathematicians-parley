@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -27,6 +26,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
@@ -54,7 +54,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
       intro X hK2
       intro hC1
       -- 1.1. algebra
-      have s1_1 : 1 + j - 2 = j - 1 := by parley_ring
+      have s1_1 : 1 + j - 2 = j - 1 := by ring1
       -- 1.2. mun:finite-part, from H4, K2
       have s1_2 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hK2)
       -- 1.3. calculation
@@ -72,7 +72,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
       exact ⟨W, s1_4a, s1_5⟩
     | succ k hK3 hIH1 =>
       -- 1.7. algebra
-      have s1_7 : k + 1 - 1 = k := by parley_ring
+      have s1_7 : k + 1 - 1 = k := by ring1
       -- 1.8. induction on j starting at 1
       intro j h_j
       replace h_j : 1 ≤ j := by omega
@@ -81,7 +81,7 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         intro X hK4
         intro hC2
         -- 1.8.1. algebra
-        have s1_8_1 : k + 1 + 1 - 2 = k := by parley_ring
+        have s1_8_1 : k + 1 + 1 - 2 = k := by ring1
         -- 1.8.2. mun:finite-part, from H4, K4
         have s1_8_2 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hK4)
         -- 1.8.3. calculation
@@ -101,17 +101,17 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         have s1_8_7 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + (j + 1) - 2) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; exact (hIH1 (j + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK5) (by norm_num)) X h_X)
         -- 1.8.8. substitute
         have s1_8_8 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by parley_count_after (by
-          have c1 : k + (j + 1) - 2 = k + j - 1 := by parley_ring
+          have c1 : k + (j + 1) - 2 = k + j - 1 := by ring1
           have row1 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := Eq.subst (motive := (fun t : ℤ => ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose t (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)))) c1 s1_8_7
           exact row1)
         -- 1.8.9. algebra
-        have s1_8_9 : k + 1 + j - 2 = k + j - 1 := by parley_ring
+        have s1_8_9 : k + 1 + j - 2 = k + j - 1 := by ring1
         -- 1.8.10. substitute k + 1 + j − 2 = k + j − 1 (line 1.8.9) into IH2
         have s1_8_10 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k + 1 - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := Eq.subst (motive := (fun t : ℤ => ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)))) s1_8_9 hIH2
         -- 1.8.11. substitute k + 1 − 1 = k (line 1.7) into line 1.8.10
         have s1_8_11 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) k : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := Eq.subst (motive := (fun t : ℤ => ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) t : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)))) s1_7 s1_8_10
         -- 1.8.12. algebra
-        have s1_8_12 : k + 1 + (j + 1) - 2 = k + j := by parley_ring
+        have s1_8_12 : k + 1 + (j + 1) - 2 = k + j := by ring1
         -- 1.8.13. proof
         intro X hK6
         intro hC3

@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -23,6 +21,7 @@ public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -36,8 +35,10 @@ public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational
@@ -93,7 +94,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 14. inequalities
   have s14 : (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) < (r : ℝ) + ((s : ℝ) - (r : ℝ)) := by linarith only [s13]
   -- 15. algebra
-  have s15 : r + (s - r) = s := by parley_ring
+  have s15 : r + (s - r) = s := by ring1
   -- 16. transitivity, from D1, 14, 15
   have s16 : u < (s : ℝ) := by exact LT.lt.trans_eq (Eq.trans_lt hD1 s14) (show (r : ℝ) + ((s : ℝ) - (r : ℝ)) = (s : ℝ) by have h := (Rat.cast_inj (α := ℝ)).mpr s15; simp only [Rat.cast_add, Rat.cast_sub] at h; exact h)
   -- 17. contradiction
@@ -118,7 +119,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.9. substitute s − r = c/d − p/q (line 17.6) into line 17.8
     have s17_9 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) > 0 := Eq.subst (motive := (fun t : ℚ => t * ((q : ℚ) * (d : ℚ)) > 0)) s17_6 s17_8
     -- 17.10. algebra
-    have s17_10 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) = (c : ℚ) * (q : ℚ) - (p : ℚ) * (d : ℚ) := by parley_ring
+    have s17_10 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) = (c : ℚ) * (q : ℚ) - (p : ℚ) * (d : ℚ) := by have hz1 : (d : ℚ) ≠ 0 := (by positivity); have hz2 : (q : ℚ) ≠ 0 := (by positivity); field
     -- 17.11. transitivity, from 17.9, 17.10
     have s17_11 : 0 < c * q - p * d := by exact_mod_cast LT.lt.trans_eq s17_9 s17_10
     have hD2_kind : 0 < c * q - p * d := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * q - p * d) s17_11)
@@ -128,28 +129,28 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     have s17_12 : u - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
       simp only [hD1] at ⊢
       push_cast at ⊢
-      parley_ring
+      ring1
     -- 17.13. substitute
     have s17_13 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
       have c1 : u = (a : ℝ) / (b : ℝ) := congrArg (fun t : ℝ => t) s17_1b
       have row1 : (a : ℝ) / (b : ℝ) - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := Eq.subst (motive := (fun t : ℝ => t - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)))) c1 s17_12
       have c2 : r = (p : ℚ) / (q : ℚ) := congrArg (fun t : ℚ => t) s17_2b
       have row2 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((s : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
-        have e_w : (r : ℝ) = (p : ℝ) / (q : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c2; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : (r : ℝ) = (p : ℝ) / (q : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c2; push_cast at h; linear_combination h
         exact Eq.subst (motive := (fun t : ℝ => (a : ℝ) / (b : ℝ) - t = ((s : ℝ) - t) * (1 / 2 * Real.sqrt (2 : ℝ)))) e_w row1
       have c3 : s = (c : ℚ) / (d : ℚ) := congrArg (fun t : ℚ => t) s17_3b
       have row3 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
-        have e_w : (s : ℝ) = (c : ℝ) / (d : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c3; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : (s : ℝ) = (c : ℝ) / (d : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c3; push_cast at h; linear_combination h
         exact Eq.subst (motive := (fun t : ℝ => (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = (t - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)))) e_w row2
       exact row3
     -- 17.14. algebra, from 17.13
-    have s17_14 : (b : ℝ) * ((c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ)) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by linear_combination (norm := parley_field) (-(2 * (b : ℝ) * (d : ℝ) * (q : ℝ))) * s17_13
+    have s17_14 : (b : ℝ) * ((c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ)) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by have hz1 : (b : ℝ) ≠ 0 := (by positivity); have hz2 : (q : ℝ) ≠ 0 := (by positivity); have hz3 : (d : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) ((-(4 * (b : ℝ) * (d : ℝ) * (q : ℝ))) / (((2 : ℝ)))) * s17_13
     -- 17.15. substitute c·q − p·d = m (D2) into line 17.14
     have s17_15 : (b : ℝ) * (m : ℝ) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by
-      have e_w : (c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ) = (m : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) hD2.symm; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : (c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ) = (m : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) hD2.symm; push_cast at h; linear_combination h
       exact Eq.subst (motive := (fun t : ℝ => (b : ℝ) * t * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)))) e_w s17_14
     -- 17.16. algebra, from 17.15
-    have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by linear_combination (norm := parley_field) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15
+    have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by have hz1 : (b : ℝ) ≠ 0 := (by positivity); have hz2 : (m : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15
     -- 17.17. def:rational x := √2, from 17.16
     have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, mul_pos (s17_1a) (hD2_pos), by (have h := s17_16; push_cast at h ⊢; exact h)⟩
     -- 17.18. def:irrational x := √2, from 2

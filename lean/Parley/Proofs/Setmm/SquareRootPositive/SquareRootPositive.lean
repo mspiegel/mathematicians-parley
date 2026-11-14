@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
@@ -47,7 +46,7 @@ theorem square_root_positive (a : ℝ) (hH2 : 0 < a) :
   -- 2.3. antisymmetry, from 2.1, 2.2
   have s2_3 : Real.sqrt a = 0 := le_antisymm s2_1 s2_2
   -- 2.4. algebra, from 2.3
-  have s2_4 : Real.sqrt a ^ 2 = 0 := by linear_combination (norm := parley_norm) (Real.sqrt a) * s2_3
+  have s2_4 : Real.sqrt a ^ 2 = 0 := by linear_combination (Real.sqrt a) * s2_3
   -- 2.5. transitivity, from 1, 2.4
   have s2_5 : a = 0 := by exact Eq.trans s1b.symm s2_4
   -- 2.6. inequalities

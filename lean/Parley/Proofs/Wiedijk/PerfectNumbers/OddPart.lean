@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -39,6 +37,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Proofs.Wiedijk.PerfectNumbers
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -110,12 +109,12 @@ theorem odd_part (n : ℤ) (hH1 : 0 < n) :
           -- 1.7.13. mun:exponent-step a := 2, m := k
           have s1_7_13 : (2 ^ (k + 1).toNat : ℤ) = 2 ^ k.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k) s1_7_12a)
           -- 1.7.14. algebra, from 1.7.1, 1.7.12, 1.7.13
-          have s1_7_14 : j = 2 ^ (k + 1).toNat * m := by linear_combination (norm := parley_norm) s1_7_1 + (2) * s1_7_12d + (-m) * s1_7_13
+          have s1_7_14 : j = 2 ^ (k + 1).toNat * m := by linear_combination s1_7_1 + (2) * s1_7_12d + (-m) * s1_7_13
           -- 1.7.15. exhibit, from 1.7.12, 1.7.14
           exact ⟨k + 1, add_nonneg (s1_7_12a) (by norm_num), m, s1_7_12b, ⟨s1_7_12c, s1_7_14⟩⟩
         · skip
           -- 1.7.16. algebra
-          have s1_7_16 : j = 2 ^ 0 * j := by parley_ring
+          have s1_7_16 : j = 2 ^ 0 * j := by ring1
           -- 1.7.17. exhibit, from C2, 1.7.16
           exact ⟨(0 : ℤ), by norm_num, j, lt_of_lt_of_le (by norm_num) (Finset.mem_Icc.mp hK3).1, ⟨hC2, by simpa only [Int.cast_zero, Int.reduceToNat] using s1_7_16⟩⟩
       -- 1.8. D1, from 1.7

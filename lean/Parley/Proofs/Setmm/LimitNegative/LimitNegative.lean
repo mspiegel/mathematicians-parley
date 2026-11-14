@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -52,7 +52,7 @@ theorem limit_negative (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n 
       have s1_4_1 : abs (x n - L) < ε := by exact (s1_3b n hK2 hA2)
       -- 1.4.2. membership, from H1
       -- 1.4.3. algebra
-      have s1_4_3 : -x n - -L = -(x n - L) := by parley_ring
+      have s1_4_3 : -x n - -L = -(x n - L) := by ring1
       -- 1.4.4. calculation
       have s1_4_4 : abs (-x n - -L) = abs (x n - L) := by
         calc abs (-x n - -L) = abs (-(x n - L)) := congrArg (fun t : ℝ => abs t) s1_4_3

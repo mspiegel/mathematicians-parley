@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -21,6 +20,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -46,7 +46,7 @@ theorem gcd_with_successor_two_from_minus_one (n : ℤ) (hH2 : n ≥ -1) :
   have s3 : (Int.gcd n (n + 2) : ℤ) ∣ n + 2 - n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (Int.gcd n (n + 2) : ℤ)) (a := n + 2) (b := n) s2c s2b)
   -- 4. substitute
   have s4 : (Int.gcd n (n + 2) : ℤ) ∣ (2 : ℤ) := by
-    have c1 : n + 2 - n = 2 := by parley_ring
+    have c1 : n + 2 - n = 2 := by ring1
     have row1 : (Int.gcd n (n + 2) : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd n (n + 2) : ℤ) ∣ t)) c1 s3; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 5. mun:divides-le e := gcd(n, n + 2), m := 2, from 2, 4

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/cube-of-sum-mod-three.proof by parley build lean. -/
@@ -33,7 +33,7 @@ namespace Parley.Proofs.Hammack.CubeOfSumModThree.CubeOfSumModThree
 theorem cube_of_sum_mod_three (a : ℤ) (b : ℤ) :
     (a + b) ^ 3 ≡ a ^ 3 + b ^ 3 [ZMOD (3 : ℤ)] := by
   -- 1. algebra
-  have s1 : (a + b) ^ 3 - (a ^ 3 + b ^ 3) = 3 * (a ^ 2 * b + a * b ^ 2) := by parley_ring
+  have s1 : (a + b) ^ 3 - (a ^ 3 + b ^ 3) = 3 * (a ^ 2 * b + a * b ^ 2) := by ring1
   -- 2. def:divides d := 3, n := (a + b)³ − (a³ + b³), from 1
   have s2 : (3 : ℤ) ∣ (a + b) ^ 3 - (a ^ 3 + b ^ 3) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := (a + b) ^ 3 - (a ^ 3 + b ^ 3)))).mpr ⟨a ^ 2 * b + a * b ^ 2, s1⟩
   -- 3. def:congruent-mod n := 3, from 2

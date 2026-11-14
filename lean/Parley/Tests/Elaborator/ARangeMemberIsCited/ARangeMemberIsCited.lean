@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Data.Int.Interval
@@ -21,6 +20,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from tests/elaborator/a-range-member-is-cited.proof by parley build lean. -/
 
@@ -31,6 +31,6 @@ namespace Parley.Tests.Elaborator.ARangeMemberIsCited.ARangeMemberIsCited
 theorem a_range_member_is_cited (N : ℤ) (hH1 : 0 ≤ N) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 : ℤ) N) :
     (LeanBridges.Counting.choose N k : ℤ) * 1 = (LeanBridges.Counting.choose N k : ℤ) := by
   -- 1. algebra
-  parley_ring
+  ring_nf
 
 end Parley.Tests.Elaborator.ARangeMemberIsCited.ARangeMemberIsCited

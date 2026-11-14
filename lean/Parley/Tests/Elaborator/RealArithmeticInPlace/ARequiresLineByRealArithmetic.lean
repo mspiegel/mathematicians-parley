@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -8,6 +7,7 @@ public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -30,6 +30,6 @@ theorem a_requires_line_by_real_arithmetic (a : ℝ) :
     a * (Real.sqrt (2 : ℝ) - 1) / (Real.sqrt (2 : ℝ) - 1) = a := by
   -- 1. algebra
   have r25_1 : Real.sqrt (2 : ℝ) - 1 ≠ 0 := by parley_real
-  parley_ring
+  have hz1 : Real.sqrt (2 : ℝ) - 1 ≠ 0 := r25_1; field
 
 end Parley.Tests.Elaborator.RealArithmeticInPlace.ARequiresLineByRealArithmetic

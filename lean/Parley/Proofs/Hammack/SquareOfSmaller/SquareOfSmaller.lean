@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -21,6 +20,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/square-of-smaller.proof by parley build lean. -/
@@ -36,11 +36,11 @@ theorem square_of_smaller (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) (hH5 :
   -- 2. mun:less-scaled c := y, from H4, H5
   have s2 : y * x < y * y := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := x) (y := y) (c := y) hH4)).mp hH5
   -- 3. algebra
-  have s3 : x ^ 2 = x * x := by parley_ring
+  have s3 : x ^ 2 = x * x := by ring1
   -- 4. algebra
-  have s4 : x * y = y * x := by parley_ring
+  have s4 : x * y = y * x := by ring1
   -- 5. algebra
-  have s5 : y * y = y ^ 2 := by parley_ring
+  have s5 : y * y = y ^ 2 := by ring1
   -- 6. transitivity, from 3, 1, 4, 2, 5
   exact LT.lt.trans_eq (lt_trans (LT.lt.trans_eq (Eq.trans_lt s3 s1) s4) s2) s5
 

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import RealTactics
 public import Mathlib.Analysis.Complex.Order
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from proofs/identities/cosine-plus-pi.proof by parley build lean. -/
@@ -36,6 +36,6 @@ theorem cosine_plus_pi (x : ℝ) :
         exact hI
     _ = Real.cos x * -1 - Real.sin x * Real.sin Real.pi := by parley_real
     _ = Real.cos x * -1 - Real.sin x * 0 := by parley_real
-    _ = -Real.cos x := by parley_ring
+    _ = -Real.cos x := by ring1
 
 end Parley.Proofs.Identities.CosinePlusPi.CosinePlusPi

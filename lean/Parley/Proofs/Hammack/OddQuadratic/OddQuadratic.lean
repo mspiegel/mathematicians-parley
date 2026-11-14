@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/odd-quadratic.proof by parley build lean. -/
@@ -38,7 +38,7 @@ theorem odd_quadratic (a : ℤ) (hH2 : Odd a) :
   -- 2. calculation
   have s2 : a ^ 2 + 3 * a + 5 = 2 * (2 * k ^ 2 + 5 * k + 4) + 1 := by
     calc a ^ 2 + 3 * a + 5 = (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 5 := congrArg (fun t : ℤ => t ^ 2 + 3 * t + 5) s1
-      _ = 2 * (2 * k ^ 2 + 5 * k + 4) + 1 := by parley_ring
+      _ = 2 * (2 * k ^ 2 + 5 * k + 4) + 1 := by ring1
   -- 3. def:odd n := a² + 3a + 5, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 2 + 3 * a + 5))).mpr ⟨2 * k ^ 2 + 5 * k + 4, s2⟩
 

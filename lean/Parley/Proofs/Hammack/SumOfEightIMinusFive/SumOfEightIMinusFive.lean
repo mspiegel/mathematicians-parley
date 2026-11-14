@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -32,6 +31,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Sums
 
@@ -64,7 +64,7 @@ theorem sum_of_eight_i_minus_five (n : ℤ) (hH1 : 0 < n) :
       -- 1.3. calculation
       calc S (k + 1) = S k + (8 * (k + 1) - 5) := s1_2
         _ = 4 * k ^ 2 - k + (8 * (k + 1) - 5) := congrArg (fun t : ℤ => t + (8 * (k + 1) - 5)) hIH
-        _ = 4 * (k + 1) ^ 2 - (k + 1) := by parley_ring
+        _ = 4 * (k + 1) ^ 2 - (k + 1) := by ring1
   -- 2. calculation
   calc (∑ i ∈ Finset.Icc (1 : ℤ) n, (8 * i - 5 : ℤ)) = S n := by simp (disch := omega) only [hD1]
     _ = 4 * n ^ 2 - n := by exact (s1 n hH1)

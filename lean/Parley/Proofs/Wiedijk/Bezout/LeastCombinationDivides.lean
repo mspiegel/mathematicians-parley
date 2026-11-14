@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.ModEq
@@ -34,7 +33,7 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
   -- 1. obtain q, r: thm:division-algorithm n := c
   obtain ⟨q, r, ⟨⟨s1a, s1b⟩, s1c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_division_algorithm (n := c) hH3 (d := d) hH4)
   -- 2. algebra, from H9, H10, 1
-  have s2 : r = a * (u - q * x₀) + b * (v - q * y₀) := by linear_combination (norm := parley_norm) hH9 + (-q) * hH10 + (-1) * s1a
+  have s2 : r = a * (u - q * x₀) + b * (v - q * y₀) := by linear_combination hH9 + (-q) * hH10 + (-1) * s1a
   -- 3. contradiction
   have s3 : r = 0 := by
     by_contra (hS : r ≠ 0)
@@ -53,7 +52,7 @@ theorem least_combination_divides (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b
   -- 4. substitute r = 0 (line 3) into line 1
   have s4 : c = q * d := by (have h := Eq.subst (motive := (fun t : ℤ => c = q * d + t)) s3 s1a; push_cast [add_zero] at h ⊢; exact_mod_cast h)
   -- 5. algebra, from 4
-  have s5 : c = d * q := by linear_combination (norm := parley_norm) s4
+  have s5 : c = d * q := by linear_combination s4
   -- 6. def:divides n := c, from 5
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := d) (n := c))).mpr ⟨q, s5⟩
 

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -21,6 +20,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -33,9 +33,11 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 
@@ -71,7 +73,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.3. inequalities, from K
       have s2_3 : k + 1 > 0 := by linarith only [lt_of_lt_of_le zero_lt_one hK]
       -- 2.4. algebra
-      have s2_4 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by parley_ring
+      have s2_4 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by have hz1 : (k : ℚ) ≠ 0 := (by positivity); have hz2 : (k : ℚ) + 1 ≠ 0 := (by positivity); field
       -- 2.5. mun:square-positive x := k + 1
       have r45_1 : k + 1 ≠ 0 := ne_of_gt (by linarith only [s2_3])
       have s2_5 : (k + 1) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := k + 1) r45_1)
@@ -86,7 +88,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.8. inequalities, from 2.6, 2.7
       have s2_8 : k * (k + 1) > 0 := Or.elim (Ne.lt_or_gt s2_7) (fun h1 => by linarith only [s2_6, h1]) (fun h1 => by linarith only [s2_6, h1])
       -- 2.9. algebra
-      have s2_9 : (k + 1) ^ 2 = k * (k + 1) + (k + 1) := by parley_ring
+      have s2_9 : (k + 1) ^ 2 = k * (k + 1) + (k + 1) := by ring1
       -- 2.10. inequalities
       have s2_10 : k * (k + 1) < k * (k + 1) + (k + 1) := by linarith only [s2_3]
       -- 2.11. transitivity, from 2.10, 2.9

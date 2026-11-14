@@ -470,16 +470,16 @@ fn check_supposition_used(
         })
         .map(|s| &s.number)
         .collect();
-    let under = |s: &&Step| {
+    let under = |s: &Step| {
         s.number.depth() >= depth && heads.contains(&&s.number.prefix(depth))
     };
     for o in supposes.iter().filter(|o| o.kind == Intro::Suppose) {
-        let names = |s: &&Step| {
+        let names = |s: &Step| {
             s.just.refs.contains(&o.label)
                 || s.just.contradicting.as_ref() == Some(&o.label)
                 || s.requires.iter().any(|r| r.refs().contains(&o.label))
         };
-        if !thm.steps.iter().filter(under).any(|s| names(&s)) {
+        if !thm.steps.iter().any(|s| under(s) && names(s)) {
             let whose = match owner.opening(part).by {
                 Some(_) => format!(
                     "{} is proved by contradiction and",

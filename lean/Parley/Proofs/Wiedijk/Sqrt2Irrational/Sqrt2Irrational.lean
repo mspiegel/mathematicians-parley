@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
@@ -20,6 +18,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -38,6 +37,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare
@@ -64,7 +64,7 @@ theorem sqrt2_irrational :
     have s2_2 : ((p : ℚ) / (q : ℚ)) ^ 2 = 2 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 = 2)) s2_1b s1; push_cast at h ⊢; exact_mod_cast h)
     -- 2.3. algebra, from 2.2
     have r119_1 : q ≠ 0 := ne_of_gt (by linarith only [s2_1a])
-    have s2_3 : p ^ 2 = 2 * q ^ 2 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 2) * s2_2
+    have s2_3 : p ^ 2 = 2 * q ^ 2 := by qify at *; have hz1 : (q : ℚ) ≠ 0 := (by exact_mod_cast r119_1); linear_combination (norm := (field)) ((q : ℚ) ^ 2) * s2_2
     -- 2.4. def:even n := p², from 2.3
     have s2_4 : Even (p ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := p ^ 2))).mpr ⟨q ^ 2, s2_3⟩
     -- 2.5. thm:even-square n := p, from 2.4
@@ -75,9 +75,9 @@ theorem sqrt2_irrational :
     have s2_7 : 2 * q ^ 2 = 4 * r ^ 2 := by
       calc 2 * q ^ 2 = p ^ 2 := s2_3.symm
         _ = (2 * r) ^ 2 := congrArg (fun t : ℤ => t ^ 2) s2_6
-        _ = 4 * r ^ 2 := by parley_ring
+        _ = 4 * r ^ 2 := by ring1
     -- 2.8. algebra, from 2.7
-    have s2_8 : q ^ 2 = 2 * r ^ 2 := by qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s2_7
+    have s2_8 : q ^ 2 = 2 * r ^ 2 := by qify at *; linear_combination ((1 / 2 : ℚ)) * s2_7
     -- 2.9. def:even n := q², from 2.8
     have s2_9 : Even (q ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := q ^ 2))).mpr ⟨r ^ 2, s2_8⟩
     -- 2.10. thm:even-square n := q, from 2.9

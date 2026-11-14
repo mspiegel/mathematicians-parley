@@ -1,10 +1,8 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Order.Field.Basic
@@ -22,6 +20,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -32,9 +31,11 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
@@ -106,7 +107,7 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   -- 17. mun:card-nat0 X := G(m, n), from 16
   have s17 : 0 ≤ ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) s16)
   -- 18. algebra
-  have s18 : m - 1 + n = m + (n - 1) := by parley_ring
+  have s18 : m - 1 + n = m + (n - 1) := by ring1
   -- 19. substitute (m − 1) + n = m + (n − 1) (line 18) into H4
   have r846_1 : 0 ≤ m - 1 := by exact s1
   have s19 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) = (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * t = (m - 1 - n) * (LeanBridges.Counting.choose t (m - 1) : ℤ))) s18 hH4
@@ -119,16 +120,16 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
     have hI : (LeanBridges.Counting.choose (m + (n - 1) + 1) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (add_nonneg (le_of_lt hH1) (s2)) (k := m - 1) s21))
     exact hI
   -- 23. algebra
-  have s23 : m + (n - 1) + 1 = m + n := by parley_ring
+  have s23 : m + (n - 1) + 1 = m + n := by ring1
   -- 24. substitute (m + (n − 1)) + 1 = m + n (line 23) into line 22
   have s24 : (LeanBridges.Counting.choose (m + n) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / ((m : ℚ) - 1 + 1)) := by
-    have e_w : (m : ℚ) + ((n : ℚ) - 1) + 1 = (m : ℚ) + (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s23; push_cast at h; linear_combination (norm := parley_norm) h
+    have e_w : (m : ℚ) + ((n : ℚ) - 1) + 1 = (m : ℚ) + (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s23; push_cast at h; linear_combination h
     (have h := Eq.subst (motive := (fun t : ℚ => (LeanBridges.Counting.choose (m + n) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (t / ((m : ℚ) - 1 + 1)))) e_w (Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose t (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)))) s23 s22); push_cast at h ⊢; exact_mod_cast h)
   -- 25. substitute
   have s25 : (LeanBridges.Counting.choose (m + n) m : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / (m : ℚ)) := by
-    have c1 : m - 1 + 1 = m := by parley_ring
+    have c1 : m - 1 + 1 = m := by ring1
     have row1 : (LeanBridges.Counting.choose (m + n) m : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / (m : ℚ)) := by
-      have e_w : (m : ℚ) - 1 + 1 = (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : (m : ℚ) - 1 + 1 = (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination h
       (have h := Eq.subst (motive := (fun t : ℚ => (LeanBridges.Counting.choose (m + n) m : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / t))) e_w (Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + n) t : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + (n : ℚ)) / ((m : ℚ) - 1 + 1)))) c1 s24); push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 26. thm:pascal n := m + (n − 1), k := m, from 2
@@ -140,26 +141,26 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   -- 29. mun:binomial-nat0 n := m + (n − 1), k := m, from 2
   have s29 : 0 ≤ (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := m + (n - 1)) (add_nonneg (le_of_lt hH1) (s2)) (k := m))
   -- 30. algebra, from 25, 28
-  have s30 : (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) * (m + n) = m * (LeanBridges.Counting.choose (m + n) m : ℤ) := by qify at *; linear_combination (norm := parley_field) (-(m : ℚ)) * s25
+  have s30 : (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) * (m + n) = m * (LeanBridges.Counting.choose (m + n) m : ℤ) := by qify at *; have hz1 : (m : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (-(m : ℚ)) * s25
   -- 31. algebra, from 27, 28, 29, 30
-  have s31 : (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) * (m + n) = n * (LeanBridges.Counting.choose (m + n) m : ℤ) := by linear_combination (norm := parley_norm) (m + n) * s27 + (-1) * s30
+  have s31 : (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) * (m + n) = n * (LeanBridges.Counting.choose (m + n) m : ℤ) := by linear_combination (m + n) * s27 + (-1) * s30
   -- 32. algebra, from H5, 12, 13, 15, 19
   have r888_1 : 0 ≤ n - 1 := by exact s2
-  have s32 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) = (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) + (m - (n - 1)) * (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) := by parley_count_int; (linear_combination (norm := parley_norm) hH5 + (m + n - 1) * s15 + s19)
+  have s32 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) = (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) + (m - (n - 1)) * (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) := by parley_count_int; (linear_combination hH5 + (m + n - 1) * s15 + s19)
   -- 33. algebra, from 28, 30
-  have s33 : (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) * (m + n) = (m - 1 - n) * m * (LeanBridges.Counting.choose (m + n) m : ℤ) := by linear_combination (norm := parley_norm) (m - n - 1) * s30
+  have s33 : (m - 1 - n) * (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℤ) * (m + n) = (m - 1 - n) * m * (LeanBridges.Counting.choose (m + n) m : ℤ) := by linear_combination (m - n - 1) * s30
   -- 34. algebra, from 29, 31
-  have s34 : (m - (n - 1)) * (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) * (m + n) = (m - (n - 1)) * n * (LeanBridges.Counting.choose (m + n) m : ℤ) := by linear_combination (norm := parley_norm) (m - n + 1) * s31
+  have s34 : (m - (n - 1)) * (LeanBridges.Counting.choose (m + (n - 1)) m : ℤ) * (m + n) = (m - (n - 1)) * n * (LeanBridges.Counting.choose (m + n) m : ℤ) := by linear_combination (m - n + 1) * s31
   -- 35. algebra, from 17, 28, 29, 32, 33, 34
-  have s35 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) * (m + n) = (m - 1 - n) * m * (LeanBridges.Counting.choose (m + n) m : ℤ) + (m - (n - 1)) * n * (LeanBridges.Counting.choose (m + n) m : ℤ) := by parley_count_int; (linear_combination (norm := parley_norm) (m + n) * s32 + s33 + s34)
+  have s35 : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℤ) * (m + (n - 1)) * (m + n) = (m - 1 - n) * m * (LeanBridges.Counting.choose (m + n) m : ℤ) + (m - (n - 1)) * n * (LeanBridges.Counting.choose (m + n) m : ℤ) := by parley_count_int; (linear_combination (m + n) * s32 + s33 + s34)
   -- 36. inequalities, from H1, H2
   have s36 : 0 < m + (n - 1) := by linarith only [hH1, hH2]
   -- 37. calculation
   have r904_1 : 0 ≠ m + (n - 1) := ne_of_lt (by linarith only [s36])
   parley_count_after (by
     calc ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℚ) * ((m : ℚ) + (n : ℚ)) = (((m : ℚ) - 1 - (n : ℚ)) * (m : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ) + ((m : ℚ) - ((n : ℚ) - 1)) * (n : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ)) / ((m : ℚ) + ((n : ℚ) - 1)) := by parley_count_int; exact (by
-          have s35_w : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℚ) * ((m : ℚ) + ((n : ℚ) - 1)) * ((m : ℚ) + (n : ℚ)) = ((m : ℚ) - 1 - (n : ℚ)) * (m : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ) + ((m : ℚ) - ((n : ℚ) - 1)) * (n : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s35; push_cast at h; linear_combination (norm := parley_norm) h
-          linear_combination (norm := parley_field) ((1) / (((m : ℚ) + (n : ℚ) - 1))) * s35_w)
-      _ = ((m : ℚ) - (n : ℚ)) * (LeanBridges.Counting.choose (m + n) m : ℚ) := by parley_ring)
+          have s35_w : ({c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}.ncard : ℚ) * ((m : ℚ) + ((n : ℚ) - 1)) * ((m : ℚ) + (n : ℚ)) = ((m : ℚ) - 1 - (n : ℚ)) * (m : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ) + ((m : ℚ) - ((n : ℚ) - 1)) * (n : ℚ) * (LeanBridges.Counting.choose (m + n) m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s35; push_cast at h ⊢; linear_combination h
+          have hz1 : (m : ℚ) + ((n : ℚ) - 1) ≠ 0 := (by exact_mod_cast r904_1.symm); linear_combination (norm := (field)) ((1) / (((m : ℚ) + ((n : ℚ) - 1)))) * s35_w)
+      _ = ((m : ℚ) - (n : ℚ)) * (LeanBridges.Counting.choose (m + n) m : ℚ) := by have hz1 : (m : ℚ) + ((n : ℚ) - 1) ≠ 0 := (by exact_mod_cast r904_1.symm); field)
 
 end Parley.Proofs.Wiedijk.Ballot.BallotRecurrence

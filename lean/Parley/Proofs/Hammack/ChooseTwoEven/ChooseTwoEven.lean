@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
@@ -48,7 +47,7 @@ theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (
     -- 2.2. obtain k: def:divides d := 4, n := a, from 2.1
     obtain ⟨k, s2_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a))).mp s2_1
     -- 2.3. algebra, from 1, 2.2
-    have s2_3 : (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) = 2 * (k * (4 * k - 1)) := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s1 + ((1 / 2 : ℚ) * (a : ℚ) + 2 * (k : ℚ) - (1 / 2 : ℚ)) * s2_2
+    have s2_3 : (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) = 2 * (k * (4 * k - 1)) := by qify at *; linear_combination ((2) / (((2 : ℚ)))) * s1 + ((1 / 2 : ℚ) * (a : ℚ) + 2 * (k : ℚ) - (1 / 2 : ℚ)) * s2_2
     -- 2.4. def:even n := C(a, 2), from 2.3
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k - 1), s2_3⟩
   · skip
@@ -57,7 +56,7 @@ theorem choose_two_even (a : ℤ) (hH1 : 0 ≤ a) (hH2 : a ≡ (0 : ℤ) [ZMOD (
     -- 2.6. obtain k: def:divides d := 4, n := a − 1, from 2.5
     obtain ⟨k, s2_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a - 1))).mp s2_5
     -- 2.7. algebra, from 1, 2.6
-    have s2_7 : (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) = 2 * (k * (4 * k + 1)) := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s1 + ((1 / 2 : ℚ) * (a : ℚ) + 2 * (k : ℚ)) * s2_6
+    have s2_7 : (LeanBridges.Counting.choose a (2 : ℤ) : ℤ) = 2 * (k * (4 * k + 1)) := by qify at *; linear_combination ((2) / (((2 : ℚ)))) * s1 + ((1 / 2 : ℚ) * (a : ℚ) + 2 * (k : ℚ)) * s2_6
     -- 2.8. def:even n := C(a, 2), from 2.7
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose a (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k + 1), s2_7⟩
 

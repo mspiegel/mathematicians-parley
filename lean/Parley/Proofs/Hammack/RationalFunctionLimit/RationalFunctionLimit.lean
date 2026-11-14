@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -22,6 +21,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -34,8 +34,10 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -76,9 +78,9 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.7. mun:product-positive x := n, y := 8n² + 4, from 1.2.1, 1.2.6
       have s1_2_7 : n * (8 * n ^ 2 + 4) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := n) (y := 8 * n ^ 2 + 4) s1_2_1 s1_2_6)
       -- 1.2.8. algebra, from H2
-      have s1_2_8 : a n - 5 / 4 = (2 * (n : ℝ) - 3) / (8 * (n : ℝ) ^ 2 + 4) := by linear_combination (norm := parley_field) ((4) / ((4))) * (hH2 n hK2)
+      have s1_2_8 : a n - 5 / 4 = (2 * (n : ℝ) - 3) / (8 * (n : ℝ) ^ 2 + 4) := by have hz1 : (n : ℝ) ^ 2 * 8 + 4 ≠ 0 := (by positivity); have hz2 : 4 * (n : ℝ) ^ 2 + 2 ≠ 0 := (by positivity); linear_combination (norm := (field)) ((4) / (((4 : ℝ)))) * (hH2 n hK2)
       -- 1.2.9. algebra
-      have s1_2_9 : 1 / (n : ℚ) - (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) = (6 * (n : ℚ) ^ 2 + 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) := by parley_ring
+      have s1_2_9 : 1 / (n : ℚ) - (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) = (6 * (n : ℚ) ^ 2 + 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) := by have hz1 : (n : ℚ) ≠ 0 := (by positivity); have hz2 : (n : ℚ) ^ 2 * 8 + 4 ≠ 0 := (by positivity); field
       -- 1.2.10. inequalities
       have s1_2_10 : 6 * n ^ 2 > 0 := by linarith only [s1_2_3]
       -- 1.2.11. inequalities
@@ -92,12 +94,12 @@ theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.15. inequalities
       have s1_2_15 : (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) < 1 / (n : ℚ) := by linarith only [s1_2_14]
       -- 1.2.16. algebra
-      have s1_2_16 : 1 / (n : ℚ) + (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) = (10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) := by parley_ring
+      have s1_2_16 : 1 / (n : ℚ) + (2 * (n : ℚ) - 3) / (8 * (n : ℚ) ^ 2 + 4) = (10 * (n : ℚ) ^ 2 - 3 * (n : ℚ) + 4) / ((n : ℚ) * (8 * (n : ℚ) ^ 2 + 4)) := by have hz1 : (n : ℚ) ≠ 0 := (by positivity); have hz2 : (n : ℚ) ^ 2 * 8 + 4 ≠ 0 := (by positivity); field
       -- 1.2.17. mun:multiply-le x := 1, y := n, c := n, from 1.2.2
       have r95_1 : n > 0 := by exact s1_2_1
       have s1_2_17 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) s1_2_2 r95_1)
       -- 1.2.18. algebra
-      have s1_2_18 : n * n = n ^ 2 := by parley_ring
+      have s1_2_18 : n * n = n ^ 2 := by ring1
       -- 1.2.19. transitivity, from 1.2.17, 1.2.18
       have s1_2_19 : n ≤ n ^ 2 := by linarith only [s1_2_17, s1_2_18]
       -- 1.2.20. inequalities

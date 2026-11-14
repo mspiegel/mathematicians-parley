@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.DividesProduct.DividesProduct
@@ -73,7 +73,7 @@ theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 
     have s11_7 : 0 < -c * (Int.gcd a b : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := -c) (y := (Int.gcd a b : ℤ)) s11_5 s11_6)
     -- 11.8. substitute
     have s11_8 : 0 < -(c * (Int.gcd a b : ℤ)) := by
-      have c1 : -c * (Int.gcd a b : ℤ) = -(c * (Int.gcd a b : ℤ)) := by parley_ring
+      have c1 : -c * (Int.gcd a b : ℤ) = -(c * (Int.gcd a b : ℤ)) := by ring1
       have row1 : 0 < -(c * (Int.gcd a b : ℤ)) := Eq.subst (motive := (fun t : ℤ => 0 < t)) c1 s11_7
       exact row1
     -- 11.9. inequalities

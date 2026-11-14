@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Algebra.Group.Even
@@ -27,6 +26,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -61,7 +61,7 @@ theorem binomial_even_for_odd_k (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : 0 < k) 
     have s2_4 : k * (LeanBridges.Counting.choose (n - 1 + 1) k : ℤ) = (n - 1 + 1) * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := n - 1) r78_1 (k := k) s2_3)
     -- 2.5. substitute
     have s2_5 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := by
-      have c1 : n - 1 + 1 = n := by parley_ring
+      have c1 : n - 1 + 1 = n := by ring1
       have row1 : k * (LeanBridges.Counting.choose n k : ℤ) = n * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => k * (LeanBridges.Counting.choose t k : ℤ) = t * (LeanBridges.Counting.choose (n - 1) (k - 1) : ℤ))) c1 s2_4
       exact row1
     -- 2.6. mun:binomial-nat0 n := n − 1, k := k − 1

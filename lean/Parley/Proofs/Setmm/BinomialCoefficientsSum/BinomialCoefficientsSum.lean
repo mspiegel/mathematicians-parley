@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -62,10 +61,10 @@ theorem binomial_coefficients_sum (N : ℤ) (hH1 : 0 ≤ N) :
     -- 1.2. mun:one-power m := k
     have s1_2 : (1 ^ k.toNat : ℤ) = 1 := by (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := k)); simp only [parley_zpow_toNat (n := k) (h := le_trans (by norm_num) (Finset.mem_Icc.mp hJ).1)] at h ⊢; exact_mod_cast h)
     -- 1.3. calculation
-    calc (LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose N k : ℚ) * 1 ^ k.toNat := by linear_combination (norm := parley_norm) (1 ^ k.toNat * (LeanBridges.Counting.choose N k : ℚ)) * s1_1
+    calc (LeanBridges.Counting.choose N k : ℚ) * 1 ^ (N - k) * 1 ^ k.toNat = (LeanBridges.Counting.choose N k : ℚ) * 1 ^ k.toNat := by linear_combination (1 ^ k.toNat * (LeanBridges.Counting.choose N k : ℚ)) * s1_1
       _ = (LeanBridges.Counting.choose N k : ℚ) := by
-          have s1_2_w : (1 ^ k.toNat : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_2; push_cast at h; linear_combination (norm := parley_norm) h
-          linear_combination (norm := parley_norm) ((LeanBridges.Counting.choose N k : ℤ)) * s1_2_w
+          have s1_2_w : (1 ^ k.toNat : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_2; push_cast at h ⊢; linear_combination h
+          linear_combination ((LeanBridges.Counting.choose N k : ℚ)) * s1_2_w
   -- 2. arithmetic
   have s2 : (1 + 1 : ℤ) = 2 := by parley_arith
   -- 3. calculation

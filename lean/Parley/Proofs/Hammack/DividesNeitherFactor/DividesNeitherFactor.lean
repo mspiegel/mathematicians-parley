@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-neither-factor.proof by parley build lean. -/
@@ -40,7 +40,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
     have s2_1 : x ∣ z * y := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) hS2)
     -- 2.2. substitute
     have s2_2 : x ∣ y * z := by
-      have c1 : z * y = y * z := by parley_ring
+      have c1 : z * y = y * z := by ring1
       have row1 : x ∣ y * z := Eq.subst (motive := (fun t : ℤ => x ∣ t)) c1 s2_1
       exact row1
     -- 2.3. restate H5

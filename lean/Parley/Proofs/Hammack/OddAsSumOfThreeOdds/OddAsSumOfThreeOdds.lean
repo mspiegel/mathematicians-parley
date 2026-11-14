@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/odd-as-sum-of-three-odds.proof by parley build lean. -/
@@ -38,7 +38,7 @@ theorem odd_as_sum_of_three_odds (n : ℤ) (hH2 : Odd n) :
   -- 4. def:odd n := −1, from 3
   have s4 : Odd (-1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (-1 : ℤ)))).mpr ⟨(-1 : ℤ), by norm_num⟩
   -- 5. algebra
-  have s5 : n = n + 1 + -1 := by parley_ring
+  have s5 : n = n + 1 + -1 := by ring1
   -- 6. exhibit, from H2, 2, 4, 5
   exact ⟨n, (1 : ℤ), (-1 : ℤ), ⟨⟨⟨hH2, s2⟩, s4⟩, s5⟩⟩
 

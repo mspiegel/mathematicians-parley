@@ -246,24 +246,85 @@ pub fn nonzero(divisor: &Node, facts: &Facts) -> bool {
 /// Whether the page says a divisor is not zero once, or a fact says it
 /// (`nonzero`).
 fn said_nonzero(divisor: &Node, facts: &Facts) -> bool {
+    said_nonzero_how(divisor, facts).is_some()
+}
+
+/// How a divisor, or a part of one, is not zero (`nonzero_how`), so that a
+/// backend proves it the way the check found it.
+pub enum NonzeroHow<'f> {
+    /// A fact says so: `d ≠ 0` either way round, or a sign, `0 < d`,
+    /// `d > 0`, `d < 0` or `0 > d`. The fact as the check read it.
+    Stated(&'f Node),
+    /// Numerals alone, whose value is not zero: 3, 2 − 5.
+    Numerals,
+    /// A positive integer by what the page says once: k, j·(j + 1), 2^n and
+    /// (k + 1)! where k, j and n are letters in ℕ (`nonzero_said_once`).
+    Positive,
+}
+
+/// Each part of a divisor `nonzero` reads as not zero, with how: each part
+/// of a product, a quotient, a negation or a power to a numeral, taken
+/// apart as far as each part is not zero, which is how a backend clearing
+/// the division meets them, 1·N! as 1 and N!; or the divisor whole, where
+/// one reason holds of it and not of each part. None where neither holds.
+pub fn nonzero_how<'f>(
+    divisor: &Node,
+    facts: &'f Facts,
+) -> Option<Vec<(Node, NonzeroHow<'f>)>> {
+    let parts: Vec<&Node> = match (
+        divisor.notation(),
+        divisor.spelling(),
+        divisor.children.as_slice(),
+    ) {
+        (MULTIPLICATIVE | JUXTAPOSITION, _, [a, b]) | (_, DIVIDED, [a, b]) => {
+            vec![a, b]
+        }
+        (UNARY_MINUS, _, [a]) => vec![a],
+        (POWER | SUPERSCRIPT, _, [a, e]) if e.notation() == NUMERAL => vec![a],
+        _ => Vec::new(),
+    };
+    let apart: Option<Vec<(Node, NonzeroHow<'f>)>> = (!parts.is_empty())
+        .then(|| {
+            let mut out = Vec::new();
+            for p in &parts {
+                out.extend(nonzero_how(p, facts)?);
+            }
+            Some(out)
+        })
+        .flatten();
+    apart.or_else(|| {
+        said_nonzero_how(divisor, facts).map(|how| vec![(divisor.clone(), how)])
+    })
+}
+
+/// How the page says a divisor is not zero once, or which fact says it;
+/// None where neither does (`said_nonzero`).
+fn said_nonzero_how<'f>(divisor: &Node, facts: &'f Facts) -> Option<NonzeroHow<'f>> {
+    if crate::citing::closed_nonzero(divisor) {
+        return Some(NonzeroHow::Numerals);
+    }
     if nonzero_said_once(divisor, &facts.letters) {
-        return true;
+        return Some(NonzeroHow::Positive);
     }
     let zero = |n: &Node| n.notation() == NUMERAL && n.text == "0";
     let is = |n: &Node| same(n, divisor, facts.ctx);
-    facts.facts.iter().any(|f| {
-        match (f.spelling(), f.notation(), f.children.as_slice()) {
-            (_, LOGICAL_NOT, [inner]) => {
-                match (inner.notation(), inner.children.as_slice()) {
-                    (EQUALITY, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
-                    _ => false,
+    facts
+        .facts
+        .iter()
+        .find(
+            |f| match (f.spelling(), f.notation(), f.children.as_slice()) {
+                (_, LOGICAL_NOT, [inner]) => {
+                    match (inner.notation(), inner.children.as_slice()) {
+                        (EQUALITY, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
+                        _ => false,
+                    }
                 }
-            }
-            (LESS, _, [a, b]) => (zero(a) && is(b)) || (is(a) && zero(b)),
-            (GREATER, _, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
-            _ => false,
-        }
-    })
+                (LESS, _, [a, b]) => (zero(a) && is(b)) || (is(a) && zero(b)),
+                (GREATER, _, [a, b]) => (is(a) && zero(b)) || (zero(a) && is(b)),
+                _ => false,
+            },
+        )
+        .map(NonzeroHow::Stated)
 }
 
 /// The first part of `term` nothing in `facts` says is in `system`, as a

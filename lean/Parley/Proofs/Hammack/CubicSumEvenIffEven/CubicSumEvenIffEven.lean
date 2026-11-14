@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -49,7 +48,7 @@ theorem cubic_sum_even_iff_even (a : ℤ) :
       -- 2.1. obtain k: def:odd, from C2
       obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a))).mp hC2
       -- 2.2. algebra, from 2.1
-      have s2_2 : a ^ 3 + a ^ 2 + a = 2 * (4 * k ^ 3 + 8 * k ^ 2 + 6 * k + 1) + 1 := by linear_combination (norm := parley_norm) (2 * a * k + a ^ 2 + 4 * k ^ 2 + 2 * a + 6 * k + 3) * s2_1
+      have s2_2 : a ^ 3 + a ^ 2 + a = 2 * (4 * k ^ 3 + 8 * k ^ 2 + 6 * k + 1) + 1 := by linear_combination (2 * a * k + a ^ 2 + 4 * k ^ 2 + 2 * a + 6 * k + 3) * s2_1
       -- 2.3. def:odd n := a³ + a² + a, from 2.2
       have s2_3 : Odd (a ^ 3 + a ^ 2 + a) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 3 + a ^ 2 + a))).mpr ⟨4 * k ^ 3 + 8 * k ^ 2 + 6 * k + 1, s2_2⟩
       -- 2.4. mun:not-both n := a³ + a² + a, from D1
@@ -60,7 +59,7 @@ theorem cubic_sum_even_iff_even (a : ℤ) :
     -- 3. obtain k: def:even, from D2
     obtain ⟨k, s3⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp hD2
     -- 4. algebra, from 3
-    have s4 : a ^ 3 + a ^ 2 + a = 2 * (4 * k ^ 3 + 2 * k ^ 2 + k) := by linear_combination (norm := parley_norm) (2 * a * k + a ^ 2 + 4 * k ^ 2 + a + 2 * k + 1) * s3
+    have s4 : a ^ 3 + a ^ 2 + a = 2 * (4 * k ^ 3 + 2 * k ^ 2 + k) := by linear_combination (2 * a * k + a ^ 2 + 4 * k ^ 2 + a + 2 * k + 1) * s3
     -- 5. def:even n := a³ + a² + a, from 4
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 3 + a ^ 2 + a))).mpr ⟨4 * k ^ 3 + 2 * k ^ 2 + k, s4⟩
 

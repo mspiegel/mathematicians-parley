@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -44,7 +43,7 @@ theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
     -- 1.2. obtain c: def:divides d := m·n, n := t, from 1.1
     obtain ⟨c, s1_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := m * n) (n := t))).mp s1_1
     -- 1.3. algebra, from 1.2
-    have s1_3 : t = m * (n * c) := by linear_combination (norm := parley_norm) s1_2
+    have s1_3 : t = m * (n * c) := by linear_combination s1_2
     -- 1.4. def:divides d := m, n := t, from 1.1, 1.3
     have s1_4 : m ∣ t := ((Parley.Items.Stdlib.Divisibility.def_divides (d := m) (n := t))).mpr ⟨n * c, s1_3⟩
     -- 1.5. def:set-builder, from 1.1, 1.4
@@ -52,7 +51,7 @@ theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
       have hI : t ∈ {a : ℤ | m ∣ a} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => m ∣ x)) (X := (Set.univ : Set ℤ)) (u := t))).mpr ⟨Set.mem_univ _, s1_4⟩)
       exact hI
     -- 1.6. algebra, from 1.2
-    have s1_6 : t = n * (m * c) := by linear_combination (norm := parley_norm) s1_2
+    have s1_6 : t = n * (m * c) := by linear_combination s1_2
     -- 1.7. def:divides d := n, n := t, from 1.1, 1.6
     have s1_7 : n ∣ t := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := t))).mpr ⟨m * c, s1_6⟩
     -- 1.8. def:set-builder, from 1.1, 1.7

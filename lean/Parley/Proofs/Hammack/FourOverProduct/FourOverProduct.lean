@@ -1,8 +1,9 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Basic
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -11,6 +12,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -23,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/four-over-product.proof by parley build lean. -/
@@ -42,7 +45,7 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   -- 4. mun:square-nonneg x := x − 2
   have s4 : (x - 2) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x - 2))
   -- 5. algebra
-  have s5 : (x - 2) ^ 2 = 4 - x * (4 - x) := by parley_ring
+  have s5 : (x - 2) ^ 2 = 4 - x * (4 - x) := by ring1
   -- 6. transitivity, from 4, 5
   have s6 : 0 ≤ 4 - x * (4 - x) := by exact LE.le.trans_eq s4 s5
   -- 7. inequalities
@@ -51,7 +54,7 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   have s8 : x * (4 - x) / (x * (4 - x)) ≤ 4 / (x * (4 - x)) := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := x * (4 - x)) (y := (4 : ℝ)) (c := x * (4 - x)) s7 s3)
   -- 9. algebra
   have r42_1 : 0 ≠ x * (4 - x) := ne_of_lt (by linarith only [s3])
-  have s9 : x * (4 - x) / (x * (4 - x)) = 1 := by parley_ring
+  have s9 : x * (4 - x) / (x * (4 - x)) = 1 := by have hz1 : x ≠ 0 := left_ne_zero_of_mul r42_1.symm; have hz2 : 4 - x ≠ 0 := right_ne_zero_of_mul r42_1.symm; field
   -- 10. transitivity, from 9, 8
   have r46_1 : 0 ≠ x * (4 - x) := ne_of_lt (by linarith only [s3])
   exact Eq.trans_le s9.symm s8

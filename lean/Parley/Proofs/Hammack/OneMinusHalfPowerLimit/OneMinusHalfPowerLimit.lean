@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import PowerTactics
@@ -42,6 +41,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -73,7 +73,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n �
       -- 1.4. inequalities
       have s1_4 : 2 * k ≤ 2 * 2 ^ k.toNat := by linarith only [hIH]
       -- 1.5. algebra
-      have s1_5 : (2 * 2 ^ k.toNat : ℤ) = 2 ^ k.toNat * 2 := by parley_ring
+      have s1_5 : (2 * 2 ^ k.toNat : ℤ) = 2 ^ k.toNat * 2 := by ring1
       -- 1.6. transitivity, from 1.3, 1.4, 1.5, 1.2
       exact LE.le.trans_eq (LE.le.trans_eq (le_trans s1_3 s1_4) s1_5) s1_2.symm
   -- 2. proof

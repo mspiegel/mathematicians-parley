@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/a-conjunct-of-a-cited-line.proof by parley build lean. -/
@@ -30,6 +30,6 @@ theorem a_value_from_its_type_and_a_conjunct (a : ℝ) (b : ℝ) (c : ℝ) (hH3 
   -- 1. mun:remove-member, from H5
   have s1 : x ∈ (Set.Ioo a b : Set ℝ) ∧ x ≠ c := by exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.Ioo a b : Set ℝ)) (a := c) (u := x))).mp hH5
   -- 2. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.AConjunctOfACitedLine.AValueFromItsTypeAndAConjunct

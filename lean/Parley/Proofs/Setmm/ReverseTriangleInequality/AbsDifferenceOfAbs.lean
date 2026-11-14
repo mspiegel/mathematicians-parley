@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow
 
@@ -37,7 +37,7 @@ theorem abs_difference_of_abs (A : ℝ) (B : ℝ) :
   have s3 : abs (-(A - B)) = abs (A - B) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))
   -- 4. substitute
   have s4 : abs (B - A) = abs (A - B) := by
-    have c1 : -(A - B) = B - A := by parley_ring
+    have c1 : -(A - B) = B - A := by ring1
     have row1 : abs (B - A) = abs (A - B) := Eq.subst (motive := (fun t : ℝ => abs t = abs (A - B))) c1 s3
     exact row1
   -- 5. substitute |B − A| = |A − B| (line 4) into line 2

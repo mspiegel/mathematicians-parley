@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -35,6 +33,7 @@ public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -56,6 +55,7 @@ public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -82,7 +82,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     -- 2.2. calculation
     have s2_2 : n = m := by
       calc n = 2 ^ 0 * m := s2_1
-        _ = m := by parley_ring
+        _ = m := by ring1
     -- 2.3. substitute n = m (line 2.2) into line 1
     have s2_3 : Odd n := Eq.subst (motive := (fun t : ℤ => Odd t)) s2_2.symm s1c
     -- 2.4. mun:not-both, from H2
@@ -117,14 +117,14 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have s9_2 : (2 : ℤ) ∣ (2 * 2 ^ k.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (2 : ℤ)) (a := (2 : ℤ)) (x := (2 ^ k.toNat : ℤ)) s9_1)
     -- 9.3. substitute
     have s9_3 : (2 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by
-      have c1 : (2 * 2 ^ k.toNat : ℤ) = 2 ^ p.toNat := by linear_combination (norm := parley_norm) (-1) * s8
+      have c1 : (2 * 2 ^ k.toNat : ℤ) = 2 ^ p.toNat := by linear_combination (-1) * s8
       have row1 : (2 : ℤ) ∣ (2 ^ p.toNat : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 : ℤ) ∣ t)) c1 s9_2; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 9.4. mun:divides-difference d := 2, a := 2^p, b := 2^p − 1, from S2, 9.3
     have s9_4 : (2 : ℤ) ∣ (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (2 : ℤ)) (a := (2 ^ p.toNat : ℤ)) (b := (2 ^ p.toNat - 1 : ℤ)) s9_3 hS2)
     -- 9.5. substitute
     have s9_5 : (2 : ℤ) ∣ (1 : ℤ) := by
-      have c1 : (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) = 1 := by parley_ring
+      have c1 : (2 ^ p.toNat - (2 ^ p.toNat - 1) : ℤ) = 1 := by ring1
       have row1 : (2 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (2 : ℤ) ∣ t)) c1 s9_4; revert h; norm_num)
       exact row1
     -- 9.6. mun:divides-one d := 2, from 9.5
@@ -154,8 +154,8 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
           exact hI
       _ = 2 ^ p.toNat - 1 := by
           simp only [hD2] at ⊢
-          push_cast at r407_1 r407_2 ⊢
-          parley_ring
+          push_cast at ⊢
+          ring1
   -- 15. calculation
   have s15 : (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = 2 ^ p.toNat * m := by
     calc (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := congrArg (fun t : ℤ => t * (ArithmeticFunction.sigma 1 m.toNat : ℤ)) s14.symm
@@ -164,11 +164,11 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
           exact hI.symm
       _ = (ArithmeticFunction.sigma 1 n.toNat : ℤ) := congrArg (fun t : ℤ => (ArithmeticFunction.sigma 1 t.toNat : ℤ)) s1d.symm
       _ = 2 * n := by exact ((Parley.Items.Stdlib.Divisibility.def_perfect (n := n) hH1)).mp hH3
-      _ = 2 ^ p.toNat * m := by linear_combination (norm := parley_norm) (2) * s1d + (-m) * s8
+      _ = 2 ^ p.toNat * m := by linear_combination (2) * s1d + (-m) * s8
   -- 16. mun:sigma-nat n := m
   have s16 : 0 < (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_sigma_nat (n := m) s1b)
   -- 17. algebra, from 15
-  have s17 : m * 2 ^ p.toNat = (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by linear_combination (norm := parley_norm) (-1) * s15
+  have s17 : m * 2 ^ p.toNat = (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by linear_combination (-1) * s15
   -- 18. def:divides d := 2^p − 1, n := m·2^p, from 16, 17
   have s18 : (2 ^ p.toNat - 1 : ℤ) ∣ m * 2 ^ p.toNat := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 ^ p.toNat - 1 : ℤ)) (n := m * 2 ^ p.toNat))).mpr ⟨(ArithmeticFunction.sigma 1 m.toNat : ℤ), s17⟩
   -- 19. thm:coprime-divides x := m, c := 2^p, n := 2^p − 1, from 7, 11, 18
@@ -179,14 +179,14 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   obtain ⟨c, hD3_pos, hD3⟩ := hD3_kind
   -- 20. algebra, from D3
   have r440_1 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by exact s7.ne'
-  have s20 : m = (2 ^ p.toNat - 1) * c := by qify at *; linear_combination (norm := parley_field) (-(2 ^ p.toNat) + 1) * hD3
+  have s20 : m = (2 ^ p.toNat - 1) * c := by qify at *; have hz1 : (2 ^ p.toNat - 1 : ℚ) ≠ 0 := (by exact_mod_cast r440_1); linear_combination (norm := (field)) (-(2 ^ p.toNat) + 1) * hD3
   -- 21. algebra, from 15, 20
-  have s21 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) * (2 ^ p.toNat - 1) = 2 ^ p.toNat * c * (2 ^ p.toNat - 1) := by linear_combination (norm := parley_norm) s15 + (2 ^ p.toNat) * s20
+  have s21 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) * (2 ^ p.toNat - 1) = 2 ^ p.toNat * c * (2 ^ p.toNat - 1) := by linear_combination s15 + (2 ^ p.toNat) * s20
   -- 22. calculation
   have r448_2 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by exact s7.ne'
   have s22 : (ArithmeticFunction.sigma 1 m.toNat : ℤ) = m + c := by
     calc (ArithmeticFunction.sigma 1 m.toNat : ℤ) = 2 ^ p.toNat * c := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (ArithmeticFunction.sigma 1 m.toNat : ℤ)) (b := 2 ^ p.toNat * c) (c := (2 ^ p.toNat - 1 : ℤ)) s21 r448_2)
-      _ = m + c := by linear_combination (norm := parley_norm) (-1) * s20
+      _ = m + c := by linear_combination (-1) * s20
   -- 23. contradiction
   have s23 : c = 1 := by
     by_contra (hS3 : c ≠ 1)
@@ -196,7 +196,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have s23_2 : (2 ^ p.toNat - 1 - 1) * c > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (2 ^ p.toNat - 1 - 1 : ℚ)) (y := (c : ℚ)) (by exact_mod_cast gt_iff_lt.mp s23_1) (by exact_mod_cast gt_iff_lt.mp hD3_pos))
     -- 23.3. substitute
     have s23_3 : m - c > 0 := by
-      have c1 : (2 ^ p.toNat - 1 - 1) * c = m - c := by linear_combination (norm := parley_norm) (-1) * s20
+      have c1 : (2 ^ p.toNat - 1 - 1) * c = m - c := by linear_combination (-1) * s20
       have row1 : m - c > 0 := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s23_2
       exact row1
     -- 23.4. inequalities
@@ -205,7 +205,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     have r477_1 : (2 ^ p.toNat - 1 : ℤ) ≠ 0 := by exact s7.ne'
     have s23_5 : 1 < c := Or.elim (Ne.lt_or_gt hS3) (fun h1 => by linarith only [hD3_pos, h1]) (fun h1 => by linarith only [hD3_pos, h1])
     -- 23.6. algebra, from 20
-    have s23_6 : m = c * (2 ^ p.toNat - 1) := by linear_combination (norm := parley_norm) s20
+    have s23_6 : m = c * (2 ^ p.toNat - 1) := by linear_combination s20
     -- 23.7. def:divides d := c, n := m, from 23.6
     have s23_7 : c ∣ m := ((Parley.Items.Stdlib.Divisibility.def_divides (d := c) (n := m))).mpr ⟨(2 ^ p.toNat - 1 : ℤ), s23_6⟩
     -- 23.8. thm:three-divisors e := c, from 23.4, 23.5, 23.7
@@ -255,13 +255,13 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   -- 30. algebra, from D2
   have s30 : p - 1 = k := by
     simp only [hD2] at ⊢
-    parley_ring
+    ring1
   -- 31. calculation
   have s31 : (n : ℚ) = 2 ^ (p - 1) * (2 ^ p.toNat - 1) := by
     calc (n : ℚ) = 2 ^ k.toNat * (m : ℚ) := by exact_mod_cast s1d
       _ = 2 ^ (p - 1) * (m : ℚ) := by (have h := congrArg (fun t : ℤ => 2 ^ t * (m : ℚ)) s30.symm; simp only [parley_zpow_toNat (n := k) (h := s1a)] at h ⊢; exact_mod_cast h)
       _ = 2 ^ (p - 1) * (2 ^ p.toNat - 1) := by
-          have e_w : (m : ℚ) = 2 ^ p.toNat - 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (m : ℚ) = 2 ^ p.toNat - 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s24; push_cast at h; linear_combination h
           exact congrArg (fun t : ℚ => 2 ^ (p - 1) * t) e_w
   -- 32. exhibit, from 29, 31
   exact ⟨p, hD2_pos, ⟨s29, s31⟩⟩

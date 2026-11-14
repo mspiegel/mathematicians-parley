@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +22,8 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural
@@ -52,14 +53,14 @@ theorem odd_and_quartic_coprime (n : ℤ) :
   have s6 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ 4 * n ^ 2 + 1 - (2 * n + 1) * (2 * n - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ)) (a := 4 * n ^ 2 + 1) (b := (2 * n + 1) * (2 * n - 1)) s4c s5)
   -- 7. substitute
   have s7 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (2 : ℤ) := by
-    have c1 : 4 * n ^ 2 + 1 - (2 * n + 1) * (2 * n - 1) = 2 := by parley_ring
+    have c1 : 4 * n ^ 2 + 1 - (2 * n + 1) * (2 * n - 1) = 2 := by ring1
     have row1 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ t)) c1 s6; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 8. mun:divides-combination e := gcd(2n + 1, 4n² + 1), a := 2n + 1, b := 2, x := 1, y := −n, from 4, 7
   have s8 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (2 * n + 1) * 1 + 2 * -n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ)) (a := 2 * n + 1) (b := (2 : ℤ)) (x := (1 : ℤ)) (y := -n) s4b s7)
   -- 9. substitute
   have s9 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (1 : ℤ) := by
-    have c1 : (2 * n + 1) * 1 + 2 * -n = 1 := by parley_ring
+    have c1 : (2 * n + 1) * 1 + 2 * -n = 1 := by ring_nf
     have row1 : (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd (2 * n + 1) (4 * n ^ 2 + 1) : ℤ) ∣ t)) c1 s8; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 10. mun:divides-one d := gcd(2n + 1, 4n² + 1), from 4, 9

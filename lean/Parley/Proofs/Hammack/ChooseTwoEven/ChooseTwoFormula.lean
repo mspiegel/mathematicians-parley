@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs
 
@@ -55,7 +55,7 @@ theorem choose_two_formula (n : ℤ) (hH1 : 0 ≤ n) :
               have hI : (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) := by parley_instance_cast ((Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs.choose_two_pairs (n := k) hK))
               exact hI.symm
           _ = (k : ℚ) + (k : ℚ) * ((k : ℚ) - 1) / 2 := congrArg (fun t : ℚ => (k : ℚ) + t) hIH
-          _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by parley_ring
+          _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by ring1
       (have h := s1_3; push_cast at h ⊢; exact h)
   -- 2. instantiate k := n in line 1
   exact (s1 n hH1)

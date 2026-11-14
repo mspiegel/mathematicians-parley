@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from proofs/setmm/double-angle-cosine.proof by parley build lean. -/
@@ -37,9 +37,9 @@ theorem sine_squared_plus_cosine_squared (A : ℂ) :
   -- 2. mun:sin-negative a := A
   have s2 : Complex.sin (-A) = -Complex.sin A := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A))
   -- 3. algebra
-  have s3 : A + -A = 0 := by parley_ring
+  have s3 : A + -A = 0 := by ring1
   -- 4. calculation
-  calc Complex.sin A ^ 2 + Complex.cos A ^ 2 = Complex.cos A * Complex.cos A - Complex.sin A * -Complex.sin A := by parley_ring
+  calc Complex.sin A ^ 2 + Complex.cos A ^ 2 = Complex.cos A * Complex.cos A - Complex.sin A * -Complex.sin A := by ring1
     _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin (-A) := congrArg (fun t : ℂ => Complex.cos A * Complex.cos A - Complex.sin A * t) s2.symm
     _ = Complex.cos A * Complex.cos (-A) - Complex.sin A * Complex.sin (-A) := congrArg (fun t : ℂ => Complex.cos A * t - Complex.sin A * Complex.sin (-A)) s1.symm
     _ = Complex.cos (A + -A) := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)).symm

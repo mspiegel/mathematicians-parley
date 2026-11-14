@@ -320,6 +320,14 @@ line's own. A list holds one entry for each step, in the proof's order.
   taken by a property from a listed set, or that set said equal to the
   members it keeps; or another. Lean
   proves each case one way.
+- `divided_by`: for each step or calculation row whose `algebra` divides by
+  a term other than numerals, by the line its reason is on, each term it
+  divides by and why it is not 0: a line the reason rests on says so
+  (`Stated`, with what says it, `d ≠ 0`, `0 < d` or another sign, and the
+  sentence it is read from, the line itself or a fact implying it, `d ∈ ℕ`
+  of `d > 0`); it is numerals; or it is a positive integer by what the page
+  says once (`Positive`). Lean writes a fact for each and clears the
+  divisions by `field`.
 - `kind_letters`: the letters the reason under a function's define that says
   a kind of number is read with, the step's below the define and the define's
   argument in its domain. Lean proves the kind with them.

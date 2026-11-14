@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
@@ -28,6 +27,7 @@ public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -42,6 +42,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -68,7 +69,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   have s1 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), h x = f x - g x := by
     intro x hK1
     -- 1.1. algebra
-    have s1_1 : 2 * (n + 1) = 2 * n + 2 := by parley_ring
+    have s1_1 : 2 * (n + 1) = 2 * n + 2 := by ring1
     -- 1.2. calculation
     have s1_2 : x ^ (2 * (n + 1)).toNat = x ^ (2 * n).toNat * x ^ 2 := by
       calc x ^ (2 * (n + 1)).toNat = x ^ (2 * n + 2).toNat := congrArg (fun t : ℤ => x ^ t.toNat) s1_1
@@ -82,8 +83,8 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
     -- 1.6. calculation
     have r461_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s1_4])
     calc h x = x ^ (2 * (n + 1)).toNat / (1 + x ^ 2) := s1_5
-      _ = x ^ (2 * n).toNat - x ^ (2 * n).toNat / (1 + x ^ 2) := by linear_combination (norm := parley_field) ((1) / ((x ^ 2 + 1))) * s1_2
-      _ = f x - g x := by parley_ring
+      _ = x ^ (2 * n).toNat - x ^ (2 * n).toNat / (1 + x ^ 2) := by have hz1 : 1 + x ^ 2 ≠ 0 := r461_1; linear_combination (norm := (field)) ((1) / ((1 + x ^ 2))) * s1_2
+      _ = f x - g x := by simp only [hD1, hD2] at ⊢
   -- 2. D1
   have s2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), f x = x ^ (2 * n).toNat := by simp (disch := omega) only [hD1, implies_true]
   -- 3. D2

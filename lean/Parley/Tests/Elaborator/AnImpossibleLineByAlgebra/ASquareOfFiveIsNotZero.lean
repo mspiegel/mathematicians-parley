@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -32,7 +31,7 @@ theorem a_square_of_five_is_not_zero (x : ℝ) (hH2 : x ^ 2 = 5) :
   -- 1. contradiction
   intro hS
   -- 1.1. algebra, from H2, S
-  have s1_1 : (5 : ℝ) = 0 := by linear_combination (norm := parley_norm) (-1) * hH2 + (x) * hS
+  have s1_1 : (5 : ℝ) = 0 := by linear_combination (-1) * hH2 + (x) * hS
   exact absurd s1_1 (by norm_num)
 
 end Parley.Tests.Elaborator.AnImpossibleLineByAlgebra.ASquareOfFiveIsNotZero

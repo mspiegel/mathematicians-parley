@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -65,7 +65,7 @@ theorem limit_at_least (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n 
   have s12 : x (M + N) < L + (B - L) := by linarith only [s11.2]
   -- 13. substitute
   have s13 : x (M + N) < B := by
-    have c1 : L + (B - L) = B := by parley_ring
+    have c1 : L + (B - L) = B := by ring1
     have row1 : x (M + N) < B := Eq.subst (motive := (fun t : ℝ => x (M + N) < t)) c1 s12
     exact row1
   -- 14. inequalities, from 10, 13

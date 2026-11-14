@@ -1,12 +1,12 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -29,6 +29,6 @@ theorem a_second_sentence_in_a_requires_line (a : ℝ) (b : ℝ) (hH3a : a = 1) 
     a / b * b = a := by
   -- 1. algebra
   have r64_1 : b ≠ 0 := ne_of_gt (by linarith only [hH3b])
-  parley_ring
+  have hz1 : b ≠ 0 := r64_1; field
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceInARequiresLine

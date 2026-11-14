@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.RationalClosure.RationalDifference
 
@@ -37,7 +37,7 @@ theorem irrational_sum (A : ℝ) (B : ℚ) (hH3 : Irrational A) :
     have s2_1 : ∃ m : ℚ, (m : ℝ) = A + (B : ℝ) - (B : ℝ) := by (exact ⟨(Classical.choose hS : ℚ) - B, by (push_cast; simp only [Classical.choose_spec hS])⟩)
     -- 2.2. substitute
     have s2_2 : ∃ m : ℚ, (m : ℝ) = A := by
-      have c1 : A + (B : ℝ) - (B : ℝ) = A := by parley_ring
+      have c1 : A + (B : ℝ) - (B : ℝ) = A := by ring1
       have row1 : ∃ m : ℚ, (m : ℝ) = A := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s2_1
       exact row1
     -- 2.3. restate 1

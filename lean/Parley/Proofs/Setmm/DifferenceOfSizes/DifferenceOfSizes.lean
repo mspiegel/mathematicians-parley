@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/difference-of-sizes.proof by parley build lean. -/
@@ -31,7 +31,7 @@ theorem difference_of_sizes (A : ℝ) (B : ℝ) :
   have s1 : abs (A - B + B) ≤ abs (A - B) + abs B := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B))
   -- 2. substitute
   have s2 : abs A ≤ abs (A - B) + abs B := by
-    have c1 : A - B + B = A := by parley_ring
+    have c1 : A - B + B = A := by ring1
     have row1 : abs A ≤ abs (A - B) + abs B := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (A - B) + abs B)) c1 s1
     exact row1
   -- 3. inequalities

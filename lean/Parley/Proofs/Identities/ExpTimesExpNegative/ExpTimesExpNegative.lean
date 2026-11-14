@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import RealTactics
 public import Mathlib.Analysis.Complex.Exponential
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from proofs/identities/exp-times-exp-negative.proof by parley build lean. -/
@@ -30,7 +30,7 @@ namespace Parley.Proofs.Identities.ExpTimesExpNegative.ExpTimesExpNegative
 theorem exp_times_exp_negative (x : ℝ) :
     Real.exp x * Real.exp (-x) = 1 := by
   -- 1. algebra
-  have s1 : x + -x = 0 := by parley_ring
+  have s1 : x + -x = 0 := by ring1
   -- 2. calculation
   calc Real.exp x * Real.exp (-x) = Real.exp (x + -x) := by
         have hI : Real.exp (x + -x) = Real.exp x * Real.exp (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (x : ℂ)) (b := -(x : ℂ))))

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Module.Defs
@@ -16,6 +15,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -114,7 +114,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
       _ = f a + m * a := congrArg (fun t : ℝ => f a + t) s18
       _ = f b + m * b := by
           simp only [hD1] at s18 s20 ⊢
-          parley_ring
+          have hz1 : b - a ≠ 0 := r121_1; field
       _ = f b + g b := congrArg (fun t : ℝ => f b + t) s20.symm
       _ = F b := s19.symm
   -- 22. obtain c: thm:rolle f := F, from H3, 12, 15, 21
@@ -131,7 +131,7 @@ theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Se
   have r145_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s1])
   have s25 : (deriv f) c = (f b - f a) / (b - a) := by
     simp only [hD1] at s24
-    linear_combination (norm := parley_field) s24
+    have hz1 : b - a ≠ 0 := r145_1; linear_combination (norm := (field)) s24
   -- 26. exhibit, from 22, 25
   exact ⟨c, s22a, s25⟩
 

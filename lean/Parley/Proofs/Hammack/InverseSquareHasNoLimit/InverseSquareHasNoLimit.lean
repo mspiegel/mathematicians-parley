@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -26,6 +24,7 @@ public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -39,8 +38,10 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -103,7 +104,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s10_5 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by exact ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) r83_1 (y := (m : ℝ)) (by exact_mod_cast gt_iff_lt.mp r83_2))).mp s10_4
     -- 10.6. algebra
     have r89_1 : p ≠ 0 := by exact s5
-    have s10_6 : 1 / (2 / p) = p / 2 := by parley_ring
+    have s10_6 : 1 / (2 / p) = p / 2 := by have hz1 : p ≠ 0 := r89_1; field
     -- 10.7. transitivity, from 10.3, 10.5, 10.6, 8
     have r93_1 : p ≠ 0 := by exact s5
     have s10_7 : 1 / (j : ℝ) < p := by exact lt_of_le_of_lt (LE.le.trans_eq (le_trans (show 1 / (j : ℝ) ≤ 1 / (m : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s10_3; simp only [Rat.cast_div, Rat.cast_one, Rat.cast_intCast] at h; exact h) s10_5) s10_6) s8
@@ -132,7 +133,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s10_16 : t * (j : ℝ) = 1 := by
       simp only [hD1] at ⊢
       push_cast at ⊢
-      parley_ring
+      have hz1 : (j : ℚ) ≠ 0 := (by positivity); field
     set T : ℝ := t ^ 2 with hD2
     -- 10.17. mun:square-positive x := t, from D2, 10.9
     have s10_17 : T > 0 := by
@@ -141,11 +142,11 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 10.18. algebra, from D2, 10.16
     have s10_18 : (j : ℝ) ^ 2 * T = 1 := by
       simp only [hD2] at ⊢
-      push_cast at s10_16 ⊢
-      linear_combination (norm := parley_norm) ((j : ℝ) * t + 1) * s10_16
+      push_cast at ⊢
+      linear_combination ((j : ℝ) * t + 1) * s10_16
     -- 10.19. algebra, from 10.18
     have r141_1 : T ≠ 0 := ne_of_gt (by linarith only [s10_17])
-    have s10_19 : 1 / T = (j : ℝ) ^ 2 := by linear_combination (norm := parley_field) ((-1) / ((T))) * s10_18
+    have s10_19 : 1 / T = (j : ℝ) ^ 2 := by have hz1 : T ≠ 0 := r141_1; linear_combination (norm := (field)) ((-1) / ((T))) * s10_18
     -- 10.20. substitute t² = T (D2) into line 10.15
     have s10_20 : f t = 1 / T := Eq.subst (motive := (fun u : ℝ => f t = 1 / u)) hD2.symm s10_15
     -- 10.21. transitivity, from 10.20, 10.19
@@ -167,7 +168,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
   -- 16. inequalities
   have s16 : (m + 1) ^ 2 - m ^ 2 < 2 := by exact_mod_cast (show ((m : ℝ) + 1) ^ 2 - (m : ℝ) ^ 2 < 2 by linarith only [s15])
   -- 17. algebra
-  have s17 : (m + 1) ^ 2 - m ^ 2 = 2 * m + 1 := by parley_ring
+  have s17 : (m + 1) ^ 2 - m ^ 2 = 2 * m + 1 := by ring1
   -- 18. inequalities
   have s18 : 2 * m + 1 ≥ 3 := by linarith only [s9]
   -- 19. transitivity, from 17, 18

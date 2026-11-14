@@ -463,7 +463,7 @@ pub fn made_in_waves<'w>(
         let results = crate::threads::in_order(
             &ready,
             || Maker::on_thread(shared, made_so_far.clone()),
-            made_measured,
+            |maker, artifact| made_measured(maker, artifact),
         );
         for (artifact, (made, held)) in ready.into_iter().zip(results) {
             let made = match made {
@@ -489,7 +489,7 @@ pub fn made_in_waves<'w>(
 /// artifacts made beside it do not count (`allocation_counter::measure`).
 fn made_measured(
     maker: &mut Checked<Maker<'_>>,
-    artifact: &&Artifact,
+    artifact: &Artifact,
 ) -> (Checked<String>, u64) {
     let maker = match maker {
         Ok(maker) => maker,

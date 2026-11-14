@@ -1120,7 +1120,7 @@ fn renamed_bound(term: &Term, next: &mut usize) -> Term {
 
 /// The term with every cast taken off what it casts, and no bracket the
 /// writer kept.
-fn casts_dropped(term: &Term) -> Term {
+pub fn casts_dropped(term: &Term) -> Term {
     match &term.kind {
         TermKind::Paren(inner) | TermKind::Cast { inner, .. } => {
             return casts_dropped(inner)

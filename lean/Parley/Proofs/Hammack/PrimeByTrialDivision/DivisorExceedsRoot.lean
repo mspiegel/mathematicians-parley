@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
 
@@ -45,7 +45,7 @@ theorem divisor_exceeds_root (p : ℤ) (hH1 : 0 < p) (d : ℤ) (hH2 : 0 < d) (hH
   have s2_1 : d * d ≤ p := by linarith only [hS]
   -- 2.2. calculation
   have s2_2 : (d : ℝ) ^ 2 ≤ Real.sqrt (p : ℝ) ^ 2 := by
-    calc (d : ℝ) ^ 2 = (d : ℝ) * (d : ℝ) := by parley_ring
+    calc (d : ℝ) ^ 2 = (d : ℝ) * (d : ℝ) := by ring1
       _ ≤ (p : ℝ) := by exact_mod_cast s2_1
       _ = Real.sqrt (p : ℝ) ^ 2 := s1b.symm
   -- 2.3. mun:square-le x := d, y := √p, from 1, 2.2

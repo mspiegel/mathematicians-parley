@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
@@ -30,6 +29,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd
 public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound
@@ -56,7 +56,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.3. obtain q from IH
       obtain ⟨q, s1_3a, ⟨s1_3b, s1_3c⟩⟩ := hIH
       -- 1.4. algebra
-      have s1_4 : d * (j + 1) = d * j + d := by parley_ring
+      have s1_4 : d * (j + 1) = d * j + d := by ring1
       -- 1.5. calculation
       have s1_5 : (2 ^ (d * (j + 1)).toNat : ℤ) = 2 ^ (d * j).toNat * 2 ^ d.toNat := by
         calc (2 ^ (d * (j + 1)).toNat : ℤ) = 2 ^ (d * j + d).toNat := by (have h := congrArg (fun t : ℤ => 2 ^ t.toNat) s1_4; push_cast at h ⊢; exact_mod_cast h)
@@ -64,9 +64,9 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       -- 1.6. calculation
       have s1_6 : 2 ^ (d * (j + 1)).toNat - 1 = (2 ^ d.toNat - 1) * (2 ^ d.toNat * q + 1) := by
         calc (2 ^ (d * (j + 1)).toNat - 1 : ℤ) = 2 ^ (d * j).toNat * 2 ^ d.toNat - 1 := by (have h := congrArg (fun t : ℤ => t - 1) s1_5; push_cast at h ⊢; exact_mod_cast h)
-          _ = 2 ^ d.toNat * (2 ^ (d * j).toNat - 1) + (2 ^ d.toNat - 1) := by parley_ring
+          _ = 2 ^ d.toNat * (2 ^ (d * j).toNat - 1) + (2 ^ d.toNat - 1) := by ring1
           _ = 2 ^ d.toNat * ((2 ^ d.toNat - 1) * q) + (2 ^ d.toNat - 1) := congrArg (fun t : ℤ => 2 ^ d.toNat * t + (2 ^ d.toNat - 1)) s1_3b
-          _ = (2 ^ d.toNat - 1) * (2 ^ d.toNat * q + 1) := by parley_ring
+          _ = (2 ^ d.toNat - 1) * (2 ^ d.toNat * q + 1) := by ring1
       -- 1.7. thm:two-power-bound
       have s1_7 : 2 ^ d.toNat ≥ d + 1 := by exact (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) hH1)
       -- 1.8. inequalities, from H1
@@ -77,7 +77,7 @@ theorem power_multiple_quotient (d : ℤ) (hH1 : 0 < d) (m : ℤ) (hH2 : 0 < m) 
       have r134_1 : q > 0 := by linarith only [s1_3a]
       have s1_10 : q * 1 ≤ q * 2 ^ d.toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d.toNat : ℤ)) (c := q) s1_9 r134_1)
       -- 1.11. algebra
-      have s1_11 : q * 2 ^ d.toNat = 2 ^ d.toNat * q := by parley_ring
+      have s1_11 : q * 2 ^ d.toNat = 2 ^ d.toNat * q := by ring1
       -- 1.12. inequalities
       have s1_12 : q ≤ q * 2 ^ d.toNat := by linarith only [s1_10]
       -- 1.13. inequalities, from 1.3

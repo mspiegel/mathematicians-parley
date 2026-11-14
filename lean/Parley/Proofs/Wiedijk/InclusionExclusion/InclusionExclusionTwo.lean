@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
@@ -71,6 +70,6 @@ theorem inclusion_exclusion_two {α : Type*} (A : Set α) (B : Set α) (hH3 : A.
   -- 18. substitute (A ∩ B) ∪ (B ∖ A) = B (line 16) into line 17
   have s18 : (B.ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = ((A ∩ B).ncard : ℤ) + ((B \ A).ncard : ℤ))) s16 s17
   -- 19. algebra, from 5, 6, 7, 11, 18
-  parley_count_int; (linear_combination (norm := parley_norm) s11 + (-1) * s18)
+  parley_count_int; (linear_combination s11 + (-1) * s18)
 
 end Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionTwo

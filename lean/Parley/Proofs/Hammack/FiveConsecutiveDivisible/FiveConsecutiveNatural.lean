@@ -3,7 +3,6 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.ModEq
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep
@@ -54,15 +54,15 @@ theorem five_consecutive_natural (m : ℤ) (hH1 : 0 ≤ m) :
   have r76_1 : (5 - 1 : ℤ) = 4 := by parley_arith
   have s6 : 5 * (LeanBridges.Counting.choose (m + 5) (5 : ℤ) : ℤ) = (m + 5) * (LeanBridges.Counting.choose (m + 4) (4 : ℤ) : ℤ) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep.scaled_binomial_step (m := m) hH1 (i := (4 : ℤ)) (by norm_num) (j := (5 : ℤ)) (by norm_num) (by norm_num))
   -- 7. algebra, from 1, 2
-  have s7 : (LeanBridges.Counting.choose (m + 1) (1 : ℤ) : ℤ) = m + 1 := by linear_combination (norm := parley_norm) (m + 1) * s1 + s2
+  have s7 : (LeanBridges.Counting.choose (m + 1) (1 : ℤ) : ℤ) = m + 1 := by linear_combination (norm := ring_nf) (m + 1) * s1 + s2
   -- 8. algebra, from 3, 7
-  have s8 : 2 * (LeanBridges.Counting.choose (m + 2) (2 : ℤ) : ℤ) = (m + 2) * (m + 1) := by linear_combination (norm := parley_norm) s3 + (m + 2) * s7
+  have s8 : 2 * (LeanBridges.Counting.choose (m + 2) (2 : ℤ) : ℤ) = (m + 2) * (m + 1) := by linear_combination s3 + (m + 2) * s7
   -- 9. algebra, from 4, 8
-  have s9 : 6 * (LeanBridges.Counting.choose (m + 3) (3 : ℤ) : ℤ) = (m + 3) * (m + 2) * (m + 1) := by linear_combination (norm := parley_norm) (2) * s4 + (m + 3) * s8
+  have s9 : 6 * (LeanBridges.Counting.choose (m + 3) (3 : ℤ) : ℤ) = (m + 3) * (m + 2) * (m + 1) := by linear_combination (2) * s4 + (m + 3) * s8
   -- 10. algebra, from 5, 9
-  have s10 : 24 * (LeanBridges.Counting.choose (m + 4) (4 : ℤ) : ℤ) = (m + 4) * (m + 3) * (m + 2) * (m + 1) := by linear_combination (norm := parley_norm) (6) * s5 + (m + 4) * s9
+  have s10 : 24 * (LeanBridges.Counting.choose (m + 4) (4 : ℤ) : ℤ) = (m + 4) * (m + 3) * (m + 2) * (m + 1) := by linear_combination (6) * s5 + (m + 4) * s9
   -- 11. algebra, from 6, 10
-  have s11 : (m + 1) * (m + 2) * (m + 3) * (m + 4) * (m + 5) = 120 * (LeanBridges.Counting.choose (m + 5) (5 : ℤ) : ℤ) := by linear_combination (norm := parley_norm) (-24) * s6 + (-m - 5) * s10
+  have s11 : (m + 1) * (m + 2) * (m + 3) * (m + 4) * (m + 5) = 120 * (LeanBridges.Counting.choose (m + 5) (5 : ℤ) : ℤ) := by linear_combination (-24) * s6 + (-m - 5) * s10
   -- 12. def:divides d := 120, n := (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5), from 11
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := (m + 1) * (m + 2) * (m + 3) * (m + 4) * (m + 5)))).mpr ⟨(LeanBridges.Counting.choose (m + 5) (5 : ℤ) : ℤ), s11⟩
 

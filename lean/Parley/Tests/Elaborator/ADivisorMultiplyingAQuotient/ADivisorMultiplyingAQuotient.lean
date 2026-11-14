@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -10,6 +9,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -33,6 +33,6 @@ namespace Parley.Tests.Elaborator.ADivisorMultiplyingAQuotient.ADivisorMultiplyi
 theorem a_divisor_multiplying_a_quotient (s : ℂ) (T : ℂ) (hH3 : s ^ 2 = 4) (hH4 : s ≠ 0) (hH5 : T ≠ 0) :
     1 / (s / 2 * T) = s / (2 * T) := by
   -- 1. algebra, from H3, H4, H5
-  linear_combination (norm := parley_field) ((-(1 / 2 : ℂ)) / ((T * s))) * hH3
+  have hz1 : s ≠ 0 := hH4; have hz2 : T ≠ 0 := hH5; linear_combination (norm := (field)) ((-(1 / 2 : ℂ)) / ((s) * ((1 / 2 : ℂ)) * (2 * T))) * hH3
 
 end Parley.Tests.Elaborator.ADivisorMultiplyingAQuotient.ADivisorMultiplyingAQuotient

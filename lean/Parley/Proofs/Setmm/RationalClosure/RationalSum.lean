@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
@@ -9,6 +8,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -19,6 +19,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -36,7 +37,7 @@ theorem rational_sum (A : ℚ) (B : ℚ) :
   -- 2. obtain r, s: def:rational x := B
   obtain ⟨r, s, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp ⟨_, rfl⟩
   -- 3. algebra, from 1, 2
-  have s3 : A + B = ((p : ℚ) * (s : ℚ) + (r : ℚ) * (q : ℚ)) / ((q : ℚ) * (s : ℚ)) := by linear_combination (norm := parley_field) s1b + s2b
+  have s3 : A + B = ((p : ℚ) * (s : ℚ) + (r : ℚ) * (q : ℚ)) / ((q : ℚ) * (s : ℚ)) := by have hz1 : (q : ℚ) ≠ 0 := (by positivity); have hz2 : (s : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) s1b + s2b
   -- 4. exhibit, from 3
   have s4 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A + B = (a : ℚ) / (b : ℚ) := ⟨p * s + r * q, q * s, mul_pos (s1a) (s2a), by (have h := s3; push_cast at h ⊢; exact h)⟩
   -- 5. def:rational x := A + B, from 4

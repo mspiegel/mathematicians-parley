@@ -1,11 +1,11 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -26,6 +26,6 @@ namespace Parley.Tests.Elaborator.DivisorOrder.ASignNamedBeforeAnUncitedLine
 theorem a_sign_named_before_an_uncited_line (x : ℝ) (hH2 : x > 0) (hH3 : x ≠ 0) :
     1 / x * x = 1 := by
   -- 1. algebra, from H2
-  parley_ring
+  have hz1 : x ≠ 0 := hH2.ne'; field
 
 end Parley.Tests.Elaborator.DivisorOrder.ASignNamedBeforeAnUncitedLine

@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -25,6 +24,6 @@ namespace Parley.Tests.Elaborator.PrimesAndBrackets.PrimeName
 theorem prime_name (c : ℝ) (c' : ℝ) (hH3 : c' = c + 1) :
     c' - c = 1 := by
   -- 1. algebra, from H3
-  linear_combination (norm := parley_norm) hH3
+  linear_combination hH3
 
 end Parley.Tests.Elaborator.PrimesAndBrackets.PrimeName

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -31,6 +30,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
@@ -62,7 +62,7 @@ theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b
   -- 4. mun:subset-self
   have s4 : (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ) ⊆ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)))
   -- 5. algebra
-  have s5 : c = c := by parley_ring
+  have s5 : c = c := by ring1
   -- 6. D1, from H3, 5
   have s6 : F c = 0 := by simp (disch := omega) only [hD1, if_pos s5]
   -- 7. D2, from H3, 5

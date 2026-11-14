@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
@@ -73,7 +73,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       -- 1.7.4. inequalities
       have s1_7_4 : -u ≥ 0 := by linarith only [hC2]
       -- 1.7.5. algebra, from 1.1
-      have s1_7_5 : (-u) ^ 2 + 3 = u ^ 2 + 3 := by parley_ring
+      have s1_7_5 : (-u) ^ 2 + 3 = u ^ 2 + 3 := by ring1
       -- 1.7.6. calculation
       have s1_7_6 : 12 ≤ (-u) ^ 2 + 3 := by
         calc (12 : ℝ) ≤ u ^ 2 + 3 := s1_4
@@ -114,7 +114,7 @@ theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 +
       have s3_2_4a : 12 ≤ (-u) ^ 2 + 3 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn.square_window_in (t := -u) s3_2_2 s3_2_3).1
       have s3_2_4b : (-u) ^ 2 + 3 ≤ 19 := by exact (Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn.square_window_in (t := -u) s3_2_2 s3_2_3).2
       -- 3.2.5. algebra, from 3.2.1
-      have s3_2_5 : (-u) ^ 2 + 3 = u ^ 2 + 3 := by parley_ring
+      have s3_2_5 : (-u) ^ 2 + 3 = u ^ 2 + 3 := by ring1
       -- 3.2.6. instantiate x := u in H2, from 3.2.1
       have s3_2_6 : f u = u ^ 2 + 3 := by exact (hH2 u)
       -- 3.2.7. calculation

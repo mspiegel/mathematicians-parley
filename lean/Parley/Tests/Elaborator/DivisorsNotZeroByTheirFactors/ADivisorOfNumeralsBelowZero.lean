@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/divisors-not-zero-by-their-factors.proof by parley build lean. -/
 
@@ -27,6 +27,6 @@ namespace Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.ADivisorOfNumera
 theorem a_divisor_of_numerals_below_zero (c : ℤ) (x : ℝ) :
     x * (((c : ℝ) - (c : ℝ)) / (2 - 5)) = ((c : ℝ) - (c : ℝ)) / (2 - 5) * x := by
   -- 1. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.ADivisorOfNumeralsBelowZero

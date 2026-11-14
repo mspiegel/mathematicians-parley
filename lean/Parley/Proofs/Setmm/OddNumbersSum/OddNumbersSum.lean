@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -36,6 +34,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -69,7 +68,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
       -- 1.3. calculation
       calc S (k + 1) = S k + (2 * (k + 1) - 1) := s1_2
         _ = k ^ 2 + (2 * (k + 1) - 1) := congrArg (fun t : ℤ => t + (2 * (k + 1) - 1)) hIH
-        _ = (k + 1) ^ 2 := by parley_ring
+        _ = (k + 1) ^ 2 := by ring1
   -- 2. def:nat0 n := N
   have s2 : 0 < N ∨ N = 0 := by
     have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
@@ -90,7 +89,7 @@ theorem odd_numbers_sum (N : ℤ) (hH1 : 0 ≤ N) :
       have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 * a - 1 : ℤ)) = 2 * 0 - 1 + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (2 * a - 1 : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 2 * k - 1)) (n := (0 : ℤ)) (by norm_num)))
       simpa only [Int.cast_one, Int.cast_zero, zero_add] using hI
     -- 3.5. algebra, from 3.3, 3.4
-    have s3_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by linear_combination (norm := parley_norm) s3_3 + (-1) * s3_4
+    have s3_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := by linear_combination s3_3 + (-1) * s3_4
     -- 3.6. calculation
     have s3_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 ^ 2 := by
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (2 * k - 1 : ℤ)) = 0 := s3_5

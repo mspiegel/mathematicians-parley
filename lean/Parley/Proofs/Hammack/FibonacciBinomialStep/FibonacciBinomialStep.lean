@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -34,6 +33,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -53,7 +53,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- 3. mun:sum-last n := m + 1, from 1
   have s3 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1 + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) : ℤ)) + (LeanBridges.Counting.choose (m + 1 + 1 - (m + 1 + 1)) (m + 1 + 1) : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ))) (n := m + 1) (add_nonneg (hH1) (by norm_num)))
   -- 4. algebra
-  have s4 : m + 1 + 1 - (m + 1 + 1) = 0 := by parley_ring
+  have s4 : m + 1 + 1 - (m + 1 + 1) = 0 := by ring1
   -- 5. inequalities, from H1
   have s5 : 0 < m + 1 + 1 := by linarith only [hH1]
   -- 6. calculation
@@ -69,7 +69,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
     -- 8.1. mun:range-difference a := 0, n := m + 1, from J
     have s8_1 : 0 ≤ m + 1 - k := by exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := m + 1) (k := k) hJ)
     -- 8.2. algebra
-    have s8_2 : m + 1 - k + 1 = m + 1 + 1 - k := by parley_ring
+    have s8_2 : m + 1 - k + 1 = m + 1 + 1 - k := by ring1
     -- 8.3. calculation
     calc (LeanBridges.Counting.choose (m + 1 + 1 - k) k : ℤ) = (LeanBridges.Counting.choose (m + 1 - k + 1) k : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) s8_2.symm
       _ = (LeanBridges.Counting.choose (m + 1 - k) k : ℤ) + (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + 1 - k) s8_1 (k := k)).symm
@@ -98,7 +98,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
     intro k hJ
     have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 17.1. algebra
-    have s17_1 : m + 1 - k = m - (k - 1) := by parley_ring
+    have s17_1 : m + 1 - k = m - (k - 1) := by ring1
     -- 17.2. substitute (m + 1) − k = m − (k − 1) (line 17.1)
     exact congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k - 1) : ℤ)) s17_1
   -- 18. proof

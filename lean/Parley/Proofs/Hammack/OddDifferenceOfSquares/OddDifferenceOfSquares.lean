@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/odd-difference-of-squares.proof by parley build lean. -/
@@ -38,7 +38,7 @@ theorem odd_difference_of_squares (n : ℤ) (hH2 : Odd n) :
   -- 2. calculation
   have s2 : n = (k + 1) ^ 2 - k ^ 2 := by
     calc n = 2 * k + 1 := s1
-      _ = (k + 1) ^ 2 - k ^ 2 := by parley_ring
+      _ = (k + 1) ^ 2 - k ^ 2 := by ring1
   -- 3. exhibit, from 2
   exact ⟨k + 1, k, s2⟩
 

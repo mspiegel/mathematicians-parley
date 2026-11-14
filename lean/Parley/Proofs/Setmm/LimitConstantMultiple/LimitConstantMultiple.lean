@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -26,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -73,7 +73,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
       -- 4.6.3. thm:scaled-small u := x(n) − L, from A1, 4.6.1, 4.6.2
       have s4_6_3 : abs (C * (x n - L)) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := C) (u := x n - L) (ε := ε) hA1 s4_6_1)
       -- 4.6.4. substitute
-      have c1 : C * (x n - L) = C * x n - C * L := by parley_ring
+      have c1 : C * (x n - L) = C * x n - C * L := by ring1
       have row1 : abs (C * x n - C * L) < ε := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s4_6_3
       exact row1
     -- 4.7. exhibit, from 4.6

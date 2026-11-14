@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.GroupWithZero.Defs
@@ -13,6 +12,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -22,6 +22,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -45,7 +46,7 @@ theorem rational_times_irrational (a : ℝ) (b : ℝ) (hH3 : ∃ m : ℚ, (m : �
     have s1_3 : a * b = (p : ℝ) * (r : ℝ) / ((q : ℝ) * (s : ℝ)) := by
       calc a * b = (p : ℝ) / (q : ℝ) * b := congrArg (fun t : ℝ => t * b) s1_1b
         _ = (p : ℝ) / (q : ℝ) * ((r : ℝ) / (s : ℝ)) := congrArg (fun t : ℝ => (p : ℝ) / (q : ℝ) * t) s1_2b
-        _ = (p : ℝ) * (r : ℝ) / ((q : ℝ) * (s : ℝ)) := by parley_ring
+        _ = (p : ℝ) * (r : ℝ) / ((q : ℝ) * (s : ℝ)) := by have hz1 : (q : ℝ) ≠ 0 := (by positivity); have hz2 : (s : ℝ) ≠ 0 := (by positivity); field
     -- 1.4. def:rational x := a·b, from 1.3
     have s1_4 : ∃ m : ℚ, (m : ℝ) = a * b := ((Parley.Items.Stdlib.Numbers.def_rational (x := a * b))).mpr ⟨p * r, q * s, mul_pos (s1_1a) (s1_2a), by (have h := s1_3; push_cast at h ⊢; exact h)⟩
     -- 1.5. def:irrational x := a·b, from H4

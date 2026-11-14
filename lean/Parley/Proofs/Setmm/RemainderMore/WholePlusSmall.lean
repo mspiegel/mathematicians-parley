@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.Real.Basic
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall
 public import Parley.Proofs.Setmm.RemainderFacts.RemainderShifts
 
@@ -31,7 +31,7 @@ namespace Parley.Proofs.Setmm.RemainderMore.WholePlusSmall
 theorem whole_plus_small (A : ℤ) (hH1 : 0 ≤ A) (M : ℤ) (hH2 : 0 < M) (hH3 : A < M) :
     (M + A) % M = A := by
   -- 1. algebra
-  have s1 : M + A = A + M := by parley_ring
+  have s1 : M + A = A + M := by ring1
   -- 2. calculation
   calc (M + A) % M = (A + M) % M := congrArg (fun t : ℤ => t % M) s1
     _ = A % M := by

@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -115,7 +114,7 @@ theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3)
     -- 4.10. mun:value-in-image Y := [−3, 5], s := √(y − 3), from 1, 4.8
     have s4_10 : f (Real.sqrt (y - 3)) ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℝ)) (Y := (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) (f := f) (s := Real.sqrt (y - 3)) (W := Set.univ) s1 s4_8 (Set.mapsTo_univ _ _))
     -- 4.11. substitute
-    have c1 : f (Real.sqrt (y - 3)) = y := by linear_combination (norm := parley_norm) s4_3b + s4_9
+    have c1 : f (Real.sqrt (y - 3)) = y := by linear_combination s4_3b + s4_9
     have row1 : y ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) := Eq.subst (motive := (fun t : ℝ => t ∈ f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)))) c1 s4_10
     exact row1
   -- 5. def:subset, from 4

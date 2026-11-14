@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Module.Defs
@@ -18,6 +16,7 @@ public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -87,10 +86,10 @@ theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo 
       -- 4.9. mun:in-subset, from 4.4, 4.8
       have s4_9 : ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo v u : Set ℝ)) (Y := (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)) (u := ξ) s4_4 s4_8a)
       -- 4.10. algebra, from 4.8
-      have r186_5 : G u - G v ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) (-1) * h)
-      have r186_6 : G v - G u ≠ 0 := by intro h; exact s4_6 (by linear_combination (norm := parley_norm) h)
+      have r186_5 : G u - G v ≠ 0 := by intro h; exact s4_6 (by linear_combination (-1) * h)
+      have r186_6 : G v - G u ≠ 0 := by intro h; exact s4_6 (by linear_combination h)
       have r186_9 : (deriv G) ξ ≠ 0 := by exact (hH12 ξ s4_9)
-      have s4_10 : (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by linear_combination (norm := parley_field) s4_8b
+      have s4_10 : (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ := by have hz1 : G v - G u ≠ 0 := r186_6; have hz2 : (deriv G) ξ ≠ 0 := r186_9; have hz3 : G u - G v ≠ 0 := r186_5; linear_combination (norm := (field)) s4_8b
       -- 4.11. def:open-interval a := v, b := u, x := ξ, from 4.8
       have s4_11a : v < ξ := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).1.2
       have s4_11b : ξ < u := by exact (((Parley.Items.Stdlib.Calculus.def_open_interval (x := ξ) (a := v) (b := u))).mp s4_8a).2

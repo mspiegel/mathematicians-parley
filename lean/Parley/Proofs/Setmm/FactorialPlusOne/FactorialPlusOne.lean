@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -10,6 +9,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -20,9 +20,11 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -46,7 +48,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   -- 4. mun:factorial-divisible n := M, m := N, from H4, 3
   have s4 : N ∣ (LeanBridges.Counting.factorial M : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_divisible (n := M) s3 (m := N) hH2 hH4)
   -- 5. algebra
-  have s5 : (LeanBridges.Counting.factorial M : ℚ) + 1 = (N : ℚ) * (((LeanBridges.Counting.factorial M : ℚ) + 1) / (N : ℚ)) := by parley_ring
+  have s5 : (LeanBridges.Counting.factorial M : ℚ) + 1 = (N : ℚ) * (((LeanBridges.Counting.factorial M : ℚ) + 1) / (N : ℚ)) := by have hz1 : (N : ℚ) ≠ 0 := (by positivity); field
   -- 6. exhibit, from S, 5
   have s6 : ∃ k : ℤ, (LeanBridges.Counting.factorial M : ℤ) + 1 = N * k := ⟨Classical.choose hS, by have := Classical.choose_spec hS; qify; rw [this]; linarith only [s5]⟩
   -- 7. def:divides d := N, n := M! + 1, from 6
@@ -55,7 +57,7 @@ theorem factorial_plus_one (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 < N) (hH
   have s8 : N ∣ (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := N) (a := (LeanBridges.Counting.factorial M : ℤ) + 1) (b := (LeanBridges.Counting.factorial M : ℤ)) s7 s4)
   -- 9. substitute
   have s9 : N ∣ (1 : ℤ) := by
-    have c1 : (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) = 1 := by parley_ring
+    have c1 : (LeanBridges.Counting.factorial M : ℤ) + 1 - (LeanBridges.Counting.factorial M : ℤ) = 1 := by ring1
     have row1 : N ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => N ∣ t)) c1 s8; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 10. mun:divides-one d := N, from 9

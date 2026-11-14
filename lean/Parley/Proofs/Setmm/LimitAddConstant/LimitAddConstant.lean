@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -50,7 +50,7 @@ theorem limit_add_constant (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Filter.T
       -- 1.4.1. instantiate n := n in line 1.3, from A2
       have s1_4_1 : abs (x n - L) < ε := by exact (s1_3b n hK2 hA2)
       -- 1.4.2. substitute
-      have c1 : x n - L = x n + C - (L + C) := by parley_ring
+      have c1 : x n - L = x n + C - (L + C) := by ring1
       have row1 : abs (x n + C - (L + C)) < ε := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s1_4_1
       exact row1
     -- 1.5. exhibit, from 1.4

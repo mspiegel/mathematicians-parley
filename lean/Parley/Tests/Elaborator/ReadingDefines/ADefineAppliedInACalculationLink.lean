@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/reading-defines.proof by parley build lean. -/
 
@@ -25,7 +25,7 @@ namespace Parley.Tests.Elaborator.ReadingDefines.ADefineAppliedInACalculationLin
 theorem a_define_applied_in_a_calculation_link (a : ℤ) (hH1 : 0 < a) (q : ℤ → ℤ) (hD1 : ∀ j : ℤ, 0 < j → q j = j + 1) :
     q a + 1 = a + 2 := by
   -- 1. algebra
-  have s1 : a + 1 + 1 = a + 2 := by parley_ring
+  have s1 : a + 1 + 1 = a + 2 := by ring1
   -- 2. calculation
   calc q a + 1 = a + 1 + 1 := by simp (disch := omega) only [hD1]
     _ = a + 2 := s1

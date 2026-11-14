@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -22,6 +21,8 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from proofs/identities/cosines-around-a-third-of-pi.proof by parley build lean. -/
@@ -41,7 +42,7 @@ theorem cosines_around_a_third_of_pi (x : ℝ) :
     have hI : Real.cos (Real.pi / 3 + -x) = Real.cos (Real.pi / 3) * Real.cos (-x) - Real.sin (Real.pi / 3) * Real.sin (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (Real.pi : ℂ) / 3) (b := -(x : ℂ))))
     exact hI
   -- 3. algebra
-  have s3 : Real.pi / 3 - x = Real.pi / 3 + -x := by parley_ring
+  have s3 : Real.pi / 3 - x = Real.pi / 3 + -x := by ring1
   -- 4. mun:cos-negative a := x
   have s4 : Real.cos (-x) = Real.cos x := by
     have hI : Real.cos (-x) = Real.cos x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := (x : ℂ))))
@@ -56,8 +57,8 @@ theorem cosines_around_a_third_of_pi (x : ℝ) :
     _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos (-x) - Real.sin (Real.pi / 3) * Real.sin (-x)) := congrArg (fun t : ℝ => Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + t) s2
     _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin (-x)) := congrArg (fun t : ℝ => Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * t - Real.sin (Real.pi / 3) * Real.sin (-x))) s4
     _ = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * -Real.sin x) := congrArg (fun t : ℝ => Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x + (Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * t)) s5
-    _ = 2 * Real.cos (Real.pi / 3) * Real.cos x := by parley_ring
+    _ = 2 * Real.cos (Real.pi / 3) * Real.cos x := by ring_nf
     _ = 2 * (1 / 2) * Real.cos x := by parley_real
-    _ = Real.cos x := by parley_ring
+    _ = Real.cos x := by ring1
 
 end Parley.Proofs.Identities.CosinesAroundAThirdOfPi.CosinesAroundAThirdOfPi

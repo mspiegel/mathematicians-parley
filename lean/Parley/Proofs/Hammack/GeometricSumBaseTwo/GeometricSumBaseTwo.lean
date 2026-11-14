@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -34,6 +33,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -75,7 +75,7 @@ theorem geometric_sum_base_two (n : ℤ) (hH1 : 0 < n) :
       -- 1.4. calculation
       calc S (k + 1) = S k + 2 ^ (k + 1).toNat := s1_2
         _ = 2 ^ (k + 1).toNat - 1 + 2 ^ (k + 1).toNat := congrArg (fun t : ℤ => t + 2 ^ (k + 1).toNat) hIH
-        _ = 2 ^ (k + 1).toNat * 2 - 1 := by parley_ring
+        _ = 2 ^ (k + 1).toNat * 2 - 1 := by ring1
         _ = 2 ^ (k + 1 + 1).toNat - 1 := congrArg (fun t : ℤ => t - 1) s1_3.symm
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, (2 ^ k.toNat : ℤ)) = S n := by simp (disch := omega) only [hD1]

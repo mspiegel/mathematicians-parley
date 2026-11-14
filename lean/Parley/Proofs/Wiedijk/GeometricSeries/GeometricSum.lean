@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -20,6 +18,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -36,6 +35,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 
@@ -56,13 +56,13 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
       -- 1.1. calculation
       have s1_1 : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = 1 := by
         calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) := rfl
-          _ = a ^ 0 := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ)))
-          _ = 1 := by parley_ring
+          _ = a ^ 0 := by (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => a ^ j.toNat)) (a := (0 : ℤ))); simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat] at h; push_cast at h ⊢; linear_combination h)
+          _ = 1 := by ring1
       -- 1.2. calculation
-      have r26_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) (-1) * h)
+      have r26_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (-1) * h)
       have s1_2 : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = (1 - a) / (1 - a) := by
         calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (a ^ j.toNat : ℝ)) = 1 := s1_1
-          _ = (1 - a) / (1 - a) := by parley_ring
+          _ = (1 - a) / (1 - a) := by have hz1 : 1 - a ≠ 0 := r26_1; field
       simpa only [zero_add, pow_one, Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd, Int.cast_zero] using s1_2
     | succ k hK hIH =>
       -- 1.3. calculation
@@ -73,10 +73,10 @@ theorem geometric_sum (a : ℝ) (hH2 : a ≠ 1) (n : ℤ) (hH3 : 0 ≤ n) :
       -- 1.4. mun:exponent-step m := k + 1
       have s1_4 : a ^ (k + 1 + 1).toNat = a ^ (k + 1).toNat * a := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := k + 1) (add_nonneg (hK) (by norm_num)))
       -- 1.5. calculation
-      have r45_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (norm := parley_norm) (-1) * h)
+      have r45_1 : 1 - a ≠ 0 := by intro h; exact hH2 (by linear_combination (-1) * h)
       calc (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (a ^ j.toNat : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (a ^ j.toNat : ℝ)) + a ^ (k + 1).toNat := s1_3
         _ = (1 - a ^ (k + 1).toNat) / (1 - a) + a ^ (k + 1).toNat := congrArg (fun t : ℝ => t + a ^ (k + 1).toNat) hIH
-        _ = (1 - a ^ (k + 1).toNat * a) / (1 - a) := by parley_ring
+        _ = (1 - a ^ (k + 1).toNat * a) / (1 - a) := by have hz1 : 1 - a ≠ 0 := r45_1; field
         _ = (1 - a ^ (k + 1 + 1).toNat) / (1 - a) := congrArg (fun t : ℝ => (1 - t) / (1 - a)) s1_4.symm
   -- 2. instantiate k := n in line 1
   exact (s1 n hH3)

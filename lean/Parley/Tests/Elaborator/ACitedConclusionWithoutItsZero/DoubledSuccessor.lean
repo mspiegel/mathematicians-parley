@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/a-cited-conclusion-without-its-zero.proof by parley build lean. -/
 
@@ -26,7 +26,7 @@ theorem doubled_successor (n : ℤ) (hH1 : 0 ≤ n) :
     2 * (n + 1) = 2 * n + 2 := by
   -- 1. calculation
   calc 2 * (n + 1) = 2 * (n + 1) := rfl
-    _ = 2 * n + 2 := by parley_ring
+    _ = 2 * n + 2 := by ring1
     _ = 2 * n + 2 := rfl
 
 end Parley.Tests.Elaborator.ACitedConclusionWithoutItsZero.DoubledSuccessor

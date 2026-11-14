@@ -1,12 +1,11 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -35,12 +35,12 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
     intro hS
     -- 2.1. substitute p = 0 (S) into line 1
     have s2_1 : A = 0 / (q : ℚ) := by
-      have e_w : (p : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hS; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : (p : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hS; push_cast at h; linear_combination h
       exact Eq.subst (motive := (fun t : ℚ => A = t / (q : ℚ))) e_w s1b
     -- 2.2. calculation
     have s2_2 : A = 0 := by
       calc A = 0 / (q : ℚ) := s2_1
-        _ = 0 := by parley_ring
+        _ = 0 := by have hz1 : (q : ℚ) ≠ 0 := (by positivity); field
     -- 2.3. restate H2
     have s2_3 : A ≠ 0 := by exact hH2
     exact s2_3 s2_2

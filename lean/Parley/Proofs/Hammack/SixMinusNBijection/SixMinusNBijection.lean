@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
@@ -39,7 +38,7 @@ theorem six_minus_n_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 6 - n)
         _ = f t := hA1
         _ = 6 - t := by exact (hH2 t)
     -- 1.2. algebra, from 1.1
-    linear_combination (norm := parley_norm) (-1) * s1_1
+    linear_combination (-1) * s1_1
   -- 2. def:one-to-one, from H1, 1
   have s2 : Set.MapsTo f (Set.univ : Set ℤ) (Set.univ : Set ℤ) ∧ Set.InjOn f (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, by simpa only [Set.mem_univ, forall_const] using s1⟩
   -- 3. proof
@@ -48,7 +47,7 @@ theorem six_minus_n_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 6 - n)
     -- 3.1. instantiate n := 6 − y in H2
     have s3_1 : f (6 - y) = 6 - (6 - y) := by exact (hH2 (6 - y))
     -- 3.2. algebra, from 3.1
-    have s3_2 : y = f (6 - y) := by linear_combination (norm := parley_norm) (-1) * s3_1
+    have s3_2 : y = f (6 - y) := by linear_combination (-1) * s3_1
     -- 3.3. exhibit, from 3.2
     exact ⟨6 - y, s3_2⟩
   -- 4. def:onto, from H1, 3

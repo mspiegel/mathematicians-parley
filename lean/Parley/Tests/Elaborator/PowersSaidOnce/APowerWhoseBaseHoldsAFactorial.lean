@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Algebra.Group.Monoid
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/powers-said-once.proof by parley build lean. -/
 
@@ -34,6 +34,6 @@ namespace Parley.Tests.Elaborator.PowersSaidOnce.APowerWhoseBaseHoldsAFactorial
 theorem a_power_whose_base_holds_a_factorial (b : ℤ) (hH1 : 0 ≤ b) (x : ℝ) (z : ℂ) :
     (x : ℂ) * (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b.toNat = (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b.toNat * (x : ℂ) := by
   -- 1. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.PowersSaidOnce.APowerWhoseBaseHoldsAFactorial

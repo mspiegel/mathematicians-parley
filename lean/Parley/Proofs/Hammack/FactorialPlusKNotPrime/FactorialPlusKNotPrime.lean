@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -79,7 +78,7 @@ theorem factorial_plus_k_not_prime (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 : k �
     · skip
       exact hC2
   -- 9.5. algebra, from 9.4
-  have s9_5 : (LeanBridges.Counting.factorial n : ℤ) = 0 := by linear_combination (norm := parley_norm) (-1) * s9_4
+  have s9_5 : (LeanBridges.Counting.factorial n : ℤ) = 0 := by linear_combination (-1) * s9_4
   -- 9.6. inequalities, from 4
   have s9_6 : (LeanBridges.Counting.factorial n : ℤ) ≠ 0 := s4.ne'
   exact s9_6 s9_5

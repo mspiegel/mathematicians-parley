@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Basic.SetLike.Basic
@@ -25,6 +24,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/sum-letter-in-scope.proof by parley build lean. -/
@@ -40,7 +40,7 @@ theorem termwise_under_a_hypothesis_over_its_letter (n : ℤ) (hH1 : 0 < n) (hH2
     intro k hJ
     have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 1.1. algebra
-    parley_ring
+    ring_nf
   -- 2. mun:sum-termwise a := 1, b := n, from 1
   exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => k + 0)) (u := (fun k : ℤ => k)) (a := (1 : ℤ)) (b := n) s1)
 

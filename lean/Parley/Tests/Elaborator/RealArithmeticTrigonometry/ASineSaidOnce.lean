@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Trigonometric
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from tests/elaborator/real-arithmetic-trigonometry.proof by parley build lean. -/
 
@@ -28,6 +28,6 @@ namespace Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineSaidOnce
 theorem a_sine_said_once (a : ℝ) :
     a * Real.sin (Real.pi / 6) = Real.sin (Real.pi / 6) * a := by
   -- 1. algebra
-  parley_ring
+  ring_nf
 
 end Parley.Tests.Elaborator.RealArithmeticTrigonometry.ASineSaidOnce

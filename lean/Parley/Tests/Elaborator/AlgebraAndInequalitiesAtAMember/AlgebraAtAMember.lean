@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/algebra-and-inequalities-at-a-member.proof by parley build lean. -/
 
@@ -28,6 +28,6 @@ namespace Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMemb
 theorem algebra_at_a_member (n : ℤ) (hH1 : 0 < n) :
     (∀ i : ℤ, i ∈ Finset.Icc 1 n → i + i = 2 * i) := by
   -- 1. algebra
-  intro i h_i; parley_ring
+  intro i h_i; ring1
 
 end Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMember

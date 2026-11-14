@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -37,7 +36,7 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
   -- 3. obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 1, 2
   obtain ⟨q, s3⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) hH4 (r := c % d) s1 s2)).mp rfl
   -- 4. algebra, from H9, H10, 3
-  have s4 : c % d = a * (u - q * x₀) + b * (v - q * y₀) := by linear_combination (norm := parley_norm) hH9 + (-q) * hH10 + s3
+  have s4 : c % d = a * (u - q * x₀) + b * (v - q * y₀) := by linear_combination hH9 + (-q) * hH10 + s3
   -- 5. contradiction
   have s5 : c % d = 0 := by
     by_contra (hS : c % d ≠ 0)
@@ -54,7 +53,7 @@ theorem least_combination_divides (a : ℤ) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (d
     have s5_5 : ¬ d ≤ c % d := by linarith only [s2]
     exact s5_5 s5_4
   -- 6. algebra, from 3, 5
-  have s6 : c = d * q := by linear_combination (norm := parley_norm) (-1) * s3 + s5
+  have s6 : c = d * q := by linear_combination (-1) * s3 + s5
   -- 7. def:divides n := c, from 6
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := d) (n := c))).mpr ⟨q, s6⟩
 

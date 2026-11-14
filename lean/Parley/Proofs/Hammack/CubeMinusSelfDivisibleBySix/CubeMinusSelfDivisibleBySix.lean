@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Basic
@@ -25,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConsecutive
 
@@ -51,7 +51,7 @@ theorem cube_minus_self_divisible_by_six (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.3. mun:divides-sum d := 6, a := k³ − k, b := 3·k·(k + 1), from IH, 1.2
       have s1_3 : (6 : ℤ) ∣ k ^ 3 - k + 3 * k * (k + 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (6 : ℤ)) (a := k ^ 3 - k) (b := 3 * k * (k + 1)) hIH s1_2)
       -- 1.4. substitute
-      have c1 : k ^ 3 - k + 3 * k * (k + 1) = (k + 1) ^ 3 - (k + 1) := by parley_ring
+      have c1 : k ^ 3 - k + 3 * k * (k + 1) = (k + 1) ^ 3 - (k + 1) := by ring1
       have row1 : (6 : ℤ) ∣ (k + 1) ^ 3 - (k + 1) := Eq.subst (motive := (fun t : ℤ => (6 : ℤ) ∣ t)) c1 s1_3
       exact row1
   -- 2. instantiate k := n in line 1

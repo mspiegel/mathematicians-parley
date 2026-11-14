@@ -296,10 +296,7 @@ impl<'a> Parts<'a> {
                     self.tactic(t);
                 }
             }
-            Tactic::Group(t)
-            | Tactic::Try(t)
-            | Tactic::AllGoals(t)
-            | Tactic::Bullet(t) => self.tactic(t),
+            Tactic::Group(t) | Tactic::Try(t) | Tactic::Bullet(t) => self.tactic(t),
             Tactic::Have { says, proof, .. } | Tactic::Replace { says, proof, .. } => {
                 self.term(says);
                 self.proof(proof);

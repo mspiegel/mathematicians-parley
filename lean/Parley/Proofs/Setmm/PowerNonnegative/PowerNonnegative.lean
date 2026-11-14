@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -27,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/power-nonnegative.proof by parley build lean. -/
@@ -44,7 +43,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. algebra
-      have s1_1 : a ^ 0 = 1 := by parley_ring
+      have s1_1 : a ^ 0 = 1 := by ring1
       -- 1.2. arithmetic
       have s1_2 : (0 : ℤ) ≤ 1 := by parley_arith
       -- 1.3. transitivity, from 1.2, 1.1
@@ -63,7 +62,7 @@ theorem power_nonnegative (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 0 ≤ a) :
         exact absurd hH3 s1_6_1
       · skip
         -- 1.6.2. algebra, from C2
-        have s1_6_2 : a ^ m.toNat * a = 0 := by linear_combination (norm := parley_norm) (a ^ m.toNat) * hC2
+        have s1_6_2 : a ^ m.toNat * a = 0 := by linear_combination (a ^ m.toNat) * hC2
         -- 1.6.3. transitivity, from 1.6.2, 1.4
         have s1_6_3 : 0 = a ^ (m + 1).toNat := by exact Eq.trans s1_6_2.symm s1_4.symm
         -- 1.6.4. inequalities

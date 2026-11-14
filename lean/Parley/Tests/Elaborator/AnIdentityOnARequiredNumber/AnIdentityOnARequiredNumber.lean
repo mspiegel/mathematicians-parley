@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/an-identity-on-a-required-number.proof by parley build lean. -/
@@ -31,6 +31,6 @@ theorem an_identity_on_a_required_number (b : ℤ → ℤ) (hH1 : Set.MapsTo b (
   -- 1. membership, from H1
   have s1 : 0 < b A := hH1 (Set.mem_univ _)
   -- 2. algebra
-  parley_ring
+  ring_nf
 
 end Parley.Tests.Elaborator.AnIdentityOnARequiredNumber.AnIdentityOnARequiredNumber

@@ -2,7 +2,6 @@ module
 
 public import Divisibility
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Field.Basic
@@ -48,7 +47,7 @@ theorem remainder_of_product (A : ℝ) (B : ℤ) (M : ℝ) (hH4 : M > 0) :
     push_cast at ⊢
     exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := M) hH4)
   -- 3. algebra, from 2
-  have s3 : LeanBridges.Divisibility.mod A M * (B : ℝ) = A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ)) := by linear_combination (norm := parley_norm) ((B : ℝ)) * s2
+  have s3 : LeanBridges.Divisibility.mod A M * (B : ℝ) = A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ)) := by linear_combination ((B : ℝ)) * s2
   -- 4. calculation
   calc LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M * (B : ℝ)) M = LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s3
     _ = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by

@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -61,6 +60,6 @@ theorem product_factor (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   -- 5. mun:card-nat0, from H2
   have s5 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
   -- 6. algebra, from 3
-  linear_combination (norm := parley_norm) s3
+  linear_combination s3
 
 end Parley.Stdlib.Sums.ProductFactor

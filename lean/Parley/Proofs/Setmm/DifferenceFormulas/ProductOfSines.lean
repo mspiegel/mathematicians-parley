@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Trigonometric
@@ -34,6 +33,6 @@ theorem product_of_sines (A : ℂ) (B : ℂ) :
   -- 2. thm:cos-add a := A, b := B
   have s2 : Complex.cos (A + B) = Complex.cos A * Complex.cos B - Complex.sin A * Complex.sin B := by exact (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := B))
   -- 3. algebra, from 1, 2
-  linear_combination (norm := parley_norm) ((-1) / ((2))) * s1 + ((1) / ((2))) * s2
+  linear_combination ((-1) / (((2 : ℂ)))) * s1 + ((1) / (((2 : ℂ)))) * s2
 
 end Parley.Proofs.Setmm.DifferenceFormulas.ProductOfSines

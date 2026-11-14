@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/gcd-add-multiple.proof by parley build lean. -/
@@ -34,7 +34,7 @@ theorem gcd_add_multiple (K : ℤ) (M : ℤ) (hH2 : 0 < M) (N : ℤ) :
   have s2 : (K * M + N) % M = N % M := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := N) (m := M) hH2 (q := K))
   -- 3. substitute
   have s3 : (N + K * M) % M = N % M := by
-    have c1 : K * M + N = N + K * M := by parley_ring
+    have c1 : K * M + N = N + K * M := by ring1
     have row1 : (N + K * M) % M = N % M := Eq.subst (motive := (fun t : ℤ => t % M = N % M)) c1 s2
     exact row1
   -- 4. substitute (N + K·M) mod M = N mod M (line 3) into line 1

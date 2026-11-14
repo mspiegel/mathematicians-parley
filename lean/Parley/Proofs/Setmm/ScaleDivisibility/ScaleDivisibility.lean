@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/scale-divisibility.proof by parley build lean. -/
@@ -30,7 +30,7 @@ theorem scale_divisibility (M : ℤ) (N : ℤ) (K : ℤ) (hH4 : M ∣ N) :
   -- 2. calculation
   have s2 : K * N = K * M * c := by
     calc K * N = K * (M * c) := congrArg (fun t : ℤ => K * t) s1
-      _ = K * M * c := by parley_ring
+      _ = K * M * c := by ring1
   -- 3. def:divides d := K·M, n := K·N, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := K * M) (n := K * N))).mpr ⟨c, s2⟩
 

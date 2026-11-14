@@ -1,10 +1,11 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.GroupWithZero.Basic
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
@@ -17,6 +18,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -30,6 +32,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
@@ -125,7 +128,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       -- 9.20.5. mun:lt-min z := |a(n) − L|, x := 1, y := ε/(2·t), from D3, 9.20.3
       have s9_20_5 : abs (a n - L) < 1 ∧ abs (a n - L) < ε / (2 * t) := by exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (a n - L)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mp s9_20_3
       -- 9.20.6. algebra
-      have s9_20_6 : a n - L + L = a n := by parley_ring
+      have s9_20_6 : a n - L + L = a n := by ring1
       -- 9.20.7. calculation
       have s9_20_7 : abs (a n) ≤ abs (a n - L) + abs L := by
         calc abs (a n) = abs (a n - L + L) := congrArg (fun u : ℝ => abs u) s9_20_6.symm
@@ -140,21 +143,21 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
       have r238_3 : 2 * s ≠ 0 := by exact s9_2
       have s9_20_11 : abs (a n * (b n - M)) < ε / 2 := by
         calc abs (a n * (b n - M)) < s * (ε / (2 * s)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := a n) (u := b n - M) (K := s) (d := ε / (2 * s)) s3 s9_20_10 s9_20_4)
-          _ = ε / 2 := by parley_ring
+          _ = ε / 2 := by have hz1 : s ≠ 0 := right_ne_zero_of_mul r238_3; field
       -- 9.20.12. calculation
       have r246_2 : 2 * t ≠ 0 := by exact s9_5
       have s9_20_12 : abs (M * (a n - L)) < ε / 2 := by
         calc abs (M * (a n - L)) < t * (ε / (2 * t)) := by exact (Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall.bounded_times_small (C := M) (u := a n - L) (K := t) (d := ε / (2 * t)) s6 s8 s9_20_5.2)
-          _ = ε / 2 := by parley_ring
+          _ = ε / 2 := by have hz1 : t ≠ 0 := right_ne_zero_of_mul r246_2; field
       -- 9.20.13. algebra
-      have s9_20_13 : a n * b n - L * M = a n * (b n - M) + M * (a n - L) := by parley_ring
+      have s9_20_13 : a n * b n - L * M = a n * (b n - M) + M * (a n - L) := by ring1
       -- 9.20.14. inequalities, from 9.20.11, 9.20.12
       have s9_20_14 : abs (a n * (b n - M)) + abs (M * (a n - L)) < ε / 2 + ε / 2 := by linarith only [s9_20_11, s9_20_12]
       -- 9.20.15. calculation
       calc abs (a n * b n - L * M) = abs (a n * (b n - M) + M * (a n - L)) := congrArg (fun u : ℝ => abs u) s9_20_13
         _ ≤ abs (a n * (b n - M)) + abs (M * (a n - L)) := by exact (Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality.triangle_inequality (a := a n * (b n - M)) (b := M * (a n - L)))
         _ < ε / 2 + ε / 2 := s9_20_14
-        _ = ε := by parley_ring
+        _ = ε := by ring1
     -- 9.21. exhibit, from 9.20
     exact ⟨P + Q, add_pos (s9_14a) (s9_15a), s9_20⟩
   -- 10. def:tends-to L := L·M, from 9

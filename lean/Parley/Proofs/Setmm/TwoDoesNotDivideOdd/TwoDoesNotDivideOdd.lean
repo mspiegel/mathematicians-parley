@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -37,7 +36,7 @@ theorem two_does_not_divide_odd (A : ℤ) :
   have s2 : 2 * (k - A) = 1 := by
     simp only [hD1] at s1
     push_cast at s1
-    linear_combination (norm := parley_norm) (-1) * s1
+    linear_combination (-1) * s1
   -- 3. def:divides d := 2, n := 1, from 2
   have s3 : (2 : ℤ) ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, s2.symm⟩
   -- 4. mun:divides-one d := 2, from 3

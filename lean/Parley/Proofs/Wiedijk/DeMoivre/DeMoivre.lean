@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
@@ -30,6 +28,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Trigonometry
 
@@ -50,21 +49,21 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 2.1. algebra
-      have s2_1 : 0 * x = 0 := by parley_ring
+      have s2_1 : 0 * x = 0 := by ring1
       -- 2.2. substitute cos(0) = 1 (real arithmetic)
       have s2_2 : (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := by
         have e_real : Real.cos (0 : ℝ) = 1 := by parley_real
-        have e_w : (Real.cos (0 : ℝ) : ℂ) = 1 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : (Real.cos (0 : ℝ) : ℂ) = 1 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h ⊢; linear_combination h
         exact congrArg (fun t : ℂ => t + Complex.I * (Real.sin (0 : ℝ) : ℂ)) e_w
       -- 2.3. substitute sin(0) = 0 (real arithmetic)
       have s2_3 : 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) = 1 + Complex.I * 0 := by
         have e_real : Real.sin (0 : ℝ) = 0 := by parley_real
-        have e_w : (Real.sin (0 : ℝ) : ℂ) = 0 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : (Real.sin (0 : ℝ) : ℂ) = 0 := by have h := congrArg (fun x : ℝ => (x : ℂ)) e_real; push_cast at h ⊢; linear_combination h
         exact congrArg (fun t : ℂ => 1 + Complex.I * t) e_w
       -- 2.4. calculation
       have s2_4 : ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ 0 = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by
-        calc ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ 0 = 1 := by parley_ring
-          _ = 1 + Complex.I * 0 := by parley_ring
+        calc ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ 0 = 1 := by ring1
+          _ = 1 + Complex.I * 0 := by ring1
           _ = 1 + Complex.I * (Real.sin (0 : ℝ) : ℂ) := s2_3.symm
           _ = (Real.cos (0 : ℝ) : ℂ) + Complex.I * (Real.sin (0 : ℝ) : ℂ) := s2_2.symm
           _ = (Real.cos (0 * x) : ℂ) + Complex.I * (Real.sin (0 * x) : ℂ) := by (have h := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) s2_1.symm; push_cast at h ⊢; exact_mod_cast h)
@@ -79,19 +78,19 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
         have hI : Real.sin ((k : ℝ) * x + x) = Real.sin ((k : ℝ) * x) * Real.cos x + Real.cos ((k : ℝ) * x) * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))))
         exact hI
       -- 2.7. algebra
-      have s2_7 : (k : ℝ) * x + x = ((k : ℝ) + 1) * x := by parley_ring
+      have s2_7 : (k : ℝ) * x + x = ((k : ℝ) + 1) * x := by ring1
       -- 2.8. calculation
       have s2_8 : ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ (k + 1).toNat = (Real.cos (((k : ℝ) + 1) * x) : ℂ) + Complex.I * (Real.sin (((k : ℝ) + 1) * x) : ℂ) := by
         calc ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ (k + 1).toNat = ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) ^ k.toNat * ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) (m := k) hK)
           _ = ((Real.cos ((k : ℝ) * x) : ℂ) + Complex.I * (Real.sin ((k : ℝ) * x) : ℂ)) * ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) := congrArg (fun t : ℂ => t * ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ))) hIH
-          _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + Complex.I * Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by parley_ring
+          _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + Complex.I * Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by ring1
           _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + -1 * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := congrArg (fun t : ℂ => (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) + t * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ))) s1
-          _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) - (Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by parley_ring
+          _ = (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) - (Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by ring1
           _ = (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ)) := by
-              have e_w : (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) - (Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.cos ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_5.symm; push_cast at h; linear_combination (norm := parley_norm) h
+              have e_w : (Real.cos ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) - (Real.sin ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.cos ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_5.symm; push_cast at h ⊢; linear_combination h
               exact congrArg (fun t : ℂ => t + Complex.I * ((Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ))) e_w
           _ = (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * (Real.sin ((k : ℝ) * x + x) : ℂ) := by
-              have e_w : (Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.sin ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_6.symm; push_cast at h; linear_combination (norm := parley_norm) h
+              have e_w : (Real.sin ((k : ℝ) * x) : ℂ) * (Real.cos x : ℂ) + (Real.cos ((k : ℝ) * x) : ℂ) * (Real.sin x : ℂ) = (Real.sin ((k : ℝ) * x + x) : ℂ) := by have h := congrArg (fun x : ℝ => (x : ℂ)) s2_6.symm; push_cast at h ⊢; linear_combination h
               exact congrArg (fun t : ℂ => (Real.cos ((k : ℝ) * x + x) : ℂ) + Complex.I * t) e_w
           _ = (Real.cos (((k : ℝ) + 1) * x) : ℂ) + Complex.I * (Real.sin (((k : ℝ) + 1) * x) : ℂ) := congrArg (fun t : ℝ => (Real.cos t : ℂ) + Complex.I * (Real.sin t : ℂ)) s2_7
       (have h := s2_8; push_cast at h ⊢; exact h)

@@ -1,12 +1,12 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -17,6 +17,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 
@@ -29,6 +30,6 @@ namespace Parley.Tests.Elaborator.DividedEquationsCombined.TwoDividedEquationsSu
 theorem two_divided_equations_subtracted (A : ℝ) (B : ℝ) (p : ℤ) (q : ℤ) (hH4 : 0 < q) (r : ℤ) (s : ℤ) (hH6 : 0 < s) (hH7 : A + B = (p : ℝ) / (q : ℝ)) (hH8 : B = (r : ℝ) / (s : ℝ)) :
     A = (p : ℝ) / (q : ℝ) - (r : ℝ) / (s : ℝ) := by
   -- 1. algebra, from H7, H8
-  linear_combination (norm := parley_field) hH7 + (-1) * hH8
+  have hz1 : (q : ℝ) ≠ 0 := (by positivity); have hz2 : (s : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) hH7 + (-1) * hH8
 
 end Parley.Tests.Elaborator.DividedEquationsCombined.TwoDividedEquationsSubtracted

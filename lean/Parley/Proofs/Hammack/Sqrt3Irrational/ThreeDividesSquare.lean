@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -26,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime
 
@@ -47,7 +47,7 @@ theorem three_divides_square (n : ℤ) (hH2 : (3 : ℤ) ∣ n ^ 2) :
       _ = 1 := by exact (Parley.Items.Stdlib.Divisibility.mun_prime_coprime (p := (3 : ℤ)) (by norm_num) s1 (a := n) hS)
   -- 3. substitute
   have s3 : (3 : ℤ) ∣ n * n := by
-    have c1 : n ^ 2 = n * n := by parley_ring
+    have c1 : n ^ 2 = n * n := by ring1
     have row1 : (3 : ℤ) ∣ n * n := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 hH2
     exact row1
   -- 4. thm:coprime-divides x := n, c := n, n := 3, from 2, 3

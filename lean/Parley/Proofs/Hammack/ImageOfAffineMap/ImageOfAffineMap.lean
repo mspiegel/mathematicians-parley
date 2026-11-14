@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
@@ -41,7 +40,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     -- 2.2. instantiate x := s in H2
     have s2_2 : f s = 4 * s + 5 := by exact (hH2 s)
     -- 2.3. algebra, from 2.1, 2.2
-    have s2_3 : y = 4 * (s + 1) + 1 := by linear_combination (norm := parley_norm) s2_1 + s2_2
+    have s2_3 : y = 4 * (s + 1) + 1 := by linear_combination s2_1 + s2_2
     -- 2.4. exhibit, from 2.3
     have s2_4 : ∃ k : ℤ, y = 4 * k + 1 := ⟨s + 1, s2_3⟩
     -- 2.5. def:set-image u := y, from 2.4
@@ -58,7 +57,7 @@ theorem image_of_affine_map (f : ℤ → ℤ) (hH2 : ∀ x : ℤ, f x = 4 * x + 
     -- 4.3. mun:value-in-image Y := ℤ, s := m − 1, from 1
     have s4_3 : f (m - 1) ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := by exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (s := m - 1) (W := Set.univ) s1 (Set.mem_univ _) (Set.mapsTo_univ _ _))
     -- 4.4. substitute
-    have c1 : f (m - 1) = y := by linear_combination (norm := parley_norm) (-1) * s4_1 + s4_2
+    have c1 : f (m - 1) = y := by linear_combination (-1) * s4_1 + s4_2
     have row1 : y ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)) := Eq.subst (motive := (fun t : ℤ => t ∈ f '' ((Set.univ : Set ℤ) ∩ (Set.univ : Set ℤ)))) c1 s4_3
     exact row1
   -- 5. def:subset, from 4

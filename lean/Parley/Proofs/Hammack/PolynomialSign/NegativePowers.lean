@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/polynomial-sign.proof by parley build lean. -/
@@ -41,7 +41,7 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   -- 5. mun:square-nonneg x := x²
   have s5 : (x ^ 2) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2))
   -- 6. algebra
-  have s6 : x ^ 4 = (x ^ 2) ^ 2 := by parley_ring
+  have s6 : x ^ 4 = (x ^ 2) ^ 2 := by ring1
   -- 7. transitivity, from 6, 5
   have s7 : x ^ 4 ≥ 0 := by exact LE.le.trans_eq s5 s6.symm
   -- 8. mun:product-nonneg x := x⁴, y := −x, from 1, 7

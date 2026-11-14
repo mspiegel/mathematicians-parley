@@ -2,7 +2,6 @@ module
 
 public import ArithTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -51,7 +50,7 @@ theorem nine_power_from_zero (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.3. mun:exponent-step a := 3, m := k
       have s1_3 : (3 ^ (k + 1).toNat : ℤ) = 3 ^ k.toNat * 3 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k) hK)
       -- 1.4. algebra, from IH, 1.2, 1.3
-      linear_combination (norm := parley_norm) (9) * hIH + s1_2 + (-(3 ^ (k + 1).toNat) - 3 * 3 ^ k.toNat) * s1_3
+      linear_combination (9) * hIH + s1_2 + (-(3 ^ (k + 1).toNat) - 3 * 3 ^ k.toNat) * s1_3
   -- 2. instantiate k := n in line 1
   exact (s1 n hH1)
 

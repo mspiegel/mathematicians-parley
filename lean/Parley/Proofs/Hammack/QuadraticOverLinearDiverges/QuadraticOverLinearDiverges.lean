@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -18,6 +17,7 @@ public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -31,6 +31,8 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/quadratic-over-linear-diverges.proof by parley build lean. -/
@@ -70,10 +72,10 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 <
     -- 1.2.10. calculation
     have r64_1 : 3 * n - 1 ≠ 0 := by exact s1_2_5
     have s1_2_10 : (3 * (n : ℝ) - 1) * ((n : ℝ) / 3) < (3 * (n : ℝ) - 1) * a n := by
-      calc (3 * (n : ℝ) - 1) * ((n : ℝ) / 3) = (n : ℝ) ^ 2 - (n : ℝ) / 3 := by parley_ring
+      calc (3 * (n : ℝ) - 1) * ((n : ℝ) / 3) = (n : ℝ) ^ 2 - (n : ℝ) / 3 := by ring1
         _ < (n : ℝ) ^ 2 := (show (n : ℝ) ^ 2 - (n : ℝ) / 3 < (n : ℝ) ^ 2 by have h := (Rat.cast_lt (K := ℝ)).mpr s1_2_6; simp only [Rat.cast_sub, Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)
         _ < 2 * (n : ℝ) ^ 2 + 1 := by exact_mod_cast s1_2_9
-        _ = (3 * (n : ℝ) - 1) * a n := by linear_combination (norm := parley_field) (-(3 * (n : ℝ)) + 1) * (hH2 n hK2)
+        _ = (3 * (n : ℝ) - 1) * a n := by have hz1 : (n : ℝ) * 3 - 1 ≠ 0 := (by rw [show (n : ℝ) * 3 - 1 = 3 * (n : ℝ) - 1 by ring]; exact (by exact_mod_cast r64_1)); linear_combination (norm := (field)) (-(3 * (n : ℝ)) + 1) * (hH2 n hK2)
     -- 1.2.11. mun:less-scaled x := n/3, y := a(n), c := 3n − 1, from 1.2.4, 1.2.10
     have s1_2_11 : (n : ℝ) / 3 < a n := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a n) (c := 3 * (n : ℝ) - 1) (by exact_mod_cast gt_iff_lt.mp s1_2_4))).mpr s1_2_10
     -- 1.2.12. transitivity, from 1.1, A2

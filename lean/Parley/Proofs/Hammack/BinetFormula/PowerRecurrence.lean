@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -39,8 +38,8 @@ theorem power_recurrence (x : ℝ) (hH2 : x ^ 2 = x + 1) (k : ℤ) (hH3 : 0 ≤ 
   -- 2. mun:exponent-step a := x, m := k + 1
   have s2 : x ^ (k + 1 + 1).toNat = x ^ (k + 1).toNat * x := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x) (m := k + 1) (add_nonneg (hH3) (by norm_num)))
   -- 3. calculation
-  calc x ^ (k + 1 + 1).toNat = x ^ k.toNat * x * x := by linear_combination (norm := parley_norm) (x) * s1 + s2
-    _ = x ^ k.toNat * (x + 1) := by linear_combination (norm := parley_norm) (x ^ k.toNat) * hH2
-    _ = x ^ (k + 1).toNat + x ^ k.toNat := by linear_combination (norm := parley_norm) (-1) * s1
+  calc x ^ (k + 1 + 1).toNat = x ^ k.toNat * x * x := by linear_combination (x) * s1 + s2
+    _ = x ^ k.toNat * (x + 1) := by linear_combination (x ^ k.toNat) * hH2
+    _ = x ^ (k + 1).toNat + x ^ k.toNat := by linear_combination (-1) * s1
 
 end Parley.Proofs.Hammack.BinetFormula.PowerRecurrence

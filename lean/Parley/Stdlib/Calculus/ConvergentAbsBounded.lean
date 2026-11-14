@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -26,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
@@ -92,7 +92,7 @@ theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto
       have s10_3_7 : abs (x m - L + L) ≤ abs (x m - L) + abs L := by exact (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := x m - L) (b := L))
       -- 10.3.8. substitute
       have s10_3_8 : abs (x m) ≤ abs (x m - L) + abs L := by
-        have c1 : x m - L + L = x m := by parley_ring
+        have c1 : x m - L + L = x m := by ring1
         have row1 : abs (x m) ≤ abs (x m - L) + abs L := Eq.subst (motive := (fun t : ℝ => abs t ≤ abs (x m - L) + abs L)) c1 s10_3_7
         exact row1
       -- 10.3.9. inequalities

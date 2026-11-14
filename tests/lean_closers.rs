@@ -243,9 +243,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/Binomial/BinomialStep.lean",
         step: "30",
-        holds: "linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_add",
+        holds: "(have h := (Parley.Items.Stdlib.Sums.mun_sum_add",
         list: false,
-        why: "a calculation row citing an item's equation the route leaves to the closer: casts push_cast moves within each side, the same atoms, facing known: linear_combination",
+        why: "a calculation row citing an item's equation the route leaves to the closer: casts push_cast moves within each side, the same atoms, facing known: linear_combination, the casts of a compound term pushed in first (`ring_combination`)",
     },
     Site {
         file: "lean/Parley/Proofs/Hammack/SumOfCubes/SumOfCubes.lean",
@@ -806,6 +806,20 @@ const SITES: &[Site] = &[
         holds: "rw [Int.toNat_of_nonneg (le_of_lt r131_2)]; exact congrArg",
         list: false,
         why: "a side holding a cast of a toNat: the cast back of the whole number the step names, then the motive (`Writer::whole_back`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/RationalSequenceLimit/RationalSequenceLimit.lean",
+        step: "1.2.10",
+        holds: "have hz1 : (n : ℝ) * 9 - 3 ≠ 0 := (by rw [show (n : ℝ) * 9 - 3 = 9 * (n : ℝ) - 3 by ring]",
+        list: false,
+        why: "a divisor's fact in the order `field` writes its factors back, n before 9 where the goal names n first (`FieldOrder`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/RationalSequenceLimit/RationalSequenceLimit.lean",
+        step: "1.2.10",
+        holds: "have hz2 : 3 * (n : ℝ) - 1 ≠ 0 := (by exact_mod_cast r68_1)",
+        list: false,
+        why: "a divisor whose factors the goal names in the page's order keeps it, 3 met before n (`FieldOrder`)",
     },
 ];
 

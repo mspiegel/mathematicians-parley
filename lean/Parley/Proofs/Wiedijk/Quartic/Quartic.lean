@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -11,6 +9,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.Tauto
 public import Parley.Items.Stdlib.Numbers
@@ -41,41 +41,41 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
   have s1 : S ≠ 0 := by
     intro hS1
     -- 1.1. algebra, from H25, S1
-    have s1_1 : M = 0 := by linear_combination (norm := parley_norm) (-1) * hH25 + (4 * S) * hS1
+    have s1_1 : M = 0 := by linear_combination (-1) * hH25 + (4 * S) * hS1
     exact hH23 s1_1
   -- 2. algebra, from H17, H19, H20
-  have s2 : T ^ 3 + U ^ 3 / T ^ 3 = V := by linear_combination (norm := parley_field) (((1 / 4 : ℂ)) / ((T ^ 3))) * hH17 + ((2 * T ^ 3 - V + W) / ((T ^ 3) * (2))) * hH19
+  have s2 : T ^ 3 + U ^ 3 / T ^ 3 = V := by have hz1 : T ≠ 0 := hH20; linear_combination (norm := (field)) (((1 / 4 : ℂ)) / ((T ^ 3))) * hH17 + ((2 * T ^ 3 - V + W) / ((T ^ 3) * ((2 : ℂ)))) * hH19
   -- 3. algebra, from H20, 2
-  have s3 : (T + U / T) ^ 3 - 3 * U * (T + U / T) - V = 0 := by linear_combination (norm := parley_field) s2
+  have s3 : (T + U / T) ^ 3 - 3 * U * (T + U / T) - V = 0 := by have hz1 : T ≠ 0 := hH20; linear_combination (norm := (field)) s2
   -- 4. algebra, from H20, H22
-  have s4 : T + U / T = -(3 * M) - 2 * P := by linear_combination (norm := parley_field) ((9) / ((3))) * hH22
+  have s4 : T + U / T = -(3 * M) - 2 * P := by have hz1 : T ≠ 0 := hH20; linear_combination (norm := (field)) ((9) / (((3 : ℂ)))) * hH22
   -- 5. calculation
   have s5 : 27 * (M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M) = 0 := by
-    calc 27 * (M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M) = -((-(3 * M) - 2 * P) ^ 3) + 3 * U * (-(3 * M) - 2 * P) + V := by linear_combination (norm := parley_norm) (9 * M + 6 * P) * hH13 + (-1) * hH15
+    calc 27 * (M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M) = -((-(3 * M) - 2 * P) ^ 3) + 3 * U * (-(3 * M) - 2 * P) + V := by linear_combination (9 * M + 6 * P) * hH13 + (-1) * hH15
       _ = -((T + U / T) ^ 3) + 3 * U * (T + U / T) + V := congrArg (fun t : ℂ => -(t ^ 3) + 3 * U * t + V) s4.symm
-      _ = 0 := by linear_combination (norm := parley_field) (-1) * s3
+      _ = 0 := by have hz1 : T ≠ 0 := hH20; linear_combination (norm := (field)) (-1) * s3
   -- 6. algebra, from 5
-  have s6 : M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M = 0 := by linear_combination (norm := parley_norm) ((1 / 27 : ℂ)) * s5
+  have s6 : M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M = 0 := by linear_combination ((1 / 27 : ℂ)) * s5
   set y : ℂ := x + a / 4 with hD1
   set u : ℂ := (y + S - I) * (y + S + I) with hD2
   set v : ℂ := (y - S - J) * (y - S + J) with hD3
   -- 7. algebra, from D2, H27, 1
   have s7 : u = y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S := by
     simp only [hD2] at ⊢
-    linear_combination (norm := parley_field) ((-8) / ((8))) * hH27
+    have hz1 : S ≠ 0 := s1; linear_combination (norm := (field)) ((-64) / ((8) * (8))) * hH27
   -- 8. algebra, from D3, H29, 1
   have s8 : v = y ^ 2 - 2 * S * y + 2 * S ^ 2 + P / 2 + Q / 4 / S := by
     simp only [hD3] at ⊢
-    linear_combination (norm := parley_field) ((-8) / ((8))) * hH29
+    have hz1 : S ≠ 0 := s1; linear_combination (norm := (field)) ((-64) / ((8) * (8))) * hH29
   -- 9. calculation
   have s9 : x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := by
     calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = y ^ 4 + (b - 3 / 8 * a ^ 2) * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := by
           simp only [hD1] at s7 s8 ⊢
-          parley_ring
+          ring1
       _ = y ^ 4 + P * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := congrArg (fun t : ℂ => y ^ 4 + t * y ^ 2 + (c - a * b / 2 + a ^ 3 / 8) * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) hH7.symm
       _ = y ^ 4 + P * y ^ 2 + Q * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) := congrArg (fun t : ℂ => y ^ 4 + P * y ^ 2 + t * y + (d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4))) hH9.symm
       _ = y ^ 4 + P * y ^ 2 + Q * y + R := congrArg (fun t : ℂ => y ^ 4 + P * y ^ 2 + Q * y + t) hH11.symm
-      _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * (y ^ 2 - 2 * S * y + 2 * S ^ 2 + P / 2 + Q / 4 / S) := by linear_combination (norm := parley_field) ((-(64 * S ^ 4) - 16 * M * S ^ 2 - 32 * P * S ^ 2 - 8 * M * P - 4 * M ^ 2 - 4 * P ^ 2 + 16 * R) / ((64 * S ^ 2))) * hH25 + ((-4) / ((64 * S ^ 2))) * s6
+      _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * (y ^ 2 - 2 * S * y + 2 * S ^ 2 + P / 2 + Q / 4 / S) := by have hz1 : S ≠ 0 := s1; linear_combination (norm := (field)) ((-(64 * S ^ 4) - 16 * M * S ^ 2 - 32 * P * S ^ 2 - 8 * M * P - 4 * M ^ 2 - 4 * P ^ 2 + 16 * R) / ((S) * (S) * (64))) * hH25 + ((-4) / ((S) * (S) * (64))) * s6
       _ = (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * v := congrArg (fun t : ℂ => (y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S) * t) s8.symm
       _ = u * v := congrArg (fun t : ℂ => t * v) s7.symm
   -- 10. both directions
@@ -100,14 +100,14 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           -- 10.3.2.1. algebra, from C2, D1
           have s10_3_2_1 : x = -(a / 4) - S + I := by
             simp only [hD1] at hC2
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC2
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC2
           -- 10.3.2.2. mun:or-left, from 10.3.2.1
           exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_1)
         · skip
           -- 10.3.2.3. algebra, from C3, D1
           have s10_3_2_3 : x = -(a / 4) - S - I := by
             simp only [hD1] at hC3
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC3
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC3
           -- 10.3.2.4. mun:or-right, from 10.3.2.3
           exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) - S + I) (Q := x = -(a / 4) - S - I) s10_3_2_3)
       -- 10.3.3. mun:or-left, from 10.3.2
@@ -122,14 +122,14 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           -- 10.3.5.1. algebra, from C5, D1
           have s10_3_5_1 : x = -(a / 4) + S + J := by
             simp only [hD1] at hC5
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC5
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC5
           -- 10.3.5.2. mun:or-left, from 10.3.5.1
           exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_1)
         · skip
           -- 10.3.5.3. algebra, from C6, D1
           have s10_3_5_3 : x = -(a / 4) + S - J := by
             simp only [hD1] at hC6
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC6
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC6
           -- 10.3.5.4. mun:or-right, from 10.3.5.3
           exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = -(a / 4) + S + J) (Q := x = -(a / 4) + S - J) s10_3_5_3)
       -- 10.3.6. mun:or-right, from 10.3.5
@@ -146,18 +146,18 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           -- 10.4.1.1. algebra, from C8, D1
           have s10_4_1_1 : y + S - I = 0 := by
             simp only [hD1] at ⊢
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC8
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC8
           -- 10.4.1.2. algebra, from D2, 10.4.1.1
           simp only [hD2] at ⊢
-          linear_combination (norm := parley_norm) (I * v + S * v + v * y) * s10_4_1_1
+          linear_combination (I * v + S * v + v * y) * s10_4_1_1
         · skip
           -- 10.4.1.3. algebra, from C9, D1
           have s10_4_1_3 : y + S + I = 0 := by
             simp only [hD1] at ⊢
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC9
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC9
           -- 10.4.1.4. algebra, from D2, 10.4.1.3
           simp only [hD2] at ⊢
-          linear_combination (norm := parley_norm) (-(I * v) + S * v + v * y) * s10_4_1_3
+          linear_combination (-(I * v) + S * v + v * y) * s10_4_1_3
       · skip
         -- 10.4.2. cases, from C10
         rcases hC10 with hC11 | hC12
@@ -165,18 +165,18 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
           -- 10.4.2.1. algebra, from C11, D1
           have s10_4_2_1 : y - S - J = 0 := by
             simp only [hD1] at ⊢
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC11
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC11
           -- 10.4.2.2. algebra, from D3, 10.4.2.1
           simp only [hD3] at ⊢
-          linear_combination (norm := parley_norm) (J * u - S * u + u * y) * s10_4_2_1
+          linear_combination (J * u - S * u + u * y) * s10_4_2_1
         · skip
           -- 10.4.2.3. algebra, from C12, D1
           have s10_4_2_3 : y - S + J = 0 := by
             simp only [hD1] at ⊢
-            linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * hC12
+            linear_combination ((16) / (((4 : ℂ)) * ((4 : ℂ)))) * hC12
           -- 10.4.2.4. algebra, from D3, 10.4.2.3
           simp only [hD3] at ⊢
-          linear_combination (norm := parley_norm) (-(J * u) - S * u + u * y) * s10_4_2_3
+          linear_combination (-(J * u) - S * u + u * y) * s10_4_2_3
     -- 10.5. calculation
     calc x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = u * v := s9
       _ = 0 := s10_4

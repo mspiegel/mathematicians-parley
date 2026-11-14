@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from proofs/hammack/fibonacci-numbers.proof by parley build lean. -/
@@ -39,7 +39,7 @@ theorem fibonacci_recurrence (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0
   -- 1.5. substitute F(k + 1) = G(k) (line 1.3) into line 1.4
   have s1_5 : F (k + 1 + 1) = F k + F (k + 1) := Eq.subst (motive := (fun t : ℤ => F (k + 1 + 1) = F k + t)) s1_3.symm s1_4
   -- 1.6. substitute
-  have c1 : k + 1 + 1 = k + 2 := by parley_ring
+  have c1 : k + 1 + 1 = k + 2 := by ring1
   have row1 : F (k + 2) = F k + F (k + 1) := Eq.subst (motive := (fun t : ℤ => F t = F k + F (k + 1))) c1 s1_5
   exact row1
 

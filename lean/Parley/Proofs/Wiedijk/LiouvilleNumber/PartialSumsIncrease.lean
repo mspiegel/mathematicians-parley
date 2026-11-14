@@ -1,11 +1,9 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -41,6 +39,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumReal
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep
@@ -74,11 +73,11 @@ theorem partial_sums_increase (n : ℤ) (hH1 : 0 < n) :
     -- 2.6. inequalities
     have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := by linarith only [s2_4]
     -- 2.7. algebra
-    have s2_7 : n + j + 1 = n + (j + 1) := by parley_ring
+    have s2_7 : n + j + 1 = n + (j + 1) := by ring1
     -- 2.8. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := hIH
       _ ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n + j), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + j + 1) := s2_6
-      _ = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) s2_2).symm
+      _ = (∑ k ∈ Finset.Icc (1 : ℤ) (n + j + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := by (have h := (Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep.partial_sum_step (n := n + j) s2_2).symm; push_cast at h ⊢; linear_combination h)
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) (n + (j + 1)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) := congrArg (fun t : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) s2_7
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumsIncrease

@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -37,8 +36,8 @@ theorem odd_square_less_one_over_eight (n : ℤ) (hH2 : Odd n) :
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hH2
   -- 2. algebra, from 1
   have s2 : ((n : ℚ) ^ 2 - 1) / 8 = (k : ℚ) * ((k : ℚ) + 1) / 2 := by
-    have s1_w : (n : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
-    linear_combination (norm := parley_norm) ((4 * (k : ℚ) + 2 * (n : ℚ) + 2) / ((8) * (2))) * s1_w
+    have s1_w : (n : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination h
+    linear_combination ((4 * (k : ℚ) + 2 * (n : ℚ) + 2) / (((8 : ℚ)) * ((2 : ℚ)))) * s1_w
   -- 3. thm:triangular-number-integer n := k
   have s3 : ∃ m : ℤ, (m : ℚ) = (k : ℚ) * ((k : ℚ) + 1) / 2 := by exact (Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger.triangular_number_integer (n := k))
   -- 4. membership, from 2, 3

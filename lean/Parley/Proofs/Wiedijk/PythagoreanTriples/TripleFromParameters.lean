@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from proofs/wiedijk/pythagorean-triples.proof by parley build lean. -/
@@ -40,13 +40,13 @@ theorem triple_from_parameters (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
     -- 2.1. calculation
     calc a ^ 2 + b ^ 2 = (k * (m ^ 2 - n ^ 2)) ^ 2 + b ^ 2 := congrArg (fun t : ℤ => t ^ 2 + b ^ 2) hC1.1
       _ = (k * (m ^ 2 - n ^ 2)) ^ 2 + (2 * k * m * n) ^ 2 := congrArg (fun t : ℤ => (k * (m ^ 2 - n ^ 2)) ^ 2 + t ^ 2) hC1.2
-      _ = (k * (m ^ 2 + n ^ 2)) ^ 2 := by parley_ring
+      _ = (k * (m ^ 2 + n ^ 2)) ^ 2 := by ring1
       _ = c ^ 2 := congrArg (fun t : ℤ => t ^ 2) hH7.symm
   · skip
     -- 2.2. calculation
     calc a ^ 2 + b ^ 2 = (2 * k * m * n) ^ 2 + b ^ 2 := congrArg (fun t : ℤ => t ^ 2 + b ^ 2) hC2.1
       _ = (2 * k * m * n) ^ 2 + (k * (m ^ 2 - n ^ 2)) ^ 2 := congrArg (fun t : ℤ => (2 * k * m * n) ^ 2 + t ^ 2) hC2.2
-      _ = (k * (m ^ 2 + n ^ 2)) ^ 2 := by parley_ring
+      _ = (k * (m ^ 2 + n ^ 2)) ^ 2 := by ring1
       _ = c ^ 2 := congrArg (fun t : ℤ => t ^ 2) hH7.symm
 
 end Parley.Proofs.Wiedijk.PythagoreanTriples.TripleFromParameters

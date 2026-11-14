@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -37,6 +35,7 @@ public import Mathlib.MeasureTheory.Measure.Haar.OfBasis
 public import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -92,9 +91,9 @@ theorem series_remainder :
     -- 2.4. calculation
     have s2_4 : Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = -1 * (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) := by
       calc Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = Real.pi / 4 - 1 := by
-            have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_1; push_cast at h ⊢; linear_combination h
             exact congrArg (fun t : ℝ => Real.pi / 4 - t) e_w
-        _ = -1 * (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) := by linear_combination (norm := parley_norm) ((16) / ((4) * (4))) * s2_3
+        _ = -1 * (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) := by linear_combination (norm := (field)) ((16) / (((4 : ℝ)) * ((4 : ℝ)))) * s2_3
     simpa only [zero_add, pow_one, Int.reduceAdd, Int.reduceMul, Int.reduceToNat, Nat.reduceAdd, Nat.reduceMul, Int.cast_zero] using s2_4
   | succ n hK hIH =>
     -- 2.5. mun:sum-last, from 1
@@ -110,12 +109,12 @@ theorem series_remainder :
     -- 2.8. calculation
     have r721_2 : 0 < 2 * (n + 1) + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := 2 * (n + 1)) (mul_nonneg (by norm_num) (add_nonneg (hK) (by norm_num))))
     calc Real.pi / 4 - (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = Real.pi / 4 - ((∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1)) := by
-          have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℝ) + 1) : ℝ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2_5; push_cast at h ⊢; linear_combination h
           exact congrArg (fun t : ℝ => Real.pi / 4 - t) e_w
-      _ = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) - (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by linear_combination (norm := parley_field) ((4) / ((4))) * hIH
-      _ = (-1) ^ (n + 1).toNat * -1 * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) := by linear_combination (norm := parley_field) ((-1) ^ (n + 1).toNat) * s2_6
+      _ = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) - (-1) ^ (n + 1).toNat / (2 * ((n : ℝ) + 1) + 1) := by have hz1 : 2 * ((n : ℝ) + 1) + 1 ≠ 0 := (by exact_mod_cast r721_2.ne'); linear_combination (norm := (field)) ((16) / (((4 : ℝ)) * ((4 : ℝ)))) * hIH
+      _ = (-1) ^ (n + 1).toNat * -1 * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) := by have hz1 : 2 * ((n : ℝ) + 1) + 1 ≠ 0 := (by exact_mod_cast r721_2.ne'); linear_combination (norm := (field)) ((-1) ^ (n + 1).toNat) * s2_6
       _ = (-1) ^ (n + 1 + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
-          have e_w : ((-1) ^ (n + 1).toNat * -1 : ℝ) = (-1) ^ (n + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℝ)) s2_7.symm; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : ((-1) ^ (n + 1).toNat * -1 : ℝ) = (-1) ^ (n + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℝ)) s2_7.symm; push_cast at h ⊢; linear_combination h
           exact congrArg (fun u : ℝ => u * (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ))) e_w
 
 end Parley.Proofs.Wiedijk.Leibniz.SeriesRemainder

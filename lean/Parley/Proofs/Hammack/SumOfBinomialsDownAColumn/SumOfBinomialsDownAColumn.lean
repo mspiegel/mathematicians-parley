@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -32,6 +31,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 
@@ -71,7 +71,7 @@ theorem sum_of_binomials_down_a_column (n : ℤ) (hH1 : 0 < n) (r : ℤ) (hH2 : 
       have s1_5 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) (r + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + 1) (add_nonneg (hK) (by norm_num)) (k := r + 1))
       -- 1.6. substitute
       have s1_6 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := by
-        have c1 : r + 1 - 1 = r := by parley_ring
+        have c1 : r + 1 - 1 = r := by ring1
         have row1 : (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) r : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + 1) (r + 1) : ℤ) + (LeanBridges.Counting.choose (m + 1) t : ℤ) = (LeanBridges.Counting.choose (m + 1 + 1) (r + 1) : ℤ))) c1 s1_5
         exact row1
       -- 1.7. calculation

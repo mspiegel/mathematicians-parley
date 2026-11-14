@@ -1,11 +1,9 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -15,6 +13,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -66,12 +65,12 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     qify
     calc (LeanBridges.Counting.choose N (1 : ℤ) : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * (LeanBridges.Counting.factorial (1 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := (1 : ℤ))) s2_3
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
-          have e_w : (LeanBridges.Counting.factorial (1 : ℤ) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (LeanBridges.Counting.factorial (1 : ℤ) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h ⊢; linear_combination h
           exact congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * t)) e_w
       _ = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1) := by
-          have e_w : (LeanBridges.Counting.factorial N : ℚ) = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (LeanBridges.Counting.factorial N : ℚ) = (LeanBridges.Counting.factorial (N - 1) : ℚ) * (N : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h ⊢; linear_combination h
           exact congrArg (fun t : ℚ => t / ((LeanBridges.Counting.factorial (N - 1) : ℚ) * 1)) e_w
-      _ = (N : ℚ) := by parley_ring
+      _ = (N : ℚ) := by have hz1 : (LeanBridges.Counting.factorial (N - 1) : ℚ) ≠ 0 := (by exact_mod_cast s2_6.ne'); field
   · skip
     -- 2.8. arithmetic
     have s2_8 : (0 : ℤ) < 1 := by parley_arith

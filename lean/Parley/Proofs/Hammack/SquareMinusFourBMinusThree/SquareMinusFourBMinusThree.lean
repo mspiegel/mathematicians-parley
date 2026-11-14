@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -30,6 +28,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/square-minus-four-b-minus-three.proof by parley build lean. -/
@@ -43,7 +42,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
   -- the theorem. contradiction
   intro hS
   -- 1. algebra, from S
-  have s1 : a ^ 2 = 4 * b + 3 := by linear_combination (norm := parley_norm) hS
+  have s1 : a ^ 2 = 4 * b + 3 := by linear_combination hS
   -- 2. mun:even-or-odd n := a
   have s2 : Even a ∨ Odd a := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))
   -- 3. cases, from 2
@@ -54,11 +53,11 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       obtain ⟨k, s3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp hC1
       -- 3.2. calculation
       have s3_2 : 4 * k ^ 2 = 4 * b + 3 := by
-        calc 4 * k ^ 2 = (2 * k) ^ 2 := by parley_ring
+        calc 4 * k ^ 2 = (2 * k) ^ 2 := by ring1
           _ = a ^ 2 := congrArg (fun t : ℤ => t ^ 2) s3_1.symm
           _ = 4 * b + 3 := s1
       -- 3.3. algebra, from 3.2
-      have s3_3 : 1 = 2 * (2 * k ^ 2 - 2 * b - 1) := by linear_combination (norm := parley_norm) (-1) * s3_2
+      have s3_3 : 1 = 2 * (2 * k ^ 2 - 2 * b - 1) := by linear_combination (-1) * s3_2
       -- 3.4. def:even n := 1, from 3.3
       exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨2 * k ^ 2 - 2 * b - 1, s3_3⟩
     · skip
@@ -66,11 +65,11 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
       obtain ⟨k, s3_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a))).mp hC2
       -- 3.6. calculation
       have s3_6 : 4 * k ^ 2 + 4 * k + 1 = 4 * b + 3 := by
-        calc 4 * k ^ 2 + 4 * k + 1 = (2 * k + 1) ^ 2 := by parley_ring
+        calc 4 * k ^ 2 + 4 * k + 1 = (2 * k + 1) ^ 2 := by ring1
           _ = a ^ 2 := congrArg (fun t : ℤ => t ^ 2) s3_5.symm
           _ = 4 * b + 3 := s1
       -- 3.7. algebra, from 3.6
-      have s3_7 : 1 = 2 * (k ^ 2 + k - b) := by qify at *; linear_combination (norm := parley_norm) (-(1 / 2 : ℚ)) * s3_6
+      have s3_7 : 1 = 2 * (k ^ 2 + k - b) := by qify at *; linear_combination (-(1 / 2 : ℚ)) * s3_6
       -- 3.8. def:even n := 1, from 3.7
       exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k ^ 2 + k - b, s3_7⟩
   -- 4. mun:not-both n := 1, from 3

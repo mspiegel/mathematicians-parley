@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -14,6 +12,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -53,9 +52,9 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
       have hI : t ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (1 : ℝ)) (u := t))).mp hK2).2)
       exact hI
     -- 1.3. algebra, from 1.1
-    have s1_3 : s - 1 ≠ 0 := by intro h; exact s1_1 (by linear_combination (norm := parley_norm) h)
+    have s1_3 : s - 1 ≠ 0 := by intro h; exact s1_1 (by linear_combination h)
     -- 1.4. algebra, from 1.2
-    have s1_4 : t - 1 ≠ 0 := by intro h; exact s1_2 (by linear_combination (norm := parley_norm) h)
+    have s1_4 : t - 1 ≠ 0 := by intro h; exact s1_2 (by linear_combination h)
     -- 1.5. calculation
     have s1_5 : ((s + 1) / (s - 1)) ^ 3 = ((t + 1) / (t - 1)) ^ 3 := by
       calc ((s + 1) / (s - 1)) ^ 3 = f s := by exact (hH2 s hK1).symm
@@ -64,7 +63,7 @@ theorem cubed_mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ
     -- 1.6. thm:cube-injective a := (s + 1)/(s − 1), b := (t + 1)/(t − 1), from 1.5
     have s1_6 : (s + 1) / (s - 1) = (t + 1) / (t - 1) := by exact (Parley.Proofs.Hammack.CubeRootInjective.CubeInjective.cube_injective (a := (s + 1) / (s - 1)) (b := (t + 1) / (t - 1)) s1_5)
     -- 1.7. algebra, from 1.3, 1.4, 1.6
-    linear_combination (norm := parley_field) (-((1 / 2 : ℝ) * s * t) + (1 / 2 : ℝ) * s + (1 / 2 : ℝ) * t - (1 / 2 : ℝ)) * s1_6
+    have hz1 : s - 1 ≠ 0 := s1_3; have hz2 : t - 1 ≠ 0 := s1_4; linear_combination (norm := (field)) (-((1 / 2 : ℝ) * s * t) + (1 / 2 : ℝ) * s + (1 / 2 : ℝ) * t - (1 / 2 : ℝ)) * s1_6
   -- 2. def:one-to-one, from H1, 1
   exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (f := f) hH1)).mpr ⟨hH1, s1⟩
 

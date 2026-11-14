@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/cubic-plus-multiple-of-three.proof by parley build lean. -/
@@ -50,7 +50,7 @@ theorem cubic_plus_multiple_of_three (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.4. mun:divides-sum d := 3, a := k³ + 5k + 6, b := 3·(k² + k + 2), from IH, 1.3
       have s1_4 : (3 : ℤ) ∣ k ^ 3 + 5 * k + 6 + 3 * (k ^ 2 + k + 2) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := k ^ 3 + 5 * k + 6) (b := 3 * (k ^ 2 + k + 2)) hIH s1_3)
       -- 1.5. substitute
-      have c1 : k ^ 3 + 5 * k + 6 + 3 * (k ^ 2 + k + 2) = (k + 1) ^ 3 + 5 * (k + 1) + 6 := by parley_ring
+      have c1 : k ^ 3 + 5 * k + 6 + 3 * (k ^ 2 + k + 2) = (k + 1) ^ 3 + 5 * (k + 1) + 6 := by ring1
       have row1 : (3 : ℤ) ∣ (k + 1) ^ 3 + 5 * (k + 1) + 6 := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s1_4
       exact row1
   -- 2. instantiate k := n in line 1

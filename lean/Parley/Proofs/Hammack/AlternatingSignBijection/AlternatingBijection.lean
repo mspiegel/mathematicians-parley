@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
@@ -32,6 +30,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -69,7 +68,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
             _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (t : ℚ) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := t) hK2 hC3)
         -- 1.3.2.2. algebra, from 1.3.2.1
-        qify at *; linear_combination (norm := parley_norm) ((8) / ((4))) * s1_3_2_1
+        qify at *; linear_combination ((8) / ((4))) * s1_3_2_1
       · skip
         -- 1.3.2.3. calculation
         have s1_3_2_3 : (s : ℚ) / 2 = (1 - (t : ℚ)) / 2 := by
@@ -77,7 +76,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
             _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (1 - (t : ℚ)) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := t) hK2 hC4)
         -- 1.3.2.4. algebra, from 1.3.2.3
-        have s1_3_2_4 : s + t = 1 := by qify at *; linear_combination (norm := parley_norm) ((8) / ((4))) * s1_3_2_3
+        have s1_3_2_4 : s + t = 1 := by qify at *; linear_combination ((8) / ((4))) * s1_3_2_3
         -- 1.3.2.5. inequalities, from K1, K2
         have s1_3_2_5 : s + t > 1 := by linarith only [hK1, hK2]
         -- 1.3.2.6. inequalities
@@ -95,7 +94,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
             _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (t : ℚ) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := t) hK2 hC5)
         -- 1.3.4.2. algebra, from 1.3.4.1
-        have s1_3_4_2 : s + t = 1 := by qify at *; linear_combination (norm := parley_norm) ((-8) / ((4))) * s1_3_4_1
+        have s1_3_4_2 : s + t = 1 := by qify at *; linear_combination ((-8) / ((4))) * s1_3_4_1
         -- 1.3.4.3. inequalities, from K1, K2
         have s1_3_4_3 : s + t > 1 := by linarith only [hK1, hK2]
         -- 1.3.4.4. inequalities
@@ -108,7 +107,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
             _ = (f t : ℚ) := by exact_mod_cast hA1
             _ = (1 - (t : ℚ)) / 2 := by exact (Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := t) hK2 hC6)
         -- 1.3.4.6. algebra, from 1.3.4.5
-        qify at *; linear_combination (norm := parley_norm) ((-8) / ((4))) * s1_3_4_5
+        qify at *; linear_combination ((-8) / ((4))) * s1_3_4_5
   -- 2. def:one-to-one, from H1, 1
   have s2 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, s1⟩
   -- 3. proof
@@ -126,7 +125,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       -- 3.2.3. mun:pos-int-nat m := 1 − 2·y, from 3.2.2
       have s3_2_3 : 0 < 1 - 2 * y := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * y) s3_2_2)
       -- 3.2.4. algebra
-      have s3_2_4 : 1 - 2 * y = 2 * -y + 1 := by parley_ring
+      have s3_2_4 : 1 - 2 * y = 2 * -y + 1 := by ring1
       -- 3.2.5. def:odd n := 1 − 2·y, from 3.2.4
       have s3_2_5 : Odd (1 - 2 * y) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 1 - 2 * y))).mpr ⟨-y, s3_2_4⟩
       -- 3.2.6. thm:alternating-value-odd m := 1 − 2·y, from H2, 3.2.3, 3.2.5
@@ -134,7 +133,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
         have hI : (f (1 - 2 * y) : ℚ) = (1 - (1 - 2 * (y : ℚ))) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) s3_2_3 s3_2_5))
         exact hI
       -- 3.2.7. algebra, from 3.2.6
-      have s3_2_7 : y = f (1 - 2 * y) := by qify at *; linear_combination (norm := parley_norm) ((-2) / ((2))) * s3_2_6
+      have s3_2_7 : y = f (1 - 2 * y) := by qify at *; linear_combination ((-2) / (((2 : ℚ)))) * s3_2_6
       -- 3.2.8. exhibit, from 3.2.3, 3.2.7
       exact ⟨1 - 2 * y, s3_2_3, s3_2_7⟩
     · skip
@@ -149,7 +148,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
         have hI : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) s3_2_10 s3_2_11))
         exact hI
       -- 3.2.13. algebra, from 3.2.12
-      have s3_2_13 : y = f (2 * y) := by qify at *; linear_combination (norm := parley_norm) ((-2) / ((2))) * s3_2_12
+      have s3_2_13 : y = f (2 * y) := by qify at *; linear_combination ((-2) / (((2 : ℚ)))) * s3_2_12
       -- 3.2.14. exhibit, from 3.2.10, 3.2.13
       exact ⟨2 * y, s3_2_10, s3_2_13⟩
   -- 4. def:onto, from H1, 3

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.GroupWithZero.Defs
@@ -12,6 +11,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -22,6 +22,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -44,9 +45,9 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     obtain ⟨p, q, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mp hD1.2
     -- 2.2. calculation
     have s2_2 : A = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by
-      calc A = (p : ℂ) / (q : ℂ) - (B : ℂ) := by linear_combination (norm := parley_field) s2_1b
+      calc A = (p : ℂ) / (q : ℂ) - (B : ℂ) := by have hz1 : (q : ℂ) ≠ 0 := (by norm_cast; positivity); linear_combination (norm := (field)) s2_1b
         _ = (p : ℂ) / (q : ℂ) - (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) - t) s1b; push_cast at h ⊢; exact_mod_cast h)
-        _ = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
+        _ = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by have hz1 : (q : ℂ) ≠ 0 := (by norm_cast; positivity); have hz2 : (s : ℂ) ≠ 0 := (by norm_cast; positivity); field
     -- 2.3. def:rational x := A, from 2.2
     exact ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mpr ⟨p * s - r * q, q * s, mul_pos (s2_1a) (s1a), by (have h := s2_2; push_cast at h ⊢; exact h)⟩
   · skip
@@ -58,7 +59,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     have s2_6 : A + (B : ℂ) = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by
       calc A + (B : ℂ) = (p : ℂ) / (q : ℂ) + (B : ℂ) := congrArg (fun t : ℂ => t + (B : ℂ)) s2_4b
         _ = (p : ℂ) / (q : ℂ) + (r : ℂ) / (s : ℂ) := by (have h := congrArg (fun t : ℚ => (p : ℚ) / (q : ℚ) + t) s1b; push_cast at h ⊢; exact_mod_cast h)
-        _ = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by parley_ring
+        _ = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by have hz1 : (q : ℂ) ≠ 0 := (by norm_cast; positivity); have hz2 : (s : ℂ) ≠ 0 := (by norm_cast; positivity); field
     -- 2.7. def:rational x := A + B, from 2.6
     have s2_7 : ∃ m : ℚ, (m : ℂ) = A + (B : ℂ) := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mpr ⟨p * s + r * q, q * s, mul_pos (s2_4a) (s1a), by (have h := s2_6; push_cast at h ⊢; exact h)⟩
     -- 2.8. join 2.5, 2.7

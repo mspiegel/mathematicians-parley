@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
@@ -45,6 +44,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumReal
@@ -74,7 +74,7 @@ theorem later_at_most (n : ℤ) (hH1 : 0 < n) :
   have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + (i - n)), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) := by (have h := (s1 (i - n) s2_1); simp only [parley_zpow_toNat (n := (LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) (h := add_nonneg (Nat.cast_nonneg _) (s2_1))] at h ⊢; exact_mod_cast h)
   -- 2.5. substitute
   have s2_5 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - g := by
-    have c1 : n + (i - n) = i := by parley_ring
+    have c1 : n + (i - n) = i := by ring1
     have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)))) c1 s2_4
     have c2 : 2 / 2 ^ ((LeanBridges.Counting.factorial (n + 1) : ℤ) + (i - n)) = g := congrArg (fun t : ℝ => t) hD1.symm
     have row2 : (∑ k ∈ Finset.Icc (1 : ℤ) i, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) - (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℝ)) ≤ 2 / 2 ^ LeanBridges.Counting.factorial (n + 1) - g := by

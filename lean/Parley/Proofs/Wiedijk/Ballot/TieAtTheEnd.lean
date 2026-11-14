@@ -51,11 +51,8 @@ theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
     intro c hK1
     intro hS1
     -- 2.1. def:part-builder u := c, from D3, K1
-    have s2_1a : c ⊆ (Set.Icc (1 : ℤ) (m + m) : Set ℤ) := by
-      push_cast at ⊢
-      exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + m) : Set ℤ)) (u := c))).mp hK1).1
+    have s2_1a : c ⊆ (Set.Icc (1 : ℤ) (m + m) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + m) : Set ℤ)) (u := c))).mp hK1).1
     have s2_1b : (c.ncard : ℤ) = m := by
-      push_cast at ⊢
       have hI : (c.ncard : ℤ) = m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + m) : Set ℤ)) (u := c))).mp hK1).2)
       exact hI
     -- 2.2. thm:last-place n := m, from 2.1

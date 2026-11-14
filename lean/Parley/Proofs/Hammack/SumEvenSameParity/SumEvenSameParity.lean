@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -50,7 +49,7 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
       -- 3.2.3. obtain b: def:odd n := y, from C3
       obtain ⟨b, s3_2_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := y))).mp hC3
       -- 3.2.4. algebra, from 3.1, 3.2.3
-      have s3_2_4 : x + y = 2 * (a + b) + 1 := by linear_combination (norm := parley_norm) s3_1 + s3_2_3
+      have s3_2_4 : x + y = 2 * (a + b) + 1 := by linear_combination s3_1 + s3_2_3
       -- 3.2.5. def:odd n := x + y, from 3.2.4
       have s3_2_5 : Odd (x + y) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, s3_2_4⟩
       -- 3.2.6. mun:not-both n := x + y, from H3
@@ -65,7 +64,7 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
       -- 3.4.1. obtain b: def:even n := y, from C5
       obtain ⟨b, s3_4_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := y))).mp hC5
       -- 3.4.2. algebra, from 3.3, 3.4.1
-      have s3_4_2 : x + y = 2 * (a + b) + 1 := by linear_combination (norm := parley_norm) s3_3 + s3_4_1
+      have s3_4_2 : x + y = 2 * (a + b) + 1 := by linear_combination s3_3 + s3_4_1
       -- 3.4.3. def:odd n := x + y, from 3.4.2
       have s3_4_3 : Odd (x + y) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, s3_4_2⟩
       -- 3.4.4. mun:not-both n := x + y, from H3

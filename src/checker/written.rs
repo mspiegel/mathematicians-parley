@@ -303,6 +303,13 @@ pub fn written_out(
             ShownBy::Said => {}
         }
     }
+    for part in written.divided_by.values_mut().flatten() {
+        part.term = out(&part.term);
+        if let super::record::NonzeroBy::Stated { line, from } = &mut part.by {
+            *line = out(line);
+            *from = out(from);
+        }
+    }
     for held in written.held_by_lines.values_mut().flatten() {
         use super::record::LinesHold;
         held.term = out(&held.term);

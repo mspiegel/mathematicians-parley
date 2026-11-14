@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -26,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -50,7 +50,7 @@ theorem prime_divides_power (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (Q
     | base =>
       intro hC1
       -- 3.1. algebra
-      have s3_1 : Q ^ 0 = 1 := by parley_ring
+      have s3_1 : Q ^ 0 = 1 := by ring1
       -- 3.2. substitute Q^0 = 1 (line 3.1) into C1
       have s3_2 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) s3_1 hC1; push_cast at h ⊢; exact_mod_cast h)
       -- 3.3. mun:divides-one d := P, from 3.2

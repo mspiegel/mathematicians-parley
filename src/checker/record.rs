@@ -436,6 +436,12 @@ pub struct CheckedTheorem {
     /// whole from the line the check found, m of m² from `m ∈ ℕ`, and from
     /// no line the reason does not name.
     pub held_by_lines: IndexMap<usize, Vec<HeldByLines>>,
+    /// Each part an `algebra` reason divides by, with why it is not zero,
+    /// by the line the reason is on: a step's, a requires line's or a
+    /// calculation row's (`formulas::divided_by`). A backend clears the
+    /// divisions knowing each, `3n − 1` by the line saying `3n − 1 ≠ 0`
+    /// and N! as a positive integer.
+    pub divided_by: IndexMap<usize, Vec<NotZero>>,
     /// Each "for all" a line a step may cite says that the step reads at a
     /// block's letter, with that letter, by the step's index
     /// (`Known::letters_read_at`): 5.6's "for all a ∈ {2, …, p − 2}, f(a) ∈
@@ -507,6 +513,29 @@ pub enum LinesHold {
     /// The closure table puts it there by its operation, x mod n in ℕ₀ of
     /// x ∈ ℤ and n ∈ ℕ, its parts held as the walk reads them.
     Closed,
+}
+
+/// A part a reason divides by, and why it is not zero
+/// (`CheckedTheorem::divided_by`, `methods::membership::nonzero_how`).
+#[derive(Clone, Debug)]
+pub struct NotZero {
+    pub term: Node,
+    pub by: NonzeroBy,
+}
+
+/// Why a part a reason divides by is not zero.
+#[derive(Clone, Debug)]
+pub enum NonzeroBy {
+    /// A line the reason rests on says so: `line` is what says it, as the
+    /// check read it, `d ≠ 0` either way round or a sign, `0 < d`, `d > 0`,
+    /// `d < 0` or `0 > d`; `from` is the sentence it is read from, `line`
+    /// itself or a fact implying it, `d ∈ ℕ` of `d > 0`.
+    Stated { line: Node, from: Node },
+    /// Numerals alone, whose value is not zero.
+    Numerals,
+    /// A positive integer by what the page says once: k, j·(j + 1), 2^n
+    /// and (k + 1)! where k, j and n are letters in ℕ.
+    Positive,
 }
 
 /// A term a step puts where a notation asks a number system, and how the

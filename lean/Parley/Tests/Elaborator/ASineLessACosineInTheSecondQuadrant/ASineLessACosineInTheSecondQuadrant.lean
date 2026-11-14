@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import NormTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -36,6 +34,8 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Trigonometry
@@ -73,7 +73,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
     have hI : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)))
     exact hI
   -- 12. algebra
-  have s12 : x - Real.pi / 2 + Real.pi / 2 = x := by parley_ring
+  have s12 : x - Real.pi / 2 + Real.pi / 2 = x := by ring1
   -- 13. substitute (x − π/2) + π/2 = x (line 12)
   have s13 : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos x := congrArg (fun t : ℝ => Real.cos t) s12
   -- 14. real arithmetic
@@ -84,9 +84,9 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   -- 16. substitute sin(π/2) = 1 (line 14)
   have s16 : Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) = Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * 1 := congrArg (fun t : ℝ => Real.cos (x - Real.pi / 2) * 0 - Real.sin (x - Real.pi / 2) * t) s14b
   -- 17. algebra, from 11, 13, 15, 16
-  have s17 : Real.cos x = -Real.sin (x - Real.pi / 2) := by linear_combination (norm := parley_norm) s11 + (-1) * s13 + s15 + s16
+  have s17 : Real.cos x = -Real.sin (x - Real.pi / 2) := by linear_combination (norm := ring_nf) s11 + (-1) * s13 + s15 + s16
   -- 18. algebra, from 17
-  have s18 : Real.sin (x - Real.pi / 2) = -Real.cos x := by linear_combination (norm := parley_norm) s17
+  have s18 : Real.sin (x - Real.pi / 2) = -Real.cos x := by linear_combination s17
   -- 19. transitivity, from 10, 18
   have s19 : 0 ≤ -Real.cos x := by exact LE.le.trans_eq s10 s18
   -- 20. inequalities, from 5, 19
@@ -98,7 +98,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
     have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
     exact hI
   -- 23. algebra, from 17, 22
-  have s23 : 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) = (Real.sin x - Real.cos x) ^ 2 := by linear_combination (norm := parley_norm) (2 * Real.sin x) * s17 + (-1) * s22
+  have s23 : 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) = (Real.sin x - Real.cos x) ^ 2 := by linear_combination (2 * Real.sin x) * s17 + (-1) * s22
   -- 24. inequalities
   have s24 : 1 ^ 2 ≤ 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) := by linarith only [s21]
   -- 25. transitivity, from 23, 24

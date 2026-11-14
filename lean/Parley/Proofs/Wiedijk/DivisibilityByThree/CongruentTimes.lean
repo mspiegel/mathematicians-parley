@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/wiedijk/divisibility-by-three.proof by parley build lean. -/
@@ -33,7 +33,7 @@ theorem congruent_times (a : ℤ) (b : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (h
   have s2 : n ∣ (a - b) * c := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := c) s1)
   -- 3. substitute
   have s3 : n ∣ a * c - b * c := by
-    have c1 : (a - b) * c = a * c - b * c := by parley_ring
+    have c1 : (a - b) * c = a * c - b * c := by ring1
     have row1 : n ∣ a * c - b * c := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3

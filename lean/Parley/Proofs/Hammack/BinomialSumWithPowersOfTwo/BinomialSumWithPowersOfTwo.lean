@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -61,7 +60,7 @@ theorem binomial_sum_with_powers_of_two (n : ℤ) (hH1 : 0 ≤ n) :
     -- 3.1. mun:one-power m := n − k
     have s3_1 : (1 ^ (n - k) : ℚ) = 1 := by exact (Parley.Items.Stdlib.Numbers.mun_one_power (m := n - k))
     -- 3.2. algebra, from 3.1
-    linear_combination (norm := parley_norm) (2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ)) * s3_1
+    linear_combination (2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ)) * s3_1
   -- 4. arithmetic
   have s4 : (1 + 2 : ℤ) = 3 := by parley_arith
   -- 5. calculation

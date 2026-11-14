@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/divides-times-common-factor.proof by parley build lean. -/
@@ -30,7 +30,7 @@ theorem divides_times_common_factor (M : ℤ) (N : ℤ) (K : ℤ) (hH4 : M ∣ N
   -- 2. calculation
   have s2 : N * K = M * K * j := by
     calc N * K = M * j * K := congrArg (fun t : ℤ => t * K) s1
-      _ = M * K * j := by parley_ring
+      _ = M * K * j := by ring1
   -- 3. def:divides d := M·K, n := N·K, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := M * K) (n := N * K))).mpr ⟨j, s2⟩
 

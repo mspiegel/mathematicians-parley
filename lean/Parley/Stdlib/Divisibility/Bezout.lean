@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.ModEq
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Divisibility
@@ -39,7 +39,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     (∃ x : ℤ, ∃ y : ℤ, a * x + b * y = (Int.gcd a b : ℤ)) := by
   set S : Set ℤ := {t : ℤ | 0 < t ∧ (∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)} with hD1
   -- 1. algebra
-  have s1 : b = a * 0 + b * 1 := by parley_ring
+  have s1 : b = a * 0 + b * 1 := by ring_nf
   -- 2. def:set-builder u := b, from D1, 1
   have s2 : b ∈ S := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n}) (u := b))).mpr ⟨hH2, (0 : ℤ), (1 : ℤ), s1⟩
   -- 3. mun:set-builder-subset, from D1
@@ -66,7 +66,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
     -- 8.2. instantiate s := a·x + b·y in line 4, from 8.1
     exact (s4b (a * x + b * y) s8_1)
   -- 9. algebra
-  have s9 : a = a * 1 + b * 0 := by parley_ring
+  have s9 : a = a * 1 + b * 0 := by ring_nf
   -- 10. thm:least-combination-divides c := a, u := 1, v := 0, from 6, 7, 8, 9
   have s10 : d ∣ a := by exact (Parley.Stdlib.Divisibility.LeastCombinationDivides.least_combination_divides (a := a) (b := b) hH2 (c := a) (d := d) s6 (u := (1 : ℤ)) (v := (0 : ℤ)) (x₀ := x₀) (y₀ := y₀) s9 s7 s8)
   -- 11. thm:least-combination-divides c := b, u := 0, v := 1, from 1, 6, 7, 8

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -28,7 +28,7 @@ namespace Parley.Proofs.Setmm.MinusOneMod.MinusOneMod
 theorem minus_one_mod (M : ℤ) (hH1 : 0 < M) :
     (-1 : ℤ) % M = M - 1 := by
   -- 1. algebra
-  have s1 : -1 * M + (M - 1) = -1 := by parley_ring
+  have s1 : -1 * M + (M - 1) = -1 := by ring1
   -- 2. exhibit, from 1
   have s2 : ∃ q : ℤ, q * M + (M - 1) = -1 := ⟨(-1 : ℤ), s1⟩
   -- 3. mun:nat-minus-one n := M

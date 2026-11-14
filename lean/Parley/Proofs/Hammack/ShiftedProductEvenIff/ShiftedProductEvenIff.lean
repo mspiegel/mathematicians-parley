@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -48,7 +47,7 @@ theorem shifted_product_even_iff (a : ℤ) (b : ℤ) :
       -- 2.1. obtain k: def:even n := a − 3, from C1
       obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a - 3))).mp hC1
       -- 2.2. algebra, from 2.1
-      have s2_2 : a = 2 * (k + 1) + 1 := by linear_combination (norm := parley_norm) s2_1
+      have s2_2 : a = 2 * (k + 1) + 1 := by linear_combination s2_1
       -- 2.3. def:odd n := a, from 2.2
       have s2_3 : Odd a := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a))).mpr ⟨k + 1, s2_2⟩
       -- 2.4. mun:or-left P := a is odd, Q := b is even, from 2.3
@@ -65,7 +64,7 @@ theorem shifted_product_even_iff (a : ℤ) (b : ℤ) :
           -- 2.6.1. obtain k: def:odd n := b, from C4
           obtain ⟨k, s2_6_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := b))).mp hC4
           -- 2.6.2. algebra, from 2.6.1
-          have s2_6_2 : b ^ 2 = 2 * (2 * k ^ 2 + 2 * k) + 1 := by linear_combination (norm := parley_norm) (b + 2 * k + 1) * s2_6_1
+          have s2_6_2 : b ^ 2 = 2 * (2 * k ^ 2 + 2 * k) + 1 := by linear_combination (b + 2 * k + 1) * s2_6_1
           -- 2.6.3. def:odd n := b², from 2.6.2
           have s2_6_3 : Odd (b ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := b ^ 2))).mpr ⟨2 * k ^ 2 + 2 * k, s2_6_2⟩
           -- 2.6.4. mun:not-both n := b², from C2
@@ -81,7 +80,7 @@ theorem shifted_product_even_iff (a : ℤ) (b : ℤ) :
       -- 3.1. obtain k: def:odd, from C5
       obtain ⟨k, s3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a))).mp hC5
       -- 3.2. algebra, from 3.1
-      have s3_2 : a - 3 = 2 * (k - 1) := by linear_combination (norm := parley_norm) s3_1
+      have s3_2 : a - 3 = 2 * (k - 1) := by linear_combination s3_1
       -- 3.3. def:even n := a − 3, from 3.2
       have s3_3 : Even (a - 3) := ((Parley.Items.Stdlib.Divisibility.def_even (n := a - 3))).mpr ⟨k - 1, s3_2⟩
       -- 3.4. mun:even-product a := a − 3, x := b², from 3.3
@@ -90,7 +89,7 @@ theorem shifted_product_even_iff (a : ℤ) (b : ℤ) :
       -- 3.5. obtain k: def:even, from C6
       obtain ⟨k, s3_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp hC6
       -- 3.6. algebra, from 3.5
-      have s3_6 : (a - 3) * b ^ 2 = 2 * (2 * (a - 3) * k ^ 2) := by linear_combination (norm := parley_norm) (a * b + 2 * a * k - 3 * b - 6 * k) * s3_5
+      have s3_6 : (a - 3) * b ^ 2 = 2 * (2 * (a - 3) * k ^ 2) := by linear_combination (a * b + 2 * a * k - 3 * b - 6 * k) * s3_5
       -- 3.7. def:even n := (a − 3)·b², from 3.6
       exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (a - 3) * b ^ 2))).mpr ⟨2 * (a - 3) * k ^ 2, s3_6⟩
 

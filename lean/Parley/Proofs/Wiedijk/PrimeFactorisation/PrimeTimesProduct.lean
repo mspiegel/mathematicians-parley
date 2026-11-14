@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -36,6 +34,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Proofs.Wiedijk.PrimeFactorisation
 public import Parley.Items.Stdlib.Functions
@@ -129,11 +128,11 @@ theorem prime_times_product (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) (r
   -- 12. calculation
   have r146_1 : j ≥ 1 := by exact s2a
   have s12 : p * r = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by
-    calc p * r = r * p := by parley_ring
+    calc p * r = r * p := by ring1
       _ = r * h (j + 1) := congrArg (fun t : ℤ => r * t) s10.symm
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (g i : ℤ)) * h (j + 1) := s11.symm
       _ = (∏ i ∈ Finset.Icc (1 : ℤ) j, (h i : ℤ)) * h (j + 1) := congrArg (fun t : ℤ => t * h (j + 1)) s7.symm
-      _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1).symm
+      _ = (∏ i ∈ Finset.Icc (1 : ℤ) (j + 1), (h i : ℤ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_product_extended (t := h) (a := (1 : ℤ)) (n := j) r146_1).symm; push_cast at h ⊢; linear_combination h)
   -- 13. exhibit, from 4, 6, 12
   have s13 : ∃ k : ℤ, 0 < k ∧ (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) k : Set ℤ) {n : ℤ | 0 < n} ∧ (p * r = (∏ i ∈ Finset.Icc (1 : ℤ) k, (f i : ℤ)) ∧ (∀ i : ℤ, i ∈ Finset.Icc 1 k → Nat.Prime (f i).toNat))) := ⟨j + 1, add_pos (s2a) (by norm_num), h, s6, ⟨s12, s4⟩⟩
   -- 14. D1, from 13

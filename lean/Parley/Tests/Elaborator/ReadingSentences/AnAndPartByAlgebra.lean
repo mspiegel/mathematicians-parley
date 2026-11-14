@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -25,6 +24,6 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartByAlgebra
 theorem an_and_part_by_algebra (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ b = 2) :
     b * b = 4 := by
   -- 1. algebra, from H3
-  linear_combination (norm := parley_norm) (b + 2) * hH3.2
+  linear_combination (b + 2) * hH3.2
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartByAlgebra

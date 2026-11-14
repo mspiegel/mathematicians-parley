@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs
@@ -34,6 +32,8 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum
@@ -68,7 +68,7 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
       exact row1
     -- 2.4. calculation
     calc (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = (N - 1 + 1) * (N ^ 2 - N) + N ^ 2 := s2_3
-      _ = N ^ 3 := by parley_ring
+      _ = N ^ 3 := by ring1
   · skip
     -- 2.5. mun:sum-single a := 0
     have s2_5 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (a := (0 : ℤ)))
@@ -77,7 +77,7 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
       have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (n := (0 : ℤ)) (by norm_num)))
       simpa only [Int.cast_one, Int.cast_zero, sub_zero, zero_add] using hI
     -- 2.7. algebra, from 2.5, 2.6
-    have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by linear_combination (norm := parley_norm) s2_5 + (-1) * s2_6
+    have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by linear_combination (norm := ring_nf) s2_5 + (-1) * s2_6
     -- 2.8. calculation
     have s2_8 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 ^ 3 := by
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := s2_7

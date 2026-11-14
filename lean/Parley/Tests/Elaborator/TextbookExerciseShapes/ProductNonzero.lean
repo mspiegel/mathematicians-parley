@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -14,6 +13,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/textbook-exercise-shapes.proof by parley build lean. -/
@@ -27,7 +27,7 @@ theorem product_nonzero (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH4 : y ≠ 0) :
   -- 1. contradiction
   intro hS
   -- 1.1. algebra
-  have s1_1 : 0 * y = 0 := by parley_ring
+  have s1_1 : 0 * y = 0 := by ring1
   -- 1.2. calculation
   have s1_2 : x * y = 0 * y := by
     calc x * y = 0 := hS

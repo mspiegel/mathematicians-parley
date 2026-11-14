@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -30,6 +29,6 @@ theorem a_define_read_in_an_algebra_step (a : ℝ) (b : ℝ) (hH3 : a + 1 = 2 * 
   have s1 : e = 2 * b := Eq.subst (motive := (fun t : ℝ => t = 2 * b)) hD1.symm hH3
   -- 2. algebra, from D1, 1
   simp only [hD1] at s1
-  linear_combination (norm := parley_norm) s1
+  linear_combination s1
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnAlgebraStep

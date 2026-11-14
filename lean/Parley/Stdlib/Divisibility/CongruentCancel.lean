@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from corpus/stdlib/divisibility.proof by parley build lean. -/
@@ -33,7 +33,7 @@ theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (
   have s1 : n ∣ x * c - y * c := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp hH5
   -- 2. substitute
   have s2 : n ∣ (x - y) * c := by
-    have c1 : x * c - y * c = (x - y) * c := by parley_ring
+    have c1 : x * c - y * c = (x - y) * c := by ring1
     have row1 : n ∣ (x - y) * c := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s1
     exact row1
   -- 3. thm:coprime-divides x := x − y, from H6, 2

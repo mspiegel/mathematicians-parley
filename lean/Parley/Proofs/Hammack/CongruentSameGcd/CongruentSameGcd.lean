@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -36,7 +35,7 @@ theorem congruent_same_gcd (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a 
   -- 2. obtain k: def:divides d := n, n := a − b, from 1
   obtain ⟨k, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := a - b))).mp s1
   -- 3. algebra, from 2
-  have s3 : a = k * n + b := by linear_combination (norm := parley_norm) s2
+  have s3 : a = k * n + b := by linear_combination s2
   -- 4. thm:gcd-with-remainder b := n, q := k, r := b, from 3
   exact (Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder.gcd_with_remainder (a := a) (b := n) hH3 (q := k) (r := b) s3)
 

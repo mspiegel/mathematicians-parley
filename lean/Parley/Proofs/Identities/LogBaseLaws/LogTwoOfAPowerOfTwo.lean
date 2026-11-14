@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import PowerTactics
 public import RealTactics
@@ -15,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -44,6 +44,6 @@ theorem log_two_of_a_power_of_two (n : ℤ) (hH1 : 0 < n) :
   -- 2. calculation
   have r17_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
   calc Real.log (2 ^ n.toNat : ℝ) / Real.log (2 : ℝ) = (n : ℝ) * Real.log (2 : ℝ) / Real.log (2 : ℝ) := congrArg (fun t : ℝ => t / Real.log (2 : ℝ)) s1
-    _ = (n : ℝ) := by parley_ring
+    _ = (n : ℝ) := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r17_1; field
 
 end Parley.Proofs.Identities.LogBaseLaws.LogTwoOfAPowerOfTwo

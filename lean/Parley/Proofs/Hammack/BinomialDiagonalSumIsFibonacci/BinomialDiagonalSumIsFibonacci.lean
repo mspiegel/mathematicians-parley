@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
@@ -36,6 +35,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Counting
@@ -139,7 +139,7 @@ theorem binomial_diagonal_sum_is_fibonacci (n : ℤ) (hH1 : 0 ≤ n) (F : ℤ �
         calc S (j + 1 + 1) = S (j + 1) + S j := s2_17
           _ = G (j + 1) + S j := congrArg (fun t : ℤ => t + S j) hIH.2
           _ = G (j + 1) + G j := congrArg (fun t : ℤ => G (j + 1) + t) hIH.1
-          _ = G j + G (j + 1) := by parley_ring
+          _ = G j + G (j + 1) := by ring1
           _ = F (j + 1) + G (j + 1) := congrArg (fun t : ℤ => t + G (j + 1)) s2_21.symm
           _ = G (j + 1 + 1) := s2_20.symm
       -- 2.23. join 2.16, 2.22

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Sets
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
@@ -26,6 +25,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
@@ -49,7 +49,7 @@ theorem product_constant {α : Type*} (X : Set α) (hH2 : X.Finite) (c : ℝ) :
       -- 1.1. mun:product-empty
       have s1_1 : (∏ᶠ x ∈ (∅ : Set α), (c : ℝ)) = 1 := by exact (Parley.Items.Stdlib.Sums.mun_product_empty (X := Set.univ) (t := (fun x : α => c)))
       -- 1.2. algebra
-      have s1_2 : c ^ 0 = 1 := by parley_ring
+      have s1_2 : c ^ 0 = 1 := by ring1
       -- 1.3. substitute
       have s1_3 : c ^ (∅ : Set α).ncard = 1 := by
         have c1 : 0 = ((∅ : Set α).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_empty (α := α)).symm

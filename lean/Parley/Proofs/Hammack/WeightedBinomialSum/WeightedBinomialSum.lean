@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.Field.Basic
@@ -33,6 +31,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum
 
@@ -48,9 +47,9 @@ theorem weighted_binomial_sum (n : ℤ) (hH1 : 0 < n) :
   have r172_1 : 0 ≤ n - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) hH1)
   have s1 : (∑ k ∈ Finset.Icc (1 : ℤ) (n - 1 + 1), ((k : ℚ) * (LeanBridges.Counting.choose (n - 1 + 1) k : ℚ) : ℚ)) = ((n : ℚ) - 1 + 1) * 2 ^ (n - 1) := by (have h := (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum.weighted_row_sum (m := n - 1) r172_1); simp only [parley_zpow_toNat (n := n - 1) (h := r172_1)] at h ⊢; exact_mod_cast h)
   -- 2. substitute
-  have c1 : n - 1 + 1 = n := by parley_ring
+  have c1 : n - 1 + 1 = n := by ring1
   have row1 : (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = (n : ℚ) * 2 ^ (n - 1) := by
-    have e_w : (n : ℚ) - 1 + 1 = (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
+    have e_w : (n : ℚ) - 1 + 1 = (n : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination h
     (have h := Eq.subst (motive := (fun t : ℚ => (∑ k ∈ Finset.Icc (1 : ℤ) n, ((k : ℚ) * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = t * 2 ^ (n - 1))) e_w (Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) t, ((k : ℚ) * (LeanBridges.Counting.choose t k : ℚ) : ℚ)) = ((n : ℚ) - 1 + 1) * 2 ^ (n - 1))) c1 s1); push_cast at h ⊢; exact_mod_cast h)
   exact row1
 

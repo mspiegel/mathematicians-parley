@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -53,7 +52,7 @@ theorem sqrt_of_sum_bound (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
   have s8 : Real.sqrt (a + b) ^ 2 ≤ (Real.sqrt a + Real.sqrt b) ^ 2 := by
     calc Real.sqrt (a + b) ^ 2 = a + b := s4b
       _ ≤ a + b + 2 * (Real.sqrt a * Real.sqrt b) := s7
-      _ = (Real.sqrt a + Real.sqrt b) ^ 2 := by linear_combination (norm := parley_norm) (-1) * s1b + (-1) * s2b
+      _ = (Real.sqrt a + Real.sqrt b) ^ 2 := by linear_combination (-1) * s1b + (-1) * s2b
   -- 9. mun:square-le x := √(a + b), y := √a + √b, from 1, 2, 4, 5, 8
   exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (a + b)) (y := Real.sqrt a + Real.sqrt b) s4a s5)).mpr s8
 

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-product.proof by parley build lean. -/
@@ -33,7 +33,7 @@ theorem divides_product (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (hH5 : a ∣ b) 
   have s3 : b * d = a * c * (k * m) := by
     calc b * d = a * k * d := congrArg (fun t : ℤ => t * d) s1
       _ = a * k * (c * m) := congrArg (fun t : ℤ => a * k * t) s2
-      _ = a * c * (k * m) := by parley_ring
+      _ = a * c * (k * m) := by ring1
   -- 4. def:divides d := a·c, n := b·d, from 3
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a * c) (n := b * d))).mpr ⟨k * m, s3⟩
 

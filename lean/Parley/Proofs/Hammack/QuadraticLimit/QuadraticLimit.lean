@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -32,6 +30,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -93,16 +92,16 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
       have s1_4_12 : abs ((4 * x + 4) * (x - 1)) = abs (4 * x + 4) * abs (x - 1) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := 4 * x + 4) (y := x - 1))
       -- 1.4.13. substitute
       have s1_4_13 : abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := by
-        have c1 : (4 * x + 4) * (x - 1) = f x - 5 := by linear_combination (norm := parley_norm) (-1) * s1_4_11
+        have c1 : (4 * x + 4) * (x - 1) = f x - 5 := by linear_combination (-1) * s1_4_11
         have row1 : abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := Eq.subst (motive := (fun t : ℝ => abs t = abs (4 * x + 4) * abs (x - 1))) c1 s1_4_12
         exact row1
       -- 1.4.14. calculation
       have r99_1 : ε / 12 > 0 := by exact s1_1
       calc abs (f x - 5) = abs (4 * x + 4) * abs (x - 1) := s1_4_13
         _ < abs (4 * x + 4) * (ε / 12) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 1)) (y := ε / 12) (c := abs (4 * x + 4)) s1_4_9.1)).mp s1_4_1.2
-        _ = ε / 12 * abs (4 * x + 4) := by parley_ring
+        _ = ε / 12 * abs (4 * x + 4) := by ring1
         _ ≤ ε / 12 * 12 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (4 * x + 4)) (y := (12 : ℝ)) (c := ε / 12) s1_4_10 r99_1)
-        _ = ε := by parley_ring
+        _ = ε := by ring1
     -- 1.5. exhibit, from 1.3, 1.4
     exact ⟨m, ⟨s1_3, s1_4⟩⟩
   -- 2. def:limit-at D := ℝ, c := 1, L := 5, from 1

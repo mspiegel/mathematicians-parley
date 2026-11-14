@@ -1,10 +1,8 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -24,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 
@@ -45,14 +44,14 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
   rcases s2 with hC1 | hC2
   · skip
     -- 3.1. algebra
-    have s3_1 : N - 1 + 1 = N := by parley_ring
+    have s3_1 : N - 1 + 1 = N := by ring1
     -- 3.2. calculation
     calc (LeanBridges.Counting.factorial N : ℤ) = (LeanBridges.Counting.factorial (N - 1 + 1) : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s3_1.symm
       _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * (N - 1 + 1) := by exact (Parley.Items.Stdlib.Counting.def_factorial_3 (n := N - 1) (le_of_lt hC1))
       _ = (LeanBridges.Counting.factorial (N - 1) : ℤ) * N := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial (N - 1) : ℤ) * t) s3_1
   · skip
     -- 3.3. algebra, from C2
-    have s3_3 : N = 1 := by linear_combination (norm := parley_norm) hC2
+    have s3_3 : N = 1 := by linear_combination hC2
     -- 3.4. calculation
     have s3_4 : (LeanBridges.Counting.factorial (N - 1) : ℤ) = 1 := by
       calc (LeanBridges.Counting.factorial (N - 1) : ℤ) = (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) hC2; push_cast at h ⊢; exact_mod_cast h)

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
 
@@ -35,13 +35,13 @@ namespace Parley.Proofs.Hammack.CommonMultipleExists.CommonMultipleExists
 theorem common_multiple_exists (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) :
     ¬ (fun n : ℤ => p * n) '' {n : ℤ | 0 < n} ∩ (fun n : ℤ => q * n) '' {n : ℤ | 0 < n} = ∅ := by
   -- 1. algebra
-  have s1 : p * q * p = p * (p * q) := by parley_ring
+  have s1 : p * q * p = p * (p * q) := by ring1
   -- 2. exhibit, from 1
   have s2 : ∃ n : ℤ, 0 < n ∧ p * q * p = p * n := ⟨p * q, mul_pos (hH1) (hH2), s1⟩
   -- 3. def:set-image u := (p·q)·p, from 2
   have s3 : p * q * p ∈ (fun n : ℤ => p * n) '' {n : ℤ | 0 < n} := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => p * n)) (Y := {n : ℤ | 0 < n}) (u := p * q * p) (Z := Set.univ) (Set.mapsTo_univ _ _))).mpr s2
   -- 4. algebra
-  have s4 : p * q * p = q * (p * p) := by parley_ring
+  have s4 : p * q * p = q * (p * p) := by ring1
   -- 5. exhibit, from 4
   have s5 : ∃ n : ℤ, 0 < n ∧ p * q * p = q * n := ⟨p * p, mul_pos (hH1) (hH1), s4⟩
   -- 6. def:set-image u := (p·q)·p, from 5

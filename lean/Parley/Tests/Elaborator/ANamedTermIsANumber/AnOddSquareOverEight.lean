@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/a-named-term-is-a-number.proof by parley build lean. -/
@@ -33,7 +33,7 @@ theorem an_odd_square_over_eight (N : ℤ) :
   have s1 : ((M : ℚ) ^ 2 - 1) / 8 = (N : ℚ) * ((N : ℚ) + 1) / 2 := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    parley_ring
+    ring1
   (have h := s1; rw [hD1] at h; push_cast at h ⊢; exact h)
 
 end Parley.Tests.Elaborator.ANamedTermIsANumber.AnOddSquareOverEight

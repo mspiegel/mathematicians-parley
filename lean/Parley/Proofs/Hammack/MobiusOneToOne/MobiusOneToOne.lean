@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -11,6 +10,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -55,7 +55,7 @@ theorem mobius_one_to_one (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set
     -- 1.4. algebra, from 1.3
     have r29_1 : s - 2 ≠ 0 := fun h => s1_1 (by linarith only [h])
     have r29_2 : t - 2 ≠ 0 := fun h => s1_2 (by linarith only [h])
-    linear_combination (norm := parley_field) (-((1 / 11 : ℝ) * s * t) + (2 / 11 : ℝ) * s + (2 / 11 : ℝ) * t - (4 / 11 : ℝ)) * s1_3
+    have hz1 : s - 2 ≠ 0 := r29_1; have hz2 : t - 2 ≠ 0 := r29_2; linear_combination (norm := (field)) (-((1 / 11 : ℝ) * s * t) + (2 / 11 : ℝ) * s + (2 / 11 : ℝ) * t - (4 / 11 : ℝ)) * s1_3
   -- 2. def:one-to-one, from H1, 1
   exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, s1⟩
 

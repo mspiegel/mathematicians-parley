@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
 
@@ -50,7 +50,7 @@ theorem prime_divides_a_factor (a : ℤ) (b : ℤ) (p : ℤ) (hH4 : Nat.Prime p.
       exact row1
     -- 3.4. substitute
     have s3_4 : p ∣ b * a := by
-      have c1 : a * b = b * a := by parley_ring
+      have c1 : a * b = b * a := by ring1
       have row1 : p ∣ b * a := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 hH5
       exact row1
     -- 3.5. thm:coprime-divides x := b, c := a, n := p, from 1, 3.3, 3.4

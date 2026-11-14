@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Data.Rat.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -27,6 +27,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -46,6 +47,6 @@ theorem partial_sum_step (n : ℤ) (hH1 : 0 < n) :
   have r218_1 : n ≥ 1 := by linarith only [hH1]
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 / 2 ^ LeanBridges.Counting.factorial (n + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) (a := (1 : ℤ)) (n := n) r218_1)
   -- 3. algebra, from D0, 2
-  linear_combination (norm := parley_field) s2
+  have hz1 : (2 ^ LeanBridges.Counting.factorial (n + 1) : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) s2
 
 end Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumStep

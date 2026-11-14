@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/whole-number-by-size.proof by parley build lean. -/
@@ -60,7 +60,7 @@ theorem whole_number_by_size (A : ℝ) :
         have whole1 : ∃ m : ℤ, (m : ℝ) = -A := by obtain ⟨m, hm⟩ := s4_4; exact ⟨m, by exact_mod_cast hm⟩
         exact ⟨(0 - (Classical.choose whole1 : ℤ)), by (push_cast; simp only [Classical.choose_spec whole1])⟩
       -- 4.6. substitute
-      have c1 : 0 - -A = A := by parley_ring
+      have c1 : 0 - -A = A := by ring1
       have row1 : ∃ m : ℤ, (m : ℝ) = A := Eq.subst (motive := (fun t : ℝ => ∃ m : ℤ, (m : ℝ) = t)) c1 s4_5
       exact row1
 

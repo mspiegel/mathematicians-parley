@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -13,6 +12,7 @@ public import Mathlib.Data.Set.Function
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -49,7 +49,7 @@ theorem compose_rational_and_line (f : ℝ → ℝ) (g : ℝ → ℝ) (hH3 : ∀
     calc (g ∘ f) x = g (f x) := by exact (Parley.Items.Stdlib.Functions.mun_composition_value (Y := (Set.univ : Set ℝ)) (X := (Set.univ : Set ℝ)) (f := f) (g := g) (x := x) (W := Set.univ) (Set.mem_univ _) (Set.mapsTo_univ _ _) (Set.mapsTo_univ _ _))
       _ = 3 * f x + 2 := by exact (hH4 (f x))
       _ = 3 * (1 / (x ^ 2 + 1)) + 2 := congrArg (fun t : ℝ => 3 * t + 2) (hH3 x)
-      _ = 3 / (x ^ 2 + 1) + 2 := by parley_ring
+      _ = 3 / (x ^ 2 + 1) + 2 := by have hz1 : x ^ 2 + 1 ≠ 0 := r27_1; field
   -- 1.5. mun:function-value f := g
   -- 1.6. calculation
   have s1_6 : (f ∘ g) x = 1 / ((3 * x + 2) ^ 2 + 1) := by

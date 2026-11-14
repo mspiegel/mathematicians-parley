@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Basic.Real.Basic
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/factorials-by-arithmetic.proof by parley build lean. -/
 
@@ -28,6 +28,6 @@ namespace Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialSaidOnce
 theorem a_factorial_said_once (x : ℝ) :
     x * (LeanBridges.Counting.factorial (0 : ℤ) : ℝ) = (LeanBridges.Counting.factorial (0 : ℤ) : ℝ) * x := by
   -- 1. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialSaidOnce

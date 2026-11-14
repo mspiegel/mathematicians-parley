@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -31,7 +30,7 @@ theorem a_define_read_in_a_contradicted_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
   -- 2. contradiction
   intro hS
   -- 2.1. algebra, from D1, S
-  have s2_1 : a + 1 = 0 := by linear_combination (norm := parley_norm) hS
+  have s2_1 : a + 1 = 0 := by linear_combination hS
   exact s1 s2_1
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAContradictedLine

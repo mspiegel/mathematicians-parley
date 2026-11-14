@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -43,6 +41,7 @@ public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Lattice
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -94,7 +93,7 @@ theorem leibniz :
       -- 3.2.1. instantiate n := n in line 2
       have s3_2_1 : Real.pi / 4 - (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) = (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (s2 n (le_of_lt hK2))
       -- 3.2.2. algebra, from 3.2.1
-      have s3_2_2 : (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4 = -((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by linear_combination (norm := parley_norm) ((-16) / ((4) * (4))) * s3_2_1
+      have s3_2_2 : (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4 = -((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by linear_combination (norm := (field)) ((-16) / (((4 : ℝ)) * ((4 : ℝ)))) * s3_2_1
       -- 3.2.3. calculation
       have s3_2_3 : (abs (-1) : ℤ) = 1 := by
         calc (abs (-1) : ℤ) = abs 1 := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := (1 : ℤ)))
@@ -112,14 +111,14 @@ theorem leibniz :
       -- 3.2.6. def:abs x := J(n + 1), from 3.2.5
       have s3_2_6 : abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) s3_2_5a
       -- 3.2.7. algebra, from 3.2.5
-      have s3_2_7 : 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_ring
+      have s3_2_7 : 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by field
       -- 3.2.8. calculation
       have s3_2_8 : abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
         calc abs ((∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℝ) + 1) : ℝ)) - Real.pi / 4) = abs (-((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))) := congrArg (fun t : ℝ => abs t) s3_2_2
           _ = abs ((-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := (-1) ^ (n + 1).toNat * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))))
           _ = abs ((-1) ^ (n + 1).toNat) * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := ((-1) ^ (n + 1).toNat : ℝ)) (y := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)))
           _ = 1 * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
-              have e_w : (abs ((-1) ^ (n + 1).toNat) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3_2_4; push_cast at h; linear_combination (norm := parley_norm) h
+              have e_w : (abs ((-1) ^ (n + 1).toNat) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3_2_4; push_cast at h ⊢; linear_combination h
               exact congrArg (fun u : ℝ => u * abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) e_w
           _ = 1 * (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := congrArg (fun u : ℝ => 1 * u) s3_2_6
           _ = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := s3_2_7

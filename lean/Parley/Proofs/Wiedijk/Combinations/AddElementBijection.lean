@@ -56,7 +56,6 @@ theorem add_element_bijection {α : Type*} (Y : Set α) (a : α) (hH2 : ¬ a ∈
       _ = T \ ({a} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_difference_of_union (Y := T) (a := a))
       _ = T := by exact (Parley.Items.Stdlib.Sets.mun_difference_absent (Y := T) (a := a) s1_4)
   -- 2. mun:image-of-injection, from D1, 1
-  push_cast at ⊢
   exact (Parley.Items.Stdlib.Functions.mun_image_of_injection (Y := {S ∈ 𝒫 Y | ∃ m : ℕ, S.encard = (m : ℕ∞) ∧ (m : ℤ) = j}) (a := a) s1)
 
 end Parley.Proofs.Wiedijk.Combinations.AddElementBijection

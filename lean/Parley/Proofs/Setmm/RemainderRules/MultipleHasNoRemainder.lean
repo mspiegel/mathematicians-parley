@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Divisibility
 public import Mathlib.Algebra.Group.Monoid
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall
 public import Parley.Proofs.Setmm.RemainderFacts.RemainderShifts
 
@@ -32,7 +32,7 @@ namespace Parley.Proofs.Setmm.RemainderRules.MultipleHasNoRemainder
 theorem multiple_has_no_remainder (A : ℤ) (M : ℝ) (hH3 : M > 0) :
     LeanBridges.Divisibility.mod ((A : ℝ) * M) M = 0 := by
   -- 1. algebra
-  have s1 : (A : ℝ) * M = M * (A : ℝ) := by parley_ring
+  have s1 : (A : ℝ) * M = M * (A : ℝ) := by ring1
   -- 2. calculation
   have r16_1 : (0 : ℤ) ≤ 0 := by parley_arith
   calc LeanBridges.Divisibility.mod ((A : ℝ) * M) M = LeanBridges.Divisibility.mod (M * (A : ℝ)) M := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s1

@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Ring.Int.Defs
@@ -41,8 +40,8 @@ theorem half_or_next_half (N : ℤ) :
     obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := N))).mp hC1
     -- 2.2. algebra, from 2.1
     have s2_2 : (N : ℚ) / 2 = (k : ℚ) := by
-      have s2_1_w : (N : ℚ) = 2 * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
-      linear_combination (norm := parley_norm) ((1) / ((2))) * s2_1_w
+      have s2_1_w : (N : ℚ) = 2 * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_1; push_cast at h; linear_combination h
+      linear_combination ((1) / (((2 : ℚ)))) * s2_1_w
     -- 2.3. membership, from 2.2
     have s2_3 : ∃ m : ℤ, (m : ℚ) = (N : ℚ) / 2 := ⟨k, by exact_mod_cast (s2_2).symm⟩
     -- 2.4. mun:or-left P := N/2 ∈ ℤ, Q := (N + 1)/2 ∈ ℤ, from 2.3
@@ -52,8 +51,8 @@ theorem half_or_next_half (N : ℤ) :
     obtain ⟨k, s2_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mp hC2
     -- 2.6. algebra, from 2.5
     have s2_6 : ((N : ℚ) + 1) / 2 = (k : ℚ) + 1 := by
-      have s2_5_w : (N : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination (norm := parley_norm) h
-      linear_combination (norm := parley_norm) ((1) / ((2))) * s2_5_w
+      have s2_5_w : (N : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_5; push_cast at h; linear_combination h
+      linear_combination ((1) / (((2 : ℚ)))) * s2_5_w
     -- 2.7. membership, from 2.6
     have s2_7 : ∃ m : ℤ, (m : ℚ) = ((N : ℚ) + 1) / 2 := ⟨k + 1, by exact_mod_cast (s2_6).symm⟩
     -- 2.8. mun:or-right P := N/2 ∈ ℤ, Q := (N + 1)/2 ∈ ℤ, from 2.7

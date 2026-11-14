@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Algebra.Field.Defs
@@ -27,6 +26,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -39,6 +39,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Mathlib.Topology.Defs.Filter
@@ -78,9 +79,9 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n →
       have s1_3_3 : n * (LeanBridges.Counting.factorial n : ℤ) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_positive (x := n) (y := (LeanBridges.Counting.factorial n : ℤ)) r128_1 s1_3_1)
       -- 1.3.4. calculation
       have s1_3_4 : 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) ≤ 4 / (n : ℚ) := by
-        calc 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) = (n : ℚ) * 2 ^ n.toNat / ((n : ℚ) * (LeanBridges.Counting.factorial n : ℚ)) := by parley_ring
+        calc 2 ^ n.toNat / (LeanBridges.Counting.factorial n : ℚ) = (n : ℚ) * 2 ^ n.toNat / ((n : ℚ) * (LeanBridges.Counting.factorial n : ℚ)) := by have hz1 : (LeanBridges.Counting.factorial n : ℚ) ≠ 0 := (by positivity); have hz2 : (n : ℚ) ≠ 0 := (by positivity); field
           _ ≤ 4 * (LeanBridges.Counting.factorial n : ℚ) / ((n : ℚ) * (LeanBridges.Counting.factorial n : ℚ)) := by exact (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (n : ℚ) * 2 ^ n.toNat) (y := 4 * (LeanBridges.Counting.factorial n : ℚ)) (c := (n : ℚ) * (LeanBridges.Counting.factorial n : ℚ)) (by exact_mod_cast s1_3_2) (by exact_mod_cast gt_iff_lt.mp s1_3_3))
-          _ = 4 / (n : ℚ) := by parley_ring
+          _ = 4 / (n : ℚ) := by have hz1 : (n : ℚ) ≠ 0 := (by positivity); have hz2 : (LeanBridges.Counting.factorial n : ℚ) ≠ 0 := (by positivity); field
       -- 1.3.5. mun:reciprocal-order x := N, y := n, from A2
       have r138_1 : N > 0 := by linarith only [s1_2a]
       have r138_2 : n > 0 := by linarith only [hK2]

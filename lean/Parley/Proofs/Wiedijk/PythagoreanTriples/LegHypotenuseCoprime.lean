@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -42,7 +41,7 @@ theorem leg_hypotenuse_coprime (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (
   have s2 : (Int.gcd b c : ℤ) ∣ c * c + b * -b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (Int.gcd b c : ℤ)) (a := c) (b := b) (x := c) (y := -b) s1c s1b)
   -- 3. substitute
   have s3 : (Int.gcd b c : ℤ) ∣ a * a := by
-    have c1 : c * c + b * -b = a * a := by linear_combination (norm := parley_norm) (-1) * hH4
+    have c1 : c * c + b * -b = a * a := by linear_combination (-1) * hH4
     have row1 : (Int.gcd b c : ℤ) ∣ a * a := Eq.subst (motive := (fun t : ℤ => (Int.gcd b c : ℤ) ∣ t)) c1 s2
     exact row1
   -- 4. def:gcd a := gcd(b, c), b := a, from 1

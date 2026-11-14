@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -11,6 +10,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -59,6 +59,6 @@ theorem sqrt_difference_reciprocal (x : ℝ) (hH2 : x ≥ 0) :
   -- 9. inequalities
   have s9 : Real.sqrt (x + 1) + Real.sqrt x ≠ 0 := ne_of_gt (by linarith only [s8])
   -- 10. algebra, from 2, 3, 9
-  linear_combination (norm := parley_field) ((1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s2b + ((-1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s3b
+  have hz1 : Real.sqrt (x + 1) + Real.sqrt x ≠ 0 := s9; linear_combination (norm := (field)) ((1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s2b + ((-1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s3b
 
 end Parley.Proofs.Identities.SqrtDifferenceReciprocal.SqrtDifferenceReciprocal

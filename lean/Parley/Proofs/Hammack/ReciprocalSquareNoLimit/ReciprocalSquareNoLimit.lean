@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -24,6 +23,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -36,8 +36,10 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
@@ -97,11 +99,11 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 19. substitute
   have r94_1 : p ≠ 0 := by exact s5
   have s19 : 1 / (N : ℝ) < p := by
-    have c1 : 1 / (1 / p) = p := by parley_ring
+    have c1 : 1 / (1 / p) = p := by field
     have row1 : 1 / (N : ℝ) < p := Eq.subst (motive := (fun t : ℝ => 1 / (N : ℝ) < t)) c1 s18
     exact row1
   -- 20. algebra
-  have s20 : 1 + 1 / (N : ℚ) - 1 = 1 / (N : ℚ) := by parley_ring
+  have s20 : 1 + 1 / (N : ℚ) - 1 = 1 / (N : ℚ) := by have hz1 : (N : ℚ) ≠ 0 := (by positivity); field
   -- 21. calculation
   have r103_1 : 1 / (N : ℚ) ≥ 0 := by linarith only [s15]
   have s21 : abs (1 + 1 / (N : ℝ) - 1) < p := by
@@ -118,7 +120,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   have s25 : (1 / (N : ℚ)) ^ 2 > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_positive (x := 1 / (N : ℚ)) s24)
   -- 26. substitute
   have s26 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := by
-    have c1 : (1 / (N : ℚ)) ^ 2 = (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 := by parley_ring
+    have c1 : (1 / (N : ℚ)) ^ 2 = (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 := by field
     have row1 : (1 + 1 / (N : ℚ)) ^ 2 - 2 * (1 + 1 / (N : ℚ)) + 1 > 0 := Eq.subst (motive := (fun t : ℚ => t > 0)) c1 s25
     exact row1
   -- 27. inequalities
@@ -126,7 +128,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
   -- 28. calculation
   have s28 : f (1 + 1 / (N : ℝ)) = (N : ℝ) ^ 2 := by
     calc f (1 + 1 / (N : ℝ)) = 1 / ((1 + 1 / (N : ℝ)) ^ 2 - 2 * (1 + 1 / (N : ℝ)) + 1) := by exact (hH2 (1 + 1 / (N : ℝ)) s17)
-      _ = (N : ℝ) ^ 2 := by parley_ring
+      _ = (N : ℝ) ^ 2 := by have hz1 : (N : ℝ) ≠ 0 := (by positivity); have hz2 : (1 + 1 / (N : ℝ)) ^ 2 - (1 + 1 / (N : ℝ)) * 2 + 1 ≠ 0 := (by rw [show (1 + 1 / (N : ℝ)) ^ 2 - (1 + 1 / (N : ℝ)) * 2 + 1 = (1 + 1 / (N : ℝ)) ^ 2 - 2 * (1 + 1 / (N : ℝ)) + 1 by ring]; exact (by exact_mod_cast s27)); field
   -- 29. mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 23
   have s29 : L - 1 < f (1 + 1 / (N : ℝ)) ∧ f (1 + 1 / (N : ℝ)) < L + 1 := by exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := f (1 + 1 / (N : ℝ))) (c := L) (δ := (1 : ℝ)))).mp s23
   -- 30. substitute f(1 + 1/N) = N² (line 28) into line 29

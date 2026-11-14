@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -13,6 +11,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -26,6 +25,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Reasoning
 public import Parley.Items.Stdlib.Sums
@@ -53,7 +53,7 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     -- 2.4. def:range-between k := N − K, a := 0, b := N, from 2.3
     have s2_4 : N - K ∈ Finset.Icc (0 : ℤ) N := ((Parley.Items.Stdlib.Sums.def_range_between (k := N - K) (a := (0 : ℤ)) (b := N))).mpr ⟨s2_3a, s2_3b⟩
     -- 2.5. algebra
-    have s2_5 : N - (N - K) = K := by parley_ring
+    have s2_5 : N - (N - K) = K := by ring1
     -- 2.6. substitute N − (N − K) = K (line 2.5)
     have s2_6 : (LeanBridges.Counting.factorial (N - (N - K)) : ℤ) = (LeanBridges.Counting.factorial K : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.factorial t : ℤ)) s2_5
     -- 2.7. mun:factorial-nat n := N − K, from 2.2
@@ -63,9 +63,9 @@ theorem choose_complement (N : ℤ) (hH1 : 0 ≤ N) (K : ℤ) :
     -- 2.9. calculation
     qify
     calc (LeanBridges.Counting.choose N K : ℚ) = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - K) : ℚ) * (LeanBridges.Counting.factorial K : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := K)) hC1
-      _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial K : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by parley_ring
+      _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial K : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by have hz1 : (LeanBridges.Counting.factorial (N - K) : ℚ) ≠ 0 := (by exact_mod_cast s2_7.ne'); have hz2 : (LeanBridges.Counting.factorial K : ℚ) ≠ 0 := (by exact_mod_cast s2_8.ne'); field
       _ = (LeanBridges.Counting.factorial N : ℚ) / ((LeanBridges.Counting.factorial (N - (N - K)) : ℚ) * (LeanBridges.Counting.factorial (N - K) : ℚ)) := by
-          have e_w : (LeanBridges.Counting.factorial K : ℚ) = (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_6.symm; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (LeanBridges.Counting.factorial K : ℚ) = (LeanBridges.Counting.factorial (N - (N - K)) : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_6.symm; push_cast at h ⊢; linear_combination h
           exact congrArg (fun t : ℚ => (LeanBridges.Counting.factorial N : ℚ) / (t * (LeanBridges.Counting.factorial (N - K) : ℚ))) e_w
       _ = (LeanBridges.Counting.choose N (N - K) : ℚ) := by exact ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) hH1 (k := N - K)) s2_4).symm
   · skip

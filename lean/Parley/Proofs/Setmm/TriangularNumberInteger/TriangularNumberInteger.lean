@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Ring.Int.Defs
@@ -40,8 +39,8 @@ theorem triangular_number_integer (n : ℤ) :
     obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp hC1
     -- 2.2. algebra, from 2.1
     have s2_2 : (n : ℚ) * ((n : ℚ) + 1) / 2 = (k : ℚ) * (2 * (k : ℚ) + 1) := by
-      have s2_1_w : (n : ℚ) = 2 * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_1; push_cast at h; linear_combination (norm := parley_norm) h
-      linear_combination (norm := parley_norm) ((2 * (k : ℚ) + (n : ℚ) + 1) / ((2))) * s2_1_w
+      have s2_1_w : (n : ℚ) = 2 * (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_1; push_cast at h; linear_combination h
+      linear_combination ((2 * (k : ℚ) + (n : ℚ) + 1) / (((2 : ℚ)))) * s2_1_w
     -- 2.3. membership, from 2.2
     exact ⟨k * (2 * k + 1), by exact_mod_cast (s2_2).symm⟩
   · skip
@@ -49,8 +48,8 @@ theorem triangular_number_integer (n : ℤ) :
     obtain ⟨k, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp hC2
     -- 2.5. algebra, from 2.4
     have s2_5 : (n : ℚ) * ((n : ℚ) + 1) / 2 = (2 * (k : ℚ) + 1) * ((k : ℚ) + 1) := by
-      have s2_4_w : (n : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
-      linear_combination (norm := parley_norm) ((2 * (k : ℚ) + (n : ℚ) + 2) / ((2))) * s2_4_w
+      have s2_4_w : (n : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination h
+      linear_combination ((2 * (k : ℚ) + (n : ℚ) + 2) / (((2 : ℚ)))) * s2_4_w
     -- 2.6. membership, from 2.5
     exact ⟨(2 * k + 1) * (k + 1), by exact_mod_cast (s2_5).symm⟩
 

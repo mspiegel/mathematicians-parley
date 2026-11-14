@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from proofs/hammack/binomial-on-the-diagonal.proof by parley build lean. -/
@@ -47,7 +47,7 @@ theorem binomial_on_the_diagonal (m : ℤ) (hH1 : 0 ≤ m) :
       have s1_4 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j (j + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := j) hK (k := j + 1))
       -- 1.5. substitute
       have s1_5 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := by
-        have c1 : j + 1 - 1 = j := by parley_ring
+        have c1 : j + 1 - 1 = j := by ring1
         have row1 : (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j j : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose j (j + 1) : ℤ) + (LeanBridges.Counting.choose j t : ℤ) = (LeanBridges.Counting.choose (j + 1) (j + 1) : ℤ))) c1 s1_4
         exact row1
       -- 1.6. calculation

@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import Divisibility
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -17,6 +15,7 @@ public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -29,6 +28,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -44,7 +44,7 @@ theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH
   have s1 : 0 ≤ A / B := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := A) (y := B) hH4 hH3)
   -- 2. algebra
   have r51_1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
-  have s2 : B * (A / B) = A := by parley_ring
+  have s2 : B * (A / B) = A := by have hz1 : B ≠ 0 := r51_1; field
   -- 3. transitivity, from 2, H5
   have r55_1 : B ≠ 0 := ne_of_gt (by linarith only [hH3])
   have s3 : B * (A / B) < B := by exact Eq.trans_lt s2 hH5
@@ -56,8 +56,8 @@ theorem remainder_of_small (A : ℝ) (B : ℝ) (hH3 : B > 0) (hH4 : 0 ≤ A) (hH
   -- 6. calculation
   calc LeanBridges.Divisibility.mod A B = A - B * (⌊A / B⌋ : ℝ) := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := A) (b := B) hH3)
     _ = A - B * 0 := by
-        have e_w : (⌊A / B⌋ : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s5; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : (⌊A / B⌋ : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s5; push_cast at h ⊢; linear_combination h
         exact congrArg (fun t : ℝ => A - B * t) e_w
-    _ = A := by parley_ring
+    _ = A := by ring1
 
 end Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall

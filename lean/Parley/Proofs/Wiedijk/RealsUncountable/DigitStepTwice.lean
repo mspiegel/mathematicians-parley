@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides
 
@@ -40,7 +40,7 @@ theorem digit_step_twice (t : ℤ) :
   have s4_2 : (10 : ℤ) ∣ t + 1 - (t + 1) % (10 : ℤ) + ((t + 1) % (10 : ℤ) + 1 - t) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (10 : ℤ)) (a := t + 1 - (t + 1) % (10 : ℤ)) (b := (t + 1) % (10 : ℤ) + 1 - t) s2 s4_1)
   -- 4.3. substitute
   have s4_3 : (10 : ℤ) ∣ (2 : ℤ) := by
-    have c1 : t + 1 - (t + 1) % (10 : ℤ) + ((t + 1) % (10 : ℤ) + 1 - t) = 2 := by parley_ring
+    have c1 : t + 1 - (t + 1) % (10 : ℤ) + ((t + 1) % (10 : ℤ) + 1 - t) = 2 := by ring1
     have row1 : (10 : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ u)) c1 s4_2; revert h; norm_num)
     exact row1
   exact absurd s4_3 (by norm_num)

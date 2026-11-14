@@ -1,12 +1,12 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -29,6 +29,6 @@ theorem an_and_part_in_a_requires_line (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ b > 
     a / b * b = a := by
   -- 1. algebra
   have r77_1 : b ≠ 0 := ne_of_gt (by linarith only [hH3.2])
-  parley_ring
+  have hz1 : b ≠ 0 := r77_1; field
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartInARequiresLine

@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -32,6 +30,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -92,16 +91,16 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
       have s1_4_12 : abs ((x + 3) * (x - 3)) = abs (x + 3) * abs (x - 3) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := x + 3) (y := x - 3))
       -- 1.4.13. substitute
       have s1_4_13 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := by
-        have c1 : (x + 3) * (x - 3) = f x - 7 := by linear_combination (norm := parley_norm) (-1) * s1_4_11
+        have c1 : (x + 3) * (x - 3) = f x - 7 := by linear_combination (-1) * s1_4_11
         have row1 : abs (f x - 7) = abs (x + 3) * abs (x - 3) := Eq.subst (motive := (fun t : ℝ => abs t = abs (x + 3) * abs (x - 3))) c1 s1_4_12
         exact row1
       -- 1.4.14. calculation
       have r94_1 : ε / 7 > 0 := by linarith only [hA1]
       calc abs (f x - 7) = abs (x + 3) * abs (x - 3) := s1_4_13
         _ < abs (x + 3) * (ε / 7) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (x - 3)) (y := ε / 7) (c := abs (x + 3)) s1_4_9.1)).mp s1_4_1.2
-        _ = ε / 7 * abs (x + 3) := by parley_ring
+        _ = ε / 7 * abs (x + 3) := by ring1
         _ ≤ ε / 7 * 7 := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs (x + 3)) (y := (7 : ℝ)) (c := ε / 7) s1_4_10 r94_1)
-        _ = ε := by parley_ring
+        _ = ε := by ring1
     -- 1.5. exhibit, from 1.3, 1.4
     exact ⟨m, ⟨s1_3, s1_4⟩⟩
   -- 2. def:limit-at D := ℝ, c := 3, L := 7, from 1

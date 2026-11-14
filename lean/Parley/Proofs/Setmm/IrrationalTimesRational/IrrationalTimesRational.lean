@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
@@ -12,6 +11,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -45,7 +45,7 @@ theorem irrational_times_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : S
     have s3_1 : ∃ m : ℚ, (m : ℝ) = A * B / B := by (exact ⟨(Classical.choose hS : ℚ) / (Classical.choose hH4 : ℚ), by (push_cast; simp only [Classical.choose_spec hS, Classical.choose_spec hH4])⟩)
     -- 3.2. substitute
     have s3_2 : ∃ m : ℚ, (m : ℝ) = A := by
-      have c1 : A * B / B = A := by parley_ring
+      have c1 : A * B / B = A := by field
       have row1 : ∃ m : ℚ, (m : ℝ) = A := Eq.subst (motive := (fun t : ℝ => ∃ m : ℚ, (m : ℝ) = t)) c1 s3_1
       exact row1
     -- 3.3. restate 1

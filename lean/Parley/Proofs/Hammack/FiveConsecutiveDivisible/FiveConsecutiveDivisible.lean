@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -29,6 +27,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -57,7 +56,7 @@ theorem five_consecutive_divisible (n : ℤ) :
     -- 2.4. thm:five-consecutive-natural m := n − 1, from 2.3
     have s2_4 : (120 : ℤ) ∣ (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) := by exact (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := n - 1) s2_3)
     -- 2.5. substitute
-    have c1 : (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by parley_ring
+    have c1 : (n - 1 + 1) * (n - 1 + 2) * (n - 1 + 3) * (n - 1 + 4) * (n - 1 + 5) = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by ring1
     have row1 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) c1 s2_4
     exact row1
   · skip
@@ -80,27 +79,27 @@ theorem five_consecutive_divisible (n : ℤ) :
       rcases s2_7_5 with (((hC4 | hC5) | hC6) | hC7) | hC8
       · skip
         -- 2.7.6.1. algebra, from C4
-        have s2_7_6_1 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (norm := parley_norm) (n ^ 4 + 6 * n ^ 3 + 11 * n ^ 2 + 6 * n) * hC4
+        have s2_7_6_1 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (n ^ 4 + 6 * n ^ 3 + 11 * n ^ 2 + 6 * n) * hC4
         -- 2.7.6.2. def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.1
         exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := n * (n + 1) * (n + 2) * (n + 3) * (n + 4)))).mpr ⟨(0 : ℤ), s2_7_6_1⟩
       · skip
         -- 2.7.6.3. algebra, from C5
-        have s2_7_6_3 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (norm := parley_norm) (n ^ 4 + 7 * n ^ 3 + 14 * n ^ 2 + 8 * n) * hC5
+        have s2_7_6_3 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (n ^ 4 + 7 * n ^ 3 + 14 * n ^ 2 + 8 * n) * hC5
         -- 2.7.6.4. def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.3
         exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := n * (n + 1) * (n + 2) * (n + 3) * (n + 4)))).mpr ⟨(0 : ℤ), s2_7_6_3⟩
       · skip
         -- 2.7.6.5. algebra, from C6
-        have s2_7_6_5 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (norm := parley_norm) (n ^ 4 + 8 * n ^ 3 + 19 * n ^ 2 + 12 * n) * hC6
+        have s2_7_6_5 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (n ^ 4 + 8 * n ^ 3 + 19 * n ^ 2 + 12 * n) * hC6
         -- 2.7.6.6. def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.5
         exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := n * (n + 1) * (n + 2) * (n + 3) * (n + 4)))).mpr ⟨(0 : ℤ), s2_7_6_5⟩
       · skip
         -- 2.7.6.7. algebra, from C7
-        have s2_7_6_7 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (norm := parley_norm) (n ^ 4 + 9 * n ^ 3 + 26 * n ^ 2 + 24 * n) * hC7
+        have s2_7_6_7 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (n ^ 4 + 9 * n ^ 3 + 26 * n ^ 2 + 24 * n) * hC7
         -- 2.7.6.8. def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.7
         exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := n * (n + 1) * (n + 2) * (n + 3) * (n + 4)))).mpr ⟨(0 : ℤ), s2_7_6_7⟩
       · skip
         -- 2.7.6.9. algebra, from C8
-        have s2_7_6_9 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (norm := parley_norm) (n ^ 4 + 10 * n ^ 3 + 35 * n ^ 2 + 50 * n + 24) * hC8
+        have s2_7_6_9 : n * (n + 1) * (n + 2) * (n + 3) * (n + 4) = 120 * 0 := by linear_combination (n ^ 4 + 10 * n ^ 3 + 35 * n ^ 2 + 50 * n + 24) * hC8
         -- 2.7.6.10. def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.9
         exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := n * (n + 1) * (n + 2) * (n + 3) * (n + 4)))).mpr ⟨(0 : ℤ), s2_7_6_9⟩
     · skip
@@ -126,7 +125,7 @@ theorem five_consecutive_divisible (n : ℤ) :
       -- 2.7.13. algebra, from D1, D2
       have s2_7_13 : P * -1 = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
         simp only [hD1, hD2] at ⊢
-        parley_ring
+        ring1
       -- 2.7.14. substitute P·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.7.13) into line 2.7.12
       exact Eq.subst (motive := (fun t : ℤ => (120 : ℤ) ∣ t)) s2_7_13 s2_7_12
 

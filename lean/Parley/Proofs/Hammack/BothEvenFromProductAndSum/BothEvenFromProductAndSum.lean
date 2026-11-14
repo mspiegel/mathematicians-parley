@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -38,7 +37,7 @@ theorem both_even_from_product_and_sum (a : ℤ) (b : ℤ) (hH3 : Even (a * b)) 
       -- 3.1. obtain j: def:even, from C1
       obtain ⟨j, s3_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp hC1
       -- 3.2. algebra, from 2, 3.1
-      have s3_2 : b = 2 * (m - j) := by linear_combination (norm := parley_norm) s2 + (-1) * s3_1
+      have s3_2 : b = 2 * (m - j) := by linear_combination s2 + (-1) * s3_1
       -- 3.3. def:even n := b, from 3.2
       have s3_3 : Even b := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mpr ⟨m - j, s3_2⟩
       -- 3.4. join C1, 3.3
@@ -48,7 +47,7 @@ theorem both_even_from_product_and_sum (a : ℤ) (b : ℤ) (hH3 : Even (a * b)) 
       -- 3.5. obtain j: def:even, from C2
       obtain ⟨j, s3_5⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp hC2
       -- 3.6. algebra, from 2, 3.5
-      have s3_6 : a = 2 * (m - j) := by linear_combination (norm := parley_norm) s2 + (-1) * s3_5
+      have s3_6 : a = 2 * (m - j) := by linear_combination s2 + (-1) * s3_5
       -- 3.7. def:even n := a, from 3.6
       have s3_7 : Even a := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mpr ⟨m - j, s3_6⟩
       -- 3.8. join C2, 3.7

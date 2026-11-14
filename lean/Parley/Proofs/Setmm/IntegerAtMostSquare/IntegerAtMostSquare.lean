@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/integer-at-most-square.proof by parley build lean. -/
@@ -38,7 +37,7 @@ theorem integer_at_most_square (n : ℤ) :
   -- 2. mun:square-nonneg x := n
   have s2 : n ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
   -- 3. algebra
-  have s3 : n ^ 2 = n * n := by parley_ring
+  have s3 : n ^ 2 = n * n := by ring1
   -- 4. cases, from 1
   rcases s1 with (hC1 | hC2) | hC3
   · skip
@@ -48,7 +47,7 @@ theorem integer_at_most_square (n : ℤ) :
     linarith only [s4_1]
   · skip
     -- 4.3. algebra, from C2
-    have s4_3 : n * n = 0 := by linear_combination (norm := parley_norm) (n) * hC2
+    have s4_3 : n * n = 0 := by linear_combination (n) * hC2
     -- 4.4. transitivity, from C2, 4.3, 3
     have s4_4 : n = n ^ 2 := by exact Eq.trans (Eq.trans hC2 s4_3.symm) s3.symm
     -- 4.5. inequalities

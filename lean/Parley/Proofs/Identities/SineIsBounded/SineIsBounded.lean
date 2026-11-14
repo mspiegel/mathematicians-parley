@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import Batteries.Tactic.Init
@@ -28,6 +27,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Trigonometry
 
@@ -79,7 +79,7 @@ theorem sine_is_bounded (x : ℝ) :
     have r63_2 : -Real.sin x ≥ 0 := by linarith only [s7_3]
     have s7_4 : 1 ^ 2 < (-Real.sin x) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := (1 : ℝ)) (y := -Real.sin x) (by norm_num) r63_2)).mp s7_2
     -- 7.5. algebra
-    have s7_5 : (-Real.sin x) ^ 2 = Real.sin x ^ 2 := by parley_ring
+    have s7_5 : (-Real.sin x) ^ 2 = Real.sin x ^ 2 := by ring1
     -- 7.6. transitivity, from 7.4, 7.5
     have s7_6 : 1 ^ 2 < Real.sin x ^ 2 := by exact LT.lt.trans_eq s7_4 s7_5
     -- 7.7. inequalities, from 7.6

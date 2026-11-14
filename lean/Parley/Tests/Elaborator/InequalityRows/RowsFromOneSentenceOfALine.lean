@@ -1,12 +1,12 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -31,7 +31,7 @@ theorem rows_from_one_sentence_of_a_line (p : ℝ) (q : ℝ) (hH3 : 0 < q ∧ q 
   have s1 : 2 * q < 2 := by linarith only [hH3.2]
   -- 2. algebra
   have r67_1 : 0 ≠ q := ne_of_lt (by linarith only [hH3.1])
-  have s2 : p / q * q = p := by parley_ring
+  have s2 : p / q * q = p := by have hz1 : q ≠ 0 := r67_1.symm; field
   -- 3. join 1, 2
   have s3a : 2 * q < 2 := s1
   have s3b : p / q * q = p := s2

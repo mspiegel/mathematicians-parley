@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/powers-said-once.proof by parley build lean. -/
 
@@ -32,6 +32,6 @@ namespace Parley.Tests.Elaborator.PowersSaidOnce.APowerToALetterOfAQuotient
 theorem a_power_to_a_letter_of_a_quotient (b : ℤ) (hH1 : 0 ≤ b) (x : ℝ) :
     x * ((b : ℝ) / 5) ^ b.toNat = ((b : ℝ) / 5) ^ b.toNat * x := by
   -- 1. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.PowersSaidOnce.APowerToALetterOfAQuotient

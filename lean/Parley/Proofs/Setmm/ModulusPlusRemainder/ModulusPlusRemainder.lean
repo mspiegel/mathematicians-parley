@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/modulus-plus-remainder.proof by parley build lean. -/
@@ -27,7 +27,7 @@ namespace Parley.Proofs.Setmm.ModulusPlusRemainder.ModulusPlusRemainder
 theorem modulus_plus_remainder (A : ℤ) (hH1 : 0 ≤ A) (M : ℤ) (hH2 : 0 < M) (hH3 : A < M) :
     (M + A) % M = A := by
   -- 1. algebra
-  have s1 : 1 * M + A = M + A := by parley_ring
+  have s1 : 1 * M + A = M + A := by ring_nf
   -- 2. exhibit, from 1
   have s2 : ∃ q : ℤ, q * M + A = M + A := ⟨(1 : ℤ), s1⟩
   -- 3. mun:mod-remainder a := M + A, m := M, r := A, from H3, 2

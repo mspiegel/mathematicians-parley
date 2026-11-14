@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/an-nth-derivative.proof by parley build lean. -/
 
@@ -30,6 +30,6 @@ namespace Parley.Tests.Elaborator.AnNthDerivative.ANumberToABracketedPower
 theorem a_number_to_a_bracketed_power (x : ℝ) (n : ℤ) (hH2 : 0 < n) :
     x ^ n.toNat = x ^ n.toNat := by
   -- 1. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.AnNthDerivative.ANumberToABracketedPower

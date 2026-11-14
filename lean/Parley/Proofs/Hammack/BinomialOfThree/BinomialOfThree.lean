@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -56,7 +55,7 @@ theorem binomial_of_three (m : ℤ) (hH1 : 0 ≤ m) :
       -- 1.6. thm:binomial-of-two m := j
       have s1_6 : 2 * (LeanBridges.Counting.choose j (2 : ℤ) : ℤ) = j * (j - 1) := by exact (Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo.binomial_of_two (m := j) hK)
       -- 1.7. algebra, from IH, 1.5, 1.6
-      linear_combination (norm := parley_norm) hIH + (-6) * s1_5 + (3) * s1_6
+      linear_combination hIH + (-6) * s1_5 + (3) * s1_6
   -- 2. instantiate j := m in line 1
   exact (s1 m hH1)
 

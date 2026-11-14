@@ -1,7 +1,6 @@
 module
 
 public import ComplexTactics
-public import NormTactics
 public import RealTactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.Complex.Order
@@ -44,6 +43,6 @@ theorem exp_of_ln_plus_one (x : ℝ) (hH2 : x > 0) :
     have row1 : Real.exp (Real.log x + 1) = x * Real.exp 1 := Eq.subst (motive := (fun t : ℝ => Real.exp (Real.log x + 1) = x * t)) c1 s2
     exact row1
   -- 4. algebra, from 3
-  linear_combination (norm := parley_norm) s3
+  linear_combination s3
 
 end Parley.Proofs.Identities.ExpOfLnPlusOne.ExpOfLnPlusOne

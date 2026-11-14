@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -25,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/power-at-least-one.proof by parley build lean. -/
@@ -44,7 +44,7 @@ theorem power_at_least_one (a : ℝ) (n : ℤ) (hH2 : 0 ≤ n) (hH3 : 1 ≤ a) :
     induction m, h_m using LeanBridges.Functions.le_induction with
     | base =>
       -- 2.1. algebra
-      have s2_1 : a ^ 0 = 1 := by parley_ring
+      have s2_1 : a ^ 0 = 1 := by ring1
       -- 2.2. inequalities
       have s2_2 : 1 ≤ a ^ 0 := by linarith only [s2_1]
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_2

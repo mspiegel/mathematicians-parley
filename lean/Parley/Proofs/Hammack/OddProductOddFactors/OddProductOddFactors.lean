@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -44,7 +43,7 @@ theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 -
       -- 2.1. obtain m: def:even n := a, from C1
       obtain ⟨m, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp hC1
       -- 2.2. algebra, from 2.1
-      have s2_2 : a ^ 2 * (b ^ 2 - 2 * b) = 2 * (2 * m ^ 2 * (b ^ 2 - 2 * b)) := by linear_combination (norm := parley_norm) (a * b ^ 2 + 2 * b ^ 2 * m - 2 * a * b - 4 * b * m) * s2_1
+      have s2_2 : a ^ 2 * (b ^ 2 - 2 * b) = 2 * (2 * m ^ 2 * (b ^ 2 - 2 * b)) := by linear_combination (a * b ^ 2 + 2 * b ^ 2 * m - 2 * a * b - 4 * b * m) * s2_1
       -- 2.3. def:even n := a²·(b² − 2b), from 2.2
       have s2_3 : Even (a ^ 2 * (b ^ 2 - 2 * b)) := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨2 * m ^ 2 * (b ^ 2 - 2 * b), s2_2⟩
       -- 2.4. mun:not-both n := a²·(b² − 2b), from 2.3
@@ -61,7 +60,7 @@ theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 -
       -- 4.1. obtain m: def:even n := b, from C3
       obtain ⟨m, s4_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp hC3
       -- 4.2. algebra, from 4.1
-      have s4_2 : a ^ 2 * (b ^ 2 - 2 * b) = 2 * (a ^ 2 * (2 * m ^ 2 - 2 * m)) := by linear_combination (norm := parley_norm) (a ^ 2 * b + 2 * a ^ 2 * m - 2 * a ^ 2) * s4_1
+      have s4_2 : a ^ 2 * (b ^ 2 - 2 * b) = 2 * (a ^ 2 * (2 * m ^ 2 - 2 * m)) := by linear_combination (a ^ 2 * b + 2 * a ^ 2 * m - 2 * a ^ 2) * s4_1
       -- 4.3. def:even n := a²·(b² − 2b), from 4.2
       have s4_3 : Even (a ^ 2 * (b ^ 2 - 2 * b)) := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨a ^ 2 * (2 * m ^ 2 - 2 * m), s4_2⟩
       -- 4.4. mun:not-both n := a²·(b² − 2b), from 4.3

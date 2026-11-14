@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -36,6 +34,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Sums
@@ -82,11 +81,11 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
       -- 4.8. calculation
       have s4_8 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num
-          _ = 1 := by linear_combination (norm := parley_norm) s4_5 + s4_6 + s4_7
+          _ = 1 := by linear_combination s4_5 + s4_6 + s4_7
       -- 4.9. algebra, from D2, 4.2, 4.6, 4.8
       simp only [hD2] at s4_2 ⊢
       push_cast at s4_2 ⊢
-      linear_combination (norm := parley_norm) s4_2 + (-F (1 + 1) + F 1 + 1) * s4_6 + (-1) * s4_8
+      linear_combination (norm := ring_nf) s4_2 + (-F (1 + 1) + F 1 + 1) * s4_6 + (-1) * s4_8
     | succ m hK3 hIH2 =>
       -- 4.10. proof
       -- what this block shows, Lean's types give
@@ -101,9 +100,9 @@ theorem fibonacci_sum_of_squares (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : 
       have s4_15 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 2) := by
         simp only [hD2] at s4_11 hIH2 ⊢
         push_cast at s4_11 hIH2 ⊢
-        linear_combination (norm := parley_norm) hIH2 + s4_11 + (-F (m + 1)) * s4_12
+        linear_combination hIH2 + s4_11 + (-F (m + 1)) * s4_12
       -- 4.16. substitute
-      have c1 : m + 2 = m + 1 + 1 := by parley_ring
+      have c1 : m + 2 = m + 1 + 1 := by ring1
       have row1 : (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F (m + 1 + 1) := Eq.subst (motive := (fun t : ℤ => (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = F (m + 1) * F t)) c1 s4_15
       exact row1
   -- 5. instantiate m := n in line 4, from D2

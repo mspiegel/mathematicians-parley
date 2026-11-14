@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -21,6 +20,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-square-difference.proof by parley build lean. -/
@@ -35,13 +35,13 @@ theorem divides_square_difference (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ∣ b) 
   have s1 : a ∣ b * b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := a) (a := b) (x := b) hH4)
   -- 2. substitute
   have s2 : a ∣ b ^ 2 := by
-    have c1 : b * b = b ^ 2 := by parley_ring
+    have c1 : b * b = b ^ 2 := by ring1
     have row1 : a ∣ b ^ 2 := Eq.subst (motive := (fun t : ℤ => a ∣ t)) c1 s1
     exact row1
   -- 3. mun:divides-difference d := a, a := b², b := b² − c, from H5, 2
   have s3 : a ∣ b ^ 2 - (b ^ 2 - c) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := a) (a := b ^ 2) (b := b ^ 2 - c) s2 hH5)
   -- 4. substitute
-  have c1 : b ^ 2 - (b ^ 2 - c) = c := by parley_ring
+  have c1 : b ^ 2 - (b ^ 2 - c) = c := by ring1
   have row1 : a ∣ c := Eq.subst (motive := (fun t : ℤ => a ∣ t)) c1 s3
   exact row1
 

@@ -526,19 +526,21 @@ struct Opening {
     denied: &'static [&'static str],
 }
 
+/// Whether a pattern opens with the words of `o` and says more after them.
+fn opens_with(n: &Notation, o: &Opening) -> bool {
+    n.parts.len() > o.says.len()
+        && o.says
+            .iter()
+            .zip(&n.parts)
+            .all(|(word, part)| part.literal() == Some(*word))
+}
+
 /// The negation of a pattern that opens with "there is", "there are",
 /// "there exists" or "there exist": the same pattern with its opening
 /// denied, building the same node wrapped in `not`. Every "there is" has
 /// one by this rule, so no record writes it out.
 fn there_is_none(n: &Notation) -> Option<Notation> {
-    let opens = |o: &&Opening| {
-        n.parts.len() > o.says.len()
-            && o.says
-                .iter()
-                .zip(&n.parts)
-                .all(|(word, part)| part.literal() == Some(*word))
-    };
-    let o = NEGATED_OPENINGS.iter().find(opens)?;
+    let o = NEGATED_OPENINGS.iter().find(|o| opens_with(n, o))?;
     let rest = n.pattern.strip_prefix(&o.says.join(" "))?;
     let mut parts: Vec<Part> =
         o.denied.iter().map(|w| Part::Lit(w.to_string())).collect();

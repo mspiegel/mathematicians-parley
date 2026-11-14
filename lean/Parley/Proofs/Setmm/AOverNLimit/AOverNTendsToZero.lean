@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -22,6 +20,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -90,13 +89,13 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
       have s5_4_5 : abs (1 / (n : ℝ)) < ε / (2 * (abs A + 1)) := by
         have c1 : 1 / (n : ℚ) = abs (1 / (n : ℚ)) := by exact ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := 1 / (n : ℚ))) s5_4_4).symm
         have row1 : abs (1 / (n : ℝ)) < ε / (2 * (abs A + 1)) := by
-          have e_w : 1 / (n : ℝ) = abs (1 / (n : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : 1 / (n : ℝ) = abs (1 / (n : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h; linear_combination h
           exact Eq.subst (motive := (fun t : ℝ => t < ε / (2 * (abs A + 1)))) e_w s5_4_2
         exact row1
       -- 5.4.6. thm:scaled-small C := A, u := 1/n, from A1, 5.4.5
       have s5_4_6 : abs (A * (1 / (n : ℝ))) < ε := by exact (Parley.Proofs.Setmm.LimitLemmas.ScaledSmall.scaled_small (C := A) (u := 1 / (n : ℝ)) (ε := ε) hA1 s5_4_5)
       -- 5.4.7. substitute
-      have c1 : A * (1 / (n : ℝ)) = A / (n : ℝ) := by parley_ring
+      have c1 : A * (1 / (n : ℝ)) = A / (n : ℝ) := by field
       have row1 : abs (A / (n : ℝ)) < ε := Eq.subst (motive := (fun t : ℝ => abs t < ε)) c1 s5_4_6
       exact row1
     -- 5.5. exhibit, from 5.4

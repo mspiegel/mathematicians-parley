@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -41,7 +40,7 @@ theorem coprime_square (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w : ℤ)
   -- 3. transitivity, from 2, H4
   have s3 : (Int.gcd t s : ℤ) = 1 := by exact Eq.trans s2 hH4
   -- 4. algebra, from H5
-  have s4 : w ^ 2 = t * s := by linear_combination (norm := parley_norm) hH5
+  have s4 : w ^ 2 = t * s := by linear_combination hH5
   -- 5. mun:coprime-square-part s := t, t := s, from 3, 4
   have s5 : t = (Int.gcd t w : ℤ) ^ 2 := by exact (Parley.Stdlib.Divisibility.CoprimeSquarePart.coprime_square_part (s := t) hH2 (t := s) hH1 (w := w) hH3 s3 s4)
   -- 6. join 1, 5

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -10,6 +9,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -34,10 +34,10 @@ theorem linear_function_inverse (x : ℝ) :
   have s1 : 0 < Real.pi := by parley_real
   -- 2. algebra
   have r10_1 : 0 ≠ Real.pi := ne_of_lt (by linarith only [s1])
-  have s2 : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := by parley_ring
+  have s2 : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := by have hz1 : Real.pi ≠ 0 := r10_1.symm; field
   -- 3. algebra
   have r14_1 : 0 ≠ Real.pi := ne_of_lt (by linarith only [s1])
-  have s3 : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := by parley_ring
+  have s3 : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := by have hz1 : Real.pi ≠ 0 := r14_1.symm; field
   -- 4. join 2, 3
   have s4a : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := s2
   have s4b : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := s3

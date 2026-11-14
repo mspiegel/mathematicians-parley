@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -16,6 +15,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -27,8 +27,10 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -74,7 +76,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       -- 1.2.10. algebra, from H2
       have r68_1 : 3 * n - 1 ≠ 0 := ne_of_gt (by linarith only [s1_2_4])
       have r68_2 : 9 * n - 3 ≠ 0 := by exact s1_2_9
-      have s1_2_10 : a n - 2 / 3 = 5 * (1 / (9 * (n : ℝ) - 3)) := by linear_combination (norm := parley_field) ((3) / ((3))) * (hH2 n hK2)
+      have s1_2_10 : a n - 2 / 3 = 5 * (1 / (9 * (n : ℝ) - 3)) := by have hz1 : (n : ℝ) * 9 - 3 ≠ 0 := (by rw [show (n : ℝ) * 9 - 3 = 9 * (n : ℝ) - 3 by ring]; exact (by exact_mod_cast r68_2)); have hz2 : 3 * (n : ℝ) - 1 ≠ 0 := (by exact_mod_cast r68_1); linear_combination (norm := (field)) ((3) / (((3 : ℝ)))) * (hH2 n hK2)
       -- 1.2.11. mun:reciprocal-positive x := 9n − 3, from 1.2.8
       have s1_2_11 : 1 / (9 * (n : ℚ) - 3) > 0 := by exact (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := 9 * (n : ℚ) - 3) (by exact_mod_cast gt_iff_lt.mp s1_2_8))
       -- 1.2.12. inequalities
@@ -97,7 +99,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → 
       have r108_1 : 9 * n - 3 ≠ 0 := by exact s1_2_9
       have s1_2_18 : 5 * (1 / (9 * (n : ℚ) - 3)) ≤ 5 * (1 / (5 * (n : ℚ))) := by linarith only [s1_2_17]
       -- 1.2.19. algebra
-      have s1_2_19 : 5 * (1 / (5 * (n : ℚ))) = 1 / (n : ℚ) := by parley_ring
+      have s1_2_19 : 5 * (1 / (5 * (n : ℚ))) = 1 / (n : ℚ) := by have hz1 : (n : ℚ) ≠ 0 := (by positivity); field
       -- 1.2.20. mun:reciprocal-order x := N, y := n, from A2
       have r117_1 : N > 0 := by linarith only [s1_1a]
       have r117_2 : n > 0 := by exact s1_2_2

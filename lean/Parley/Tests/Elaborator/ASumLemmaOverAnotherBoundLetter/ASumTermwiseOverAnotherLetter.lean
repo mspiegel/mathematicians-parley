@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Data.Finset.Defs
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-sum-lemma-over-another-bound-letter.proof by parley build lean. -/
@@ -34,7 +34,7 @@ namespace Parley.Tests.Elaborator.ASumLemmaOverAnotherBoundLetter.ASumTermwiseOv
 theorem a_sum_termwise_over_another_letter (n : ℤ) (hH1 : 0 < n) :
     (∑ j ∈ Finset.Icc (1 : ℤ) n, (j + j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) n, (2 * j : ℤ)) := by
   -- 1. algebra
-  have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → i + i = 2 * i := by intro i h_i; parley_ring
+  have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 n → i + i = 2 * i := by intro i h_i; ring1
   -- 2. membership
   -- 3. membership
   -- 4. mun:sum-termwise a := 1, b := n, from 1, 2, 3

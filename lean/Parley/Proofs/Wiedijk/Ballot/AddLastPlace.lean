@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -39,7 +39,7 @@ theorem add_last_place (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) :
     (∃ g : Set ℤ → Set ℤ, Set.BijOn g {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} ((fun T : Set ℤ => T ∪ ({m + n} : Set ℤ)) '' {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)})) := by
   -- 1. thm:places-before-last p := (m − 1) + n, N := m + n
   have r391_1 : 1 ≤ m - 1 + n := by linarith only [hH1, hH2]
-  have r391_2 : m - 1 + n + 1 = m + n := by parley_ring
+  have r391_2 : m - 1 + n + 1 = m + n := by ring1
   have s1 : (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) = (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Proofs.Wiedijk.Ballot.PlacesBeforeLast.places_before_last (p := m - 1 + n) (N := m + n) r391_1 r391_2)
   -- 2. proof
   have s2 : ∀ S ∈ {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}, ∀ T ∈ {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) | (d.ncard : ℤ) = m - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m - 1 + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}, S ∪ ({m + n} : Set ℤ) = T ∪ ({m + n} : Set ℤ) → S = T := by

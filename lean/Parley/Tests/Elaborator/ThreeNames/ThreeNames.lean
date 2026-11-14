@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -28,7 +27,7 @@ theorem three_names (hH1 : ∃ a : ℤ, 0 < a ∧ (∃ b : ℤ, 0 < b ∧ (∃ c
   -- 1. obtain a, b, c from H1
   obtain ⟨a, s1a, b, s1b, c, s1c, s1d⟩ := hH1
   -- 2. algebra, from 1
-  have s2 : 3 * c + 2 * b + a = 6 := by linear_combination (norm := parley_norm) s1d
+  have s2 : 3 * c + 2 * b + a = 6 := by linear_combination s1d
   -- 3. exhibit, from 2
   exact ⟨a, s1a, b, s1b, c, s1c, s2⟩
 

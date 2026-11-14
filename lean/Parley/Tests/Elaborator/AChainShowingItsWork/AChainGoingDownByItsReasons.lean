@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -13,6 +12,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
 
@@ -25,7 +25,7 @@ theorem a_chain_going_down_by_its_reasons (a : ℝ) (hH2 : a ≥ 3) :
   -- 1. inequalities
   have s1 : 2 * a ≥ 6 := by linarith only [hH2]
   -- 2. calculation
-  calc a + a = 2 * a := by parley_ring
+  calc a + a = 2 * a := by ring1
     _ ≥ 6 := s1
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainGoingDownByItsReasons

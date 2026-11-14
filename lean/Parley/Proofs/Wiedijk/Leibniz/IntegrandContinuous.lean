@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.GroupWithZero.Defs
@@ -59,7 +58,7 @@ theorem integrand_continuous (n : ℤ) (hH1 : 0 ≤ n) (g : ℝ → ℝ) (hH2 : 
   -- 4. D3
   have s4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s x = x ^ 2 := by simp (disch := omega) only [hD3, implies_true]
   -- 5. algebra, from D2, D3, D4
-  have s5 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), v x = o x + s x := by intro x h_x; parley_ring
+  have s5 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), v x = o x + s x := by intro x h_x; simp only [hD2, hD3, hD4] at ⊢
   -- 6. membership, from D1
   have s6 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), True := by intro x h_x; exact by trivial
   -- 7. mun:function-into, from 6

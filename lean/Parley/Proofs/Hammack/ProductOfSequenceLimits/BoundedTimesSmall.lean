@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.Complex.Order
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/product-of-sequence-limits.proof by parley build lean. -/
@@ -42,7 +42,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
   have s4 : (K - abs C) * abs u ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := K - abs C) (y := abs u) s3 s1)
   -- 5. substitute
   have s5 : K * abs u - abs C * abs u ≥ 0 := by
-    have c1 : (K - abs C) * abs u = K * abs u - abs C * abs u := by parley_ring
+    have c1 : (K - abs C) * abs u = K * abs u - abs C * abs u := by ring1
     have row1 : K * abs u - abs C * abs u ≥ 0 := Eq.subst (motive := (fun t : ℝ => t ≥ 0)) c1 s4
     exact row1
   -- 6. inequalities

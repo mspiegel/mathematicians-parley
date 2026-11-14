@@ -111,18 +111,9 @@ pub fn at_h(goal: bool) -> TacticArg {
     TacticArg::At(places)
 }
 
-/// `linear_combination (norm := parley_norm) e`.
+/// `linear_combination e`, checked by `ring1`.
 pub fn linear_combination(by: Term) -> Tactic {
-    call(
-        "linear_combination",
-        vec![
-            TacticArg::Setting {
-                key: "norm",
-                value: Box::new(bridge(BridgeTactic::Norm, Vec::new())),
-            },
-            TacticArg::Term(by),
-        ],
-    )
+    call("linear_combination", vec![TacticArg::Term(by)])
 }
 
 /// `exact_mod_cast t`.

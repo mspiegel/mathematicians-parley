@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Sets
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
@@ -26,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
@@ -52,7 +51,7 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
     refine LeanBridges.Sets.subset_induction hH2 ?_ ?_
     · skip
       -- 3.1. algebra
-      have s3_1 : 1 - 1 = n * 0 := by parley_ring
+      have s3_1 : 1 - 1 = n * 0 := by ring1
       -- 3.2. def:divides d := n, n := 1 − 1, from 3.1
       have s3_2 : n ∣ (1 - 1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := n) (n := (1 - 1 : ℤ)))).mpr ⟨(0 : ℤ), s3_1⟩
       -- 3.3. def:congruent-mod a := 1, b := 1, from 3.2
@@ -86,18 +85,18 @@ theorem product_congruent_termwise {α : Type*} (X : Set α) (hH2 : X.Finite) (n
       have s3_15 : n ∣ ((∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ))) * t a + (t a - u a) * (∏ᶠ x ∈ Y, (u x : ℤ)) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := n) (a := (∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ))) (b := t a - u a) (x := t a) (y := ∏ᶠ x ∈ Y, (u x : ℤ)) s3_12 s3_14)
       -- 3.16. substitute
       have s3_16 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := by
-        have c1 : ((∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ))) * t a + (t a - u a) * (∏ᶠ x ∈ Y, (u x : ℤ)) = (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := by parley_ring
+        have c1 : ((∏ᶠ x ∈ Y, (t x : ℤ)) - (∏ᶠ x ∈ Y, (u x : ℤ))) * t a + (t a - u a) * (∏ᶠ x ∈ Y, (u x : ℤ)) = (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := by ring1
         have row1 : n ∣ (∏ᶠ x ∈ Y, (t x : ℤ)) * t a - (∏ᶠ x ∈ Y, (u x : ℤ)) * u a := Eq.subst (motive := (fun w : ℤ => n ∣ w)) c1 s3_15
         exact row1
       -- 3.17. def:congruent-mod a := (∏(x ∈ Y) t(x))·t(a), b := (∏(x ∈ Y) u(x))·u(a), from 3.8, 3.9, 3.10, 3.11, 3.16
       have s3_17 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := (∏ᶠ x ∈ Y, (t x : ℤ)) * t a) (b := (∏ᶠ x ∈ Y, (u x : ℤ)) * u a))).mpr s3_16
       -- 3.18. substitute
       have s3_18 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := by
-        have c1 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) hK s3_7 s3_6.1 s3_6.2).symm
+        have c1 : (∏ᶠ x ∈ Y, (t x : ℤ)) * t a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := t) (X := X) (Y := Y) (a := a) hK s3_7 s3_6.1 s3_6.2).symm; push_cast at h ⊢; linear_combination h)
         have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n] := Eq.subst (motive := (fun w : ℤ => w ≡ (∏ᶠ x ∈ Y, (u x : ℤ)) * u a [ZMOD n])) c1 s3_17
         exact row1
       -- 3.19. substitute
-      have c1 : (∏ᶠ x ∈ Y, (u x : ℤ)) * u a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) hK s3_7 s3_6.1 s3_6.2).symm
+      have c1 : (∏ᶠ x ∈ Y, (u x : ℤ)) * u a = (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_product_add_one (t := u) (X := X) (Y := Y) (a := a) hK s3_7 s3_6.1 s3_6.2).symm; push_cast at h ⊢; linear_combination h)
       have row1 : (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (u x : ℤ)) [ZMOD n] := Eq.subst (motive := (fun w : ℤ => (∏ᶠ x ∈ (Y ∪ ({a} : Set α)), (t x : ℤ)) ≡ w [ZMOD n])) c1 s3_18
       exact row1
   -- 4. instantiate Y := X in line 3

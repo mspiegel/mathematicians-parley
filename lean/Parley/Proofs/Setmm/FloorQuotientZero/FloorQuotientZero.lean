@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -15,6 +14,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -24,6 +24,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -37,7 +38,7 @@ namespace Parley.Proofs.Setmm.FloorQuotientZero.FloorQuotientZero
 theorem floor_quotient_zero (A : ℤ) (hH1 : 0 ≤ A) (B : ℤ) (hH2 : 0 < B) :
     (A < B ↔ ⌊(A : ℝ) / (B : ℝ)⌋ = 0) := by
   -- 1. algebra
-  have s1 : (B : ℝ) * ((A : ℝ) / (B : ℝ)) = (A : ℝ) := by parley_ring
+  have s1 : (B : ℝ) * ((A : ℝ) / (B : ℝ)) = (A : ℝ) := by have hz1 : (B : ℝ) ≠ 0 := (by positivity); field
   -- 2. mun:quotient-nonneg x := A, y := B, from H1, H2
   have s2 : 0 ≤ (A : ℝ) / (B : ℝ) := by exact (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := (A : ℝ)) (y := (B : ℝ)) (by exact_mod_cast ge_iff_le.mp hH1) (by exact_mod_cast gt_iff_lt.mp hH2))
   -- 3. both directions

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/rational-cube-root-of-two.proof by parley build lean. -/
@@ -38,7 +38,7 @@ theorem odd_cube (n : ℤ) (hH2 : Odd n) :
   -- 2. substitute n = 2k + 1 (line 1)
   have s2 : n ^ 3 = (2 * k + 1) ^ 3 := congrArg (fun t : ℤ => t ^ 3) s1
   -- 3. algebra
-  have s3 : (2 * k + 1) ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by parley_ring
+  have s3 : (2 * k + 1) ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by ring1
   -- 4. transitivity, from 2, 3
   have s4 : n ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by exact Eq.trans s2 s3
   -- 5. def:odd n := n³, from 4

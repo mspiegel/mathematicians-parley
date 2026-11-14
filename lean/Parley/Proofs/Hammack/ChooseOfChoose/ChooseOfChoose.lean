@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -14,6 +13,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -23,9 +23,11 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -62,7 +64,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s11 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - (b - c)) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := a) (le_of_lt hH1) (k := b - c)) s10
   -- 12. substitute
   have s12 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := by
-    have c1 : a - (b - c) = a - b + c := by parley_ring
+    have c1 : a - (b - c) = a - b + c := by ring1
     have row1 : (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose a (b - c) : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)))) c1 s11
     exact row1
   -- 13. inequalities
@@ -83,7 +85,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   have s18 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b + c - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := a - b + c) r81_1 (k := c)) s16
   -- 19. substitute
   have s19 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := by
-    have c1 : a - b + c - c = a - b := by parley_ring
+    have c1 : a - b + c - c = a - b := by ring1
     have row1 : (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ)) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (a - b + c) c : ℚ) = (LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial t : ℚ) * (LeanBridges.Counting.factorial c : ℚ)))) c1 s18
     exact row1
   -- 20. mun:nat0-as-int
@@ -106,7 +108,7 @@ theorem choose_of_choose (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : �
   qify
   calc (LeanBridges.Counting.choose a b : ℚ) * (LeanBridges.Counting.choose b c : ℚ) = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial b : ℚ)) * (LeanBridges.Counting.choose b c : ℚ) := congrArg (fun t : ℚ => t * (LeanBridges.Counting.choose b c : ℚ)) s3
     _ = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial b : ℚ)) * ((LeanBridges.Counting.factorial b : ℚ) / ((LeanBridges.Counting.factorial (b - c) : ℚ) * (LeanBridges.Counting.factorial c : ℚ))) := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial b : ℚ)) * t) s6
-    _ = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) * ((LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ))) := by parley_ring
+    _ = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) * ((LeanBridges.Counting.factorial (a - b + c) : ℚ) / ((LeanBridges.Counting.factorial (a - b) : ℚ) * (LeanBridges.Counting.factorial c : ℚ))) := by have hz1 : (LeanBridges.Counting.factorial (a - b) : ℚ) ≠ 0 := (by exact_mod_cast s22.ne'); have hz2 : (LeanBridges.Counting.factorial b : ℚ) ≠ 0 := (by positivity); have hz3 : (LeanBridges.Counting.factorial (b - c) : ℚ) ≠ 0 := (by exact_mod_cast s23.ne'); have hz4 : (LeanBridges.Counting.factorial c : ℚ) ≠ 0 := (by positivity); have hz5 : (LeanBridges.Counting.factorial (a - b + c) : ℚ) ≠ 0 := (by exact_mod_cast s24.ne'); field
     _ = (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) * (LeanBridges.Counting.choose (a - b + c) c : ℚ) := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial a : ℚ) / ((LeanBridges.Counting.factorial (a - b + c) : ℚ) * (LeanBridges.Counting.factorial (b - c) : ℚ)) * t) s19.symm
     _ = (LeanBridges.Counting.choose a (b - c) : ℚ) * (LeanBridges.Counting.choose (a - b + c) c : ℚ) := congrArg (fun t : ℚ => t * (LeanBridges.Counting.choose (a - b + c) c : ℚ)) s12.symm
 

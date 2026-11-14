@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -30,6 +29,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
@@ -52,7 +52,7 @@ theorem divisibility_by_three (n : ℤ) (hH1 : 0 ≤ n) (d : ℤ → ℤ) :
     -- 1.3. mun:divides-multiple e := 3, a := 10^k − 1, x := d(k), from H2, 1.2
     have s1_3 : (3 : ℤ) ∣ (10 ^ k.toNat - 1) * d k := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (3 : ℤ)) (a := (10 ^ k.toNat - 1 : ℤ)) (x := d k) s1_2)
     -- 1.4. substitute
-    have c1 : (10 ^ k.toNat - 1) * d k = d k * 10 ^ k.toNat - d k := by parley_ring
+    have c1 : (10 ^ k.toNat - 1) * d k = d k * 10 ^ k.toNat - d k := by ring1
     have row1 : (3 : ℤ) ∣ d k * 10 ^ k.toNat - d k := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s1_3
     exact row1
   -- 2. mun:sum-divisible m := 3, from 1

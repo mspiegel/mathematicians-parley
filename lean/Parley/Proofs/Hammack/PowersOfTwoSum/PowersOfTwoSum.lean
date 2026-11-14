@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -35,6 +34,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -74,7 +74,7 @@ theorem powers_of_two_sum (n : ℤ) (hH1 : 0 < n) :
       -- 1.4. calculation
       calc S (k + 1) = S k + 2 ^ (k + 1).toNat := s1_2
         _ = 2 ^ (k + 1).toNat - 2 + 2 ^ (k + 1).toNat := congrArg (fun t : ℤ => t + 2 ^ (k + 1).toNat) hIH
-        _ = 2 ^ (k + 1).toNat * 2 - 2 := by parley_ring
+        _ = 2 ^ (k + 1).toNat * 2 - 2 := by ring1
         _ = 2 ^ (k + 1 + 1).toNat - 2 := congrArg (fun t : ℤ => t - 2) s1_3.symm
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (2 ^ k.toNat : ℤ)) = S n := by simp (disch := omega) only [hD1]

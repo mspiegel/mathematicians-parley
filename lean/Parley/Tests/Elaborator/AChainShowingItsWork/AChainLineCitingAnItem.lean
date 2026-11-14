@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
@@ -34,6 +34,6 @@ theorem a_chain_line_citing_an_item (n : ℤ) (hH1 : 0 ≤ n) (b : ℤ → ℝ) 
   calc (LeanBridges.Counting.factorial (n + 1) : ℝ) = (LeanBridges.Counting.factorial n : ℝ) * ((n : ℝ) + 1) := by
         have hI : (LeanBridges.Counting.factorial (n + 1) : ℝ) = (LeanBridges.Counting.factorial n : ℝ) * ((n : ℝ) + 1) := by parley_instance_cast ((Parley.Items.Stdlib.Counting.def_factorial_3 (n := n) hH1))
         exact hI
-    _ = ((n : ℝ) + 1) * (LeanBridges.Counting.factorial n : ℝ) + b n - b n := by parley_ring
+    _ = ((n : ℝ) + 1) * (LeanBridges.Counting.factorial n : ℝ) + b n - b n := by ring1
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineCitingAnItem

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -22,6 +21,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -34,8 +34,10 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -70,7 +72,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       have r41_1 : n > 0 := by exact s1_3_1
       have s1_3_3 : n * 1 ≤ n * n := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) s1_3_2 r41_1)
       -- 1.3.4. algebra
-      have s1_3_4 : n * n = n ^ 2 := by parley_ring
+      have s1_3_4 : n * n = n ^ 2 := by ring1
       -- 1.3.5. transitivity, from 1.3.3, 1.3.4
       have s1_3_5 : n ≤ n ^ 2 := by linarith only [s1_3_3, s1_3_4]
       -- 1.3.6. transitivity, from 1.3.1, 1.3.5
@@ -90,7 +92,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → a 
       -- 1.3.11. inequalities
       have s1_3_11 : 2 * (1 / (N : ℝ)) < ε := by linarith only [s1_2b]
       -- 1.3.12. algebra, from H2
-      have s1_3_12 : a n - 5 = 2 * (1 / (n : ℝ) ^ 2) := by linear_combination (norm := parley_field) (hH2 n hK2)
+      have s1_3_12 : a n - 5 = 2 * (1 / (n : ℝ) ^ 2) := by have hz1 : (n : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (hH2 n hK2)
       -- 1.3.13. transitivity, from 1.3.12, 1.3.9, 1.3.10, 1.3.11
       have s1_3_13 : a n - 5 < ε := by exact lt_of_le_of_lt (le_trans (Eq.trans_le s1_3_12 (show 2 * (1 / (n : ℝ) ^ 2) ≤ 2 * (1 / (n : ℝ)) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_9; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) (show 2 * (1 / (n : ℝ)) ≤ 2 * (1 / (N : ℝ)) by have h := (Rat.cast_le (K := ℝ)).mpr s1_3_10; simp only [Rat.cast_mul, Rat.cast_div, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)) s1_3_11
       -- 1.3.14. mun:reciprocal-positive x := n², from 1.3.6

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/congruent-square-product.proof by parley build lean. -/
@@ -39,7 +39,7 @@ theorem congruent_square_product (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH
   have s2 : n ∣ (a - b) * a := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := n) (a := a - b) (x := a) s1)
   -- 3. substitute
   have s3 : n ∣ a ^ 2 - a * b := by
-    have c1 : (a - b) * a = a ^ 2 - a * b := by parley_ring
+    have c1 : (a - b) * a = a ^ 2 - a * b := by ring1
     have row1 : n ∣ a ^ 2 - a * b := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3

@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -22,6 +20,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -35,6 +34,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -95,9 +95,9 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 15. calculation
   have s15 : ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = 1 / 2 := by
     calc ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = (2 ^ j.toNat * 2 - (2 ^ j.toNat + 1) + 1) * (1 / (2 ^ j.toNat * 2)) := by
-          have e_w : (2 ^ (j + 1).toNat : ℚ) = 2 ^ j.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (2 ^ (j + 1).toNat : ℚ) = 2 ^ j.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h ⊢; linear_combination h
           (have h := congrArg (fun t : ℚ => (t - (2 ^ j.toNat + 1) + 1) * (1 / t)) e_w; push_cast at h ⊢; exact_mod_cast h)
-      _ = 1 / 2 := by parley_ring
+      _ = 1 / 2 := by have hz1 : (2 ^ j.toNat : ℚ) ≠ 0 := (by positivity); field
   -- 16. transitivity, from 15, 14, 11
   have s16 : 1 / 2 ≤ (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / (k : ℚ) : ℚ)) := by exact Eq.trans_le (Eq.trans s15.symm s14.symm) s11
   -- 17. inequalities

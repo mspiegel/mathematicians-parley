@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -20,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 
 /-! Written from proofs/setmm/parity.proof by parley build lean. -/
@@ -34,9 +33,9 @@ theorem odd_square_over_eight (N : ℤ) :
   -- 1. calculation
   have s1 : ((M : ℚ) ^ 2 - 1) / 8 = (N : ℚ) * ((N : ℚ) + 1) / 2 := by
     calc ((M : ℚ) ^ 2 - 1) / 8 = ((2 * (N : ℚ) + 1) ^ 2 - 1) / 8 := by
-          have e_w : (M : ℚ) = 2 * (N : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hD1; push_cast at h; linear_combination (norm := parley_norm) h
+          have e_w : (M : ℚ) = 2 * (N : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hD1; push_cast at h; linear_combination h
           exact congrArg (fun t : ℚ => (t ^ 2 - 1) / 8) e_w
-      _ = (N : ℚ) * ((N : ℚ) + 1) / 2 := by parley_ring
+      _ = (N : ℚ) * ((N : ℚ) + 1) / 2 := by ring1
   (have h := s1; rw [hD1] at h; push_cast at h ⊢; exact h)
 
 end Parley.Proofs.Setmm.Parity.OddSquareOverEight

@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Cast.Basic
@@ -35,12 +34,12 @@ theorem half_turn (x : ℝ) (hH2 : x ∈ ({-Real.pi, Real.pi} : Set ℝ)) :
   rcases s1 with hC1 | hC2
   · skip
     -- 2.1. algebra, from C1
-    have s2_1 : x = (2 * -1 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC1
+    have s2_1 : x = (2 * -1 + 1) * Real.pi := by linear_combination hC1
     -- 2.2. exhibit, from 2.1
     exact ⟨(-1 : ℤ), by exact_mod_cast s2_1⟩
   · skip
     -- 2.3. algebra, from C2
-    have s2_3 : x = (2 * 0 + 1) * Real.pi := by linear_combination (norm := parley_norm) hC2
+    have s2_3 : x = (2 * 0 + 1) * Real.pi := by linear_combination hC2
     -- 2.4. exhibit, from 2.3
     exact ⟨(0 : ℤ), by simpa only [Int.cast_zero] using s2_3⟩
 

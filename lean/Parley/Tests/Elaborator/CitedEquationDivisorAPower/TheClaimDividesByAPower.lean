@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -9,6 +8,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -32,6 +32,6 @@ theorem the_claim_divides_by_a_power (t : ℝ) (F : ℝ) (hH3 : t ≠ 0) (hH4 : 
     F = 1 / t ^ 2 := by
   -- 1. algebra, from H4
   have r26_1 : t ≠ 0 := by exact hH3
-  linear_combination (norm := parley_field) ((1) / ((t ^ 2))) * hH4
+  have hz1 : t ≠ 0 := r26_1; linear_combination (norm := (field)) ((1) / ((t ^ 2))) * hH4
 
 end Parley.Tests.Elaborator.CitedEquationDivisorAPower.TheClaimDividesByAPower

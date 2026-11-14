@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -19,6 +17,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -62,7 +61,7 @@ theorem sqrt3_irrational :
     have s2_2 : ((p : ℚ) / (q : ℚ)) ^ 2 = 3 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 2 = 3)) s2_1b s1; push_cast at h ⊢; exact_mod_cast h)
     -- 2.3. algebra, from 2.2
     have r154_1 : q ≠ 0 := ne_of_gt (by linarith only [s2_1a])
-    have s2_3 : p ^ 2 = 3 * q ^ 2 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 2) * s2_2
+    have s2_3 : p ^ 2 = 3 * q ^ 2 := by qify at *; have hz1 : (q : ℚ) ≠ 0 := (by exact_mod_cast r154_1); linear_combination (norm := (field)) ((q : ℚ) ^ 2) * s2_2
     -- 2.4. def:divides d := 3, n := p², from 2.3
     have s2_4 : (3 : ℤ) ∣ p ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2))).mpr ⟨q ^ 2, s2_3⟩
     -- 2.5. thm:three-divides-square n := p, from 2.4
@@ -72,7 +71,7 @@ theorem sqrt3_irrational :
     -- 2.7. substitute p = 3r (line 2.6) into line 2.3
     have s2_7 : (3 * r) ^ 2 = 3 * q ^ 2 := Eq.subst (motive := (fun t : ℤ => t ^ 2 = 3 * q ^ 2)) s2_6 s2_3
     -- 2.8. algebra, from 2.7
-    have s2_8 : q ^ 2 = 3 * r ^ 2 := by qify at *; linear_combination (norm := parley_norm) (-(1 / 3 : ℚ)) * s2_7
+    have s2_8 : q ^ 2 = 3 * r ^ 2 := by qify at *; linear_combination (-(1 / 3 : ℚ)) * s2_7
     -- 2.9. def:divides d := 3, n := q², from 2.8
     have s2_9 : (3 : ℤ) ∣ q ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := q ^ 2))).mpr ⟨r ^ 2, s2_8⟩
     -- 2.10. thm:three-divides-square n := q, from 2.9

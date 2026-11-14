@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -55,7 +54,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       -- 6.2. mun:divides-self n := b
       have s6_2 : b ∣ b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := b))
       -- 6.3. algebra, from C1, 4
-      have s6_3 : a = b * q := by linear_combination (norm := parley_norm) hC1 + (-1) * s4
+      have s6_3 : a = b * q := by linear_combination hC1 + (-1) * s4
       -- 6.4. def:divides d := b, n := a, from 6.3
       have s6_4 : b ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := b) (n := a))).mpr ⟨q, s6_3⟩
       -- 6.5. join H2, 6.2, 6.4
@@ -85,7 +84,7 @@ theorem gcd_integer_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
       have s6_11 : (Int.gcd a b : ℤ) ∣ b * q + a % b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (Int.gcd a b : ℤ)) (a := b * q) (b := a % b) s6_10 s6_9b)
       -- 6.12. substitute
       have s6_12 : (Int.gcd a b : ℤ) ∣ a := by
-        have c1 : b * q + a % b = a := by linear_combination (norm := parley_norm) s4
+        have c1 : b * q + a % b = a := by linear_combination s4
         have row1 : (Int.gcd a b : ℤ) ∣ a := Eq.subst (motive := (fun t : ℤ => (Int.gcd a b : ℤ) ∣ t)) c1 s6_11
         exact row1
       -- 6.13. join 6.9, 6.12

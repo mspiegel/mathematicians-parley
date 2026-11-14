@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -41,7 +40,7 @@ theorem size_without_a_pair {α : Type*} (A : Set α) (B : α) (hH2 : B ∈ A) (
   have c1 : (({B, C} : Set α).ncard : ℤ) = 2 := by exact ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := B) (w := C))).mp hH5
   have row1 : ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - 2 := by
     have e_nat : ({B, C} : Set α).ncard = 2 := by exact_mod_cast c1
-    have e_w : (({B, C} : Set α).ncard : ℤ) = 2 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+    have e_w : (({B, C} : Set α).ncard : ℤ) = 2 := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
     exact Eq.subst (motive := (fun t : ℤ => ((A \ ({B, C} : Set α)).ncard : ℤ) = (A.ncard : ℤ) - t)) e_w s2
   exact row1
 

@@ -8,6 +8,7 @@ public import Mathlib.Algebra.Order.Star.Int
 public import Mathlib.Data.Nat.Cast.Order.Ring
 public import Mathlib.Data.Nat.Choose.Basic
 public import Mathlib.Data.Nat.Factorial.Basic
+public import Mathlib.Tactic.Positivity.Core
 
 /-!
 # Factorials and binomial coefficients as the page reads them
@@ -21,6 +22,8 @@ taken here of integers and is Mathlib's on the naturals.
   not negative.
 - C(n, k) is set.mm's: `Nat.choose` where k is not negative, which is
   already 0 above n, and 0 where k is negative.
+- n! is positive, which `positivity` is told, so that a step dividing by a
+  factorial shows it is not 0 as Mathlib's own `Nat.factorial` is shown.
 
 The definitions stand apart from the theorems about them (`Counting`), so
 that the tactics, which unfold them, rebuild only when they change.
@@ -54,4 +57,22 @@ namespace LeanBridges.Counting
 @[simp] theorem choose_natCast (n k : ℕ) : choose n k = n.choose k := by
   simp [choose]
 
+/-- n! is positive. -/
+theorem factorial_pos (n : ℤ) : 0 < factorial n := Nat.factorial_pos _
+
 end LeanBridges.Counting
+
+open Lean Meta Mathlib.Meta.Positivity Qq in
+/-- `positivity` of n!, by `factorial_pos`, as Mathlib's extension for
+`Nat.factorial`. -/
+@[positivity LeanBridges.Counting.factorial _]
+meta def LeanBridges.Counting.evalFactorial : PositivityExt where
+  eval {u α} _ pα? e :=
+    match pα? with
+    | none => throwError "not PartialOrder ℕ"
+    | some _ => do
+      match u, α, e with
+      | 0, ~q(ℕ), ~q(LeanBridges.Counting.factorial $n) =>
+        assertInstancesCommute
+        pure (.positive q(LeanBridges.Counting.factorial_pos $n))
+      | _, _, _ => throwError "not the bridge's factorial"

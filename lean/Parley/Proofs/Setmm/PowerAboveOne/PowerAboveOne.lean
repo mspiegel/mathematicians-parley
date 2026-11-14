@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.ZeroLEOne
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/power-above-one.proof by parley build lean. -/
@@ -56,7 +56,7 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℤ) (hH3 : 0 < n) :
       have s1_6 : 1 < A * A ^ k.toNat := by exact lt_of_lt_of_le hH2 s1_5
       -- 1.7. calculation
       calc (1 : ℝ) < A * A ^ k.toNat := s1_6
-        _ = A ^ k.toNat * A := by parley_ring
+        _ = A ^ k.toNat * A := by ring1
         _ = A ^ (k + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK))).symm
   -- 2. instantiate k := n in line 1
   exact (s1 n hH3)

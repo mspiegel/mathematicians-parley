@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -25,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/eight-divides-odd-square.proof by parley build lean. -/
@@ -40,7 +40,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
   -- 2. calculation
   have s2 : n ^ 2 - 1 = 4 * (k * (k + 1)) := by
     calc n ^ 2 - 1 = (2 * k + 1) ^ 2 - 1 := congrArg (fun t : ℤ => t ^ 2 - 1) s1
-      _ = 4 * (k * (k + 1)) := by parley_ring
+      _ = 4 * (k * (k + 1)) := by ring1
   -- 3. mun:even-or-odd n := k
   have s3 : Even k ∨ Odd k := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))
   -- 4. cases, from 3
@@ -53,7 +53,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     -- 4.3. calculation
     have s4_3 : n ^ 2 - 1 = 8 * (j * (2 * j + 1)) := by
       calc n ^ 2 - 1 = 4 * (2 * j * (2 * j + 1)) := s4_2
-        _ = 8 * (j * (2 * j + 1)) := by parley_ring
+        _ = 8 * (j * (2 * j + 1)) := by ring1
     -- 4.4. def:divides d := 8, n := n² − 1, from 4.3
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), s4_3⟩
   · skip
@@ -64,7 +64,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     -- 4.7. calculation
     have s4_7 : n ^ 2 - 1 = 8 * ((2 * j + 1) * (j + 1)) := by
       calc n ^ 2 - 1 = 4 * ((2 * j + 1) * (2 * j + 1 + 1)) := s4_6
-        _ = 8 * ((2 * j + 1) * (j + 1)) := by parley_ring
+        _ = 8 * ((2 * j + 1) * (j + 1)) := by ring1
     -- 4.8. def:divides d := 8, n := n² − 1, from 4.7
     exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), s4_7⟩
 

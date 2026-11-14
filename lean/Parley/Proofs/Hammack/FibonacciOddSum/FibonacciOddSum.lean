@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -33,6 +31,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
@@ -85,7 +84,7 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
       -- 5.7. calculation
       have s5_7 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num
-          _ = 1 := by linear_combination (norm := parley_norm) s5_4 + s5_5 + s5_6
+          _ = 1 := by linear_combination s5_4 + s5_5 + s5_6
       -- 5.8. calculation
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
         _ = F (2 * 1 - 1) := by simp (disch := omega) only [hD2]
@@ -100,14 +99,14 @@ theorem fibonacci_odd_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ →
       have s5_10 : q (m + 1) = F (2 * (m + 1) - 1) := by simp (disch := omega) only [hD2]
       -- 5.11. substitute
       have s5_11 : q (m + 1) = F (2 * m + 1) := by
-        have c1 : 2 * (m + 1) - 1 = 2 * m + 1 := by parley_ring
+        have c1 : 2 * (m + 1) - 1 = 2 * m + 1 := by ring1
         have row1 : q (m + 1) = F (2 * m + 1) := Eq.subst (motive := (fun t : ℤ => q (m + 1) = F t)) c1 s5_10
         exact row1
       -- 5.12. instantiate k := 2m in line 4
       have s5_12 : F (2 * m + 2) = F (2 * m) + F (2 * m + 1) := by exact (s4 (2 * m) (mul_nonneg (by norm_num) (le_of_lt (lt_of_lt_of_le zero_lt_one hK4))))
       -- 5.13. substitute
       have s5_13 : F (2 * (m + 1)) = F (2 * m) + F (2 * m + 1) := by
-        have c1 : 2 * m + 2 = 2 * (m + 1) := by parley_ring
+        have c1 : 2 * m + 2 = 2 * (m + 1) := by ring1
         have row1 : F (2 * (m + 1)) = F (2 * m) + F (2 * m + 1) := Eq.subst (motive := (fun t : ℤ => F t = F (2 * m) + F (2 * m + 1))) c1 s5_12
         exact row1
       -- 5.14. calculation

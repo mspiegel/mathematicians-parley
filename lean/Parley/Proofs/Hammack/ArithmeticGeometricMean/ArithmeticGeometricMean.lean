@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
@@ -25,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/arithmetic-geometric-mean.proof by parley build lean. -/
@@ -58,11 +57,11 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
   have s5_5 : (a + b) ^ 2 < (2 * Real.sqrt (a * b)) ^ 2 := by exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) s5_4 s5_2)).mp s5_1
   -- 5.6. substitute
   have s5_6 : (a + b) ^ 2 < 4 * (a * b) := by
-    have c1 : (2 * Real.sqrt (a * b)) ^ 2 = 4 * (a * b) := by linear_combination (norm := parley_norm) (4) * s4b
+    have c1 : (2 * Real.sqrt (a * b)) ^ 2 = 4 * (a * b) := by linear_combination (4) * s4b
     have row1 : (a + b) ^ 2 < 4 * (a * b) := Eq.subst (motive := (fun t : ℝ => (a + b) ^ 2 < t)) c1 s5_5
     exact row1
   -- 5.7. algebra
-  have s5_7 : (a - b) ^ 2 = (a + b) ^ 2 - 4 * (a * b) := by parley_ring
+  have s5_7 : (a - b) ^ 2 = (a + b) ^ 2 - 4 * (a * b) := by ring1
   -- 5.8. mun:square-nonneg x := a − b
   have s5_8 : (a - b) ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b))
   -- 5.9. inequalities

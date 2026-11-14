@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/odd-quadratic-always.proof by parley build lean. -/
@@ -44,7 +44,7 @@ theorem odd_quadratic_always (n : ℤ) :
     -- 2.2. calculation
     have s2_2 : 5 * n ^ 2 + 3 * n + 7 = 2 * (10 * k ^ 2 + 3 * k + 3) + 1 := by
       calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k) ^ 2 + 3 * (2 * k) + 7 := congrArg (fun t : ℤ => 5 * t ^ 2 + 3 * t + 7) s2_1
-        _ = 2 * (10 * k ^ 2 + 3 * k + 3) + 1 := by parley_ring
+        _ = 2 * (10 * k ^ 2 + 3 * k + 3) + 1 := by ring1
     -- 2.3. def:odd n := 5n² + 3n + 7, from 2.2
     exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 3 * k + 3, s2_2⟩
   · skip
@@ -53,7 +53,7 @@ theorem odd_quadratic_always (n : ℤ) :
     -- 2.5. calculation
     have s2_5 : 5 * n ^ 2 + 3 * n + 7 = 2 * (10 * k ^ 2 + 13 * k + 7) + 1 := by
       calc 5 * n ^ 2 + 3 * n + 7 = 5 * (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 7 := congrArg (fun t : ℤ => 5 * t ^ 2 + 3 * t + 7) s2_4
-        _ = 2 * (10 * k ^ 2 + 13 * k + 7) + 1 := by parley_ring
+        _ = 2 * (10 * k ^ 2 + 13 * k + 7) + 1 := by ring1
     -- 2.6. def:odd n := 5n² + 3n + 7, from 2.5
     exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, s2_5⟩
 

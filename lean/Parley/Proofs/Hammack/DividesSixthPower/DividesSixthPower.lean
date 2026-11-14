@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -21,6 +20,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-sixth-power.proof by parley build lean. -/
@@ -42,7 +42,7 @@ theorem divides_sixth_power (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 ∣ b) (h
   -- 5. calculation
   have s5 : c = a ^ 6 * (k ^ 3 * m) := by
     calc c = (a ^ 2 * k) ^ 3 * m := s4
-      _ = a ^ 6 * (k ^ 3 * m) := by parley_ring
+      _ = a ^ 6 * (k ^ 3 * m) := by ring1
   -- 6. def:divides d := a⁶, n := c, from 5
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a ^ 6) (n := c))).mpr ⟨k ^ 3 * m, s5⟩
 

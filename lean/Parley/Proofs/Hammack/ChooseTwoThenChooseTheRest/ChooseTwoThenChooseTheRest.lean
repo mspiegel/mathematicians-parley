@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Mathlib.Algebra.Order.Field.Basic
@@ -13,6 +12,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -23,9 +23,11 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 
@@ -75,7 +77,7 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   -- 17. def:C n := k, k := 2, from 8
   have s17 : (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.factorial k : ℚ) / ((LeanBridges.Counting.factorial (k - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) := by exact (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (le_of_lt hH2) (k := (2 : ℤ))) s8
   -- 18. algebra
-  have s18 : n - 2 - (k - 2) = n - k := by parley_ring
+  have s18 : n - 2 - (k - 2) = n - k := by ring1
   -- 19. substitute
   have s19 : (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ)) := by
     have c1 : n - 2 - (k - 2) = n - k := congrArg (fun t : ℤ => t) s18
@@ -88,7 +90,7 @@ theorem choose_two_then_choose_the_rest (n : ℤ) (hH1 : 0 < n) (k : ℤ) (hH2 :
   qify
   calc (LeanBridges.Counting.choose n (2 : ℤ) : ℚ) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ) := congrArg (fun t : ℚ => t * (LeanBridges.Counting.choose (n - 2) (k - 2) : ℚ)) s14
     _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * ((LeanBridges.Counting.factorial (n - 2) : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial (k - 2) : ℚ))) := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ)) * t) s19
-    _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * ((LeanBridges.Counting.factorial k : ℚ) / ((LeanBridges.Counting.factorial (k - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ))) := by parley_ring
+    _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * ((LeanBridges.Counting.factorial k : ℚ) / ((LeanBridges.Counting.factorial (k - 2) : ℚ) * (LeanBridges.Counting.factorial (2 : ℤ) : ℚ))) := by have hz1 : (LeanBridges.Counting.factorial (n - 2) : ℚ) ≠ 0 := (by exact_mod_cast r78_1.ne'); have hz2 : (LeanBridges.Counting.factorial (n - k) : ℚ) ≠ 0 := (by exact_mod_cast r78_2.ne'); have hz3 : (LeanBridges.Counting.factorial (k - 2) : ℚ) ≠ 0 := (by exact_mod_cast r78_3.ne'); have hz4 : (LeanBridges.Counting.factorial k : ℚ) ≠ 0 := (by positivity); field
     _ = (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := congrArg (fun t : ℚ => (LeanBridges.Counting.factorial n : ℚ) / ((LeanBridges.Counting.factorial (n - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) * t) s17.symm
     _ = (LeanBridges.Counting.choose n k : ℚ) * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := congrArg (fun t : ℚ => t * (LeanBridges.Counting.choose k (2 : ℤ) : ℚ)) s16.symm
 

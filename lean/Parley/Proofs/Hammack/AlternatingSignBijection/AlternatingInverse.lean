@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
@@ -32,6 +30,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -65,7 +64,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     -- 2.5. mun:inverse-value g := f, y := 2·m, from 1, 2.2
     have s2_5 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (2 * m)) = 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 2 * m) s1 s2_2)
     -- 2.6. substitute
-    have c1 : f (2 * m) = m := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s2_4
+    have c1 : f (2 * m) = m := by qify at *; linear_combination ((2) / (((2 : ℚ)))) * s2_4
     have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 2 * m := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) t = 2 * m)) c1 s2_5
     exact row1
   -- 3. proof
@@ -79,7 +78,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     -- 3.3. mun:pos-int-nat m := 1 − 2·m, from 3.2
     have s3_3 : 0 < 1 - 2 * m := by exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := 1 - 2 * m) s3_2)
     -- 3.4. algebra
-    have s3_4 : 1 - 2 * m = 2 * -m + 1 := by parley_ring
+    have s3_4 : 1 - 2 * m = 2 * -m + 1 := by ring1
     -- 3.5. def:odd n := 1 − 2·m, from 3.4
     have s3_5 : Odd (1 - 2 * m) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 1 - 2 * m))).mpr ⟨-m, s3_4⟩
     -- 3.6. thm:alternating-value-odd m := 1 − 2·m, from H2, 3.3, 3.5
@@ -89,7 +88,7 @@ theorem alternating_inverse (f : ℤ → ℤ) (hH1 : Set.MapsTo f {n : ℤ | 0 <
     -- 3.7. mun:inverse-value g := f, y := 1 − 2·m, from 1, 3.3
     have s3_7 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) (f (1 - 2 * m)) = 1 - 2 * m := by exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℤ)) (Y := {n : ℤ | 0 < n}) (g := f) (y := 1 - 2 * m) s1 s3_3)
     -- 3.8. substitute
-    have c1 : f (1 - 2 * m) = m := by qify at *; linear_combination (norm := parley_norm) ((2) / ((2))) * s3_6
+    have c1 : f (1 - 2 * m) = m := by qify at *; linear_combination ((2) / (((2 : ℚ)))) * s3_6
     have row1 : (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) m = 1 - 2 * m := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Functions.inverse f {n : ℤ | 0 < n}) t = 1 - 2 * m)) c1 s3_7
     exact row1
   -- 4. join 2, 3

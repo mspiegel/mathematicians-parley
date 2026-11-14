@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
-public import NormTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
@@ -21,6 +19,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -60,7 +59,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
     have s1_2 : ((p : ℚ) / (q : ℚ)) ^ 3 + (p : ℚ) / (q : ℚ) + 3 = 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t ^ 3 + t + 3 = 0)) s1_1b hH2; push_cast at h ⊢; exact_mod_cast h)
     -- 1.3. algebra, from 1.2
     have r29_1 : q ≠ 0 := ne_of_gt (by linarith only [s1_1a])
-    have s1_3 : p ^ 3 + p * q ^ 2 + 3 * q ^ 3 = 0 := by qify at *; linear_combination (norm := parley_field) ((q : ℚ) ^ 3) * s1_2
+    have s1_3 : p ^ 3 + p * q ^ 2 + 3 * q ^ 3 = 0 := by qify at *; have hz1 : (q : ℚ) ≠ 0 := (by exact_mod_cast r29_1); linear_combination (norm := (field)) ((q : ℚ) ^ 3) * s1_2
     -- 1.4. mun:even-or-odd n := p
     have s1_4 : Even p ∨ Odd p := by exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := p))
     -- 1.5. cases, from 1.4
@@ -95,7 +94,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
             have row2 : (2 * r) ^ 3 + 2 * r * (2 * s + 1) ^ 2 + 3 * (2 * s + 1) ^ 3 = 0 := Eq.subst (motive := (fun t : ℤ => (2 * r) ^ 3 + 2 * r * t ^ 2 + 3 * t ^ 3 = 0)) c2 row1
             exact row2
           -- 1.5.3.7. algebra, from 1.5.3.6
-          have s1_5_3_7 : 1 = 2 * -(4 * r ^ 3 + 4 * r * s ^ 2 + 4 * r * s + r + 12 * s ^ 3 + 18 * s ^ 2 + 9 * s + 1) := by linear_combination (norm := parley_norm) s1_5_3_6
+          have s1_5_3_7 : 1 = 2 * -(4 * r ^ 3 + 4 * r * s ^ 2 + 4 * r * s + r + 12 * s ^ 3 + 18 * s ^ 2 + 9 * s + 1) := by linear_combination s1_5_3_6
           -- 1.5.3.8. def:even n := 1, from 1.5.3.7
           exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 4 * r * s ^ 2 + 4 * r * s + r + 12 * s ^ 3 + 18 * s ^ 2 + 9 * s + 1), s1_5_3_7⟩
       · skip
@@ -113,7 +112,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           -- 1.5.7.2. substitute q = 2s (line 1.5.7.1) into line 1.5.5
           have s1_5_7_2 : (2 * r + 1) ^ 3 + (2 * r + 1) * (2 * s) ^ 2 + 3 * (2 * s) ^ 3 = 0 := Eq.subst (motive := (fun t : ℤ => (2 * r + 1) ^ 3 + (2 * r + 1) * t ^ 2 + 3 * t ^ 3 = 0)) s1_5_7_1 s1_5_5
           -- 1.5.7.3. algebra, from 1.5.7.2
-          have s1_5_7_3 : 1 = 2 * -(4 * r ^ 3 + 6 * r ^ 2 + 3 * r + 4 * r * s ^ 2 + 2 * s ^ 2 + 12 * s ^ 3) := by linear_combination (norm := parley_norm) s1_5_7_2
+          have s1_5_7_3 : 1 = 2 * -(4 * r ^ 3 + 6 * r ^ 2 + 3 * r + 4 * r * s ^ 2 + 2 * s ^ 2 + 12 * s ^ 3) := by linear_combination s1_5_7_2
           -- 1.5.7.4. def:even n := 1, from 1.5.7.3
           exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 3 * r + 4 * r * s ^ 2 + 2 * s ^ 2 + 12 * s ^ 3), s1_5_7_3⟩
         · skip
@@ -122,7 +121,7 @@ theorem cubic_root_is_irrational (x : ℝ) (hH2 : x ^ 3 + x + 3 = 0) :
           -- 1.5.7.6. substitute q = 2s + 1 (line 1.5.7.5) into line 1.5.5
           have s1_5_7_6 : (2 * r + 1) ^ 3 + (2 * r + 1) * (2 * s + 1) ^ 2 + 3 * (2 * s + 1) ^ 3 = 0 := Eq.subst (motive := (fun t : ℤ => (2 * r + 1) ^ 3 + (2 * r + 1) * t ^ 2 + 3 * t ^ 3 = 0)) s1_5_7_5 s1_5_5
           -- 1.5.7.7. algebra, from 1.5.7.6
-          have s1_5_7_7 : 1 = 2 * -(4 * r ^ 3 + 6 * r ^ 2 + 4 * r + 4 * r * s ^ 2 + 4 * r * s + 12 * s ^ 3 + 20 * s ^ 2 + 11 * s + 2) := by linear_combination (norm := parley_norm) s1_5_7_6
+          have s1_5_7_7 : 1 = 2 * -(4 * r ^ 3 + 6 * r ^ 2 + 4 * r + 4 * r * s ^ 2 + 4 * r * s + 12 * s ^ 3 + 20 * s ^ 2 + 11 * s + 2) := by linear_combination s1_5_7_6
           -- 1.5.7.8. def:even n := 1, from 1.5.7.7
           exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨-(4 * r ^ 3 + 6 * r ^ 2 + 4 * r + 4 * r * s ^ 2 + 4 * r * s + 12 * s ^ 3 + 20 * s ^ 2 + 11 * s + 2), s1_5_7_7⟩
     -- 1.6. mun:not-both n := 1, from 1.5

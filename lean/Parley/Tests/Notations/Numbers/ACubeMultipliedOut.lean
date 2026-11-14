@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/notations/numbers.proof by parley build lean. -/
 
@@ -28,6 +28,6 @@ namespace Parley.Tests.Notations.Numbers.ACubeMultipliedOut
 theorem a_cube_multiplied_out (x : ℝ) :
     (x + 1) ^ 3 = x ^ 3 + 3 * x ^ 2 + 3 * x + 1 := by
   -- 1. algebra
-  parley_ring
+  ring1
 
 end Parley.Tests.Notations.Numbers.ACubeMultipliedOut

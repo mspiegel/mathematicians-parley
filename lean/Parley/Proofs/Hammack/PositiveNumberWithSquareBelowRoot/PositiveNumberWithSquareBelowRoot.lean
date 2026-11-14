@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -57,7 +56,7 @@ theorem positive_number_with_square_below_root :
   -- 5. substitute 1/16 = (1/4)² (arithmetic) into line 4
   have s5 : (1 / 4) ^ 2 < Real.sqrt (1 / 4 : ℝ) := by
     have e_arith : (1 / 16 : ℚ) = (1 / 4) ^ 2 := by parley_arith
-    have e_w : (1 / 16 : ℝ) = (1 / 4) ^ 2 := by have h := congrArg (fun x : ℚ => (x : ℝ)) e_arith; push_cast at h; linear_combination (norm := parley_norm) h
+    have e_w : (1 / 16 : ℝ) = (1 / 4) ^ 2 := by have h := congrArg (fun x : ℚ => (x : ℝ)) e_arith; push_cast at h ⊢; linear_combination h
     exact Eq.subst (motive := (fun t : ℝ => t < Real.sqrt (1 / 4 : ℝ))) e_w s4
   -- 6. arithmetic
   have s6 : (1 / 4 : ℚ) > 0 := by parley_arith

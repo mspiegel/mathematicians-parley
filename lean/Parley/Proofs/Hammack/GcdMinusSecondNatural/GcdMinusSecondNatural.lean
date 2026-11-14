@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -18,6 +17,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/gcd-minus-second-natural.proof by parley build lean. -/
@@ -32,7 +32,7 @@ theorem gcd_minus_second_natural (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   have s1 : (-1 * b + a) % b = a % b := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := a) (m := b) hH2 (q := (-1 : ℤ)))
   -- 2. substitute
   have s2 : (a - b) % b = a % b := by
-    have c1 : -1 * b + a = a - b := by parley_ring
+    have c1 : -1 * b + a = a - b := by ring1
     have row1 : (a - b) % b = a % b := Eq.subst (motive := (fun t : ℤ => t % b = a % b)) c1 s1
     exact row1
   -- 3. calculation

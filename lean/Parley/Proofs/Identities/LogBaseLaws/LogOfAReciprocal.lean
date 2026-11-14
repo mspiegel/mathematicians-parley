@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -10,6 +9,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -42,6 +42,6 @@ theorem log_of_a_reciprocal (x : ℝ) (b : ℝ) (hH3 : x > 0) (hH4 : b > 0) (hH5
   have s3 : Real.log b ≠ 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := b) hH4 hH5)
   -- 4. calculation
   calc Real.log (1 / x) / Real.log b = (0 - Real.log x) / Real.log b := congrArg (fun t : ℝ => t / Real.log b) s2
-    _ = -(Real.log x / Real.log b) := by parley_ring
+    _ = -(Real.log x / Real.log b) := by have hz1 : Real.log b ≠ 0 := s3; field
 
 end Parley.Proofs.Identities.LogBaseLaws.LogOfAReciprocal

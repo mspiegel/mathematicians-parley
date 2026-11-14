@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import RealTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Complex.Order
@@ -26,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from proofs/wiedijk/ptolemy.proof by parley build lean. -/
@@ -37,7 +36,7 @@ namespace Parley.Proofs.Wiedijk.Ptolemy.Ptolemy
 theorem ptolemy (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (hH5 : a + b + c + d = Real.pi) :
     Real.sin a * Real.sin b + Real.sin c * Real.sin d = Real.sin (b + c) * Real.sin (a + c) := by
   -- 1. algebra, from H5
-  have s1 : d = Real.pi + -(a + b + c) := by linear_combination (norm := parley_norm) hH5
+  have s1 : d = Real.pi + -(a + b + c) := by linear_combination hH5
   -- 2. mun:sin-negative a := a + b + c
   have s2 : Real.sin (-(a + b + c)) = -Real.sin (a + b + c) := by
     have hI : Real.sin (-(a + b + c)) = -Real.sin (a + b + c) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := (a : ℂ) + (b : ℂ) + (c : ℂ))))
@@ -51,7 +50,7 @@ theorem ptolemy (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (hH5 : a + b + c + d = R
       _ = 0 * Real.cos (-(a + b + c)) + Real.cos Real.pi * Real.sin (-(a + b + c)) := by parley_real
       _ = 0 * Real.cos (-(a + b + c)) + -1 * Real.sin (-(a + b + c)) := by parley_real
       _ = 0 * Real.cos (-(a + b + c)) + -1 * -Real.sin (a + b + c) := congrArg (fun t : ℝ => 0 * Real.cos (-(a + b + c)) + -1 * t) s2
-      _ = Real.sin (a + b + c) := by parley_ring
+      _ = Real.sin (a + b + c) := by ring1
   -- 4. thm:sin-add a := a + b, b := c
   have s4 : Real.sin (a + b + c) = Real.sin (a + b) * Real.cos c + Real.cos (a + b) * Real.sin c := by
     have hI : Real.sin (a + b + c) = Real.sin (a + b) * Real.cos c + Real.cos (a + b) * Real.sin c := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (a : ℂ) + (b : ℂ)) (b := (c : ℂ))))
@@ -81,7 +80,7 @@ theorem ptolemy (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (hH5 : a + b + c + d = R
     _ = Real.sin a * Real.sin b + Real.sin c * (Real.sin (a + b) * Real.cos c + Real.cos (a + b) * Real.sin c) := congrArg (fun t : ℝ => Real.sin a * Real.sin b + Real.sin c * t) s4
     _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + Real.cos (a + b) * Real.sin c) := congrArg (fun t : ℝ => Real.sin a * Real.sin b + Real.sin c * (t * Real.cos c + Real.cos (a + b) * Real.sin c)) s5
     _ = Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + (Real.cos a * Real.cos b - Real.sin a * Real.sin b) * Real.sin c) := congrArg (fun t : ℝ => Real.sin a * Real.sin b + Real.sin c * ((Real.sin a * Real.cos b + Real.cos a * Real.sin b) * Real.cos c + t * Real.sin c)) s6
-    _ = (Real.sin b * Real.cos c + Real.cos b * Real.sin c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by linear_combination (norm := parley_norm) (-(Real.sin a * Real.sin b)) * s9
+    _ = (Real.sin b * Real.cos c + Real.cos b * Real.sin c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := by linear_combination (-(Real.sin a * Real.sin b)) * s9
     _ = Real.sin (b + c) * (Real.sin a * Real.cos c + Real.cos a * Real.sin c) := congrArg (fun t : ℝ => t * (Real.sin a * Real.cos c + Real.cos a * Real.sin c)) s7.symm
     _ = Real.sin (b + c) * Real.sin (a + c) := congrArg (fun t : ℝ => Real.sin (b + c) * t) s8.symm
 

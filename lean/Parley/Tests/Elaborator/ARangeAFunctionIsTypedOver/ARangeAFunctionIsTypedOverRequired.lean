@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-range-a-function-is-typed-over.proof by parley build lean. -/
@@ -30,6 +30,6 @@ namespace Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTy
 theorem a_range_a_function_is_typed_over_required (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (k : ℤ) (hH3 : k ∈ Finset.Icc (1 : ℤ) n) :
     a k + 0 = a k := by
   -- 1. algebra
-  parley_ring
+  ring_nf
 
 end Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTypedOverRequired

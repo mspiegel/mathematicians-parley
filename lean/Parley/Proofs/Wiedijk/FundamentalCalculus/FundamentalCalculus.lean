@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Module.Defs
@@ -115,7 +114,7 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
     -- 17.3. mun:in-subset, from K1, 4
     have s17_3 : x ∈ (Set.Icc a b : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Ioo a b : Set ℝ)) (Y := (Set.Icc a b : Set ℝ)) (u := x) s4 hK1)
     -- 17.4. algebra, from 17.2
-    linear_combination (norm := parley_norm) s17_2
+    linear_combination s17_2
   -- 18. D2, from 1
   have s18 : H a = G a - F a := by simp (disch := omega) only [hD2]
   -- 19. D2, from 2
@@ -138,6 +137,6 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   have s24 : G b - F b = 0 - F a := Eq.subst (motive := (fun t : ℝ => G b - F b = t - F a)) s23 s22
   -- 25. calculation
   calc (∫ t in a..b, (f t : ℝ)) = G b := s21.symm
-    _ = F b - F a := by linear_combination (norm := parley_norm) s24
+    _ = F b - F a := by linear_combination s24
 
 end Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus

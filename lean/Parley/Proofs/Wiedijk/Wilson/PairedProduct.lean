@@ -1,7 +1,6 @@
 module
 
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -187,7 +186,7 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
           have hI : (∏ᶠ a ∈ X, (a : ℤ)) = (∏ᶠ a ∈ L, (a : ℤ)) * (∏ᶠ a ∈ U, (a : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_split (t := (fun x : ℤ => x)) (X := X) (Y := L) (Z := U) hH2 s1 s2))
           exact hI
       _ = (∏ᶠ x ∈ L, (x : ℤ)) * (∏ᶠ x ∈ L, (f x : ℤ)) := congrArg (fun t : ℤ => (∏ᶠ x ∈ L, (x : ℤ)) * t) s15
-      _ = (∏ᶠ x ∈ L, (x * f x : ℤ)) := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5).symm
+      _ = (∏ᶠ x ∈ L, (x * f x : ℤ)) := by (have h := (Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := f) (X := L) s5).symm; push_cast at h ⊢; linear_combination h)
   -- 22. substitute ∏(x ∈ X) x = ∏(x ∈ L) x·f(x) (line 21) into line 20
   exact Eq.subst (motive := (fun t : ℤ => t ≡ (1 : ℤ) [ZMOD n])) s21.symm s20
 

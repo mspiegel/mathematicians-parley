@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Divisibility
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -13,6 +12,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -24,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -51,9 +52,9 @@ theorem remainder_below_divisor (A : ℝ) (B : ℝ) (hH3 : B > 0) :
     exact (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A / B))
   -- 4. calculation
   have s4 : A < B * (q : ℝ) + B := by
-    calc A = B * (A / B) := by parley_ring
+    calc A = B * (A / B) := by have hz1 : B ≠ 0 := s1; field
       _ < B * ((q : ℝ) + 1) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := A / B) (y := (q : ℝ) + 1) (c := B) hH3)).mp s3
-      _ = B * (q : ℝ) + B := by parley_ring
+      _ = B * (q : ℝ) + B := by ring1
   -- 5. inequalities
   have s5 : A - B * (q : ℝ) < B := by linarith only [s4]
   -- 6. substitute A mod B = A − B·q (line 2) into line 5

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -11,6 +10,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -58,6 +58,6 @@ theorem a_requires_weakening_with_its_membership (x : ℝ) (hH2 : x ≥ 0) :
   have s8 : Real.sqrt (x + 1) + Real.sqrt x > 0 := by linarith only [s3a, s7]
   -- 9. algebra, from 2, 3
   have r40_3 : Real.sqrt (x + 1) + Real.sqrt x ≠ 0 := ne_of_gt (by linarith only [s8])
-  linear_combination (norm := parley_field) ((1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s2b + ((-1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s3b
+  have hz1 : Real.sqrt (x + 1) + Real.sqrt x ≠ 0 := r40_3; linear_combination (norm := (field)) ((1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s2b + ((-1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s3b
 
 end Parley.Tests.Elaborator.ARequiresWeakeningWithItsMembership.ARequiresWeakeningWithItsMembership

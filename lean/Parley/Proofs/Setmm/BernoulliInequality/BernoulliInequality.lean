@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct
@@ -43,7 +43,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. algebra
-      have s1_1 : A ^ 0 = 1 := by parley_ring
+      have s1_1 : A ^ 0 = 1 := by ring1
       -- 1.2. inequalities
       have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by linarith only [s1_1]
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s1_2
@@ -66,7 +66,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℤ) (hH3 : 0 ≤ n)
       have s1_8 : A ^ k.toNat * A - ((A - 1) * ((k : ℝ) + 1) + 1) = A * X + (A - 1) ^ 2 * (k : ℝ) := by
         simp only [hD1] at ⊢
         push_cast at ⊢
-        parley_ring
+        ring1
       -- 1.9. inequalities, from 1.5, 1.7
       have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by linarith only [s1_5, s1_7]
       -- 1.10. transitivity, from 1.9, 1.8

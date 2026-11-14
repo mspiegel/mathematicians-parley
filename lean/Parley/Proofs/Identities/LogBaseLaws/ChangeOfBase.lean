@@ -1,12 +1,12 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -31,6 +31,6 @@ theorem change_of_base (x : ℝ) (b : ℝ) (c : ℝ) (hH4 : x > 0) (hH5 : b > 0)
   -- 2. mun:ln-nonzero x := c, from H7, H8
   have s2 : Real.log c ≠ 0 := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_nonzero (x := c) hH7 hH8)
   -- 3. algebra, from 1, 2
-  parley_ring
+  have hz1 : Real.log c ≠ 0 := s2; have hz2 : Real.log b ≠ 0 := s1; field
 
 end Parley.Proofs.Identities.LogBaseLaws.ChangeOfBase

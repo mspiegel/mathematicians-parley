@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import PowerTactics
 public import Mathlib.Algebra.Algebra.Defs
@@ -26,6 +25,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.NumberTheory.BernoulliPolynomials
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -41,6 +41,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Polynomials
 public import Parley.Items.Stdlib.Sums
@@ -63,7 +64,7 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
       have hI : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by parley_instance ((Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) r20_1 (x := (n : ℂ))))
       exact hI
     -- 1.2. substitute
-    have c1 : k + 1 - 1 = k := by parley_ring
+    have c1 : k + 1 - 1 = k := by ring1
     have row1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ k.toNat := by (have h := Eq.subst (motive := (fun t : ℤ => Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ t)) c1 s1_1; simp only [parley_zpow_toNat (n := k) (h := hH1)] at h ⊢; exact_mod_cast h)
     exact row1
   -- 2. calculation
@@ -74,6 +75,6 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
       _ = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli (k + 1).toNat) := by exact_mod_cast (Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat))) (a := (0 : ℤ)) (b := m) r29_1)
   -- 3. algebra, from 2
   have r36_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) hH1)
-  linear_combination (norm := parley_field) ((1) / (((k : ℂ) + 1))) * s2
+  have hz1 : (k : ℂ) + 1 ≠ 0 := (by exact_mod_cast r36_1.ne'); linear_combination (norm := (field)) ((1) / (((k : ℂ) + 1))) * s2
 
 end Parley.Proofs.Wiedijk.SumOfPowers.SumOfPowers

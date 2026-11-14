@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import Functions
-public import NormTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -22,6 +20,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -35,6 +34,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -87,14 +87,14 @@ theorem prime_factorisation (n : ℤ) (hH1 : 0 < n) (hH2 : n ≥ 2) :
       -- 1.8. def:prime, from 1.7
       have s1_8 : p > 1 := by exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := p) s1_7a)).mp s1_7b).1
       -- 1.9. algebra, from D2
-      have s1_9 : m = p * r := by qify at *; linear_combination (norm := parley_field) (-(p : ℚ)) * hD2
+      have s1_9 : m = p * r := by qify at *; have hz1 : (p : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (-(p : ℚ)) * hD2
       -- 1.10. inequalities, from 1.8
       have s1_10 : p - 1 > 0 := by linarith only [s1_8]
       -- 1.11. mun:product-positive x := p − 1, y := r, from D2, 1.10
       have s1_11 : (p - 1) * r > 0 := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (p : ℚ) - 1) (y := (r : ℚ)) (by exact_mod_cast gt_iff_lt.mp s1_10) (by exact_mod_cast gt_iff_lt.mp hD2_pos))
       -- 1.12. substitute
       have s1_12 : m - r > 0 := by
-        have c1 : (p - 1) * r = m - r := by linear_combination (norm := parley_norm) (-1) * s1_9
+        have c1 : (p - 1) * r = m - r := by linear_combination (-1) * s1_9
         have row1 : m - r > 0 := Eq.subst (motive := (fun t : ℤ => t > 0)) c1 s1_11
         exact row1
       -- 1.13. inequalities

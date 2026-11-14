@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -33,6 +31,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -47,6 +46,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -91,12 +91,12 @@ theorem halves_series :
       have s2_4 : (2 ^ (m + 1).toNat : ℤ) = 2 ^ m.toNat * 2 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m) (le_of_lt (lt_of_lt_of_le zero_lt_one hK2)))
       -- 2.5. substitute 2^(m + 1) = 2^m·2 (line 2.4)
       have s2_5 : (1 / 2 ^ (m + 1).toNat : ℚ) = 1 / (2 ^ m.toNat * 2) := by
-        have e_w : (2 ^ (m + 1).toNat : ℚ) = 2 ^ m.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : (2 ^ (m + 1).toNat : ℚ) = 2 ^ m.toNat * 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h ⊢; linear_combination h
         (have h := congrArg (fun t : ℚ => 1 / t) e_w; push_cast at h ⊢; exact_mod_cast h)
       -- 2.6. calculation
       calc (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ m.toNat + 1 / 2 ^ (m + 1).toNat := s2_3
         _ = 1 - 1 / 2 ^ m.toNat + 1 / (2 ^ m.toNat * 2) := congrArg (fun t : ℚ => 1 - 1 / 2 ^ m.toNat + t) s2_5
-        _ = 1 - 1 / (2 ^ m.toNat * 2) := by parley_ring
+        _ = 1 - 1 / (2 ^ m.toNat * 2) := by have hz1 : (2 ^ m.toNat : ℚ) ≠ 0 := (by positivity); field
         _ = 1 - 1 / 2 ^ (m + 1).toNat := congrArg (fun t : ℚ => 1 - t) s2_5.symm
   -- 3. proof
   have s3 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) - 1) < ε)) := by
@@ -138,7 +138,7 @@ theorem halves_series :
       -- 3.2.13. substitute
       have c1 : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℚ)) := by exact (s2 n hK4).symm
       have row1 : abs ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) - 1) < ε := by
-        have e_w : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
+        have e_w : 1 - 1 / 2 ^ n.toNat = (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ k.toNat : ℝ)) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c1; push_cast at h ⊢; linear_combination h
         exact Eq.subst (motive := (fun t : ℝ => abs (t - 1) < ε)) e_w s3_2_12
       exact row1
     -- 3.3. exhibit, from 3.2

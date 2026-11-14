@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree
 
@@ -52,7 +52,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
       -- 5.2. calculation
       have s5_2 : a ^ 3 - a = 3 * (9 * q ^ 3 - q) := by
         calc a ^ 3 - a = (q * 3) ^ 3 - q * 3 := congrArg (fun t : ℤ => t ^ 3 - t) s5_1.symm
-          _ = 3 * (9 * q ^ 3 - q) := by parley_ring
+          _ = 3 * (9 * q ^ 3 - q) := by ring1
       -- 5.3. def:divides d := 3, n := a³ − a, from 5.2
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 - q, s5_2⟩
     · skip
@@ -61,7 +61,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
       -- 5.5. calculation
       have s5_5 : a ^ 3 - a = 3 * (9 * q ^ 3 + 9 * q ^ 2 + 2 * q) := by
         calc a ^ 3 - a = (q * 3 + 1) ^ 3 - (q * 3 + 1) := congrArg (fun t : ℤ => t ^ 3 - t) s5_4.symm
-          _ = 3 * (9 * q ^ 3 + 9 * q ^ 2 + 2 * q) := by parley_ring
+          _ = 3 * (9 * q ^ 3 + 9 * q ^ 2 + 2 * q) := by ring1
       -- 5.6. def:divides d := 3, n := a³ − a, from 5.5
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 + 9 * q ^ 2 + 2 * q, s5_5⟩
     · skip
@@ -70,7 +70,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
       -- 5.8. calculation
       have s5_8 : a ^ 3 - a = 3 * (9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2) := by
         calc a ^ 3 - a = (q * 3 + 2) ^ 3 - (q * 3 + 2) := congrArg (fun t : ℤ => t ^ 3 - t) s5_7.symm
-          _ = 3 * (9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2) := by parley_ring
+          _ = 3 * (9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2) := by ring1
       -- 5.9. def:divides d := 3, n := a³ − a, from 5.8
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2, s5_8⟩
   -- 6. def:congruent-mod, from 5

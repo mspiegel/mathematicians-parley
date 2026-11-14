@@ -1,11 +1,11 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -28,6 +28,6 @@ theorem a_multiplier_over_the_divisor (x : ℝ) (y : ℝ) (hH3 : y = 1) (hH4 : x
     x * y / (x + 3) + 1 = x / (x + 3) + y := by
   -- 1. algebra, from H3
   have r54_1 : x + 3 ≠ 0 := by exact hH4
-  linear_combination (norm := parley_field) ((-3) / ((x + 3))) * hH3
+  have hz1 : x + 3 ≠ 0 := r54_1; linear_combination (norm := (field)) ((-3) / ((x + 3))) * hH3
 
 end Parley.Tests.Elaborator.Divisors.AMultiplierOverTheDivisor

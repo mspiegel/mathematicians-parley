@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
-public import NormTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -14,6 +12,7 @@ public import Mathlib.Data.Nat.Prime.Defs
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -27,6 +26,7 @@ public import Mathlib.Tactic.NormNum.Prime
 public import Mathlib.Tactic.NormNum.RealSqrt
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -51,7 +51,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     have hD1_kind : ∃ m : ℤ, 0 < m ∧ (m : ℚ) = (p : ℚ) / (d : ℚ) := by exact ((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := p) hH1 (d := d) hK)).mp hC
     obtain ⟨e, hD1_pos, hD1⟩ := hD1_kind
     -- 1.1. algebra, from D1
-    have s1_1 : p = d * e := by qify at *; linear_combination (norm := parley_field) (-(d : ℚ)) * hD1
+    have s1_1 : p = d * e := by qify at *; have hz1 : (d : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (-(d : ℚ)) * hD1
     -- 1.2. mun:not-either P := d = 1, Q := d = p, from S
     have s1_2a : d ≠ 1 := by
       have hI : d ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).1)
@@ -100,7 +100,7 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
         -- 1.11.7. mun:multiply-le x := e, y := d, c := e, from D1, 1.11.6
         have s1_11_7 : e * e ≤ e * d := by exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by exact_mod_cast s1_11_6) (by exact_mod_cast gt_iff_lt.mp hD1_pos))
         -- 1.11.8. algebra, from 1.1
-        have s1_11_8 : p = e * d := by linear_combination (norm := parley_norm) s1_1
+        have s1_11_8 : p = e * d := by linear_combination s1_1
         -- 1.11.9. def:divides d := e, n := p, from 1.11.8
         have s1_11_9 : e ∣ p := ((Parley.Items.Stdlib.Divisibility.def_divides (d := e) (n := p))).mpr ⟨d, s1_11_8⟩
         -- 1.11.10. thm:divisor-exceeds-root d := e, from H3, 1.9, 1.11.9

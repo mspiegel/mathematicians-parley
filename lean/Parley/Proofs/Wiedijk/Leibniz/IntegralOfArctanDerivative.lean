@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Field.Defs
@@ -47,6 +46,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Basic
@@ -112,7 +112,7 @@ theorem integral_of_arctan_derivative :
     -- 12.2. calculation
     have s12_2 : x ^ (2 * 0) = 1 := by
       calc x ^ (2 * 0) = x ^ 0 := by norm_num
-        _ = 1 := by parley_ring
+        _ = 1 := by ring1
     -- 12.3. D1, from 12.1
     have s12_3 : g x = x ^ (2 * 0) / (1 + x ^ 2) := by simp (disch := omega) only [hD1]
     -- 12.4. calculation

@@ -306,7 +306,6 @@ impl Tactic {
             }
             Tactic::Group(t) => format!("({})", t.text()),
             Tactic::Try(t) => format!("try {}", t.text()),
-            Tactic::AllGoals(t) => format!("all_goals {}", t.text()),
             Tactic::Have { name, says, proof } => {
                 format!("have {name} : {} := {}", says.text(), proof.text())
             }

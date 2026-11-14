@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
@@ -29,6 +27,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
@@ -55,13 +54,13 @@ theorem central_binomial_even (n : ℤ) (hH1 : 0 < n) :
   have s5 : n * (LeanBridges.Counting.choose (2 * n - 1 + 1) n : ℤ) = (2 * n - 1 + 1) * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := 2 * n - 1) s1 (k := n) s4)
   -- 6. substitute
   have s6 : n * (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * n * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by
-    have c1 : 2 * n - 1 + 1 = 2 * n := by parley_ring
+    have c1 : 2 * n - 1 + 1 = 2 * n := by ring1
     have row1 : n * (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * n * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => n * (LeanBridges.Counting.choose t n : ℤ) = t * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ))) c1 s5
     exact row1
   -- 7. mun:binomial-nat0 n := 2n − 1, k := n − 1, from 1
   have s7 : 0 ≤ (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := 2 * n - 1) s1 (k := n - 1))
   -- 8. algebra, from 6
-  have s8 : (LeanBridges.Counting.choose (2 * n) n : ℤ) * n = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) * n := by linear_combination (norm := parley_norm) s6
+  have s8 : (LeanBridges.Counting.choose (2 * n) n : ℤ) * n = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) * n := by linear_combination s6
   -- 9. mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 8
   have s9 : (LeanBridges.Counting.choose (2 * n) n : ℤ) = 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (LeanBridges.Counting.choose (2 * n) n : ℤ)) (b := 2 * (LeanBridges.Counting.choose (2 * n - 1) (n - 1) : ℤ)) (c := n) s8 hH1.ne')
   -- 10. def:even n := C(2n, n), from 9

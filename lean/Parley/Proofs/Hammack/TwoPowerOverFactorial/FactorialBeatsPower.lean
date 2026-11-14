@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -75,15 +74,15 @@ theorem factorial_beats_power (n : ℤ) (hH1 : 0 < n) :
       -- 1.12. mun:multiply-le x := 2, y := k + 1, c := 2·k!, from 1.10, 1.11
       have s1_12 : 2 * (LeanBridges.Counting.factorial k : ℤ) * 2 ≤ 2 * (LeanBridges.Counting.factorial k : ℤ) * (k + 1) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 : ℤ)) (y := k + 1) (c := 2 * (LeanBridges.Counting.factorial k : ℤ)) s1_10 s1_11)
       -- 1.13. algebra, from 1.6
-      have s1_13 : 2 * (LeanBridges.Counting.factorial k : ℤ) * (k + 1) = 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by linear_combination (norm := parley_norm) (-2) * s1_6
+      have s1_13 : 2 * (LeanBridges.Counting.factorial k : ℤ) * (k + 1) = 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by linear_combination (-2) * s1_6
       -- 1.14. transitivity, from 1.7, 1.8, 1.12, 1.13
       have s1_14 : 2 ^ (k + 1).toNat ≤ 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by exact LE.le.trans_eq (le_trans (Eq.trans_le s1_7 s1_8) s1_12) s1_13
       -- 1.15. calculation
       have r78_1 : k + 1 > 0 := by linarith only [lt_of_lt_of_le zero_lt_one hK]
       have s1_15 : (k + 1) * 2 ^ (k + 1).toNat ≤ 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by
-        calc (k + 1) * 2 ^ (k + 1).toNat = (k + 1) * (2 ^ k.toNat * 2) := by linear_combination (norm := parley_norm) (k + 1) * s1_7
+        calc (k + 1) * 2 ^ (k + 1).toNat = (k + 1) * (2 ^ k.toNat * 2) := by linear_combination (k + 1) * s1_7
           _ ≤ (k + 1) * (2 * (LeanBridges.Counting.factorial k : ℤ) * 2) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (2 ^ k.toNat * 2 : ℤ)) (y := 2 * (LeanBridges.Counting.factorial k : ℤ) * 2) (c := k + 1) s1_8 r78_1)
-          _ = 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by linear_combination (norm := parley_norm) (-4) * s1_6
+          _ = 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := by linear_combination (-4) * s1_6
       -- 1.16. join 1.14, 1.15
       have s1_16 : 2 ^ (k + 1).toNat ≤ 2 * (LeanBridges.Counting.factorial (k + 1) : ℤ) ∧ (k + 1) * 2 ^ (k + 1).toNat ≤ 4 * (LeanBridges.Counting.factorial (k + 1) : ℤ) := ⟨s1_14, s1_15⟩
       exact ⟨(s1_16).1, (s1_16).2⟩

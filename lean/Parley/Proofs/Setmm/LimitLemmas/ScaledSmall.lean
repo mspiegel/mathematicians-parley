@@ -1,7 +1,8 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.GroupWithZero.Basic
+public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
@@ -9,6 +10,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -21,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.LimitLemmas.AbsNonneg
@@ -50,11 +53,11 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   have s7 : d * abs u ≤ d * (ε / (2 * d)) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := abs u) (y := ε / (2 * d)) (c := d) s6 s3)
   -- 8. algebra
   have r98_1 : 2 * d ≠ 0 := by exact s4
-  have s8 : d * (ε / (2 * d)) = ε / 2 := by parley_ring
+  have s8 : d * (ε / (2 * d)) = ε / 2 := by have hz1 : d ≠ 0 := right_ne_zero_of_mul r98_1; field
   -- 9. algebra, from D1
   have s9 : d * abs u = abs C * abs u + abs u := by
     simp only [hD1] at ⊢
-    parley_ring
+    ring1
   -- 10. thm:abs-nonneg x := u
   have s10 : abs u ≥ 0 := by exact (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := u))
   -- 11. inequalities

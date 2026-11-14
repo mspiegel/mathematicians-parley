@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides
 
 /-! Written from proofs/wiedijk/reals-uncountable.proof by parley build lean. -/
@@ -34,7 +34,7 @@ theorem digit_step (t : ℤ) :
   have s2_1 : (10 : ℤ) ∣ t + 1 - t := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ t + 1 - u)) hS1 s1
   -- 2.2. substitute
   have s2_2 : (10 : ℤ) ∣ (1 : ℤ) := by
-    have c1 : t + 1 - t = 1 := by parley_ring
+    have c1 : t + 1 - t = 1 := by ring1
     have row1 : (10 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun u : ℤ => (10 : ℤ) ∣ u)) c1 s2_1; revert h; norm_num)
     exact row1
   exact absurd s2_2 (by norm_num)

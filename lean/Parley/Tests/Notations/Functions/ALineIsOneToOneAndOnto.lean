@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
@@ -44,14 +43,14 @@ theorem a_line_is_one_to_one_and_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x 
         _ = f t := hA1
         _ = 2 * t + 1 := by simp (disch := omega) only [hD1]
     -- 2.2. algebra, from 2.1
-    linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * s2_1
+    linear_combination ((1 / 2 : ℝ)) * s2_1
   -- 3. proof
   have s3 : ∀ y : ℝ, ∃ x : ℝ, y = f x := by
     intro y
     -- 3.1. D1
     have s3_1 : f ((y - 1) / 2) = 2 * ((y - 1) / 2) + 1 := by simp (disch := omega) only [hD1]
     -- 3.2. algebra, from 3.1
-    have s3_2 : y = f ((y - 1) / 2) := by linear_combination (norm := parley_norm) ((-2) / ((2))) * s3_1
+    have s3_2 : y = f ((y - 1) / 2) := by linear_combination ((-2) / (((2 : ℝ)))) * s3_1
     -- 3.3. exhibit, from 3.2
     exact ⟨(y - 1) / 2, s3_2⟩
   -- 4. def:one-to-one, from 1, 2

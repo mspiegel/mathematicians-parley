@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
@@ -13,6 +11,7 @@ public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -27,6 +26,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero
 public import Parley.Proofs.Hammack.NinePowersAndThreePowers.PositivePowerIsReal
@@ -46,7 +46,7 @@ theorem nine_power_is_three_power (m : ℤ) :
   have s2 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by norm_num) (m := m) (n := m))
   -- 3. substitute
   have s3 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by
-    have c1 : m + m = 2 * m := by parley_ring
+    have c1 : m + m = 2 * m := by ring1
     have row1 : (3 ^ (2 * m) : ℚ) = 3 ^ m * 3 ^ m := by (have h := Eq.subst (motive := (fun t : ℤ => (3 ^ t : ℚ) = 3 ^ m * 3 ^ m)) c1 s2; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 4. cases, from 1
@@ -99,10 +99,10 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.14. algebra, from 4.6, 4.7, 4.11
       have r186_1 : (9 ^ m : ℚ) ≠ 0 := by exact s4_12
       have r186_2 : (3 ^ m : ℚ) ≠ 0 := by exact s4_13
-      linear_combination (norm := parley_field) (-((3 ^ m) ^ 2 * 9 ^ m)) * s4_11
+      have hz1 : (9 ^ m : ℚ) ≠ 0 := r186_1; have hz2 : (3 ^ m : ℚ) ≠ 0 := r186_2; linear_combination (norm := (field)) (-((3 ^ m) ^ 2 * 9 ^ m)) * s4_11
   -- 5. thm:positive-power-is-real a := 3
   have r191_1 : (3 : ℤ) > 0 := by parley_arith
   -- 6. algebra, from 3, 4, 5
-  linear_combination (norm := parley_norm) (-1) * s3 + s4
+  linear_combination (-1) * s3 + s4
 
 end Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower

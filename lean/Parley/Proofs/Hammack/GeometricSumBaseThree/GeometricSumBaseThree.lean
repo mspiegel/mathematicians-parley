@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -38,6 +36,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
@@ -77,9 +76,9 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
       -- 1.4. calculation
       calc (S (k + 1) : ℚ) = (S k : ℚ) + 3 ^ (k + 1).toNat := by exact_mod_cast s1_2
         _ = (3 ^ (k + 1).toNat - 3) / 2 + 3 ^ (k + 1).toNat := congrArg (fun t : ℚ => t + 3 ^ (k + 1).toNat) hIH
-        _ = (3 ^ (k + 1).toNat * 3 - 3) / 2 := by parley_ring
+        _ = (3 ^ (k + 1).toNat * 3 - 3) / 2 := by ring1
         _ = (3 ^ (k + 1 + 1).toNat - 3) / 2 := by
-            have e_w : (3 ^ (k + 1).toNat * 3 : ℚ) = 3 ^ (k + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_3.symm; push_cast at h; linear_combination (norm := parley_norm) h
+            have e_w : (3 ^ (k + 1).toNat * 3 : ℚ) = 3 ^ (k + 1 + 1).toNat := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1_3.symm; push_cast at h ⊢; linear_combination h
             exact congrArg (fun t : ℚ => (t - 3) / 2) e_w
   -- 2. calculation
   calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (3 ^ k.toNat : ℚ)) = (S n : ℚ) := by simp (disch := omega) only [hD1]; push_cast; norm_num

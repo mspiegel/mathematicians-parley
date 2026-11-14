@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -14,6 +13,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from tests/elaborator/a-for-all-line-read-in-a-block.proof by parley build lean. -/
 
@@ -27,7 +27,7 @@ theorem a_for_all_line_joined_in_a_block :
   have s1 : ∀ x : ℤ, x * 1 = x := by
     intro x
     -- 1.1. algebra
-    parley_ring
+    ring_nf
   -- 2. proof
   intro z
   -- 2.1. restate 1

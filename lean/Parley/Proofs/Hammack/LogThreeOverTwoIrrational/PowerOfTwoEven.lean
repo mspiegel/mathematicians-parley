@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Even
@@ -32,6 +30,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Qify
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -49,11 +48,11 @@ theorem power_of_two_even (n : ℤ) (hH1 : 0 < n) :
   have s2 : (2 ^ (n - 1 + 1) : ℚ) = 2 ^ (n - 1) * 2 := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℚ)) (m := n - 1) s1); simp only [parley_zpow_toNat (n := n - 1 + 1) (h := add_nonneg (s1) (by norm_num)), parley_zpow_toNat (n := n - 1) (h := s1)] at h ⊢; exact_mod_cast h)
   -- 3. substitute
   have s3 : (2 ^ n.toNat : ℚ) = 2 ^ (n - 1) * 2 := by
-    have c1 : n - 1 + 1 = n := by parley_ring
+    have c1 : n - 1 + 1 = n := by ring1
     have row1 : (2 ^ n.toNat : ℚ) = 2 ^ (n - 1) * 2 := by (have h := Eq.subst (motive := (fun t : ℤ => (2 ^ t : ℚ) = 2 ^ (n - 1) * 2)) c1 s2; simp only [parley_zpow_toNat (n := n) (h := le_of_lt hH1), parley_zpow_toNat (n := n - 1) (h := s1)] at h ⊢; exact_mod_cast h)
     exact row1
   -- 4. algebra, from 3
-  have s4 : (2 ^ n.toNat : ℚ) = 2 * 2 ^ (n - 1) := by linear_combination (norm := parley_norm) s3
+  have s4 : (2 ^ n.toNat : ℚ) = 2 * 2 ^ (n - 1) := by linear_combination s3
   -- 5. mun:power-integer a := 2, m := n − 1, from 1
   have s5 : ∃ m : ℤ, (m : ℚ) = 2 ^ (n - 1) := by
     have whole1 : ((2 : ℚ) : ℚ) ^ (n - 1).toNat = (2 ^ (n - 1) : ℚ) := by rw [← zpow_natCast, Int.toNat_of_nonneg s1]

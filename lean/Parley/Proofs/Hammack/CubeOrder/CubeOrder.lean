@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/cube-order.proof by parley build lean. -/
@@ -48,13 +48,13 @@ theorem cube_order (x : ℝ) (y : ℝ) (hH3 : x ^ 3 < y ^ 3) :
   -- 6. inequalities, from 3, 5
   have s6 : (x + y / 2) ^ 2 + 3 * y ^ 2 / 4 ≥ 0 := by linarith only [s3, s5]
   -- 7. algebra
-  have s7 : x ^ 2 + x * y + y ^ 2 = (x + y / 2) ^ 2 + 3 * y ^ 2 / 4 := by parley_ring
+  have s7 : x ^ 2 + x * y + y ^ 2 = (x + y / 2) ^ 2 + 3 * y ^ 2 / 4 := by ring1
   -- 8. transitivity, from 7, 6
   have s8 : x ^ 2 + x * y + y ^ 2 ≥ 0 := by exact LE.le.trans_eq s6 s7.symm
   -- 9. mun:product-nonneg x := x − y, y := x² + x·y + y², from 2, 8
   have s9 : (x - y) * (x ^ 2 + x * y + y ^ 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x - y) (y := x ^ 2 + x * y + y ^ 2) s2 s8)
   -- 10. algebra
-  have s10 : x ^ 3 - y ^ 3 = (x - y) * (x ^ 2 + x * y + y ^ 2) := by parley_ring
+  have s10 : x ^ 3 - y ^ 3 = (x - y) * (x ^ 2 + x * y + y ^ 2) := by ring1
   -- 11. transitivity, from 10, 9
   have s11 : x ^ 3 - y ^ 3 ≥ 0 := by exact LE.le.trans_eq s9 s10.symm
   -- 12. inequalities

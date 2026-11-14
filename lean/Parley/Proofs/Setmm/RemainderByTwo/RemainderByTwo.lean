@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -42,7 +41,7 @@ theorem remainder_by_two (N : ℤ) :
     have r18_1 : (1 : ℤ) < 2 := by parley_arith
     obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by norm_num) (r := (1 : ℤ)) (by norm_num) (by norm_num))).mp hD1
     -- 2. algebra, from 1
-    have s2 : N = 2 * q + 1 := by linear_combination (norm := parley_norm) (-1) * s1
+    have s2 : N = 2 * q + 1 := by linear_combination (-1) * s1
     -- 3. def:odd n := N, from 2
     have s3 : Odd N := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨q, s2⟩
     -- 4. contradiction
@@ -71,7 +70,7 @@ theorem remainder_by_two (N : ℤ) :
     -- 8. obtain k: def:odd, from 7
     obtain ⟨k, s8⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mp s7
     -- 9. algebra, from 8
-    have s9 : k * 2 + 1 = N := by linear_combination (norm := parley_norm) (-1) * s8
+    have s9 : k * 2 + 1 = N := by linear_combination (-1) * s8
     -- 10. exhibit, from 9
     have s10 : ∃ q : ℤ, q * 2 + 1 = N := ⟨k, s9⟩
     -- 11. mun:mod-remainder a := N, m := 2, r := 1, from 10

@@ -712,6 +712,7 @@ fn theorem_record(
     record.inspected = formulas::inspected(thm, &c.known[i], &c.library.targets);
     record.held_by_lines =
         formulas::held_by_lines(thm, &c.known[i], &c.library.targets);
+    record.divided_by = formulas::divided_by(thm, &c.known[i], &c.library.targets);
     let ctx = &c.library.ctx;
     let in_scope: Vec<Vec<Node>> = thm
         .steps

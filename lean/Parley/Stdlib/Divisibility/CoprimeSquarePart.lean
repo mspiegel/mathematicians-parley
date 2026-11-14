@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.GroupWithZero.Defs
@@ -29,6 +27,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from corpus/stdlib/divisibility.proof by parley build lean. -/
@@ -59,19 +58,19 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
     exact row1
   -- 7. substitute
   have s7 : s ∣ (Int.gcd s w : ℤ) * s := by
-    have c1 : s * (Int.gcd s w : ℤ) = (Int.gcd s w : ℤ) * s := by parley_ring
+    have c1 : s * (Int.gcd s w : ℤ) = (Int.gcd s w : ℤ) * s := by ring1
     have row1 : s ∣ (Int.gcd s w : ℤ) * s := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s6
     exact row1
   -- 8. mun:divides-multiple e := s, a := s, x := t, from 2
   have s8 : s ∣ s * t := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := s) (a := s) (x := t) s2)
   -- 9. substitute
   have s9 : s ∣ w * w := by
-    have c1 : s * t = w * w := by linear_combination (norm := parley_norm) (-1) * hH5
+    have c1 : s * t = w * w := by linear_combination (-1) * hH5
     have row1 : s ∣ w * w := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s8
     exact row1
   -- 10. substitute
   have s10 : s ∣ w * s := by
-    have c1 : s * w = w * s := by parley_ring
+    have c1 : s * w = w * s := by ring1
     have row1 : s ∣ w * s := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s4
     exact row1
   -- 11. thm:divides-gcd d := s, a := w·s, b := w·w, from 9, 10
@@ -83,7 +82,7 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
     exact row1
   -- 13. substitute
   have s13 : s ∣ (Int.gcd s w : ℤ) * w := by
-    have c1 : w * (Int.gcd s w : ℤ) = (Int.gcd s w : ℤ) * w := by parley_ring
+    have c1 : w * (Int.gcd s w : ℤ) = (Int.gcd s w : ℤ) * w := by ring1
     have row1 : s ∣ (Int.gcd s w : ℤ) * w := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s12
     exact row1
   -- 14. thm:divides-gcd d := s, a := gcd(s, w)·s, b := gcd(s, w)·w, from 7, 13
@@ -95,7 +94,7 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
     exact row1
   -- 16. substitute
   have s16 : s ∣ (Int.gcd s w : ℤ) ^ 2 := by
-    have c1 : (Int.gcd s w : ℤ) * (Int.gcd s w : ℤ) = (Int.gcd s w : ℤ) ^ 2 := by parley_ring
+    have c1 : (Int.gcd s w : ℤ) * (Int.gcd s w : ℤ) = (Int.gcd s w : ℤ) ^ 2 := by ring1
     have row1 : s ∣ (Int.gcd s w : ℤ) ^ 2 := Eq.subst (motive := (fun u : ℤ => s ∣ u)) c1 s15
     exact row1
   -- 17. mun:divides-square d := gcd(s, w), n := s, from 1
@@ -106,7 +105,7 @@ theorem coprime_square_part (s : ℤ) (hH1 : 0 < s) (t : ℤ) (hH2 : 0 < t) (w :
   have s19 : (Int.gcd s w : ℤ) ^ 2 ∣ s * t := Eq.subst (motive := (fun u : ℤ => (Int.gcd s w : ℤ) ^ 2 ∣ u)) hH5 s18
   -- 20. substitute
   have s20 : (Int.gcd s w : ℤ) ^ 2 ∣ s * s := by
-    have c1 : s ^ 2 = s * s := by parley_ring
+    have c1 : s ^ 2 = s * s := by ring1
     have row1 : (Int.gcd s w : ℤ) ^ 2 ∣ s * s := Eq.subst (motive := (fun u : ℤ => (Int.gcd s w : ℤ) ^ 2 ∣ u)) c1 s17
     exact row1
   -- 21. thm:divides-gcd d := gcd(s, w)², a := s·s, b := s·t, from 19, 20

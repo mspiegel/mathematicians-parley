@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -16,6 +15,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds
 
@@ -48,7 +48,7 @@ theorem triangle_inequality (a : ℝ) (b : ℝ) :
     have s4_3 : -a + -b ≤ abs a + abs b := by linarith only [s2b, s3b]
     -- 4.4. calculation
     calc abs (a + b) = -(a + b) := by exact (Parley.Items.Stdlib.Numbers.def_abs_2 (x := a + b)) hC2
-      _ = -a + -b := by parley_ring
+      _ = -a + -b := by ring1
       _ ≤ abs a + abs b := s4_3
 
 end Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality

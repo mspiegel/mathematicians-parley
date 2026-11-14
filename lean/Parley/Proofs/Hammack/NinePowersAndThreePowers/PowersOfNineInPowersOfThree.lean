@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -73,8 +72,8 @@ theorem powers_of_nine_in_powers_of_three :
     have s3_3 : 1 = 2 * m := by exact ((Parley.Items.Stdlib.Numbers.mun_power_cancel (a := (3 : ℚ)) (m := (1 : ℤ)) (n := 2 * m) (by norm_num))).mp s3_2
     -- 3.4. algebra, from 3.3
     have s3_4 : (m : ℚ) = 1 / 2 := by
-      have s3_3_w : 1 = 2 * (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_3; push_cast at h; linear_combination (norm := parley_norm) h
-      linear_combination (norm := parley_norm) ((-1) / ((2))) * s3_3_w
+      have s3_3_w : 1 = 2 * (m : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s3_3; push_cast at h; linear_combination h
+      linear_combination ((-1) / (((2 : ℚ)))) * s3_3_w
     -- 3.5. inequalities
     have s3_5 : 1 / 2 ≤ (m : ℚ) := by linarith only [s3_4]
     -- 3.6. inequalities, from 3.5

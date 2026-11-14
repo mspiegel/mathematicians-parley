@@ -1,12 +1,12 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -37,7 +37,7 @@ theorem a_product_divisor_below_a_line_saying_it (k : ℤ) (hH2 : k > 0) :
   -- 3. algebra
   have r51_1 : k ≠ 0 := ne_of_gt (by linarith only [hH2])
   have r51_2 : k + 1 ≠ 0 := ne_of_gt (by linarith only [s1])
-  have s3 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by parley_ring
+  have s3 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by have hz1 : (k : ℚ) ≠ 0 := (by exact_mod_cast r51_1); have hz2 : (k : ℚ) + 1 ≠ 0 := (by exact_mod_cast r51_2); field
   -- 4. join 2, 3
   have s4 : k * (k + 1) ≠ 0 ∧ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := ⟨s2, s3⟩
   exact ⟨(s4).1, (s4).2⟩

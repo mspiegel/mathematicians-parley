@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import PowerTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -28,6 +26,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -41,9 +40,11 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -99,8 +100,8 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.13. algebra, from D1, D2, D3, 1.12
       have s1_13 : B * ((j : ℝ) + 1) = A * (j : ℝ) + x := by
         simp only [hD1, hD2, hD3] at ⊢
-        push_cast at s1_12 ⊢
-        linear_combination (norm := parley_field) s1_12
+        push_cast at ⊢
+        have hz1 : (j : ℝ) + 1 ≠ 0 := (by positivity); have hz2 : (j : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) s1_12
       -- 1.14. mun:sum-nonneg a := 1, b := j, from 1.8
       have s1_14 : (∑ k ∈ Finset.Icc (1 : ℤ) j, (a k : ℝ)) ≥ 0 := by exact (Parley.Items.Stdlib.Sums.mun_sum_nonneg (t := a) (a := (1 : ℤ)) (b := j) s1_8)
       -- 1.15. mun:quotient-nonneg, from D2, K1, 1.14
@@ -135,7 +136,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
             exact hI
           -- 1.19.4. substitute
           have s1_19_4 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by
-            have c1 : 1 + (r - 1) = r := by parley_ring
+            have c1 : 1 + (r - 1) = r := by ring1
             have row1 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := Eq.subst (motive := (fun t : ℝ => 1 + (r - 1) * ((j : ℝ) + 1) ≤ t ^ (j + 1).toNat)) c1 s1_19_3
             exact row1
           -- 1.19.5. mun:power-positive, from C3
@@ -146,16 +147,16 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           have r185_1 : 0 ≠ A := ne_of_lt (by linarith only [hC3])
           have s1_19_7 : A * r = B := by
             simp only [hD4] at ⊢
-            parley_ring
+            have hz1 : A ≠ 0 := r185_1.symm; field
           -- 1.19.8. algebra, from 1.13, 1.19.7
-          have s1_19_8 : (A * r - A) * ((j : ℝ) + 1) = x - A := by linear_combination (norm := parley_norm) s1_13 + ((j : ℝ) + 1) * s1_19_7
+          have s1_19_8 : (A * r - A) * ((j : ℝ) + 1) = x - A := by linear_combination s1_13 + ((j : ℝ) + 1) * s1_19_7
           -- 1.19.9. mun:exponent-step
           have s1_19_9 : A ^ (j + 1).toNat = A ^ j.toNat * A := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := j) (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)))
           -- 1.19.10. calculation
-          calc A ^ j.toNat * x = A ^ j.toNat * A * (1 + (r - 1) * ((j : ℝ) + 1)) := by linear_combination (norm := parley_norm) (-(A ^ j.toNat)) * s1_19_8
+          calc A ^ j.toNat * x = A ^ j.toNat * A * (1 + (r - 1) * ((j : ℝ) + 1)) := by linear_combination (-(A ^ j.toNat)) * s1_19_8
             _ ≤ A ^ j.toNat * A * r ^ (j + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := 1 + (r - 1) * ((j : ℝ) + 1)) (y := r ^ (j + 1).toNat) (c := A ^ j.toNat * A) s1_19_4 s1_19_6)
             _ = A ^ (j + 1).toNat * r ^ (j + 1).toNat := congrArg (fun t : ℝ => t * r ^ (j + 1).toNat) s1_19_9.symm
-            _ = (A * r) ^ (j + 1).toNat := by linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num))).symm
+            _ = (A * r) ^ (j + 1).toNat := by (have h := (Parley.Items.Stdlib.Numbers.mun_power_of_product (a := A) (b := r) (n := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num))).symm; simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat] at h ⊢; linear_combination h)
             _ = B ^ (j + 1).toNat := congrArg (fun t : ℝ => t ^ (j + 1).toNat) s1_19_7
         · skip
           -- 1.19.11. substitute 0 = A (C4)
@@ -164,8 +165,8 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           have s1_19_12 : (0 ^ j.toNat : ℤ) = 0 := by exact (Parley.Items.Stdlib.Numbers.mun_zero_power (n := j) (lt_of_lt_of_le zero_lt_one hK1))
           -- 1.19.13. algebra, from 1.19.11, 1.19.12
           have s1_19_13 : A ^ j.toNat * x = 0 := by
-            have s1_19_12_w : (0 ^ j.toNat : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_19_12; push_cast at h; linear_combination (norm := parley_norm) h
-            linear_combination (norm := parley_norm) s1_19_11 + (x) * s1_19_12_w
+            have s1_19_12_w : (0 ^ j.toNat : ℝ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_19_12; push_cast at h ⊢; linear_combination h
+            linear_combination s1_19_11 + (x) * s1_19_12_w
           -- 1.19.14. mun:power-nonneg, from 1.17
           have s1_19_14 : B ^ (j + 1).toNat ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_power_nonneg (a := B) (m := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num)) s1_17)
           -- 1.19.15. transitivity, from 1.19.13, 1.19.14

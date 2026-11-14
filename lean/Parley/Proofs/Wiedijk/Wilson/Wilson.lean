@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import Divisibility
@@ -55,6 +54,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
@@ -155,7 +155,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_7_3 : (a : ℚ) ^ (p - 2 + 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (a : ℚ)) (m := p - 2) (le_of_lt s5_3)); simp only [parley_zpow_toNat (n := p - 2 + 1) (h := add_nonneg (le_of_lt s5_3) (by norm_num)), parley_zpow_toNat (n := p - 2) (h := le_of_lt s5_3)] at h ⊢; exact_mod_cast h)
       -- 5.7.4. substitute
       have s5_7_4 : (a : ℚ) ^ (p - 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by
-        have c1 : p - 2 + 1 = p - 1 := by parley_ring
+        have c1 : p - 2 + 1 = p - 1 := by ring1
         have row1 : (a : ℚ) ^ (p - 1) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by (have h := Eq.subst (motive := (fun t : ℤ => (a : ℚ) ^ t = (a : ℚ) ^ (p - 2) * (a : ℚ))) c1 s5_7_3; push_cast at h ⊢; exact_mod_cast h)
         exact row1
       -- 5.7.5. mun:power-integer m := p − 2, from 5.3
@@ -199,7 +199,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         refine ⟨(Classical.choose whole1 : ℤ), by (push_cast; simp only [Classical.choose_spec whole1]), ?_⟩
         (exact parley_witness_at (Eq.subst (motive := (fun t : ℚ => ∃ m : ℤ, (m : ℚ) = t ∧ f a * a ≡ m [ZMOD p])) s5_7_4.symm s5_7_9) (Classical.choose whole1 : ℤ) (by push_cast; simp only [Classical.choose_spec whole1]))
       -- 5.7.11. algebra, from 5.6
-      have s5_7_11 : a * f a = f a * a := by parley_ring
+      have s5_7_11 : a * f a = f a * a := by ring1
       -- 5.7.12. membership, from 5.7.4, 5.7.5
       have s5_7_12 : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 1) := by
         have other : ∃ m : ℤ, (m : ℚ) = (a : ℚ) ^ (p - 2) * (a : ℚ) := by
@@ -260,7 +260,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         have s5_13_2_1 : a * 0 ≡ (1 : ℤ) [ZMOD p] := Eq.subst (motive := (fun t : ℤ => a * t ≡ (1 : ℤ) [ZMOD p])) hS1 (s5_7 a hK7)
         -- 5.13.2.2. substitute
         have s5_13_2_2 : (0 : ℤ) ≡ (1 : ℤ) [ZMOD p] := by
-          have c1 : a * 0 = 0 := by parley_ring
+          have c1 : a * 0 = 0 := by ring1
           have row1 : (0 : ℤ) ≡ (1 : ℤ) [ZMOD p] := by (have h := Eq.subst (motive := (fun t : ℤ => t ≡ (1 : ℤ) [ZMOD p])) c1 s5_13_2_1; push_cast at h ⊢; exact_mod_cast h)
           exact row1
         -- 5.13.2.3. mun:congruent-in-range, from 5.10, 5.11, 5.13.2.2
@@ -292,7 +292,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
         have s5_13_4_4 : p ∣ p * a - (a * (p - 1) - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := p) (a := p * a) (b := a * (p - 1) - 1) s5_13_4_3 s5_13_4_2)
         -- 5.13.4.5. substitute
         have s5_13_4_5 : p ∣ a + 1 := by
-          have c1 : p * a - (a * (p - 1) - 1) = a + 1 := by parley_ring
+          have c1 : p * a - (a * (p - 1) - 1) = a + 1 := by ring1
           have row1 : p ∣ a + 1 := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s5_13_4_4
           exact row1
         -- 5.13.4.6. restate 5.9
@@ -329,7 +329,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_14_2 : p ∣ a * a - 1 := by exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := p) (a := a * a) (b := (1 : ℤ)))).mp s5_14_1
       -- 5.14.3. substitute
       have s5_14_3 : p ∣ (a - 1) * (a + 1) := by
-        have c1 : a * a - 1 = (a - 1) * (a + 1) := by parley_ring
+        have c1 : a * a - 1 = (a - 1) * (a + 1) := by ring1
         have row1 : p ∣ (a - 1) * (a + 1) := Eq.subst (motive := (fun t : ℤ => p ∣ t)) c1 s5_14_2
         exact row1
       -- 5.14.4. thm:prime-divides-product m := a − 1, n := a + 1, from H2, 5.14.3
@@ -347,7 +347,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
       have s5_15_1 : f (f a) ∈ Finset.Icc (0 : ℤ) (p - 1) := by exact (s5_5 (f a) (s5_13 a hK9))
       -- 5.15.2. mun:range-integer, from 5.15.1
       -- 5.15.3. algebra, from 5.6, 5.15.2
-      have s5_15_3 : f (f a) * f a = f a * f (f a) := by parley_ring
+      have s5_15_3 : f (f a) * f a = f a * f (f a) := by ring1
       -- 5.15.4. calculation
       have s5_15_4 : f (f a) * f a ≡ a * f a [ZMOD p] := by
         calc f (f a) * f a = f a * f (f a) := s5_15_3
@@ -383,7 +383,7 @@ theorem wilson (p : ℤ) (hH1 : 0 < p) (hH2 : Nat.Prime p.toNat) :
     have s5_22 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2 + 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 2 + 1) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := (fun k : ℤ => k)) (a := (1 : ℤ)) (n := p - 2) r638_1)
     -- 5.23. substitute
     have s5_23 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := by
-      have c1 : p - 2 + 1 = p - 1 := by parley_ring
+      have c1 : p - 2 + 1 = p - 1 := by ring1
       have row1 : (∏ k ∈ Finset.Icc (1 : ℤ) (p - 1), (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * (p - 1) := Eq.subst (motive := (fun t : ℤ => (∏ k ∈ Finset.Icc (1 : ℤ) t, (k : ℤ)) = (∏ k ∈ Finset.Icc (1 : ℤ) (p - 2), (k : ℤ)) * t)) c1 s5_22
       exact row1
     -- 5.24. mun:product-first a := 1, b := p − 2

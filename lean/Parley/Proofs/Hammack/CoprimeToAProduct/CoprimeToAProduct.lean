@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.GroupWithZero.Defs
 public import Mathlib.Algebra.Order.GroupWithZero.Basic
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Wiedijk.Bezout.Bezout
 
@@ -43,7 +43,7 @@ theorem coprime_to_a_product (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c 
   have s4 : b * u + c * v = 1 := Eq.subst (motive := (fun t : ℤ => b * u + c * v = t)) hH5 s3
   -- 5. calculation
   have s5 : a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) = 1 := by
-    calc a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) = (a * x + c * y) * (b * u + c * v) := by parley_ring
+    calc a * b * (x * u) + c * (a * x * v + y * b * u + c * y * v) = (a * x + c * y) * (b * u + c * v) := by ring1
       _ = 1 * (b * u + c * v) := congrArg (fun t : ℤ => t * (b * u + c * v)) s2
       _ = 1 := by simpa only [one_mul] using s4
   -- 6. def:gcd a := a·b, b := c

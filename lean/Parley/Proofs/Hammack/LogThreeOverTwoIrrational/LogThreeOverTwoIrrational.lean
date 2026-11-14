@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import PowerTactics
 public import RealTactics
@@ -27,6 +26,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -40,6 +40,7 @@ public import Mathlib.Tactic.NormNum.Parity
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Divisibility
@@ -71,7 +72,7 @@ theorem log_three_over_two_irrational :
     -- 2.3. substitute
     have r106_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_3 : p > 0 := by
-      have c1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) = (p : ℝ) := by linear_combination (norm := parley_field) ((q : ℝ)) * s2_1b
+      have c1 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) = (p : ℝ) := by linear_combination (norm := (field)) ((q : ℝ)) * s2_1b
       have row1 : p > 0 := by (have h := Eq.subst (motive := (fun t : ℝ => t > 0)) c1 s2_2; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 2.4. mun:pos-int-nat m := p, from 2.3
@@ -82,7 +83,7 @@ theorem log_three_over_two_irrational :
     have r115_3 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_5 : Real.log (3 ^ q.toNat : ℝ) = Real.log (2 ^ p : ℝ) := by
       calc Real.log (3 ^ q.toNat : ℝ) = (q : ℝ) * Real.log (3 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (3 : ℝ)) (n := q) (by norm_num)); simp only [parley_zpow_toNat (n := q) (h := le_of_lt s2_1a)] at h ⊢; exact_mod_cast h)
-        _ = (p : ℝ) * Real.log (2 : ℝ) := by linear_combination (norm := parley_field) (Real.log (2 : ℝ) * (q : ℝ)) * s2_1b
+        _ = (p : ℝ) * Real.log (2 : ℝ) := by have hz1 : Real.log (2 : ℝ) ≠ 0 := r115_3; have hz2 : (q : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (Real.log (2 : ℝ) * (q : ℝ)) * s2_1b
         _ = Real.log (2 ^ p : ℝ) := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_power (x := (2 : ℝ)) (n := p) (by norm_num)).symm
     -- 2.6. mun:power-positive a := 3, m := q
     have r124_1 : (3 : ℤ) > 0 := by parley_arith

@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -43,7 +42,7 @@ theorem odd_line_one_to_one (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 2 * n + 
         _ = f t := hA1
         _ = 2 * t + 1 := by exact (hH2 t)
     -- 1.2. algebra, from 1.1
-    qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1_1
+    qify at *; linear_combination ((1 / 2 : ℚ)) * s1_1
   -- 2. def:one-to-one, from H1, 1
   exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (Set.mapsTo_univ _ _))).mpr ⟨Set.mapsTo_univ _ _, by simpa only [Set.mem_univ, forall_const] using s1⟩
 

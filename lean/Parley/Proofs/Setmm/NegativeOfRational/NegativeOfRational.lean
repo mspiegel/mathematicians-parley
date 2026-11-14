@@ -1,11 +1,11 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -13,6 +13,7 @@ public import Mathlib.Tactic.NormNum
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -30,7 +31,7 @@ theorem negative_of_rational (A : ℚ) :
   -- 2. calculation
   have s2 : -A = -(p : ℚ) / (q : ℚ) := by
     calc -A = -((p : ℚ) / (q : ℚ)) := congrArg (fun t : ℚ => -t) s1b
-      _ = -(p : ℚ) / (q : ℚ) := by parley_ring
+      _ = -(p : ℚ) / (q : ℚ) := by have hz1 : (q : ℚ) ≠ 0 := (by positivity); field
   -- 3. def:rational x := −A, from 2
   exact trivial
 

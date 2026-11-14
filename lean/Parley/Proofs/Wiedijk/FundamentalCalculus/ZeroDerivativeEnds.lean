@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Module.Defs
@@ -17,6 +16,7 @@ public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -61,6 +61,6 @@ theorem zero_derivative_ends (a : ℝ) (b : ℝ) (hH3 : a < b) (H : ℝ → ℝ)
   have s5 : b - a > 0 := by linarith only [hH3]
   -- 6. algebra, from 4
   have r50_1 : b - a ≠ 0 := ne_of_gt (by linarith only [s5])
-  linear_combination (norm := parley_field) (-a + b) * s4
+  have hz1 : b - a ≠ 0 := r50_1; linear_combination (norm := (field)) (-a + b) * s4
 
 end Parley.Proofs.Wiedijk.FundamentalCalculus.ZeroDerivativeEnds

@@ -1,11 +1,9 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
 public import InstanceTactics
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -35,6 +33,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 
@@ -61,7 +60,7 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
       -- 1.3. def:C n := m + 1, k := m + 2, from 1.2
       have s1_3 : (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) = 0 := by exact (Parley.Items.Stdlib.Counting.def_C_3 (n := m + 1) (add_nonneg (le_of_lt hH1) (by norm_num)) (k := m + 2)) s1_2
       -- 1.4. algebra, from 1.1, 1.3
-      have s1_4 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 1) (m + 1) : ℤ) - (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) := by linear_combination (norm := parley_norm) s1_1 + s1_3
+      have s1_4 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 1) (m + 1) : ℤ) - (LeanBridges.Counting.choose (m + 1) (m + 2) : ℤ) := by linear_combination s1_1 + s1_3
       simpa only [add_zero, Int.cast_zero] using s1_4
     | succ j hK hIH =>
       -- 1.5. mun:sum-extended a := 0, n := j
@@ -69,27 +68,27 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
       have s1_5 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) j, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) + (j + 1) * (LeanBridges.Counting.choose (m + (j + 1)) m : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ)) (n := j) r35_1)
       -- 1.6. substitute
       have s1_6 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) j, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) + (j + 1) * (LeanBridges.Counting.choose (m + j + 1) m : ℤ) := by
-        have c1 : m + (j + 1) = m + j + 1 := by parley_ring
+        have c1 : m + (j + 1) = m + j + 1 := by ring1
         have row1 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) j, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) + (j + 1) * (LeanBridges.Counting.choose (m + j + 1) m : ℤ) := Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) j, (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) + (j + 1) * (LeanBridges.Counting.choose t m : ℤ))) c1 s1_5
         exact row1
       -- 1.7. thm:pascal n := m + j + 1, k := m + 1
       have s1_7 : (LeanBridges.Counting.choose (m + j + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) (m + 1 - 1) : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 1) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + j + 1) (add_nonneg (add_nonneg (le_of_lt hH1) (hK)) (by norm_num)) (k := m + 1))
       -- 1.8. substitute
       have s1_8 : (LeanBridges.Counting.choose (m + j + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) m : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 1) : ℤ) := by
-        have c1 : m + 1 - 1 = m := by parley_ring
+        have c1 : m + 1 - 1 = m := by ring1
         have row1 : (LeanBridges.Counting.choose (m + j + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) m : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 1) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + j + 1) (m + 1) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) t : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 1) : ℤ))) c1 s1_7
         exact row1
       -- 1.9. thm:pascal n := m + j + 1, k := m + 2
       have s1_9 : (LeanBridges.Counting.choose (m + j + 1) (m + 2) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) (m + 2 - 1) : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 2) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := m + j + 1) (add_nonneg (add_nonneg (le_of_lt hH1) (hK)) (by norm_num)) (k := m + 2))
       -- 1.10. substitute
       have s1_10 : (LeanBridges.Counting.choose (m + j + 1) (m + 2) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) (m + 1) : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 2) : ℤ) := by
-        have c1 : m + 2 - 1 = m + 1 := by parley_ring
+        have c1 : m + 2 - 1 = m + 1 := by ring1
         have row1 : (LeanBridges.Counting.choose (m + j + 1) (m + 2) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) (m + 1) : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 2) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose (m + j + 1) (m + 2) : ℤ) + (LeanBridges.Counting.choose (m + j + 1) t : ℤ) = (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 2) : ℤ))) c1 s1_9
         exact row1
       -- 1.11. algebra, from IH, 1.6, 1.8, 1.10
-      have s1_11 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (j + 1) * (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 1) : ℤ) - (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 2) : ℤ) := by linear_combination (norm := parley_norm) hIH + s1_6 + (j + 1) * s1_8 + (-1) * s1_10
+      have s1_11 : (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (j + 1) * (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 1) : ℤ) - (LeanBridges.Counting.choose (m + j + 1 + 1) (m + 2) : ℤ) := by linear_combination hIH + s1_6 + (j + 1) * s1_8 + (-1) * s1_10
       -- 1.12. algebra
-      have s1_12 : m + j + 1 + 1 = m + (j + 1) + 1 := by parley_ring
+      have s1_12 : m + j + 1 + 1 = m + (j + 1) + 1 := by ring1
       -- 1.13. substitute (m + j + 1) + 1 = m + (j + 1) + 1 (line 1.12) into line 1.11
       exact Eq.subst (motive := (fun t : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) (j + 1), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = (j + 1) * (LeanBridges.Counting.choose t (m + 1) : ℤ) - (LeanBridges.Counting.choose t (m + 2) : ℤ))) s1_12 s1_11
   -- 2. instantiate j := n in line 1

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -21,6 +20,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-cubic.proof by parley build lean. -/
@@ -36,7 +36,7 @@ theorem divides_cubic (a : ℤ) (b : ℤ) (hH3 : a ∣ b) :
   -- 2. calculation
   have s2 : 3 * b ^ 3 - b ^ 2 + 5 * b = a * (3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k) := by
     calc 3 * b ^ 3 - b ^ 2 + 5 * b = 3 * (a * k) ^ 3 - (a * k) ^ 2 + 5 * (a * k) := congrArg (fun t : ℤ => 3 * t ^ 3 - t ^ 2 + 5 * t) s1
-      _ = a * (3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k) := by parley_ring
+      _ = a * (3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k) := by ring1
   -- 3. def:divides d := a, n := 3b³ − b² + 5b, from 2
   exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := 3 * b ^ 3 - b ^ 2 + 5 * b))).mpr ⟨3 * a ^ 2 * k ^ 3 - a * k ^ 2 + 5 * k, s2⟩
 

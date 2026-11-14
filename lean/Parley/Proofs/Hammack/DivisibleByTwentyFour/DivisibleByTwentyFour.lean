@@ -1,9 +1,7 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.GroupWithZero.Defs
@@ -30,6 +28,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 
@@ -53,7 +52,7 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (24 : ℤ)) (n := (5 ^ (2 * 0) - 1 : ℤ)))).mpr ⟨(0 : ℤ), by norm_num⟩
     | succ m hK hIH =>
       -- 1.3. algebra
-      have s1_3 : 2 * (m + 1) = 2 * m + 2 := by parley_ring
+      have s1_3 : 2 * (m + 1) = 2 * m + 2 := by ring1
       -- 1.4. calculation
       have s1_4 : (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m).toNat * 5 ^ 2 := by
         calc (5 ^ (2 * (m + 1)).toNat : ℤ) = 5 ^ (2 * m + 2).toNat := by (have h := congrArg (fun t : ℤ => 5 ^ t.toNat) s1_3; push_cast at h ⊢; exact_mod_cast h)
@@ -65,7 +64,7 @@ theorem divisible_by_twenty_four (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.7. mun:divides-sum d := 24, a := (5^(2m) − 1)·25, b := 24, from 1.5, 1.6
       have s1_7 : (24 : ℤ) ∣ ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m).toNat - 1) * 25 : ℤ)) (b := (24 : ℤ)) s1_5 s1_6)
       -- 1.8. substitute
-      have c1 : ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) = 5 ^ (2 * (m + 1)).toNat - 1 := by linear_combination (norm := parley_norm) (-1) * s1_4
+      have c1 : ((5 ^ (2 * m).toNat - 1) * 25 + 24 : ℤ) = 5 ^ (2 * (m + 1)).toNat - 1 := by linear_combination (-1) * s1_4
       have row1 : (24 : ℤ) ∣ (5 ^ (2 * (m + 1)).toNat - 1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (24 : ℤ) ∣ t)) c1 s1_7; push_cast at h ⊢; exact_mod_cast h)
       exact row1
   -- 2. instantiate m := n in line 1

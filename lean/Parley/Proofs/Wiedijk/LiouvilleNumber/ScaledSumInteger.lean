@@ -1,10 +1,8 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -24,6 +22,7 @@ public import Mathlib.Data.Rat.Init
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -37,6 +36,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -64,7 +64,7 @@ theorem scaled_sum_integer :
     -- 2. mun:sum-single a := 1, from 1
     have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 1 / 2 ^ LeanBridges.Counting.factorial (1 : ℤ) := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) (a := (1 : ℤ)))
     -- 3. algebra, from D0, 2
-    have s3 : 2 ^ LeanBridges.Counting.factorial (1 : ℤ) * (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 1 := by linear_combination (norm := parley_field) (2 ^ LeanBridges.Counting.factorial (1 : ℤ)) * s2
+    have s3 : 2 ^ LeanBridges.Counting.factorial (1 : ℤ) * (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 1 := by linear_combination (norm := (field)) (2 ^ LeanBridges.Counting.factorial (1 : ℤ)) * s2
     -- 4. membership, from 3
     exact ⟨(1 : ℤ), by exact_mod_cast (s3).symm⟩
   | succ n hK hIH =>
@@ -80,12 +80,12 @@ theorem scaled_sum_integer :
         _ = (2 ^ LeanBridges.Counting.factorial n) ^ (n + 1).toNat := by exact (Parley.Items.Stdlib.Numbers.mun_power_of_power (a := (2 : ℤ)) (m := (LeanBridges.Counting.factorial n : ℤ)) (Nat.cast_nonneg _) (n := n + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (by norm_num)))
         _ = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 ^ LeanBridges.Counting.factorial n : ℤ)) (m := n) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
     -- 8. algebra, from 5
-    have s8 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 := by linear_combination (norm := parley_field) (2 ^ LeanBridges.Counting.factorial (n + 1)) * s5
+    have s8 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) + 1 := by have hz1 : (2 ^ LeanBridges.Counting.factorial (n + 1) : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (2 ^ LeanBridges.Counting.factorial (n + 1)) * s5
     -- 9. substitute
     have s9 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) + 1 := by
       have c1 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) := by
-        have s7_w : (2 ^ LeanBridges.Counting.factorial (n + 1) : ℚ) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by have h := congrArg (fun x : ℤ => (x : ℚ)) s7; push_cast at h; linear_combination (norm := parley_norm) h
-        linear_combination (norm := parley_norm) ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) * s7_w
+        have s7_w : (2 ^ LeanBridges.Counting.factorial (n + 1) : ℚ) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * 2 ^ LeanBridges.Counting.factorial n := by have h := congrArg (fun x : ℤ => (x : ℚ)) s7; push_cast at h ⊢; linear_combination h
+        linear_combination (norm := (field)) ((∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) * s7_w
       have row1 : 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = (2 ^ LeanBridges.Counting.factorial n) ^ n.toNat * (2 ^ LeanBridges.Counting.factorial n * (∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ))) + 1 := Eq.subst (motive := (fun t : ℚ => 2 ^ LeanBridges.Counting.factorial (n + 1) * (∑ k ∈ Finset.Icc (1 : ℤ) (n + 1), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)) = t + 1)) c1 s8
       exact row1
     -- 10. membership, from IH

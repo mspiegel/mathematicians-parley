@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Functions
@@ -23,6 +22,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers
 
@@ -44,11 +44,11 @@ theorem factorial_gap (n : ℤ) (hH1 : 0 < n) :
     simpa only [add_zero] using s1
   | succ j hK hIH =>
     -- 2. algebra
-    have s2 : n + 1 + j + 1 = n + 1 + (j + 1) := by parley_ring
+    have s2 : n + 1 + j + 1 = n + 1 + (j + 1) := by ring1
     -- 3. mun:factorial-nat n := n + 1 + j
     have s3 : 0 < (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := n + 1 + j) (add_nonneg (add_nonneg (le_of_lt hH1) (by norm_num)) (hK)))
     -- 4. algebra
-    have s4 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) = (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by parley_ring
+    have s4 : (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) * (n + 1 + j + 1) = (n + 1 + j + 1) * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by ring1
     -- 5. inequalities, from IH, 3
     have s5 : (LeanBridges.Counting.factorial (n + 1) : ℤ) + (j + 1) ≤ 2 * (LeanBridges.Counting.factorial (n + 1 + j) : ℤ) := by linarith only [hIH, s3]
     -- 6. calculation

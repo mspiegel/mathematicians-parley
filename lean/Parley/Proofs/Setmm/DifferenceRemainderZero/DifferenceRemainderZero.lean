@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.ModEq
@@ -41,7 +40,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     -- 2. mun:mod-multiple r := B, m := N
     have s2 : (q * N + B) % N = B % N := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := B) (m := N) hH3 (q := q))
     -- 3. substitute
-    have c1 : q * N + B = A := by linear_combination (norm := parley_norm) s1
+    have c1 : q * N + B = A := by linear_combination s1
     have row1 : A % N = B % N := Eq.subst (motive := (fun t : ℤ => t % N = B % N)) c1 s2
     exact row1
   · skip
@@ -53,7 +52,7 @@ theorem difference_remainder_zero (A : ℤ) (B : ℤ) (N : ℤ) (hH3 : 0 < N) :
     -- 6. obtain k: def:divides d := N, n := A − B, from 5
     obtain ⟨k, s6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := N) (n := A - B))).mp s5
     -- 7. algebra, from 6
-    have s7 : k * N = A - B := by linear_combination (norm := parley_norm) (-1) * s6
+    have s7 : k * N = A - B := by linear_combination (-1) * s6
     -- 8. exhibit, from 7
     have s8 : ∃ q : ℤ, q * N = A - B := ⟨k, s7⟩
     -- 9. mun:mod-remainder a := A − B, m := N, r := 0, from 8

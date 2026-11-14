@@ -1,11 +1,11 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -31,6 +31,6 @@ theorem a_define_read_in_a_requires_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
   have s1 : e ≠ 0 := Eq.subst (motive := (fun t : ℝ => t ≠ 0)) hD1.symm hH2
   -- 2. algebra
   have r56_1 : a + 1 ≠ 0 := by exact s1
-  parley_ring
+  have hz1 : a + 1 ≠ 0 := r56_1; field
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInARequiresLine

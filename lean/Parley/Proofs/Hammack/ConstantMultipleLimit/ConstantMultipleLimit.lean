@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -15,6 +14,7 @@ public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Filter.AtTopBot.Defs
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -27,6 +27,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Topology.Defs.Filter
 public import Mathlib.Topology.MetricSpace.Pseudo.Defs
 public import Mathlib.Topology.UniformSpace.Defs
@@ -79,14 +80,14 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
       have s4_6_5 : (abs c + 1) * abs (a n - L) < (abs c + 1) * (ε / (abs c + 1)) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (a n - L)) (y := ε / (abs c + 1)) (c := abs c + 1) s2)).mp s4_6_3
       -- 4.6.6. algebra
       have r72_1 : abs c + 1 ≠ 0 := by exact s3
-      have s4_6_6 : (abs c + 1) * (ε / (abs c + 1)) = ε := by parley_ring
+      have s4_6_6 : (abs c + 1) * (ε / (abs c + 1)) = ε := by have hz1 : abs c + 1 ≠ 0 := r72_1; field
       -- 4.6.7. algebra, from 4.6.2
-      have s4_6_7 : (abs c + 1) * abs (a n - L) = abs c * abs (a n - L) + abs (a n - L) := by parley_ring
+      have s4_6_7 : (abs c + 1) * abs (a n - L) = abs c * abs (a n - L) + abs (a n - L) := by ring1
       -- 4.6.8. mun:abs-product x := c, y := a(n) − L, from 4.6.1
       have s4_6_8 : abs (c * (a n - L)) = abs c * abs (a n - L) := by exact (Parley.Items.Stdlib.Numbers.mun_abs_product (x := c) (y := a n - L))
       -- 4.6.9. substitute
       have s4_6_9 : abs (c * a n - c * L) = abs c * abs (a n - L) := by
-        have c1 : c * (a n - L) = c * a n - c * L := by parley_ring
+        have c1 : c * (a n - L) = c * a n - c * L := by ring1
         have row1 : abs (c * a n - c * L) = abs c * abs (a n - L) := Eq.subst (motive := (fun t : ℝ => abs t = abs c * abs (a n - L))) c1 s4_6_8
         exact row1
       -- 4.6.10. inequalities

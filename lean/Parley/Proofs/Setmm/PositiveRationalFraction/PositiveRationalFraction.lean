@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Batteries.Classes.RatCast
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -13,6 +12,7 @@ public import Mathlib.Data.Rat.Cast.Defs
 public import Mathlib.Data.Rat.Cast.Order
 public import Mathlib.Data.Rat.Init
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -21,6 +21,7 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -47,7 +48,7 @@ theorem positive_rational_fraction (A : ℝ) (hH2 : ∃ m : ℚ, (m : ℝ) = A) 
     have s2_3 : A ≤ 0 := by
       calc A = (p : ℝ) / (q : ℝ) := s1b
         _ ≤ 0 / (q : ℝ) := (show (p : ℝ) / (q : ℝ) ≤ 0 / (q : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr s2_2; simp only [Rat.cast_div, Rat.cast_zero, Rat.cast_intCast] at h; exact h)
-        _ = 0 := by parley_ring
+        _ = 0 := by have hz1 : (q : ℝ) ≠ 0 := (by positivity); field
     -- 2.4. inequalities, from H3
     have s2_4 : ¬ A ≤ 0 := by linarith only [hH3]
     exact s2_4 s2_3

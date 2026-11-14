@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
@@ -16,6 +15,7 @@ public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -26,6 +26,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Numbers
@@ -51,13 +52,13 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     -- 3.1. obtain r, s: def:rational x := A + B, from S
     obtain ⟨r, s, s3_1a, s3_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + B))).mp hS
     -- 3.2. algebra, from 1, 3.1
-    have s3_2 : A = (r : ℝ) / (s : ℝ) - B := by linear_combination (norm := parley_field) s3_1b
+    have s3_2 : A = (r : ℝ) / (s : ℝ) - B := by have hz1 : (s : ℝ) ≠ 0 := (by positivity); linear_combination (norm := (field)) s3_1b
     -- 3.3. substitute B = p/q (line 2) into line 3.2
     have s3_3 : A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := Eq.subst (motive := (fun t : ℝ => A = (r : ℝ) / (s : ℝ) - t)) s2b s3_2
     -- 3.4. calculation
     have s3_4 : A = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by
       calc A = (r : ℝ) / (s : ℝ) - (p : ℝ) / (q : ℝ) := s3_3
-        _ = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by parley_ring
+        _ = ((r : ℝ) * (q : ℝ) - (p : ℝ) * (s : ℝ)) / ((s : ℝ) * (q : ℝ)) := by have hz1 : (s : ℝ) ≠ 0 := (by positivity); have hz2 : (q : ℝ) ≠ 0 := (by positivity); field
     -- 3.5. exhibit, from 3.4
     have s3_5 : ∃ a : ℤ, ∃ b : ℤ, 0 < b ∧ A = (a : ℝ) / (b : ℝ) := ⟨r * q - p * s, s * q, mul_pos (s3_1a) (s2a), by (have h := s3_4; push_cast at h ⊢; exact h)⟩
     -- 3.6. def:rational x := A, from 3.5

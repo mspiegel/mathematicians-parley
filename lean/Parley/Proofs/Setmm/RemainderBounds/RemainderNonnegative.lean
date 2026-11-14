@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Divisibility
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
@@ -13,6 +12,7 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Rat.Floor
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -52,7 +52,7 @@ theorem remainder_nonnegative (A : ℝ) (B : ℝ) (hH3 : B > 0) :
   -- 4. calculation
   have s4 : B * (q : ℝ) ≤ A := by
     calc B * (q : ℝ) ≤ B * (A / B) := by exact (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (q : ℝ)) (y := A / B) (c := B) s3 hH3)
-      _ = A := by parley_ring
+      _ = A := by have hz1 : B ≠ 0 := s1; field
   -- 5. inequalities
   have s5 : 0 ≤ A - B * (q : ℝ) := by linarith only [s4]
   -- 6. substitute A mod B = A − B·q (line 2) into line 5

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Data.Int.ModEq
@@ -22,6 +21,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -53,7 +53,7 @@ theorem consecutive_coprime (n : ℤ) (hH1 : 0 ≤ n) :
     have s2_4 : (Int.gcd n (n + 1) : ℤ) ∣ n + 1 - n := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (Int.gcd n (n + 1) : ℤ)) (a := n + 1) (b := n) s2_3c s2_3b)
     -- 2.5. substitute
     have s2_5 : (Int.gcd n (n + 1) : ℤ) ∣ (1 : ℤ) := by
-      have c1 : n + 1 - n = 1 := by parley_ring
+      have c1 : n + 1 - n = 1 := by ring1
       have row1 : (Int.gcd n (n + 1) : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (Int.gcd n (n + 1) : ℤ) ∣ t)) c1 s2_4; push_cast at h ⊢; exact_mod_cast h)
       exact row1
     -- 2.6. mun:divides-one d := gcd(n, n + 1), from 2.3, 2.5

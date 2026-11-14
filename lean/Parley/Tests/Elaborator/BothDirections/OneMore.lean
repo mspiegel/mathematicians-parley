@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -29,10 +28,10 @@ theorem one_more (n : ℤ) :
   · skip
     intro hD1
     -- 1.1. algebra, from D1
-    linear_combination (norm := parley_norm) hD1
+    linear_combination hD1
   · skip
     intro hD2
     -- 1.2. algebra, from D2
-    linear_combination (norm := parley_norm) hD2
+    linear_combination hD2
 
 end Parley.Tests.Elaborator.BothDirections.OneMore

@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
@@ -16,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
 
@@ -26,7 +25,7 @@ namespace Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineUsingALine
 theorem a_chain_line_using_a_line (a : ℝ) (b : ℝ) (hH3 : a = 2 * b) :
     3 * a + 1 = 1 + 6 * b := by
   -- 1. calculation
-  calc 3 * a + 1 = 6 * b + 1 := by linear_combination (norm := parley_norm) (3) * hH3
-    _ = 1 + 6 * b := by parley_ring
+  calc 3 * a + 1 = 6 * b + 1 := by linear_combination (3) * hH3
+    _ = 1 + 6 * b := by ring1
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineUsingALine

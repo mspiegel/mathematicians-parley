@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Counting
 public import FactorialTactics
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Counting
 public import Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne
 
@@ -42,7 +42,7 @@ theorem choose_two_pairs (n : ℤ) (hH1 : 0 ≤ n) :
     have row1 : (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := Eq.subst (motive := (fun t : ℤ => (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + t = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ))) c1 s2
     exact row1
   -- 4. calculation
-  calc n + (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n := by parley_ring
+  calc n + (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) + n := by ring1
     _ = (LeanBridges.Counting.choose (n + 1) (2 : ℤ) : ℤ) := s3
 
 end Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs

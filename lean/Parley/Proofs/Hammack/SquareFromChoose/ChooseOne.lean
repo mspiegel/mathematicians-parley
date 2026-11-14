@@ -4,7 +4,6 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Data.Int.Cast.Basic
@@ -56,7 +55,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       -- 1.5. mun:binomial-zero-index n := 0
       have s1_5 : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := (0 : ℤ)) (by norm_num))
       -- 1.6. algebra, from 1.2, 1.4, 1.5
-      linear_combination (norm := parley_norm) (-1) * s1_2 + s1_4 + s1_5
+      linear_combination (-1) * s1_2 + s1_4 + s1_5
     | succ k hK hIH =>
       -- 1.7. thm:pascal n := k, k := 1
       have s1_7 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)) (k := (1 : ℤ)))
@@ -67,7 +66,7 @@ theorem choose_one (n : ℤ) (hH1 : 0 < n) :
       -- 1.9. mun:binomial-zero-index n := k
       have s1_9 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK)))
       -- 1.10. algebra, from IH, 1.8, 1.9
-      linear_combination (norm := parley_norm) hIH + (-1) * s1_8 + s1_9
+      linear_combination hIH + (-1) * s1_8 + s1_9
   -- 2. instantiate k := n in line 1
   exact (s1 n hH1)
 

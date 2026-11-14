@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
@@ -8,6 +7,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Basic
 public import Mathlib.Order.Defs.PartialOrder
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -38,7 +38,7 @@ theorem quotient_positive (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     intro hS
     -- 2.1. algebra, from S
     have r43_1 : y ≠ 0 := ne_of_gt (by linarith only [hH4])
-    have s2_1 : x = 0 := by linear_combination (norm := parley_field) (y) * hS
+    have s2_1 : x = 0 := by have hz1 : y ≠ 0 := r43_1; linear_combination (norm := (field)) (y) * hS
     -- 2.2. inequalities
     have s2_2 : x ≠ 0 := ne_of_gt (by linarith only [hH3])
     exact s2_2 s2_1

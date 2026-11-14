@@ -1,7 +1,5 @@
 module
 
-public import AlgebraTactics
-public import NormTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Set.Defs
@@ -20,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
@@ -38,13 +37,13 @@ theorem multiples_of_six :
     -- 1.1. obtain m: def:set-image u := t, from K1
     obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 6 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (Set.mapsTo_univ _ _))).mp hK1
     -- 1.2. algebra, from 1.1
-    have s1_2 : t = 2 * (3 * m) := by linear_combination (norm := parley_norm) s1_1
+    have s1_2 : t = 2 * (3 * m) := by linear_combination s1_1
     -- 1.3. exhibit, from 1.2
     have s1_3 : ∃ n : ℤ, t = 2 * n := ⟨3 * m, s1_2⟩
     -- 1.4. def:set-image u := t, from 1.3
     have s1_4 : t ∈ (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 2 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (Set.mapsTo_univ _ _))).mpr (by simpa only [Set.mem_univ, true_and] using s1_3)
     -- 1.5. algebra, from 1.1
-    have s1_5 : t = 3 * (2 * m) := by linear_combination (norm := parley_norm) s1_1
+    have s1_5 : t = 3 * (2 * m) := by linear_combination s1_1
     -- 1.6. exhibit, from 1.5
     have s1_6 : ∃ n : ℤ, t = 3 * n := ⟨2 * m, s1_5⟩
     -- 1.7. def:set-image u := t, from 1.6
@@ -65,21 +64,21 @@ theorem multiples_of_six :
     -- 3.4. obtain b: def:set-image u := t, from 3.2
     obtain ⟨b, _, s3_4⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => 3 * n)) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (Set.mapsTo_univ _ _))).mp s3_2
     -- 3.5. algebra
-    have s3_5 : t = 3 * t - 2 * t := by parley_ring
+    have s3_5 : t = 3 * t - 2 * t := by ring1
     -- 3.6. substitute
     have s3_6 : t = 6 * a - 2 * t := by
-      have c1 : 3 * t = 6 * a := by linear_combination (norm := parley_norm) (3) * s3_3
+      have c1 : 3 * t = 6 * a := by linear_combination (3) * s3_3
       have row1 : t = 6 * a - 2 * t := Eq.subst (motive := (fun u : ℤ => t = u - 2 * t)) c1 s3_5
       exact row1
     -- 3.7. substitute
     have s3_7 : t = 6 * a - 6 * b := by
-      have c1 : 2 * t = 6 * b := by linear_combination (norm := parley_norm) (2) * s3_4
+      have c1 : 2 * t = 6 * b := by linear_combination (2) * s3_4
       have row1 : t = 6 * a - 6 * b := Eq.subst (motive := (fun u : ℤ => t = 6 * a - u)) c1 s3_6
       exact row1
     -- 3.8. calculation
     have s3_8 : t = 6 * (a - b) := by
       calc t = 6 * a - 6 * b := s3_7
-        _ = 6 * (a - b) := by parley_ring
+        _ = 6 * (a - b) := by ring1
     -- 3.9. exhibit, from 3.8
     have s3_9 : ∃ n : ℤ, t = 6 * n := ⟨a - b, s3_8⟩
     -- 3.10. def:set-image u := t, from 3.9

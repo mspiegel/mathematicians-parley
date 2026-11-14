@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -76,6 +75,6 @@ theorem inclusion_exclusion_three {α : Type*} (A : Set α) (B : Set α) (C : Se
   have r141_5 : 0 ≤ ((A ∩ C).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A ∩ C) s5)
   have r141_6 : 0 ≤ ((B ∩ C).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B ∩ C) s7)
   have r141_7 : 0 ≤ (((A ∩ B) ∩ C).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := (A ∩ B) ∩ C) s14)
-  linear_combination (norm := parley_norm) s2 + s3 + (-1) * s10
+  linear_combination s2 + s3 + (-1) * s10
 
 end Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionThree

@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -24,6 +23,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/quadratic-plus-four-even.proof by parley build lean. -/
@@ -44,7 +44,7 @@ theorem quadratic_plus_four_even (n : ℤ) :
     -- 2.2. calculation
     have s2_2 : n ^ 2 + 3 * n + 4 = 2 * (2 * k ^ 2 + 3 * k + 2) := by
       calc n ^ 2 + 3 * n + 4 = (2 * k) ^ 2 + 3 * (2 * k) + 4 := congrArg (fun t : ℤ => t ^ 2 + 3 * t + 4) s2_1
-        _ = 2 * (2 * k ^ 2 + 3 * k + 2) := by parley_ring
+        _ = 2 * (2 * k ^ 2 + 3 * k + 2) := by ring1
     -- 2.3. def:even n := n² + 3n + 4, from 2.2
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 3 * k + 2, s2_2⟩
   · skip
@@ -53,7 +53,7 @@ theorem quadratic_plus_four_even (n : ℤ) :
     -- 2.5. calculation
     have s2_5 : n ^ 2 + 3 * n + 4 = 2 * (2 * k ^ 2 + 5 * k + 4) := by
       calc n ^ 2 + 3 * n + 4 = (2 * k + 1) ^ 2 + 3 * (2 * k + 1) + 4 := congrArg (fun t : ℤ => t ^ 2 + 3 * t + 4) s2_4
-        _ = 2 * (2 * k ^ 2 + 5 * k + 4) := by parley_ring
+        _ = 2 * (2 * k ^ 2 + 5 * k + 4) := by ring1
     -- 2.6. def:even n := n² + 3n + 4, from 2.5
     exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 5 * k + 4, s2_5⟩
 

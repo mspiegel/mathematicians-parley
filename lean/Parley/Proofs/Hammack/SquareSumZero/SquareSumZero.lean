@@ -1,6 +1,5 @@
 module
 
-public import NormTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -37,7 +36,7 @@ theorem square_sum_zero (x : ℝ) (y : ℝ) :
   · skip
     intro hD1
     -- 1. algebra, from D1
-    have s1 : x * y = 0 := by linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * hD1
+    have s1 : x * y = 0 := by linear_combination ((1 / 2 : ℝ)) * hD1
     -- 2. mun:zero-product, from 1
     exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp s1
   · skip
@@ -46,9 +45,9 @@ theorem square_sum_zero (x : ℝ) (y : ℝ) :
     rcases hD2 with hC1 | hC2
     · skip
       -- 3.1. algebra, from C1
-      linear_combination (norm := parley_norm) (2 * y) * hC1
+      linear_combination (2 * y) * hC1
     · skip
       -- 3.2. algebra, from C2
-      linear_combination (norm := parley_norm) (2 * x) * hC2
+      linear_combination (2 * x) * hC2
 
 end Parley.Proofs.Hammack.SquareSumZero.SquareSumZero

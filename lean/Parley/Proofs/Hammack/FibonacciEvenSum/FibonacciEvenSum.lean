@@ -1,8 +1,6 @@
 module
 
-public import AlgebraTactics
 public import Functions
-public import NormTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Int.Defs
@@ -34,6 +32,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Sums
@@ -78,13 +77,13 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       -- 4.7. calculation
       have s4_7 : F (1 + 1) = 1 := by
         calc F (1 + 1) = F 2 := by norm_num
-          _ = 1 := by linear_combination (norm := parley_norm) s4_4 + s4_5 + s4_6
+          _ = 1 := by linear_combination s4_4 + s4_5 + s4_6
       -- 4.8. instantiate k := 1 in line 3
       have s4_8 : F (1 + 2) = F 1 + F (1 + 1) := by exact (s3 (1 : ℤ) (by norm_num))
       -- 4.9. calculation
       have s4_9 : F (2 * 1 + 1) = 2 := by
         calc F (2 * 1 + 1) = F (1 + 2) := by norm_num
-          _ = 2 := by linear_combination (norm := parley_norm) s4_5 + s4_7 + s4_8
+          _ = 2 := by linear_combination (norm := ring_nf) s4_5 + s4_7 + s4_8
       -- 4.10. calculation
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (q j : ℤ)) = q 1 := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := q) (a := (1 : ℤ)))
         _ = F (2 * 1) := by simp (disch := omega) only [hD2]
@@ -101,12 +100,12 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       have s4_13 : F (2 * m + 1 + 2) = F (2 * m + 1) + F (2 * m + 1 + 1) := by exact (s3 (2 * m + 1) (add_nonneg (mul_nonneg (by norm_num) (le_of_lt (lt_of_lt_of_le zero_lt_one hK3))) (by norm_num)))
       -- 4.14. substitute
       have s4_14 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := by
-        have c1 : 2 * m + 1 + 2 = 2 * (m + 1) + 1 := by parley_ring
+        have c1 : 2 * m + 1 + 2 = 2 * (m + 1) + 1 := by ring1
         have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * m + 1 + 1) := Eq.subst (motive := (fun t : ℤ => F t = F (2 * m + 1) + F (2 * m + 1 + 1))) c1 s4_13
         exact row1
       -- 4.15. substitute
       have s4_15 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := by
-        have c1 : 2 * m + 1 + 1 = 2 * (m + 1) := by parley_ring
+        have c1 : 2 * m + 1 + 1 = 2 * (m + 1) := by ring1
         have row1 : F (2 * (m + 1) + 1) = F (2 * m + 1) + F (2 * (m + 1)) := Eq.subst (motive := (fun t : ℤ => F (2 * (m + 1) + 1) = F (2 * m + 1) + F t)) c1 s4_14
         exact row1
       -- 4.16. instantiate k := 2m + 1 in line 2
@@ -116,7 +115,7 @@ theorem fibonacci_even_sum (n : ℤ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ �
       calc (∑ j ∈ Finset.Icc (1 : ℤ) (m + 1), (q j : ℤ)) = (∑ j ∈ Finset.Icc (1 : ℤ) m, (q j : ℤ)) + q (m + 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_extended (t := q) (a := (1 : ℤ)) (n := m) r122_1)
         _ = F (2 * m + 1) - 1 + q (m + 1) := congrArg (fun t : ℤ => t + q (m + 1)) hIH2
         _ = F (2 * m + 1) - 1 + F (2 * (m + 1)) := congrArg (fun t : ℤ => F (2 * m + 1) - 1 + t) s4_12
-        _ = F (2 * (m + 1) + 1) - 1 := by linear_combination (norm := parley_norm) (-1) * s4_15
+        _ = F (2 * (m + 1) + 1) - 1 := by linear_combination (-1) * s4_15
   -- 5. instantiate m := n in line 4, from D2
   exact (s4 n hH1)
 

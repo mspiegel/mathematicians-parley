@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -14,6 +13,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/a-named-term-is-a-number.proof by parley build lean. -/
@@ -27,6 +27,6 @@ theorem a_named_term_is_a_number (N : ℤ) :
   set M : ℤ := 2 * N + 1 with hD1
   -- 1. algebra, from D1
   simp only [hD1] at ⊢
-  parley_ring
+  ring1
 
 end Parley.Tests.Elaborator.ANamedTermIsANumber.ANamedTermIsANumber

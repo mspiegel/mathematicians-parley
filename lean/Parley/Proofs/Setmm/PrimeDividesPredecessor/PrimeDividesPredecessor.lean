@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Prime.Defs
@@ -19,6 +18,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/prime-divides-predecessor.proof by parley build lean. -/
@@ -37,7 +37,7 @@ theorem prime_divides_predecessor (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toN
   have s2_1 : P ∣ A - (A - 1) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := P) (a := A) (b := A - 1) hS hH4)
   -- 2.2. substitute
   have s2_2 : P ∣ (1 : ℤ) := by
-    have c1 : A - (A - 1) = 1 := by parley_ring
+    have c1 : A - (A - 1) = 1 := by ring1
     have row1 : P ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => P ∣ t)) c1 s2_1; push_cast at h ⊢; exact_mod_cast h)
     exact row1
   -- 2.3. mun:divides-one d := P, from 2.2

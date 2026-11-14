@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import RealTactics
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Basic.Real.Basic
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
 
@@ -28,6 +28,6 @@ theorem a_chain_line_working_out_a_closed_piece (x : ℝ) :
     x * Real.sqrt (4 : ℝ) = 2 * x := by
   -- 1. calculation
   calc x * Real.sqrt (4 : ℝ) = x * 2 := by parley_real
-    _ = 2 * x := by parley_ring
+    _ = 2 * x := by ring1
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineWorkingOutAClosedPiece

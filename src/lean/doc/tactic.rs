@@ -130,8 +130,6 @@ pub enum Tactic {
     Group(Box<Tactic>),
     /// `try a`.
     Try(Box<Tactic>),
-    /// `all_goals a`.
-    AllGoals(Box<Tactic>),
     /// `have name : says := proof`: a line of the page proved, its proof
     /// on one line or several.
     Have {
@@ -288,10 +286,7 @@ impl Tactic {
                 Tactic::First { ways: ts, .. } | Tactic::Seq(ts) => {
                     out.extend(ts.iter())
                 }
-                Tactic::Group(t)
-                | Tactic::Try(t)
-                | Tactic::AllGoals(t)
-                | Tactic::Bullet(t) => out.push(t),
+                Tactic::Group(t) | Tactic::Try(t) | Tactic::Bullet(t) => out.push(t),
                 Tactic::Call { args, .. } => {
                     out.extend(args.iter().filter_map(|a| match a {
                         TacticArg::Setting { value, .. } => Some(&**value),

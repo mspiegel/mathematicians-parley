@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/congruent-products.proof by parley build lean. -/
@@ -35,7 +35,7 @@ theorem congruent_products (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (n : ℤ) (hH
   have s3 : n ∣ (a - b) * c + (c - d) * b := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := n) (a := a - b) (b := c - d) (x := c) (y := b) s1 s2)
   -- 4. substitute
   have s4 : n ∣ a * c - b * d := by
-    have c1 : (a - b) * c + (c - d) * b = a * c - b * d := by parley_ring
+    have c1 : (a - b) * c + (c - d) * b = a * c - b * d := by ring1
     have row1 : n ∣ a * c - b * d := Eq.subst (motive := (fun t : ℤ => n ∣ t)) c1 s3
     exact row1
   -- 5. def:congruent-mod, from 4

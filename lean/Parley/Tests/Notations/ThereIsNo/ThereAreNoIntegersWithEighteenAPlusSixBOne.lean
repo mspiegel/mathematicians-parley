@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Ring.Int.Defs
 public import Mathlib.Algebra.Ring.Parity
@@ -35,7 +34,7 @@ theorem there_are_no_integers_with_eighteen_a_plus_six_b_one :
   -- 1.1. obtain a, b from S
   obtain ⟨a, b, s1_1⟩ := hS
   -- 1.2. algebra, from 1.1
-  have s1_2 : 1 = 2 * (9 * a + 3 * b) := by linear_combination (norm := parley_norm) (-1) * s1_1
+  have s1_2 : 1 = 2 * (9 * a + 3 * b) := by linear_combination (-1) * s1_1
   -- 1.3. def:even n := 1, from 1.2
   have s1_3 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨9 * a + 3 * b, s1_2⟩
   -- 1.4. mun:not-both n := 1, from 1.3

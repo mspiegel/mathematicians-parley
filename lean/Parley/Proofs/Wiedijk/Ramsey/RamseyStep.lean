@@ -1,10 +1,8 @@
 module
 
-public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import InstanceTactics
-public import NormTactics
 public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
@@ -32,6 +30,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Tactic.TypeStar
@@ -119,11 +118,11 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     have row1 : (X.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1)) c1 s22
     have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by
       have e_nat : (X \ ({v} : Set α)).ncard = R.ncard + B.ncard := by exact_mod_cast s21
-      have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
       exact congrArg (fun t : ℤ => t) e_w
     have row2 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by
       have e_nat : (X \ ({v} : Set α)).ncard = R.ncard + B.ncard := by exact_mod_cast c2
-      have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h; linear_combination (norm := parley_norm) h
+      have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
       exact Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) e_w row1
     exact row2)
   -- 24. mun:nat-minus-one n := k + j
@@ -133,7 +132,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 26. mun:binomial-nat0, from 24
   have s26 : 0 ≤ (LeanBridges.Counting.choose (k + j - 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := k + j - 1) s24 (k := k))
   -- 27. algebra
-  have s27 : k + j - 1 + 1 = k + j := by parley_ring
+  have s27 : k + j - 1 + 1 = k + j := by ring1
   -- 28. calculation
   have s28 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
     calc (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) = (LeanBridges.Counting.choose (k + j - 1 + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k + j - 1) s24 (k := k))
@@ -185,7 +184,6 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 32.4. def:set-builder, from D2
     have s32_4 : ∀ w ∈ R, ({v, w} : Set α) ∈ E := by
       intro w h_w
-      push_cast at ⊢
       have hI : ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp h_w).2)
       exact hI
     -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
@@ -203,11 +201,8 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     have s32_10 : ∀ w ∈ B, ({v, w} : Set α) ∈ F := by
       intro w hK1
       -- 32.10.1. def:set-builder u := w, from D3, K1
-      have s32_10_1a : w ∈ X \ ({v} : Set α) := by
-        push_cast at ⊢
-        exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).1
+      have s32_10_1a : w ∈ X \ ({v} : Set α) := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).1
       have s32_10_1b : ¬ ({v, w} : Set α) ∈ E := by
-        push_cast at ⊢
         have hI : ¬ ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2)
         exact hI
       -- 32.10.2. mun:remove-member u := w, Y := X, a := v, from 32.10.1

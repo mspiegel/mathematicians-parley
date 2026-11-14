@@ -1,7 +1,6 @@
 module
 
 public import ArithTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -83,7 +82,7 @@ theorem prime_sum_odd (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) (hH3 : Nat
   -- 7. obtain k: def:odd n := q, from 6
   obtain ⟨k, s7⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := q))).mp s6
   -- 8. algebra, from 7
-  have s8 : 2 * p + q ^ 2 = 2 * (p + 2 * k ^ 2 + 2 * k) + 1 := by linear_combination (norm := parley_norm) (2 * k + q + 1) * s7
+  have s8 : 2 * p + q ^ 2 = 2 * (p + 2 * k ^ 2 + 2 * k) + 1 := by linear_combination (2 * k + q + 1) * s7
   -- 9. def:odd n := 2p + q², from 8
   exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 2 * p + q ^ 2))).mpr ⟨p + 2 * k ^ 2 + 2 * k, s8⟩
 

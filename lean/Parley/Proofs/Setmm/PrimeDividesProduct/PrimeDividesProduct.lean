@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
@@ -20,6 +19,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
 
@@ -32,7 +32,7 @@ namespace Parley.Proofs.Setmm.PrimeDividesProduct.PrimeDividesProduct
 theorem prime_divides_product (P : ℤ) (hH1 : 0 < P) (hH2 : Nat.Prime P.toNat) (M : ℤ) (N : ℤ) :
     (P ∣ M * N ↔ P ∣ M ∨ P ∣ N) := by
   -- 1. algebra
-  have s1 : M * N = N * M := by parley_ring
+  have s1 : M * N = N * M := by ring1
   -- 2. both directions
   constructor
   · skip

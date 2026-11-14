@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Int.Defs
@@ -25,6 +24,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.RationalSquaresSumNotThree.SquareModThree
 public import Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall
@@ -63,7 +63,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
       have s4_2 : (3 : ℤ) ∣ p ^ 2 + q ^ 2 - (p ^ 2 - 1 + q ^ 2) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (3 : ℤ)) (a := p ^ 2 + q ^ 2) (b := p ^ 2 - 1 + q ^ 2) hH3 s4_1)
       -- 4.3. substitute
       have s4_3 : (3 : ℤ) ∣ (1 : ℤ) := by
-        have c1 : p ^ 2 + q ^ 2 - (p ^ 2 - 1 + q ^ 2) = 1 := by parley_ring
+        have c1 : p ^ 2 + q ^ 2 - (p ^ 2 - 1 + q ^ 2) = 1 := by ring1
         have row1 : (3 : ℤ) ∣ (1 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s4_2; revert h; norm_num)
         exact row1
       -- 4.4. thm:three-divides-no-small r := 1
@@ -77,7 +77,7 @@ theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p 
       have s4_6 : (3 : ℤ) ∣ p ^ 2 + q ^ 2 - (p ^ 2 - 1 + (q ^ 2 - 1)) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (3 : ℤ)) (a := p ^ 2 + q ^ 2) (b := p ^ 2 - 1 + (q ^ 2 - 1)) hH3 s4_5)
       -- 4.7. substitute
       have s4_7 : (3 : ℤ) ∣ (2 : ℤ) := by
-        have c1 : p ^ 2 + q ^ 2 - (p ^ 2 - 1 + (q ^ 2 - 1)) = 2 := by parley_ring
+        have c1 : p ^ 2 + q ^ 2 - (p ^ 2 - 1 + (q ^ 2 - 1)) = 2 := by ring1
         have row1 : (3 : ℤ) ∣ (2 : ℤ) := by (have h := Eq.subst (motive := (fun t : ℤ => (3 : ℤ) ∣ t)) c1 s4_6; revert h; norm_num)
         exact row1
       -- 4.8. thm:three-divides-no-small r := 2

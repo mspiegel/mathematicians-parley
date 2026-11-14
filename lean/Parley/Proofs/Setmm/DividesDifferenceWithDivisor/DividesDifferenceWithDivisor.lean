@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
 public import Mathlib.Order.Interval.Finset.Defs
@@ -15,6 +14,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.Basic
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/divides-difference-with-divisor.proof by parley build lean. -/
@@ -40,7 +40,7 @@ theorem divides_difference_with_divisor (M : ℤ) (N : ℤ) :
     -- 4. mun:divides-difference d := M, a := M, b := M − N, from D2, 3
     have s4 : M ∣ M - (M - N) := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M) (b := M - N) s3 hD2)
     -- 5. substitute
-    have c1 : M - (M - N) = N := by parley_ring
+    have c1 : M - (M - N) = N := by ring1
     have row1 : M ∣ N := Eq.subst (motive := (fun t : ℤ => M ∣ t)) c1 s4
     exact row1
 

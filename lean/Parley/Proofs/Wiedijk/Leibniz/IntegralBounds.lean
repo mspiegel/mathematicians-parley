@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import ArithTactics
 public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
@@ -42,6 +41,7 @@ public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Ring.RingNF
 public import Mathlib.Tactic.Set
 public import Mathlib.Tactic.SetNotationForOrder
 public import Mathlib.Topology.Defs.Filter
@@ -121,7 +121,9 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
     -- 11.7. D2, from K2
     have s11_7 : g x = x ^ (2 * n).toNat / (1 + x ^ 2) := by simp (disch := omega) only [hD2]
     -- 11.8. algebra, from D1, K2
-    have s11_8 : x ^ (2 * n).toNat / 1 = f x := by parley_ring
+    have s11_8 : x ^ (2 * n).toNat / 1 = f x := by
+      simp only [hD1] at ⊢
+      ring_nf
     -- 11.9. transitivity, from 11.7, 11.6, 11.8
     have r631_1 : 1 + x ^ 2 ≠ 0 := ne_of_gt (by linarith only [s11_5])
     exact LE.le.trans_eq (Eq.trans_le s11_7 s11_6) s11_8

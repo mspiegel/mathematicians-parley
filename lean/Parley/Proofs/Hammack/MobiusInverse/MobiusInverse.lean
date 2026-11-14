@@ -1,6 +1,5 @@
 module
 
-public import AlgebraTactics
 public import Functions
 public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -10,6 +9,7 @@ public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
 public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -62,6 +62,6 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
   have r46_1 : x - 2 ≠ 0 := fun h => s4_3 (by linarith only [h])
   have r46_2 : y - 5 ≠ 0 := fun h => s4_1 (by linarith only [h])
   calc (LeanBridges.Functions.inverse f ((Set.univ : Set ℝ) \ ({(2 : ℝ)} : Set ℝ))) y = x := s4_6
-    _ = (2 * y + 1) / (y - 5) := by linear_combination (norm := parley_field) ((x - 2) / ((y - 5))) * s4_4
+    _ = (2 * y + 1) / (y - 5) := by have hz1 : y - 5 ≠ 0 := r46_2; have hz2 : x - 2 ≠ 0 := r46_1; linear_combination (norm := (field)) ((x - 2) / ((y - 5))) * s4_4
 
 end Parley.Proofs.Hammack.MobiusInverse.MobiusInverse

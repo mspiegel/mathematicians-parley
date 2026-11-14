@@ -1,11 +1,11 @@
 module
 
-public import AlgebraTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Field
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Linarith.Frontend
@@ -28,6 +28,6 @@ theorem each_factor_by_its_requires_line (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH
   -- 1. algebra
   have r20_1 : x ≠ 0 := by exact hH3
   have r20_2 : y ≠ 0 := by exact hH4
-  parley_ring
+  have hz1 : x ≠ 0 := r20_1; have hz2 : y ≠ 0 := r20_2; field
 
 end Parley.Tests.Elaborator.Divisors.EachFactorByItsRequiresLine

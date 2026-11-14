@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import NormTactics
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.GroupWithZero.Defs
@@ -46,6 +45,6 @@ theorem choose_two_of_a_double (n : ℤ) (hH1 : 0 ≤ n) :
   -- 2. thm:binomial-of-two m := n
   have s2 : 2 * (LeanBridges.Counting.choose n (2 : ℤ) : ℤ) = n * (n - 1) := by exact (Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo.binomial_of_two (m := n) hH1)
   -- 3. algebra, from 1, 2
-  qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1 + (-1) * s2
+  qify at *; linear_combination ((1 / 2 : ℚ)) * s1 + (-1) * s2
 
 end Parley.Proofs.Hammack.ChooseTwoOfADouble.ChooseTwoOfADouble
