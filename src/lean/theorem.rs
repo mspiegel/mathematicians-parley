@@ -15101,56 +15101,15 @@ impl<'a> Proof<'a> {
             }
             _ => writer,
         };
-        // A chain of sets or of their members, A ∩ B = B ∩ A = ∅ or
-        // F(F⁻¹(C)) = F(x), is written as sets are, and has no number type
-        // to work in.
-        let of_sets = terms
-            .iter()
-            .any(|t| writer.members_of(t).is_some() || writer.member_kind(t).is_some());
-        // A chain of counts, |A| = |∅| = 0, is in ℕ∞ (`sets::count_term`).
-        let of_counts = terms.iter().any(|t| writer.counts(t));
-        // From ℤ, as the claim it proves is written.
-        let mut at = super::templates::Num::Int;
-        let mut printed = Vec::new();
-        if of_counts {
-            for t in &terms {
-                match writer.count_term(t) {
-                    Route::Built(p) => printed.push(p),
-                    Route::Declined(d) => return Route::Declined(d),
-                }
-            }
-        } else if of_sets {
-            for t in &terms {
-                match writer.set_term(t) {
-                    Route::Built(p) => printed.push(p),
-                    Route::Declined(d) => return Route::Declined(d),
-                }
-            }
-        } else {
-            for t in &terms {
-                match writer.carrier(t) {
-                    Route::Built(n) => at = at.max(n),
-                    Route::Declined(d) => return Route::Declined(d),
-                }
-            }
-            for t in &terms {
-                match writer.number(t, at) {
-                    Route::Built(p) => printed.push(p),
-                    Route::Declined(d) => return Route::Declined(d),
-                }
-            }
-            // A first term whose type nothing in it fixes, numerals alone or
-            // a power whose letters are only in its exponent, is told its
-            // type, bracketed inside as it stands in the chain.
-            if !writer.pinned(&terms[0]) {
-                let first = printed[0].clone();
-                let first = match first.prec() < 51 {
-                    true => super::tactics::bracket(first),
-                    false => first,
-                };
-                printed[0] = Printed::cast(first, writer.num_type(at));
-            }
-        }
+        let ChainPrinted {
+            printed,
+            at,
+            of_sets,
+            of_counts,
+        } = match chain_printed(writer, &terms) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
         // The claim, the first term and the last, is stated in its own
         // least type; a chain worked out in a wider one moves the goal there
         // first, as `qify` or `rify` does.
@@ -15261,230 +15220,17 @@ impl<'a> Proof<'a> {
                 // header's function, its equation guarded by its domain, at
                 // an argument linear arithmetic shows is in it.
                 None if let Some(cite) = line.cited() => {
-                    let define = self
-                        .thm
-                        .defines
-                        .iter()
-                        .any(|d| d.label == cite)
-                        .then(|| self.named.get(cite).and_then(|n| n.first()))
-                        .flatten();
-                    // A row of a step that names whole numbers, citing a line
-                    // in the page's forms: both taken to ℚ, each named number
-                    // put as its term, and the line used.
-                    let named = self.named.get(cite).and_then(|n| n.first());
-                    let in_named = match (named, self.named_specs.is_empty()) {
-                        (Some(name), false) => match in_named_forms(
-                            &self.named_specs,
-                            name,
-                            self.rec.link_facings.get(&line.line).copied(),
-                            relation == "≡",
-                        ) {
-                            Route::Built(t) => Some(t),
-                            Route::Declined(d) => return Route::Declined(d),
-                        },
-                        _ => None,
+                    let row = CalcRow {
+                        index: k,
+                        line,
+                        relation: &relation,
+                        modulus: &modulus,
+                        terms: &terms,
+                        printed: &printed,
                     };
-                    // Whether the row, or the line it cites, takes an integer
-                    // to ℕ, an item's 2^(d·e).toNat: a define is then not put
-                    // in alone (`by_define`).
-                    let line_to_nat = self
-                        .trees
-                        .get(cite)
-                        .and_then(|t| t.first())
-                        .and_then(|s| self.line_statement(&s.cited()).built())
-                        .is_some_and(|p| p.has_to_nat());
-                    let to_nat = [&printed[k], &printed[k + 1]]
-                        .iter()
-                        .any(|p| p.has_to_nat())
-                        || line_to_nat;
-                    // A row the define makes true, as the checker met its two
-                    // sides with the define written out (`define_links`): the
-                    // define's equation, and then the work its meeting leaves,
-                    // or the casts Lean writes on the row.
-                    let met = self.rec.define_links.get(&line.line);
-                    // Two sides Lean writes alike once each `set` letter is
-                    // read as its value: `simp only [hD]` puts the values in
-                    // and closes the `x = x` left, whatever `toNat` or names
-                    // the row writes.
-                    let values = self.set_values();
-                    let alike_set = super::doc::forms::alike_once_set(
-                        &printed[k],
-                        &printed[k + 1],
-                        &values,
-                    );
-                    let by_define =
-                        match (define, met, self.named_specs.is_empty(), to_nat) {
-                            (Some(h), _, _, _) if alike_set => {
-                                Some(super::doc::Proof::By(unfolded_by(
-                                    std::slice::from_ref(h),
-                                    true,
-                                    false,
-                                )))
-                            }
-                            // A row writing `toNat`, or citing a line that
-                            // does, whose sides differ only in casts once the
-                            // `set` letters are read as their values: Lean's
-                            // casts, which `push_cast` moves once the
-                            // define is put in.
-                            (Some(h), Some(met), true, to_nat)
-                                if !to_nat
-                                    || super::doc::forms::casts_differ(
-                                        &printed[k],
-                                        &printed[k + 1],
-                                        &values,
-                                    )
-                                    .is_some() =>
-                            {
-                                let cast =
-                                    self.unfolds_to_casts(&printed[k], &printed[k + 1]);
-                                Some(super::doc::Proof::By(unfolded_by(
-                                    std::slice::from_ref(h),
-                                    met.as_ref().is_some_and(unfolds_alone) && !cast,
-                                    false,
-                                )))
-                            }
-                            _ => None,
-                        };
-                    let mut ways: Vec<Tactic> = match define {
-                        Some(h) => unfolded(std::slice::from_ref(h)),
-                        None => Vec::new(),
-                    };
-                    // A "for all" line read at the row's letter, as a line
-                    // cited inside a block is: 5.7's a·f(a) ≡ 1 at the
-                    // block's a, as it stands or turned round.
-                    let names: std::collections::BTreeSet<String> = terms[k]
-                        .names()
-                        .into_iter()
-                        .chain(terms[k + 1].names())
-                        .collect();
-                    let read: Vec<super::algebra::Cited> = self
-                        .trees
-                        .get(cite)
-                        .into_iter()
-                        .flatten()
-                        .filter(|s| s.node.notation() == crate::notations::FOR_ALL)
-                        .filter_map(|s| self.at_recorded_letter(&s.cited(), &names))
-                        .collect();
-                    // The one such line, the way the checker found the row
-                    // faces it (`link_facings`).
-                    let at_letter = match (
-                        read.as_slice(),
-                        self.rec.link_facings.get(&line.line),
-                    ) {
-                        ([at], Some(facing)) => Some(super::doc::Proof::By(
-                            Tactic::Exact(faced(at.proof.clone(), *facing)),
-                        )),
-                        _ => None,
-                    };
-                    for at in read {
-                        for facing in [Facing::Straight, Facing::Turned] {
-                            ways.push(Tactic::Exact(faced(at.proof.clone(), facing)));
-                        }
-                    }
-                    // In the named numbers' forms, the line used the way the
-                    // record says the row faces it: the row's proof.
-                    let named_decided = in_named
-                        .clone()
-                        .filter(|_| self.rec.link_facings.contains_key(&line.line))
-                        .map(super::doc::Proof::By);
-                    ways.extend(in_named);
-                    // The row is what the cited line says where the checker
-                    // found it (`link_places`), that sentence or part as the
-                    // line states it, met with the row as Lean writes it as
-                    // a cited item's hypothesis is met with its line
-                    // (`said_proof`): as it stands, turned round, or across
-                    // casts, a line in ℤ read in the chain's ℚ, one in ℚ in
-                    // the chain's ℝ.
-                    // A count Lean may hold in ℕ∞ where the chain takes it
-                    // in ℤ, `V.encard = 2` of an assumption: met only from a
-                    // line whose statement the writer wrote (`store`).
-                    let placed = self
-                        .rec
-                        .link_places
-                        .get(&line.line)
-                        .and_then(|at| {
-                            let stated = self.line_part(at).built()?.says.is_some();
-                            let (proof, says) = self.line_says(at).built()?;
-                            Some((stated, proof, says))
-                        })
-                        .and_then(|(stated, proof, says)| {
-                            let row = calc_row(
-                                &relation,
-                                modulus.as_ref(),
-                                &printed[k],
-                                &printed[k + 1],
-                            )?;
-                            if !stated && (item_counts(&says) || item_counts(&row)) {
-                                return None;
-                            }
-                            // A count in ℕ∞ on one side, in ℤ on the other.
-                            if let Some(p) = self.counted_between(
-                                &proof,
-                                &says,
-                                &row,
-                                &[&terms[k], &terms[k + 1]],
-                            ) {
-                                return Some(p);
-                            }
-                            let meeting = self.rec.link_meetings.get(&line.line);
-                            self.said_proof(proof, says, &row, meeting).built()
-                        });
-                    // A row that writes a power as the integer power where
-                    // the line has it to its exponent's `toNat`, or the other
-                    // way: converted as a citation's is, from the sentence the
-                    // checker found the row in (`link_places`).
-                    let converted = || {
-                        let at = self.rec.link_places.get(&line.line)?;
-                        let found = self.line_part(at).built()?;
-                        let (proof, says) = self.line_says(at).built()?;
-                        let op = super::doc::Op::of(relation.as_str())?;
-                        let row = Printed::infix(
-                            op,
-                            printed[k].clone(),
-                            printed[k + 1].clone(),
-                            super::doc::LeanType::Prop,
-                        );
-                        self.powers_converted_at(
-                            &[&terms[k], &terms[k + 1], &found.node],
-                            &says,
-                            &row,
-                            &proof,
-                            false,
-                        )
-                    };
-                    // An equation whose two sides Lean writes alike once a
-                    // define is written out in both, `T(1) = 1(1 + 1)/2`:
-                    // `rfl`. Not a row of numerals worked out, which in a
-                    // contradiction may be false.
-                    let as_it_stands = (relation == "="
-                        && bare_term(&printed[k]).untyped()
-                            == bare_term(&printed[k + 1]).untyped())
-                    .then(|| {
-                        Printed::constant(
-                            "rfl",
-                            super::doc::Source::Core,
-                            super::doc::LeanType::Prop,
-                        )
-                    });
-                    match (as_it_stands, by_define, placed) {
-                        (Some(truth), _, _) => super::doc::Proof::Term(truth),
-                        (None, Some(proof), _) => proof,
-                        (None, None, Some(proved)) => super::doc::Proof::Term(proved),
-                        (None, None, None) => {
-                            match (converted(), at_letter, named_decided) {
-                                (Some(proof), _, _)
-                                | (None, Some(proof), _)
-                                | (None, None, Some(proof)) => proof,
-                                (None, None, None) => {
-                                    match ways_proof(ListReason::RowRead, ways) {
-                                        Route::Built(p) => p,
-                                        Route::Declined(d) => {
-                                            return Route::Declined(d)
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    match self.row_citing(row, cite) {
+                        Route::Built(p) => p,
+                        Route::Declined(d) => return Route::Declined(d),
                     }
                 }
                 // A row the page works out by real arithmetic, = 3·ln(2).
@@ -15526,6 +15272,233 @@ impl<'a> Proof<'a> {
             ]));
         }
         Route::Built(super::doc::Proof::Block(block))
+    }
+
+    /// The proof of a calculation's row that cites a line or a label: the
+    /// define it unfolds, the line it is read from, or the cited line used
+    /// across the casts the chain's type puts on it.
+    fn row_citing(&self, row: CalcRow<'_>, cite: &str) -> Route<super::doc::Proof> {
+        let CalcRow {
+            index: k,
+            line,
+            relation,
+            modulus,
+            terms,
+            printed,
+        } = row;
+        Route::Built({
+            let define = self
+                .thm
+                .defines
+                .iter()
+                .any(|d| d.label == cite)
+                .then(|| self.named.get(cite).and_then(|n| n.first()))
+                .flatten();
+            // A row of a step that names whole numbers, citing a line
+            // in the page's forms: both taken to ℚ, each named number
+            // put as its term, and the line used.
+            let named = self.named.get(cite).and_then(|n| n.first());
+            let in_named = match (named, self.named_specs.is_empty()) {
+                (Some(name), false) => match in_named_forms(
+                    &self.named_specs,
+                    name,
+                    self.rec.link_facings.get(&line.line).copied(),
+                    relation == "≡",
+                ) {
+                    Route::Built(t) => Some(t),
+                    Route::Declined(d) => return Route::Declined(d),
+                },
+                _ => None,
+            };
+            // Whether the row, or the line it cites, takes an integer
+            // to ℕ, an item's 2^(d·e).toNat: a define is then not put
+            // in alone (`by_define`).
+            let line_to_nat = self
+                .trees
+                .get(cite)
+                .and_then(|t| t.first())
+                .and_then(|s| self.line_statement(&s.cited()).built())
+                .is_some_and(|p| p.has_to_nat());
+            let to_nat = [&printed[k], &printed[k + 1]]
+                .iter()
+                .any(|p| p.has_to_nat())
+                || line_to_nat;
+            // A row the define makes true, as the checker met its two
+            // sides with the define written out (`define_links`): the
+            // define's equation, and then the work its meeting leaves,
+            // or the casts Lean writes on the row.
+            let met = self.rec.define_links.get(&line.line);
+            // Two sides Lean writes alike once each `set` letter is
+            // read as its value: `simp only [hD]` puts the values in
+            // and closes the `x = x` left, whatever `toNat` or names
+            // the row writes.
+            let values = self.set_values();
+            let alike_set = super::doc::forms::alike_once_set(
+                &printed[k],
+                &printed[k + 1],
+                &values,
+            );
+            let by_define = match (define, met, self.named_specs.is_empty(), to_nat) {
+                (Some(h), _, _, _) if alike_set => Some(super::doc::Proof::By(
+                    unfolded_by(std::slice::from_ref(h), true, false),
+                )),
+                // A row writing `toNat`, or citing a line that
+                // does, whose sides differ only in casts once the
+                // `set` letters are read as their values: Lean's
+                // casts, which `push_cast` moves once the
+                // define is put in.
+                (Some(h), Some(met), true, to_nat)
+                    if !to_nat
+                        || super::doc::forms::casts_differ(
+                            &printed[k],
+                            &printed[k + 1],
+                            &values,
+                        )
+                        .is_some() =>
+                {
+                    let cast = self.unfolds_to_casts(&printed[k], &printed[k + 1]);
+                    Some(super::doc::Proof::By(unfolded_by(
+                        std::slice::from_ref(h),
+                        met.as_ref().is_some_and(unfolds_alone) && !cast,
+                        false,
+                    )))
+                }
+                _ => None,
+            };
+            let mut ways: Vec<Tactic> = match define {
+                Some(h) => unfolded(std::slice::from_ref(h)),
+                None => Vec::new(),
+            };
+            // A "for all" line read at the row's letter, as a line
+            // cited inside a block is: 5.7's a·f(a) ≡ 1 at the
+            // block's a, as it stands or turned round.
+            let names: std::collections::BTreeSet<String> = terms[k]
+                .names()
+                .into_iter()
+                .chain(terms[k + 1].names())
+                .collect();
+            let read: Vec<super::algebra::Cited> = self
+                .trees
+                .get(cite)
+                .into_iter()
+                .flatten()
+                .filter(|s| s.node.notation() == crate::notations::FOR_ALL)
+                .filter_map(|s| self.at_recorded_letter(&s.cited(), &names))
+                .collect();
+            // The one such line, the way the checker found the row
+            // faces it (`link_facings`).
+            let at_letter =
+                match (read.as_slice(), self.rec.link_facings.get(&line.line)) {
+                    ([at], Some(facing)) => Some(super::doc::Proof::By(Tactic::Exact(
+                        faced(at.proof.clone(), *facing),
+                    ))),
+                    _ => None,
+                };
+            for at in read {
+                for facing in [Facing::Straight, Facing::Turned] {
+                    ways.push(Tactic::Exact(faced(at.proof.clone(), facing)));
+                }
+            }
+            // In the named numbers' forms, the line used the way the
+            // record says the row faces it: the row's proof.
+            let named_decided = in_named
+                .clone()
+                .filter(|_| self.rec.link_facings.contains_key(&line.line))
+                .map(super::doc::Proof::By);
+            ways.extend(in_named);
+            // The row is what the cited line says where the checker
+            // found it (`link_places`), that sentence or part as the
+            // line states it, met with the row as Lean writes it as
+            // a cited item's hypothesis is met with its line
+            // (`said_proof`): as it stands, turned round, or across
+            // casts, a line in ℤ read in the chain's ℚ, one in ℚ in
+            // the chain's ℝ.
+            // A count Lean may hold in ℕ∞ where the chain takes it
+            // in ℤ, `V.encard = 2` of an assumption: met only from a
+            // line whose statement the writer wrote (`store`).
+            let placed = self
+                .rec
+                .link_places
+                .get(&line.line)
+                .and_then(|at| {
+                    let stated = self.line_part(at).built()?.says.is_some();
+                    let (proof, says) = self.line_says(at).built()?;
+                    Some((stated, proof, says))
+                })
+                .and_then(|(stated, proof, says)| {
+                    let row = calc_row(
+                        &relation,
+                        modulus.as_ref(),
+                        &printed[k],
+                        &printed[k + 1],
+                    )?;
+                    if !stated && (item_counts(&says) || item_counts(&row)) {
+                        return None;
+                    }
+                    // A count in ℕ∞ on one side, in ℤ on the other.
+                    if let Some(p) = self.counted_between(
+                        &proof,
+                        &says,
+                        &row,
+                        &[&terms[k], &terms[k + 1]],
+                    ) {
+                        return Some(p);
+                    }
+                    let meeting = self.rec.link_meetings.get(&line.line);
+                    self.said_proof(proof, says, &row, meeting).built()
+                });
+            // A row that writes a power as the integer power where
+            // the line has it to its exponent's `toNat`, or the other
+            // way: converted as a citation's is, from the sentence the
+            // checker found the row in (`link_places`).
+            let converted = || {
+                let at = self.rec.link_places.get(&line.line)?;
+                let found = self.line_part(at).built()?;
+                let (proof, says) = self.line_says(at).built()?;
+                let op = super::doc::Op::of(relation)?;
+                let row = Printed::infix(
+                    op,
+                    printed[k].clone(),
+                    printed[k + 1].clone(),
+                    super::doc::LeanType::Prop,
+                );
+                self.powers_converted_at(
+                    &[&terms[k], &terms[k + 1], &found.node],
+                    &says,
+                    &row,
+                    &proof,
+                    false,
+                )
+            };
+            // An equation whose two sides Lean writes alike once a
+            // define is written out in both, `T(1) = 1(1 + 1)/2`:
+            // `rfl`. Not a row of numerals worked out, which in a
+            // contradiction may be false.
+            let as_it_stands = (relation == "="
+                && bare_term(&printed[k]).untyped()
+                    == bare_term(&printed[k + 1]).untyped())
+            .then(|| {
+                Printed::constant(
+                    "rfl",
+                    super::doc::Source::Core,
+                    super::doc::LeanType::Prop,
+                )
+            });
+            match (as_it_stands, by_define, placed) {
+                (Some(truth), _, _) => super::doc::Proof::Term(truth),
+                (None, Some(proof), _) => proof,
+                (None, None, Some(proved)) => super::doc::Proof::Term(proved),
+                (None, None, None) => match (converted(), at_letter, named_decided) {
+                    (Some(proof), _, _)
+                    | (None, Some(proof), _)
+                    | (None, None, Some(proof)) => proof,
+                    (None, None, None) => match ways_proof(ListReason::RowRead, ways) {
+                        Route::Built(p) => p,
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
+                },
+            }
+        })
     }
 
     /// Each sentence of the lines `refs` names, each conjunction taken apart
@@ -19217,6 +19190,97 @@ fn whole_number_denied(says: &Printed) -> Option<WholeNumberDenied> {
     let bounded = guard.is_some()
         || matches!(&bare(&body).kind, TermKind::Infix { op, .. } if *op == Op::AND);
     Some(WholeNumberDenied { letter, bounded })
+}
+
+/// A calculation's terms as Lean writes them (`chain_printed`).
+struct ChainPrinted {
+    /// Each term, in the type the chain is worked in.
+    printed: Vec<Printed>,
+    /// The type the chain is worked in; ℤ for a chain of sets or of counts,
+    /// which have no number type to work in.
+    at: super::templates::Num,
+    /// Whether the chain is of sets or of their members.
+    of_sets: bool,
+    /// Whether the chain is of counts.
+    of_counts: bool,
+}
+
+/// Each term of a calculation as Lean writes it. A chain of sets or of
+/// their members, A ∩ B = B ∩ A = ∅ or F(F⁻¹(C)) = F(x), is written as sets
+/// are; a chain of counts, |A| = |∅| = 0, is in ℕ∞ (`sets::count_term`);
+/// any other is worked in the least number type that holds every term,
+/// from ℤ, as the claim it proves is written.
+fn chain_printed(writer: &Writer, terms: &[Node]) -> Route<ChainPrinted> {
+    let of_sets = terms
+        .iter()
+        .any(|t| writer.members_of(t).is_some() || writer.member_kind(t).is_some());
+    let of_counts = terms.iter().any(|t| writer.counts(t));
+    let mut at = super::templates::Num::Int;
+    let mut printed = Vec::new();
+    if of_counts {
+        for t in terms {
+            match writer.count_term(t) {
+                Route::Built(p) => printed.push(p),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+    } else if of_sets {
+        for t in terms {
+            match writer.set_term(t) {
+                Route::Built(p) => printed.push(p),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+    } else {
+        for t in terms {
+            match writer.carrier(t) {
+                Route::Built(n) => at = at.max(n),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        for t in terms {
+            match writer.number(t, at) {
+                Route::Built(p) => printed.push(p),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        // A first term whose type nothing in it fixes, numerals alone or
+        // a power whose letters are only in its exponent, is told its
+        // type, bracketed inside as it stands in the chain.
+        if !writer.pinned(&terms[0]) {
+            let first = printed[0].clone();
+            let first = match first.prec() < 51 {
+                true => super::tactics::bracket(first),
+                false => first,
+            };
+            printed[0] = Printed::cast(first, writer.num_type(at));
+        }
+    }
+    Route::Built(ChainPrinted {
+        printed,
+        at,
+        of_sets,
+        of_counts,
+    })
+}
+
+/// One row of a calculation, with the chain it is a row of
+/// (`Proof::calculation`).
+#[derive(Clone, Copy)]
+struct CalcRow<'c> {
+    /// The row's place in the chain: its terms are `terms[index]` and
+    /// `terms[index + 1]`.
+    index: usize,
+    /// The chain line the row is.
+    line: &'c crate::corpus::proof::ChainLine,
+    /// The relation the row joins its terms by.
+    relation: &'c str,
+    /// The modulus of a congruence, as Lean writes it.
+    modulus: &'c Option<Printed>,
+    /// The chain's terms, as the page writes them.
+    terms: &'c [Node],
+    /// The chain's terms, as Lean writes them.
+    printed: &'c [Printed],
 }
 
 /// How the places of a recorded putting are written
