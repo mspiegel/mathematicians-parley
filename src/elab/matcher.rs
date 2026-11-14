@@ -7746,7 +7746,7 @@ impl<'a> Elaborator<'a> {
         // the lemma concludes, so the lemma is proved at its own value
         // instead.
         binding = self.read_off(sig, binding, variables);
-        let settled = self.instanced(&sig, binding.clone());
+        let settled = self.instanced(sig, binding.clone());
         if binding
             .iter()
             .any(|(name, stood)| self.rpn(&settled[name]) != self.rpn(stood))
@@ -7780,12 +7780,12 @@ impl<'a> Elaborator<'a> {
         // still read off the facts, whose letters are their own
         // (`fit_respelt`).
         let before = binding.clone();
-        binding = self.letters_unheld(&sig, binding);
+        binding = self.letters_unheld(sig, binding);
         // A substitution the lemma asks over one of those letters was worked
         // out above in the lemma's own spelling of it: `gcntshift` asks
         // ( i = j -> ( ps <-> th ) ), and th is ps at j. It is worked out
         // again at the letter j now stands for.
-        binding = self.instanced(&sig, binding);
+        binding = self.instanced(sig, binding);
         let fresh: Binding = binding
             .iter()
             .filter(|(k, _)| !before.contains_key(*k))
@@ -7902,7 +7902,7 @@ impl<'a> Elaborator<'a> {
                     }
                 }
             }
-            (where_, frame) = self.allowed(&sig, &binding);
+            (where_, frame) = self.allowed(sig, &binding);
             if let Declined(why) = where_ {
                 // The claim's own bound letter may be what every frame
                 // spells.
@@ -7991,7 +7991,7 @@ impl<'a> Elaborator<'a> {
                     continue
                 }
                 Some(s) if s.variable().is_some() => {
-                    binding.insert(s.variable_symbol().unwrap(), self.to_term(&where_));
+                    binding.insert(s.variable_symbol().unwrap(), self.to_term(where_));
                     continue;
                 }
                 // An antecedent a line the step has says whole is answered by
@@ -8000,14 +8000,14 @@ impl<'a> Elaborator<'a> {
                 // whichever disequality of Q comes first.
                 Some(s) => {
                     let wholes =
-                        self.fits_whole(s, &known_keys, &binding, &variables, &fresh);
+                        self.fits_whole(s, &known_keys, &binding, variables, fresh);
                     let whole = self.fit_answering_rest(
                         wholes,
                         &pending,
                         &binding,
                         &known_keys,
-                        &variables,
-                        &fresh,
+                        variables,
+                        fresh,
                     );
                     match whole {
                         Some(filled) => {
@@ -8020,8 +8020,8 @@ impl<'a> Elaborator<'a> {
                                 &pending,
                                 &known_keys,
                                 &mut binding,
-                                &variables,
-                                &fresh,
+                                variables,
+                                fresh,
                             )
                             .into_iter()
                             .filter(|p| !loose.iter().any(|one| one.same_object(p)))
@@ -8048,8 +8048,8 @@ impl<'a> Elaborator<'a> {
                         piece,
                         &self.to_term(held),
                         &binding,
-                        &variables,
-                        &fresh,
+                        variables,
+                        fresh,
                     ) {
                         fits.push(filled);
                     }
@@ -8060,8 +8060,8 @@ impl<'a> Elaborator<'a> {
                     &rest,
                     &binding,
                     &known_keys,
-                    &variables,
-                    &fresh,
+                    variables,
+                    fresh,
                 ) {
                     binding = chosen;
                 }
@@ -8071,7 +8071,7 @@ impl<'a> Elaborator<'a> {
                     for held in &known_keys {
                         let fact = self.to_term(held);
                         if let Some(filled) =
-                            self.fits_as(piece, &fact, &variables, Some(&binding))
+                            self.fits_as(piece, &fact, variables, Some(&binding))
                         {
                             read.push(filled);
                         }
@@ -8081,8 +8081,8 @@ impl<'a> Elaborator<'a> {
                         &rest,
                         &binding,
                         &known_keys,
-                        &variables,
-                        &fresh,
+                        variables,
+                        fresh,
                     ) {
                         binding = chosen;
                     }
