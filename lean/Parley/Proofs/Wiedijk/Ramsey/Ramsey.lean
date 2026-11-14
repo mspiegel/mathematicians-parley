@@ -3,7 +3,6 @@ module
 public import Counting
 public import FactorialTactics
 public import Functions
-public import SetTactics
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Algebra.Order.ZeroLEOne
 public import Mathlib.Basic.Finite.Defs
@@ -59,11 +58,11 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
       have s1_2 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hK2)
       -- 1.3. calculation
       have r559_1 : 0 ≤ j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := j) hK1)
-      have s1_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
+      have s1_3 : 1 ≤ (X.ncard : ℤ) := by
         calc (1 : ℤ) = (LeanBridges.Counting.choose (j - 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := j - 1) r559_1).symm
           _ = (LeanBridges.Counting.choose (j - 1) (1 - 1 : ℤ) : ℤ) := by norm_num
           _ = (LeanBridges.Counting.choose (1 + j - 2) (1 - 1 : ℤ) : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (1 - 1 : ℤ) : ℤ)) s1_1.symm
-          _ ≤ (X.ncard : ℤ) := hC1)
+          _ ≤ (X.ncard : ℤ) := hC1
       -- 1.4. obtain W: thm:one-point-part G := E, from 1.2, 1.3
       obtain ⟨W, s1_4a, s1_4b⟩ := (Parley.Proofs.Wiedijk.Ramsey.OnePointPart.one_point_part (X := X) (G := E) s1_2 s1_3)
       -- 1.5. mun:or-left, from 1.4
@@ -85,11 +84,11 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         -- 1.8.2. mun:finite-part, from H4, K4
         have s1_8_2 : X.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := V) (Y := X) hH4 hK4)
         -- 1.8.3. calculation
-        have s1_8_3 : 1 ≤ (X.ncard : ℤ) := by parley_count_after (by
+        have s1_8_3 : 1 ≤ (X.ncard : ℤ) := by
           calc (1 : ℤ) = (LeanBridges.Counting.choose k k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_all (n := k) (le_of_lt (lt_of_lt_of_le zero_lt_one hK3))).symm
             _ = (LeanBridges.Counting.choose k (k + 1 - 1) : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.choose k t : ℤ)) s1_7.symm
             _ = (LeanBridges.Counting.choose (k + 1 + 1 - 2) (k + 1 - 1) : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t (k + 1 - 1) : ℤ)) s1_8_1.symm
-            _ ≤ (X.ncard : ℤ) := hC2)
+            _ ≤ (X.ncard : ℤ) := hC2
         -- 1.8.4. obtain W: thm:one-point-part G := F, from 1.8.2, 1.8.3
         obtain ⟨W, s1_8_4a, s1_8_4b⟩ := (Parley.Proofs.Wiedijk.Ramsey.OnePointPart.one_point_part (X := X) (G := F) s1_8_2 s1_8_3)
         -- 1.8.5. mun:or-right, from 1.8.4
@@ -100,10 +99,10 @@ theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (
         -- 1.8.7. instantiate j := j + 1 in IH1
         have s1_8_7 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + (j + 1) - 2) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by intro X h_X; exact (hIH1 (j + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK5) (by norm_num)) X h_X)
         -- 1.8.8. substitute
-        have s1_8_8 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by parley_count_after (by
+        have s1_8_8 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := by
           have c1 : k + (j + 1) - 2 = k + j - 1 := by ring1
           have row1 : ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)) := Eq.subst (motive := (fun t : ℤ => ∀ X ∈ 𝒫 V, (LeanBridges.Counting.choose t (k - 1) : ℤ) ≤ (X.ncard : ℤ) → (∃ W ∈ 𝒫 X, k ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ E) ∨ j + 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ F)))) c1 s1_8_7
-          exact row1)
+          exact row1
         -- 1.8.9. algebra
         have s1_8_9 : k + 1 + j - 2 = k + j - 1 := by ring1
         -- 1.8.10. substitute k + 1 + j − 2 = k + j − 1 (line 1.8.9) into IH2

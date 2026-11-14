@@ -3647,33 +3647,6 @@ fn statement(
     })
 }
 
-/// Where a step takes its counts in ℕ∞ to integers (`Proof::count_conversion`).
-enum CountConversion {
-    /// Nowhere: its lines say their counts one way.
-    None,
-    /// Before its tactic, the goal and the lines in scope.
-    Before,
-    /// After its tactic, what it built and the goal together.
-    After,
-}
-
-/// How a step's lines say their counts (`Proof::count_forms`).
-struct CountForms {
-    /// One says a count in ℕ∞.
-    extended: bool,
-    /// One set's count is said both in ℕ∞ and as an integer.
-    mixed: bool,
-}
-
-/// How one set's count is said across a step's lines.
-#[derive(Default)]
-struct CountSaid {
-    /// In ℕ∞, somewhere.
-    extended: bool,
-    /// As an integer, somewhere.
-    integer: bool,
-}
-
 /// Writes one theorem's proof.
 struct Proof<'a> {
     sources: &'a Sources<'a>,
@@ -6167,17 +6140,11 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let proof = match self.count_conversion(*m, body, reason.just) {
-                    CountConversion::None => proof,
-                    CountConversion::Before => Proof::By(Tactic::Seq(vec![
-                        t::bridge(BridgeTactic::CountInt, vec![]),
-                        tactic_of(&proof),
-                    ])),
-                    CountConversion::After => Proof::By(t::bridge(
-                        BridgeTactic::CountAfter,
-                        vec![TacticArg::Term(t::bracket(super::tactics::by_term(
-                            proof,
-                        )))],
+                let before = self.counts_to_integers(*m, reason.just);
+                let proof = match before.is_empty() {
+                    true => proof,
+                    false => Proof::By(Tactic::Seq(
+                        before.into_iter().chain([tactic_of(&proof)]).collect(),
                     )),
                 };
                 Route::Built(with_intros(&intros, proof))
@@ -6397,104 +6364,50 @@ impl<'a> Proof<'a> {
         }
     }
 
-    /// Where a step takes the counts its claim or the lines it cites say
-    /// in ℕ∞, |X| = |Y| + 1 (`Writer::said_in_extended`), to the integers
-    /// they are, `parley_count_int`. A step that computes by a ring or an
-    /// order does so first, wherever a count is in ℕ∞, which is neither.
-    /// One that rewrites or reasons does so first only where its lines say
-    /// counts both ways, as a rewrite in ℕ∞ meets ℕ∞ lines as they are. A
-    /// calculation, and substitute rows, build their lines inside the step
-    /// as they are written, so the step takes what they build and the goal
-    /// to integers together, after; each row is taken as a step of its own
-    /// (`substitute_rows`).
-    fn count_conversion(
-        &self,
-        m: Method,
-        claim: &Node,
-        just: &Justification,
-    ) -> CountConversion {
-        let cited = self.cited_parts(&just.refs);
-        let lines: Vec<&Node> = std::iter::once(claim)
-            .chain(cited.iter().map(|c| &c.node))
-            .collect();
-        let forms = self.count_forms(&lines);
-        match m {
-            Method::Calculation if forms.extended => CountConversion::After,
-            Method::Substitute if !just.rows.is_empty() && forms.extended => {
-                CountConversion::After
-            }
+    /// A step that computes by a ring or an order, which ℕ∞ is not, takes
+    /// each line it cites that counts a finite set in ℕ∞ to the integers
+    /// first, in the step's own proof: each such count rewritten as the
+    /// set's count in ℕ cast up, the set finite by why the record says it is
+    /// (`Set.Finite.cast_ncard_eq`), the equation in ℕ∞ then read in ℕ
+    /// (`norm_cast`), and that said of integers (`zify`). Any other step
+    /// meets its lines as they are written.
+    fn counts_to_integers(&self, m: Method, just: &Justification) -> Vec<Tactic> {
+        use super::doc::{CountForm, Location, TermKind};
+        use super::tactics as t;
+        if !matches!(
+            m,
             Method::Algebra | Method::Arithmetic | Method::Inequalities
-                if forms.extended =>
-            {
-                CountConversion::Before
+        ) {
+            return Vec::new();
+        }
+        let mut out = Vec::new();
+        for cited in self.cited_parts(&just.refs) {
+            let (Some(says), TermKind::Letter(name)) = (&cited.says, &cited.proof.kind)
+            else {
+                continue;
+            };
+            let mut rules = Vec::new();
+            for set in self.counted_sets(&[&cited.node]) {
+                let Route::Built(written) = self.writer.set_term(&set) else {
+                    continue;
+                };
+                let extended = says.walk().iter().any(|c| {
+                    matches!(&c.kind, TermKind::Count { set, form: CountForm::Extended }
+                        if set.untyped() == written.untyped())
+                });
+                if let (true, Some(finite)) = (extended, self.shown_finite(&set)) {
+                    rules.push(t::backwards(cast_ncard_eq(&finite)));
+                }
             }
-            Method::Substitute
-            | Method::Transitivity
-            | Method::Antisymmetry
-            | Method::Restate
-                if forms.mixed =>
-            {
-                CountConversion::Before
+            if rules.is_empty() {
+                continue;
             }
-            _ => CountConversion::None,
+            let at = || TacticArg::At(vec![Location::Hypothesis(name.clone())]);
+            out.push(t::call("rw", vec![TacticArg::Rules(rules), at()]));
+            out.push(t::call("norm_cast", vec![at()]));
+            out.push(t::call("zify", vec![at()]));
         }
-    }
-
-    /// How these lines say their counts: whether one says a count in ℕ∞,
-    /// and whether one set's count is said both in ℕ∞ and as an integer,
-    /// |A| = 0 beside |A| ∈ ℕ of a finite A.
-    fn count_forms(&self, lines: &[&Node]) -> CountForms {
-        let mut forms: std::collections::BTreeMap<String, CountSaid> =
-            std::collections::BTreeMap::new();
-        for line in lines {
-            self.note_counts(line, None, &mut forms);
-        }
-        CountForms {
-            extended: forms.values().any(|f| f.extended),
-            mixed: forms.values().any(|f| f.extended && f.integer),
-        }
-    }
-
-    /// Each set this node counts, with how the relation the count stands in
-    /// says it: in ℕ∞ (`Writer::said_in_extended`) or as an integer.
-    /// `extended` is that of the relation nearest above, if any.
-    fn note_counts(
-        &self,
-        node: &Node,
-        extended: Option<bool>,
-        forms: &mut std::collections::BTreeMap<String, CountSaid>,
-    ) {
-        let counting = |n: &Node| {
-            n.walk()
-                .iter()
-                .any(|c| &*c.notation_name() == "cardinality")
-        };
-        let relation = matches!(
-            node.notation(),
-            crate::notations::EQUALITY
-                | crate::notations::ORDER
-                | crate::notations::MEMBERSHIP
-        );
-        let extended = match relation && counting(node) {
-            true => {
-                Some(self.writer.said_in_extended(node) || self.writer.counts(node))
-            }
-            false => extended,
-        };
-        if let (Some(e), "cardinality", [set]) =
-            (extended, &*node.notation_name(), node.children.as_slice())
-        {
-            let said = forms
-                .entry(self.sources.checked.grammar.print(set))
-                .or_default();
-            match e {
-                true => said.extended = true,
-                false => said.integer = true,
-            }
-        }
-        for c in &node.children {
-            self.note_counts(c, extended, forms);
-        }
+        out
     }
 
     /// A claim's leading "for all" taken off: the names its letters and
@@ -15190,25 +15103,33 @@ impl<'a> Proof<'a> {
         // nothing in it fixes one; a claim in a narrower type, 3^q = 2^p in
         // ℤ beside ln and exp in ℝ, is moved up to it first.
         // A claim of numerals alone stated in the chain's type already, from
-        // the line it is reached from, has nowhere to move; nor has a chain
-        // whose counts are taken to integers after it (`count_conversion`),
-        // which states no goal of its own.
+        // the line it is reached from, has nowhere to move.
         let claim_now = self.claim_now.borrow().clone();
-        let after = claim_now.as_ref().is_some_and(|c| {
-            matches!(
-                self.count_conversion(Method::Calculation, c, just),
-                CountConversion::After
-            )
-        });
         let stated_at = claim_now
             .and_then(|c| self.claim_as_stated(just.line, &c))
             .as_ref()
             .and_then(super::doc::forms::relation_type);
-        let moved = of_numbers
-            && own < at
-            && !after
-            && stated_at != Some(super::doc::LeanType::Num(at));
-        let mut block: Vec<Tactic> = match (moved, at) {
+        let moved =
+            of_numbers && own < at && stated_at != Some(super::doc::LeanType::Num(at));
+        // `qify` and `rify` move the casts of the whole goal, a set's
+        // condition under its binder too, `(d.ncard : ℤ) = m` of a set the
+        // claim counts, which the chain's terms write in ℤ: such a chain is
+        // built as it is written and met with the claim by moving the casts
+        // of both alike (`exact_mod_cast`).
+        let builds_sets = printed.iter().any(|p| {
+            p.walk().iter().any(|n| {
+                matches!(
+                    &n.kind,
+                    super::doc::TermKind::Bound {
+                        form: super::doc::BoundForm::SetOf
+                            | super::doc::BoundForm::SetOfMember { .. },
+                        ..
+                    }
+                )
+            })
+        });
+        let met_after = moved && builds_sets;
+        let mut block: Vec<Tactic> = match (moved && !met_after, at) {
             (true, super::templates::Num::Rat) => {
                 vec![super::tactics::call("qify", vec![])]
             }
@@ -15524,6 +15445,13 @@ impl<'a> Proof<'a> {
             first: printed[0].clone(),
             links,
         });
+        if met_after {
+            use super::tactics as t;
+            return Route::Built(super::doc::Proof::Block(vec![
+                t::name_h(&t::by_term(super::doc::Proof::Block(block))),
+                t::exact_mod_cast(t::hyp("h")),
+            ]));
+        }
         Route::Built(super::doc::Proof::Block(block))
     }
 

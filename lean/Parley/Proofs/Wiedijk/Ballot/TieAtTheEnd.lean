@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
@@ -60,10 +59,10 @@ theorem tie_at_the_end (m : ℤ) (hH1 : 0 < m) :
     -- 2.3. D1, from S1
     have s2_3 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + m) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := hS1
     -- 2.4. calculation
-    have s2_4 : m < m := by parley_count_after (by
+    have s2_4 : m < m := by
       calc m = (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) \ c).ncard : ℤ) := s2_2a.symm
         _ < (((Set.Icc (1 : ℤ) (m + m) : Set ℤ) ∩ c).ncard : ℤ) := by exact (s2_3 (m + m) s1)
-        _ = m := s2_2b)
+        _ = m := s2_2b
     -- 2.5. inequalities
     have s2_5 : ¬ m < m := by linarith
     exact s2_5 s2_4

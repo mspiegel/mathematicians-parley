@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -36,7 +35,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     (∃ W ∈ 𝒫 X, 1 ≤ (W.ncard : ℤ) ∧ (∀ Y ∈ 𝒫 W, (Y.ncard : ℤ) = 2 → Y ∈ G)) := by
   -- 1. inequalities, from H3
   have r61_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
-  have s1 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [hH3])
+  have s1 : 0 < (X.ncard : ℤ) := by linarith only [hH3]
   -- 2. mun:card-positive, from 1
   have s2 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s1; rw [← Set.Finite.cast_ncard_eq ((hH2 : (X : Set α).Finite))]; exact_mod_cast h)))
   -- 3. obtain v: mun:nonempty-member, from 2
@@ -63,7 +62,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
       (have h := Eq.subst (motive := (fun t : ℤ => t ≤ 1)) e_w s6_2; revert h; norm_num)
     exact absurd s6_3 (by norm_num)
   -- 7. inequalities
-  have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by parley_count_int; (linarith only [s5])
+  have s7 : 1 ≤ (({v} : Set α).ncard : ℤ) := by linarith only [s5]
   -- 8. D1, from 6, 7
   have s8 : 1 ≤ (({v} : Set α).ncard : ℤ) ∧ (∀ Y ∈ 𝒫 ({v} : Set α), (Y.ncard : ℤ) = 2 → Y ∈ G) := ⟨s7, s6⟩
   -- 9. exhibit, from 4, 8

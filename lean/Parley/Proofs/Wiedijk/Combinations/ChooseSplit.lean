@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
@@ -65,7 +64,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       -- 1.3.2. mun:card-at-least-one, from 1.3.1
       have s1_3_2 : (R.ncard : ℤ) ≥ 1 := by (have h := (Parley.Items.Stdlib.Counting.mun_card_at_least_one (X := R) s1_3_1); simp only [← Set.Finite.cast_ncard_eq (((hH4).subset s1_1a : (R : Set α).Finite))] at h ⊢; exact_mod_cast h)
       -- 1.3.3. substitute |R| = j (line 1.1) into line 1.3.2
-      have s1_3_3 : j ≥ 1 := by parley_count_int; exact (Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1_1b s1_3_2)
+      have s1_3_3 : j ≥ 1 := Eq.subst (motive := (fun t : ℤ => t ≥ 1)) s1_1b s1_3_2
       -- 1.3.4. inequalities, from 1.3.3
       have s1_3_4 : 0 ≤ j - 1 := by linarith only [s1_3_3]
       -- 1.3.5. mun:nat0-as-int n := j − 1, from 1.3.4
@@ -138,7 +137,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     -- 6.7. mun:card-add-one, from 6.5, 6.6
     have s6_7 : ((T ∪ ({a} : Set α)).ncard : ℤ) = (T.ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := T) (a := a) s6_5 s6_6)
     -- 6.8. algebra, from 6.1, 6.7
-    have s6_8 : ((T ∪ ({a} : Set α)).ncard : ℤ) = j := by parley_count_int; (linear_combination s6_1b + s6_7)
+    have s6_8 : ((T ∪ ({a} : Set α)).ncard : ℤ) = j := by linear_combination s6_1b + s6_7
     -- 6.9. def:part-builder u := T ∪ {a}, from D1, 6.4, 6.8
     exact ((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := T ∪ ({a} : Set α)))).mpr ⟨s6_4, s6_8⟩
   -- 7. mun:added-elements-stay-inside Y := V, Z := F, from D4, 6

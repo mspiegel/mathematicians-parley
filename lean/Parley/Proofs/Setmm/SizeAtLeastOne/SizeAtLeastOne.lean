@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Basic
@@ -60,11 +59,10 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
   -- 4. mun:card-subset A := {a}, B := A, from 3
   have s4 : ((({a} : Set α).ncard : ℕ) : ℕ∞) ≤ A.encard := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3); simp only [← Set.Finite.cast_ncard_eq ((Set.toFinite _ : (({a} : Set α) : Set α).Finite))] at h ⊢; exact_mod_cast h)
   -- 5. substitute
-  parley_count_after (by
-    have c1 : (({a} : Set α).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a))
-    have row1 : ((1 : ℕ) : ℕ∞) ≤ A.encard := by
-      have e_nat : ({a} : Set α).ncard = 1 := by exact_mod_cast c1
-      exact Eq.subst (motive := (fun t : ℕ => ((t : ℕ) : ℕ∞) ≤ A.encard)) e_nat s4
-    exact row1)
+  have c1 : (({a} : Set α).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a))
+  have row1 : ((1 : ℕ) : ℕ∞) ≤ A.encard := by
+    have e_nat : ({a} : Set α).ncard = 1 := by exact_mod_cast c1
+    exact Eq.subst (motive := (fun t : ℕ => ((t : ℕ) : ℕ∞) ≤ A.encard)) e_nat s4
+  exact row1
 
 end Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne

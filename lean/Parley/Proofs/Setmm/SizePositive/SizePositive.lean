@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -36,6 +35,6 @@ theorem size_positive {α : Type*} (A : Set α) (hH2 : A.Finite) (hH3 : ¬ A = �
   -- 2. mun:card-nat0, from H2
   have s2 : 0 ≤ (A.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := A) hH2)
   -- 3. inequalities, from 1
-  parley_count_int; (linarith only [s1])
+  linarith only [s1]
 
 end Parley.Proofs.Setmm.SizePositive.SizePositive

@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Cast.Basic
 public import Mathlib.Data.Int.ModEq
@@ -48,9 +47,9 @@ theorem two_point_parts {α : Type*} (W : Set α) (v : α) (hH2 : ¬ v ∈ W) (Y
   rcases s4 with hC1 | hC2
   · skip
     -- 5.1. calculation
-    have s5_1 : (Y.ncard : ℤ) = 1 + 1 := by parley_count_after (by
+    have s5_1 : (Y.ncard : ℤ) = 1 + 1 := by
       calc (Y.ncard : ℤ) = 2 := hH4
-        _ = 1 + 1 := by norm_num)
+        _ = 1 + 1 := by norm_num
     -- 5.2. mun:card-remove X := Y, a := v, k := 1, from C1, 5.1
     have s5_2 : ((Y \ ({v} : Set α)).ncard : ℤ) = 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := Y) (a := v) hC1 (k := (1 : ℤ)) (by norm_num) s5_1)
     -- 5.3. obtain w: mun:card-nonempty X := Y ∖ {v}, k := 0, from 5.2

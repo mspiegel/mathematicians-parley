@@ -213,6 +213,20 @@ const SITES: &[Site] = &[
         why: "the reals' mod of a sum of casts beside the step's % of integers: the casts lifted out, the mod read as % with its divisor not below 0 by omega, then the casts met",
     },
     Site {
+        file: "lean/Parley/Stdlib/Sums/ProductReorder.lean",
+        step: "13",
+        holds: "at s10; norm_cast at s10; zify at s10; (linear_combination",
+        list: false,
+        why: "an algebra step citing a line that counts a finite set in ℕ∞: the line taken to the integers first, its count in ℕ∞ the set's count in ℕ cast up (`counts_to_integers`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Wiedijk/Ballot/BallotRecurrence.lean",
+        step: "37",
+        holds: "have h := by",
+        list: false,
+        why: "a calculation worked in ℚ for a claim in ℤ that counts a set built by a condition, which qify would rewrite under its binder: the chain built as written, then met with the claim by exact_mod_cast",
+    },
+    Site {
         file: "lean/Parley/Proofs/Hammack/LimitUnique/LimitOrder.lean",
         step: "3",
         holds: "simp only [Set.mem_univ, true_implies] at h; exact h)",
@@ -670,7 +684,7 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/Ramsey/Ramsey.lean",
         step: "1.3",
-        holds: "_ ≤ (X.ncard : ℤ) := hC1)",
+        holds: "_ ≤ (X.ncard : ℤ) := hC1",
         list: false,
         why: "a calculation link citing an assumption under the induction motive's \"if\": its statement from the part's goal (`opening_goal`)",
     },

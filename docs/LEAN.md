@@ -421,9 +421,13 @@ citation whose item counts a set in the other form converts it: each count in
 ℕ∞ of a finite set is taken to its count in ℕ by `Set.Finite.cast_ncard_eq`,
 then `exact_mod_cast`. Where a set is not finite by these, a
 relation that computes with its count is not written. A step that computes by a
-ring or an order with counts in ℕ∞, or whose lines say one set's count both
-ways, first takes each count in ℕ∞ of a finite set standing outside any binder
-to the integer it is (`parley_count_int`). A property, `let P be a property of the elements of X`, is
+ring or an order (`algebra`, `arithmetic`, `inequalities`) first takes each
+line it cites that counts a finite set in ℕ∞ to the integers: the count
+rewritten by `Set.Finite.cast_ncard_eq`, the equation read in ℕ
+(`norm_cast`) and said of integers (`zify`). A calculation worked in a wider
+field than its claim, whose terms count a set built by a condition, is built
+as written and met with the claim by `exact_mod_cast`, since `qify` and
+`rify` would rewrite the condition under its binder. A property, `let P be a property of the elements of X`, is
 `(P : α → Prop)` and P(t) is `P t`; a citation gives it `fun t => …`. A group
 is `{G : Type*} [Group G]`, its operation `*`, its identity `1`; a polynomial
 is a function from ℂ to ℂ among the bridges' polynomials.

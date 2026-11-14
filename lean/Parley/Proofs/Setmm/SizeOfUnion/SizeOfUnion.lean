@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -62,10 +61,9 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   -- 11. substitute A ∪ (B ∖ A) = A ∪ B (line 10) into line 9
   have s11 : ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ))) s10 s9
   -- 12. inequalities
-  have s12 : (A.ncard : ℤ) + ((B \ A).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by parley_count_int; (linarith only [s6])
+  have s12 : (A.ncard : ℤ) + ((B \ A).ncard : ℤ) ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := by linarith only [s6]
   -- 13. calculation
-  parley_count_after (by
-    calc ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := s11
-      _ ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := s12)
+  calc ((A ∪ B).ncard : ℤ) = (A.ncard : ℤ) + ((B \ A).ncard : ℤ) := s11
+    _ ≤ (A.ncard : ℤ) + (B.ncard : ℤ) := s12
 
 end Parley.Proofs.Setmm.SizeOfUnion.SizeOfUnion

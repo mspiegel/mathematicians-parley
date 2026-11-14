@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -52,11 +51,11 @@ theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set �
     have s4_3 : W.Finite := by exact (Parley.Items.Stdlib.Counting.mun_finite_part (X := X) (Y := W) hH2 s3)
     -- 4.4. inequalities
     have r215_1 : 0 ≤ (W.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := W) s4_3)
-    have s4_4 : k + 1 ≤ (W.ncard : ℤ) + 1 := by parley_count_int; (linarith only [s4_1.1])
+    have s4_4 : k + 1 ≤ (W.ncard : ℤ) + 1 := by linarith only [s4_1.1]
     -- 4.5. calculation
-    have s4_5 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) := by parley_count_after (by
+    have s4_5 : k + 1 ≤ ((W ∪ ({v} : Set α)).ncard : ℤ) := by
       calc k + 1 ≤ (W.ncard : ℤ) + 1 := s4_4
-        _ = ((W ∪ ({v} : Set α)).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2).symm)
+        _ = ((W ∪ ({v} : Set α)).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := W) (a := v) s4_3 s4_2).symm
     -- 4.6. proof
     have s4_6 : ∀ Y ∈ 𝒫 (W ∪ ({v} : Set α)), (Y.ncard : ℤ) = 2 → Y ∈ E := by
       intro Y hK1

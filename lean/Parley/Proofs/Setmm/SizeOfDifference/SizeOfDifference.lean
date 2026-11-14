@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -57,11 +56,11 @@ theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finit
   -- 8. mun:card-disjoint-union X := B, Y := A ∖ B, m := |B|, n := |A ∖ B|, from 4, 5, 7
   have s8 : ((B ∪ A \ B).ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_disjoint_union (X := B) (Y := A \ B) (m := (B.ncard : ℤ)) s4 (n := ((A \ B).ncard : ℤ)) s5 (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s3 : (B : Set α).Finite))]) (by rw [Int.toNat_natCast, Set.Finite.cast_ncard_eq ((s2 : (A \ B : Set α).Finite))]) s7)
   -- 9. substitute
-  have s9 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by parley_count_after (by
+  have s9 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := by
     have c1 : B ∪ A \ B = A := by exact (Parley.Proofs.Setmm.SizeOfDifference.PartAndRest.part_and_rest (A := A) (B := B) hH4)
     have row1 : (A.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ) := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = (B.ncard : ℤ) + ((A \ B).ncard : ℤ))) c1 s8
-    exact row1)
+    exact row1
   -- 10. algebra, from 4, 5, 9
-  parley_count_int; (linear_combination (-1) * s9)
+  linear_combination (-1) * s9
 
 end Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference

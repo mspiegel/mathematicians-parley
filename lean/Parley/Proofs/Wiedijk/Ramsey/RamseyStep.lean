@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
@@ -60,10 +59,10 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have s5 : 1 ≤ (LeanBridges.Counting.choose (k + j) k : ℤ) := by linarith only [s4]
   -- 6. transitivity, from 5, H9
   have r319_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
-  have s6 : 1 ≤ (X.ncard : ℤ) := by parley_count_int; (exact le_trans s5 hH9)
+  have s6 : 1 ≤ (X.ncard : ℤ) := by exact le_trans s5 hH9
   -- 7. inequalities, from 6
   have r323_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) s1)
-  have s7 : 0 < (X.ncard : ℤ) := by parley_count_int; (linarith only [s6])
+  have s7 : 0 < (X.ncard : ℤ) := by linarith only [s6]
   -- 8. mun:card-positive, from 7
   have s8 : ¬ X = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_positive (X := X) (by (have h := s7; rw [← Set.Finite.cast_ncard_eq ((s1 : (X : Set α).Finite))]; exact_mod_cast h)))
   -- 9. obtain v: mun:nonempty-member, from 8
@@ -112,7 +111,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   have r375_1 : ¬ v ∈ X \ ({v} : Set α) := by exact (Parley.Items.Stdlib.Sets.mun_not_in_difference (X := X) (a := v))
   have s22 : ((X \ ({v} : Set α) ∪ ({v} : Set α)).ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := X \ ({v} : Set α)) (a := v) s13 r375_1)
   -- 23. substitute
-  have s23 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
+  have s23 : (X.ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by
     have c1 : X \ ({v} : Set α) ∪ ({v} : Set α) = X := by exact (Parley.Items.Stdlib.Sets.mun_remove_and_restore (Y := X) (a := v) s9)
     have row1 : (X.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1 := Eq.subst (motive := (fun t : Set α => (t.ncard : ℤ) = ((X \ ({v} : Set α)).ncard : ℤ) + 1)) c1 s22
     have c2 : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by
@@ -123,7 +122,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       have e_nat : (X \ ({v} : Set α)).ncard = R.ncard + B.ncard := by exact_mod_cast c2
       have e_w : ((X \ ({v} : Set α)).ncard : ℤ) = (R.ncard : ℤ) + (B.ncard : ℤ) := by have h := congrArg (fun x : ℕ => (x : ℤ)) e_nat; push_cast at h ⊢; linear_combination h
       exact Eq.subst (motive := (fun t : ℤ => (X.ncard : ℤ) = t + 1)) e_w row1
-    exact row2)
+    exact row2
   -- 24. mun:nat-minus-one n := k + j
   have s24 : 0 ≤ k + j - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := k + j) (add_pos (hH1) (hH2)))
   -- 25. mun:binomial-nat0, from 24
@@ -133,11 +132,11 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
   -- 27. algebra
   have s27 : k + j - 1 + 1 = k + j := by ring1
   -- 28. calculation
-  have s28 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by parley_count_after (by
+  have s28 : (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := by
     calc (LeanBridges.Counting.choose (k + j - 1) k : ℤ) + (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) = (LeanBridges.Counting.choose (k + j - 1 + 1) k : ℤ) := by exact (Parley.Items.Stdlib.Counting.thm_pascal (n := k + j - 1) s24 (k := k))
       _ = (LeanBridges.Counting.choose (k + j) k : ℤ) := congrArg (fun t : ℤ => (LeanBridges.Counting.choose t k : ℤ)) s27
       _ ≤ (X.ncard : ℤ) := hH9
-      _ = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := s23)
+      _ = (R.ncard : ℤ) + (B.ncard : ℤ) + 1 := s23
   -- 29. axi:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|
   have s29 : (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) ∨ ¬ (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ) := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := (LeanBridges.Counting.choose (k + j - 1) (k - 1) : ℤ) ≤ (R.ncard : ℤ)))
   -- 30. cases, from 29

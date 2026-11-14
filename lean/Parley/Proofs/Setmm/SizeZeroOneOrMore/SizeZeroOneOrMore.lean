@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
@@ -49,7 +48,7 @@ theorem size_zero_one_or_more {α : Type*} (M : Set α) (hH2 : M.Finite) :
   -- 2.3. mun:nat0-nonzero m := |M|, from 1, 2.2
   have s2_3 : 0 < (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (M.ncard : ℤ)) s1 s2_2a)
   -- 2.4. inequalities, from 2.3
-  have s2_4 : 1 ≤ (M.ncard : ℤ) := by parley_count_int; (linarith only [s2_3])
+  have s2_4 : 1 ≤ (M.ncard : ℤ) := by linarith only [s2_3]
   -- 2.5. mun:le-cases x := 1, y := |M|
   have s2_5 : 1 ≤ (M.ncard : ℤ) ↔ 1 < (M.ncard : ℤ) ∨ 1 = (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (M.ncard : ℤ)))
   -- 2.6. mun:iff-from-left P := 1 ≤ |M|, Q := 1 < |M| or 1 = |M|, from 2.4, 2.5

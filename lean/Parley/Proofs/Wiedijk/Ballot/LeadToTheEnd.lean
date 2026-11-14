@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Basic.SetLike.Basic
 public import Mathlib.Data.Finset.Defs
 public import Mathlib.Data.Int.Interval
@@ -55,10 +54,10 @@ theorem lead_to_the_end (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c :
       have s2_2_1a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) hH3 hH5).1
       have s2_2_1b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by exact (Parley.Proofs.Wiedijk.Ballot.LastPlace.last_place (m := m) hH1 (n := n) hH2 (c := c) hH3 hH5).2
       -- 2.2.2. calculation
-      have s2_2_2 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by parley_count_after (by
+      have s2_2_2 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := by
         calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := s2_2_1a
           _ < m := hH4
-          _ = (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := s2_2_1b.symm)
+          _ = (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) := s2_2_1b.symm
       -- 2.2.3. substitute i = m + n (C1) into line 2.2.2
       exact Eq.subst (motive := (fun t : ℤ => (((Set.Icc (1 : ℤ) t : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) t : Set ℤ) ∩ c).ncard : ℤ))) hC1.symm s2_2_2
     · skip

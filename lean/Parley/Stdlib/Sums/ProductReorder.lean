@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -27,6 +26,7 @@ public import Mathlib.Tactic.Positivity.Basic
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.Zify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
@@ -72,7 +72,7 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
   have s12 : ((X \ f '' (X ∩ X)).ncard : ℤ) = (X.ncard : ℤ) - ((f '' (X ∩ X)).ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_difference (X := X) (Y := f '' (X ∩ X)) hH2 s11)
   -- 13. algebra, from 10, 12
   have r222_1 : 0 ≤ (X.ncard : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := X) hH2)
-  have s13 : ((X \ f '' (X ∩ X)).ncard : ℤ) = 0 := by parley_count_int; (linear_combination s10 + s12)
+  have s13 : ((X \ f '' (X ∩ X)).ncard : ℤ) = 0 := by rw [← Set.Finite.cast_ncard_eq (((hH2).subset s11 : (f '' (X ∩ X) : Set ℤ).Finite))] at s10; norm_cast at s10; zify at s10; (linear_combination s10 + s12)
   -- 14. mun:card-zero X := X ∖ f[X], from 13
   have s14 : X \ f '' (X ∩ X) = ∅ := by exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := X \ f '' (X ∩ X)) (by (have h := s13; rw [← Set.Finite.cast_ncard_eq (((hH2).subset (fun _ h => h.1) : (X \ f '' (X ∩ X) : Set ℤ).Finite))]; exact_mod_cast h)))
   -- 15. mun:nothing-left-outside Y := X, X := f[X], from 14

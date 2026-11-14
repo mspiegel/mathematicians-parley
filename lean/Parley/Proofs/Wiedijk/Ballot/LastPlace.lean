@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
 public import Mathlib.Basic.Finite.Defs
@@ -45,13 +44,13 @@ theorem last_place (m : ℤ) (hH1 : 0 ≤ m) (n : ℤ) (hH2 : 0 ≤ n) (c : Set 
   -- 3. mun:range-size n := m + n
   have s3 : ((Set.Icc (1 : ℤ) (m + n) : Set ℤ).ncard : ℤ) = m + n := by exact (Parley.Items.Stdlib.Counting.mun_range_size (n := m + n) (add_nonneg (hH1) (hH2)))
   -- 4. algebra, from H4, 2, 3
-  have s4 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by parley_count_int; (linear_combination (-1) * hH4 + s2 + s3)
+  have s4 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := by linear_combination (-1) * hH4 + s2 + s3
   -- 5. mun:intersection-of-part X := {1, …, m + n}, Y := c, from H3
   have s5 : (Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c = c := by exact (Parley.Items.Stdlib.Sets.mun_intersection_of_part (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) hH3)
   -- 6. calculation
-  have s6 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by parley_count_after (by
+  have s6 : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := by
     calc (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = (c.ncard : ℤ) := congrArg (fun t : Set ℤ => (t.ncard : ℤ)) s5
-      _ = m := hH4)
+      _ = m := hH4
   -- 7. join 4, 6
   have s7a : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ c).ncard : ℤ) = n := s4
   have s7b : (((Set.Icc (1 : ℤ) (m + n) : Set ℤ) ∩ c).ncard : ℤ) = m := s6

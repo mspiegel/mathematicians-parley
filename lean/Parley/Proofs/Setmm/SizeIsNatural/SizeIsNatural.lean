@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -37,13 +36,13 @@ theorem size_is_natural {α : Type*} (A : Set α) (hH2 : A.Finite) :
     intro hC1
     intro hS1
     -- 1. calculation
-    have s1 : (A.ncard : ℤ) = 0 := by parley_count_after (by
+    have s1 : (A.ncard : ℤ) = 0 := by
       calc (A.ncard : ℤ) = ((∅ : Set α).ncard : ℤ) := congrArg (fun t : Set α => (t.ncard : ℤ)) hS1
-        _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty)
+        _ = 0 := by exact Parley.Items.Stdlib.Counting.mun_card_empty
     -- 2. arithmetic
     have s2 : ¬ (0 : ℤ) < 0 := by norm_num
     -- 3. substitute |A| = 0 (line 1) into line 2
-    have s3 : ¬ 0 < (A.ncard : ℤ) := by parley_count_int; exact (Eq.subst (motive := (fun t : ℤ => ¬ 0 < t)) s1.symm s2)
+    have s3 : ¬ 0 < (A.ncard : ℤ) := Eq.subst (motive := (fun t : ℤ => ¬ 0 < t)) s1.symm s2
     exact s3 hC1
   · skip
     intro hC2

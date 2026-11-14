@@ -1,6 +1,5 @@
 module
 
-public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
@@ -90,7 +89,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 6.6. substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 2) into line 6.5
     have s6_6 : c \ ({m + n} : Set ℤ) ⊆ (Set.Icc (1 : ℤ) (m - 1 + n) : Set ℤ) := Eq.subst (motive := (fun t : Set ℤ => c \ ({m + n} : Set ℤ) ⊆ t)) s2.symm s6_5
     -- 6.7. algebra, from 6.4
-    have s6_7 : (c.ncard : ℤ) = m - 1 + 1 := by parley_count_int; (linear_combination s6_4b)
+    have s6_7 : (c.ncard : ℤ) = m - 1 + 1 := by linear_combination s6_4b
     -- 6.8. mun:card-remove X := c, a := m + n, k := m − 1, from 1, 6.1, 6.7
     have s6_8 : ((c \ ({m + n} : Set ℤ)).ncard : ℤ) = m - 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_remove (X := c) (a := m + n) s6_1b (k := m - 1) s1 s6_7)
     -- 6.9. mun:remove-and-restore, from 6.1
@@ -164,7 +163,7 @@ theorem last_vote_for_a (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.11. mun:card-add-one, from 8.4, 8.10
     have s8_11 : ((T ∪ ({m + n} : Set ℤ)).ncard : ℤ) = (T.ncard : ℤ) + 1 := by exact (Parley.Items.Stdlib.Counting.mun_card_add_one (X := T) (a := m + n) s8_10 s8_4)
     -- 8.12. algebra, from 8.2, 8.11
-    have s8_12 : ((T ∪ ({m + n} : Set ℤ)).ncard : ℤ) = m := by parley_count_int; (linear_combination s8_2b + s8_11)
+    have s8_12 : ((T ∪ ({m + n} : Set ℤ)).ncard : ℤ) = m := by linear_combination s8_2b + s8_11
     -- 8.13. proof
     have s8_13 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n - 1) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ (T ∪ ({m + n} : Set ℤ))).ncard : ℤ) := by
       intro i hK4
