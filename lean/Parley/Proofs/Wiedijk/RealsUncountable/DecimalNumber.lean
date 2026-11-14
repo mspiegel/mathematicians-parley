@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Defs
@@ -210,7 +209,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.1. mun:nat0-as-int
       have r405_1 : 0 ≤ k - j := by linarith only [hC5]
       have s6_4_1 : 0 ≤ k - j := by
-        have hI : 0 ≤ k - j := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k - j))).mpr ⟨⟨_, rfl⟩, r405_1⟩)
+        have hI : 0 ≤ k - j := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k - j))).mpr ⟨⟨_, rfl⟩, r405_1⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
         exact hI
       -- 6.4.2. instantiate g := k − j, p := j in line 5, from 6.4.1
       have s6_4_2 : L j ≤ L (j + (k - j)) ∧ U (j + (k - j)) ≤ U j := by exact (s5 (k - j) s6_4_1 j hJ1)
@@ -231,7 +230,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
       -- 6.4.8. mun:nat0-as-int
       have r436_1 : 0 ≤ j - k := by exact s6_4_7
       have s6_4_8 : 0 ≤ j - k := by
-        have hI : 0 ≤ j - k := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - k))).mpr ⟨⟨_, rfl⟩, r436_1⟩)
+        have hI : 0 ≤ j - k := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - k))).mpr ⟨⟨_, rfl⟩, r436_1⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
         exact hI
       -- 6.4.9. instantiate g := j − k, p := k in line 5, from 6.4.8
       have s6_4_9 : L k ≤ L (k + (j - k)) ∧ U (k + (j - k)) ≤ U k := by exact (s5 (j - k) s6_4_8 k hK3)
@@ -248,7 +247,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
   have s7 : S ⊆ (Set.univ : Set ℝ) := by
     simp only [hD4] at ⊢
     push_cast at ⊢
-    have hI : {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} ⊆ (Set.univ : Set ℝ) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ))))
+    have hI : {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} ⊆ (Set.univ : Set ℝ) := by (have h := ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)))); simp only [Set.mem_univ, true_and] at h; exact h)
     exact hI
   -- 8. proof
   have s8 : ∀ k : ℤ, 0 ≤ k → (L k : ℝ) ∈ S := by
@@ -256,7 +255,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 8.1. D5
     have s8_1 : L k = (N k : ℚ) / 10 ^ k.toNat := by simp (disch := omega) only [hD5]
     -- 8.2. def:set-builder u := L(k), from D4, 8.1
-    have hI : (L k : ℝ) ∈ {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := (L k : ℝ)))).mpr ⟨Set.mem_univ _, k, hK8, (show (L k : ℝ) = (N k : ℝ) / 10 ^ k.toNat by have h := (Rat.cast_inj (α := ℝ)).mpr s8_1; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)⟩)
+    have hI : (L k : ℝ) ∈ {t : ℝ | ∃ a : ℤ, 0 ≤ a ∧ t = (N a : ℝ) / 10 ^ a.toNat} := by (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun y : ℝ => ∃ k : ℤ, 0 ≤ k ∧ y = (N k : ℝ) / 10 ^ k.toNat)) (X := (Set.univ : Set ℝ)) (u := (L k : ℝ)))).mpr ⟨Set.mem_univ _, k, hK8, (show (L k : ℝ) = (N k : ℝ) / 10 ^ k.toNat by have h := (Rat.cast_inj (α := ℝ)).mpr s8_1; simp only [Rat.cast_div, Rat.cast_pow, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)⟩); simp only [Set.mem_univ, true_and] at h; exact h)
     exact hI
   -- 9. instantiate k := 0 in line 8
   have s9 : (L 0 : ℝ) ∈ S := by exact (s8 (0 : ℤ) (by norm_num))
@@ -347,7 +346,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     -- 16.21. mun:nat0-as-int
     have r607_2 : 0 ≤ d n := by exact (hH2 n hK6).1
     have s16_21 : 0 ≤ d n := by
-      have hI : 0 ≤ d n := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := d n))).mpr ⟨⟨_, rfl⟩, r607_2⟩)
+      have hI : 0 ≤ d n := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := d n))).mpr ⟨⟨_, rfl⟩, r607_2⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
       exact hI
     -- 16.22. membership, from 16.21
     -- 16.23. axi:excluded-middle P := ⌊10^n·c⌋ ≤ N(n)

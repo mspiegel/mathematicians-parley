@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Defs
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Group.Monoid
@@ -183,7 +182,7 @@ theorem fibonacci_even_iff_three_divides (n : ℤ) (hH1 : 0 < n) (F : ℤ → �
         _ ≤ q := by exact (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (-1 : ℤ)) (n := q) s5_11)
     -- 5.13. mun:nat0-as-int n := q, from 5.12
     have s5_13 : 0 ≤ q := by
-      have hI : 0 ≤ q := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr ⟨⟨_, rfl⟩, s5_12⟩)
+      have hI : 0 ≤ q := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := q))).mpr ⟨⟨_, rfl⟩, s5_12⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
       exact hI
     -- 5.14. cases, from 5.3
     rcases s5_3 with (hC1 | hC2) | hC3

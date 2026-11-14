@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -57,14 +56,14 @@ theorem harmonic_lower_bound (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 2.1. mun:sum-single a := 1, from 1
       have s2_1 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) : ℚ)) = 1 / 1 := by
-        have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) = 1 / 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ))))
+        have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) = 1 / 1 := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ)))); push_cast at h ⊢; exact h)
         exact hI
       -- 2.2. calculation
       have r135_1 : (1 : ℤ) ≥ 1 := by norm_num
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ 1 : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + 1 / 2 := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ 1 : ℤ), (1 / (j : ℚ) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (j : ℚ) : ℚ)) := by norm_num
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / (1 + 1) := by
-              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / (1 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ)) (n := (1 : ℤ)) (by norm_num)))
+              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 + 1 : ℤ), (1 / (k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / (1 + 1) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ))) (a := (1 : ℤ)) (n := (1 : ℤ)) (by norm_num))); push_cast at h ⊢; simp only [one_add_one_eq_two]; exact h)
               exact hI
           _ = 1 / 1 + 1 / (1 + 1) := congrArg (fun t : ℚ => t + 1 / (1 + 1)) s2_1
           _ ≥ 1 + 1 / 2 := by norm_num

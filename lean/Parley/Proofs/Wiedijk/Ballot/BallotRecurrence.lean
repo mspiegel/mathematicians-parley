@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Order.Field.Basic
@@ -117,7 +116,7 @@ theorem ballot_recurrence (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 :
   have s21 : m - 1 ∈ Finset.Icc (0 : ℤ) (m + (n - 1)) := ((Parley.Items.Stdlib.Sums.def_range0 (k := m - 1) (n := m + (n - 1)) (add_nonneg (le_of_lt hH1) (s2)))).mpr ⟨s1, s20⟩
   -- 22. thm:absorption n := m + (n − 1), k := m − 1, from 2, 21
   have s22 : (LeanBridges.Counting.choose (m + (n - 1) + 1) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)) := by
-    have hI : (LeanBridges.Counting.choose (m + (n - 1) + 1) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (add_nonneg (le_of_lt hH1) (s2)) (k := m - 1) s21))
+    have hI : (LeanBridges.Counting.choose (m + (n - 1) + 1) (m - 1 + 1) : ℚ) = (LeanBridges.Counting.choose (m + (n - 1)) (m - 1) : ℚ) * (((m : ℚ) + ((n : ℚ) - 1) + 1) / ((m : ℚ) - 1 + 1)) := by (have h := ((Parley.Items.Stdlib.Counting.thm_absorption (n := m + (n - 1)) (add_nonneg (le_of_lt hH1) (s2)) (k := m - 1) s21)); push_cast at h ⊢; exact h)
     exact hI
   -- 23. algebra
   have s23 : m + (n - 1) + 1 = m + n := by ring1

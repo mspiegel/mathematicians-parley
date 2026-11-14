@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Algebra.Defs
 public import Mathlib.Algebra.Algebra.Hom
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -43,7 +42,7 @@ theorem a_telescoping_sum_of_bernoulli_values (m : ℤ) (hH1 : 0 ≤ m) :
     (∑ n ∈ Finset.Icc (0 : ℤ) m, (Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli 2) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli 2) : ℂ)) = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli 2) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli 2) := by
   -- 1. thm:sum-telescopes-up a := 0, b := m
   have r18_1 : m + 1 ≥ 0 := by linarith only [hH1]
-  have hI : (∑ k ∈ Finset.Icc (0 : ℤ) m, (Polynomial.aeval ((k : ℂ) + 1) (Polynomial.bernoulli 2) - Polynomial.aeval (k : ℂ) (Polynomial.bernoulli 2) : ℂ)) = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli 2) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli 2) := by parley_instance ((Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli 2))) (a := (0 : ℤ)) (b := m) r18_1))
+  have hI : (∑ k ∈ Finset.Icc (0 : ℤ) m, (Polynomial.aeval ((k : ℂ) + 1) (Polynomial.bernoulli 2) - Polynomial.aeval (k : ℂ) (Polynomial.bernoulli 2) : ℂ)) = Polynomial.aeval ((m : ℂ) + 1) (Polynomial.bernoulli 2) - Polynomial.aeval (0 : ℂ) (Polynomial.bernoulli 2) := by (have h := ((Parley.Items.Stdlib.Sums.thm_sum_telescopes_up (t := (fun n : ℤ => Polynomial.aeval (n : ℂ) (Polynomial.bernoulli 2))) (a := (0 : ℤ)) (b := m) r18_1)); push_cast at h ⊢; exact h)
   exact hI
 
 end Parley.Tests.Elaborator.ATelescopingSumReadUpward.ATelescopingSumOfBernoulliValues

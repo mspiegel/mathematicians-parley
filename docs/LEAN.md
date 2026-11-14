@@ -115,14 +115,17 @@ which `norm_cast` does not do for a fact of numerals.
 citation's values as it writes the step's own lines: the item's tree with the
 values put in (`matching::substitute_apart`, a function or property given as
 a value applied where the sentence applies it), written by the theorem's
-writer. It states it as `have hI : … := by parley_instance (item …)` and
-closes the step's claim from `hI` as the checker met the two (`exact`,
-`.symm`, or the identities the meeting names). `parley_instance`
-(`InstanceTactics`) reads the item's Lean statement, written once over any
-ring or set, in that spelling by the simp set `parley_spelling`, whose every
-rule is one representation fact, then moves the casts of the two alike
-(`exact_mod_cast`). A fact found missing is tagged into the set, never added
-at a step.
+writer. It states it as `have hI : … := by …` and closes the step's claim
+from `hI` as the checker met the two (`exact`, `.symm`, or the identities
+the meeting names). The item's Lean statement, written once over any ring
+or set, is read in that spelling by what Lean knows of the two forms
+(`spelling`): the item itself where Lean takes the two as one term;
+`push_cast` first where the item, its functions applied, casts a numeral or
+arithmetic to another type; `simp only` with the library's fact for each
+form the item writes and the step does not (`∀ x ∈ Set.univ`, a set built
+from `Set.univ`, an integer said as some `(m : K)` at ℤ, a range as a set,
+the reals' `mod` beside `%`); and `exact_mod_cast` where the item is in a
+wider type, after `rify` where it is in ℝ and the step in ℚ.
 
 **A substitution.** Where the checker recorded how a `substitute` step or
 calculation row makes its claim (`CheckedTheorem::substituted`), the writer
@@ -241,8 +244,9 @@ claim (`Cited::meetings`, `Cited::facings`):
   membership or subset is read as the equations of members it says, then
   `tauto`;
 - where the item is worked in a wider field than the claim's: read down to
-  the claim's, by `parley_of_complex` from ℂ and `parley_rat_of_real` from ℝ,
-  as an instance is;
+  the claim's, from ℂ by each complex operation read as the real one cast
+  (`Complex.ofReal_*`, a complex power's base shown not below 0 by
+  `positivity`), and from ℝ by `parley_rat_of_real`;
 - where the step goes through named numbers its proof puts first, as the
   casts of those numbers (`Classical.choose_spec`), and the checker met the
   item as written: an equation or order is then the item's relation with
@@ -451,7 +455,8 @@ and G.
 `Real.exp`, `Real.sin` and `Real.cos`, and e is `Real.exp 1`. Their
 arithmetic, √8 = 2√2 or sin(9π/4) = √2/2, is proved value by value as the
 method table says, and an item
-stated over ℂ cited at reals is read back in ℝ (`parley_of_complex`).
+stated over ℂ cited at reals is read back in ℝ (each complex operation read
+as the real one cast, as a citation is).
 x(n) → L as n → ∞ is `Filter.Tendsto (fun n : ℕ => x n) Filter.atTop (nhds L)`;
 f tends to L at c is `Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds L)`, over
 f's domain D with c left out; continuity on D is `ContinuousOn f D`; [a, b] is

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs
@@ -48,7 +47,7 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
     (∑ k ∈ Finset.Icc (1 : ℤ) N, (N ^ 2 - N + (2 * k - 1) : ℤ)) = N ^ 3 := by
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by
-    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
+    have hI : 0 < N ∨ N = 0 := by (have h := (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
     exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
@@ -74,7 +73,7 @@ theorem nicomachus_row (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_5 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) := by exact (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (a := (0 : ℤ)))
     -- 2.6. mun:sum-first n := 0
     have s2_6 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) + (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) := by
-      have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (n := (0 : ℤ)) (by norm_num)))
+      have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) = 0 ^ 2 - 0 + (2 * 0 - 1) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * a - 1) : ℤ)) := by exact ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => 0 ^ 2 - 0 + (2 * k - 1))) (n := (0 : ℤ)) (by norm_num)))
       simpa only [Int.cast_one, Int.cast_zero, sub_zero, zero_add] using hI
     -- 2.7. algebra, from 2.5, 2.6
     have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (0 : ℤ), (0 ^ 2 - 0 + (2 * k - 1) : ℤ)) = 0 := by linear_combination (norm := ring_nf) s2_5 + (-1) * s2_6

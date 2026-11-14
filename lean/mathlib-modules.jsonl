@@ -6,6 +6,18 @@
 {"key":"Complex.I","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
 {"key":"Complex.cos","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
 {"key":"Complex.exp","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Complex.ofReal_add","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.ofReal_cos","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Complex.ofReal_cpow","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Pow.Real"]}
+{"key":"Complex.ofReal_div","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.ofReal_exp","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Complex.ofReal_intCast","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.ofReal_mul","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.ofReal_one","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.ofReal_pow","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.ofReal_sin","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Complex.ofReal_sub","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.ofReal_zero","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
 {"key":"Complex.sin","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
 {"key":"ContinuousOn","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
 {"key":"DifferentiableAt","kind":"const","modules":["Mathlib.Analysis.Calculus.FDeriv.Defs"]}
@@ -25,6 +37,7 @@
 {"key":"Finset.sum_congr rfl","kind":"const","modules":[]}
 {"key":"Finset.sum_mul","kind":"const","modules":["Mathlib.Algebra.BigOperators.Ring.Finset"]}
 {"key":"Finset.sum_sub_distrib","kind":"const","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"Int.cast_id","kind":"const","modules":[]}
 {"key":"Int.cast_injective","kind":"const","modules":["Mathlib.Data.Int.Cast.Lemmas"]}
 {"key":"Int.cast_ofNat","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
 {"key":"Int.cast_one","kind":"const","modules":["Mathlib.Data.Int.Cast.Basic"]}
@@ -164,6 +177,7 @@
 {"key":"div_eq_iff","kind":"const","modules":["Mathlib.Algebra.GroupWithZero.Units.Basic"]}
 {"key":"div_eq_mul_one_div","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
 {"key":"div_one","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"exists_eq_right","kind":"const","modules":[]}
 {"key":"forall_const","kind":"const","modules":[]}
 {"key":"ge_iff_le.mp","kind":"const","modules":[]}
 {"key":"gt_iff_lt","kind":"const","modules":[]}
@@ -195,6 +209,7 @@
 {"key":"nhds","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
 {"key":"nhdsWithin","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
 {"key":"not_lt.mpr","kind":"const","modules":[]}
+{"key":"one_add_one_eq_two","kind":"const","modules":["Mathlib.Data.Nat.Cast.Defs"]}
 {"key":"one_mul","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"pow_lt_pow_left₀","kind":"const","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
 {"key":"pow_ne_zero_iff","kind":"const","modules":["Mathlib.Algebra.GroupWithZero.Basic"]}
@@ -206,6 +221,7 @@
 {"key":"sub_zero","kind":"const","modules":["Mathlib.Algebra.Group.Basic"]}
 {"key":"trivial","kind":"const","modules":[]}
 {"key":"true_and","kind":"const","modules":[]}
+{"key":"true_implies","kind":"const","modules":[]}
 {"key":"zero_add","kind":"const","modules":["Mathlib.Algebra.Group.Monoid"]}
 {"key":"zero_lt_one","kind":"const","modules":["Mathlib.Algebra.Order.ZeroLEOne"]}
 {"key":"zpow_natCast","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
@@ -1310,6 +1326,7 @@
 {"key":"simp","kind":"tactic","modules":[]}
 {"key":"simp (disch := skip) only [a]","kind":"tactic","modules":[]}
 {"key":"simp (disch := skip) only [a] at h","kind":"tactic","modules":[]}
+{"key":"simp (disch := skip) only [← a] at h","kind":"tactic","modules":[]}
 {"key":"simp +contextual only [a] at h","kind":"tactic","modules":[]}
 {"key":"simp [a]","kind":"tactic","modules":[]}
 {"key":"simp only [a]","kind":"tactic","modules":[]}

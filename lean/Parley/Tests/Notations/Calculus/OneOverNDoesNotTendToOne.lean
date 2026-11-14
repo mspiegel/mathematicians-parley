@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -51,7 +50,7 @@ theorem one_over_n_does_not_tend_to_one :
   -- 2.2. instantiate ε := 1/2 in line 2.1
   have r296_1 : (0 : ℚ) < 1 / 2 := by norm_num
   have s2_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (1 / (n : ℚ) - 1) < 1 / 2) := by
-    have hI : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → N ≤ n → abs (1 / (n : ℚ) - 1) < 1 / 2) := by parley_instance_real ((s2_1 (1 / 2 : ℝ) (by norm_num)))
+    have hI : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → N ≤ n → abs (1 / (n : ℚ) - 1) < 1 / 2) := by (have h := ((s2_1 (1 / 2 : ℝ) (by norm_num))); rify; exact_mod_cast h)
     exact hI
   -- 2.3. obtain N from line 2.2
   obtain ⟨N, s2_3a, s2_3b⟩ := s2_2

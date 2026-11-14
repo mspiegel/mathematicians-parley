@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Module.Defs
@@ -47,7 +46,7 @@ theorem the_derivative_of_a_power (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ
   -- 1. thm:derivative-power D := E, U := V, n := 2, g := h, from H1, H2, H3, H5
   have s1a : ∀ x ∈ V, E ∈ nhds x ∧ DifferentiableAt ℝ h x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_power_1 (g := h) (D := E) (U := V) hH1 hH2 hH3 (n := (2 : ℤ)) (by norm_num) (by simpa only [Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd] using hH5))
   have s1b : ∀ y ∈ V, (deriv h) y = (2 + 1) * y ^ 2 := by
-    have hI : ∀ x ∈ V, (deriv h) x = (2 + 1) * x ^ 2 := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_power_2 (g := h) (D := E) (U := V) hH1 hH2 hH3 (n := (2 : ℤ)) (by norm_num) (by simpa only [Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd] using hH5)))
+    have hI : ∀ x ∈ V, (deriv h) x = (2 + 1) * x ^ 2 := by (have h := ((Parley.Items.Stdlib.Calculus.thm_derivative_power_2 (g := h) (D := E) (U := V) hH1 hH2 hH3 (n := (2 : ℤ)) (by norm_num) (by simpa only [Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd] using hH5))); push_cast at h ⊢; exact h)
     exact hI
   exact ⟨s1a, s1b⟩
 

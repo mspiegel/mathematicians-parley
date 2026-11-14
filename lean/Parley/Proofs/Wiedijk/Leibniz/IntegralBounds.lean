@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -134,7 +133,7 @@ theorem integral_bounds (n : ℤ) (hH1 : 0 ≤ n) :
   have s14 : (∫ t in 0..1, (g t : ℝ)) ≤ (∫ t in 0..1, (f t : ℝ)) := by exact (Parley.Items.Stdlib.Calculus.thm_integral_order (f := g) (g := f) (a := (0 : ℝ)) (b := (1 : ℝ)) (by norm_num) s11 s9 s8)
   -- 15. thm:power-integral m := 2n
   have s15 : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by
-    have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (mul_nonneg (by norm_num) (hH1))))
+    have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by (have h := ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (mul_nonneg (by norm_num) (hH1)))); push_cast at h ⊢; exact h)
     exact hI
   -- 16. D1
   have s16 : (∫ t in 0..1, (f t : ℝ)) = (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) := by simp (disch := omega) only [hD1]

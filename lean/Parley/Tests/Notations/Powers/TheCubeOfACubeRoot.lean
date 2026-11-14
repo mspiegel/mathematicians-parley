@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -34,7 +33,7 @@ namespace Parley.Tests.Notations.Powers.TheCubeOfACubeRoot
 theorem the_cube_of_a_cube_root (x : ℂ) :
     (x ^ (1 / 3 : ℂ)) ^ 3 = x := by
   -- 1. mun:root-power n := 3
-  have hI : (x ^ (1 / 3 : ℂ)) ^ 3 = x := by parley_instance ((Parley.Items.Stdlib.Numbers.mun_root_power (x := x) (n := (3 : ℤ)) (by norm_num)))
+  have hI : (x ^ (1 / 3 : ℂ)) ^ 3 = x := by (have h := ((Parley.Items.Stdlib.Numbers.mun_root_power (x := x) (n := (3 : ℤ)) (by norm_num))); push_cast at h ⊢; exact h)
   exact hI
 
 end Parley.Tests.Notations.Powers.TheCubeOfACubeRoot

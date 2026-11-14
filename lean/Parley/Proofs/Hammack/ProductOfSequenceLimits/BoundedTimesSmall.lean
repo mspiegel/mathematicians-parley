@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
@@ -32,7 +31,7 @@ theorem bounded_times_small (C : ℝ) (u : ℝ) (K : ℝ) (d : ℝ) (hH5 : K > 0
     abs (C * u) < K * d := by
   -- 1. mun:abs-nonneg x := u
   have s1 : abs u ≥ 0 := by
-    have hI : 0 ≤ abs u := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ))))
+    have hI : 0 ≤ abs u := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (u : ℂ))))
     exact hI
   -- 2. inequalities
   have s2 : K - abs C > 0 := by linarith only [hH6]

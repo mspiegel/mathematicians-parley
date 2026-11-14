@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import PowerTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -132,7 +131,7 @@ theorem am_gm_power (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
           have s1_19_2 : r - 1 ≥ -1 := by linarith only [s1_19_1]
           -- 1.19.3. thm:bernoulli-inequality x := r − 1, n := j + 1, from 1.19.2
           have s1_19_3 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by
-            have hI : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by parley_instance ((Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := r - 1) (n := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num)) s1_19_2))
+            have hI : 1 + (r - 1) * ((j : ℝ) + 1) ≤ (1 + (r - 1)) ^ (j + 1).toNat := by (have h := ((Parley.Items.Stdlib.Numbers.thm_bernoulli_inequality (x := r - 1) (n := j + 1) (add_nonneg (le_of_lt (lt_of_lt_of_le zero_lt_one hK1)) (by norm_num)) s1_19_2)); push_cast at h ⊢; exact h)
             exact hI
           -- 1.19.4. substitute
           have s1_19_4 : 1 + (r - 1) * ((j : ℝ) + 1) ≤ r ^ (j + 1).toNat := by

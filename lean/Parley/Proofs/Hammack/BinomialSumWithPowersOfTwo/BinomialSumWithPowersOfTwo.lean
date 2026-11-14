@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -67,7 +66,7 @@ theorem binomial_sum_with_powers_of_two (n : ℤ) (hH1 : 0 ≤ n) :
   qify
   calc (∑ k ∈ Finset.Icc (0 : ℤ) n, (2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat : ℚ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => 2 ^ k.toNat * (LeanBridges.Counting.choose n k : ℚ))) (u := (fun k : ℤ => (LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat)) (a := (0 : ℤ)) (b := n) (fun k h_k => (s3 k h_k).symm))
     _ = (1 + 2) ^ n.toNat := by
-        have hI : (1 + 2) ^ n.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat : ℚ)) := by parley_instance_real ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (2 : ℝ)) (n := n) hH1))
+        have hI : (1 + 2) ^ n.toNat = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((LeanBridges.Counting.choose n k : ℚ) * 1 ^ (n - k) * 2 ^ k.toNat : ℚ)) := by (have h := ((Parley.Proofs.Wiedijk.Binomial.Binomial.binomial (x := (1 : ℝ)) (y := (2 : ℝ)) (n := n) hH1)); rify; exact_mod_cast h)
         exact hI.symm
     _ = 3 ^ n.toNat := by (have h := congrArg (fun t : ℤ => t ^ n.toNat) s4; push_cast at h ⊢; exact_mod_cast h)
 

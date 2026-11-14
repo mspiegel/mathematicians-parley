@@ -1,6 +1,5 @@
 module
 
-public import ComplexTactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -17,6 +16,7 @@ public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
 public import Parley.Items.Stdlib.Logarithms
@@ -30,6 +30,6 @@ namespace Parley.Tests.Notations.Powers.EToARealPower
 theorem e_to_a_real_power (y : ℝ) :
     Real.exp 1 ^ y = Real.exp y := by
   -- 1. mun:e-power
-  (have h := (Parley.Items.Stdlib.Logarithms.mun_e_power (y := (y : ℂ))); parley_of_complex h)
+  (have h := (Parley.Items.Stdlib.Logarithms.mun_e_power (y := (y : ℂ))); simp (disch := positivity) only [← Complex.ofReal_cpow, ← Complex.ofReal_exp] at h; exact_mod_cast h)
 
 end Parley.Tests.Notations.Powers.EToARealPower

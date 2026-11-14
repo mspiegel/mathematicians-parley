@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Basic.Real.Basic
@@ -37,7 +36,7 @@ theorem a_square_is_not_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x ^ 2) 
   intro hS
   -- 1.1. def:onto, from S
   have s1_1 : ∀ y : ℝ, ∃ x : ℝ, y = f x := by
-    have hI : ∀ y : ℝ, ∃ x : ℝ, y = f x := by parley_instance_cast ((((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mp hS).2)
+    have hI : ∀ y : ℝ, ∃ x : ℝ, y = f x := by (have h := ((((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (Set.mapsTo_univ _ _))).mp hS).2); simp only [Set.mem_univ, true_implies, true_and] at h; exact_mod_cast h)
     exact hI
   -- 1.2. instantiate y := −1 in line 1.1
   have s1_2 : ∃ x : ℝ, -1 = f x := by exact (s1_1 (-1 : ℝ))

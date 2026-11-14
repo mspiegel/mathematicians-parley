@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.Int.Defs
@@ -81,7 +80,7 @@ theorem fibonacci_binomial_step (m : ℤ) (hH1 : 0 ≤ m) :
   -- what this block shows, Lean's types give
   -- 12. mun:sum-first n := m + 1, from 10
   have s12 : (∑ k ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) = (LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) : ℤ) + (∑ k ∈ Finset.Icc (1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ) : ℤ)) := by
-    have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) = (LeanBridges.Counting.choose (m + 1 - 0) (0 - 1 : ℤ) : ℤ) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (n := m + 1) (add_nonneg (hH1) (by norm_num))))
+    have hI : (∑ a ∈ Finset.Icc (0 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) = (LeanBridges.Counting.choose (m + 1 - 0) (0 - 1 : ℤ) : ℤ) + (∑ a ∈ Finset.Icc (0 + 1 : ℤ) (m + 1), ((LeanBridges.Counting.choose (m + 1 - a) (a - 1) : ℤ) : ℤ)) := by exact ((Parley.Items.Stdlib.Sums.mun_sum_first (t := (fun k : ℤ => (LeanBridges.Counting.choose (m + 1 - k) (k - 1) : ℤ))) (n := m + 1) (add_nonneg (hH1) (by norm_num))))
     simpa only [Int.cast_one, Int.cast_zero, sub_zero, zero_add] using hI
   -- 13. calculation
   have s13 : (LeanBridges.Counting.choose (m + 1) (0 - 1 : ℤ) : ℤ) = 0 := by

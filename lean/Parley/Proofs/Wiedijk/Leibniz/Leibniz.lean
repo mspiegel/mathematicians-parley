@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import PowerTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -106,7 +105,7 @@ theorem leibniz :
       -- 3.2.5. thm:integral-bounds n := n + 1
       have s3_2_5a : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≥ 0 := by exact (Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (add_nonneg (le_of_lt hK2) (by norm_num))).2.1
       have s3_2_5b : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * ((n : ℝ) + 1) + 1) := by
-        have hI : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * ((n : ℝ) + 1) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (add_nonneg (le_of_lt hK2) (by norm_num))).2.2)
+        have hI : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * ((n : ℝ) + 1) + 1) := by (have h := ((Parley.Proofs.Wiedijk.Leibniz.IntegralBounds.integral_bounds (n := n + 1) (add_nonneg (le_of_lt hK2) (by norm_num))).2.2); push_cast at h ⊢; exact h)
         exact hI
       -- 3.2.6. def:abs x := J(n + 1), from 3.2.5
       have s3_2_6 : abs (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := ∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ))) s3_2_5a

@@ -1,7 +1,6 @@
 module
 
 public import Divisibility
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Archimedean.Real.Basic
 public import Mathlib.Algebra.Order.Field.Basic
@@ -51,7 +50,7 @@ theorem remainder_of_product (A : ℝ) (B : ℤ) (M : ℝ) (hH4 : M > 0) :
   -- 4. calculation
   calc LeanBridges.Divisibility.mod (LeanBridges.Divisibility.mod A M * (B : ℝ)) M = LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M := congrArg (fun t : ℝ => LeanBridges.Divisibility.mod t M) s3
     _ = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by
-        have hI : LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by parley_instance ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) hH4 (K := -(q * B))))
+        have hI : LeanBridges.Divisibility.mod (A * (B : ℝ) + M * -((q : ℝ) * (B : ℝ))) M = LeanBridges.Divisibility.mod (A * (B : ℝ)) M := by (have h := ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := A * (B : ℝ)) (M := M) hH4 (K := -(q * B)))); push_cast at h ⊢; exact h)
         exact hI
 
 end Parley.Proofs.Setmm.RemainderRules.RemainderOfProduct

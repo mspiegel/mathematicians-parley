@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import PowerTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Field.Power
@@ -55,7 +54,7 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.1. mun:nat0-as-int
       have r124_1 : 0 ≤ m := by exact hC1
       have s4_1 : 0 ≤ m := by
-        have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨⟨_, rfl⟩, r124_1⟩)
+        have hI : 0 ≤ m := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨⟨_, rfl⟩, r124_1⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
         exact hI
       -- 4.2. thm:nine-power-from-zero n := m, from 4.1
       (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := m) s4_1); simp only [parley_zpow_toNat (n := m) (h := s4_1)] at h ⊢; exact_mod_cast h)
@@ -65,7 +64,7 @@ theorem nine_power_is_three_power (m : ℤ) :
       -- 4.4. mun:nat0-as-int
       have r139_1 : -m ≥ 0 := by linarith only [s4_3]
       have s4_4 : 0 ≤ -m := by
-        have hI : 0 ≤ -m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr ⟨⟨_, rfl⟩, r139_1⟩)
+        have hI : 0 ≤ -m := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr ⟨⟨_, rfl⟩, r139_1⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
         exact hI
       -- 4.5. thm:nine-power-from-zero n := −m, from 4.4
       have s4_5 : (9 ^ (-m) : ℚ) = 3 ^ (-m) * 3 ^ (-m) := by (have h := (Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero.nine_power_from_zero (n := -m) s4_4); simp only [parley_zpow_toNat (n := -m) (h := s4_4)] at h ⊢; exact_mod_cast h)

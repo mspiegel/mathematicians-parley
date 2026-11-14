@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Analysis.Complex.Order
@@ -74,11 +73,11 @@ theorem de_moivre (x : ℝ) (n : ℤ) (hH2 : 0 ≤ n) :
     | succ k hK hIH =>
       -- 2.5. thm:cos-add a := k·x, b := x
       have s2_5 : Real.cos ((k : ℝ) * x + x) = Real.cos ((k : ℝ) * x) * Real.cos x - Real.sin ((k : ℝ) * x) * Real.sin x := by
-        have hI : Real.cos ((k : ℝ) * x + x) = Real.cos ((k : ℝ) * x) * Real.cos x - Real.sin ((k : ℝ) * x) * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))))
+        have hI : Real.cos ((k : ℝ) * x + x) = Real.cos ((k : ℝ) * x) * Real.cos x - Real.sin ((k : ℝ) * x) * Real.sin x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))))
         exact hI
       -- 2.6. thm:sin-add a := k·x, b := x
       have s2_6 : Real.sin ((k : ℝ) * x + x) = Real.sin ((k : ℝ) * x) * Real.cos x + Real.cos ((k : ℝ) * x) * Real.sin x := by
-        have hI : Real.sin ((k : ℝ) * x + x) = Real.sin ((k : ℝ) * x) * Real.cos x + Real.cos ((k : ℝ) * x) * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))))
+        have hI : Real.sin ((k : ℝ) * x + x) = Real.sin ((k : ℝ) * x) * Real.cos x + Real.cos ((k : ℝ) * x) * Real.sin x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (k : ℂ) * (x : ℂ)) (b := (x : ℂ))))
         exact hI
       -- 2.7. algebra
       have s2_7 : (k : ℝ) * x + x = ((k : ℝ) + 1) * x := by ring1

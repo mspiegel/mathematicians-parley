@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -42,7 +41,7 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
     A + B ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x} := by
   -- 1. def:difference Y := ℝ, Z := ℚ, from H3
   have s1 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by
-    have hI : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp hH3).2)
+    have hI : ¬ (∃ m : ℚ, (m : ℝ) = A) := by exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp hH3).2)
     exact hI
   -- 2. obtain p, q: def:rational x := B, from H4
   obtain ⟨p, q, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp hH4

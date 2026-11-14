@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.Cast.Basic
@@ -35,7 +34,7 @@ namespace Parley.Tests.Elaborator.AFamilyOfPartsByADefine.AFamilyAtZero
 theorem a_family_at_zero (m : ℤ) (hH1 : 0 < m) :
     {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + 0) : Set ℤ) | (d.ncard : ℤ) = m} | (1 : ℤ) ∈ c} ⊆ {e ∈ 𝒫 (Set.Icc (1 : ℤ) m : Set ℤ) | (e.ncard : ℤ) = m} := by
   -- 1. mun:set-builder-subset X := {e ⊆ {1, …, m} : |e| = m}, from D1
-  have hI : {t ∈ {e ∈ 𝒫 (Set.Icc (1 : ℤ) m : Set ℤ) | (e.ncard : ℤ) = m} | (1 : ℤ) ∈ t} ⊆ {e ∈ 𝒫 (Set.Icc (1 : ℤ) m : Set ℤ) | (e.ncard : ℤ) = m} := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun c : Set ℤ => (1 : ℤ) ∈ c)) (X := {e ∈ 𝒫 (Set.Icc (1 : ℤ) m : Set ℤ) | (e.ncard : ℤ) = m})))
+  have hI : {t ∈ {e ∈ 𝒫 (Set.Icc (1 : ℤ) m : Set ℤ) | (e.ncard : ℤ) = m} | (1 : ℤ) ∈ t} ⊆ {e ∈ 𝒫 (Set.Icc (1 : ℤ) m : Set ℤ) | (e.ncard : ℤ) = m} := by exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun c : Set ℤ => (1 : ℤ) ∈ c)) (X := {e ∈ 𝒫 (Set.Icc (1 : ℤ) m : Set ℤ) | (e.ncard : ℤ) = m})))
   simpa only [Int.cast_one, add_zero] using hI
 
 end Parley.Tests.Elaborator.AFamilyOfPartsByADefine.AFamilyAtZero

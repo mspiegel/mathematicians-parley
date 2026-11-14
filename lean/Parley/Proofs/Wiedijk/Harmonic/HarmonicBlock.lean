@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -90,7 +89,7 @@ theorem harmonic_block (j : ℤ) (hH1 : 0 ≤ j) :
   -- 14. mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
   have r88_1 : (2 ^ j.toNat + 1 : ℤ) ≤ 2 ^ (j + 1).toNat := by exact s13
   have s14 : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by
-    have hI : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ))))
+    have hI : (∑ k ∈ Finset.Icc (2 ^ j.toNat + 1 : ℤ) (2 ^ (j + 1).toNat : ℤ), (1 / 2 ^ (j + 1).toNat : ℚ)) = (2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (2 ^ j.toNat + 1 : ℤ)) (b := (2 ^ (j + 1).toNat : ℤ)) r88_1 (c := (1 / 2 ^ (j + 1).toNat : ℚ)))); push_cast at h ⊢; exact h)
     exact hI
   -- 15. calculation
   have s15 : ((2 ^ (j + 1).toNat - (2 ^ j.toNat + 1) + 1) * (1 / 2 ^ (j + 1).toNat) : ℚ) = 1 / 2 := by

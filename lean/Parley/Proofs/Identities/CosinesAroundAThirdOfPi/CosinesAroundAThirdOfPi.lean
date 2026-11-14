@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Order
@@ -35,21 +34,21 @@ theorem cosines_around_a_third_of_pi (x : ℝ) :
     Real.cos (Real.pi / 3 + x) + Real.cos (Real.pi / 3 - x) = Real.cos x := by
   -- 1. thm:cos-add a := π/3, b := x
   have s1 : Real.cos (Real.pi / 3 + x) = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x := by
-    have hI : Real.cos (Real.pi / 3 + x) = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (Real.pi : ℂ) / 3) (b := (x : ℂ))))
+    have hI : Real.cos (Real.pi / 3 + x) = Real.cos (Real.pi / 3) * Real.cos x - Real.sin (Real.pi / 3) * Real.sin x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (Real.pi : ℂ) / 3) (b := (x : ℂ))))
     exact hI
   -- 2. thm:cos-add a := π/3, b := −x
   have s2 : Real.cos (Real.pi / 3 + -x) = Real.cos (Real.pi / 3) * Real.cos (-x) - Real.sin (Real.pi / 3) * Real.sin (-x) := by
-    have hI : Real.cos (Real.pi / 3 + -x) = Real.cos (Real.pi / 3) * Real.cos (-x) - Real.sin (Real.pi / 3) * Real.sin (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (Real.pi : ℂ) / 3) (b := -(x : ℂ))))
+    have hI : Real.cos (Real.pi / 3 + -x) = Real.cos (Real.pi / 3) * Real.cos (-x) - Real.sin (Real.pi / 3) * Real.sin (-x) := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (Real.pi : ℂ) / 3) (b := -(x : ℂ))))
     exact hI
   -- 3. algebra
   have s3 : Real.pi / 3 - x = Real.pi / 3 + -x := by ring1
   -- 4. mun:cos-negative a := x
   have s4 : Real.cos (-x) = Real.cos x := by
-    have hI : Real.cos (-x) = Real.cos x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := (x : ℂ))))
+    have hI : Real.cos (-x) = Real.cos x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := (x : ℂ))))
     exact hI
   -- 5. mun:sin-negative a := x
   have s5 : Real.sin (-x) = -Real.sin x := by
-    have hI : Real.sin (-x) = -Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := (x : ℂ))))
+    have hI : Real.sin (-x) = -Real.sin x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := (x : ℂ))))
     exact hI
   -- 6. calculation
   calc Real.cos (Real.pi / 3 + x) + Real.cos (Real.pi / 3 - x) = Real.cos (Real.pi / 3 + x) + Real.cos (Real.pi / 3 + -x) := congrArg (fun t : ℝ => Real.cos (Real.pi / 3 + x) + Real.cos t) s3

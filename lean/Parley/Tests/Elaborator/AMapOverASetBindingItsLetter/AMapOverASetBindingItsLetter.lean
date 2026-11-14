@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Tactic.Init
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Defs
@@ -61,14 +60,14 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
   have s1 : D ⊆ (Set.univ : Set ℝ) := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    have hI : {t : ℝ | 0 < t} ⊆ (Set.univ : Set ℝ) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ))))
+    have hI : {t : ℝ | 0 < t} ⊆ (Set.univ : Set ℝ) := by (have h := ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)))); simp only [Set.mem_univ, true_and] at h; exact h)
     exact hI
   -- 2. proof
   have s2 : ∀ x ∈ D, True := by
     intro x hK1
     -- 2.1. def:set-builder, from D1, K1
     have s2_1 : x > 0 := by
-      have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK1)).2)
+      have hI : 0 < x := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK1)).2)
       exact hI
     -- 2.2. inequalities
     have s2_2 : x ≥ 0 := by linarith only [s2_1]
@@ -88,7 +87,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     intro hA1
     -- 4.1. def:set-builder, from D1, K2
     have s4_1 : c > 0 := by
-      have hI : 0 < c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK2)).2)
+      have hI : 0 < c := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := c))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK2)).2)
       exact hI
     -- 4.2. inequalities
     have s4_2 : c ≥ 0 := by linarith only [s4_1]
@@ -129,7 +128,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       intro hA2
       -- 4.8.1. def:set-builder, from D1, K4
       have s4_8_1 : x > 0 := by
-        have hI : 0 < x := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK4)).2)
+        have hI : 0 < x := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => 0 < x)) (X := (Set.univ : Set ℝ)) (u := x))).mp (by simpa only [hD1, Set.mem_ofPred_eq, gt_iff_lt, Set.sep_univ] using hK4)).2)
         exact hI
       -- 4.8.2. inequalities
       have s4_8_2 : x ≥ 0 := by linarith only [s4_8_1]
@@ -150,7 +149,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       have s4_8_11 : Real.sqrt x + Real.sqrt c ≥ 0 := by linarith only [s4_3a, s4_8_3a]
       -- 4.8.12. mun:abs-nonneg x := √x − √c, from 4.8.6
       have s4_8_12 : abs (Real.sqrt x - Real.sqrt c) ≥ 0 := by
-        have hI : 0 ≤ abs (Real.sqrt x - Real.sqrt c) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ))))
+        have hI : 0 ≤ abs (Real.sqrt x - Real.sqrt c) := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (Real.sqrt x : ℂ) - (Real.sqrt c : ℂ))))
         exact hI
       -- 4.8.13. def:abs x := √x + √c, from 4.8.11
       have s4_8_13 : abs (Real.sqrt x + Real.sqrt c) = Real.sqrt x + Real.sqrt c := by exact (Parley.Items.Stdlib.Numbers.def_abs_1 (x := Real.sqrt x + Real.sqrt c)) s4_8_11

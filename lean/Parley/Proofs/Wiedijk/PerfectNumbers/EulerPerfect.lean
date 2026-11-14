@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import PowerTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
@@ -146,10 +145,10 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s14 : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) = 2 ^ p.toNat - 1 := by
     qify
     calc (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by
-          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by parley_instance_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by norm_num) r407_1 (k := k) s1a))
+          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) := by exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_sigma_prime_power (p := (2 : ℤ)) (by norm_num) r407_1 (k := k) s1a))
           exact hI
       _ = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by
-          have hI : (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by parley_instance_real ((Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by norm_num) (n := k) s1a))
+          have hI : (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℚ)) = (1 - 2 ^ (k + 1).toNat) / (1 - 2) := by (have h := ((Parley.Proofs.Wiedijk.GeometricSeries.GeometricSum.geometric_sum (a := (2 : ℝ)) (by norm_num) (n := k) s1a)); rify; exact_mod_cast h)
           exact hI
       _ = 2 ^ p.toNat - 1 := by
           simp only [hD2] at ⊢
@@ -159,7 +158,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   have s15 : (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = 2 ^ p.toNat * m := by
     calc (2 ^ p.toNat - 1) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := congrArg (fun t : ℤ => t * (ArithmeticFunction.sigma 1 m.toNat : ℤ)) s14.symm
       _ = (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) := by
-          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by parley_instance ((Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (pow_pos (by norm_num) _) (n := m) s1b s13))
+          have hI : (ArithmeticFunction.sigma 1 (2 ^ k.toNat * m).toNat : ℤ) = (ArithmeticFunction.sigma 1 (2 ^ k.toNat) : ℤ) * (ArithmeticFunction.sigma 1 m.toNat : ℤ) := by exact ((Parley.Items.Stdlib.Divisibility.thm_sigma_multiplicative (m := (2 ^ k.toNat : ℤ)) (pow_pos (by norm_num) _) (n := m) s1b s13))
           exact hI.symm
       _ = (ArithmeticFunction.sigma 1 n.toNat : ℤ) := congrArg (fun t : ℤ => (ArithmeticFunction.sigma 1 t.toNat : ℤ)) s1d.symm
       _ = 2 * n := by exact ((Parley.Items.Stdlib.Divisibility.def_perfect (n := n) hH1)).mp hH3
@@ -173,7 +172,7 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
   -- 19. thm:coprime-divides x := m, c := 2^p, n := 2^p − 1, from 7, 11, 18
   have s19 : (2 ^ p.toNat - 1 : ℤ) ∣ m := by exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := m) (c := (2 ^ p.toNat : ℤ)) (n := (2 ^ p.toNat - 1 : ℤ)) s7 s18 s11)
   have hD3_kind : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (2 ^ p.toNat - 1) := by
-    have hI : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (2 ^ p.toNat - 1) := by parley_instance (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) s1b (d := (2 ^ p.toNat - 1 : ℤ)) s7)).mp s19)
+    have hI : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = (m : ℚ) / (2 ^ p.toNat - 1) := by (have h := (((Parley.Items.Stdlib.Divisibility.mun_divides_quotient (n := m) s1b (d := (2 ^ p.toNat - 1 : ℤ)) s7)).mp s19); push_cast at h ⊢; exact h)
     exact hI
   obtain ⟨c, hD3_pos, hD3⟩ := hD3_kind
   -- 20. algebra, from D3
@@ -225,10 +224,10 @@ theorem euler_perfect (n : ℤ) (hH1 : 0 < n) (hH2 : Even n) (hH3 : ArithmeticFu
     by_contra hS4
     -- 26.1. mun:not-either P := d = 1, Q := d = m, from S4
     have s26_1a : d ≠ 1 := by
-      have hI : d ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).1)
+      have hI : d ≠ 1 := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).1)
       exact hI
     have s26_1b : d ≠ m := by
-      have hI : d ≠ m := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).2)
+      have hI : d ≠ m := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = m))).mp hS4).2)
       exact hI
     -- 26.2. mun:divides-le e := d, from A1
     have s26_2 : d ≤ m := by exact (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) hK1 (m := m) s1b hA1)

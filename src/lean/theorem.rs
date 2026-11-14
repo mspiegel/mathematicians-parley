@@ -15,6 +15,7 @@ use super::doc::{ListReason, Tactic, TacticArg};
 use super::expr::{LetterType, Printed, Writer};
 use super::items::{Item, Sentence};
 use super::names::{line_name, snake};
+use super::spelling::{fields_of, number_types};
 use super::statement::{binders, introduces, Asked, Binder, StatedAt};
 use super::templates::Templates;
 use crate::checker::record::{
@@ -628,28 +629,6 @@ impl Cites {
     }
 }
 
-/// The tactic that reads an item's Lean statement, `item`, as the step's
-/// spelling of it, `written`: `parley_instance` where the two are worked in
-/// one field, the widest each names (a side's type the writer does not know
-/// is no difference; a narrower field the item names, a value of ℚ cast to
-/// ℝ, is cast down as `push_cast` takes it); `parley_instance_real` where
-/// the item is in ℝ and the step in ℚ alone, which is lifted to ℝ;
-/// `parley_instance_cast` where the item is in another wider type, ℂ at
-/// reals or ℝ at integers, whose casts are lifted out to the step's.
-fn instance_bridge(item: &Printed, written: &Printed) -> BridgeTactic {
-    use super::templates::Num;
-    let (of_item, of_step) = (fields_of(item), fields_of(written));
-    let real_at_rationals = of_step == std::collections::BTreeSet::from([Num::Rat])
-        && of_item.contains(&Num::Real)
-        && !of_item.contains(&Num::Complex);
-    let one_field = of_item.last() == of_step.last();
-    match (one_field, real_at_rationals) {
-        (true, _) => BridgeTactic::Instance,
-        (false, true) => BridgeTactic::InstanceReal,
-        (false, false) => BridgeTactic::InstanceCast,
-    }
-}
-
 /// Whether the statement raises to a complex exponent, `↑x ^ ↑y` in ℂ: that
 /// power is the real one only at a base not negative, a fact no cast moves,
 /// so an item in ℂ written with one is not read at reals.
@@ -675,7 +654,8 @@ fn one_statement(written: &Printed, said: &Printed) -> bool {
 /// How many integer powers the statement writes under its binders, x^(m − k)
 /// in a sum over k, whose exponent's fact holds only there: two statements
 /// of one fact that write as many have spelt each such power alike, none
-/// taken to `toNat` on one side alone, which `parley_instance` does not join.
+/// taken to `toNat` on one side alone, which the reading of the item
+/// (`spelling::read_as_written`) has no fact to join.
 fn integer_powers_under_binders(term: &Printed) -> usize {
     use super::doc::{LeanType, Op, TermKind};
     let int = Some(LeanType::Num(super::templates::Num::Int));
@@ -824,11 +804,12 @@ fn to_nat_texts(term: &Printed) -> Vec<String> {
         .collect()
 }
 
-/// The writer's conversion that takes a statement worked in a wider field
-/// than the claim's down to it, the widest it names beyond the claim's:
-/// `parley_of_complex` of ℂ, `parley_rat_of_real` of ℝ for a claim in ℚ.
-/// None where it names no wider field.
-fn read_down(says: &Printed, claim: &Printed) -> Option<BridgeTactic> {
+/// The proof of `claim` from `term`, whose statement `says` is worked in a
+/// wider field than the claim's, taken down to it, the widest it names
+/// beyond the claim's: of ℂ, each complex operation read as the real one
+/// (`spelling::read_from_complex`); of ℝ for a claim in ℚ,
+/// `parley_rat_of_real`. None where it names no wider field.
+fn read_down(term: &Printed, says: &Printed, claim: &Printed) -> Option<Tactic> {
     use super::templates::Num;
     let claimed = fields_of(claim);
     let wider = fields_of(says)
@@ -836,41 +817,16 @@ fn read_down(says: &Printed, claim: &Printed) -> Option<BridgeTactic> {
         .filter(|n| !claimed.contains(n))
         .max();
     match wider {
-        Some(Num::Complex) => Some(BridgeTactic::OfComplex),
-        Some(Num::Real) => Some(BridgeTactic::RatOfReal),
+        Some(Num::Complex) => Some(super::spelling::read_from_complex(term, says)),
+        Some(Num::Real) => Some(super::tactics::on_h(
+            term,
+            vec![super::tactics::bridge(
+                BridgeTactic::RatOfReal,
+                vec![TacticArg::Term(super::tactics::hyp("h"))],
+            )],
+        )),
         _ => None,
     }
-}
-
-/// The fields a statement as Lean writes it is worked in, ℚ, ℝ or ℂ, of
-/// its number types (`number_types`): an exponent's ℕ or an index's ℤ
-/// beside them says nothing of the field.
-fn fields_of(term: &Printed) -> std::collections::BTreeSet<super::templates::Num> {
-    use super::templates::Num;
-    number_types(term)
-        .into_iter()
-        .filter(|n| matches!(n, Num::Rat | Num::Real | Num::Complex))
-        .collect()
-}
-
-/// The number types a statement as Lean writes it names: those of its
-/// terms, and those it casts to.
-fn number_types(term: &Printed) -> std::collections::BTreeSet<super::templates::Num> {
-    use super::doc::{LeanType, TermKind};
-    let mut out = std::collections::BTreeSet::new();
-    for t in term.walk() {
-        if let Some(LeanType::Num(n)) = &t.ty {
-            out.insert(*n);
-        }
-        if let TermKind::Cast {
-            to: LeanType::Num(n),
-            ..
-        } = &t.kind
-        {
-            out.insert(*n);
-        }
-    }
-    out
 }
 
 /// Lean's statement of a "for all" line once each of its leading letters is
@@ -8307,7 +8263,7 @@ impl<'a> Proof<'a> {
     /// step's spelling (`docs/LEAN.md`, a citation): `term` proves Lean's
     /// statement of the item's part, `said`, which the step's lines write as
     /// `written`; `cited` is the citation, None for a line's instance; the
-    /// item is read as `written` (`parley_instance`), or is it where the two
+    /// item is read as `written` (`spelling::read_as_written`), or is it where the two
     /// are one statement, and the claim follows as the two meet: as written,
     /// turned round, or by the identities the meeting names. None where the
     /// bridge has no fact to read the item by, or the meeting gives no one
@@ -8353,8 +8309,8 @@ impl<'a> Proof<'a> {
         // to move; nor a complex exponent; nor a fact of numerals alone,
         // `(abs 0 : ℤ) = 0` for a row in ℝ, which `norm_cast` works out to
         // `True` and takes nothing across, so it is worked out where it is
-        // asked (as `forms::meets` holds). `parley_instance_real` lifts the
-        // step instead and leaves the item as it is.
+        // asked (as `forms::meets` holds). An item in ℝ at a step in ℚ
+        // lifts the step instead (`rify`) and leaves the item as it is.
         let letters = cited.map(|c| c.item_letters.as_slice()).unwrap_or_default();
         // Only where the item applies a function to a numeral: in
         // arithmetic, `(2 : ℚ) ^ n`, `norm_cast` reads the numeral as the
@@ -8373,8 +8329,8 @@ impl<'a> Proof<'a> {
             .walk()
             .iter()
             .any(|n| matches!(n.kind, super::doc::TermKind::Letter(_)));
-        let bridge = instance_bridge(said, written);
-        if bridge == BridgeTactic::InstanceCast
+        let fields = super::spelling::InstanceFields::of(said, written);
+        if fields == super::spelling::InstanceFields::Wider
             && (bare_widened || complex_exponent(said) || !lettered)
         {
             return None;
@@ -8393,9 +8349,12 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name: "hI".to_string(),
                     says: written.clone(),
-                    proof: Box::new(Proof::By(t::bridge(
-                        bridge,
-                        vec![TacticArg::Term(t::bracket(term.clone()))],
+                    proof: Box::new(Proof::By(super::spelling::read_as_written(
+                        &t::bracket(term.clone()),
+                        said,
+                        written,
+                        fields,
+                        &self.set_values(),
                     ))),
                 },
                 met.closer(),
@@ -8518,12 +8477,8 @@ impl<'a> Proof<'a> {
             // An item worked in a wider field than the claim's, ℂ for a claim
             // in ℝ, taken down to it by the writer's own conversion, as an
             // instance is (`instance_closed`).
-            if let Some(down) = read_down(says, claim) {
-                use super::tactics as t;
-                return super::doc::Proof::By(t::on_h(
-                    &term,
-                    vec![t::bridge(down, vec![TacticArg::Term(t::hyp("h"))])],
-                ));
+            if let Some(down) = read_down(&term, says, claim) {
+                return super::doc::Proof::By(down);
             }
             // The checker met the item's conclusion at its values with the
             // claim, so in one type the two differ only in spelling and
@@ -12589,8 +12544,9 @@ impl<'a> Proof<'a> {
     /// the claim (`Instantiated::meeting`). Where Lean's statements of the
     /// two differ otherwise, the instance, turned where the checker turned
     /// it, is taken down to the claim's field where it is in a wider one,
-    /// `parley_rat_of_real` of ℝ for a claim in ℚ and `parley_of_complex` of
-    /// ℂ; and otherwise reaches the claim by the closer
+    /// `parley_rat_of_real` of ℝ for a claim in ℚ, and of ℂ each complex
+    /// operation read as the real one cast (`spelling::read_from_complex`);
+    /// and otherwise reaches the claim by the closer
     /// whose Lean fact holds of the two, the ways tried in order where none
     /// does (`close`). Before those rows, the instance as the step's lines
     /// write it at the values, `written`, read from the line and met with
@@ -12632,11 +12588,6 @@ impl<'a> Proof<'a> {
                 )));
             }
         }
-        // The field the instance is worked in beyond the claim's, ℝ for a
-        // claim in ℚ, taken down by the writer's conversion (`read_down`).
-        let down = lean
-            .as_ref()
-            .and_then(|(says, wanted)| read_down(says, wanted));
         let met = match (instance, claim) {
             // Lean's statement of the instance is the claim's as Lean
             // writes both, once turned where the checker turned it, or
@@ -12698,13 +12649,13 @@ impl<'a> Proof<'a> {
         use super::tactics as t;
         // The instance turned round where the checker turned it.
         let proof = faced(proof, facing_of_turned(recorded.meeting.turned));
-        // An instance in a wider field than the claim's, taken down to it by
-        // the writer's own conversion.
-        if let Some(bridge) = down {
-            return super::doc::Proof::By(t::on_h(
-                &proof,
-                vec![t::bridge(bridge, vec![TacticArg::Term(t::hyp("h"))])],
-            ));
+        // An instance in a wider field than the claim's, ℝ for a claim in ℚ,
+        // taken down to it by the writer's own conversion (`read_down`).
+        let down = lean
+            .as_ref()
+            .and_then(|(says, wanted)| read_down(&proof, says, wanted));
+        if let Some(down) = down {
+            return super::doc::Proof::By(down);
         }
         // The two in one type, met by the checker: each closer where its
         // Lean fact holds of Lean's statements of them. An equation of
@@ -16875,7 +16826,8 @@ impl<'a> Proof<'a> {
         // of an "and" the step takes, at the citation's values, written as
         // the step's lines are (`docs/LEAN.md`, a citation). Kept where it is
         // spelt otherwise than Lean's statement of that part, which
-        // `parley_instance` then reads as it.
+        // the reading of the item then reads as it
+        // (`spelling::read_as_written`).
         let given = match concluded.way {
             Way::AsWritten => Some(&sentence.says),
             Way::Forward => node_consequent(&sentence.says),

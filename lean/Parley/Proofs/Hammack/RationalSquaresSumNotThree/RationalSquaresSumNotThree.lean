@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -72,16 +71,16 @@ theorem rational_squares_sum_not_three :
   have s9 : T ⊆ {n : ℤ | 0 < n} := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    have hI : {t : ℤ | 0 < t ∧ (∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * t ^ 2)} ⊆ {n : ℤ | 0 < n} := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n})))
+    have hI : {t : ℤ | 0 < t ∧ (∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * t ^ 2)} ⊆ {n : ℤ | 0 < n} := by exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n})))
     exact hI
   -- 10. obtain m: axi:well-ordering, from 8, 9
   obtain ⟨m, s10a, s10b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := T) s9 ⟨b * d, s8, trivial⟩)
   -- 11. def:set-builder u := m, from D1, 10
   have s11a : 0 < m := by
-    have hI : 0 < m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp s10a).1)
+    have hI : 0 < m := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp s10a).1)
     exact hI
   have s11b : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * m ^ 2 := by
-    have hI : ∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * m ^ 2 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp s10a).2)
+    have hI : ∃ a : ℤ, ∃ b : ℤ, a ^ 2 + b ^ 2 = 3 * m ^ 2 := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp s10a).2)
     exact hI
   -- 12. obtain p, q from line 11
   obtain ⟨p, q, s12⟩ := s11b

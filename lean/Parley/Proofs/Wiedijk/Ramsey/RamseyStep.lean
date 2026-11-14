@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Monoid
@@ -184,7 +183,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
     -- 32.4. def:set-builder, from D2
     have s32_4 : ∀ w ∈ R, ({v, w} : Set α) ∈ E := by
       intro w h_w
-      have hI : ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp h_w).2)
+      have hI : ({v, w} : Set α) ∈ E := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp h_w).2)
       exact hI
     -- 32.5. thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
     exact (Parley.Proofs.Wiedijk.Ramsey.GrowByOne.grow_by_one (X := X) (E := E) (F := F) s1 (k := k) hH1 (j := j + 1) (add_pos (hH2) (by norm_num)) (v := v) s9 (N := R) s14 s32_4 (W := W) s32_3a s32_3b)
@@ -203,7 +202,7 @@ theorem ramsey_step {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set �
       -- 32.10.1. def:set-builder u := w, from D3, K1
       have s32_10_1a : w ∈ X \ ({v} : Set α) := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).1
       have s32_10_1b : ¬ ({v, w} : Set α) ∈ E := by
-        have hI : ¬ ({v, w} : Set α) ∈ E := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2)
+        have hI : ¬ ({v, w} : Set α) ∈ E := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun w : α => ¬ ({v, w} : Set α) ∈ E)) (X := X \ ({v} : Set α)) (u := w))).mp hK1).2)
         exact hI
       -- 32.10.2. mun:remove-member u := w, Y := X, a := v, from 32.10.1
       have s32_10_2a : w ∈ X := by exact (((Parley.Items.Stdlib.Sets.mun_remove_member (Y := X) (a := v) (u := w))).mp s32_10_1a).1

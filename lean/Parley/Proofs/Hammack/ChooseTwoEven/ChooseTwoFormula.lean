@@ -3,7 +3,6 @@ module
 public import Counting
 public import FactorialTactics
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -51,7 +50,7 @@ theorem choose_two_formula (n : ℤ) (hH1 : 0 ≤ n) :
       -- 1.3. calculation
       have s1_3 : (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by
         calc (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) = (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) := by
-              have hI : (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) := by parley_instance_cast ((Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs.choose_two_pairs (n := k) hK))
+              have hI : (k : ℚ) + (LeanBridges.Counting.choose k (2 : ℤ) : ℚ) = (LeanBridges.Counting.choose (k + 1) (2 : ℤ) : ℚ) := by exact_mod_cast ((Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs.choose_two_pairs (n := k) hK))
               exact hI.symm
           _ = (k : ℚ) + (k : ℚ) * ((k : ℚ) - 1) / 2 := congrArg (fun t : ℚ => (k : ℚ) + t) hIH
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 - 1) / 2 := by ring1

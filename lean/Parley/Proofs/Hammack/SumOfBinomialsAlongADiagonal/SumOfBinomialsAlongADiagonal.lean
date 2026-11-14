@@ -3,7 +3,6 @@ module
 public import Counting
 public import FactorialTactics
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -54,7 +53,7 @@ theorem sum_of_binomials_along_a_diagonal (n : ℤ) (hH1 : 0 ≤ n) (k : ℤ) (h
       have s1_1 : S 0 = (LeanBridges.Counting.choose (n + 1) (0 : ℤ) : ℤ) := by
         calc S 0 = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (n + j) j : ℤ) : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (LeanBridges.Counting.choose n (0 : ℤ) : ℤ) := by
-              have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (n + k) k : ℤ) : ℤ)) = (LeanBridges.Counting.choose (n + 0) (0 : ℤ) : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (LeanBridges.Counting.choose (n + j) j : ℤ))) (a := (0 : ℤ))))
+              have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (n + k) k : ℤ) : ℤ)) = (LeanBridges.Counting.choose (n + 0) (0 : ℤ) : ℤ) := by exact ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (LeanBridges.Counting.choose (n + j) j : ℤ))) (a := (0 : ℤ))))
               simpa only [Int.cast_zero, add_zero] using hI
           _ = 1 := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := n) hH1)
           _ = (LeanBridges.Counting.choose (n + 1) (0 : ℤ) : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := n + 1) (add_nonneg (hH1) (by norm_num))).symm

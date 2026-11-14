@@ -18,6 +18,7 @@ pub mod names;
 pub mod readback;
 pub mod reals;
 pub mod sets;
+pub mod spelling;
 pub mod statement;
 pub mod tactics;
 pub mod templates;

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -44,7 +43,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
     Filter.Tendsto (fun n : ℤ => (c * a n : ℝ)) Filter.atTop (nhds (c * L)) := by
   -- 1. mun:abs-nonneg x := c
   have s1 : abs c ≥ 0 := by
-    have hI : 0 ≤ abs c := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ))))
+    have hI : 0 ≤ abs c := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (c : ℂ))))
     exact hI
   -- 2. inequalities, from 1
   have s2 : abs c + 1 > 0 := by linarith only [s1]
@@ -74,7 +73,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
       have s4_6_3 : abs (a n - L) < ε / (abs c + 1) := by exact (s4_5b n hK2 hA2)
       -- 4.6.4. mun:abs-nonneg x := a(n) − L, from 4.6.1
       have s4_6_4 : abs (a n - L) ≥ 0 := by
-        have hI : 0 ≤ abs (a n - L) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))))
+        have hI : 0 ≤ abs (a n - L) := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ) - (L : ℂ))))
         exact hI
       -- 4.6.5. mun:less-scaled x := |a(n) − L|, y := ε/(|c| + 1), c := |c| + 1, from 2, 4.6.2, 4.6.3
       have s4_6_5 : (abs c + 1) * abs (a n - L) < (abs c + 1) * (ε / (abs c + 1)) := by exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := abs (a n - L)) (y := ε / (abs c + 1)) (c := abs c + 1) s2)).mp s4_6_3

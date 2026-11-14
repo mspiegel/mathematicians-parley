@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Algebra.Order.Field.Basic
@@ -130,7 +129,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       have s3_2_5 : Odd (1 - 2 * y) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 1 - 2 * y))).mpr ⟨-y, s3_2_4⟩
       -- 3.2.6. thm:alternating-value-odd m := 1 − 2·y, from H2, 3.2.3, 3.2.5
       have s3_2_6 : (f (1 - 2 * y) : ℚ) = (1 - (1 - 2 * (y : ℚ))) / 2 := by
-        have hI : (f (1 - 2 * y) : ℚ) = (1 - (1 - 2 * (y : ℚ))) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) s3_2_3 s3_2_5))
+        have hI : (f (1 - 2 * y) : ℚ) = (1 - (1 - 2 * (y : ℚ))) / 2 := by (have h := ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd.alternating_value_odd (f := f) hH2 (m := 1 - 2 * y) s3_2_3 s3_2_5)); push_cast at h ⊢; exact h)
         exact hI
       -- 3.2.7. algebra, from 3.2.6
       have s3_2_7 : y = f (1 - 2 * y) := by qify at *; linear_combination ((-2) / (((2 : ℚ)))) * s3_2_6
@@ -145,7 +144,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → (f
       have s3_2_11 : Even (2 * y) := ((Parley.Items.Stdlib.Divisibility.def_even (n := 2 * y))).mpr ⟨y, rfl⟩
       -- 3.2.12. thm:alternating-value-even m := 2·y, from H2, 3.2.10, 3.2.11
       have s3_2_12 : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by
-        have hI : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by parley_instance ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) s3_2_10 s3_2_11))
+        have hI : (f (2 * y) : ℚ) = 2 * (y : ℚ) / 2 := by (have h := ((Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven.alternating_value_even (f := f) hH2 (m := 2 * y) s3_2_10 s3_2_11)); push_cast at h ⊢; exact h)
         exact hI
       -- 3.2.13. algebra, from 3.2.12
       have s3_2_13 : y = f (2 * y) := by qify at *; linear_combination ((-2) / (((2 : ℚ)))) * s3_2_12

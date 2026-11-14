@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -59,7 +58,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
       -- 1.1. calculation
       calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (3 ^ j.toNat : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
         _ = 3 ^ 1 := by
-            have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (3 ^ k.toNat : ℚ)) = 3 ^ 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (3 ^ j.toNat : ℚ))) (a := (1 : ℤ))))
+            have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (3 ^ k.toNat : ℚ)) = 3 ^ 1 := by exact ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (3 ^ j.toNat : ℚ))) (a := (1 : ℤ))))
             exact hI
         _ = (3 ^ (1 + 1) - 3) / 2 := by norm_num
     | succ k hK hIH =>
@@ -68,7 +67,7 @@ theorem geometric_sum_base_three (n : ℤ) (hH1 : 0 < n) :
       have s1_2 : S (k + 1) = S k + 3 ^ (k + 1).toNat := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (3 ^ j.toNat : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) k, (3 ^ j.toNat : ℤ)) + 3 ^ (k + 1).toNat := by
-              have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (3 ^ b.toNat : ℤ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (3 ^ b.toNat : ℤ)) + 3 ^ (k + 1).toNat := by parley_instance_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (3 ^ j.toNat : ℚ))) (a := (1 : ℤ)) (n := k) r28_1))
+              have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (3 ^ b.toNat : ℤ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (3 ^ b.toNat : ℤ)) + 3 ^ (k + 1).toNat := by exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (3 ^ j.toNat : ℚ))) (a := (1 : ℤ)) (n := k) r28_1))
               exact hI
           _ = S k + 3 ^ (k + 1).toNat := by simp (disch := omega) only [hD1]
       -- 1.3. mun:exponent-step a := 3, m := k + 1

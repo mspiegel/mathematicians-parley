@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -42,7 +41,7 @@ theorem choose_one (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose N (1 : ℤ) : ℤ) = N := by
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by
-    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
+    have hI : 0 < N ∨ N = 0 := by (have h := (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
     exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2

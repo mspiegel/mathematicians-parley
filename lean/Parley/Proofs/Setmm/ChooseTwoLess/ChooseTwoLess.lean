@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
@@ -45,7 +44,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose (N + 1) (N - 1) : ℚ) = ((N : ℚ) + 1) * (N : ℚ) / 2 := by
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by
-    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
+    have hI : 0 < N ∨ N = 0 := by (have h := (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
     exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
@@ -54,7 +53,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) hC1)
     -- 2.2. def:nat0 n := N − 1, from 2.1
     have s2_2 : 0 < N - 1 ∨ N - 1 = 0 := by
-      have hI : 0 < N - 1 ∨ N - 1 = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp ⟨N - 1, s2_1, rfl⟩)
+      have hI : 0 < N - 1 ∨ N - 1 = 0 := by (have h := (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp ⟨N - 1, s2_1, rfl⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
       exact hI
     -- 2.3. cases, from 2.2
     rcases s2_2 with hC3 | hC4
@@ -103,7 +102,7 @@ theorem choose_two_less (N : ℤ) (hH1 : 0 ≤ N) :
       -- 2.3.12. calculation
       calc (LeanBridges.Counting.choose (N + 1) (N - 1) : ℚ) = (LeanBridges.Counting.choose (N + 1) (0 : ℤ) : ℚ) := by (have h := congrArg (fun t : ℤ => (LeanBridges.Counting.choose (N + 1) t : ℤ)) hC4; push_cast at h ⊢; exact_mod_cast h)
         _ = 1 := by
-            have hI : (LeanBridges.Counting.choose (N + 1) (0 : ℤ) : ℚ) = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := N + 1) (add_nonneg (hH1) (by norm_num))))
+            have hI : (LeanBridges.Counting.choose (N + 1) (0 : ℤ) : ℚ) = 1 := by exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := N + 1) (add_nonneg (hH1) (by norm_num))))
             exact hI
         _ = ((N : ℚ) + 1) * (N : ℚ) / 2 := by
             have hC4_w : (N : ℚ) - 1 = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC4; push_cast at h; linear_combination h

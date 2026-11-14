@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Analysis.Complex.Order
@@ -37,16 +36,16 @@ theorem sine_of_half_pi_minus (x : ℝ) :
   have s1 : Real.pi / 2 - x = Real.pi / 2 + -x := by ring1
   -- 2. mun:cos-negative a := x
   have s2 : Real.cos (-x) = Real.cos x := by
-    have hI : Real.cos (-x) = Real.cos x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := (x : ℂ))))
+    have hI : Real.cos (-x) = Real.cos x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := (x : ℂ))))
     exact hI
   -- 3. mun:sin-negative a := x
   have s3 : Real.sin (-x) = -Real.sin x := by
-    have hI : Real.sin (-x) = -Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := (x : ℂ))))
+    have hI : Real.sin (-x) = -Real.sin x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := (x : ℂ))))
     exact hI
   -- 4. calculation
   calc Real.sin (Real.pi / 2 - x) = Real.sin (Real.pi / 2 + -x) := congrArg (fun t : ℝ => Real.sin t) s1
     _ = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by
-        have hI : Real.sin (Real.pi / 2 + -x) = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))))
+        have hI : Real.sin (Real.pi / 2 + -x) = Real.sin (Real.pi / 2) * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := (Real.pi : ℂ) / 2) (b := -(x : ℂ))))
         exact hI
     _ = 1 * Real.cos (-x) + Real.cos (Real.pi / 2) * Real.sin (-x) := by
         have hv1 : Real.cos (Real.pi / 2) = -(0) := by rw [congrArg Real.cos (show Real.pi / 2 = 0 + Real.pi / 2 by ring1), Real.cos_add_pi_div_two, Real.sin_zero]

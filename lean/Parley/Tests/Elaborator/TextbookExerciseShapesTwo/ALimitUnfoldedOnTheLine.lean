@@ -1,10 +1,10 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Mathlib.Order.Filter.Defs
 public import Mathlib.Order.Interval.Finset.Defs
 public import Mathlib.Tactic.FieldSimp
@@ -35,7 +35,7 @@ theorem a_limit_unfolded_on_the_line (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (hH4 
     (∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε))) := by
   -- 1. def:limit-at D := ℝ, from H4
   have r93_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))
-  have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by parley_instance (((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r93_1 (c := c) (L := L))).mp hH4)
+  have hI : ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε)) := by (have h := (((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) r93_1 (c := c) (L := L))).mp hH4); simp only [Set.mem_univ, true_implies] at h; exact h)
   exact hI
 
 end Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ALimitUnfoldedOnTheLine

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import SetTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Basic.Finite.Defs
@@ -42,10 +41,10 @@ theorem size_zero_one_or_more {α : Type*} (M : Set α) (hH2 : M.Finite) :
   have s2_1b : ¬ 1 < (M.ncard : ℤ) := by exact (((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0 ∨ (M.ncard : ℤ) = 1) (Q := 1 < (M.ncard : ℤ)))).mp hS).2
   -- 2.2. mun:not-either, from 2.1
   have s2_2a : (M.ncard : ℤ) ≠ 0 := by
-    have hI : (M.ncard : ℤ) ≠ 0 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp s2_1a).1)
+    have hI : (M.ncard : ℤ) ≠ 0 := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp s2_1a).1)
     exact hI
   have s2_2b : (M.ncard : ℤ) ≠ 1 := by
-    have hI : (M.ncard : ℤ) ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp s2_1a).2)
+    have hI : (M.ncard : ℤ) ≠ 1 := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := (M.ncard : ℤ) = 0) (Q := (M.ncard : ℤ) = 1))).mp s2_1a).2)
     exact hI
   -- 2.3. mun:nat0-nonzero m := |M|, from 1, 2.2
   have s2_3 : 0 < (M.ncard : ℤ) := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := (M.ncard : ℤ)) s1 s2_2a)

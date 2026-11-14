@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.Complex.Order
@@ -42,7 +41,7 @@ theorem sqrt_of_square (x : ℝ) :
   have s2b : Real.sqrt (x ^ 2) ^ 2 = x ^ 2 := by exact (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := x ^ 2) s1)
   -- 3. mun:abs-nonneg
   have s3 : abs x ≥ 0 := by
-    have hI : 0 ≤ abs x := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ))))
+    have hI : 0 ≤ abs x := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ))))
     exact hI
   -- 4. calculation
   have s4 : Real.sqrt (x ^ 2) ^ 2 = abs x ^ 2 := by

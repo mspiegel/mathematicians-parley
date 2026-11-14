@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -77,7 +76,7 @@ theorem halves_series :
       -- 2.1. calculation
       have s2_1 : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ 1 := by
         calc (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ k.toNat : ℚ)) = 1 / 2 ^ 1 := by
-              have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ b.toNat : ℚ)) = 1 / 2 ^ 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ))))
+              have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / 2 ^ b.toNat : ℚ)) = 1 / 2 ^ 1 := by exact ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ))))
               exact hI
           _ = 1 - 1 / 2 ^ 1 := by norm_num
       simpa only [Int.reduceToNat, Nat.cast_ofNat, Nat.cast_zero, Nat.cast_one, Int.cast_ofNat, Int.cast_zero, Int.cast_one] using s2_1

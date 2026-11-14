@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -76,12 +75,12 @@ theorem series_remainder :
     -- 2.1. calculation
     have s2_1 : (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) = 1 := by
       calc (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) = (-1) ^ 0 / (2 * 0 + 1) := by
-            have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) = (-1) ^ 0 / (2 * 0 + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (-1) ^ j.toNat / (2 * (j : ℚ) + 1))) (a := (0 : ℤ))))
+            have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) = (-1) ^ 0 / (2 * 0 + 1) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (-1) ^ j.toNat / (2 * (j : ℚ) + 1))) (a := (0 : ℤ)))); push_cast at h ⊢; exact h)
             exact hI
         _ = 1 := by norm_num
     -- 2.2. thm:integral-recurrence n := 0
     have s2_2 : (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) := by
-      have hI : (∫ t in 0..1, (t ^ (2 * (0 + 1)) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := (0 : ℤ)) (by norm_num)))
+      have hI : (∫ t in 0..1, (t ^ (2 * (0 + 1)) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) := by (have h := ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := (0 : ℤ)) (by norm_num))); push_cast at h ⊢; exact h)
       simpa only [mul_one, zero_add] using hI
     -- 2.3. substitute
     have s2_3 : (∫ t in 0..1, (t ^ (2 * 1) / (1 + t ^ 2) : ℝ)) = 1 / (2 * 0 + 1) - Real.pi / 4 := by
@@ -98,11 +97,11 @@ theorem series_remainder :
   | succ n hK hIH =>
     -- 2.5. mun:sum-last, from 1
     have s2_5 : (∑ j ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) = (∑ j ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ j.toNat / (2 * (j : ℚ) + 1) : ℚ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℚ) + 1) + 1) := by
-      have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℚ) + 1) + 1) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => (-1) ^ j.toNat / (2 * (j : ℚ) + 1))) (n := n) hK))
+      have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (n + 1), ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, ((-1) ^ k.toNat / (2 * (k : ℚ) + 1) : ℚ)) + (-1) ^ (n + 1).toNat / (2 * ((n : ℚ) + 1) + 1) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_last (t := (fun j : ℤ => (-1) ^ j.toNat / (2 * (j : ℚ) + 1))) (n := n) hK)); push_cast at h ⊢; exact h)
       exact hI
     -- 2.6. thm:integral-recurrence n := n + 1
     have s2_6 : (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * ((n : ℝ) + 1) + 1) - (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by
-      have hI : (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * ((n : ℝ) + 1) + 1) - (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := n + 1) (add_nonneg (hK) (by norm_num))))
+      have hI : (∫ t in 0..1, (t ^ (2 * (n + 1 + 1)).toNat / (1 + t ^ 2) : ℝ)) = 1 / (2 * ((n : ℝ) + 1) + 1) - (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) := by (have h := ((Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence.integral_recurrence (n := n + 1) (add_nonneg (hK) (by norm_num)))); push_cast at h ⊢; exact h)
       exact hI
     -- 2.7. mun:exponent-step a := −1, m := n + 1
     have s2_7 : ((-1) ^ (n + 1 + 1).toNat : ℤ) = (-1) ^ (n + 1).toNat * -1 := by exact (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (-1 : ℤ)) (m := n + 1) (add_nonneg (hK) (by norm_num)))

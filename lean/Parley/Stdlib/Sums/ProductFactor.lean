@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -49,7 +48,7 @@ theorem product_factor (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
     exact trivial
   -- 2. mun:product-of-products, from H2, 1
   have s2 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * (∏ᶠ x ∈ X, (c : ℤ)) := by
-    have hI : (∏ᶠ a ∈ X, (a * c : ℤ)) = (∏ᶠ a ∈ X, (a : ℤ)) * (∏ᶠ a ∈ X, (c : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2))
+    have hI : (∏ᶠ a ∈ X, (a * c : ℤ)) = (∏ᶠ a ∈ X, (a : ℤ)) * (∏ᶠ a ∈ X, (c : ℤ)) := by exact ((Parley.Items.Stdlib.Sums.mun_product_of_products (t := (fun x : ℤ => x)) (u := (fun x : ℤ => c)) (X := X) hH2))
     exact hI
   -- 3. substitute
   have s3 : (∏ᶠ x ∈ X, (x * c : ℤ)) = (∏ᶠ x ∈ X, (x : ℤ)) * c ^ X.ncard := by

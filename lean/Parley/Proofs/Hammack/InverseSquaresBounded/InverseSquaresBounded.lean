@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -60,7 +59,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.1. calculation
       have s2_1 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / 1 := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) = 1 / 1 ^ 2 := by
-              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) ^ 2 : ℚ)) = 1 / 1 ^ 2 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ))))
+              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / (k : ℚ) ^ 2 : ℚ)) = 1 / 1 ^ 2 := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)))); push_cast at h ⊢; exact h)
               exact hI
           _ ≤ 2 - 1 / 1 := by norm_num
       (have h := s2_1; push_cast at h ⊢; exact h)
@@ -68,7 +67,7 @@ theorem inverse_squares_bounded (n : ℤ) (hH1 : 0 < n) :
       -- 2.2. mun:sum-extended a := 1, n := k, from 1
       have r35_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (j : ℚ) ^ 2 : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by
-        have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (b : ℚ) ^ 2 : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / (b : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1))
+        have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / (b : ℚ) ^ 2 : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / (b : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := k) r35_1)); push_cast at h ⊢; exact h)
         exact hI
       -- 2.3. inequalities, from K
       have s2_3 : k + 1 > 0 := by linarith only [lt_of_lt_of_le zero_lt_one hK]

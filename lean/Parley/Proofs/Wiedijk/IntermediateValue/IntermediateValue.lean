@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Tactic.Init
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -177,7 +176,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
         have s16_29_1 : s ∈ (Set.Icc a b : Set ℝ) := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).1
         -- 16.29.2. def:set-builder, from D1, K2
         have s16_29_2 : f s < 0 := by
-          have hI : f s < 0 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).2)
+          have hI : f s < 0 := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℝ => f x < 0)) (X := (Set.Icc a b : Set ℝ)) (u := s))).mp hK2).2)
           exact hI
         -- 16.29.3. inequalities, from S2
         have s16_29_3 : c - δ < s := by linarith only [hS2]

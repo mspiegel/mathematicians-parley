@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -69,7 +68,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
     | base =>
       -- 2.1. calculation
       calc (∏ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 - 1 / 2 ^ k.toNat : ℚ)) = 1 - 1 / 2 ^ 1 := by
-            have hI : (∏ b ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 - 1 / 2 ^ b.toNat : ℚ)) = 1 - 1 / 2 ^ 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_single (t := (fun k : ℤ => (1 - 1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ))))
+            have hI : (∏ b ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 - 1 / 2 ^ b.toNat : ℚ)) = 1 - 1 / 2 ^ 1 := by exact ((Parley.Items.Stdlib.Sums.mun_product_single (t := (fun k : ℤ => (1 - 1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ))))
             exact hI
         _ ≥ 1 / 4 + 1 / 2 ^ (1 + 1) := by norm_num
     | succ m hK2 hIH =>
@@ -93,7 +92,7 @@ theorem product_of_one_minus_halves (n : ℤ) (hH1 : 0 < n) :
       have r97_1 : m ≥ 1 := by linarith only [lt_of_lt_of_le zero_lt_one hK2]
       calc (∏ k ∈ Finset.Icc (1 : ℤ) (m + 1), (1 - 1 / 2 ^ k.toNat : ℚ)) = (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by exact (Parley.Items.Stdlib.Sums.mun_product_extended (t := (fun k : ℤ => (1 - 1 / 2 ^ k.toNat : ℚ))) (a := (1 : ℤ)) (n := m) r97_1)
         _ ≥ 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 := by
-            have hI : 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 ≤ (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by parley_instance_real ((Parley.Proofs.Hammack.ProductStepBound.ProductStepBound.product_step_bound (t := (1 / 2 ^ (m + 1).toNat : ℝ)) (p := ∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) (show 0 < (1 / 2 ^ (m + 1).toNat : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_5); simp only [Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat] at h; exact h) (show (1 / 2 ^ (m + 1).toNat : ℝ) ≤ 1 / 4 by have h := (Rat.cast_le (K := ℝ)).mpr s2_6; simp only [Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h) (show (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) ≥ 1 / 4 + (1 / 2 ^ (m + 1).toNat : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr hIH; simp only [Rat.cast_prod, Rat.cast_add, Rat.cast_sub, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h)))
+            have hI : 1 / 4 + 1 / 2 ^ (m + 1).toNat / 2 ≤ (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℚ)) * (1 - 1 / 2 ^ (m + 1).toNat) := by (have h := ((Parley.Proofs.Hammack.ProductStepBound.ProductStepBound.product_step_bound (t := (1 / 2 ^ (m + 1).toNat : ℝ)) (p := ∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) (show 0 < (1 / 2 ^ (m + 1).toNat : ℝ) by have h := (Rat.cast_lt (K := ℝ)).mpr (gt_iff_lt.mp s2_5); simp only [Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_zero, Rat.cast_one, Rat.cast_ofNat] at h; exact h) (show (1 / 2 ^ (m + 1).toNat : ℝ) ≤ 1 / 4 by have h := (Rat.cast_le (K := ℝ)).mpr s2_6; simp only [Rat.cast_add, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat] at h; exact h) (show (∏ k ∈ Finset.Icc (1 : ℤ) m, (1 - 1 / 2 ^ k.toNat : ℝ)) ≥ 1 / 4 + (1 / 2 ^ (m + 1).toNat : ℝ) by have h := (Rat.cast_le (K := ℝ)).mpr hIH; simp only [Rat.cast_prod, Rat.cast_add, Rat.cast_sub, Rat.cast_div, Rat.cast_pow, Rat.cast_one, Rat.cast_ofNat, Rat.cast_intCast] at h; exact h))); rify; exact_mod_cast h)
             exact hI
         _ = 1 / 4 + 1 / (2 ^ (m + 1).toNat * 2) := s2_9
         _ = 1 / 4 + 1 / 2 ^ (m + 1 + 1).toNat := by

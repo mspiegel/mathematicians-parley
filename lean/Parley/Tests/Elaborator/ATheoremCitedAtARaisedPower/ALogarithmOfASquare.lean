@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -31,7 +30,7 @@ namespace Parley.Tests.Elaborator.ATheoremCitedAtARaisedPower.ALogarithmOfASquar
 theorem a_logarithm_of_a_square (s : ℝ) (hH2 : s > 0) :
     Real.log (s ^ 2) = 2 * Real.log s := by
   -- 1. mun:ln-power x := s, n := 2, from H2
-  have hI : Real.log (s ^ 2) = 2 * Real.log s := by parley_instance ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := s) (n := (2 : ℤ)) hH2))
+  have hI : Real.log (s ^ 2) = 2 * Real.log s := by (have h := ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := s) (n := (2 : ℤ)) hH2)); push_cast at h ⊢; exact h)
   exact hI
 
 end Parley.Tests.Elaborator.ATheoremCitedAtARaisedPower.ALogarithmOfASquare

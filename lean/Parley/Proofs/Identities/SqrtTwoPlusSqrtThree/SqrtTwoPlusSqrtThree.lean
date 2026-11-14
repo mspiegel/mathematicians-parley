@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Real.Sqrt
@@ -47,11 +46,11 @@ theorem sqrt_two_plus_sqrt_three :
   -- 2. thm:irrational-product A := √6, B := 2, from 1
   have r16_1 : (2 : ℤ) ≠ 0 := by norm_num
   have s2 : Irrational (Real.sqrt (6 : ℝ) * 2) := by
-    have hI : Irrational (Real.sqrt (6 : ℝ) * 2) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (6 : ℝ)) (B := (2 : ℚ)) (by norm_num) s1))
+    have hI : Irrational (Real.sqrt (6 : ℝ) * 2) := by (have h := ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (6 : ℝ)) (B := (2 : ℚ)) (by norm_num) s1)); push_cast at h ⊢; exact h)
     exact hI
   -- 3. thm:irrational-sum A := √6·2, B := 5, from 2
   have s3 : Irrational (Real.sqrt (6 : ℝ) * 2 + 5) := by
-    have hI : Irrational (Real.sqrt (6 : ℝ) * 2 + 5) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2))
+    have hI : Irrational (Real.sqrt (6 : ℝ) * 2 + 5) := by (have h := ((Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (6 : ℝ) * 2) (B := (5 : ℚ)) s2)); push_cast at h ⊢; exact h)
     exact hI
   -- 4. contradiction
   have s4 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ)) := by

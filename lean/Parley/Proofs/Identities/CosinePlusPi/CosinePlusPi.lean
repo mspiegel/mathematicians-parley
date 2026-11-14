@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
@@ -32,7 +31,7 @@ theorem cosine_plus_pi (x : ℝ) :
     Real.cos (x + Real.pi) = -Real.cos x := by
   -- 1. calculation
   calc Real.cos (x + Real.pi) = Real.cos x * Real.cos Real.pi - Real.sin x * Real.sin Real.pi := by
-        have hI : Real.cos (x + Real.pi) = Real.cos x * Real.cos Real.pi - Real.sin x * Real.sin Real.pi := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ)) (b := (Real.pi : ℂ))))
+        have hI : Real.cos (x + Real.pi) = Real.cos x * Real.cos Real.pi - Real.sin x * Real.sin Real.pi := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ)) (b := (Real.pi : ℂ))))
         exact hI
     _ = Real.cos x * -1 - Real.sin x * Real.sin Real.pi := by
         have hv1 : Real.sin Real.pi = -(0) := by rw [congrArg Real.sin (show Real.pi = 0 + Real.pi by ring1), Real.sin_add_pi, Real.sin_zero]

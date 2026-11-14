@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
@@ -33,7 +32,7 @@ theorem exp_times_exp_negative (x : ℝ) :
   have s1 : x + -x = 0 := by ring1
   -- 2. calculation
   calc Real.exp x * Real.exp (-x) = Real.exp (x + -x) := by
-        have hI : Real.exp (x + -x) = Real.exp x * Real.exp (-x) := by parley_instance_cast ((Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (x : ℂ)) (b := -(x : ℂ))))
+        have hI : Real.exp (x + -x) = Real.exp x * Real.exp (-x) := by exact_mod_cast ((Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (x : ℂ)) (b := -(x : ℂ))))
         exact hI.symm
     _ = Real.exp (0 : ℝ) := by (have h := congrArg (fun t : ℝ => Real.exp t) s1; push_cast at h ⊢; exact_mod_cast h)
     _ = 1 := by

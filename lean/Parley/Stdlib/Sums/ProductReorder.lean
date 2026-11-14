@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
@@ -97,7 +96,7 @@ theorem product_reorder (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : 
     exact trivial
   -- 20. mun:product-reindex Y := X, Z := X, g := f, from H2, 18, 19
   have s20 : (∏ᶠ z ∈ X, (z : ℤ)) = (∏ᶠ y ∈ X, (f y : ℤ)) := by
-    have hI : (∏ᶠ a ∈ X, (a : ℤ)) = (∏ᶠ y ∈ X, (f y : ℤ)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun z : ℤ => z)) (Y := X) (Z := X) (g := f) hH2 s18))
+    have hI : (∏ᶠ a ∈ X, (a : ℤ)) = (∏ᶠ y ∈ X, (f y : ℤ)) := by exact ((Parley.Items.Stdlib.Sums.mun_product_reindex (t := (fun z : ℤ => z)) (Y := X) (Z := X) (g := f) hH2 s18))
     exact hI
   -- 21. restate 20
   exact s20.symm

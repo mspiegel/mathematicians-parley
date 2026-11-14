@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -46,7 +45,7 @@ theorem bezout (a : ℤ) (b : ℤ) (hH2 : 0 < b) :
   have s3 : S ⊆ {n : ℤ | 0 < n} := by
     simp only [hD1] at ⊢
     push_cast at ⊢
-    have hI : {c : ℤ | 0 < c ∧ (∃ d : ℤ, ∃ e : ℤ, c = a * d + b * e)} ⊆ {n : ℤ | 0 < n} := by parley_instance ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n})))
+    have hI : {c : ℤ | 0 < c ∧ (∃ d : ℤ, ∃ e : ℤ, c = a * d + b * e)} ⊆ {n : ℤ | 0 < n} := by exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun t : ℤ => ∃ m : ℤ, ∃ n : ℤ, t = a * m + b * n)) (X := {n : ℤ | 0 < n})))
     exact hI
   -- 4. obtain d: axi:well-ordering, from 2, 3
   obtain ⟨d, s4a, s4b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := S) s3 ⟨b, s2, trivial⟩)

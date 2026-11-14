@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -38,7 +37,7 @@ theorem factorial_by_predecessor (N : ℤ) (hH1 : 0 < N) :
   have s1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) hH1)
   -- 2. def:nat0 n := N − 1, from 1
   have s2 : 0 < N - 1 ∨ N - 1 = 0 := by
-    have hI : 0 < N - 1 ∨ N - 1 = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp ⟨N - 1, s1, rfl⟩)
+    have hI : 0 < N - 1 ∨ N - 1 = 0 := by (have h := (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp ⟨N - 1, s1, rfl⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
     exact hI
   -- 3. cases, from 2
   rcases s2 with hC1 | hC2

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
@@ -43,7 +42,7 @@ theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Fil
     Filter.Tendsto (fun n : ℤ => (C * x n : ℝ)) Filter.atTop (nhds (C * L)) := by
   -- 1. mun:abs-nonneg x := C
   have s1 : abs C ≥ 0 := by
-    have hI : 0 ≤ abs C := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ))))
+    have hI : 0 ≤ abs C := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (C : ℂ))))
     exact hI
   -- 2. inequalities, from 1
   have s2 : abs C + 1 > 0 := by linarith only [s1]

@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -57,7 +56,7 @@ theorem geometric_sum_base_two (n : ℤ) (hH1 : 0 < n) :
       have s1_1 : S 0 = 2 ^ 1 - 1 := by
         calc S 0 = (∑ j ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 ^ j.toNat : ℤ)) := by simp (disch := omega) only [hD1]
           _ = 2 ^ 0 := by
-              have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 ^ k.toNat : ℤ)) = 2 ^ 0 := by parley_instance_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (2 ^ j.toNat : ℚ))) (a := (0 : ℤ))))
+              have hI : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (2 ^ k.toNat : ℤ)) = 2 ^ 0 := by exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (2 ^ j.toNat : ℚ))) (a := (0 : ℤ))))
               exact hI
           _ = 2 ^ 1 - 1 := by norm_num
       simpa only [zero_add, Int.reduceAdd, Int.reduceToNat, Nat.reduceAdd] using s1_1
@@ -67,7 +66,7 @@ theorem geometric_sum_base_two (n : ℤ) (hH1 : 0 < n) :
       have s1_2 : S (k + 1) = S k + 2 ^ (k + 1).toNat := by
         calc S (k + 1) = (∑ j ∈ Finset.Icc (0 : ℤ) (k + 1), (2 ^ j.toNat : ℤ)) := by simp (disch := omega) only [hD1]
           _ = (∑ j ∈ Finset.Icc (0 : ℤ) k, (2 ^ j.toNat : ℤ)) + 2 ^ (k + 1).toNat := by
-              have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (k + 1), (2 ^ b.toNat : ℤ)) = (∑ b ∈ Finset.Icc (0 : ℤ) k, (2 ^ b.toNat : ℤ)) + 2 ^ (k + 1).toNat := by parley_instance_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (2 ^ j.toNat : ℚ))) (a := (0 : ℤ)) (n := k) r28_1))
+              have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (k + 1), (2 ^ b.toNat : ℤ)) = (∑ b ∈ Finset.Icc (0 : ℤ) k, (2 ^ b.toNat : ℤ)) + 2 ^ (k + 1).toNat := by exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (2 ^ j.toNat : ℚ))) (a := (0 : ℤ)) (n := k) r28_1))
               exact hI
           _ = S k + 2 ^ (k + 1).toNat := by simp (disch := omega) only [hD1]
       -- 1.3. mun:exponent-step a := 2, m := k + 1

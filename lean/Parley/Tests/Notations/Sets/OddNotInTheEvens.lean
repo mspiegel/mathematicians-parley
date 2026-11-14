@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Even
 public import Mathlib.Data.Int.ModEq
@@ -36,7 +35,7 @@ theorem odd_not_in_the_evens :
   intro hS
   -- 2.1. def:set-builder u := 3, from D1, S
   have s2_1 : Even (3 : ℤ) := by
-    have hI : Even (3 : ℤ) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => Even x)) (X := {n : ℤ | 0 < n}) (u := (3 : ℤ)))).mp hS).2)
+    have hI : Even (3 : ℤ) := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun x : ℤ => Even x)) (X := {n : ℤ | 0 < n}) (u := (3 : ℤ)))).mp hS).2)
     exact hI
   exact s1 s2_1
 

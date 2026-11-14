@@ -3,7 +3,6 @@ module
 public import Counting
 public import FactorialTactics
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -53,7 +52,7 @@ theorem weighted_binomial_column_sum (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 
     | base =>
       -- 1.1. mun:sum-single a := 0
       have s1_1 : (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (k * (LeanBridges.Counting.choose (m + k) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose m m : ℤ) := by
-        have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (b * (LeanBridges.Counting.choose (m + b) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 0) m : ℤ) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))))
+        have hI : (∑ b ∈ Finset.Icc (0 : ℤ) (0 : ℤ), (b * (LeanBridges.Counting.choose (m + b) m : ℤ) : ℤ)) = 0 * (LeanBridges.Counting.choose (m + 0) m : ℤ) := by exact ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => k * (LeanBridges.Counting.choose (m + k) m : ℤ))) (a := (0 : ℤ))))
         simpa only [Int.cast_zero, add_zero] using hI
       -- 1.2. inequalities
       have s1_2 : m + 1 < m + 2 := by linarith

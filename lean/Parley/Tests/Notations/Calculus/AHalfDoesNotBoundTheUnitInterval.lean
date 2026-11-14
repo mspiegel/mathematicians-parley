@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
@@ -38,7 +37,7 @@ theorem a_half_does_not_bound_the_unit_interval :
   have s2_1 : ∀ s ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), s ≤ 1 / 2 := hS
   -- 2.2. instantiate s := 1 in line 2.1, from 1
   have s2_2 : (1 : ℚ) ≤ 1 / 2 := by
-    have hI : (1 : ℚ) ≤ 1 / 2 := by parley_instance_real ((s2_1 (1 : ℝ) s1))
+    have hI : (1 : ℚ) ≤ 1 / 2 := by (have h := ((s2_1 (1 : ℝ) s1)); rify; exact_mod_cast h)
     exact hI
   exact absurd s2_2 (by norm_num)
 

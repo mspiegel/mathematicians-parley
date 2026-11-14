@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import PowerTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Int.Defs
@@ -73,10 +72,10 @@ theorem prime_exponent (n : ℤ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n.toNat - 1
     by_contra hS2
     -- 4.1. mun:not-either P := d = 1, Q := d = n, from S2
     have s4_1a : d ≠ 1 := by
-      have hI : d ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).1)
+      have hI : d ≠ 1 := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).1)
       exact hI
     have s4_1b : d ≠ n := by
-      have hI : d ≠ n := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).2)
+      have hI : d ≠ n := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = n))).mp hS2).2)
       exact hI
     -- 4.2. obtain e: def:divides, from K2
     obtain ⟨e, s4_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := d) (n := n))).mp hK2

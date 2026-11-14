@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -51,7 +50,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
     Filter.Tendsto (fun n : ℤ => (A / (n : ℝ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. mun:abs-nonneg x := A
   have s1 : abs A ≥ 0 := by
-    have hI : 0 ≤ abs A := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ))))
+    have hI : 0 ≤ abs A := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (A : ℂ))))
     exact hI
   -- 2. inequalities, from 1
   have s2 : abs A + 1 > 0 := by linarith only [s1]

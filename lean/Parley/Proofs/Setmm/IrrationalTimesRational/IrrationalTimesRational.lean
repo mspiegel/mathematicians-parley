@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -35,7 +34,7 @@ theorem irrational_times_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : S
     A * B ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x} := by
   -- 1. def:difference u := A, from H3
   have s1 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by
-    have hI : ¬ (∃ m : ℚ, (m : ℝ) = A) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp hH3).2)
+    have hI : ¬ (∃ m : ℚ, (m : ℝ) = A) := by exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp hH3).2)
     exact hI
   -- 2. membership, from 1
   -- 3. contradiction

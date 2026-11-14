@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.GroupWithZero.Basic
@@ -52,7 +51,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
   -- 1. mun:abs-real x := L
   -- 2. mun:abs-nonneg x := L
   have s2 : abs L ≥ 0 := by
-    have hI : 0 ≤ abs L := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))))
+    have hI : 0 ≤ abs L := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))))
     exact hI
   set s : ℝ := abs L + 1 with hD1
   -- 3. inequalities, from D1, 2
@@ -60,7 +59,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
   -- 4. mun:abs-real x := M
   -- 5. mun:abs-nonneg x := M
   have s5 : abs M ≥ 0 := by
-    have hI : 0 ≤ abs M := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))))
+    have hI : 0 ≤ abs M := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))))
     exact hI
   set t : ℝ := abs M + 1 with hD2
   -- 6. inequalities, from D2, 5

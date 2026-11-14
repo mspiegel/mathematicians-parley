@@ -1,6 +1,5 @@
 module
 
-public import ComplexTactics
 public import Mathlib.Analysis.Complex.Exponential
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -30,7 +29,7 @@ namespace Parley.Proofs.Identities.ExpOfLnPlusOne.ExpOfLnPlusOne
 theorem exp_of_ln_plus_one (x : ℝ) (hH2 : x > 0) :
     Real.exp (Real.log x + 1) = Real.exp 1 * x := by
   -- 1. mun:exp-sum a := ln(x), b := 1
-  have s1 : Real.exp (Real.log x + 1) = Real.exp (Real.log x) * Real.exp (1 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); parley_of_complex h)
+  have s1 : Real.exp (Real.log x + 1) = Real.exp (Real.log x) * Real.exp (1 : ℝ) := by (have h := (Parley.Items.Stdlib.Logarithms.mun_exp_sum (a := (Real.log x : ℂ)) (b := (1 : ℂ))); simp only [← Complex.ofReal_exp, ← Complex.ofReal_mul, ← Complex.ofReal_add, ← Complex.ofReal_one] at h; exact_mod_cast h)
   -- 2. substitute
   have s2 : Real.exp (Real.log x + 1) = x * Real.exp (1 : ℝ) := by
     have c1 : Real.exp (Real.log x) = x := by exact (Parley.Items.Stdlib.Logarithms.mun_exp_ln (x := x) hH2)

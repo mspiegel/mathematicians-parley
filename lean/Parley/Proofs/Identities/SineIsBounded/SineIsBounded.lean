@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Complex.Order
@@ -40,7 +39,7 @@ theorem sine_is_bounded (x : ℝ) :
     (-1 ≤ Real.sin x ∧ Real.sin x ≤ 1) := by
   -- 1. mun:sin-cos-squares a := x
   have s1 : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by
-    have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
+    have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
     exact hI
   -- 2. mun:square-nonneg x := cos(x)
   have s2 : Real.cos x ^ 2 ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := Real.cos x))

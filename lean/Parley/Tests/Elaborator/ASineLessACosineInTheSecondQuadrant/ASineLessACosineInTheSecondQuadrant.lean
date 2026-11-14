@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -75,7 +74,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   have s10 : 0 ≤ Real.sin (x - Real.pi / 2) := by exact (Parley.Items.Stdlib.Trigonometry.mun_sin_nonneg (a := x - Real.pi / 2) s9)
   -- 11. thm:cos-add a := x − π/2, b := π/2
   have s11 : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by
-    have hI : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)))
+    have hI : Real.cos (x - Real.pi / 2 + Real.pi / 2) = Real.cos (x - Real.pi / 2) * Real.cos (Real.pi / 2) - Real.sin (x - Real.pi / 2) * Real.sin (Real.pi / 2) := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ) - (Real.pi : ℂ) / 2) (b := (Real.pi : ℂ) / 2)))
     exact hI
   -- 12. algebra
   have s12 : x - Real.pi / 2 + Real.pi / 2 = x := by ring1
@@ -104,7 +103,7 @@ theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2
   have s21 : Real.sin x * Real.sin (x - Real.pi / 2) ≥ 0 := by exact (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := Real.sin x) (y := Real.sin (x - Real.pi / 2)) s5 s10)
   -- 22. mun:sin-cos-squares a := x
   have s22 : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by
-    have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
+    have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
     exact hI
   -- 23. algebra, from 17, 22
   have s23 : 1 + 2 * Real.sin x * Real.sin (x - Real.pi / 2) = (Real.sin x - Real.cos x) ^ 2 := by linear_combination (2 * Real.sin x) * s17 + (-1) * s22

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import PowerTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Int.Defs
@@ -63,7 +62,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s4 : 0 ≤ m := by linarith only [s3]
   -- 5. mun:nat0-as-int n := m, from 4
   have s5 : 0 ≤ m := by
-    have hI : 0 ≤ m := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨⟨_, rfl⟩, s4⟩)
+    have hI : 0 ≤ m := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := m))).mpr ⟨⟨_, rfl⟩, s4⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
     exact hI
   -- 6. mun:power-nat a := 3, from 5
   have s6 : ∃ m₀ : ℤ, 0 < m₀ ∧ (m₀ : ℚ) = 3 ^ m := by
@@ -102,7 +101,7 @@ theorem sqrt_of_odd_power_of_three (k : ℤ) (hH1 : 0 < k) (hH2 : Odd k) :
   have s15 : Irrational (Real.sqrt (3 : ℝ)) := by exact Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational.sqrt3_irrational
   -- 16. thm:irrational-product A := √3, B := 3^m, from 6, 15
   have s16 : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by
-    have hI : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (3 : ℝ)) (B := (3 ^ m : ℚ)) (show (3 ^ m : ℚ) ≠ 0 by obtain ⟨w, hw, ew⟩ := s6; rw [← ew]; exact_mod_cast hw.ne') s15))
+    have hI : Irrational (Real.sqrt (3 : ℝ) * 3 ^ m) := by (have h := ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (3 : ℝ)) (B := (3 ^ m : ℚ)) (show (3 ^ m : ℚ) ≠ 0 by obtain ⟨w, hw, ew⟩ := s6; rw [← ew]; exact_mod_cast hw.ne') s15)); push_cast at h ⊢; exact h)
     exact hI
   -- 17. substitute
   have c1 : Real.sqrt (3 : ℝ) * 3 ^ m = Real.sqrt (3 ^ k.toNat : ℝ) := by exact (((Parley.Items.Stdlib.Numbers.mun_square_equal (x := Real.sqrt (3 ^ k.toNat : ℝ)) (y := Real.sqrt (3 : ℝ) * 3 ^ m) s12a s13)).mp s14).symm

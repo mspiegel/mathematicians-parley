@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -52,7 +51,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 3. thm:irrational-product A := √2, B := (s − r)/2, from 2
   have r26_1 : (s - r) / 2 ≠ 0 := ne_of_gt (by linarith only [s1])
   have s3 : Irrational (Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2)) := by
-    have hI : Irrational (Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2)) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (2 : ℝ)) (B := (s - r) / 2) r26_1 s2))
+    have hI : Irrational (Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2)) := by (have h := ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (2 : ℝ)) (B := (s - r) / 2) r26_1 s2)); push_cast at h ⊢; exact h)
     exact hI
   -- 4. thm:irrational-sum A := √2·((s − r)/2), B := r, from 3
   have s4 : Irrational (Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2) + (r : ℝ)) := by exact (Parley.Proofs.Setmm.RationalClosure.IrrationalSum.irrational_sum (A := Real.sqrt (2 : ℝ) * (((s : ℝ) - (r : ℝ)) / 2)) (B := r) s3)

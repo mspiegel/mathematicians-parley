@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Field.Defs
 public import Mathlib.Algebra.Module.Defs
 public import Mathlib.Algebra.Ring.Defs
@@ -47,11 +46,11 @@ theorem derivative_on_the_line (f : ℝ → ℝ) (hH2 : ∀ x ∈ (Set.univ : Se
   have s3 : ∀ x ∈ (Set.univ : Set ℝ), (Set.univ : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ g x := by exact (Parley.Items.Stdlib.Calculus.thm_derivative_linear_1 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 s2 (m := (3 : ℝ)) (by simpa only [Set.mem_univ, forall_const] using hH4))
   -- 4. thm:derivative-linear D := ℝ, U := ℝ, m := 3, from H4, 1, 2
   have s4 : ∀ x : ℝ, (deriv g) x = 3 := by
-    have hI : ∀ x : ℝ, (deriv g) x = 3 := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 s2 (m := (3 : ℝ)) (by simpa only [Set.mem_univ, forall_const] using hH4)))
+    have hI : ∀ x : ℝ, (deriv g) x = 3 := by (have h := ((Parley.Items.Stdlib.Calculus.thm_derivative_linear_2 (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 s2 (m := (3 : ℝ)) (by simpa only [Set.mem_univ, forall_const] using hH4))); simp only [Set.mem_univ, true_implies] at h; exact h)
     exact hI
   -- 5. thm:derivative-sum D := ℝ, U := ℝ, from H2, H6, 1, 3
   have s5 : ∀ x : ℝ, (deriv F) x = (deriv f) x + (deriv g) x := by
-    have hI : ∀ x : ℝ, (deriv F) x = (deriv f) x + (deriv g) x := by parley_instance ((Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 (by simpa only [Set.mem_univ, forall_const] using hH6) hH2 s3))
+    have hI : ∀ x : ℝ, (deriv F) x = (deriv f) x + (deriv g) x := by (have h := ((Parley.Items.Stdlib.Calculus.thm_derivative_sum_2 (F := F) (f := f) (g := g) (D := (Set.univ : Set ℝ)) (U := (Set.univ : Set ℝ)) s1 s1 (by simpa only [Set.mem_univ, forall_const] using hH6) hH2 s3)); simp only [Set.mem_univ, true_implies] at h; exact h)
     exact hI
   -- 6. proof
   intro x

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.BigOperators.Ring.Finset
@@ -88,7 +87,7 @@ theorem cauchy_schwarz (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (b : ℤ → �
     have s5_4 : (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = 0 := by
       calc (∑ k ∈ Finset.Icc (1 : ℤ) n, (a k * b k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) := by exact (Parley.Items.Stdlib.Sums.mun_sum_termwise (t := (fun k : ℤ => a k * b k)) (u := (fun k : ℤ => (0 : ℝ))) (a := (1 : ℤ)) (b := n) s5_3)
         _ = ((n : ℝ) - 1 + 1) * 0 := by
-            have hI : (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) = ((n : ℝ) - 1 + 1) * 0 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ))))
+            have hI : (∑ k ∈ Finset.Icc (1 : ℤ) n, (0 : ℝ)) = ((n : ℝ) - 1 + 1) * 0 := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_constant (a := (1 : ℤ)) (b := n) r72_1 (c := (0 : ℝ)))); push_cast at h ⊢; exact h)
             exact hI
         _ = 0 := by ring1
     -- 5.5. algebra, from 5.4

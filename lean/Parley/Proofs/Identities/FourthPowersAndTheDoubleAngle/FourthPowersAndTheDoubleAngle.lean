@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Analysis.Complex.Trigonometric
@@ -35,7 +34,7 @@ theorem fourth_powers_and_the_double_angle (x : ℝ) :
     Real.cos x ^ 4 - Real.sin x ^ 4 = Real.cos (2 * x) := by
   -- 1. mun:sin-cos-squares a := x
   have s1 : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by
-    have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
+    have hI : Real.sin x ^ 2 + Real.cos x ^ 2 = 1 := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_cos_squares (a := (x : ℂ))))
     exact hI
   -- 2. algebra
   have s2 : 2 * x = x + x := by ring1
@@ -44,7 +43,7 @@ theorem fourth_powers_and_the_double_angle (x : ℝ) :
     _ = (Real.cos x ^ 2 - Real.sin x ^ 2) * 1 := congrArg (fun t : ℝ => (Real.cos x ^ 2 - Real.sin x ^ 2) * t) s1
     _ = Real.cos x * Real.cos x - Real.sin x * Real.sin x := by ring_nf
     _ = Real.cos (x + x) := by
-        have hI : Real.cos (x + x) = Real.cos x * Real.cos x - Real.sin x * Real.sin x := by parley_instance_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ)) (b := (x : ℂ))))
+        have hI : Real.cos (x + x) = Real.cos x * Real.cos x - Real.sin x * Real.sin x := by exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (x : ℂ)) (b := (x : ℂ))))
         exact hI.symm
     _ = Real.cos (2 * x) := congrArg (fun t : ℝ => Real.cos t) s2.symm
 

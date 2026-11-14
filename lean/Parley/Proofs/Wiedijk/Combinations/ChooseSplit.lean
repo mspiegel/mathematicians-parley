@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import SetTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
@@ -54,7 +53,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     -- 1.1. def:part-builder u := R, from D1, K1
     have s1_1a : R ⊆ X := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).1
     have s1_1b : (R.ncard : ℤ) = j := by
-      have hI : (R.ncard : ℤ) = j := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).2)
+      have hI : (R.ncard : ℤ) = j := by exact ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X) (u := R))).mp hK1).2)
       exact hI
     -- 1.2. axi:excluded-middle P := a ∈ R
     have s1_2 : a ∈ R ∨ ¬ a ∈ R := by exact (Parley.Items.Stdlib.Reasoning.axi_excluded_middle (P := a ∈ R))
@@ -71,7 +70,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
       have s1_3_4 : 0 ≤ j - 1 := by linarith only [s1_3_3]
       -- 1.3.5. mun:nat0-as-int n := j − 1, from 1.3.4
       have s1_3_5 : 0 ≤ j - 1 := by
-        have hI : 0 ≤ j - 1 := by parley_instance (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - 1))).mpr ⟨⟨_, rfl⟩, s1_3_4⟩)
+        have hI : 0 ≤ j - 1 := by (have h := (((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := j - 1))).mpr ⟨⟨_, rfl⟩, s1_3_4⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
         exact hI
       -- 1.3.6. algebra, from 1.1
       have s1_3_6 : (R.ncard : ℤ) = j - 1 + 1 := by linear_combination s1_1b
@@ -110,7 +109,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     -- 4.1. def:part-builder u := R, X := X ∖ {a}, from D2, K2
     have s4_1a : R ⊆ X \ ({a} : Set α) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp hK2).1
     have s4_1b : (R.ncard : ℤ) = j := by
-      have hI : (R.ncard : ℤ) = j := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp hK2).2)
+      have hI : (R.ncard : ℤ) = j := by exact ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j)) (X := X \ ({a} : Set α)) (u := R))).mp hK2).2)
       exact hI
     -- 4.2. mun:subset-transitive, from 3, 4.1
     have s4_2 : R ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := R) (Y := X \ ({a} : Set α)) (Z := X) s4_1a s3)
@@ -124,7 +123,7 @@ theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ
     -- 6.1. def:part-builder u := T, X := X ∖ {a}, from D3, K3
     have s6_1a : T ⊆ X \ ({a} : Set α) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp hK3).1
     have s6_1b : (T.ncard : ℤ) = j - 1 := by
-      have hI : (T.ncard : ℤ) = j - 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp hK3).2)
+      have hI : (T.ncard : ℤ) = j - 1 := by exact ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun S : Set α => (S.ncard : ℤ) = j - 1)) (X := X \ ({a} : Set α)) (u := T))).mp hK3).2)
       exact hI
     -- 6.2. mun:subset-transitive, from 3, 6.1
     have s6_2 : T ⊆ X := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := T) (Y := X \ ({a} : Set α)) (Z := X) s6_1a s3)

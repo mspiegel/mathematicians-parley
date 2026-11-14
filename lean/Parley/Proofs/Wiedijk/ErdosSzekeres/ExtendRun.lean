@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -45,11 +44,11 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
     intro t hK1
     -- 4.1. mun:in-subset, from H5, K1
     have s4_1 : t ∈ Finset.Icc (1 : ℤ) i := by
-      have hI : t ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) hH5 hK1))
+      have hI : t ∈ Finset.Icc (1 : ℤ) i := by (have h := ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := t) hH5 hK1)); simp only [Finset.mem_Icc]; exact h)
       exact hI
     -- 4.2. mun:in-subset, from K1, 3
     have s4_2 : t ∈ Finset.Icc (1 : ℤ) N := by
-      have hI : t ∈ Finset.Icc (1 : ℤ) N := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) s3 hK1))
+      have hI : t ∈ Finset.Icc (1 : ℤ) N := by (have h := ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) N : Set ℤ)) (u := t) s3 hK1)); simp only [Finset.mem_Icc]; exact h)
       exact hI
     -- 4.3. mun:range-bounds a := 1, b := i, k := t, from 4.1
     have s4_3 : t ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := i) (k := t) s4_1)
@@ -78,7 +77,7 @@ theorem extend_run (N : ℤ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i 
   · skip
     -- 5.3.1. mun:in-subset, from C3, H5
     have s5_3_1 : q ∈ Finset.Icc (1 : ℤ) i := by
-      have hI : q ∈ Finset.Icc (1 : ℤ) i := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) hH5 hC3))
+      have hI : q ∈ Finset.Icc (1 : ℤ) i := by (have h := ((Parley.Items.Stdlib.Sets.mun_in_subset (X := T) (Y := (Set.Icc (1 : ℤ) i : Set ℤ)) (u := q) hH5 hC3)); simp only [Finset.mem_Icc]; exact h)
       exact hI
     -- 5.3.2. mun:range-bounds a := 1, b := i, k := q, from 5.3.1
     have s5_3_2 : q ≤ i := by exact (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (1 : ℤ)) (b := i) (k := q) s5_3_1)

@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Basic.Real.Basic
@@ -42,13 +41,13 @@ theorem mobius_inverse (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set �
   intro y hK1
   -- 4.1. mun:remove-member u := y, Y := ℝ, a := 5, from K1
   have s4_1 : y ≠ 5 := by
-    have hI : y ≠ 5 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (5 : ℝ)) (u := y))).mp hK1).2)
+    have hI : y ≠ 5 := by exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (5 : ℝ)) (u := y))).mp hK1).2)
     exact hI
   -- 4.2. obtain x from line 3
   obtain ⟨x, s4_2a, s4_2b⟩ := (s3 y hK1)
   -- 4.3. mun:remove-member u := x, Y := ℝ, a := 2, from 4.2
   have s4_3 : x ≠ 2 := by
-    have hI : x ≠ 2 := by parley_instance ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := x))).mp s4_2a).2)
+    have hI : x ≠ 2 := by exact ((((Parley.Items.Stdlib.Sets.mun_remove_member (Y := (Set.univ : Set ℝ)) (a := (2 : ℝ)) (u := x))).mp s4_2a).2)
     exact hI
   -- 4.4. calculation
   have s4_4 : y = (5 * x + 1) / (x - 2) := by

@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
 public import Mathlib.Data.Int.Notation
@@ -36,7 +35,7 @@ theorem a_hypothesis_from_the_line_cited (k : ℤ) (hH1 : 0 < k) :
   have s2 : 0 < (LeanBridges.Counting.factorial k : ℤ) := by exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k) (le_of_lt hH1))
   -- 3. thm:product-nonzero x := k!, y := k, from H1, 2
   have s3 : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by
-    have hI : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by parley_instance_cast ((Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by exact_mod_cast s2.ne') (by exact_mod_cast hH1.ne')))
+    have hI : (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := by exact_mod_cast ((Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (LeanBridges.Counting.factorial k : ℝ)) (y := (k : ℝ)) (by exact_mod_cast s2.ne') (by exact_mod_cast hH1.ne')))
     exact hI
   -- 4. join 1, 3
   have s4 : (LeanBridges.Counting.factorial k : ℤ) ≠ 0 ∧ (LeanBridges.Counting.factorial k : ℤ) * k ≠ 0 := ⟨s1, s3⟩

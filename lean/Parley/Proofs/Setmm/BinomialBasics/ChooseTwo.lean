@@ -2,7 +2,6 @@ module
 
 public import Counting
 public import FactorialTactics
-public import InstanceTactics
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Data.Int.ModEq
@@ -42,7 +41,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
     (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = (N : ℚ) * ((N : ℚ) - 1) / 2 := by
   -- 1. def:nat0 n := N
   have s1 : 0 < N ∨ N = 0 := by
-    have hI : 0 < N ∨ N = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩)
+    have hI : 0 < N ∨ N = 0 := by (have h := (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N))).mp ⟨N, hH1, rfl⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
     exact hI
   -- 2. cases, from 1
   rcases s1 with hC1 | hC2
@@ -51,7 +50,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_1 : 0 ≤ N - 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := N) hC1)
     -- 2.2. def:nat0 n := N − 1, from 2.1
     have s2_2 : 0 < N - 1 ∨ N - 1 = 0 := by
-      have hI : 0 < N - 1 ∨ N - 1 = 0 := by parley_instance (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp ⟨N - 1, s2_1, rfl⟩)
+      have hI : 0 < N - 1 ∨ N - 1 = 0 := by (have h := (((Parley.Items.Stdlib.Numbers.def_nat0 (n := N - 1))).mp ⟨N - 1, s2_1, rfl⟩); simp only [Int.cast_id, exists_eq_right] at h; exact h)
       exact hI
     -- 2.3. cases, from 2.2
     rcases s2_2 with hC3 | hC4
@@ -113,7 +112,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
         exact row1
       -- 2.3.16. calculation
       calc (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by
-            have hI : (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by parley_instance_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) hH1 (k := (2 : ℤ))) s2_3_15)
+            have hI : (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) hH1 (k := (2 : ℤ))) s2_3_15)
             exact hI
         _ = (N : ℚ) * ((N : ℚ) - 1) / 2 := by
             have hC4_w : (N : ℚ) - 1 = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC4; push_cast at h; linear_combination h
@@ -125,7 +124,7 @@ theorem choose_two (N : ℤ) (hH1 : 0 ≤ N) :
     have s2_5 : N < 2 := Eq.subst (motive := (fun t : ℤ => t < 2)) hC2.symm s2_4
     -- 2.6. calculation
     calc (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by
-          have hI : (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by parley_instance_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) hH1 (k := (2 : ℤ))) s2_5)
+          have hI : (LeanBridges.Counting.choose N (2 : ℤ) : ℚ) = 0 := by exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := N) hH1 (k := (2 : ℤ))) s2_5)
           exact hI
       _ = (N : ℚ) * ((N : ℚ) - 1) / 2 := by
           have hC2_w : (N : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC2; push_cast at h; linear_combination h

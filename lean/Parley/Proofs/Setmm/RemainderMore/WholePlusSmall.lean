@@ -1,6 +1,6 @@
 module
 
-public import InstanceTactics
+public import Divisibility
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Int.ModEq
@@ -35,10 +35,10 @@ theorem whole_plus_small (A : ℤ) (hH1 : 0 ≤ A) (M : ℤ) (hH2 : 0 < M) (hH3 
   -- 2. calculation
   calc (M + A) % M = (A + M) % M := congrArg (fun t : ℤ => t % M) s1
     _ = A % M := by
-        have hI : (A + M * 1) % M = A % M := by parley_instance_cast ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := (A : ℝ)) (M := (M : ℝ)) (by exact_mod_cast hH2) (K := (1 : ℤ))))
+        have hI : (A + M * 1) % M = A % M := by (have h := ((Parley.Proofs.Setmm.RemainderFacts.RemainderShifts.remainder_shifts (X := (A : ℝ)) (M := (M : ℝ)) (by exact_mod_cast hH2) (K := (1 : ℤ)))); norm_cast at h; simp (disch := omega) only [LeanBridges.Divisibility.mod_intCast] at h; exact_mod_cast h)
         simpa only [mul_one] using hI
     _ = A := by
-        have hI : A % M = A := by parley_instance_cast ((Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := (A : ℝ)) (B := (M : ℝ)) (by exact_mod_cast hH2) (by exact_mod_cast ge_iff_le.mp hH1) (by exact_mod_cast hH3)))
+        have hI : A % M = A := by (have h := ((Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall.remainder_of_small (A := (A : ℝ)) (B := (M : ℝ)) (by exact_mod_cast hH2) (by exact_mod_cast ge_iff_le.mp hH1) (by exact_mod_cast hH3))); simp (disch := omega) only [LeanBridges.Divisibility.mod_intCast] at h; exact_mod_cast h)
         exact hI
 
 end Parley.Proofs.Setmm.RemainderMore.WholePlusSmall

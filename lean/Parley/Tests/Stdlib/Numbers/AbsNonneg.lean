@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.Complex.Order
 public import Mathlib.Basic.Complex.Basic
@@ -29,7 +28,7 @@ namespace Parley.Tests.Stdlib.Numbers.AbsNonneg
 theorem abs_nonneg (x : ℝ) :
     abs x ≥ 0 := by
   -- 1. mun:numbers-abs-nonneg
-  have hI : 0 ≤ abs x := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ))))
+  have hI : 0 ≤ abs x := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (x : ℂ))))
   exact hI
 
 end Parley.Tests.Stdlib.Numbers.AbsNonneg

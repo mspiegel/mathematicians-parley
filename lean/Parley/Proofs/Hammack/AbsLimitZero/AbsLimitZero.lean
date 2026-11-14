@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.Basic
 public import Mathlib.Algebra.Order.Group.Unbundled.Abs
 public import Mathlib.Analysis.Complex.Order
@@ -56,7 +55,7 @@ theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℤ => (
       -- 1.4.2. membership, from H1
       -- 1.4.3. mun:abs-nonneg x := a(n), from 1.4.2
       have s1_4_3 : abs (a n) ≥ 0 := by
-        have hI : 0 ≤ abs (a n) := by parley_instance_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))))
+        have hI : 0 ≤ abs (a n) := by exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (a n : ℂ))))
         exact hI
       -- 1.4.4. mun:abs-real x := a(n), from 1.4.2
       -- 1.4.5. def:abs x := |a(n)|, from 1.4.3, 1.4.4

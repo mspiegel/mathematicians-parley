@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Order.Field.Basic
@@ -53,7 +52,7 @@ theorem sum_formula (n : ℤ) (hH1 : 0 < n) :
       have s1_1 : (S 1 : ℚ) = 1 * (1 + 1) / 2 := by
         calc (S 1 : ℚ) = (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((j : ℚ) : ℚ)) := by simp (disch := omega) only [hD1]; push_cast; norm_num
           _ = 1 := by
-              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((k : ℚ) : ℚ)) = 1 := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ))))
+              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), ((k : ℚ) : ℚ)) = 1 := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ))) (a := (1 : ℤ)))); push_cast at h ⊢; exact h)
               exact hI
           _ = 1 * (1 + 1) / 2 := by norm_num
       (have h := s1_1; push_cast at h ⊢; exact h)

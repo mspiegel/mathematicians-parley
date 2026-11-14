@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.Int.Defs
 public import Mathlib.Algebra.Group.Monoid
@@ -44,7 +43,7 @@ theorem divisors_of_k_divide_k_squared (k : ℤ) :
     intro t hK1
     -- 1.1. def:set-builder, from K1
     have s1_1 : t ∣ k := by
-      have hI : t ∣ k := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by simpa only [Set.mem_ofPred_eq, Set.sep_univ] using hK1)).2)
+      have hI : t ∣ k := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k)) (X := (Set.univ : Set ℤ)) (u := t))).mp (by simpa only [Set.mem_ofPred_eq, Set.sep_univ] using hK1)).2)
       exact hI
     -- 1.2. obtain c: def:divides d := t, n := k, from 1.1
     obtain ⟨c, s1_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k))).mp s1_1
@@ -53,7 +52,7 @@ theorem divisors_of_k_divide_k_squared (k : ℤ) :
     -- 1.4. def:divides d := t, n := k², from 1.1, 1.3
     have s1_4 : t ∣ k ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := t) (n := k ^ 2))).mpr ⟨c * k, s1_3⟩
     -- 1.5. def:set-builder, from 1.1, 1.4
-    have hI : t ∈ {a : ℤ | a ∣ k ^ 2} := by parley_instance (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr ⟨Set.mem_univ _, s1_4⟩)
+    have hI : t ∈ {a : ℤ | a ∣ k ^ 2} := by (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun n : ℤ => n ∣ k ^ 2)) (X := (Set.univ : Set ℤ)) (u := t))).mpr ⟨Set.mem_univ _, s1_4⟩); simp only [Set.mem_univ, true_and] at h; exact h)
     exact hI
   -- 2. def:subset, from 1
   exact ((Parley.Items.Stdlib.Sets.def_subset (X := {n : ℤ | n ∣ k}) (Y := {n : ℤ | n ∣ k ^ 2}))).mpr s1

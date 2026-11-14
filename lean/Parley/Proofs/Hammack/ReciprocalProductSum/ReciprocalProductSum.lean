@@ -1,7 +1,6 @@
 module
 
 public import Functions
-public import InstanceTactics
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Order.Field.Basic
 public import Mathlib.Algebra.Order.Monoid.Unbundled.Basic
@@ -52,7 +51,7 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
       -- 2.1. calculation
       have s2_1 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = 1 - 1 / (1 + 1) := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = 1 / (1 * (1 + 1)) := by
-              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / ((k : ℚ) * ((k : ℚ) + 1)) : ℚ)) = 1 / (1 * (1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ))))
+              have hI : (∑ k ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (1 / ((k : ℚ) * ((k : ℚ) + 1)) : ℚ)) = 1 / (1 * (1 + 1)) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ)))); push_cast at h ⊢; exact h)
               exact hI
           _ = 1 - 1 / (1 + 1) := by norm_num
       (have h := s2_1; push_cast at h ⊢; exact h)
@@ -61,11 +60,11 @@ theorem reciprocal_product_sum (n : ℤ) (hH1 : 0 < n) :
       have r43_1 : k ≥ 1 := by exact lt_of_lt_of_le zero_lt_one hK
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by
         calc (∑ j ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) k, (1 / ((j : ℚ) * ((j : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by
-              have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by parley_instance ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ)) (n := k) r43_1))
+              have hI : (∑ b ∈ Finset.Icc (1 : ℤ) (k + 1), (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) = (∑ b ∈ Finset.Icc (1 : ℤ) k, (1 / ((b : ℚ) * ((b : ℚ) + 1)) : ℚ)) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := by (have h := ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / ((j : ℚ) * ((j : ℚ) + 1)))) (a := (1 : ℤ)) (n := k) r43_1)); push_cast at h ⊢; exact h)
               exact hI
           _ = 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) := congrArg (fun t : ℚ => t + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1))) hIH
           _ = 1 - 1 / ((k : ℚ) + 1 + 1) := by
-              have hI : 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by parley_instance ((Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep.reciprocal_step (m := k + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK) (by norm_num))))
+              have hI : 1 - 1 / ((k : ℚ) + 1) + 1 / (((k : ℚ) + 1) * ((k : ℚ) + 1 + 1)) = 1 - 1 / ((k : ℚ) + 1 + 1) := by (have h := ((Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep.reciprocal_step (m := k + 1) (add_pos (lt_of_lt_of_le zero_lt_one hK) (by norm_num)))); push_cast at h ⊢; exact h)
               exact hI
       (have h := s2_2; push_cast at h ⊢; exact h)
   -- 3. instantiate k := n in line 2

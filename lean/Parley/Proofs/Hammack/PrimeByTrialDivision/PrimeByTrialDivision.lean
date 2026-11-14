@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -54,10 +53,10 @@ theorem prime_by_trial_division (p : ℤ) (hH1 : 0 < p) (hH2 : p > 1) (hH3 : ∀
     have s1_1 : p = d * e := by qify at *; have hz1 : (d : ℚ) ≠ 0 := (by positivity); linear_combination (norm := (field)) (-(d : ℚ)) * hD1
     -- 1.2. mun:not-either P := d = 1, Q := d = p, from S
     have s1_2a : d ≠ 1 := by
-      have hI : d ≠ 1 := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).1)
+      have hI : d ≠ 1 := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).1)
       exact hI
     have s1_2b : d ≠ p := by
-      have hI : d ≠ p := by parley_instance ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).2)
+      have hI : d ≠ p := by exact ((((Parley.Items.Stdlib.Reasoning.mun_not_either (P := d = 1) (Q := d = p))).mp hS).2)
       exact hI
     -- 1.3. inequalities, from K, 1.2
     have s1_3 : 1 < d := Or.elim (Ne.lt_or_gt s1_2a) (fun h1 => by linarith only [hK, h1]) (fun h1 => by linarith only [hK, h1])

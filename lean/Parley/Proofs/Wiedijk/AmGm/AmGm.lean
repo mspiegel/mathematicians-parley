@@ -1,6 +1,5 @@
 module
 
-public import ComplexTactics
 public import Batteries.Tactic.Init
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import Mathlib.Algebra.Group.DivInvMonoid
@@ -30,6 +29,7 @@ public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.NormNum.Pow
 public import Mathlib.Tactic.Positivity
 public import Mathlib.Tactic.Positivity.Basic
+public import Mathlib.Tactic.Positivity.Core
 public import Mathlib.Tactic.Positivity.Finset
 public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring
@@ -70,7 +70,7 @@ theorem am_gm (n : ℤ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
   have s5 : r ^ n.toNat = P := by
     simp only [hD3] at ⊢
     push_cast at ⊢
-    (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) hH1); parley_of_complex h)
+    (have h := (Parley.Items.Stdlib.Numbers.mun_root_power (x := (P : ℂ)) (n := n) hH1); simp (disch := positivity) only [← Complex.ofReal_pow, ← Complex.ofReal_cpow, ← Complex.ofReal_div, ← Complex.ofReal_one, ← Complex.ofReal_intCast] at h; exact_mod_cast h)
   -- 6. contradiction
   have s6 : r ≤ M := by
     by_contra hS

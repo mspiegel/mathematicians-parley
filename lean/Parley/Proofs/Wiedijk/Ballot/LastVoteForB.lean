@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Basic.SetLike.Basic
@@ -63,19 +62,19 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 6.1. def:set-builder u := c, from D3, K1
     have s6_1a : c ∈ {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)} := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ¬ m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (u := c))).mp hK1).1
     have s6_1b : ¬ m + n ∈ c := by
-      have hI : ¬ m + n ∈ c := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ¬ m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (u := c))).mp hK1).2)
+      have hI : ¬ m + n ∈ c := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ¬ m + n ∈ c)) (X := {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} | ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ)}) (u := c))).mp hK1).2)
       exact hI
     -- 6.2. def:set-builder u := c, from D2, 6.1
     have s6_2a : c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m} := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m}) (u := c))).mp s6_1a).1
     have s6_2b : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by
-      have hI : ∀ a : ℤ, a ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) a : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) a : Set ℤ) ∩ c).ncard : ℤ) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m}) (u := c))).mp s6_1a).2)
+      have hI : ∀ a : ℤ, a ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) a : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) a : Set ℤ) ∩ c).ncard : ℤ) := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + n) : Set ℤ) | (d.ncard : ℤ) = m}) (u := c))).mp s6_1a).2)
       exact hI
     -- 6.3. D1, from 6.2
     have s6_3 : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + n) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := s6_2b
     -- 6.4. def:part-builder u := c, from 6.2
     have s6_4a : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mp s6_2a).1
     have s6_4b : (c.ncard : ℤ) = m := by
-      have hI : (c.ncard : ℤ) = m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mp s6_2a).2)
+      have hI : (c.ncard : ℤ) = m := by exact ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := c))).mp s6_2a).2)
       exact hI
     -- 6.5. mun:subset-into-difference, from 6.1, 6.4
     have s6_5 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) \ ({m + n} : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_into_difference (X := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (Y := c) (a := m + n) s6_4a s6_1b)
@@ -87,7 +86,7 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
       have hK2_bounds := Finset.mem_Icc.mp hK2
       -- 6.7.1. mun:in-subset X := {1, …, m + (n − 1)}, Y := {1, …, m + n}, u := i, from K2, 4
       have s6_7_1 : i ∈ Finset.Icc (1 : ℤ) (m + n) := by
-        have hI : i ∈ Finset.Icc (1 : ℤ) (m + n) := by parley_instance ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) s4 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK2)))
+        have hI : i ∈ Finset.Icc (1 : ℤ) (m + n) := by (have h := ((Parley.Items.Stdlib.Sets.mun_in_subset (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Y := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) (u := i) s4 (by simpa only [Finset.mem_Icc, Set.mem_Icc] using hK2))); simp only [Finset.mem_Icc]; exact h)
         exact hI
       -- 6.7.2. instantiate i := i in line 6.3, from 6.7.1
       exact (s6_3 i s6_7_1)
@@ -105,12 +104,12 @@ theorem last_vote_for_b (m : ℤ) (hH1 : 0 < m) (n : ℤ) (hH2 : 0 < n) (hH3 : n
     -- 8.1. def:set-builder u := c, from D2, K3, 1
     have s8_1a : c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) | (d.ncard : ℤ) = m} := by exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) | (d.ncard : ℤ) = m}) (u := c))).mp hK3).1
     have s8_1b : ∀ i : ℤ, i ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ) := by
-      have hI : ∀ a : ℤ, a ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) a : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) a : Set ℤ) ∩ c).ncard : ℤ) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) | (d.ncard : ℤ) = m}) (u := c))).mp hK3).2)
+      have hI : ∀ a : ℤ, a ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) a : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) a : Set ℤ) ∩ c).ncard : ℤ) := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun c : Set ℤ => ∀ i : ℤ, i ∈ Finset.Icc 1 (m + (n - 1)) → (((Set.Icc (1 : ℤ) i : Set ℤ) \ c).ncard : ℤ) < (((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).ncard : ℤ))) (X := {d ∈ 𝒫 (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) | (d.ncard : ℤ) = m}) (u := c))).mp hK3).2)
       exact hI
     -- 8.2. def:part-builder u := c, from 8.1
     have s8_2a : c ⊆ (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ) := by exact (((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (u := c))).mp s8_1a).1
     have s8_2b : (c.ncard : ℤ) = m := by
-      have hI : (c.ncard : ℤ) = m := by parley_instance ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (u := c))).mp s8_1a).2)
+      have hI : (c.ncard : ℤ) = m := by exact ((((Parley.Items.Stdlib.Sets.def_part_builder (P := (fun d : Set ℤ => (d.ncard : ℤ) = m)) (X := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (u := c))).mp s8_1a).2)
       exact hI
     -- 8.3. mun:subset-transitive, from 4, 8.2
     have s8_3 : c ⊆ (Set.Icc (1 : ℤ) (m + n) : Set ℤ) := by exact (Parley.Items.Stdlib.Sets.mun_subset_transitive (X := c) (Y := (Set.Icc (1 : ℤ) (m + (n - 1)) : Set ℤ)) (Z := (Set.Icc (1 : ℤ) (m + n) : Set ℤ)) s8_2a s4)

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -118,7 +117,7 @@ theorem integral_recurrence (n : ℤ) (hH1 : 0 ≤ n) :
   have s15 : (∫ t in 0..1, (f t : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by
     calc (∫ t in 0..1, (f t : ℝ)) = (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) := s14
       _ = 1 / (2 * (n : ℝ) + 1) := by
-          have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by parley_instance ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (mul_nonneg (by norm_num) (hH1))))
+          have hI : (∫ t in 0..1, (t ^ (2 * n).toNat : ℝ)) = 1 / (2 * (n : ℝ) + 1) := by (have h := ((Parley.Proofs.Wiedijk.Leibniz.PowerIntegral.power_integral (m := 2 * n) (mul_nonneg (by norm_num) (hH1)))); push_cast at h ⊢; exact h)
           exact hI
   -- 16. D0, from D3
   have s16 : (∫ t in 0..1, (t ^ (2 * (n + 1)).toNat / (1 + t ^ 2) : ℝ)) = (∫ t in 0..1, (h t : ℝ)) := by simp (disch := omega) only [hD3]

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
 public import Mathlib.Algebra.Order.Field.Basic
@@ -54,7 +53,7 @@ theorem ln_of_geometric_mean (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
   -- 6. calculation
   have s6 : 2 * Real.log (Real.sqrt (x * y)) = Real.log x + Real.log y := by
     calc 2 * Real.log (Real.sqrt (x * y)) = Real.log (Real.sqrt (x * y) ^ 2) := by
-          have hI : Real.log (Real.sqrt (x * y) ^ 2) = 2 * Real.log (Real.sqrt (x * y)) := by parley_instance ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4))
+          have hI : Real.log (Real.sqrt (x * y) ^ 2) = 2 * Real.log (Real.sqrt (x * y)) := by (have h := ((Parley.Items.Stdlib.Logarithms.mun_ln_power (x := Real.sqrt (x * y)) (n := (2 : ℤ)) s4)); push_cast at h ⊢; exact h)
           exact hI.symm
       _ = Real.log (x * y) := congrArg (fun t : ℝ => Real.log t) s5
       _ = Real.log x + Real.log y := by exact (Parley.Items.Stdlib.Logarithms.mun_ln_product (x := x) (y := y) hH3 hH4)

@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Classes.RatCast
 public import Mathlib.Algebra.Group.DivInvMonoid
 public import Mathlib.Algebra.Group.Monoid
@@ -46,7 +45,7 @@ theorem rational_as_irrational_product (r : ℚ) (hH2 : r ≠ 0) :
   -- 3. thm:irrational-product A := √2, B := r/2, from 1
   have r17_1 : r / 2 ≠ 0 := by exact s2
   have s3 : Irrational (Real.sqrt (2 : ℝ) * ((r : ℝ) / 2)) := by
-    have hI : Irrational (Real.sqrt (2 : ℝ) * ((r : ℝ) / 2)) := by parley_instance ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (2 : ℝ)) (B := r / 2) r17_1 s1))
+    have hI : Irrational (Real.sqrt (2 : ℝ) * ((r : ℝ) / 2)) := by (have h := ((Parley.Proofs.Setmm.RationalClosure.IrrationalProduct.irrational_product (A := Real.sqrt (2 : ℝ)) (B := r / 2) r17_1 s1)); push_cast at h ⊢; exact h)
     exact hI
   -- 4. real arithmetic
   have s4 : Real.sqrt (2 : ℝ) * Real.sqrt (2 : ℝ) = 2 := by

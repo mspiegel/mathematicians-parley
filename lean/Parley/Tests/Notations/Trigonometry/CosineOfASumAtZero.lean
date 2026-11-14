@@ -1,6 +1,5 @@
 module
 
-public import ComplexTactics
 public import Mathlib.Analysis.Complex.Trigonometric
 public import Mathlib.Basic.Complex.Basic
 public import Mathlib.Basic.Real.Basic
@@ -28,7 +27,7 @@ namespace Parley.Tests.Notations.Trigonometry.CosineOfASumAtZero
 theorem cosine_of_a_sum_at_zero :
     Real.cos (0 + 0 : ℝ) = 1 := by
   -- 1. thm:cos-add a := 0, b := 0
-  have s1 : Real.cos (0 + 0 : ℝ) = Real.cos (0 : ℝ) * Real.cos (0 : ℝ) - Real.sin (0 : ℝ) * Real.sin (0 : ℝ) := by (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); parley_of_complex h)
+  have s1 : Real.cos (0 + 0 : ℝ) = Real.cos (0 : ℝ) * Real.cos (0 : ℝ) - Real.sin (0 : ℝ) * Real.sin (0 : ℝ) := by (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := (0 : ℂ)) (b := (0 : ℂ))); simp only [← Complex.ofReal_cos, ← Complex.ofReal_sub, ← Complex.ofReal_add, ← Complex.ofReal_mul, ← Complex.ofReal_sin, ← Complex.ofReal_zero] at h; exact_mod_cast h)
   -- 2. mun:cos-zero
   have s2 : Real.cos (0 : ℝ) = 1 := by exact Parley.Items.Stdlib.Trigonometry.mun_cos_zero
   -- 3. mun:sin-zero

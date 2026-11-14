@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import Batteries.Util.ExtendedBinder
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Int.Defs
@@ -72,10 +71,10 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     intro r hK1
     -- 6.1. def:set-builder u := r, from D1, K1
     have s6_1a : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      have hI : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK1).1)
+      have hI : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by (have h := ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK1).1); simp only [Finset.mem_Icc]; exact h)
       exact hI
     have s6_1b : (Int.gcd r n : ℤ) = 1 := by
-      have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK1).2)
+      have hI : (Int.gcd r n : ℤ) = 1 := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK1).2)
       exact hI
     -- 6.2. calculation
     have s6_2 : (Int.gcd (r * a % n) n : ℤ) = 1 := by
@@ -99,17 +98,17 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     intro hK4
     -- 7.1. def:set-builder u := s, from D1, K2
     have s7_1a : s ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      have hI : s ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := s))).mp hK2).1)
+      have hI : s ∈ Finset.Icc (0 : ℤ) (n - 1) := by (have h := ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := s))).mp hK2).1); simp only [Finset.mem_Icc]; exact h)
       exact hI
     have s7_1b : (Int.gcd s n : ℤ) = 1 := by
-      have hI : (Int.gcd s n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := s))).mp hK2).2)
+      have hI : (Int.gcd s n : ℤ) = 1 := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := s))).mp hK2).2)
       exact hI
     -- 7.2. def:set-builder u := t, from D1, K3
     have s7_2a : t ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      have hI : t ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).1)
+      have hI : t ∈ Finset.Icc (0 : ℤ) (n - 1) := by (have h := ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).1); simp only [Finset.mem_Icc]; exact h)
       exact hI
     have s7_2b : (Int.gcd t n : ℤ) = 1 := by
-      have hI : (Int.gcd t n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2)
+      have hI : (Int.gcd t n : ℤ) = 1 := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := t))).mp hK3).2)
       exact hI
     -- 7.3. D2, from K2
     have s7_3 : f s = s * a % n := by simp (disch := omega) only [hD2]
@@ -137,10 +136,10 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
     intro r hK5
     -- 11.1. def:set-builder u := r, from D1, K5
     have s11_1a : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by
-      have hI : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK5).1)
+      have hI : r ∈ Finset.Icc (0 : ℤ) (n - 1) := by (have h := ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK5).1); simp only [Finset.mem_Icc]; exact h)
       exact hI
     have s11_1b : (Int.gcd r n : ℤ) = 1 := by
-      have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK5).2)
+      have hI : (Int.gcd r n : ℤ) = 1 := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp hK5).2)
       exact hI
     -- 11.2. mun:mod-congruent
     have s11_2 : r * a ≡ r * a % n [ZMOD n] := by exact (Parley.Items.Stdlib.Divisibility.mun_mod_congruent (x := r * a) (n := n) hH1)
@@ -170,7 +169,7 @@ theorem euler (n : ℤ) (hH1 : 0 < n) (a : ℤ) (hH3 : (Int.gcd a n : ℤ) = 1) 
   -- 17. def:set-builder u := r, from D1
   have s17 : ∀ r ∈ S, (Int.gcd r n : ℤ) = 1 := by
     intro r h_r
-    have hI : (Int.gcd r n : ℤ) = 1 := by parley_instance ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp h_r).2)
+    have hI : (Int.gcd r n : ℤ) = 1 := by exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => (Int.gcd r n : ℤ) = 1)) (X := (Set.Icc (0 : ℤ) (n - 1) : Set ℤ)) (u := r))).mp h_r).2)
     exact hI
   -- 18. thm:product-coprime, from 4, 5, 17
   have s18 : (Int.gcd (∏ᶠ r ∈ S, (r : ℤ)) n : ℤ) = 1 := by exact (Parley.Items.Stdlib.Divisibility.thm_product_coprime (X := S) s5 s4 (n := n) hH1 s17)

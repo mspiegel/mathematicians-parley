@@ -152,16 +152,16 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Wiedijk/Harmonic/HarmonicBlock.lean",
         step: "14",
-        holds: "by parley_instance (",
+        holds: "push_cast at h ⊢; exact h)",
         list: false,
-        why: "a citation whose item, at its values, the step's lines write otherwise than Lean states it, in one number type: read in the step's spelling, parley_instance",
+        why: "a citation whose item, at its values, casts a compound term the step's lines write pushed down, ((2 ^ (j + 1).toNat : ℤ) : ℚ) beside 2 ^ (j + 1).toNat in ℚ: the casts pushed, then the item (`spelling::casts_pushed`)",
     },
     Site {
         file: "lean/Parley/Tests/Stdlib/Numbers/AbsNonneg.lean",
         step: "1",
-        holds: "by parley_instance_cast (",
+        holds: "by exact_mod_cast ((Parley.Items",
         list: false,
-        why: "an item in ℂ cited at a real, ‖(x : ℂ)‖ beside |x|: read in the step's spelling with its casts lifted out, parley_instance_cast",
+        why: "an item in ℂ cited at a real, ‖(x : ℂ)‖ beside |x|, no form it writes that the step does not: its casts moved to meet the step's, exact_mod_cast",
     },
     Site {
         file: "lean/Parley/Proofs/Wiedijk/PrimeFactorisation/PrimeFactorisation.lean",
@@ -173,9 +173,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Setmm/ChooseOneLess/ChooseOneLess.lean",
         step: "1",
-        holds: "by parley_instance (",
+        holds: "simp only [Int.cast_id, exists_eq_right] at h; exact h)",
         list: false,
-        why: "a definition over any ring taken at ℤ, ∃ m : ℤ, 0 < m ∧ (m : ℤ) = N, beside the writer's 0 < N: read in the step's spelling by parley_spelling's Int.cast_id and exists_eq_right, parley_instance",
+        why: "a definition over any ring taken at ℤ, ∃ m : ℤ, 0 < m ∧ (m : ℤ) = N, beside the writer's 0 < N: read by the two facts that join the forms, Int.cast_id and exists_eq_right (`spelling`)",
     },
     Site {
         file: "lean/Parley/Proofs/Setmm/LimitAddConstant/LimitAddConstant.lean",
@@ -187,9 +187,37 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Tests/Notations/Powers/EToARealPower.lean",
         step: "1",
-        holds: "parley_of_complex h",
+        holds: "simp (disch := positivity) only [← Complex.ofReal_cpow, ← Complex.ofReal_exp] at h; exact_mod_cast h",
         list: false,
-        why: "an item worked in ℂ, e ^ y at (y : ℂ), cited for a claim in ℝ: read down to ℝ, as an instance is",
+        why: "an item worked in ℂ, e ^ y at (y : ℂ), cited for a claim in ℝ: each complex operation read as the real one cast, the power's base shown not below 0 by positivity (`spelling::read_from_complex`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/BinomialDiagonalSumIsFibonacci/BinomialDiagonalSumIsFibonacci.lean",
+        step: "2.3",
+        holds: ":= by exact ((Parley.Items.Stdlib.Sums.mun_sum_single",
+        list: false,
+        why: "an item Lean takes as the step's spelling of it, (fun k => choose (0 - k) k) b beside choose (0 - b) b: the item itself (`forms::one_term_once_set`)",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/BinomialSumWithPowersOfTwo/BinomialSumWithPowersOfTwo.lean",
+        step: "5",
+        holds: "rify; exact_mod_cast h)",
+        list: false,
+        why: "an item in ℝ cited at a step in ℚ alone: the step lifted to ℝ, then the item's casts moved to meet it",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Setmm/RemainderMore/WholePlusSmall.lean",
+        step: "2",
+        holds: "norm_cast at h; simp (disch := omega) only [LeanBridges.Divisibility.mod_intCast] at h; exact_mod_cast h)",
+        list: false,
+        why: "the reals' mod of a sum of casts beside the step's % of integers: the casts lifted out, the mod read as % with its divisor not below 0 by omega, then the casts met",
+    },
+    Site {
+        file: "lean/Parley/Proofs/Hammack/LimitUnique/LimitOrder.lean",
+        step: "3",
+        holds: "simp only [Set.mem_univ, true_implies] at h; exact h)",
+        list: false,
+        why: "an item over a set taken at the whole type, ∀ x ∈ Set.univ beside the step's ∀ x: read by Set.mem_univ and true_implies (`spelling`)",
     },
     Site {
         file: "lean/Parley/Proofs/Hammack/ChooseTwoEven/ChooseTwoFormula.lean",
@@ -250,9 +278,9 @@ const SITES: &[Site] = &[
     Site {
         file: "lean/Parley/Proofs/Hammack/SumOfCubes/SumOfCubes.lean",
         step: "1.1",
-        holds: "by parley_instance (",
+        holds: "push_cast at h ⊢; exact h)",
         list: false,
-        why: "a calculation row citing an item's equation in the row's type, (fun j => (j : ℚ) ^ 3) k beside k ^ 3: the item read in the row's spelling, parley_instance",
+        why: "a calculation row citing an item's equation in the row's type, (fun j => (j : ℚ) ^ 3) 1 beside 1 ^ 3: the numeral the item casts pushed down, then the item (`spelling::casts_pushed`)",
     },
     Site {
         file: "lean/Parley/Proofs/Setmm/EmptySum/EmptySum.lean",

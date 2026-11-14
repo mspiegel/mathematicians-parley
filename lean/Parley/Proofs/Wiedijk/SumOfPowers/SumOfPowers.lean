@@ -1,6 +1,5 @@
 module
 
-public import InstanceTactics
 public import PowerTactics
 public import Mathlib.Algebra.Algebra.Defs
 public import Mathlib.Algebra.Algebra.Hom
@@ -61,7 +60,7 @@ theorem sum_of_powers (k : ℤ) (hH1 : 0 ≤ k) (m : ℤ) (hH2 : 0 ≤ m) :
     -- 1.1. thm:bernoulli-difference n := k + 1, x := n
     have r20_1 : 0 < k + 1 := by exact (Parley.Items.Stdlib.Numbers.mun_nat0_successor (k := k) hH1)
     have s1_1 : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by
-      have hI : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by parley_instance ((Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) r20_1 (x := (n : ℂ))))
+      have hI : Polynomial.aeval ((n : ℂ) + 1) (Polynomial.bernoulli (k + 1).toNat) - Polynomial.aeval (n : ℂ) (Polynomial.bernoulli (k + 1).toNat) = ((k : ℂ) + 1) * (n : ℂ) ^ (k + 1 - 1) := by (have h := ((Parley.Items.Stdlib.Polynomials.thm_bernoulli_difference (n := k + 1) r20_1 (x := (n : ℂ)))); push_cast at h ⊢; exact h)
       exact hI
     -- 1.2. substitute
     have c1 : k + 1 - 1 = k := by ring1
